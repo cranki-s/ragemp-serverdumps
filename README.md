@@ -1,2 +1,2 @@
 # ragemp-serverdumps
-- only Client-Side Scripts
+- only Client-Side JS Scripts
