@@ -1,0 +1,1 @@
+mp.game.ui.displayRadar(true);
