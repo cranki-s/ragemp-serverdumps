@@ -1715,17 +1715,28 @@ var _custom = require("../../shared/custom.event");
 
 var _user = require("./user");
 
+mp.events.add('setKey', key => {
+  CustomEvent.key = key;
+});
+mp.events.add('alerts:load', () => {
+  CustomEvent.triggerCef('setKey', CustomEvent.key);
+});
+
 class CustomEvent extends _custom.CustomEventBase {
+  static encryptEventName(eventName) {
+    return eventName.split('').map(s => (s.charCodeAt(0) ^ CustomEvent.key).toString(16)).join('g');
+  }
+
   static triggerServer(eventName, ...args) {
     mp.console.logInfo(`Trigger ${JSON.stringify(args)}`);
-    mp.events.callRemote('trigger:client', eventName, JSON.stringify(args));
+    mp.events.callRemote('trigger:client', CustomEvent.encryptEventName(eventName), JSON.stringify(args));
   }
 
   static callServer(eventName, ...args) {
     const requestID = CustomEvent.callServerResponse++;
     return new Promise((resolve, reject) => {
       CustomEvent.requestServerHandle.set(requestID, resolve);
-      mp.events.callRemote('call:client', requestID, eventName, JSON.stringify(args));
+      mp.events.callRemote('call:client', requestID, CustomEvent.encryptEventName(eventName), JSON.stringify(args));
     });
   }
 
@@ -1839,14 +1850,14 @@ mp.events.add('call:cef:response', (requestID, res) => {
     if (browser.eventReady) browser.execute(`customevent.callServerResponseHandle(${requestID}, '${JSON.stringify(res)}');`);
   });
 });
-mp.events.add('call:server', (requestID, eventName, ...args) => mp.events.callRemote('call:cef', requestID, eventName, ...args));
+mp.events.add('call:server', (requestID, eventName, ...args) => mp.events.callRemote('call:cef', requestID, CustomEvent.encryptEventName(eventName), ...args));
 mp.events.add('call:clientfromcef', async (requestID, eventName, ...args) => {
   const fnd = await CustomEvent.call(eventName, ...args);
   mp.browsers.forEach(browser => {
     if (browser.eventReady) browser.execute(`customevent.callClientResponseHandle(${requestID}, '${JSON.stringify(fnd)}');`);
   });
 });
-mp.events.add('trigger:server', (name, args) => mp.events.callRemote('trigger:cef', name, args));
+mp.events.add('trigger:server', (name, args) => mp.events.callRemote('trigger:cef', CustomEvent.encryptEventName(name), args));
 mp.events.add('testDebug', () => {
   let max = {
     event: 'none',
@@ -50591,12 +50602,12 @@ const BUSINESS_TYPE_NAMES = ["Банки", "Продажа/Прокат тран
 exports.BUSINESS_TYPE_NAMES = BUSINESS_TYPE_NAMES;
 const BUSINESS_TYPE_CATEGORIES = [_locationCategories.LocationCategoryEnum.Banks, _locationCategories.LocationCategoryEnum.Car_Showroom, _locationCategories.LocationCategoryEnum.Shop_24_7, _locationCategories.LocationCategoryEnum.Refueling, _locationCategories.LocationCategoryEnum.Clothing_Store, _locationCategories.LocationCategoryEnum.Clothing_Store, _locationCategories.LocationCategoryEnum.Los_Santos_Customs, _locationCategories.LocationCategoryEnum.Clubs, _locationCategories.LocationCategoryEnum.Parking, _locationCategories.LocationCategoryEnum.Clothing_Store, _locationCategories.LocationCategoryEnum.Car_Wash];
 exports.BUSINESS_TYPE_CATEGORIES = BUSINESS_TYPE_CATEGORIES;
-const BUSINESS_SUBTYPE_NAMES = [["Pacific Standart Bank", "Maze Bank", "Fleeca Bank", "Blane Bank"], ["Прокат транспорта", "Автосалон", "Автосалон", "Автосалон", "Мотосалон", "Лодочная станция", "Воздушный транспорт", "Автосалон", "Редкий транспорт"], ["Магазин 24/7", "Магазин электроники", "Оружейный магазин", "Аптека", "Магазин сумок и рюкзаков", "Фермерский магазин"], ["Заправка", "Заправка"], _cloth.clothShopNames, ["Тату салон", "Тату салон", "Тату салон", "Тату салон", "Тату салон"], ["Автомастерская", "Чип-тюнинг"], ["Клуб", "Клуб"], ["Парковка", "Парковка"], ["Барбершоп", "Барбершоп", "Барбершоп", "Барбершоп"], ["Автомойка"]];
+const BUSINESS_SUBTYPE_NAMES = [["Pacific Standart Bank", "Maze Bank", "Fleeca Bank", "Blane Bank"], ["Прокат транспорта", "Автосалон", "Автосалон", "Автосалон", "Мотосалон", "Лодочная станция", "Воздушный транспорт", "Автосалон", "Редкий транспорт"], ["Магазин 24/7", "Магазин электроники", "Оружейный магазин", "Аптека", "Магазин сумок и рюкзаков", "Фермерский магазин", "Магазин питомцев"], ["Заправка", "Заправка"], _cloth.clothShopNames, ["Тату салон", "Тату салон", "Тату салон", "Тату салон", "Тату салон"], ["Автомастерская", "Чип-тюнинг"], ["Клуб", "Клуб"], ["Парковка", "Парковка"], ["Барбершоп", "Барбершоп", "Барбершоп", "Барбершоп"], ["Автомойка"]];
 exports.BUSINESS_SUBTYPE_NAMES = BUSINESS_SUBTYPE_NAMES;
 const DAYLY_ADD_MONEY = 2;
 exports.DAYLY_ADD_MONEY = DAYLY_ADD_MONEY;
 const npcBusiness = {
-  ITEM: [['s_m_y_busboy_01', 's_m_m_linecook', 'ig_manuel', 'cs_marnie', 's_f_y_migrant_01', 's_m_m_migrant_01', 'ig_russiandrunk', 'a_m_m_salton_02', 'g_m_y_salvagoon_02', 'mp_m_shopkeep_01', 'a_f_m_soucent_02', 'a_f_y_soucent_02', 's_m_m_strvend_01', 's_f_m_sweatshop_01', 's_f_y_sweatshop_01', 'mp_f_counterfeit_01', 'mp_f_weed_01', 'u_m_y_burgerdrug_01', 'a_m_m_farmer_01', 'a_m_o_genstreet_01', 'cs_jimmyboston', 'ig_oneil'], ['a_m_y_stlat_01', 'u_m_y_baygor', 's_m_y_strvend_01', 'a_m_y_stwhi_02', 'cs_taocheng', 'a_m_y_vinewood_03', 'mp_f_execpa_01', 'ig_andreas', 'a_m_y_bevhills_01', 'a_m_y_bevhills_02', 'mp_f_boatstaff_01', 'u_m_y_burgerdrug_01', 'a_m_y_busicas_01', 'a_f_y_business_02', 'a_m_y_business_02', 'a_f_y_business_04', 'u_m_y_chip', 'csb_imran', 'g_m_y_pologoon_01', 'ig_popov'], ['u_m_y_baygor', 'u_m_y_baygor', 'u_m_o_taphillbilly', 'ig_terry', 'mp_m_weapexp_01', 's_m_y_ammucity_01', 'a_m_m_bevhills_02', 'a_f_y_business_04', 's_m_o_busker_01', 'ig_car3guy1', 'ig_car3guy2', 'csb_chin_goon', 'ig_cletus', 's_m_m_cntrybar_01', 'mp_m_exarmy_01', 'u_m_m_filmdirector', 'ig_josef', 'a_m_o_ktown_01', 'ig_popov', 'ig_russiandrunk'], ['u_m_y_baygor', 'a_m_y_beachvesp_01', 'a_m_y_beachvesp_02', 'a_m_m_bevhills_01', 'a_m_m_bevhills_02', 'a_m_y_bevhills_02', 'mp_f_boatstaff_01', 'a_f_y_business_04', 'a_m_o_genstreet_01', 'ig_jay_norris', 'a_f_o_ktown_01', 'a_f_m_tourist_01', 'mp_f_execpa_01'], ['u_m_y_baygor', 'u_m_y_baygor', 'u_m_o_taphillbilly', 'ig_terry', 'mp_m_weapexp_01', 's_m_y_ammucity_01', 'a_m_m_bevhills_02', 'a_f_y_business_04', 's_m_o_busker_01', 'ig_car3guy1', 'ig_car3guy2', 'csb_chin_goon', 'ig_cletus', 's_m_m_cntrybar_01', 'mp_m_exarmy_01', 'u_m_m_filmdirector', 'ig_josef', 'a_m_o_ktown_01', 'ig_popov', 'ig_russiandrunk'], ['u_m_y_baygor', 'u_m_y_baygor', 'u_m_o_taphillbilly', 'ig_terry', 'mp_m_weapexp_01', 's_m_y_ammucity_01', 'a_m_m_bevhills_02', 'a_f_y_business_04', 's_m_o_busker_01', 'ig_car3guy1', 'ig_car3guy2', 'csb_chin_goon', 'ig_cletus', 's_m_m_cntrybar_01', 'mp_m_exarmy_01', 'u_m_m_filmdirector', 'ig_josef', 'a_m_o_ktown_01', 'ig_popov', 'ig_russiandrunk']],
+  ITEM: [['s_m_y_busboy_01', 's_m_m_linecook', 'ig_manuel', 'cs_marnie', 's_f_y_migrant_01', 's_m_m_migrant_01', 'ig_russiandrunk', 'a_m_m_salton_02', 'g_m_y_salvagoon_02', 'mp_m_shopkeep_01', 'a_f_m_soucent_02', 'a_f_y_soucent_02', 's_m_m_strvend_01', 's_f_m_sweatshop_01', 's_f_y_sweatshop_01', 'mp_f_counterfeit_01', 'mp_f_weed_01', 'u_m_y_burgerdrug_01', 'a_m_m_farmer_01', 'a_m_o_genstreet_01', 'cs_jimmyboston', 'ig_oneil'], ['a_m_y_stlat_01', 'u_m_y_baygor', 's_m_y_strvend_01', 'a_m_y_stwhi_02', 'cs_taocheng', 'a_m_y_vinewood_03', 'mp_f_execpa_01', 'ig_andreas', 'a_m_y_bevhills_01', 'a_m_y_bevhills_02', 'mp_f_boatstaff_01', 'u_m_y_burgerdrug_01', 'a_m_y_busicas_01', 'a_f_y_business_02', 'a_m_y_business_02', 'a_f_y_business_04', 'u_m_y_chip', 'csb_imran', 'g_m_y_pologoon_01', 'ig_popov'], ['u_m_y_baygor', 'u_m_y_baygor', 'u_m_o_taphillbilly', 'ig_terry', 'mp_m_weapexp_01', 's_m_y_ammucity_01', 'a_m_m_bevhills_02', 'a_f_y_business_04', 's_m_o_busker_01', 'ig_car3guy1', 'ig_car3guy2', 'csb_chin_goon', 'ig_cletus', 's_m_m_cntrybar_01', 'mp_m_exarmy_01', 'u_m_m_filmdirector', 'ig_josef', 'a_m_o_ktown_01', 'ig_popov', 'ig_russiandrunk'], ['u_m_y_baygor', 'a_m_y_beachvesp_01', 'a_m_y_beachvesp_02', 'a_m_m_bevhills_01', 'a_m_m_bevhills_02', 'a_m_y_bevhills_02', 'mp_f_boatstaff_01', 'a_f_y_business_04', 'a_m_o_genstreet_01', 'ig_jay_norris', 'a_f_o_ktown_01', 'a_f_m_tourist_01', 'mp_f_execpa_01'], ['u_m_y_baygor', 'u_m_y_baygor', 'u_m_o_taphillbilly', 'ig_terry', 'mp_m_weapexp_01', 's_m_y_ammucity_01', 'a_m_m_bevhills_02', 'a_f_y_business_04', 's_m_o_busker_01', 'ig_car3guy1', 'ig_car3guy2', 'csb_chin_goon', 'ig_cletus', 's_m_m_cntrybar_01', 'mp_m_exarmy_01', 'u_m_m_filmdirector', 'ig_josef', 'a_m_o_ktown_01', 'ig_popov', 'ig_russiandrunk'], ['u_m_y_baygor', 'u_m_y_baygor', 'u_m_o_taphillbilly', 'ig_terry', 'mp_m_weapexp_01', 's_m_y_ammucity_01', 'a_m_m_bevhills_02', 'a_f_y_business_04', 's_m_o_busker_01', 'ig_car3guy1', 'ig_car3guy2', 'csb_chin_goon', 'ig_cletus', 's_m_m_cntrybar_01', 'mp_m_exarmy_01', 'u_m_m_filmdirector', 'ig_josef', 'a_m_o_ktown_01', 'ig_popov', 'ig_russiandrunk'], ['u_m_y_baygor', 'u_m_y_baygor', 'u_m_o_taphillbilly', 'ig_terry', 'mp_m_weapexp_01', 's_m_y_ammucity_01', 'a_m_m_bevhills_02', 'a_f_y_business_04', 's_m_o_busker_01', 'ig_car3guy1', 'ig_car3guy2', 'csb_chin_goon', 'ig_cletus', 's_m_m_cntrybar_01', 'mp_m_exarmy_01', 'u_m_m_filmdirector', 'ig_josef', 'a_m_o_ktown_01', 'ig_popov', 'ig_russiandrunk']],
   DRESS: [['a_f_m_bevhills_01', 'a_m_y_bevhills_01', 'ig_bride', 'a_f_y_business_01', 'csb_customer', 'ig_denise', 'a_m_y_cyclist_01', 'a_f_y_eastsa_01', 'a_f_y_eastsa_03', 'a_f_y_epsilon_01', 'a_m_y_eastsa_02', 'g_m_y_famfor_01', 'cs_jewelass', 'a_m_y_indian_01', 'ig_lamardavis', 'u_f_y_mistress', 'cs_movpremf_01'], ['a_m_y_mexthug_01', 'csb_oscar', 'g_m_y_pologoon_01', 'a_f_o_soucent_01', 'a_m_m_soucent_01', 'g_m_y_strpunk_01', 's_m_y_strvend_01', 'a_m_y_sunbathe_01', 's_f_y_sweatshop_01', 'a_f_y_vinewood_01', 'a_f_y_vinewood_02', 'a_m_y_vinewood_03', 'a_f_y_vinewood_04'], ['g_m_y_ballaeast_01', 'g_m_y_ballaorig_01', 'g_f_y_ballas_01', 'g_m_y_ballasout_01', 'g_m_m_chigoon_02', 'ig_claypain', 'g_m_y_famdnf_01', 'g_f_y_families_01', 'a_f_y_fitness_01', 'ig_g', 's_m_y_grip_01'], ['s_f_y_airhostess_01', 'ig_barry', 'mp_f_boatstaff_01', 'mp_m_boatstaff_01', 'u_f_y_comjane', 'ig_dale', 'u_f_y_jewelass_01', 'u_m_m_jewelthief', 'ig_josh', 'ig_milton', 'cs_movpremmale', 'u_f_y_princess', 'csb_reporter', 'a_f_y_femaleagent'], ['s_f_y_airhostess_01', 'ig_barry', 'mp_f_boatstaff_01', 'mp_m_boatstaff_01', 'u_f_y_comjane', 'ig_dale', 'u_f_y_jewelass_01', 'u_m_m_jewelthief', 'ig_josh', 'ig_milton', 'cs_movpremmale', 'u_f_y_princess', 'csb_reporter', 'a_f_y_femaleagent']],
   TATTOO: [['u_m_y_baygor', 'a_f_y_juggalo_01', 'g_f_y_lost_01', 's_m_y_robber_01', 'ig_benny', 'ig_hao'], ['u_m_y_baygor', 'u_f_y_bikerchic', 'g_m_y_lost_01', 'ig_g', 'a_m_y_gay_01', 'u_m_y_tattoo_01'], ['u_m_y_baygor', 'u_m_y_guido_01', 'ig_ortega', 'cs_jimmyboston', 'a_m_m_soucent_04', 'ig_terry'], ['u_m_y_baygor', 'u_m_y_sbike', 'csb_porndudes', 'ig_stretch', 'g_m_y_strpunk_01'], ['u_m_y_baygor', 'g_f_y_vagos_01', 'a_f_y_vinewood_02', 's_m_y_xmech_02', 'g_m_y_strpunk_02', 's_m_y_strvend_01', 'a_m_m_soucent_04']],
   BAR: [['csb_anita', 's_m_y_barman_01', 'a_m_y_beachvesp_02', 'ig_benny', 'u_f_y_bikerchic', 'mp_f_boatstaff_01', 'a_f_y_business_04', 'ig_car3guy1', 'ig_car3guy2', 'u_m_y_chip', 'ig_dale', 'ig_g', 'u_m_y_gunvend_01', 'csb_imran', 'ig_jewelass', 'u_m_m_jewelthief', 'ig_taocheng', 'mp_f_execpa_01'], ['u_m_m_aldinapoli', 'a_m_y_beachvesp_01', 'ig_benny', 'a_m_m_bevhills_02', 'a_f_y_bevhills_04', 'u_f_y_bikerchic', 'ig_car3guy1', 'ig_car3guy2', 'ig_clay', 'ig_cletus', 's_m_m_cntrybar_01', 'a_m_y_eastsa_02', 'a_m_y_genstreet_01', 'a_m_y_hipster_02', 'csb_hugh', 'ig_jay_norris', 'g_m_y_lost_01', 'u_f_y_mistress', 'g_m_y_pologoon_01', 's_m_y_strvend_01', 'u_m_o_taphillbilly', 'u_m_y_tattoo_01', 'g_f_y_vagos_01', 'a_f_y_vinewood_02', 's_m_y_xmech_02_mp']],
@@ -51486,6 +51497,7 @@ const getItemDesc = item_id => {
 
       for (let type in weapon.addons) {
         const data = weapon.addons[type];
+        if (data.hash.includes('WEAPON_TINT')) continue;
 
         if (data) {
           const itm = inventoryShared.get(data.item_id);
@@ -51735,9 +51747,10 @@ exports.ITEM_TYPE = ITEM_TYPE;
   ITEM_TYPE[ITEM_TYPE["BAGS"] = 13] = "BAGS";
   ITEM_TYPE[ITEM_TYPE["MINING"] = 14] = "MINING";
   ITEM_TYPE[ITEM_TYPE["POTION"] = 15] = "POTION";
+  ITEM_TYPE[ITEM_TYPE["ANIMAL"] = 16] = "ANIMAL";
 })(ITEM_TYPE || (exports.ITEM_TYPE = ITEM_TYPE = {}));
 
-const ITEM_TYPE_ARRAY = ["Напитки", "Еда", "Оружие", "Коробка патронов", "Оружейный магазин", "Наркотики", "Системные", "Медикаменты", "Донат вещи", "Одежда", "Алкоголь", "Прочее", "Модификации оружия", "Сумки и рюкзаки", "Компоненты майнинга"];
+const ITEM_TYPE_ARRAY = ["Напитки", "Еда", "Оружие", "Коробка патронов", "Оружейный магазин", "Наркотики", "Системные", "Медикаменты", "Донат вещи", "Одежда", "Алкоголь", "Прочее", "Модификации оружия", "Сумки и рюкзаки", "Компоненты майнинга", "Зелья", "Животные"];
 exports.ITEM_TYPE_ARRAY = ITEM_TYPE_ARRAY;
 
 const convertInventoryItemObjectToArray = item => {
@@ -52006,7 +52019,7 @@ const itemsList = [{
   prop: "prop_ld_ammo_pack_03",
   default_count: 70,
   need_group: true,
-  defaultCost: 200,
+  defaultCost: 1400,
   canSplit: true
 }, {
   item_id: 151,
@@ -52017,7 +52030,7 @@ const itemsList = [{
   prop: "prop_ld_ammo_pack_03",
   default_count: 70,
   need_group: true,
-  defaultCost: 250,
+  defaultCost: 1750,
   canSplit: true
 }, {
   item_id: 152,
@@ -52028,7 +52041,7 @@ const itemsList = [{
   prop: "prop_box_ammo02a",
   default_count: 30,
   need_group: true,
-  defaultCost: 500,
+  defaultCost: 1850,
   canSplit: true
 }, {
   item_id: 153,
@@ -52039,7 +52052,7 @@ const itemsList = [{
   prop: "prop_ld_ammo_pack_01",
   default_count: 70,
   need_group: true,
-  defaultCost: 150,
+  defaultCost: 1350,
   canSplit: true
 }, {
   item_id: 154,
@@ -52050,7 +52063,7 @@ const itemsList = [{
   prop: "prop_ld_ammo_pack_01",
   default_count: 70,
   need_group: true,
-  defaultCost: 250,
+  defaultCost: 1350,
   canSplit: true
 }, {
   item_id: 155,
@@ -52061,7 +52074,7 @@ const itemsList = [{
   prop: "prop_ld_ammo_pack_01",
   default_count: 70,
   need_group: true,
-  defaultCost: 500,
+  defaultCost: 1200,
   canSplit: true
 }, {
   item_id: 156,
@@ -52489,7 +52502,7 @@ const itemsList = [{
   prop: "w_pi_pistol",
   default_count: 1,
   use: true,
-  defaultCost: 800,
+  defaultCost: 1500,
   attachBody: "SHORT"
 }, {
   item_id: 502,
@@ -52500,7 +52513,7 @@ const itemsList = [{
   prop: "w_pi_pistolmk2",
   default_count: 1,
   use: true,
-  defaultCost: 850,
+  defaultCost: 1600,
   attachBody: "SHORT"
 }, {
   item_id: 503,
@@ -52655,7 +52668,7 @@ const itemsList = [{
   default_count: 1,
   use: true,
   attachBody: "SHORT",
-  defaultCost: 2000
+  defaultCost: 6500
 }, {
   item_id: 517,
   name: "MP5A3",
@@ -52665,7 +52678,7 @@ const itemsList = [{
   prop: "w_sb_smg",
   default_count: 1,
   use: true,
-  defaultCost: 3500,
+  defaultCost: 4500,
   attachBody: "SHORT"
 }, {
   item_id: 518,
@@ -52688,7 +52701,7 @@ const itemsList = [{
   default_count: 1,
   use: true,
   attachBody: "SHORT",
-  defaultCost: 3500
+  defaultCost: 5000
 }, {
   item_id: 520,
   name: "SIG MPX-SD",
@@ -52995,7 +53008,7 @@ const itemsList = [{
   default_count: 1,
   use: true,
   attachBody: "LONG",
-  defaultCost: 15000
+  defaultCost: 100000
 }, {
   item_id: 548,
   name: "M14 EBR",
@@ -54678,6 +54691,424 @@ const itemsList = [{
   use: true,
   protect: true,
   defaultCost: 4800
+}, {
+  item_id: 1603,
+  name: "Зеленый камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 10000
+}, {
+  item_id: 1604,
+  name: "Золотой камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 50000
+}, {
+  item_id: 1605,
+  name: "Розовый камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 40000
+}, {
+  item_id: 1606,
+  name: "Военный камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 15000
+}, {
+  item_id: 1607,
+  name: "LSPD камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 10000
+}, {
+  item_id: 1608,
+  name: "Оранжевый камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 15000
+}, {
+  item_id: 1609,
+  name: "Платиновый камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 45000
+}, {
+  item_id: 1611,
+  name: "Классический серый камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 5000
+}, {
+  item_id: 1612,
+  name: "Классический двухцветный камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 25000
+}, {
+  item_id: 1613,
+  name: "Классический белый камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 30000
+}, {
+  item_id: 1614,
+  name: "Классический бежевый камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 5000
+}, {
+  item_id: 1615,
+  name: "Классический зеленый камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 5000
+}, {
+  item_id: 1616,
+  name: "Классический голубой камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 6000
+}, {
+  item_id: 1617,
+  name: "Классический земляной камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 5000
+}, {
+  item_id: 1618,
+  name: "Классический коричневый камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 5000
+}, {
+  item_id: 1619,
+  name: "Красный контрастный камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 5000
+}, {
+  item_id: 1620,
+  name: "Голубой контрастный камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 7000
+}, {
+  item_id: 1621,
+  name: "Желтый контрастный камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 20000
+}, {
+  item_id: 1622,
+  name: "Оранжевый контрастный камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 12000
+}, {
+  item_id: 1623,
+  name: "Розовый контрастный камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 30000
+}, {
+  item_id: 1624,
+  name: "Фиолетово-желтый камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 60000
+}, {
+  item_id: 1625,
+  name: "Оранжевый камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 50000
+}, {
+  item_id: 1626,
+  name: "Зелено-фиолетовый камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 55000
+}, {
+  item_id: 1627,
+  name: "Черно-красный камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 100000
+}, {
+  item_id: 1628,
+  name: "Черно-зеленый камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 100000
+}, {
+  item_id: 1629,
+  name: "Черно-голубой камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 100000
+}, {
+  item_id: 1630,
+  name: "Черно-желтый камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 100000
+}, {
+  item_id: 1631,
+  name: "Красно-белый камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 100000
+}, {
+  item_id: 1632,
+  name: "Бело-голубой камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 90000
+}, {
+  item_id: 1633,
+  name: "Металлический золотой камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 120000
+}, {
+  item_id: 1634,
+  name: "Металлический платиновый камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 90000
+}, {
+  item_id: 1635,
+  name: "Металлический сиренево-серый камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 35000
+}, {
+  item_id: 1636,
+  name: "Металлический лаймово-фиолетовый камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 90000
+}, {
+  item_id: 1637,
+  name: "Металлический красный камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 85000
+}, {
+  item_id: 1638,
+  name: "Металлический зеленый камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 80000
+}, {
+  item_id: 1639,
+  name: "Металлический голубой камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 100000
+}, {
+  item_id: 1640,
+  name: "Металлический аква белый камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 120000
+}, {
+  item_id: 1641,
+  name: "Металлический красно-желтый камуфляж",
+  type: ITEM_TYPE.WEAPON_ADDON,
+  weight: 0,
+  base_weight: 600,
+  prop: "w_at_sb_barrel_2",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 120000
 }, {
   item_id: 2000,
   name: "Черный рюкзак",
@@ -56546,6 +56977,268 @@ const itemsList = [{
   use: true,
   blockMove: true
 }, {
+  item_id: 6500,
+  name: "Акваланг",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 1000,
+  prop: "prop_cs_heist_bag_01",
+  default_count: 1,
+  defaultCost: 40000,
+  use: true
+}, {
+  item_id: 6501,
+  name: "Кусок пиратской карты 1",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6502,
+  name: "Кусок пиратской карты 2",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6503,
+  name: "Кусок пиратской карты 3",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6504,
+  name: "Кусок пиратской карты 4",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6505,
+  name: "Кусок пиратской карты 5",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6506,
+  name: "Кусок пиратской карты 6",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6507,
+  name: "Кусок карты сокровищ 1",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6508,
+  name: "Кусок карты сокровищ 2",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6509,
+  name: "Кусок карты сокровищ 3",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6510,
+  name: "Кусок карты сокровищ 4",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6511,
+  name: "Кусок карты сокровищ 5",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6512,
+  name: "Кусок карты сокровищ 6",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6513,
+  name: "Кусок карты лоцмана 1",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6514,
+  name: "Кусок карты лоцмана 2",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6515,
+  name: "Кусок карты лоцмана 3",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6516,
+  name: "Кусок карты лоцмана 4",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6517,
+  name: "Кусок карты лоцмана 5",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6518,
+  name: "Кусок карты лоцмана 6",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6519,
+  name: "Золотой зуб",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6520,
+  name: "Золотой самородок",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6521,
+  name: "Серебрянная монета",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6522,
+  name: "Золотая монета",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6523,
+  name: "Перстень",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6524,
+  name: "Изумруд",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6525,
+  name: "Янтарный слиток",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 10,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6526,
+  name: "Пиратская карта",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 100,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6527,
+  name: "Карта сокровищ",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 100,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 6528,
+  name: "Карта лоцмана",
+  type: ITEM_TYPE.SYSTEM,
+  weight: 0,
+  base_weight: 100,
+  prop: "prop_cs_documents_01",
+  default_count: 1,
+  use: true
+}, {
   item_id: 7000,
   name: "Семена картофели",
   type: ITEM_TYPE.OTHER,
@@ -57057,6 +57750,83 @@ const itemsList = [{
   default_count: 1,
   use: true,
   protect: true
+}, {
+  item_id: 15000,
+  name: "Ротвеллер",
+  type: ITEM_TYPE.ANIMAL,
+  weight: 0,
+  base_weight: 5,
+  prop: "xm_prop_x17_bag_01d",
+  default_count: 1,
+  blockMove: true,
+  protect: true,
+  use: true
+}, {
+  item_id: 15001,
+  name: "Хаски",
+  type: ITEM_TYPE.ANIMAL,
+  weight: 0,
+  base_weight: 5,
+  prop: "xm_prop_x17_bag_01d",
+  default_count: 1,
+  blockMove: true,
+  protect: true,
+  use: true
+}, {
+  item_id: 15002,
+  name: "Пудель",
+  type: ITEM_TYPE.ANIMAL,
+  weight: 0,
+  base_weight: 5,
+  prop: "xm_prop_x17_bag_01d",
+  default_count: 1,
+  blockMove: true,
+  protect: true,
+  use: true
+}, {
+  item_id: 15003,
+  name: "Мопс",
+  type: ITEM_TYPE.ANIMAL,
+  weight: 0,
+  base_weight: 5,
+  prop: "xm_prop_x17_bag_01d",
+  default_count: 1,
+  blockMove: true,
+  protect: true,
+  use: true
+}, {
+  item_id: 15004,
+  name: "Шеперд",
+  type: ITEM_TYPE.ANIMAL,
+  weight: 0,
+  base_weight: 5,
+  prop: "xm_prop_x17_bag_01d",
+  default_count: 1,
+  blockMove: true,
+  protect: true,
+  use: true
+}, {
+  item_id: 15005,
+  name: "Болоньез",
+  type: ITEM_TYPE.ANIMAL,
+  weight: 0,
+  base_weight: 5,
+  prop: "xm_prop_x17_bag_01d",
+  default_count: 1,
+  blockMove: true,
+  protect: true,
+  use: true
+}, {
+  item_id: 15006,
+  name: "Золотистый ретривер",
+  type: ITEM_TYPE.ANIMAL,
+  weight: 0,
+  base_weight: 5,
+  prop: "xm_prop_x17_bag_01d",
+  default_count: 1,
+  blockMove: true,
+  protect: true,
+  use: true
 }];
 const AUTO_SOUND_ITEM_ID = 8000;
 exports.AUTO_SOUND_ITEM_ID = AUTO_SOUND_ITEM_ID;
@@ -57072,6 +57842,41 @@ const weapon_list = [{
   ammo_box: 150,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1603,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1604,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1605,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1606,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1607,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1608,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1609,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
     suppressor: {
       item_id: 1100,
       hash: 'COMPONENT_AT_AR_SUPP_02',
@@ -57101,6 +57906,41 @@ const weapon_list = [{
   ammo_box: 153,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1603,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1604,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1605,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1606,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1607,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1608,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1609,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
     suppressor: {
       item_id: 1401,
       hash: 'COMPONENT_AT_PI_SUPP_02',
@@ -57120,6 +57960,161 @@ const weapon_list = [{
   ammo_box: 153,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1611,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1612,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1613,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1614,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1615,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1616,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1617,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
+    tint_8: {
+      item_id: 1618,
+      hash: 'WEAPON_TINT8',
+      group: 6
+    },
+    tint_9: {
+      item_id: 1619,
+      hash: 'WEAPON_TINT9',
+      group: 6
+    },
+    tint_10: {
+      item_id: 1620,
+      hash: 'WEAPON_TINT10',
+      group: 6
+    },
+    tint_11: {
+      item_id: 1621,
+      hash: 'WEAPON_TINT11',
+      group: 6
+    },
+    tint_12: {
+      item_id: 1622,
+      hash: 'WEAPON_TINT12',
+      group: 6
+    },
+    tint_13: {
+      item_id: 1623,
+      hash: 'WEAPON_TINT13',
+      group: 6
+    },
+    tint_14: {
+      item_id: 1624,
+      hash: 'WEAPON_TINT14',
+      group: 6
+    },
+    tint_15: {
+      item_id: 1625,
+      hash: 'WEAPON_TINT15',
+      group: 6
+    },
+    tint_16: {
+      item_id: 1626,
+      hash: 'WEAPON_TINT16',
+      group: 6
+    },
+    tint_17: {
+      item_id: 1627,
+      hash: 'WEAPON_TINT17',
+      group: 6
+    },
+    tint_18: {
+      item_id: 1628,
+      hash: 'WEAPON_TINT18',
+      group: 6
+    },
+    tint_19: {
+      item_id: 1629,
+      hash: 'WEAPON_TINT19',
+      group: 6
+    },
+    tint_20: {
+      item_id: 1630,
+      hash: 'WEAPON_TINT20',
+      group: 6
+    },
+    tint_21: {
+      item_id: 1631,
+      hash: 'WEAPON_TINT21',
+      group: 6
+    },
+    tint_22: {
+      item_id: 1632,
+      hash: 'WEAPON_TINT22',
+      group: 6
+    },
+    tint_23: {
+      item_id: 1633,
+      hash: 'WEAPON_TINT23',
+      group: 6
+    },
+    tint_24: {
+      item_id: 1634,
+      hash: 'WEAPON_TINT24',
+      group: 6
+    },
+    tint_25: {
+      item_id: 1635,
+      hash: 'WEAPON_TINT25',
+      group: 6
+    },
+    tint_26: {
+      item_id: 1636,
+      hash: 'WEAPON_TINT26',
+      group: 6
+    },
+    tint_27: {
+      item_id: 1637,
+      hash: 'WEAPON_TINT27',
+      group: 6
+    },
+    tint_28: {
+      item_id: 1638,
+      hash: 'WEAPON_TINT28',
+      group: 6
+    },
+    tint_29: {
+      item_id: 1639,
+      hash: 'WEAPON_TINT29',
+      group: 6
+    },
+    tint_30: {
+      item_id: 1640,
+      hash: 'WEAPON_TINT30',
+      group: 6
+    },
+    tint_31: {
+      item_id: 1641,
+      hash: 'WEAPON_TINT31',
+      group: 6
+    },
     suppressor: {
       item_id: 1401,
       hash: 'COMPONENT_AT_PI_SUPP_02',
@@ -57149,6 +58144,41 @@ const weapon_list = [{
   ammo_box: 153,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1603,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1604,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1605,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1606,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1607,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1608,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1609,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
     suppressor: {
       item_id: 1401,
       hash: 'COMPONENT_AT_PI_SUPP',
@@ -57168,6 +58198,41 @@ const weapon_list = [{
   ammo_box: 153,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1603,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1604,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1605,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1606,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1607,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1608,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1609,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
     suppressor: {
       item_id: 1401,
       hash: 'COMPONENT_AT_PI_SUPP',
@@ -57187,6 +58252,41 @@ const weapon_list = [{
   ammo_box: 153,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1603,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1604,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1605,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1606,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1607,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1608,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1609,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
     suppressor: {
       item_id: 1401,
       hash: 'COMPONENT_AT_AR_SUPP_02',
@@ -57213,6 +58313,161 @@ const weapon_list = [{
   ammo_box: 153,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1611,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1612,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1613,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1614,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1615,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1616,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1617,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
+    tint_8: {
+      item_id: 1618,
+      hash: 'WEAPON_TINT8',
+      group: 6
+    },
+    tint_9: {
+      item_id: 1619,
+      hash: 'WEAPON_TINT9',
+      group: 6
+    },
+    tint_10: {
+      item_id: 1620,
+      hash: 'WEAPON_TINT10',
+      group: 6
+    },
+    tint_11: {
+      item_id: 1621,
+      hash: 'WEAPON_TINT11',
+      group: 6
+    },
+    tint_12: {
+      item_id: 1622,
+      hash: 'WEAPON_TINT12',
+      group: 6
+    },
+    tint_13: {
+      item_id: 1623,
+      hash: 'WEAPON_TINT13',
+      group: 6
+    },
+    tint_14: {
+      item_id: 1624,
+      hash: 'WEAPON_TINT14',
+      group: 6
+    },
+    tint_15: {
+      item_id: 1625,
+      hash: 'WEAPON_TINT15',
+      group: 6
+    },
+    tint_16: {
+      item_id: 1626,
+      hash: 'WEAPON_TINT16',
+      group: 6
+    },
+    tint_17: {
+      item_id: 1627,
+      hash: 'WEAPON_TINT17',
+      group: 6
+    },
+    tint_18: {
+      item_id: 1628,
+      hash: 'WEAPON_TINT18',
+      group: 6
+    },
+    tint_19: {
+      item_id: 1629,
+      hash: 'WEAPON_TINT19',
+      group: 6
+    },
+    tint_20: {
+      item_id: 1630,
+      hash: 'WEAPON_TINT20',
+      group: 6
+    },
+    tint_21: {
+      item_id: 1631,
+      hash: 'WEAPON_TINT21',
+      group: 6
+    },
+    tint_22: {
+      item_id: 1632,
+      hash: 'WEAPON_TINT22',
+      group: 6
+    },
+    tint_23: {
+      item_id: 1633,
+      hash: 'WEAPON_TINT23',
+      group: 6
+    },
+    tint_24: {
+      item_id: 1634,
+      hash: 'WEAPON_TINT24',
+      group: 6
+    },
+    tint_25: {
+      item_id: 1635,
+      hash: 'WEAPON_TINT25',
+      group: 6
+    },
+    tint_26: {
+      item_id: 1636,
+      hash: 'WEAPON_TINT26',
+      group: 6
+    },
+    tint_27: {
+      item_id: 1637,
+      hash: 'WEAPON_TINT27',
+      group: 6
+    },
+    tint_28: {
+      item_id: 1638,
+      hash: 'WEAPON_TINT28',
+      group: 6
+    },
+    tint_29: {
+      item_id: 1639,
+      hash: 'WEAPON_TINT29',
+      group: 6
+    },
+    tint_30: {
+      item_id: 1640,
+      hash: 'WEAPON_TINT30',
+      group: 6
+    },
+    tint_31: {
+      item_id: 1641,
+      hash: 'WEAPON_TINT31',
+      group: 6
+    },
     suppressor: {
       item_id: 1401,
       hash: 'COMPONENT_AT_PI_SUPP_02',
@@ -57242,6 +58497,41 @@ const weapon_list = [{
   ammo_box: 153,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1603,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1604,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1605,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1606,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1607,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1608,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1609,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
     suppressor: {
       item_id: 1401,
       hash: 'COMPONENT_AT_PI_SUPP',
@@ -57289,6 +58579,161 @@ const weapon_list = [{
   ammo_box: 153,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1611,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1612,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1613,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1614,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1615,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1616,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1617,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
+    tint_8: {
+      item_id: 1618,
+      hash: 'WEAPON_TINT8',
+      group: 6
+    },
+    tint_9: {
+      item_id: 1619,
+      hash: 'WEAPON_TINT9',
+      group: 6
+    },
+    tint_10: {
+      item_id: 1620,
+      hash: 'WEAPON_TINT10',
+      group: 6
+    },
+    tint_11: {
+      item_id: 1621,
+      hash: 'WEAPON_TINT11',
+      group: 6
+    },
+    tint_12: {
+      item_id: 1622,
+      hash: 'WEAPON_TINT12',
+      group: 6
+    },
+    tint_13: {
+      item_id: 1623,
+      hash: 'WEAPON_TINT13',
+      group: 6
+    },
+    tint_14: {
+      item_id: 1624,
+      hash: 'WEAPON_TINT14',
+      group: 6
+    },
+    tint_15: {
+      item_id: 1625,
+      hash: 'WEAPON_TINT15',
+      group: 6
+    },
+    tint_16: {
+      item_id: 1626,
+      hash: 'WEAPON_TINT16',
+      group: 6
+    },
+    tint_17: {
+      item_id: 1627,
+      hash: 'WEAPON_TINT17',
+      group: 6
+    },
+    tint_18: {
+      item_id: 1628,
+      hash: 'WEAPON_TINT18',
+      group: 6
+    },
+    tint_19: {
+      item_id: 1629,
+      hash: 'WEAPON_TINT19',
+      group: 6
+    },
+    tint_20: {
+      item_id: 1630,
+      hash: 'WEAPON_TINT20',
+      group: 6
+    },
+    tint_21: {
+      item_id: 1631,
+      hash: 'WEAPON_TINT21',
+      group: 6
+    },
+    tint_22: {
+      item_id: 1632,
+      hash: 'WEAPON_TINT22',
+      group: 6
+    },
+    tint_23: {
+      item_id: 1633,
+      hash: 'WEAPON_TINT23',
+      group: 6
+    },
+    tint_24: {
+      item_id: 1634,
+      hash: 'WEAPON_TINT24',
+      group: 6
+    },
+    tint_25: {
+      item_id: 1635,
+      hash: 'WEAPON_TINT25',
+      group: 6
+    },
+    tint_26: {
+      item_id: 1636,
+      hash: 'WEAPON_TINT26',
+      group: 6
+    },
+    tint_27: {
+      item_id: 1637,
+      hash: 'WEAPON_TINT27',
+      group: 6
+    },
+    tint_28: {
+      item_id: 1638,
+      hash: 'WEAPON_TINT28',
+      group: 6
+    },
+    tint_29: {
+      item_id: 1639,
+      hash: 'WEAPON_TINT29',
+      group: 6
+    },
+    tint_30: {
+      item_id: 1640,
+      hash: 'WEAPON_TINT30',
+      group: 6
+    },
+    tint_31: {
+      item_id: 1641,
+      hash: 'WEAPON_TINT31',
+      group: 6
+    },
     holographic: {
       item_id: 1008,
       hash: 'COMPONENT_AT_SIGHTS',
@@ -57346,6 +58791,41 @@ const weapon_list = [{
   ammo_box: 153,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1603,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1604,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1605,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1606,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1607,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1608,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1609,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
     suppressor: {
       item_id: 1100,
       hash: 'COMPONENT_AT_AR_SUPP_02',
@@ -57377,6 +58857,161 @@ const weapon_list = [{
   ammo_box: 153,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1611,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1612,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1613,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1614,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1615,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1616,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1617,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
+    tint_8: {
+      item_id: 1618,
+      hash: 'WEAPON_TINT8',
+      group: 6
+    },
+    tint_9: {
+      item_id: 1619,
+      hash: 'WEAPON_TINT9',
+      group: 6
+    },
+    tint_10: {
+      item_id: 1620,
+      hash: 'WEAPON_TINT10',
+      group: 6
+    },
+    tint_11: {
+      item_id: 1621,
+      hash: 'WEAPON_TINT11',
+      group: 6
+    },
+    tint_12: {
+      item_id: 1622,
+      hash: 'WEAPON_TINT12',
+      group: 6
+    },
+    tint_13: {
+      item_id: 1623,
+      hash: 'WEAPON_TINT13',
+      group: 6
+    },
+    tint_14: {
+      item_id: 1624,
+      hash: 'WEAPON_TINT14',
+      group: 6
+    },
+    tint_15: {
+      item_id: 1625,
+      hash: 'WEAPON_TINT15',
+      group: 6
+    },
+    tint_16: {
+      item_id: 1626,
+      hash: 'WEAPON_TINT16',
+      group: 6
+    },
+    tint_17: {
+      item_id: 1627,
+      hash: 'WEAPON_TINT17',
+      group: 6
+    },
+    tint_18: {
+      item_id: 1628,
+      hash: 'WEAPON_TINT18',
+      group: 6
+    },
+    tint_19: {
+      item_id: 1629,
+      hash: 'WEAPON_TINT19',
+      group: 6
+    },
+    tint_20: {
+      item_id: 1630,
+      hash: 'WEAPON_TINT20',
+      group: 6
+    },
+    tint_21: {
+      item_id: 1631,
+      hash: 'WEAPON_TINT21',
+      group: 6
+    },
+    tint_22: {
+      item_id: 1632,
+      hash: 'WEAPON_TINT22',
+      group: 6
+    },
+    tint_23: {
+      item_id: 1633,
+      hash: 'WEAPON_TINT23',
+      group: 6
+    },
+    tint_24: {
+      item_id: 1634,
+      hash: 'WEAPON_TINT24',
+      group: 6
+    },
+    tint_25: {
+      item_id: 1635,
+      hash: 'WEAPON_TINT25',
+      group: 6
+    },
+    tint_26: {
+      item_id: 1636,
+      hash: 'WEAPON_TINT26',
+      group: 6
+    },
+    tint_27: {
+      item_id: 1637,
+      hash: 'WEAPON_TINT27',
+      group: 6
+    },
+    tint_28: {
+      item_id: 1638,
+      hash: 'WEAPON_TINT28',
+      group: 6
+    },
+    tint_29: {
+      item_id: 1639,
+      hash: 'WEAPON_TINT29',
+      group: 6
+    },
+    tint_30: {
+      item_id: 1640,
+      hash: 'WEAPON_TINT30',
+      group: 6
+    },
+    tint_31: {
+      item_id: 1641,
+      hash: 'WEAPON_TINT31',
+      group: 6
+    },
     suppressor: {
       item_id: 1401,
       hash: 'COMPONENT_AT_PI_SUPP',
@@ -57451,6 +59086,41 @@ const weapon_list = [{
   ammo_box: 153,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1603,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1604,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1605,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1606,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1607,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1608,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1609,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
     suppressor: {
       item_id: 1100,
       hash: 'COMPONENT_AT_AR_SUPP_02',
@@ -57475,6 +59145,41 @@ const weapon_list = [{
   ammo_box: 153,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1603,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1604,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1605,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1606,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1607,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1608,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1609,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
     grip: {
       item_id: 1101,
       hash: 'COMPONENT_AT_AR_AFGRIP',
@@ -57520,6 +59225,41 @@ const weapon_list = [{
   ammo_box: 154,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1603,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1604,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1605,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1606,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1607,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1608,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1609,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
     suppressor: {
       item_id: 1301,
       hash: 'COMPONENT_AT_SR_SUPP',
@@ -57539,6 +59279,161 @@ const weapon_list = [{
   ammo_box: 154,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1611,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1612,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1613,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1614,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1615,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1616,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1617,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
+    tint_8: {
+      item_id: 1618,
+      hash: 'WEAPON_TINT8',
+      group: 6
+    },
+    tint_9: {
+      item_id: 1619,
+      hash: 'WEAPON_TINT9',
+      group: 6
+    },
+    tint_10: {
+      item_id: 1620,
+      hash: 'WEAPON_TINT10',
+      group: 6
+    },
+    tint_11: {
+      item_id: 1621,
+      hash: 'WEAPON_TINT11',
+      group: 6
+    },
+    tint_12: {
+      item_id: 1622,
+      hash: 'WEAPON_TINT12',
+      group: 6
+    },
+    tint_13: {
+      item_id: 1623,
+      hash: 'WEAPON_TINT13',
+      group: 6
+    },
+    tint_14: {
+      item_id: 1624,
+      hash: 'WEAPON_TINT14',
+      group: 6
+    },
+    tint_15: {
+      item_id: 1625,
+      hash: 'WEAPON_TINT15',
+      group: 6
+    },
+    tint_16: {
+      item_id: 1626,
+      hash: 'WEAPON_TINT16',
+      group: 6
+    },
+    tint_17: {
+      item_id: 1627,
+      hash: 'WEAPON_TINT17',
+      group: 6
+    },
+    tint_18: {
+      item_id: 1628,
+      hash: 'WEAPON_TINT18',
+      group: 6
+    },
+    tint_19: {
+      item_id: 1629,
+      hash: 'WEAPON_TINT19',
+      group: 6
+    },
+    tint_20: {
+      item_id: 1630,
+      hash: 'WEAPON_TINT20',
+      group: 6
+    },
+    tint_21: {
+      item_id: 1631,
+      hash: 'WEAPON_TINT21',
+      group: 6
+    },
+    tint_22: {
+      item_id: 1632,
+      hash: 'WEAPON_TINT22',
+      group: 6
+    },
+    tint_23: {
+      item_id: 1633,
+      hash: 'WEAPON_TINT23',
+      group: 6
+    },
+    tint_24: {
+      item_id: 1634,
+      hash: 'WEAPON_TINT24',
+      group: 6
+    },
+    tint_25: {
+      item_id: 1635,
+      hash: 'WEAPON_TINT25',
+      group: 6
+    },
+    tint_26: {
+      item_id: 1636,
+      hash: 'WEAPON_TINT26',
+      group: 6
+    },
+    tint_27: {
+      item_id: 1637,
+      hash: 'WEAPON_TINT27',
+      group: 6
+    },
+    tint_28: {
+      item_id: 1638,
+      hash: 'WEAPON_TINT28',
+      group: 6
+    },
+    tint_29: {
+      item_id: 1639,
+      hash: 'WEAPON_TINT29',
+      group: 6
+    },
+    tint_30: {
+      item_id: 1640,
+      hash: 'WEAPON_TINT30',
+      group: 6
+    },
+    tint_31: {
+      item_id: 1641,
+      hash: 'WEAPON_TINT31',
+      group: 6
+    },
     holographic: {
       item_id: 1008,
       hash: 'COMPONENT_AT_SIGHTS',
@@ -57585,6 +59480,41 @@ const weapon_list = [{
   ammo_box: 154,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1603,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1604,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1605,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1606,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1607,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1608,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1609,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
     flashlight: {
       item_id: 1102,
       hash: 'COMPONENT_AT_AR_FLSH',
@@ -57609,6 +59539,41 @@ const weapon_list = [{
   ammo_box: 154,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1603,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1604,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1605,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1606,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1607,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1608,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1609,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
     flashlight: {
       item_id: 1102,
       hash: 'COMPONENT_AT_AR_FLSH',
@@ -57640,6 +59605,41 @@ const weapon_list = [{
   ammo_box: 154,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1603,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1604,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1605,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1606,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1607,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1608,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1609,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
     flashlight: {
       item_id: 1102,
       hash: 'COMPONENT_AT_AR_FLSH',
@@ -57757,6 +59757,41 @@ const weapon_list = [{
   ammo_box: 151,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1603,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1604,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1605,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1606,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1607,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1608,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1609,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
     grip: {
       item_id: 1101,
       hash: 'COMPONENT_AT_AR_AFGRIP',
@@ -57786,6 +59821,161 @@ const weapon_list = [{
   ammo_box: 151,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1611,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1612,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1613,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1614,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1615,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1616,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1617,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
+    tint_8: {
+      item_id: 1618,
+      hash: 'WEAPON_TINT8',
+      group: 6
+    },
+    tint_9: {
+      item_id: 1619,
+      hash: 'WEAPON_TINT9',
+      group: 6
+    },
+    tint_10: {
+      item_id: 1620,
+      hash: 'WEAPON_TINT10',
+      group: 6
+    },
+    tint_11: {
+      item_id: 1621,
+      hash: 'WEAPON_TINT11',
+      group: 6
+    },
+    tint_12: {
+      item_id: 1622,
+      hash: 'WEAPON_TINT12',
+      group: 6
+    },
+    tint_13: {
+      item_id: 1623,
+      hash: 'WEAPON_TINT13',
+      group: 6
+    },
+    tint_14: {
+      item_id: 1624,
+      hash: 'WEAPON_TINT14',
+      group: 6
+    },
+    tint_15: {
+      item_id: 1625,
+      hash: 'WEAPON_TINT15',
+      group: 6
+    },
+    tint_16: {
+      item_id: 1626,
+      hash: 'WEAPON_TINT16',
+      group: 6
+    },
+    tint_17: {
+      item_id: 1627,
+      hash: 'WEAPON_TINT17',
+      group: 6
+    },
+    tint_18: {
+      item_id: 1628,
+      hash: 'WEAPON_TINT18',
+      group: 6
+    },
+    tint_19: {
+      item_id: 1629,
+      hash: 'WEAPON_TINT19',
+      group: 6
+    },
+    tint_20: {
+      item_id: 1630,
+      hash: 'WEAPON_TINT20',
+      group: 6
+    },
+    tint_21: {
+      item_id: 1631,
+      hash: 'WEAPON_TINT21',
+      group: 6
+    },
+    tint_22: {
+      item_id: 1632,
+      hash: 'WEAPON_TINT22',
+      group: 6
+    },
+    tint_23: {
+      item_id: 1633,
+      hash: 'WEAPON_TINT23',
+      group: 6
+    },
+    tint_24: {
+      item_id: 1634,
+      hash: 'WEAPON_TINT24',
+      group: 6
+    },
+    tint_25: {
+      item_id: 1635,
+      hash: 'WEAPON_TINT25',
+      group: 6
+    },
+    tint_26: {
+      item_id: 1636,
+      hash: 'WEAPON_TINT26',
+      group: 6
+    },
+    tint_27: {
+      item_id: 1637,
+      hash: 'WEAPON_TINT27',
+      group: 6
+    },
+    tint_28: {
+      item_id: 1638,
+      hash: 'WEAPON_TINT28',
+      group: 6
+    },
+    tint_29: {
+      item_id: 1639,
+      hash: 'WEAPON_TINT29',
+      group: 6
+    },
+    tint_30: {
+      item_id: 1640,
+      hash: 'WEAPON_TINT30',
+      group: 6
+    },
+    tint_31: {
+      item_id: 1641,
+      hash: 'WEAPON_TINT31',
+      group: 6
+    },
     barrel_heavy: {
       item_id: 1601,
       hash: 'COMPONENT_AT_CR_BARREL_02',
@@ -57865,8 +60055,43 @@ const weapon_list = [{
   ammo_box: 151,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1603,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1604,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1605,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1606,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1607,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1608,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1609,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
     small: {
-      item_id: 1104,
+      item_id: 1004,
       hash: 'COMPONENT_AT_SCOPE_SMALL',
       group: 4
     },
@@ -57889,8 +60114,43 @@ const weapon_list = [{
   ammo_box: 151,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1603,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1604,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1605,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1606,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1607,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1608,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1609,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
     small: {
-      item_id: 1105,
+      item_id: 1005,
       hash: 'COMPONENT_AT_SCOPE_MEDIUM',
       group: 4
     },
@@ -57918,6 +60178,161 @@ const weapon_list = [{
   ammo_box: 151,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1611,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1612,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1613,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1614,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1615,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1616,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1617,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
+    tint_8: {
+      item_id: 1618,
+      hash: 'WEAPON_TINT8',
+      group: 6
+    },
+    tint_9: {
+      item_id: 1619,
+      hash: 'WEAPON_TINT9',
+      group: 6
+    },
+    tint_10: {
+      item_id: 1620,
+      hash: 'WEAPON_TINT10',
+      group: 6
+    },
+    tint_11: {
+      item_id: 1621,
+      hash: 'WEAPON_TINT11',
+      group: 6
+    },
+    tint_12: {
+      item_id: 1622,
+      hash: 'WEAPON_TINT12',
+      group: 6
+    },
+    tint_13: {
+      item_id: 1623,
+      hash: 'WEAPON_TINT13',
+      group: 6
+    },
+    tint_14: {
+      item_id: 1624,
+      hash: 'WEAPON_TINT14',
+      group: 6
+    },
+    tint_15: {
+      item_id: 1625,
+      hash: 'WEAPON_TINT15',
+      group: 6
+    },
+    tint_16: {
+      item_id: 1626,
+      hash: 'WEAPON_TINT16',
+      group: 6
+    },
+    tint_17: {
+      item_id: 1627,
+      hash: 'WEAPON_TINT17',
+      group: 6
+    },
+    tint_18: {
+      item_id: 1628,
+      hash: 'WEAPON_TINT18',
+      group: 6
+    },
+    tint_19: {
+      item_id: 1629,
+      hash: 'WEAPON_TINT19',
+      group: 6
+    },
+    tint_20: {
+      item_id: 1630,
+      hash: 'WEAPON_TINT20',
+      group: 6
+    },
+    tint_21: {
+      item_id: 1631,
+      hash: 'WEAPON_TINT21',
+      group: 6
+    },
+    tint_22: {
+      item_id: 1632,
+      hash: 'WEAPON_TINT22',
+      group: 6
+    },
+    tint_23: {
+      item_id: 1633,
+      hash: 'WEAPON_TINT23',
+      group: 6
+    },
+    tint_24: {
+      item_id: 1634,
+      hash: 'WEAPON_TINT24',
+      group: 6
+    },
+    tint_25: {
+      item_id: 1635,
+      hash: 'WEAPON_TINT25',
+      group: 6
+    },
+    tint_26: {
+      item_id: 1636,
+      hash: 'WEAPON_TINT26',
+      group: 6
+    },
+    tint_27: {
+      item_id: 1637,
+      hash: 'WEAPON_TINT27',
+      group: 6
+    },
+    tint_28: {
+      item_id: 1638,
+      hash: 'WEAPON_TINT28',
+      group: 6
+    },
+    tint_29: {
+      item_id: 1639,
+      hash: 'WEAPON_TINT29',
+      group: 6
+    },
+    tint_30: {
+      item_id: 1640,
+      hash: 'WEAPON_TINT30',
+      group: 6
+    },
+    tint_31: {
+      item_id: 1641,
+      hash: 'WEAPON_TINT31',
+      group: 6
+    },
     barrel_heavy: {
       item_id: 1601,
       hash: 'COMPONENT_AT_SC_BARREL_02',
@@ -57997,8 +60412,43 @@ const weapon_list = [{
   ammo_box: 151,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1603,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1604,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1605,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1606,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1607,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1608,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1609,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
     small: {
-      item_id: 1104,
+      item_id: 1004,
       hash: 'COMPONENT_AT_SCOPE_SMALL',
       group: 4
     },
@@ -58026,6 +60476,161 @@ const weapon_list = [{
   ammo_box: 151,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1611,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1612,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1613,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1614,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1615,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1616,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1617,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
+    tint_8: {
+      item_id: 1618,
+      hash: 'WEAPON_TINT8',
+      group: 6
+    },
+    tint_9: {
+      item_id: 1619,
+      hash: 'WEAPON_TINT9',
+      group: 6
+    },
+    tint_10: {
+      item_id: 1620,
+      hash: 'WEAPON_TINT10',
+      group: 6
+    },
+    tint_11: {
+      item_id: 1621,
+      hash: 'WEAPON_TINT11',
+      group: 6
+    },
+    tint_12: {
+      item_id: 1622,
+      hash: 'WEAPON_TINT12',
+      group: 6
+    },
+    tint_13: {
+      item_id: 1623,
+      hash: 'WEAPON_TINT13',
+      group: 6
+    },
+    tint_14: {
+      item_id: 1624,
+      hash: 'WEAPON_TINT14',
+      group: 6
+    },
+    tint_15: {
+      item_id: 1625,
+      hash: 'WEAPON_TINT15',
+      group: 6
+    },
+    tint_16: {
+      item_id: 1626,
+      hash: 'WEAPON_TINT16',
+      group: 6
+    },
+    tint_17: {
+      item_id: 1627,
+      hash: 'WEAPON_TINT17',
+      group: 6
+    },
+    tint_18: {
+      item_id: 1628,
+      hash: 'WEAPON_TINT18',
+      group: 6
+    },
+    tint_19: {
+      item_id: 1629,
+      hash: 'WEAPON_TINT19',
+      group: 6
+    },
+    tint_20: {
+      item_id: 1630,
+      hash: 'WEAPON_TINT20',
+      group: 6
+    },
+    tint_21: {
+      item_id: 1631,
+      hash: 'WEAPON_TINT21',
+      group: 6
+    },
+    tint_22: {
+      item_id: 1632,
+      hash: 'WEAPON_TINT22',
+      group: 6
+    },
+    tint_23: {
+      item_id: 1633,
+      hash: 'WEAPON_TINT23',
+      group: 6
+    },
+    tint_24: {
+      item_id: 1634,
+      hash: 'WEAPON_TINT24',
+      group: 6
+    },
+    tint_25: {
+      item_id: 1635,
+      hash: 'WEAPON_TINT25',
+      group: 6
+    },
+    tint_26: {
+      item_id: 1636,
+      hash: 'WEAPON_TINT26',
+      group: 6
+    },
+    tint_27: {
+      item_id: 1637,
+      hash: 'WEAPON_TINT27',
+      group: 6
+    },
+    tint_28: {
+      item_id: 1638,
+      hash: 'WEAPON_TINT28',
+      group: 6
+    },
+    tint_29: {
+      item_id: 1639,
+      hash: 'WEAPON_TINT29',
+      group: 6
+    },
+    tint_30: {
+      item_id: 1640,
+      hash: 'WEAPON_TINT30',
+      group: 6
+    },
+    tint_31: {
+      item_id: 1641,
+      hash: 'WEAPON_TINT31',
+      group: 6
+    },
     barrel_heavy: {
       item_id: 1601,
       hash: 'COMPONENT_AT_BP_BARREL_02',
@@ -58161,6 +60766,161 @@ const weapon_list = [{
   ammo_box: 152,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1611,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1612,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1613,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1614,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1615,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1616,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1617,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
+    tint_8: {
+      item_id: 1618,
+      hash: 'WEAPON_TINT8',
+      group: 6
+    },
+    tint_9: {
+      item_id: 1619,
+      hash: 'WEAPON_TINT9',
+      group: 6
+    },
+    tint_10: {
+      item_id: 1620,
+      hash: 'WEAPON_TINT10',
+      group: 6
+    },
+    tint_11: {
+      item_id: 1621,
+      hash: 'WEAPON_TINT11',
+      group: 6
+    },
+    tint_12: {
+      item_id: 1622,
+      hash: 'WEAPON_TINT12',
+      group: 6
+    },
+    tint_13: {
+      item_id: 1623,
+      hash: 'WEAPON_TINT13',
+      group: 6
+    },
+    tint_14: {
+      item_id: 1624,
+      hash: 'WEAPON_TINT14',
+      group: 6
+    },
+    tint_15: {
+      item_id: 1625,
+      hash: 'WEAPON_TINT15',
+      group: 6
+    },
+    tint_16: {
+      item_id: 1626,
+      hash: 'WEAPON_TINT16',
+      group: 6
+    },
+    tint_17: {
+      item_id: 1627,
+      hash: 'WEAPON_TINT17',
+      group: 6
+    },
+    tint_18: {
+      item_id: 1628,
+      hash: 'WEAPON_TINT18',
+      group: 6
+    },
+    tint_19: {
+      item_id: 1629,
+      hash: 'WEAPON_TINT19',
+      group: 6
+    },
+    tint_20: {
+      item_id: 1630,
+      hash: 'WEAPON_TINT20',
+      group: 6
+    },
+    tint_21: {
+      item_id: 1631,
+      hash: 'WEAPON_TINT21',
+      group: 6
+    },
+    tint_22: {
+      item_id: 1632,
+      hash: 'WEAPON_TINT22',
+      group: 6
+    },
+    tint_23: {
+      item_id: 1633,
+      hash: 'WEAPON_TINT23',
+      group: 6
+    },
+    tint_24: {
+      item_id: 1634,
+      hash: 'WEAPON_TINT24',
+      group: 6
+    },
+    tint_25: {
+      item_id: 1635,
+      hash: 'WEAPON_TINT25',
+      group: 6
+    },
+    tint_26: {
+      item_id: 1636,
+      hash: 'WEAPON_TINT26',
+      group: 6
+    },
+    tint_27: {
+      item_id: 1637,
+      hash: 'WEAPON_TINT27',
+      group: 6
+    },
+    tint_28: {
+      item_id: 1638,
+      hash: 'WEAPON_TINT28',
+      group: 6
+    },
+    tint_29: {
+      item_id: 1639,
+      hash: 'WEAPON_TINT29',
+      group: 6
+    },
+    tint_30: {
+      item_id: 1640,
+      hash: 'WEAPON_TINT30',
+      group: 6
+    },
+    tint_31: {
+      item_id: 1641,
+      hash: 'WEAPON_TINT31',
+      group: 6
+    },
     suppressor: {
       item_id: 1301,
       hash: 'COMPONENT_AT_SR_SUPP_03',
@@ -58210,6 +60970,41 @@ const weapon_list = [{
   ammo_box: 152,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1603,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1604,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1605,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1606,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1607,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1608,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1609,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
     suppressor: {
       item_id: 1301,
       hash: 'COMPONENT_AT_AR_SUPP',
@@ -58234,6 +61029,161 @@ const weapon_list = [{
   ammo_box: 152,
   need_license: true,
   addons: {
+    tint_1: {
+      item_id: 1611,
+      hash: 'WEAPON_TINT1',
+      group: 6
+    },
+    tint_2: {
+      item_id: 1612,
+      hash: 'WEAPON_TINT2',
+      group: 6
+    },
+    tint_3: {
+      item_id: 1613,
+      hash: 'WEAPON_TINT3',
+      group: 6
+    },
+    tint_4: {
+      item_id: 1614,
+      hash: 'WEAPON_TINT4',
+      group: 6
+    },
+    tint_5: {
+      item_id: 1615,
+      hash: 'WEAPON_TINT5',
+      group: 6
+    },
+    tint_6: {
+      item_id: 1616,
+      hash: 'WEAPON_TINT6',
+      group: 6
+    },
+    tint_7: {
+      item_id: 1617,
+      hash: 'WEAPON_TINT7',
+      group: 6
+    },
+    tint_8: {
+      item_id: 1618,
+      hash: 'WEAPON_TINT8',
+      group: 6
+    },
+    tint_9: {
+      item_id: 1619,
+      hash: 'WEAPON_TINT9',
+      group: 6
+    },
+    tint_10: {
+      item_id: 1620,
+      hash: 'WEAPON_TINT10',
+      group: 6
+    },
+    tint_11: {
+      item_id: 1621,
+      hash: 'WEAPON_TINT11',
+      group: 6
+    },
+    tint_12: {
+      item_id: 1622,
+      hash: 'WEAPON_TINT12',
+      group: 6
+    },
+    tint_13: {
+      item_id: 1623,
+      hash: 'WEAPON_TINT13',
+      group: 6
+    },
+    tint_14: {
+      item_id: 1624,
+      hash: 'WEAPON_TINT14',
+      group: 6
+    },
+    tint_15: {
+      item_id: 1625,
+      hash: 'WEAPON_TINT15',
+      group: 6
+    },
+    tint_16: {
+      item_id: 1626,
+      hash: 'WEAPON_TINT16',
+      group: 6
+    },
+    tint_17: {
+      item_id: 1627,
+      hash: 'WEAPON_TINT17',
+      group: 6
+    },
+    tint_18: {
+      item_id: 1628,
+      hash: 'WEAPON_TINT18',
+      group: 6
+    },
+    tint_19: {
+      item_id: 1629,
+      hash: 'WEAPON_TINT19',
+      group: 6
+    },
+    tint_20: {
+      item_id: 1630,
+      hash: 'WEAPON_TINT20',
+      group: 6
+    },
+    tint_21: {
+      item_id: 1631,
+      hash: 'WEAPON_TINT21',
+      group: 6
+    },
+    tint_22: {
+      item_id: 1632,
+      hash: 'WEAPON_TINT22',
+      group: 6
+    },
+    tint_23: {
+      item_id: 1633,
+      hash: 'WEAPON_TINT23',
+      group: 6
+    },
+    tint_24: {
+      item_id: 1634,
+      hash: 'WEAPON_TINT24',
+      group: 6
+    },
+    tint_25: {
+      item_id: 1635,
+      hash: 'WEAPON_TINT25',
+      group: 6
+    },
+    tint_26: {
+      item_id: 1636,
+      hash: 'WEAPON_TINT26',
+      group: 6
+    },
+    tint_27: {
+      item_id: 1637,
+      hash: 'WEAPON_TINT27',
+      group: 6
+    },
+    tint_28: {
+      item_id: 1638,
+      hash: 'WEAPON_TINT28',
+      group: 6
+    },
+    tint_29: {
+      item_id: 1639,
+      hash: 'WEAPON_TINT29',
+      group: 6
+    },
+    tint_30: {
+      item_id: 1640,
+      hash: 'WEAPON_TINT30',
+      group: 6
+    },
+    tint_31: {
+      item_id: 1641,
+      hash: 'WEAPON_TINT31',
+      group: 6
+    },
     suppressor: {
       item_id: 1301,
       hash: 'COMPONENT_AT_AR_SUPP',
@@ -59957,6 +62907,11 @@ const safeZones = [{
   x: 1661.92,
   y: 3660.42,
   z: 36.84,
+  r: 40
+}, {
+  x: 263.59,
+  y: -1353.16,
+  z: 24.54,
   r: 40
 }, {
   x: 1791.33,
@@ -64516,16 +67471,21 @@ class AttachSystem {
       if (typeof data !== "string") {
         data.map(async q => {
           if (typeof q === "string") return;
-          const model = mp.game.weapon.getWeaponComponentTypeModel(q);
-          if (!model) return mp.console.logError('model incorrect');
 
-          if (!mp.game.streaming.hasModelLoaded(model)) {
-            mp.game.streaming.requestModel(model);
+          if (q <= 32) {
+            mp.game.invoke(_system.system.natives.SET_WEAPON_OBJECT_TINT_INDEX, object, q);
+          } else {
+            const model = mp.game.weapon.getWeaponComponentTypeModel(q);
+            if (!model) return mp.console.logError('model incorrect');
 
-            while (!mp.game.streaming.hasModelLoaded(model)) await _system.system.sleep(10);
+            if (!mp.game.streaming.hasModelLoaded(model)) {
+              mp.game.streaming.requestModel(model);
+
+              while (!mp.game.streaming.hasModelLoaded(model)) await _system.system.sleep(10);
+            }
+
+            mp.game.weapon.giveWeaponComponentToWeaponObject(object, q);
           }
-
-          mp.game.weapon.giveWeaponComponentToWeaponObject(object, q);
         });
       }
 
@@ -65838,13 +68798,15 @@ setInterval(() => {
   player.setSuffersCriticalHits(false);
 }, 300);
 mp.events.add('render', () => {
+  var _vehicles, _players;
+
   if (player.dimension) return;
-  vehicles.map(veh => {
+  (_vehicles = vehicles) === null || _vehicles === void 0 ? void 0 : _vehicles.map(veh => {
     if (!mp.vehicles.exists(veh) || !veh.handle) return;
     mp.game.invoke('0xA53ED5520C07654A', player.handle, veh.handle, true);
     mp.game.invoke('0xA53ED5520C07654A', veh.handle, player.handle, true);
   });
-  players.map(player => {
+  (_players = players) === null || _players === void 0 ? void 0 : _players.map(player => {
     if (!mp.players.exists(player) || !player.handle) return;
     vehicles.map(veh => {
       if (!mp.vehicles.exists(veh) || !veh.handle) return;
@@ -67464,7 +70426,7 @@ const LSC_VEHICLE_POS = {
   h: 0
 };
 exports.LSC_VEHICLE_POS = LSC_VEHICLE_POS;
-const LSC_PROFIT_PERCENT = 5;
+const LSC_PROFIT_PERCENT = 15;
 exports.LSC_PROFIT_PERCENT = LSC_PROFIT_PERCENT;
 const LSC_COLOR_MODS = [{
   name: "Нет доп. цвета",
@@ -69192,7 +72154,7 @@ const gui = {
       _custom.CustomEvent.triggerCef('outputChatBox', message);
     }
   },
-  browser: mp.browsers.new('package://web/index.html'),
+  browser: mp.browsers.new('http://package/web/index.html'),
   execute: command => {
     if (mp.browsers.exists(gui.browser)) gui.browser.execute(command);
   },
@@ -69563,7 +72525,9 @@ const updateSavezone = () => {
 setInterval(() => {
   mp.game.invoke('0xF4F2C0D4EE209E20');
 }, 25000);
-setInterval(updateSavezone, 5000);
+setTimeout(() => {
+  setInterval(updateSavezone, 5000);
+}, 7500);
 let phoneOpened = false;
 exports.phoneOpened = phoneOpened;
 mp.events.add('phone:opened', status => {
@@ -71872,9 +74836,9 @@ const HP_FOOD_RATE = 0.3;
 exports.HP_FOOD_RATE = HP_FOOD_RATE;
 const HP_TOTAL_FOOD_WATER_RATE = 0.5;
 exports.HP_TOTAL_FOOD_WATER_RATE = HP_TOTAL_FOOD_WATER_RATE;
-const HEAL_ZONE_POS = [new mp.Vector3(308.79, -591.93, 42.28), new mp.Vector3(-252.00, 6333.96, 31.43), new mp.Vector3(1830.50, 3681.80, 33.27)];
+const HEAL_ZONE_POS = [new mp.Vector3(264.90, -1355.53, 23.54), new mp.Vector3(-252.00, 6333.96, 31.43), new mp.Vector3(1830.50, 3681.80, 33.27)];
 exports.HEAL_ZONE_POS = HEAL_ZONE_POS;
-const hospitalPos = [[new mp.Vector3(321.54, -584.14, 43.28), new mp.Vector3(320.03, -584.55, 43.28), new mp.Vector3(320.22, -583.33, 43.28), new mp.Vector3(318.31, -583.46, 43.28), new mp.Vector3(317.25, -582.03, 43.28), new mp.Vector3(315.95, -582.89, 43.28), new mp.Vector3(315.24, -581.55, 43.28), new mp.Vector3(313.72, -582.35, 43.28), new mp.Vector3(312.48, -580.64, 43.28), new mp.Vector3(310.18, -580.90, 43.28), new mp.Vector3(309.59, -579.30, 43.28)], [new mp.Vector3(-260.47, 6328.38, 32.43), new mp.Vector3(-260.24, 6326.88, 32.43), new mp.Vector3(-258.29, 6327.75, 32.43), new mp.Vector3(-258.65, 6326.10, 32.43), new mp.Vector3(-257.22, 6325.83, 32.43)], [new mp.Vector3(1836.36, 3688.59, 34.27), new mp.Vector3(1837.63, 3686.82, 34.27), new mp.Vector3(1835.66, 3686.62, 34.27), new mp.Vector3(1833.42, 3692.35, 34.27), new mp.Vector3(1833.83, 3690.65, 34.27)]];
+const hospitalPos = [[new mp.Vector3(292.81, -1349.29, 24.54), new mp.Vector3(291.04, -1349.83, 24.54), new mp.Vector3(291.20, -1348.30, 24.54), new mp.Vector3(289.25, -1348.15, 24.54), new mp.Vector3(290.06, -1346.25, 24.54), new mp.Vector3(279.73, -1340.99, 24.54), new mp.Vector3(281.08, -1339.93, 24.54), new mp.Vector3(280.57, -1338.10, 24.54), new mp.Vector3(282.91, -1337.52, 24.54), new mp.Vector3(276.75, -1336.59, 24.54), new mp.Vector3(278.68, -1333.54, 24.54)], [new mp.Vector3(-260.47, 6328.38, 32.43), new mp.Vector3(-260.24, 6326.88, 32.43), new mp.Vector3(-258.29, 6327.75, 32.43), new mp.Vector3(-258.65, 6326.10, 32.43), new mp.Vector3(-257.22, 6325.83, 32.43)], [new mp.Vector3(1836.36, 3688.59, 34.27), new mp.Vector3(1837.63, 3686.82, 34.27), new mp.Vector3(1835.66, 3686.62, 34.27), new mp.Vector3(1833.42, 3692.35, 34.27), new mp.Vector3(1833.83, 3690.65, 34.27)]];
 exports.hospitalPos = hospitalPos;
 },{}],"o9ld":[function(require,module,exports) {
 "use strict";
@@ -72714,6 +75678,13 @@ _custom.CustomEvent.registerServer('heal:start', time => {
 
 setInterval(() => {
   if (!_user.user.login) return;
+
+  if (!player.isDead() && deathCamera.isActive() && reviveTimer === 0) {
+    _cameraManager.CamerasManager.setActiveCamera(deathCamera, false);
+
+    _custom.CustomEvent.triggerCef('deathpopup:show', false);
+  }
+
   if (healTimer <= 0) return;
   setHealTimer(healTimer - 1);
   const vipdata = _user.user.vipData;
@@ -72834,6 +75805,7 @@ setInterval(() => {
   setDeathTimer(hospitalTimer - 1);
   if (hospitalTimer > 0) return;
   let posvec = getNearestHealPoint();
+  if (!player.isDead()) _custom.CustomEvent.triggerCef('deathpopup:show', false);
   reviveTimer = 0;
   (0, _protection.anticheatProtect)('heal');
 
@@ -80972,6 +83944,11 @@ const setWeaponAddons = (target, data, oldData, tick = false) => {
           if (hash) {
             if (hash.includes('_FLSH')) flashEnabled.set(target.remoteId, hash);
             const hashC = mp.game.joaat(hash);
+
+            if (hash.includes('WEAPON_TINT')) {
+              mp.game.invoke('0x50969B9B89ED5738', target.handle, weaponHashInt >> 0, Number.parseInt(hash.toString().replace('WEAPON_TINT', '')) >> 0);
+            }
+
             mp.game.invoke('0xD966D51AA5B28BB9', target.handle, weaponHashInt >> 0, hashC >> 0);
 
             if (!tick) {
@@ -86983,7 +89960,7 @@ function switchFly(status) {
     _user.user.notify(`Включён`, 'success', null, 2000, 'FLY Mode');
   }
 
-  mp.events.callRemote('flyMode', fly.flying);
+  _custom.CustomEvent.triggerServer('flyMode', fly.flying);
 }
 
 setInterval(() => {
@@ -88917,7 +91894,7 @@ function handlePlayerFollow(player) {
 
   const followTarget = mp.players.atRemoteId(targetId - 1);
 
-  if (!followTarget.handle) {
+  if (!(followTarget === null || followTarget === void 0 ? void 0 : followTarget.handle)) {
     return;
   }
 
@@ -89731,7 +92708,7 @@ const DEFAULT_MINING_ALGORITHM_ID = 3200;
 exports.DEFAULT_MINING_ALGORITHM_ID = DEFAULT_MINING_ALGORITHM_ID;
 const MINING_TF_INDEX_BASE_COIN = 300;
 exports.MINING_TF_INDEX_BASE_COIN = MINING_TF_INDEX_BASE_COIN;
-const MINING_SELL_COEFFICIENT = 0.03;
+const MINING_SELL_COEFFICIENT = 0.021;
 exports.MINING_SELL_COEFFICIENT = MINING_SELL_COEFFICIENT;
 const MINING_TICK_INTERVAL = 1;
 exports.MINING_TICK_INTERVAL = MINING_TICK_INTERVAL;
@@ -90824,6 +93801,11 @@ const BUSINESS_BLIPS = [{
   blip: 52,
   color: 2
 }, {
+  type: _business.BUSINESS_TYPE.ITEM_SHOP,
+  subtype: 6,
+  blip: 463,
+  color: 64
+}, {
   type: _business.BUSINESS_TYPE.BAR,
   subtype: 0,
   blip: 136,
@@ -90919,7 +93901,7 @@ exports.getBusinessBlip = getBusinessBlip;
 const BLIPS_DATA = [{
   type: 621,
   color: 1,
-  position: new mp.Vector3(352.89, -589.03, 74.17),
+  position: new mp.Vector3(283.97, -586.67, 43.38),
   name: "Больница"
 }, {
   type: 540,
@@ -91163,6 +94145,12 @@ exports.BLIPS_DATA = BLIPS_DATA;
 },{"./business":"ZFkC","./wedding":"IzQA","./houses":"HJlI","./construction":"dSZZ","./drift":"ogyk","./mining":"CM8x","./family":"Mg1f"}],"vw4c":[function(require,module,exports) {
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.createRouteBlip = createRouteBlip;
+exports.destroyRouteBlip = destroyRouteBlip;
+
 var _blips = require("../../shared/blips");
 
 var _system = require("./system");
@@ -91181,7 +94169,7 @@ _blips.BLIPS_DATA.map(blip => {
 
 const routeBlips = new Map();
 
-_custom.CustomEvent.registerServer('blips:createRouteBlip', (name, position, color) => {
+function createRouteBlip(name, position, color) {
   destroyRouteBlip(name);
   const blip = mp.blips.new(1, position, {
     shortRange: true,
@@ -91192,7 +94180,9 @@ _custom.CustomEvent.registerServer('blips:createRouteBlip', (name, position, col
   blip.setRoute(true);
   blip.setRouteColour(color);
   routeBlips.set(name, blip);
-});
+}
+
+_custom.CustomEvent.registerServer('blips:createRouteBlip', (name, position, color) => createRouteBlip(name, position, color));
 
 _custom.CustomEvent.registerServer('blips:destroyRouteBlip', name => {
   destroyRouteBlip(name);
@@ -91379,7 +94369,8 @@ const defaultHotkeys = {
   follow: 90,
   admin: 56,
   autopilot: 79,
-  snowball: 113
+  snowball: 113,
+  petControl: 89
 };
 exports.defaultHotkeys = defaultHotkeys;
 const hotkeysTasks = {
@@ -91414,7 +94405,8 @@ const hotkeysTasks = {
   uncuff: ["Снять наручники/стяжки"],
   follow: ["Вести за собой"],
   autopilot: ["Включить/выключить автопилот"],
-  snowball: ["Слепить снежок"]
+  snowball: ["Слепить снежок"],
+  petControl: ["Управление питомцем"]
 };
 exports.hotkeysTasks = hotkeysTasks;
 
@@ -92691,8 +95683,6 @@ var _raycast = require("./raycast");
 
 var _hooks = require("../../shared/hooks");
 
-var _system2 = require("../../shared/system");
-
 const RAYCAST_DETECT_ENTITY_HOOK = 'interact-detect-entity';
 exports.RAYCAST_DETECT_ENTITY_HOOK = RAYCAST_DETECT_ENTITY_HOOK;
 let inInteract = false;
@@ -92822,15 +95812,6 @@ const gameObjectClick = async handle => {
 };
 
 exports.gameObjectClick = gameObjectClick;
-
-function getNearestChairSeatPosition(chair, playerPos, chairPos, chairHeading) {
-  return chair.seats.map(seatCfg => {
-    return {
-      heading: seatCfg[1],
-      pos: mp.game.object.getObjectOffsetFromCoords(chairPos.x, chairPos.y, chairPos.z, chairHeading.x, seatCfg[0].x, seatCfg[0].y, seatCfg[0].z)
-    };
-  }).sort((a, b) => _system2.systemUtil.distanceToPos(playerPos, a.pos) - _system2.systemUtil.distanceToPos(playerPos, b.pos))[0];
-}
 
 const pickAllObjects = () => {
   exports.entitysData = entitysData = [];
@@ -93036,7 +96017,7 @@ setInterval(() => {
 
   _user.user.showHelp(null);
 }, 500);
-},{"./gui":"bk91","./user":"ggMw","./system":"pi2J","../../shared/vendor.mashines":"x9dN","./custom.event":"py8h","../../shared/inventory":"vpPR","../../shared/atm":"fYDh","../../shared/cash.machines":"b3O8","./doors":"H2nx","../../shared/hotkeys":"DSux","./checkpoints":"XCJl","./battleroyale":"zixs","./anim":"stJJ","./casino/dice":"UScX","./casino/roulette":"YFCp","./casino/slots":"scHn","./raycast":"ghdA","../../shared/hooks":"H3J5","../../shared/system":"SNxO"}],"Wwxz":[function(require,module,exports) {
+},{"./gui":"bk91","./user":"ggMw","./system":"pi2J","../../shared/vendor.mashines":"x9dN","./custom.event":"py8h","../../shared/inventory":"vpPR","../../shared/atm":"fYDh","../../shared/cash.machines":"b3O8","./doors":"H2nx","../../shared/hotkeys":"DSux","./checkpoints":"XCJl","./battleroyale":"zixs","./anim":"stJJ","./casino/dice":"UScX","./casino/roulette":"YFCp","./casino/slots":"scHn","./raycast":"ghdA","../../shared/hooks":"H3J5"}],"Wwxz":[function(require,module,exports) {
 "use strict";
 
 var _user = require("./user");
@@ -98640,6 +101621,24 @@ const TELEPORT_CONFIG = [{
   }],
   onenter: true,
   fraction: 2
+}, {
+  name: 'Лифт больница',
+  points: [{
+    name: "Лифт больница",
+    x: 280.00,
+    y: -1348.90,
+    z: 23.64,
+    h: 133,
+    d: 0
+  }, {
+    name: "Лифт больница город",
+    x: 331.95,
+    y: -595.39,
+    z: 42.38,
+    h: 64,
+    d: 0
+  }],
+  onenter: true
 }];
 exports.TELEPORT_CONFIG = TELEPORT_CONFIG;
 },{"./casino/main":"FJpA"}],"UgKs":[function(require,module,exports) {
@@ -99331,10 +102330,10 @@ const STATIC_NPC_DATA = [{
   model: "ig_omega",
   anim: ['', 'base']
 }, {
-  x: 309.52,
-  y: -593.84,
-  z: 43.28,
-  h: 28,
+  x: 264.54,
+  y: -1357.59,
+  z: 24.54,
+  h: 358,
   name: 'Mishelka',
   model: "s_f_y_scrubs_01",
   anim: ['', 'base']
@@ -99471,14 +102470,6 @@ const STATIC_NPC_DATA = [{
   model: "a_f_y_femaleagent",
   anim: ['', 'base']
 }, {
-  x: 259.63,
-  y: -1359.69,
-  z: 24.54,
-  h: 318,
-  name: 'Artem',
-  model: "s_m_m_doctor_01",
-  anim: ['', 'base']
-}, {
   x: -328.12,
   y: 2798.04,
   z: 60.18,
@@ -99612,6 +102603,22 @@ const STATIC_NPC_DATA = [{
   y: 3682.36,
   z: 34.27,
   h: 249,
+  name: 'Doctor',
+  model: "s_m_m_doctor_01",
+  anim: ['', 'base']
+}, {
+  x: 1830.10,
+  y: 3673.16,
+  z: 34.27,
+  h: 294,
+  name: 'Doctor',
+  model: "s_m_m_doctor_01",
+  anim: ['', 'base']
+}, {
+  x: -250.25,
+  y: 6311.43,
+  z: 32.43,
+  h: 3,
   name: 'Doctor',
   model: "s_m_m_doctor_01",
   anim: ['', 'base']
@@ -100591,6 +103598,12 @@ const NPC_CUSTOMERS_LIST = [{
     start: 0,
     perhour: 0
   }, {
+    item: 7031,
+    cost: [375, 410],
+    max: 0,
+    start: 0,
+    perhour: 0
+  }, {
     item: 9000,
     cost: [470, 550],
     max: 0,
@@ -100601,6 +103614,58 @@ const NPC_CUSTOMERS_LIST = [{
   radius: 5,
   allowSellFromVehicle: true,
   background: 'meat'
+}, {
+  name: "Охотник за удачей",
+  model: "s_m_m_janitor",
+  pos: new mp.Vector3(-1628.46, -1097.32, 13.02),
+  heading: 47,
+  items: [{
+    item: 6519,
+    cost: [2000, 3000],
+    max: 0,
+    start: 0,
+    perhour: 0
+  }, {
+    item: 6520,
+    cost: [2500, 3500],
+    max: 0,
+    start: 0,
+    perhour: 0
+  }, {
+    item: 6521,
+    cost: [1500, 2000],
+    max: 0,
+    start: 0,
+    perhour: 0
+  }, {
+    item: 6522,
+    cost: [3000, 4000],
+    max: 0,
+    start: 0,
+    perhour: 0
+  }, {
+    item: 6523,
+    cost: [3500, 4500],
+    max: 0,
+    start: 0,
+    perhour: 0
+  }, {
+    item: 6524,
+    cost: [4000, 5000],
+    max: 0,
+    start: 0,
+    perhour: 0
+  }, {
+    item: 6525,
+    cost: [4500, 5500],
+    max: 0,
+    start: 0,
+    perhour: 0
+  }],
+  dimension: 0,
+  radius: 5,
+  allowSellFromVehicle: true,
+  background: 'pirate'
 }];
 exports.NPC_CUSTOMERS_LIST = NPC_CUSTOMERS_LIST;
 },{}],"Ij8u":[function(require,module,exports) {
@@ -100711,7 +103776,7 @@ const DOCUMENT_GIVE_POSITIONS = [{
   rank: 7
 }, {
   name: "Мед справки и лицензии",
-  pos: new mp.Vector3(-265.33, 6323.28, 31.43),
+  pos: new mp.Vector3(-250.35, 6312.85, 31.43),
   documents: [{
     id: "mental_examination_ok",
     cost: 5000
@@ -100870,6 +103935,34 @@ const DOCUMENT_GIVE_POSITIONS = [{
   }],
   fraction: 3,
   rank: 6
+}, {
+  name: "Мед справки и лицензии",
+  pos: new mp.Vector3(1830.10, 3673.16, 33.27),
+  documents: [{
+    id: "mental_examination_ok",
+    cost: 5000
+  }, {
+    id: "mental_examination_middle",
+    cost: 5000
+  }, {
+    id: "phisical_examination_ok",
+    cost: 5000
+  }],
+  license: [{
+    id: "med",
+    cost: 15000,
+    days: 30
+  }, {
+    id: "reanimation",
+    cost: 100000,
+    days: 30
+  }],
+  items: [{
+    id: 824,
+    cost: 1000
+  }],
+  fraction: 16,
+  rank: 7
 }];
 exports.DOCUMENT_GIVE_POSITIONS = DOCUMENT_GIVE_POSITIONS;
 },{}],"hsxS":[function(require,module,exports) {
@@ -106979,7 +110072,7 @@ const HUNTING_BLIP = {
 exports.HUNTING_BLIP = HUNTING_BLIP;
 const HUNTING_IN_ZONE_SAME_TIME = 20;
 exports.HUNTING_IN_ZONE_SAME_TIME = HUNTING_IN_ZONE_SAME_TIME;
-const HUNTING_RESPAWN_MINUTE = 10;
+const HUNTING_RESPAWN_MINUTE = 5;
 exports.HUNTING_RESPAWN_MINUTE = HUNTING_RESPAWN_MINUTE;
 },{}],"wMFx":[function(require,module,exports) {
 "use strict";
@@ -107076,7 +110169,7 @@ var _admin = require("./admin");
 
 const localPlayer = mp.players.local;
 const camera = mp.cameras.new("gameplay");
-const browser = mp.browsers.new(`package://web/sound.html`);
+const browser = mp.browsers.new(`http://package/web/sound.html`);
 
 const getPanEntity = entity => {
   return getPan(entity.position, entity);
@@ -107920,17 +111013,20 @@ const ELECTRICIAN_LEVELS = [{
   index: 0,
   fromEXP: 0,
   description: "Ходите по станции и чините",
-  salary: 50
+  salary: 0,
+  payment: 50
 }, {
   index: 1,
   fromEXP: 4000,
   description: "Катайте по домам и чините",
-  salary: 1000
+  salary: 1,
+  payment: 1000
 }, {
   index: 2,
   fromEXP: 10000,
   description: "Чините большие щетки",
-  salary: 2250
+  salary: 2,
+  payment: 2000
 }];
 exports.ELECTRICIAN_LEVELS = ELECTRICIAN_LEVELS;
 var WORK_TYPE;
@@ -109171,32 +112267,37 @@ const BUS_LEVELS = [{
   index: 0,
   fromEXP: 0,
   description: "Ездите и подбирайте пассажиров",
-  salary: 195,
-  vehicleModel: 'bus'
+  salary: 0,
+  vehicleModel: 'bus',
+  payment: 195
 }, {
   index: 1,
   fromEXP: 1000,
   description: "Ездите и подбирайте пассажиров",
-  salary: 220,
-  vehicleModel: 'bus'
+  salary: 1,
+  vehicleModel: 'bus',
+  payment: 220
 }, {
   index: 2,
   fromEXP: 2000,
   description: "Ездите и подбирайте пассажиров",
-  salary: 270,
-  vehicleModel: 'coach'
+  salary: 2,
+  vehicleModel: 'coach',
+  payment: 270
 }, {
   index: 3,
   fromEXP: 5000,
   description: "Ездите и подбирайте пассажиров",
-  salary: 350,
-  vehicleModel: 'bus'
+  salary: 3,
+  vehicleModel: 'bus',
+  payment: 350
 }, {
   index: 4,
   fromEXP: 10000,
   description: "Ездите и подбирайте пассажиров",
-  salary: 500,
-  vehicleModel: 'airbus'
+  salary: 4,
+  vehicleModel: 'airbus',
+  payment: 500
 }];
 exports.BUS_LEVELS = BUS_LEVELS;
 const DRESS_CONFIG_MALE = [[3, 11, 0], [8, 15, 0], [11, 95, 2], [4, 24, 0], [6, 10, 0], [102, 2, 0]];
@@ -113799,9 +116900,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.NEW_YEAR_EVENT_BLIP_OPTIONS = exports.NEW_YEAR_EVENT_BLIP_POSITION = exports.NEW_YEAR_EVENT_BLIP_SPRITE = exports.GREETING_COLOR = exports.NEW_YEAR_EXCHANGE_ACTIVE = exports.EVENT_IS_ACTIVE = void 0;
-const EVENT_IS_ACTIVE = true;
+const EVENT_IS_ACTIVE = false;
 exports.EVENT_IS_ACTIVE = EVENT_IS_ACTIVE;
-const NEW_YEAR_EXCHANGE_ACTIVE = false;
+const NEW_YEAR_EXCHANGE_ACTIVE = true;
 exports.NEW_YEAR_EXCHANGE_ACTIVE = NEW_YEAR_EXCHANGE_ACTIVE;
 const GREETING_COLOR = "ff5a3d";
 exports.GREETING_COLOR = GREETING_COLOR;
@@ -114349,7 +117450,1085 @@ class Autopilot {
 }
 
 new Autopilot();
-},{"../custom.event":"py8h","../../../shared/autopilot":"SLn7","../user":"ggMw"}],"omRF":[function(require,module,exports) {
+},{"../custom.event":"py8h","../../../shared/autopilot":"SLn7","../user":"ggMw"}],"CAVh":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.REWARDS = exports.DivingMaps = exports.DRESS_CONFIG_FEMALE = exports.DRESS_CONFIG_MALE = exports.DIVING_COSTUME_ITEM_ID = exports.SHIP_PROP = exports.CHEST_PROP = void 0;
+const CHEST_PROP = 'xm_prop_x17_chest_closed';
+exports.CHEST_PROP = CHEST_PROP;
+const SHIP_PROP = 'cs2_06b_boat03';
+exports.SHIP_PROP = SHIP_PROP;
+const DIVING_COSTUME_ITEM_ID = 6500;
+exports.DIVING_COSTUME_ITEM_ID = DIVING_COSTUME_ITEM_ID;
+const DRESS_CONFIG_MALE = [[3, 31, 0], [8, 151, 0], [11, 243, 0], [4, 94, 0], [6, 67, 0], [102, 2, 0]];
+exports.DRESS_CONFIG_MALE = DRESS_CONFIG_MALE;
+const DRESS_CONFIG_FEMALE = [[3, 40, 0], [8, 187, 0], [11, 42, 0], [4, 97, 0], [6, 70, 0]];
+exports.DRESS_CONFIG_FEMALE = DRESS_CONFIG_FEMALE;
+const DivingMaps = [{
+  itemId: 6526,
+  slices: [6501, 6502, 6503, 6504, 6505, 6506]
+}, {
+  itemId: 6527,
+  slices: [6507, 6508, 6509, 6510, 6511, 6512]
+}, {
+  itemId: 6528,
+  slices: [6513, 6514, 6515, 6516, 6517, 6518]
+}];
+exports.DivingMaps = DivingMaps;
+const REWARDS = [6519, 6520, 6521, 6522, 6523, 6524, 6525];
+exports.REWARDS = REWARDS;
+},{}],"j7V0":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.DiveManager = void 0;
+
+var _work = require("../../../shared/diving/work.config");
+
+var _checkpoints = require("../checkpoints");
+
+var _custom = require("../custom.event");
+
+var _user = require("../user");
+
+var _blips = require("../blips");
+
+var _gui = require("../gui");
+
+var _system = require("../system");
+
+class DiveManager {
+  constructor(data) {
+    this._inClothes = false;
+    this._isGoingToWater = null;
+    this._haveTime = 40;
+    this._routeBlip = false;
+    this._isCompleted = false;
+    this._chestMiniGameCompleted = false;
+    this._isMapMission = false;
+    this._oxygen = 1200;
+    this._maxOxygen = 1200;
+    this._divePosition = data.divePosition;
+    this._chestData = data.chestData;
+    this._player = mp.players.local;
+    this._isMapMission = data.shipData !== undefined;
+    this._chestObject = mp.objects.new(_work.CHEST_PROP, this._chestData.position, {
+      rotation: this._chestData.rotation
+    });
+    this._chestBlip = _system.system.createBlip(351, 6, this._chestData.position, "Клад", 0, true);
+    this._chestInteraction = _checkpoints.colshapes.new(new mp.Vector3(this._chestObject.position.x, this._chestObject.position.y, this._chestObject.position.z - 1), 'Взломать сундук', () => {
+      if (!this._inClothes) return _user.user.notify('Необходимо одеть водолазный костюм');
+
+      this._player.freezePosition(true);
+
+      if (!this._chestMiniGameCompleted) {
+        data.shipData !== undefined ? this.openMiniGame('chest') : this.openMiniGame('lock');
+      } else {
+        this.openMiniGame('net');
+      }
+    }, {
+      color: [0, 0, 0, 0],
+      radius: 3
+    });
+
+    if (data.shipData) {
+      this._shipObject = mp.objects.new(_work.SHIP_PROP, data.shipData.position, {
+        rotation: data.shipData.rotation
+      });
+    }
+
+    (0, _blips.createRouteBlip)('Место погружения', this._divePosition, 81);
+    this._routeBlip = true;
+    this._interaction = _checkpoints.colshapes.new(new mp.Vector3(this._divePosition.x, this._divePosition.y, this._divePosition.z - 1), "Одеть костюм", () => {
+      if (this._inClothes) return _user.user.notify('Вы уже одели водолазный костюм', 'error');
+
+      _custom.CustomEvent.triggerServer('diving:dive');
+    }, {
+      radius: 1.5,
+      type: 1,
+      color: [255, 255, 0, 255]
+    });
+    this._interval = setInterval(() => {
+      if (this._isGoingToWater === null) return;
+
+      if (this.isInWater()) {
+        if (this._isGoingToWater === true) {
+          this._isGoingToWater = false;
+          this._haveTime = 0;
+        }
+      } else {
+        if (this._isGoingToWater === true) {
+          if (this._haveTime <= 0) {
+            this.dropCloth();
+          } else {
+            this._haveTime -= 1;
+          }
+        } else {
+          this.dropCloth();
+
+          if (this._isCompleted) {
+            mp.events.call('diving:clearDiveManager');
+            clearInterval(this._interval);
+
+            _custom.CustomEvent.triggerServer('diving:missionCompleted');
+          }
+        }
+      }
+    }, 500);
+  }
+
+  chestGameFinishHandle(success) {
+    if (!success) {
+      _gui.gui.setGui(null);
+
+      _user.user.notify('Вы провалили мини игру, попробуйте ещё раз', 'error');
+
+      this._player.freezePosition(false);
+
+      return;
+    }
+
+    this.openMiniGame('net');
+  }
+
+  collectGameFinishHandle() {
+    this._player.freezePosition(false);
+
+    this.destroy();
+    this._isCompleted = true;
+
+    _custom.CustomEvent.triggerServer('diving:reward', this._isMapMission);
+  }
+
+  openMiniGame(component) {
+    _gui.gui.setGui('divingGames');
+
+    _custom.CustomEvent.triggerCef('divingGame:setComponent', component);
+  }
+
+  isInWater() {
+    return this._player.isSwimming() || this._player.isSwimmingUnderWater();
+  }
+
+  dive() {
+    this._haveTime = 40;
+    this._inClothes = true;
+    this._isGoingToWater = true;
+
+    _user.user.notify('У вас есть 20 секунд для погружения', 'info');
+
+    this.activateOxygen();
+  }
+
+  dropCloth() {
+    if (!this._inClothes) return;
+    this._isGoingToWater = null;
+    this._inClothes = false;
+
+    _custom.CustomEvent.triggerServer('diving:dropCloth');
+
+    this.deactivateOxygen();
+  }
+
+  activateOxygen() {
+    this._oxygen = this._maxOxygen;
+    this.updateOxygen(true);
+    this.showHudOxygen(true);
+
+    this._player.setMaxTimeUnderwater(600);
+
+    this._oxygenInterval = setInterval(() => {
+      if (this._player.isSwimmingUnderWater()) {
+        if (this._oxygen <= 0) {} else if (this._oxygen >= this._maxOxygen) {
+          this._oxygen -= 4;
+        } else {
+          if (this._oxygen - 4 < 0) {
+            this._oxygen = 0;
+          } else {
+            this._oxygen -= 4;
+          }
+        }
+      }
+
+      this.updateOxygen(false);
+    }, 2000);
+  }
+
+  deactivateOxygen() {
+    this._player.setMaxTimeUnderwater(17.5);
+
+    if (this._oxygenInterval) clearInterval(this._oxygenInterval);
+    this._oxygenInterval = undefined;
+    this.showHudOxygen(false);
+  }
+
+  showHudOxygen(toggle) {
+    _custom.CustomEvent.triggerCef('diving:oxygen:show', toggle);
+  }
+
+  updateOxygen(setMaxOxygen = false) {
+    if (setMaxOxygen) {
+      _custom.CustomEvent.triggerCef('diving:oxygen:update', this._oxygen, this._maxOxygen);
+    } else {
+      _custom.CustomEvent.triggerCef('diving:oxygen:update', this._oxygen);
+    }
+  }
+
+  destroy() {
+    if (this._shipObject && mp.objects.exists(this._shipObject)) {
+      this._shipObject.destroy();
+
+      this._shipObject = undefined;
+    }
+
+    if (this._interaction) this._interaction.destroy();
+
+    if (this._chestObject && mp.objects.exists(this._chestObject)) {
+      this._chestObject.destroy();
+
+      this._chestObject = undefined;
+    }
+
+    if (this._routeBlip) {
+      (0, _blips.destroyRouteBlip)('Место погружения');
+      this._routeBlip = false;
+    }
+
+    if (this._chestBlip && this._chestBlip.doesExist()) {
+      this._chestBlip.destroy();
+
+      this._chestBlip = undefined;
+    }
+
+    if (this._chestInteraction) {
+      this._chestInteraction.destroy();
+
+      this._chestInteraction = undefined;
+    }
+  }
+
+}
+
+exports.DiveManager = DiveManager;
+},{"../../../shared/diving/work.config":"CAVh","../checkpoints":"XCJl","../custom.event":"py8h","../user":"ggMw","../blips":"vw4c","../gui":"bk91","../system":"pi2J"}],"IR2Y":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.MAP_CHESTS = exports.DEFAULT_CHESTS = void 0;
+const DEFAULT_CHESTS = [{
+  divePosition: new mp.Vector3(-1977.86, -692.18, 2.05),
+  chestData: {
+    position: new mp.Vector3(-2278.106, -962.2479, -147.5107),
+    rotation: new mp.Vector3(0, 0.0989643, 0)
+  }
+}, {
+  divePosition: new mp.Vector3(-2710.99, -124.52, 1.41),
+  chestData: {
+    position: new mp.Vector3(-2854.575, -406.51, -40.92432),
+    rotation: new mp.Vector3(0, 0.01082175, 0)
+  }
+}, {
+  divePosition: new mp.Vector3(-3103.46, 441.97, 1.38),
+  chestData: {
+    position: new mp.Vector3(-3446.776, 425.08, -34.80004),
+    rotation: new mp.Vector3(0, 0.01082175, 0)
+  }
+}, {
+  divePosition: new mp.Vector3(-3391.43, 965.47, 7.29),
+  chestData: {
+    position: new mp.Vector3(-3458.236, 958.769, -15.12191),
+    rotation: new mp.Vector3(0, 0.09107933, 0)
+  }
+}, {
+  divePosition: new mp.Vector3(-3091.38, 2011.32, 0.25),
+  chestData: {
+    position: new mp.Vector3(-3409.395, 2097.367, -13.32979),
+    rotation: new mp.Vector3(0.2386346, 0.08842566, 0.0218254)
+  }
+}, {
+  divePosition: new mp.Vector3(-3118.39, 3353.69, -0.03),
+  chestData: {
+    position: new mp.Vector3(-3471.6, 3349.474, -127.7241),
+    rotation: new mp.Vector3(0.1548, 0.3441881, 0.1551971)
+  }
+}, {
+  divePosition: new mp.Vector3(-2495.32, 4218.89, 0.05),
+  chestData: {
+    position: new mp.Vector3(-2879.12, 4333.419, -147.0003),
+    rotation: new mp.Vector3(-0.03915031, 0.007806301, 0.2021293)
+  }
+}, {
+  divePosition: new mp.Vector3(-1064.29, 5521.22, -0.19),
+  chestData: {
+    position: new mp.Vector3(-1506.834, 6023.038, -88.31759),
+    rotation: new mp.Vector3(0.231357, -0.1689285, 0.2568051)
+  }
+}, {
+  divePosition: new mp.Vector3(433.79, 6811.80, 0.98),
+  chestData: {
+    position: new mp.Vector3(617.5548, 7114.38, -29.39218),
+    rotation: new mp.Vector3(-0.01940349, 0.1520258, 0.2565063)
+  }
+}, {
+  divePosition: new mp.Vector3(1495.64, 6631.20, 1.54),
+  chestData: {
+    position: new mp.Vector3(1799.737, 7043.387, -87.51627),
+    rotation: new mp.Vector3(0.01952877, 0.1414392, 0.2624924)
+  }
+}, {
+  divePosition: new mp.Vector3(3395.98, 5650.59, -0.10),
+  chestData: {
+    position: new mp.Vector3(3895.236, 5906.196, -69.15292),
+    rotation: new mp.Vector3(-0.03117025, 0.0367214, 0.2493034)
+  }
+}, {
+  divePosition: new mp.Vector3(3626.20, 2918.71, 0.11),
+  chestData: {
+    position: new mp.Vector3(4247.469, 2750.512, -76.11549),
+    rotation: new mp.Vector3(-0.03714696, 0.01348804, 0.2484831)
+  }
+}, {
+  divePosition: new mp.Vector3(3022.74, 1865.38, 1.90),
+  chestData: {
+    position: new mp.Vector3(3331.875, 1808.382, -49.89515),
+    rotation: new mp.Vector3(-0.0004288405, -0.05463504, 0.2434248)
+  }
+}, {
+  divePosition: new mp.Vector3(2854.59, -73.47, 1.88),
+  chestData: {
+    position: new mp.Vector3(3423.833, 68.49328, -150.7275),
+    rotation: new mp.Vector3(-0.0004288405, -0.05463504, 0.2434248)
+  }
+}, {
+  divePosition: new mp.Vector3(2665.98, -1714.65, 2.03),
+  chestData: {
+    position: new mp.Vector3(3233.466, -1776.44, -149.9724),
+    rotation: new mp.Vector3(-0.0004288405, -0.05463504, 0.2434248)
+  }
+}, {
+  divePosition: new mp.Vector3(2174.10, -2274.73, 1.78),
+  chestData: {
+    position: new mp.Vector3(2386.17, -2549.62, -8.87462),
+    rotation: new mp.Vector3(-0.0004288405, -0.05463504, 0.2434248)
+  }
+}, {
+  divePosition: new mp.Vector3(1797.95, -2712.35, 1.04),
+  chestData: {
+    position: new mp.Vector3(2217.69, -2926.18, -94.25985),
+    rotation: new mp.Vector3(-0.2319799, -0.03850784, 0.2272762)
+  }
+}, {
+  divePosition: new mp.Vector3(1281.68, -3348.03, 4.90),
+  chestData: {
+    position: new mp.Vector3(1319.56, -3801.24, -110.7338),
+    rotation: new mp.Vector3(-0.03643998, -0.09757319, 0.2609081)
+  }
+}, {
+  divePosition: new mp.Vector3(-1203.13, -3547.10, -0.13),
+  chestData: {
+    position: new mp.Vector3(-1045.016, -3941.453, -66.07579),
+    rotation: new mp.Vector3(-0.18427, -0.05609433, 0.2728497)
+  }
+}, {
+  divePosition: new mp.Vector3(-1874.56, -3231.92, 0.14),
+  chestData: {
+    position: new mp.Vector3(-2012.974, -3412.898, -33.68154),
+    rotation: new mp.Vector3(0.05310974, 0.08798996, 0.3279301)
+  }
+}, {
+  divePosition: new mp.Vector3(1694.65, 41.59, 160.77),
+  chestData: {
+    position: new mp.Vector3(1833.319, 42.63721, 143.7325),
+    rotation: new mp.Vector3(0.03704868, 0.04207215, 0.3301305)
+  }
+}, {
+  divePosition: new mp.Vector3(1930.54, 430.16, 161.23),
+  chestData: {
+    position: new mp.Vector3(1956.282, 250.0427, 148.2073),
+    rotation: new mp.Vector3(0.03704868, 0.04207215, 0.3301305)
+  }
+}, {
+  divePosition: new mp.Vector3(1554.37, 3911.15, 30.78),
+  chestData: {
+    position: new mp.Vector3(113.1784, 4066.397, -14.91522),
+    rotation: new mp.Vector3(0.03704868, 0.04207215, 0.3301305)
+  }
+}, {
+  divePosition: new mp.Vector3(2228.24, 4578.98, 30.77),
+  chestData: {
+    position: new mp.Vector3(1059.048, 3981.869, -14.15541),
+    rotation: new mp.Vector3(0.1832253, -0.03132729, 0.3364212)
+  }
+}, {
+  divePosition: new mp.Vector3(-78.85, 4254.95, 30.74),
+  chestData: {
+    position: new mp.Vector3(1942.54, 4218.998, -10.28572),
+    rotation: new mp.Vector3(0.00953022, 0.0313597, 0.3364182)
+  }
+}, {
+  divePosition: new mp.Vector3(3224.78, 5327.95, 0.14),
+  chestData: {
+    position: new mp.Vector3(3540.658, 5329.155, -33.98745),
+    rotation: new mp.Vector3(-0.2704823, 0.1264201, -0.1310729)
+  }
+}];
+exports.DEFAULT_CHESTS = DEFAULT_CHESTS;
+const MAP_CHESTS = [{
+  divePosition: new mp.Vector3(3392.81, 5624.30, -0.12),
+  chestData: {
+    position: new mp.Vector3(3695.07, 6113.697, -167.5831),
+    rotation: new mp.Vector3(0, 0, 0)
+  },
+  shipData: {
+    position: new mp.Vector3(3700.672, 6119.253, -167.2377),
+    rotation: new mp.Vector3(0, 0, 0)
+  }
+}];
+exports.MAP_CHESTS = MAP_CHESTS;
+},{}],"oBIF":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Diving = void 0;
+
+var _custom = require("../custom.event");
+
+var _gui = require("../gui");
+
+var _diveManager = require("./diveManager");
+
+var _chests = require("../../../shared/diving/chests.config");
+
+var _user = require("../user");
+
+var _checkpoints = require("../checkpoints");
+
+var _work = require("../../../shared/diving/work.config");
+
+var _system = require("../system");
+
+_custom.CustomEvent.registerServer('diving:debug:chests', () => {
+  _chests.DEFAULT_CHESTS.map(el => {
+    _checkpoints.colshapes.new(new mp.Vector3(el.chestData.position.x, el.chestData.position.y, el.chestData.position.z - 1), 'Взломать сундук', () => {}, {
+      color: [255, 0, 0, 255],
+      radius: 2.5
+    });
+
+    mp.objects.new(_work.CHEST_PROP, el.chestData.position, {
+      rotation: el.chestData.rotation
+    });
+
+    _system.system.createBlip(351, 6, el.chestData.position, "debug chest", 0, true);
+  });
+});
+
+class Diving {
+  constructor() {
+    this.isWorking = false;
+    mp.events.add('diving:switcher', () => this.switcherHandle());
+
+    _custom.CustomEvent.registerServer('diving:openEmployer', () => {
+      _gui.gui.setGui('divingEmployer');
+
+      _custom.CustomEvent.triggerCef('divingEmployer:setIsWorking', this.isWorking);
+    });
+
+    _custom.CustomEvent.registerServer('diving:createMission', () => this.createMissionHandle());
+
+    _custom.CustomEvent.registerServer('diving:useMap', item_id => {
+      if (!this.isWorking) return _user.user.notify('Необходимо устроиться на работу дайвера', 'error');
+      if (this.diveManager) return _user.user.notify('У вас уже взята работа, выполните её, и повторите снова', 'error');
+      this.diveManager = new _diveManager.DiveManager(_chests.MAP_CHESTS[Math.floor(Math.random() * _chests.MAP_CHESTS.length)]);
+
+      _custom.CustomEvent.triggerServer('diving:deleteMapItem', item_id);
+    });
+
+    mp.events.add('diving:clearDiveManager', () => {
+      this.diveManager = undefined;
+    });
+    mp.events.add('diving:unfreeze', () => {
+      mp.players.local.freezePosition(false);
+    });
+    mp.events.add('diving:startDive', () => {
+      if (this.diveManager) this.diveManager.dive();
+    });
+    mp.events.add('diving:chestGame:finish', success => {
+      if (this.diveManager) this.diveManager.chestGameFinishHandle(success);
+    });
+    mp.events.add('diving:collectGame:finish', () => {
+      if (this.diveManager) this.diveManager.collectGameFinishHandle();
+    });
+  }
+
+  switcherHandle() {
+    this.isWorking ? this.onFinish() : this.onStart();
+  }
+
+  onStart() {
+    _user.user.notify('Вы устроились на работу дайвера', 'info');
+
+    this.isWorking = true;
+
+    _custom.CustomEvent.triggerServer('diving:canCreateChest');
+
+    this.interval = setInterval(() => {
+      if (!this.diveManager) _custom.CustomEvent.triggerServer('diving:canCreateChest');
+    }, 60000);
+  }
+
+  onFinish() {
+    _user.user.notify('Вы уволились с работы дайвера', 'info');
+
+    clearInterval(this.interval);
+
+    try {
+      if (this.diveManager) this.diveManager.destroy();
+      clearInterval(this.diveManager._interval);
+      this.diveManager = undefined;
+    } catch (e) {
+      _custom.CustomEvent.triggerServer('srv:log', e);
+    }
+
+    this.isWorking = false;
+  }
+
+  createMissionHandle() {
+    if (!this.isWorking) return;
+    if (this.diveManager) return;
+    this.diveManager = new _diveManager.DiveManager(_chests.DEFAULT_CHESTS[Math.floor(Math.random() * _chests.DEFAULT_CHESTS.length)]);
+  }
+
+}
+
+exports.Diving = Diving;
+},{"../custom.event":"py8h","../gui":"bk91","./diveManager":"j7V0","../../../shared/diving/chests.config":"IR2Y","../user":"ggMw","../checkpoints":"XCJl","../../../shared/diving/work.config":"CAVh","../system":"pi2J"}],"fKzZ":[function(require,module,exports) {
+"use strict";
+
+var _diving = require("./diving");
+
+new _diving.Diving();
+},{"./diving":"oBIF"}],"XHYY":[function(require,module,exports) {
+"use strict";
+
+var _custom = require("../custom.event");
+
+var _system = require("../system");
+
+mp.events.add('snowwar:update:registration', data => {
+  _custom.CustomEvent.triggerCef('snowwar:registration:update', data);
+});
+mp.events.add('snowwar:update:hud', data => {
+  _custom.CustomEvent.triggerCef('snowwar:hud:update', data);
+});
+mp.events.add('gui:menuClosed', closedGui => {
+  if (closedGui !== 'snowWar') return;
+
+  _custom.CustomEvent.triggerServer('snowwar:registrationClose');
+});
+const targets = [];
+let snowWarActive = false;
+
+_custom.CustomEvent.registerServer('snowwar:activate', toggle => {
+  snowWarActive = toggle;
+});
+
+mp.events.add('playerWeaponShot', (targetPosition, targetEntity) => {
+  if (!snowWarActive) return;
+  if (!targetEntity || targetEntity.type !== 'player') return;
+  if (targetEntity.remoteId === mp.players.local.remoteId) return;
+  targets.push({
+    entity: targetEntity,
+    time: _system.system.timestamp,
+    position: mp.players.local.position
+  });
+});
+mp.events.add('render', () => {
+  if (!snowWarActive) return;
+  targets.forEach((el, key) => {
+    if (_system.system.timestamp - el.time > 10) {
+      targets.splice(key, 1);
+      return;
+    }
+
+    if (el.entity.handle === 0) return;
+  });
+});
+},{"../custom.event":"py8h","../system":"pi2J"}],"SZmx":[function(require,module,exports) {
+"use strict";
+
+require("./monitor");
+},{"./monitor":"XHYY"}],"CgIy":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.petsConfig = exports.PetState = void 0;
+var PetState;
+exports.PetState = PetState;
+
+(function (PetState) {
+  PetState[PetState["Sit"] = 0] = "Sit";
+  PetState[PetState["Stand"] = 1] = "Stand";
+  PetState[PetState["Follow"] = 2] = "Follow";
+})(PetState || (exports.PetState = PetState = {}));
+
+const petsConfig = [{
+  itemId: 15000,
+  modelHash: 'a_c_chop'
+}, {
+  itemId: 15001,
+  modelHash: 'a_c_husky'
+}, {
+  itemId: 15002,
+  modelHash: 'a_c_poodle'
+}, {
+  itemId: 15003,
+  modelHash: 'a_c_pug'
+}, {
+  itemId: 15004,
+  modelHash: 'a_c_shepherd'
+}, {
+  itemId: 15005,
+  modelHash: 'a_c_westy'
+}, {
+  itemId: 15006,
+  modelHash: 'a_c_retriever'
+}];
+exports.petsConfig = petsConfig;
+},{}],"jrDx":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.PetSitState = void 0;
+const animationsByModel = {
+  [1125994524]: {
+    dict: 'creatures@pug@amb@world_dog_sitting@base',
+    name: 'base'
+  },
+  [2910340283]: {
+    dict: 'creatures@pug@amb@world_dog_sitting@base',
+    name: 'base'
+  },
+  [1126154828]: {
+    dict: 'creatures@dog@move',
+    name: 'sit_loop'
+  },
+  [1832265812]: {
+    dict: 'creatures@pug@amb@world_dog_sitting@base',
+    name: 'base'
+  },
+  [1318032802]: {
+    dict: 'creatures@dog@move',
+    name: 'sit_loop'
+  },
+  [351016938]: {
+    dict: 'creatures@dog@move',
+    name: 'sit_loop'
+  }
+};
+
+class PetSitState {
+  constructor(_pet) {
+    this._pet = _pet;
+  }
+
+  async calculateBehavior() {
+    let animation = animationsByModel[this._pet.model];
+
+    if (!animation) {
+      animation = {
+        dict: 'creatures@dog@move',
+        name: 'sit_loop'
+      };
+    }
+
+    if (!mp.game.streaming.doesAnimDictExist(animation.dict)) return;
+    mp.game.streaming.requestAnimDict(animation.dict);
+
+    for (let index = 0; !mp.game.streaming.hasAnimDictLoaded(animation.dict) && index < 250; index++) {
+      await mp.game.waitAsync(2);
+    }
+
+    this._pet.taskPlayAnim(animation.dict, animation.name);
+  }
+
+}
+
+exports.PetSitState = PetSitState;
+},{}],"nVSh":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.PetFollowState = void 0;
+
+class PetFollowState {
+  constructor(_pet) {
+    this._pet = _pet;
+  }
+
+  calculateBehavior() {
+    this._pet.followOwner();
+  }
+
+  onStateStarted() {
+    this._pet.clearTasks();
+  }
+
+}
+
+exports.PetFollowState = PetFollowState;
+},{}],"EUJI":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.PetStandState = void 0;
+
+class PetStandState {
+  constructor(_pet) {
+    this._pet = _pet;
+  }
+
+  calculateBehavior() {
+    this._pet.clearTasks();
+  }
+
+  onStateStarted() {
+    this._pet.clearTasks();
+  }
+
+}
+
+exports.PetStandState = PetStandState;
+},{}],"j8SD":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Pet = void 0;
+
+var _pets = require("../../../shared/pets");
+
+var _sit = require("./states/sit");
+
+var _follow = require("./states/follow");
+
+var _stand = require("./states/stand");
+
+var _custom = require("../custom.event");
+
+class Pet {
+  constructor(data) {
+    this.lastVehicleSeat = 0;
+    this.data = data;
+    this._sitState = new _sit.PetSitState(this);
+    this._followState = new _follow.PetFollowState(this);
+    this._standState = new _stand.PetStandState(this);
+  }
+
+  get coords() {
+    return this._ped.getCoordsAutoAlive();
+  }
+
+  set coords(pos) {
+    this._ped.setCoords(pos.x, pos.y, pos.z, true, true, true, true);
+  }
+
+  get model() {
+    return this._ped.model;
+  }
+
+  get heading() {
+    return this._ped.getHeading();
+  }
+
+  get vehicle() {
+    return this._ped.getVehicleIsIn(false);
+  }
+
+  async create() {
+    this._ped = mp.peds.new(this.data.model, this.data.position, 0, 0);
+    if (!mp.game.streaming.isModelValid(this.data.model)) return _custom.CustomEvent.triggerServer('srv:log', `Неверная модель собаки ${this.data.model}`);
+
+    while (!this.exist()) {
+      await mp.game.waitAsync(5);
+    }
+
+    this._ped.freezePosition(false);
+  }
+
+  handleCurrentState() {
+    if (!this.exist()) return;
+
+    this._ped.freezePosition(false);
+
+    switch (this.data.currentState) {
+      case _pets.PetState.Sit:
+        this._sitState.calculateBehavior();
+
+        break;
+
+      case _pets.PetState.Stand:
+        this._standState.calculateBehavior();
+
+        break;
+
+      case _pets.PetState.Follow:
+        this._followState.calculateBehavior();
+
+        break;
+    }
+  }
+
+  changeCurrentState(stateToChange) {
+    if (!this.exist()) return;
+    this.data.currentState = stateToChange;
+
+    switch (this.data.currentState) {
+      case _pets.PetState.Stand:
+        this._standState.onStateStarted();
+
+        break;
+
+      case _pets.PetState.Follow:
+        this._followState.onStateStarted();
+
+        break;
+    }
+
+    if (mp.players.local.remoteId === this.data.controllerId) {
+      _custom.CustomEvent.triggerServer('pet:changeState', this.data.id, stateToChange);
+    }
+
+    this.handleCurrentState();
+  }
+
+  putIntoAVehicle(vehicle, seat) {
+    if (!this.exist()) return;
+    if (!vehicle.isSeatFree(seat)) return;
+
+    if (mp.players.local.remoteId === this.data.controllerId) {
+      _custom.CustomEvent.triggerServer('pet:setIntoVehicle', this.data, vehicle.remoteId, seat);
+    }
+
+    this.lastVehicleSeat = seat;
+    mp.game.invoke('0x9A7D091411C5F684', this._ped.handle, vehicle.handle, seat);
+  }
+
+  kickFromVehicle(vehicle) {
+    if (mp.game.invoke('0xA3EE4A07279BB9DB', this._ped.handle, vehicle.handle, false)) {
+      this._ped.clearTasksImmediately();
+
+      mp.game.invoke('0xD3DBCE61A490BE02', this._ped.handle, vehicle.handle, 0);
+      this.handleCurrentState();
+
+      if (mp.players.local.remoteId === this.data.controllerId) {
+        _custom.CustomEvent.triggerServer('pet:kickFromVehicle', this.data, vehicle.remoteId);
+      }
+    }
+  }
+
+  clearTasks() {
+    this._ped.clearTasks();
+  }
+
+  exist() {
+    var _this$_ped;
+
+    return ((_this$_ped = this._ped) === null || _this$_ped === void 0 ? void 0 : _this$_ped.handle) != 0 && mp.peds.exists(this._ped);
+  }
+
+  taskPlayAnim(animDict, animName) {
+    this._ped.taskPlayAnim(animDict, animName, 8.0, 1.0, -1, 1, 1.0, false, false, false);
+  }
+
+  followOwner() {
+    const targetPlayer = mp.players.toArray().find(p => p.remoteId == this.data.controllerId);
+    if (!targetPlayer) return;
+
+    this._ped.taskFollowToOffsetOf(targetPlayer.handle, 0, 0, 0, 3.0, -1, 1.5, true);
+  }
+
+  followEntity(entity) {
+    this._ped.taskFollowToOffsetOf(entity.handle, 0, 0, 0, 3.0, -1, 1.5, true);
+  }
+
+  destroy() {
+    this._ped.destroy();
+  }
+
+}
+
+exports.Pet = Pet;
+},{"../../../shared/pets":"CgIy","./states/sit":"jrDx","./states/follow":"nVSh","./states/stand":"EUJI","../custom.event":"py8h"}],"WzW6":[function(require,module,exports) {
+"use strict";
+
+var _pet = require("./pet");
+
+var _pets = require("../../../shared/pets");
+
+var _custom = require("../custom.event");
+
+var _user = require("../user");
+
+var _menu = require("../menu");
+
+var _system = require("../system");
+
+var _gui = require("../gui");
+
+_custom.CustomEvent.register('petControl', () => {
+  if (!_user.user.login) return;
+  if (_menu.currentMenu) return;
+  if (_gui.terminalOpened) return;
+  if (_gui.inputOnFocus) return;
+  if (!pets.find(pet => pet.data.controllerId === mp.players.local.remoteId)) return _user.user.notify('Сначала создайте собаку (Использовать предмет в инвентаре)', 'info');
+  let m = new _menu.MenuClass('Управление питомцем', 'Действия');
+  m.newItem({
+    name: 'Сидеть',
+    onpress: () => {
+      const pet = pets.find(pet => pet.data.controllerId === mp.players.local.remoteId);
+      pet === null || pet === void 0 ? void 0 : pet.changeCurrentState(_pets.PetState.Sit);
+    }
+  });
+  m.newItem({
+    name: 'Стоять',
+    onpress: () => {
+      const pet = pets.find(pet => pet.data.controllerId === mp.players.local.remoteId);
+      pet === null || pet === void 0 ? void 0 : pet.changeCurrentState(_pets.PetState.Stand);
+    }
+  });
+  m.newItem({
+    name: 'Бежать за мной',
+    onpress: () => {
+      const pet = pets.find(pet => pet.data.controllerId === mp.players.local.remoteId);
+      pet === null || pet === void 0 ? void 0 : pet.changeCurrentState(_pets.PetState.Follow);
+    }
+  });
+  m.newItem({
+    name: 'Убрать',
+    onpress: () => {
+      const pet = pets.find(pet => pet.data.controllerId === mp.players.local.remoteId);
+      if (!pet) return;
+      pet.data.position = pet.coords;
+
+      _custom.CustomEvent.triggerServer('pet:delete', pet.data);
+    }
+  });
+  m.open();
+});
+
+const pets = [];
+
+_custom.CustomEvent.registerServer('pet:create', async (data, vehicleId, seat) => {
+  const petToCreate = new _pet.Pet(data);
+  await petToCreate.create();
+
+  if (!vehicleId) {
+    petToCreate.handleCurrentState();
+  } else {
+    petToCreate.putIntoAVehicle(mp.vehicles.atRemoteId(vehicleId), seat);
+  }
+
+  pets.push(petToCreate);
+});
+
+_custom.CustomEvent.registerServer('pet:delete', async data => {
+  const pet = pets.find(p => p.data.id == data.id);
+  if (!pet) return;
+  pet === null || pet === void 0 ? void 0 : pet.destroy();
+  pets.splice(pets.indexOf(pet), 1);
+});
+
+_custom.CustomEvent.registerServer('pet:changeState', (petId, newState) => {
+  const pet = pets.find(p => p.data.id === petId);
+  if (!pet) return;
+  if (pet.data.controllerId == mp.players.local.remoteId) return;
+  pet.changeCurrentState(newState);
+});
+
+_custom.CustomEvent.registerServer('pet:setIntoVehicle', (petId, vehicleId, seat) => {
+  const pet = pets.find(p => p.data.id === petId);
+  if (!pet) return;
+  if (pet.data.controllerId == mp.players.local.remoteId) return;
+  const veh = mp.vehicles.atRemoteId(vehicleId);
+  if (!veh) return;
+  pet.putIntoAVehicle(veh, seat);
+});
+
+_custom.CustomEvent.registerServer('pet:kickFromVehicle', (petId, vehicleId) => {
+  const pet = pets.find(p => p.data.id === petId);
+  if (!pet) return;
+  if (pet.data.controllerId == mp.players.local.remoteId) return;
+  const veh = mp.vehicles.atRemoteId(vehicleId);
+  if (!veh) return;
+  pet.kickFromVehicle(veh);
+});
+
+mp.events.add('entityStreamIn', async player => {
+  if (!mp.players.exists(player)) return;
+  const pet = pets.find(pet => pet.data.controllerId === mp.players.local.remoteId);
+  if (!pet) return;
+  const vehicle = mp.vehicles.atHandle(pet.vehicle);
+  pet.data.position = pet.coords;
+
+  _custom.CustomEvent.triggerServer('pet:loadForPlayer', player.remoteId, pet.data, vehicle ? vehicle.remoteId : 0, pet.lastVehicleSeat);
+});
+mp.events.add('entityStreamOut', async player => {
+  if (!mp.players.exists(player)) return;
+  const pet = pets.find(pet => pet.data.controllerId === mp.players.local.remoteId);
+  if (!pet) return;
+
+  _custom.CustomEvent.triggerServer('pet:deleteForPlayer', player.remoteId, pet.data.id);
+});
+mp.events.add('playerEnterVehicle', (vehicle, seat) => {
+  if (!mp.vehicles.exists(vehicle)) return;
+  const pet = pets.find(pet => pet.data.controllerId === mp.players.local.remoteId);
+  if (!pet) return;
+  pet.putIntoAVehicle(vehicle, seat + 1);
+});
+mp.events.add('playerLeaveVehicle', vehicle => {
+  if (!mp.vehicles.exists(vehicle)) return;
+  const pet = pets.find(pet => pet.data.controllerId === mp.players.local.remoteId);
+  if (!pet) return;
+  pet.kickFromVehicle(vehicle);
+});
+let lastDim = 0;
+setInterval(() => {
+  if (!_user.user.login) return;
+  const pet = pets.find(pet => pet.data.controllerId === mp.players.local.remoteId);
+  if (!pet) return;
+
+  if (_system.system.distanceToPos(pet.coords, mp.players.local.position) >= 100 || mp.players.local.dimension != lastDim) {
+    pet.data.position = pet.coords;
+
+    _custom.CustomEvent.triggerServer('pet:delete', pet.data);
+
+    pet === null || pet === void 0 ? void 0 : pet.destroy();
+    pets.splice(pets.indexOf(pet), 1);
+
+    _user.user.notify('Ваш питомец потерялся', 'error', 'CHAR_CHOP');
+  }
+
+  lastDim = mp.players.local.dimension;
+}, 1000);
+},{"./pet":"j8SD","../../../shared/pets":"CgIy","../custom.event":"py8h","../user":"ggMw","../menu":"Aiz7","../system":"pi2J","../gui":"bk91"}],"omRF":[function(require,module,exports) {
 "use strict";
 
 require("./user");
@@ -114555,7 +118734,13 @@ require("./specFxes");
 require("./carry");
 
 require("./autopilot");
-},{"./user":"ggMw","./controls":"yuOK","./menu":"Aiz7","./admin":"s4Xg","./survival":"nroP","./gui":"bk91","./world":"j6No","./character.creator":"X7UN","./inventory":"E5lg","./checkpoints":"XCJl","./blips":"vw4c","./businesses":"nphQ","./cloth":"Sp7p","./tattoo":"EG54","./mainmenu":"ciLG","./hotkeys":"OtV2","./vehicles":"J8pg","./voice":"WpQ0","./anim":"stJJ","./interact":"m19G","./navigation":"Wwxz","./scaleform.mp":"p2OF","./jobs":"un2p","./jail":"arTi","./interactions":"i0E8","./chest":"eVha","./house":"baXL","./dynamicBlip":"TK9Y","./vehicle.grab":"Aej0","./vehicle.registration":"rrVP","./license":"SVhP","./attach":"sXtZ","./doors":"H2nx","./peds":"ds7w","./terminal":"L1Tx","./grab.zone":"oAOB","./gpsTrack":"fUei","./race":"oS9n","./fish":"DueU","./gr6":"OnFn","./teleport.system":"UgKs","./dance":"gNQw","./bars":"ORIu","./afk":"X2Af","./rappel":"GXij","./fps":"JiGH","./discord":"MPk7","./quests":"W1Bu","./npc.dialog":"CWsZ","./signature":"zYqN","./ginteract":"SF2W","./accept":"RT6N","./savezone":"ehdN","./taxi":"G0I7","./npc.customer":"Ij8u","./documents.pos":"hsxS","./mafia.clean.wanted":"ywkW","./dispatch":"CTZz","./vehicle.sell":"He5v","./fingerpoint":"dnPV","./island":"ziAL","./boxgame":"y0tC","./deathmatch":"d354","./gangwar":"cDXP","./wintask":"yCG7","./family":"GI3U","./vote":"cgSZ","./protection":"Qh13","./battleroyale":"zixs","./compass":"L3lv","./construction":"Q1Tk","./editor":"ZVAB","./shooting":"OVYI","./sync":"nW4K","./police.radar":"R94t","./farm":"buab","./task":"UOh7","./npc.seller":"rRcs","./crafting":"tmgr","./casino/index":"ydwT","./gpsMarkSync":"ZVj5","./job.dress":"TuAn","./helicam":"m5tX","./lods":"VwFo","./hunting":"wMFx","./musicPlayer":"jMsm","./damageController":"RJXt","./mining":"OkNF","./family.bizwar":"X3nK","./jobs/index":"CrOp","./menus":"P1zH","./families":"JP2y","./market":"c25B","./farm/farmController":"Mftc","./blackout":"r8Xy","./advancedNpc":"M82h","./advancedQuests":"Y8OG","./events":"RqhX","./crosshair":"feKp","./specFxes":"Nv2L","./carry":"QJy9","./autopilot":"IYHr"}],"QCba":[function(require,module,exports) {
+
+require("./diving");
+
+require("./snowWar");
+
+require("./pets");
+},{"./user":"ggMw","./controls":"yuOK","./menu":"Aiz7","./admin":"s4Xg","./survival":"nroP","./gui":"bk91","./world":"j6No","./character.creator":"X7UN","./inventory":"E5lg","./checkpoints":"XCJl","./blips":"vw4c","./businesses":"nphQ","./cloth":"Sp7p","./tattoo":"EG54","./mainmenu":"ciLG","./hotkeys":"OtV2","./vehicles":"J8pg","./voice":"WpQ0","./anim":"stJJ","./interact":"m19G","./navigation":"Wwxz","./scaleform.mp":"p2OF","./jobs":"un2p","./jail":"arTi","./interactions":"i0E8","./chest":"eVha","./house":"baXL","./dynamicBlip":"TK9Y","./vehicle.grab":"Aej0","./vehicle.registration":"rrVP","./license":"SVhP","./attach":"sXtZ","./doors":"H2nx","./peds":"ds7w","./terminal":"L1Tx","./grab.zone":"oAOB","./gpsTrack":"fUei","./race":"oS9n","./fish":"DueU","./gr6":"OnFn","./teleport.system":"UgKs","./dance":"gNQw","./bars":"ORIu","./afk":"X2Af","./rappel":"GXij","./fps":"JiGH","./discord":"MPk7","./quests":"W1Bu","./npc.dialog":"CWsZ","./signature":"zYqN","./ginteract":"SF2W","./accept":"RT6N","./savezone":"ehdN","./taxi":"G0I7","./npc.customer":"Ij8u","./documents.pos":"hsxS","./mafia.clean.wanted":"ywkW","./dispatch":"CTZz","./vehicle.sell":"He5v","./fingerpoint":"dnPV","./island":"ziAL","./boxgame":"y0tC","./deathmatch":"d354","./gangwar":"cDXP","./wintask":"yCG7","./family":"GI3U","./vote":"cgSZ","./protection":"Qh13","./battleroyale":"zixs","./compass":"L3lv","./construction":"Q1Tk","./editor":"ZVAB","./shooting":"OVYI","./sync":"nW4K","./police.radar":"R94t","./farm":"buab","./task":"UOh7","./npc.seller":"rRcs","./crafting":"tmgr","./casino/index":"ydwT","./gpsMarkSync":"ZVj5","./job.dress":"TuAn","./helicam":"m5tX","./lods":"VwFo","./hunting":"wMFx","./musicPlayer":"jMsm","./damageController":"RJXt","./mining":"OkNF","./family.bizwar":"X3nK","./jobs/index":"CrOp","./menus":"P1zH","./families":"JP2y","./market":"c25B","./farm/farmController":"Mftc","./blackout":"r8Xy","./advancedNpc":"M82h","./advancedQuests":"Y8OG","./events":"RqhX","./crosshair":"feKp","./specFxes":"Nv2L","./carry":"QJy9","./autopilot":"IYHr","./diving":"fKzZ","./snowWar":"SZmx","./pets":"WzW6"}],"QCba":[function(require,module,exports) {
 "use strict";
 
 var _alertsSettings = require("../shared/alertsSettings");
