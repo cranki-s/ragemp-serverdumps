@@ -1,2 +1,3 @@
 # ragemp-serverdumps
-- only Client-Side JS Scripts
+- atm only Client-Side JS Scripts
+- cefs will be added soon
