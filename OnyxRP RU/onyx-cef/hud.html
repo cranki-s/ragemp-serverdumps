@@ -1,0 +1,637 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/uikit@3.5.5/dist/css/uikit.min.css">
+    <link rel="stylesheet" href="web.962cb28b.css">
+</head>
+
+<body>
+    <div id="root">
+        <section class="section-driftmod-wrapper"></section><audio
+            src="https://cdn.discordapp.com/attachments/516941592196546572/792348131521724426/loadmusic.mp3"
+            loop=""></audio>
+        <div class="hud-advice-wrap"
+            style="width: 263px; bottom: 226.187px; left: 28.71px; display: block; position: absolute;"></div>
+        <section class="hud" style="opacity: 1; display: block;">
+            <div class="bg-radial-top-left-hud"></div>
+            <div class="bg-radial-top-right-hud"></div>
+            <div class="bg-radial-bottom-right-hud"></div>
+            <div class="hud-top-left">
+                <div class="hud-chat " style="opacity: 0.1;">
+                    <div class="hud-chat-history-wrap">
+                        <div class="hud-chat-history-item">
+                            <p class="name"></p>
+                            <p class="message"><span style="color: #25B000"> Сейчас активна акция: Отыграй 5 часов -
+                                    получи 200 коинов</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="hud-crosshair" style="display: none;"><canvas id="crosshair" width="100" height="100"></canvas>
+            </div>
+            <div class="fishing" style="display: none;">
+                <div class="fishing__helpImage"><img src="img/helpImage.87e3677d.png" alt=""><span>Закинь удочку</span>
+                </div>
+                <div class="fishing__help">Нажми <span>Пробел</span> чтобы определить дальность броска</div>
+                <div class="fishing-progress"><img src="img/progressImage.5c37be9a.svg" class="fishing-progress__image"
+                        alt=""><img src="img/helpImage.87e3677d.png" class="fishing-progress__help" alt="">
+                    <div class="fishing-progress__bar null">
+                        <div style="height: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="fishing" style="display: none;">
+                <div class="fishing__helpImage"><img alt=""><span>Подсекай!</span></div>
+                <div class="fishing__help">Нажми <span>Пробел</span> чтобы подсечь рыбу</div>
+                <div class="hud-fishing-catch">
+                    <div class="bg-circle"></div>
+                    <div class="fish-circle-wrap"><svg class="rc-progress-circle" viewBox="0 0 100 100">
+                            <path class="rc-progress-circle-trail" d="M 50,50 m 0,-45
+   a 45,45 0 1 1 0,90
+   a 45,45 0 1 1 0,-90" stroke="rgba(196, 196, 196, 0)" stroke-linecap="round" stroke-width="10" fill-opacity="0"
+                                style="stroke: rgba(196, 196, 196, 0); stroke-dasharray: 282.743px, 282.743px; stroke-dashoffset: 0px; transition: stroke-dashoffset 0.3s ease 0s, stroke-dasharray 0.3s ease 0s, stroke 0.3s ease 0s, stroke-width 0.06s ease 0.3s;">
+                            </path>
+                            <path class="rc-progress-circle-path" d="M 50,50 m 0,-45
+   a 45,45 0 1 1 0,90
+   a 45,45 0 1 1 0,-90" stroke="" stroke-linecap="round" stroke-width="10" opacity="1" fill-opacity="0"
+                                style="stroke: rgb(111, 207, 151); stroke-dasharray: 2.82743px, 282.743px; stroke-dashoffset: 0px; transition: stroke-dashoffset 0.3s ease 0s, stroke-dasharray 0.3s ease 0s, stroke 0.3s ease 0s, stroke-width 0.06s ease 0.3s;">
+                            </path>
+                        </svg></div><img src="img/fishing_rod.b91af867.png" class="fish-rod-img">
+                </div>
+            </div>
+            <div class="fishing" style="display: none;">
+                <div class="fishing__helpImage"><img src="img/helpImage.87e3677d.png" alt=""><span>Не дай ей
+                        сорваться!</span></div>
+                <div class="fishing__help">Нажимай <span>A</span> чтобы не упустить рыбу и <span>D</span> чтобы держать
+                    леску</div>
+                <div class="fishing-progress__left"><img src="img/progressImageL.a224fe48.svg"
+                        class="fishing-progress__image" alt=""><img src="img/helpImage.87e3677d.png"
+                        class="fishing-progress__help" alt="">
+                    <div class="fishing-progress__bar fishing-green">
+                        <div style="height: 0%;"></div>
+                    </div>
+                </div>
+                <div class="fishing-progress__right"><img src="img/progressImage.5c37be9a.svg"
+                        class="fishing-progress__image" alt=""><img src="img/helpImage.87e3677d.png"
+                        class="fishing-progress__help" alt="">
+                    <div class="fishing-progress__bar null">
+                        <div style="height: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="fishStats" style="display: none;">
+                <div class="fishStats__level">0 lvl <div>0/0exp</div>
+                </div>
+                <div class="fishStats__br"></div>
+                <div class="fishStats__fish" style="opacity: 0.6;">
+                    <div>Чебак</div>
+                    <div>0 <img src="img/fishIcon.2e1fb518.png" alt=""></div>
+                </div>
+                <div class="fishStats__fish" style="opacity: 0.6;">
+                    <div>Окунь</div>
+                    <div>0 <img src="img/fishIcon.2e1fb518.png" alt=""></div>
+                </div>
+                <div class="fishStats__fish" style="opacity: 0.6;">
+                    <div>Щука</div>
+                    <div>0 <img src="img/fishIcon.2e1fb518.png" alt=""></div>
+                </div>
+                <div class="fishStats__fish" style="opacity: 0.6;">
+                    <div>Судак</div>
+                    <div>0 <img src="img/fishIcon.2e1fb518.png" alt=""></div>
+                </div>
+                <div class="fishStats__fish" style="opacity: 0.6;">
+                    <div>Карп</div>
+                    <div>0 <img src="img/fishIcon.2e1fb518.png" alt=""></div>
+                </div>
+                <div class="fishStats__fish" style="opacity: 0.6;">
+                    <div>Кижуч</div>
+                    <div>0 <img src="img/fishIcon.2e1fb518.png" alt=""></div>
+                </div>
+                <div class="fishStats__fish" style="opacity: 0.6;">
+                    <div>Лосось</div>
+                    <div>0 <img src="img/fishIcon.2e1fb518.png" alt=""></div>
+                </div>
+                <div class="fishStats__fish" style="opacity: 0.6;">
+                    <div>Камбала</div>
+                    <div>0 <img src="img/fishIcon.2e1fb518.png" alt=""></div>
+                </div>
+                <div class="fishStats__fish" style="opacity: 0.6;">
+                    <div>Осётр</div>
+                    <div>0 <img src="img/fishIcon.2e1fb518.png" alt=""></div>
+                </div>
+                <div class="fishStats__fish" style="opacity: 0.6;">
+                    <div>Фуга</div>
+                    <div>0 <img src="img/fishIcon.2e1fb518.png" alt=""></div>
+                </div>
+            </div>
+            <div class="hud-location-wrapper"
+                style="bottom: 15.78px; left: 333.71px; display: flex; position: absolute;">
+                <div class="hud-money-wrapper">
+                    <div class="hud-money-column">
+                        <div class="money-wrap">
+                            <p class="p-big">$5 000</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-wrap">
+                    <div class="downline">
+                        <div class="mic-wrap off">
+                            <div class="icon-wrap mic-on"><img src="img/mic-on.048d88b3.svg" width="24" height="24"></div>
+                            <div class="icon-wrap mic-off"><img src="img/mic-off.108e3979.svg" width="24" height="24"></div>
+                        </div>
+                        <div class="address-wrap"><img src="img/compas.3c6e3ce9.svg" width="24" height="24">
+                            <div class="text-wrap">
+                                <p class="p-big">Pillbox Hill</p>
+                                <p class="p-descr">Vespucci Blvd</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="hud-interaction-wrapper" style="display: none;">
+                <div class="circle-wrap">
+                    <div id="interactionprogress" class="rotationer"><svg viewBox="0 0 100 100">
+                            <path d="M 50,50 m 0,-49 a 49,49 0 1 1 0,98 a 49,49 0 1 1 0,-98"
+                                stroke="rgba(255, 255, 255, 0)" stroke-width="2" fill-opacity="0"></path>
+                            <path d="M 50,50 m 0,-49 a 49,49 0 1 1 0,98 a 49,49 0 1 1 0,-98" stroke="#ffffff"
+                                stroke-width="2" fill-opacity="0"
+                                style="stroke-dasharray: 307.919, 307.919; stroke-dashoffset: 1.87332;"></path>
+                        </svg></div>
+                    <div class="circle-small"></div>
+                    <p></p>
+                </div>
+                <p class="p-value"></p>
+            </div>
+            <div class="hud-top-right">
+                <div class="hud-main-info">
+                    <div class="hud-main-info-date">
+                        <p class="p-date">06 Февраля</p>
+                    </div>
+                    <div class="hud-main-info-extra">
+                        <div class="hud-mount-user"><img src="img/user-hud.3a976d1a.svg" width="24" height="24">
+                            <div class="text-wrap">
+                                <p>543</p>
+                                <p>1 500</p>
+                            </div>
+                        </div>
+                        <p class="p-id">id <span>47856</span></p>
+                        <div class="mini-logo"><img src="img/mini-logo.a125e866.svg" width="24" height="24"></div>
+                    </div>
+                    <p class="p-time">18:21</p>
+                </div>
+                <div class="hud-quest-line-wrapper">
+                    <div class="title-row">
+                        <p class="p-title">Проверка на честность</p>
+                        <div class="icon-wrap"><img src="img/target.cc3ce226.svg" width="24" height="24"></div>
+                    </div>
+                    <div class="hud-quest-line-wrap">
+                        <div class="hud-quest-line-item not-executed">
+                            <div class="hud-quest-line-row">
+                                <p class="p-title">Найдите Джеффри</p>
+                                <div class="icon-wrap"><img src="img/target.cc3ce226.svg" width="24" height="24"></div>
+                            </div>
+                            <div class="hud-quest-line-row">
+                                <div class="hint-text">
+                                    <p>Найдите квестового персонажа</p>
+                                </div>
+                                <div class="icon-wrap"></div>
+                            </div>
+                        </div>
+                        <div class="hud-quest-line-item not-executed">
+                            <div class="hud-quest-line-row">
+                                <p class="p-title">Найти Авраама</p>
+                                <div class="icon-wrap"><img src="img/target.cc3ce226.svg" width="24" height="24"></div>
+                            </div>
+                        </div>
+                        <div class="hud-quest-line-item not-executed">
+                            <div class="hud-quest-line-row">
+                                <p class="p-title">Вернитесь к Джеффри</p>
+                                <div class="icon-wrap"><img src="img/target.cc3ce226.svg" width="24" height="24"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="hudGunGame" style="display: none;">
+                <div class="hudGunGame-block"><img src="img/cup.b39e1056.png" class="hudGunGame-block__cup" alt="">
+                    <div class="hudGunGame-block__left">Игрок 1</div>
+                    <div class="hudGunGame-block__right">30<img src="img/scull.04f91a29.svg" alt=""></div>
+                </div>
+                <div class="hudGunGame-block">
+                    <div class="hudGunGame-block__left">Игрок 2</div>
+                    <div class="hudGunGame-block__right">20<img src="img/scull.04f91a29.svg" alt=""></div>
+                </div>
+                <div class="hudGunGame-block">
+                    <div class="hudGunGame-block__left">Игрок 3</div>
+                    <div class="hudGunGame-block__right">10<img src="img/scull.04f91a29.svg" alt=""></div>
+                </div>
+                <div class="hudGunGame-block hudGunGame-block__bottom">
+                    <div class="hudGunGame-block__left">Ваша статистика</div>
+                    <div class="hudGunGame-block__right">5<img src="img/scull.04f91a29.svg" alt=""></div>
+                </div>
+            </div>
+            <div class="hud-right-bottom">
+                <div class="value-key-location-wrap">
+                    <div class="bg-blur-value-key-location"></div>
+                    <div class="value-key-location-item">
+                        <p class="p-value">N</p>
+                        <div class="icon-wrap"><img src="img/hot_voice.2d110bcc.svg" width="24" height="24"></div>
+                    </div>
+                    <div class="value-key-location-item">
+                        <p class="p-value">G</p>
+                        <div class="icon-wrap"><img src="img/hot_inter.4e156c63.svg" width="24" height="24"></div>
+                    </div>
+                    <div class="value-key-location-item">
+                        <p class="p-value">M</p>
+                        <div class="icon-wrap"><img src="img/hot_menu.e8d85bb6.svg" width="24" height="24"></div>
+                    </div>
+                    <div class="value-key-location-item">
+                        <p class="p-value">Tab</p>
+                        <div class="icon-wrap"><img src="img/hot_inv.35c7e83c.svg" width="24" height="24"></div>
+                    </div>
+                    <div class="value-key-location-item">
+                        <p class="p-value">~</p>
+                        <div class="icon-wrap"><img src="img/hot_cursor.881afa88.svg" width="24" height="24"></div>
+                    </div>
+                </div>
+                <div class="hud-speedometer" style="display: none;">
+                    <div class="petrol-wrap">
+                        <div class="petrol-level"><img src="img/petrol-0.228c9ad1.svg" width="24" height="24"></div>
+                        <div class="icon-wrap"><img src="img/petrol-icon.68ae308b.svg" width="24" height="24"><i>0%</i>
+                        </div>
+                    </div>
+                    <div class="circle-speedometer-wrap">
+                        <div class="circle-speedometer">
+                            <div class="circle-wrap">
+                                <div id="circlespeedometer"><svg viewBox="0 0 100 50">
+                                        <path d="M 50,50 m -46,0 a 46,46 0 1 1 92,0" stroke="rgba(255, 255, 255, 0.2)"
+                                            stroke-width="8" fill-opacity="0"></path>
+                                        <path d="M 50,50 m -46,0 a 46,46 0 1 1 92,0" stroke="#ffffff" stroke-width="2"
+                                            fill-opacity="0"
+                                            style="stroke-dasharray: 144.534, 144.534; stroke-dashoffset: 144.534;">
+                                        </path>
+                                    </svg></div>
+                            </div>
+                            <div class="block-rotate">
+                                <div class="in-speed-wrapper">
+                                    <div class="in-speed-wrap">
+                                        <div class="in-speed-opacity">
+                                            <p><span>005</span></p>
+                                        </div>
+                                    </div>
+                                    <p class="p-descr">км/ч</p>
+                                </div>
+                            </div>
+                            <div class="other-value-wrap">
+                                <div class="other-value-item "><img src="img/strapped.7de3ef6a.svg" width="24" height="24">
+                                    <p>X</p>
+                                </div>
+                                <div class="other-value-item "><img src="img/lock.78d295cf.svg" width="24" height="24">
+                                    <p>L</p>
+                                </div>
+                                <div class="other-value-item "><img src="img/carburetor.eeefd888.svg" width="24"
+                                        height="24">
+                                    <p>B</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="accept-wrapper"></div>
+        <section class="phone-wrapper    ">
+            <section class="phone-time-icons ">
+                <p>18:21</p><i></i>
+                <div class="icons-line"></div>
+            </section>
+            <section class="screen-home" style="display: block;">
+                <div class="screen-home-wrap">
+                    <p class="time"><strong>18:21</strong><span class="date">06.02.2022</span></p><img
+                        src="img/logo.c8f0de4b.svg" alt="" class="phone-brilliant">
+                    <div class="app-grid">
+                        <div class="go-screen-call"><img src="img/ico-call.24de19db.svg" alt=""></div>
+                        <div class="go-screen-message"><img src="img/ico-message.ef377d0f.svg" alt=""></div>
+                        <div class="go-screen-gps"><img src="img/location-on-map.cc28b666.svg" alt=""></div>
+                        <div class="go-screen-setting"><img src="img/ico-setting.39c17d68.svg" alt=""></div>
+                        <div class="go-screen-exit"><img src="img/switch.058c5058.svg" alt=""></div>
+                    </div>
+                </div>
+            </section>
+            <div class="screen-fly screen-contacts bgwhite" style="display: none;">
+                <div class="screen-contacts-grid ui-tabs ui-corner-all ui-widget ui-widget-content" id="contactWrapper">
+                    <div class="back-to back-home"><img src="img/Arrow.8b4115ac.svg" alt=""> Назад</div>
+                    <div class="notification-wrap contact-added">
+                        <p><strong>Контакт добавлен</strong></p>
+                    </div>
+                    <div class="contacts-tab-wrap">
+                        <div class="p20 ui-tabs-panel ui-corner-bottom ui-widget-content" id="tab1"
+                            aria-labelledby="ui-id-1" role="tabpanel" aria-hidden="false" style="display: block;">
+                            <div class="add-contact-wrap"><i class="closethis"><img src="img/close-dark.27d06e25.svg"
+                                        alt=""></i>
+                                <div class="contacts-numbers">
+                                    <p class="text-center">Введите номер телефона</p><input type="number"
+                                        id="addContactNumber" maxlength="10" class="number-in text-center"
+                                        placeholder=". . ." value="">
+                                </div>
+                                <div class="contacts-numbers">
+                                    <p class="text-center">Введите имя контакта</p><input type="text"
+                                        id="addContactName" maxlength="15" class="number-in text-center"
+                                        placeholder=". . .">
+                                </div><button class="add-contact">Сохранить</button>
+                            </div>
+                            <div class="contacts-numbers"><input type="tel" class="number-in text-center" readonly=""
+                                    placeholder=". . ." value=""><button class="add-contact-bb">Добавить
+                                    контакт</button>
+                                <div class="buttons-grid">
+                                    <button>1</button><button>2</button><button>3</button><button>4</button><button>5</button><button>6</button><button>7</button><button>8</button><button>9</button>
+                                    <div class="numb-call-but"><img src="img/phone-receiver.4b7a9c79.svg" alt=""></div>
+                                    <button>0</button>
+                                    <div class="delete-text"><img src="img/delete-text.518a1dd7.svg" alt=""></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="tab2" class="posrev ui-tabs-panel ui-corner-bottom ui-widget-content"
+                            aria-labelledby="ui-id-2" role="tabpanel" aria-hidden="true" style="display: none;">
+                            <div class="contacts-list call-list">
+                                <div>
+                                    <div class="c-no">Контактная книга пуста</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="tab3" aria-labelledby="ui-id-3" role="tabpanel"
+                            class="ui-tabs-panel ui-corner-bottom ui-widget-content" aria-hidden="true"
+                            style="display: none;">
+                            <div class="contact-list">
+                                <div class="c-no">История звонков пуста</div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="contacts-line ui-tabs-nav ui-corner-all ui-helper-reset ui-helper-clearfix ui-widget-header"
+                        role="tablist">
+                        <li role="tab"
+                            class="ui-tabs-tab ui-corner-top ui-state-default ui-tab ui-tabs-active ui-state-active"
+                            aria-controls="tab1" aria-labelledby="ui-id-1" aria-selected="true" aria-expanded="true"><a
+                                href="#tab1" role="presentation" class="ui-tabs-anchor" id="ui-id-1"><img
+                                    src="img/Keypad.15c0c5bc.svg" alt="">
+                                <p>Набор</p>
+                            </a></li>
+                        <li role="tab" class="ui-tabs-tab ui-corner-top ui-state-default ui-tab" aria-controls="tab2"
+                            aria-labelledby="ui-id-2" aria-selected="false" aria-expanded="false"><a href="#tab2"
+                                role="presentation" class="ui-tabs-anchor" id="ui-id-2"><img src="img/Icon.ec610a12.svg"
+                                    alt="">
+                                <p>Контакты</p>
+                            </a></li>
+                        <li role="tab" class="ui-tabs-tab ui-corner-top ui-state-default ui-tab" aria-controls="tab3"
+                            aria-labelledby="ui-id-3" aria-selected="false" aria-expanded="false"><a href="#tab3"
+                                role="presentation" class="ui-tabs-anchor" id="ui-id-3"><img src="img/recent.63284948.svg"
+                                    alt="">
+                                <p>Последние</p>
+                            </a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="screen-fly screen-message-in bgwhite" style="display: none;"></div>
+            <div class="screen-fly screen-gps-boxes bgwhite" style="display: none;">
+                <div class="screen-gps-grid">
+                    <div class="screen-fly-title">GPS</div>
+                    <div class="back-to back-home"><img src="img/Arrow.8b4115ac.svg" alt=""> Назад</div>
+                    <div class="gps-list"><a href="#">
+                            <p>Мероприятия</p><span>x 0</span>
+                        </a><a href="#">
+                            <p>История навигатора</p><span>x 0</span>
+                        </a><a href="#">
+                            <p>Работы</p><span>x 2</span>
+                        </a><a href="#">
+                            <p>Досуг</p><span>x 1</span>
+                        </a><a href="#">
+                            <p>Инфраструктура</p><span>x 2</span>
+                        </a></div>
+                </div>
+            </div>
+            <div class="screen-fly screen-settings bggrey" style="display: none;">
+                <div class="screen-settings-grid">
+                    <div class="bgwhite">
+                        <div class="screen-fly-title">Настройки</div>
+                        <div class="back-to back-home"><img src="img/Arrow.8b4115ac.svg" alt=""> Назад</div>
+                    </div>
+                    <div class="settings-list">
+                        <div><input type="checkbox" class="checkbox-settings" name="big" id="big"><label
+                                for="big">Увеличенный режим</label></div>
+                        <div><input type="checkbox" class="checkbox-settings" name="minimize" id="minimize"><label
+                                for="minimize">Уменьшать когда не используется</label></div>
+                        <div>
+                            <p>Номер телефона</p>
+                            <p>1231233</p>
+                        </div>
+                        <div>
+                            <p>Баланс</p>
+                            <p>$120 123</p>
+                        </div>
+                        <div><button>Изъять сим-карту</button></div>
+                    </div>
+                </div>
+            </div>
+            <div class="screen-fly screen-call bggrey" style="display: none;"></div>
+            <div class="screen-fly screen-call bggrey" style="display: none;"></div>
+        </section>
+        <div class="tablet-block  dark">
+            <div class="screen" id="screen">
+                <div class="header-ios">18:21 <img src="img/wifi.e9f0cb91.svg"></div>
+                <div class="content">
+                    <div class="main">
+                        <div class="left">
+                            <div class="time uk-animation-slide-top-small">18:21</div>
+                            <div class="date uk-animation-slide-top-small">06.02.2022</div>
+                            <div class="widjet-block uk-animation-slide-left-small">
+                                <div class="header"> <img src="img/weather.738fad39.png" class="uk-animation-stroke"
+                                        uk-svg="stroke-animation: true"> Погода </div>
+                                <div class="weather-data"><img src="img/EXTRASUNNY.8f6f935a.png">
+                                    <div class="info">
+                                        <p>San Andreas</p><span>Ясно</span>
+                                    </div>
+                                    <div class="temp">0</div>
+                                </div>
+                            </div>
+                            <div class="widjet-block uk-animation-slide-left-small">
+                                <div class="header"> <img src="img/news.d698d3fe.png"> Новости </div>
+                                <div class="news-data">
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег нет</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег до сих пор нет</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег так и не появились</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег нет</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег до сих пор нет</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег так и не появились</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег нет</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег до сих пор нет</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег так и не появились</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег до сих пор нет</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег так и не появились</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег нет</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег до сих пор нет</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег так и не появились</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег до сих пор нет</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег так и не появились</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег нет</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег до сих пор нет</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег так и не появились</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег до сих пор нет</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег так и не появились</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег нет</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег до сих пор нет</div>
+                                    </div>
+                                    <div class="item">
+                                        <div class="title">Новости штата</div>
+                                        <div class="text">Торжественно сообщаем что денег так и не появились</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="right">
+                            <div class="item uk-animation-scale-down"><img src="img/home.46d51f37.png" id="icon_home"
+                                    class="">
+                                <p>Дом</p>
+                            </div>
+                            <div class="item uk-animation-scale-down"><img src="img/government.9a927880.png"
+                                    id="icon_government" class="">
+                                <p>Правительство</p>
+                            </div>
+                            <div class="item uk-animation-scale-down"><img src="img/stocks.d44fdff0.png" id="icon_stocks"
+                                    class="">
+                                <p>Склад</p>
+                            </div>
+                            <div class="item uk-animation-scale-down"><img src="img/browser.e6b49bb6.png" id="icon_browser"
+                                    class="">
+                                <p>Safari</p>
+                            </div>
+                            <div class="item uk-animation-scale-down"><img src="img/maps.95bdadcd.png" id="icon_maps"
+                                    class="">
+                                <p>Навигация</p>
+                            </div>
+                            <div class="item uk-animation-scale-down"><img src="img/news.d698d3fe.png" id="icon_news"
+                                    class="">
+                                <p>Новости</p>
+                            </div>
+                            <div class="item uk-animation-scale-down"><img src="img/wallet.3091bbf9.png" id="icon_wallet"
+                                    class="">
+                                <p>Банк</p>
+                            </div>
+                            <div class="item uk-animation-scale-down"><img src="img/setting.cc0c70c0.png" id="icon_setting"
+                                    class="">
+                                <p>Настройки</p>
+                            </div>
+                            <div class="item uk-animation-scale-down"><img src="img/poweroff.2a5a2d81.png"
+                                    id="icon_poweroff" class="">
+                                <p>Выключить</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="walkie "><img src="img/walkie.8638c320.png" alt="">
+            <div class="walkie__frequency">DISABLED</div>
+            <div class="walkie__redButton"></div>
+            <div class="walkie__greenButton"></div>
+            <div class="walkie__buttons">
+                <div><span>1</span> <img src="img/button.032185aa.png" alt=""></div>
+                <div><span>2</span> <img src="img/button.032185aa.png" alt=""></div>
+                <div><span>3</span> <img src="img/button.032185aa.png" alt=""></div>
+                <div><span>4</span> <img src="img/button.032185aa.png" alt=""></div>
+                <div><span>5</span> <img src="img/button.032185aa.png" alt=""></div>
+                <div><span>6</span> <img src="img/button.032185aa.png" alt=""></div>
+                <div><span>7</span> <img src="img/button.032185aa.png" alt=""></div>
+                <div><span>8</span> <img src="img/button.032185aa.png" alt=""></div>
+                <div><span>9</span> <img src="img/button.032185aa.png" alt=""></div>
+                <div><span>.</span><img src="img/button.032185aa.png" alt=""></div>
+                <div><span>0</span> <img src="img/button.032185aa.png" alt=""></div>
+                <div><span>-</span> <img src="img/button.032185aa.png" alt=""></div>
+            </div>
+        </div>
+        <div class="loadingblock " id="loadingblock"><video autoplay="" loop=""
+                src="https://cdn.discordapp.com/attachments/529480874031579166/760953202027266088/Comp_1.webm"></video>
+        </div>
+        <div class="alert-wrapper"></div>
+        <div class="hud-alert-wrapper"></div>
+    </div>
+    <footer>
+        <script src="https://cdn.jsdelivr.net/npm/uikit@3.5.5/dist/js/uikit.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/uikit@3.5.5/dist/js/uikit-icons.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <script src="img/web.33a9d6a0.js"></script>
+    </footer>
+</body>
+
+</html>
