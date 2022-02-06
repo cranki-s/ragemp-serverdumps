@@ -1,3 +1,4 @@
 # ragemp-serverdumps
-- atm only Client-Side JS Scripts
-- cefs will be added soon
+- RageMP Client-Side from several servers
+- cef will be added gradually
+
