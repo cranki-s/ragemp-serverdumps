@@ -1,186 +1,170 @@
 {
-﻿const positions = [
-// left side
-{ 'position': { 'x': -200, 'y': -1450, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': -50, 'y': -1450, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': 100, 'y': -1450, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': 250, 'y': -1450, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': 250, 'y': -1600, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': 400, 'y': -1600, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': 550, 'y': -1600, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': 400, 'y': -1750, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': 550, 'y': -1750, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': 550, 'y': -1900, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': -200, 'y': -1600, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': -50, 'y': -1600, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': 100, 'y': -1600, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': -200, 'y': -1750, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': -50, 'y': -1750, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': 100, 'y': -1750, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': 250, 'y': -1750, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': 100, 'y': -1900, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': 250, 'y': -1900, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': 400, 'y': -1900, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': 250, 'y': -2050, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': 100, 'y': -2050, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': 400, 'y': -2050, 'z': 30.18104 }, 'color': 10 },
-{ 'position': { 'x': 550, 'y': -2050, 'z': 30.18104 }, 'color': 10 },
+﻿global.board = mp.browsers.new('package://cef/board.html');
+global.openOutType = -1;
 
-// right side
-{ 'position': { 'x': 850, 'y': -2500, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1000, 'y': -2500, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1150, 'y': -2500, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 850, 'y': -1450, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 850, 'y': -1600, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 850, 'y': -1750, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 850, 'y': -1900, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 850, 'y': -2050, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 850, 'y': -2200, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 850, 'y': -2350, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1000, 'y': -2350, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1150, 'y': -2350, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1150, 'y': -2200, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1150, 'y': -2050, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1150, 'y': -1900, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1150, 'y': -1750, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1150, 'y': -1600, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1000, 'y': -1450, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1000, 'y': -1600, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1000, 'y': -1750, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1000, 'y': -1900, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1000, 'y': -2050, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1000, 'y': -2200, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1000, 'y': -2350, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1150, 'y': -1450, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1300, 'y': -1900, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1300, 'y': -2050, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1300, 'y': -2200, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1450, 'y': -2050, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1450, 'y': -1900, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1450, 'y': -2200, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1600, 'y': -1900, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1600, 'y': -2050, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1600, 'y': -2200, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1750, 'y': -1900, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1750, 'y': -2050, 'z': 28.17772 }, 'color': 10 },
-{ 'position': { 'x': 1300, 'y': -1750, 'z': 28.17772 }, 'color': 10 },
-]
-
-var blips = [];
-mp.events.add('loadCaptureBlips', function (json) {
-    var colors = JSON.parse(json);
-    for (var i = 0; i < colors.length; i++) {
-        positions[i].color = colors[i];
+mp.keys.bind(Keys.VK_ESCAPE, false, function() {
+    if (global.boardOpen) {
+        mp.game.ui.setPauseMenuActive(false);
+        mp.events.call('board', 1);
     }
-    positions.forEach(element => {
-        const blip = mp.game.ui.addBlipForRadius(element.position.x, element.position.y, element.position.z, 75);
-        mp.game.invoke(getNative("SET_BLIP_SPRITE"), blip, 5);
-        mp.game.invoke(getNative("SET_BLIP_ALPHA"), blip, 105);
-        mp.game.invoke(getNative("SET_BLIP_COLOUR"), blip, element.color);
-        blips.push(blip);
-    });
 });
 
-mp.events.add('setZoneColor', function (id, color) {
-    if (blips.length == 0) return;
-    mp.game.invoke(getNative("SET_BLIP_COLOUR"), blips[id], color);
-});
-mp.events.add('setZoneFlash', function (id, state, color) {
-    if (blips.length == 1 || blips.length == 0) {
-        if (state) {
-            const blip = mp.game.ui.addBlipForRadius(positions[id].position.x, positions[id].position.y, positions[id].position.z, 75);
-            mp.game.invoke(getNative("SET_BLIP_SPRITE"), blip, 5);
-            mp.game.invoke(getNative("SET_BLIP_ALPHA"), blip, 105);
-            mp.game.invoke(getNative("SET_BLIP_COLOUR"), blip, color);
-            blips[id] = blip;
-        }
-        else {
-            if (blips.length == 0) return;
-            mp.game.invoke(getNative("SET_BLIP_ALPHA"), blips[id], 0);
-        }
-    }
-
-    mp.game.invoke(getNative("SET_BLIP_FLASH_TIMER"), blips[id], 1000);
-    mp.game.invoke(getNative("SET_BLIP_FLASHES"), blips[id], state);
-});
-
-
-var isCapture = false;
-var captureAtt = 0;
-var captureDef = 0;
-var captureMin = 0;
-var captureSec = 0;
-var defID = 0;
-var attID = 0;
-
-
-mp.events.add('sendCaptureInformation', function (att, def, min, sec, defId, attId) {
-    captureAtt = att;
-    captureDef = def;
-    captureMin = min;
-    captureSec = sec;
-	defID = defId;
-	attID = attId;
-});
-
-mp.events.add('captureHud', function (argument) {
-    isCapture = argument;
-});
-
-var zonestatus =
-{
-    active: false,
-    capDef: 0,
-    capAtt: 0,
-    capMin: 0,
-    capSec: 0,
+function openBoard() {
+	if(board == null) return;
+	if (global.menuCheck()) return;
+    menuOpen();
+	board.execute('board.active=true');
+	global.boardOpen = true;
 }
-const images = {
-    1: "./images/families.png", 
-    2: "./images/ballas.png", 
-    3: "./images/vagos.png", 
-    4: "./images/mara2.png", 
-    5: "./images/bloods.png", 
-    11: "./images/rus.png",
-    12: "./images/mex.png",
-    13: "./images/lcn.png"
-};
-mp.events.add('sendkillinfo', (object) => {
-	wrapper.execute(`wrapper.addKills('${object}');`);
-});
-var wrapper = mp.browsers.new('package://cef/System/kill/index.html');
-mp.events.add('render', () => {
-	if (blips.length !== 0) {
-		blips.forEach(blip => {
-			mp.game.invoke(getNative("SET_BLIP_ROTATION"), blip, 0);
-		})
-	}
-    if (isCapture) {
-		wrapper.execute(`wrapper.active=true`); 
-        if (zonestatus.active == false)
-        {
-            zonestatus.active = true;
-            mp.gui.execute(`gangzone.show()`)
-			mp.gui.execute(`gangzone.attImg='${images[attID]}'`);
-			mp.gui.execute(`gangzone.defImg='${images[defID]}'`);
-			zonestatus.capAtt = captureAtt;
-			zonestatus.capDef = captureDef;
-            zonestatus.capMin = captureMin;
-            zonestatus.capSec = captureSec;
-        }		
-        mp.gui.execute(`gangzone.att=${captureDef}`);
-        mp.gui.execute(`gangzone.def=${captureAtt}`);
-        mp.gui.execute(`gangzone.min=${captureMin}`);
-        mp.gui.execute(`gangzone.sec=${captureSec}`);
+
+function closeBoard() {
+	if(board == null) return;
+    menuClose();
+	board.execute('board.close()');
+    global.boardOpen = false;
+    if (global.openOutType != -1 && global.openOutType != 9) {
+        mp.events.callRemote('closeInventory');
+        global.openOutType = -1;
     }
-    else
-    {
-		wrapper.execute(`wrapper.active=false`);
-        if (zonestatus.active == true)
-        {
-            zonestatus.active = false;
-            mp.gui.execute(`gangzone.hide()`);
+}
+// // //
+// 0 - Open
+// 1 - Close
+// 2 - Statistics data
+// 3 - Inventory data
+// 4 - Outside data
+// 5 - Outside on/off
+// // //
+var last
+mp.events.add('board', (act, data, index, to) => {
+    if (board === null)
+        global.board = mp.browsers.new('package://cef/board.html');
+	switch(act){
+		case 0:
+			openBoard();
+			break;
+        case 1:
+			closeBoard();
+			break;
+		case 3:
+			board.execute(`board.itemsSet(${index}, ${data})`);
+			break;
+		case 4:
+			board.execute(`board.outSet(${data})`);
+			break;
+		case 5:
+            board.execute(`board.outside=${data}`);
+            global.openOutType = 0;
+			break;
+        case 6:
+            board.execute(`board.itemUpd(${index},${data},${to})`);
+        	break;
+        case 7:
+            board.execute(`board.confirmFastSlot(${data},${index})`);
+        	break;
+		case 8:
+            board.execute(`board.confirmFastSlot(${data},undefined)`);
+			let key = getKey(data);
+			mp.keys.unbind(key, false);
+        	break;
+		case 9:
+			board.execute(`board.confirmFastSlot(${data},${index})`);
+			let key2 = getKey(data);
+			mp.events.callRemote('AttachWeapon', data, true);
+			mp.keys.bind(key2, false, function () {		
+				if (!loggedin || chatActive || global.menuOpened || mp.gui.cursor.visible) return;		
+				mp.events.callRemote("UseFastSlot", data);
+			});
+        	break;
+		case 10:
+			board.execute(`board.closeOutTypeMenu()`);
+			break;
+        case 11:
+            global.openOutType = -1;
+            closeBoard();
+        	break;
+	}
+});
+
+
+
+mp.events.add('boardCB', (act, type, index) => {
+	if (new Date().getTime() - global.lastCheck < 100) return; 
+	global.lastCheck = new Date().getTime();
+	switch (act) {
+		case 1:
+			mp.events.callRemote('Inventory', type, index, 'use');
+			break;
+		case 2:
+			mp.events.callRemote('Inventory', type, index, 'transfer');
+			break;
+		case 3:
+			mp.events.callRemote('Inventory', type, index, 'take');
+			break;
+		case 4:
+			mp.events.callRemote('Inventory', type, index, 'drop');
+			break;
+	}
+});
+mp.events.add("useFastSlot", (e, a, o) => {
+     (new Date).getTime() - global.lastCheck < 100 || (global.lastCheck = (new Date).getTime(), bindSlot = a > 0 ? a : o, a > 0 ? mp.events.call("bindSlotKey", e, a, !0) : o > 0 && mp.events.call("bindSlotKey", e, o, false))
+});
+mp.events.add("bindSlotKey", (e, a, o) => {		
+    let key;
+    1 == a ? key = Keys.VK_1 : 2 == a ? key = Keys.VK_2 : 3 == a ? key = Keys.VK_3 : 4 == a ? key = Keys.VK_4 : 5 == a && (key = Keys.VK_5), o ? 
+	mp.keys.bind(key, false, (function() {
+        !loggedin || chatActive || (new Date).getTime() - global.lastCheck < 500 || global.menuOpened || mp.gui.cursor.visible || 
+		(mp.events.callRemote("Inventory", 0, e, "use"), global.lastCheck = (new Date).getTime())	
+	})) : mp.keys.unbind(key, false)
+});
+function getKey(index) {
+	let key;
+	switch (index)
+	{
+		case 0:
+			key = Keys.VK_1
+			break;
+		case 1:
+			key = Keys.VK_2
+			break;
+		case 2:
+			key = Keys.VK_3
+			break;
+		case 3:
+			key = Keys.VK_4
+			break;
+		case 4:
+			key = Keys.VK_5
+			break;
+	}
+	return key;
+}
+var rebinds = [-1,-1,-1,-1,-1]
+mp.events.add("bind", (slot, index) => {
+	let key = getKey(index);
+	mp.events.callRemote('FastSlot:Add', slot, index);
+	mp.keys.bind(key, false, function () {		
+		if (!loggedin || chatActive || global.menuOpened || mp.gui.cursor.visible) return;		
+		mp.events.callRemote("UseFastSlot", index);
+	});
+});
+mp.events.add("unbindCef", (index) => {
+	let key = getKey(index);
+	mp.keys.unbind(key, false);
+	board.execute(`board.unbindSlot(${index})`);
+})
+mp.events.add("unbind", (index) => {
+	mp.events.callRemote('FastSlot:Remove', index);
+});
+
+
+// // //
+mp.events.add("playerQuit", (player, exitType, reason) => {
+    if (board !== null) {
+        if (player.name === localplayer.name) {
+            board.destroy();
+            board = null;
         }
     }
 });
-}Õ
+}甡魎͉

@@ -1,58 +1,91 @@
 {
-let roulette;
-let caseid = -1;
-let startRoulette = false;
-mp.keys.bind(Keys.VK_F7, false, function () { // F7 key	
-    if(roulette == null){
-        if (!loggedin || global.chatActive || editing || global.menuOpened) return;
-        roulette = mp.browsers.new('package://cef/System/roulette/index.html');
-        caseid = -1;
-        mp.events.callRemote("r:SendCasePrize");        
-        global.menuOpen()
-        return;
-    }
-    if (startRoulette == false)
-        mp.events.call('r:rouletteClose');
-});
-mp.events.add('r:SendCasePrize', (prize,money) => {
-    if (roulette != null) { 
-        roulette.execute(`roulette.prizes=${prize}`);
-        roulette.execute(`roulette.money=${money}`);
+const bigmap = [];
+
+bigmap.status = 0;
+bigmap.timer = null;
+
+mp.game.ui.setRadarZoom(1.0);
+mp.game.ui.setRadarBigmapEnabled(false, false);
+
+function getMinimapAnchor() {
+    let sfX = 1.0 / 20.0;
+    let sfY = 1.0 / 20.0;
+    let safeZone = mp.game.graphics.getSafeZoneSize();
+    let aspectRatio = mp.game.graphics.getScreenAspectRatio(false);
+    let resolution = mp.game.graphics.getScreenActiveResolution(0, 0);
+    let scaleX = 1.0 / resolution.x;
+    let scaleY = 1.0 / resolution.y;
+
+    let minimap = {
+        width: scaleX * (resolution.x / (4 * aspectRatio)),
+        height: scaleY * (resolution.y / 5.674),
+        scaleX: scaleX,
+        scaleY: scaleY,
+        leftX: scaleX * (resolution.x * (sfX * (Math.abs(safeZone - 1.0) * 10))),
+        bottomY: 1.0 - scaleY * (resolution.y * (sfY * (Math.abs(safeZone - 1.0) * 10))),
     };
-})
-mp.events.add('r:setcase', (c) => {
-    if (roulette != null) 
-        roulette.execute(`roulette.setCase(${c})`)
-});
-mp.events.add('r:getCase', (c) => {
-    caseid = +c;
-    mp.events.callRemote('r:GetCase', c);
-});
-mp.events.add('r:getWinId', (type) => {
-    mp.events.callRemote('r:getWinId', type, caseid);
-});
-mp.events.add('r:getprize', (type, id) => {
-    startRoulette = false;
-    mp.events.callRemote('r:getPrize', type, id, caseid);
-});
-mp.events.add('r:getWinIdCallback', (e, type,caseindex) => {
-    mp.events.callRemote('console',caseindex);
-    mp.events.callRemote('console',caseid);
-    if (roulette != null && caseid == caseindex) {
-        startRoulette = true;
-        roulette.execute(`roulette.getWinIdCallback(${e},'${type}')`);
+
+    minimap.rightX = minimap.leftX + minimap.width;
+    minimap.topY = minimap.bottomY - minimap.height;
+    return minimap;
+}
+
+mp.events.add('render', () => {
+    if (!loggedin || chatActive || editing || cuffed || localplayer.getVariable('InDeath') == true) return;
+
+    mp.game.controls.disableControlAction(0, 48, true);
+    if (mp.game.controls.isDisabledControlJustPressed(0, 48)) {
+
+        var minimap = getMinimapAnchor();
+        if (bigmap.status === 0) {
+            mp.game.ui.setRadarZoom(0.0);
+            bigmap.status = 1;
+
+            bigmap.timer = setTimeout(() => {
+                mp.game.ui.setRadarBigmapEnabled(false, true);
+                mp.game.ui.setRadarZoom(1.0);
+
+                bigmap.status = 0;
+                bigmap.timer = null;
+            }, 10000);
+        } else if (bigmap.status === 1) {
+            if (bigmap.timer != null) {
+                clearTimeout(bigmap.timer);
+                bigmap.timer = null;
+            }
+
+            mp.game.ui.setRadarBigmapEnabled(true, false);
+            mp.game.ui.setRadarZoom(0.0);
+            bigmap.status = 2;
+
+            // bigmap
+            mp.gui.execute(`HUD.minimapFix=${(minimap.rightX * 100) * 1.56}`);
+
+            bigmap.timer = setTimeout(() => {
+                mp.game.ui.setRadarBigmapEnabled(false, true);
+                mp.game.ui.setRadarZoom(1.0);
+
+                bigmap.status = 0;
+                bigmap.timer = null;
+
+                // default
+                mp.gui.execute(`HUD.minimapFix=${minimap.rightX * 100}`);
+            }, 10000);
+        } else {
+            if (bigmap.timer != null) {
+                clearTimeout(bigmap.timer);
+                bigmap.timer = null;
+            }
+
+            mp.game.ui.setRadarBigmapEnabled(false, false);
+            mp.game.ui.setRadarZoom(1.0);
+            bigmap.status = 0;
+
+            // default
+            mp.gui.execute(`HUD.minimapFix=${minimap.rightX * 100}`);
+        }
     }
 });
-mp.events.add('HelpMenu:SendNotify', (type, layout, msg, time)=>{
-    if (roulette != null) 
-        roulette.execute(`notify(${type},${layout},'${msg}',${time})`);
-});
-mp.events.add('r:rouletteClose', () => {
-    if (roulette != null) {
-        roulette.destroy();
-        roulette = null;
-    }
-    global.menuClose();
-    mp.gui.cursor.visible = false;
-})
+
+getMinimapAnchor();
 }

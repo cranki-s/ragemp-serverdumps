@@ -1,162 +1,163 @@
 {
-﻿global.circleEntity = null;
-global.circleOpen = false;
-var circleTitle = "";
+﻿var attachedObjects = [];
 
-function OpenCircle(title, data) {
-    if (menuCheck() || circleOpen) return;
-	if (global.localplayer.getVariable("attachToVehicleTrunk")) return;
-    board.execute(`circle.show("${title}",${data})`);
-    circleTitle = title;
-    circleOpen = true;
-    menuOpen();
-}
-function CloseCircle(hide) {
-    if(hide) board.execute("circle.hide()");
-    circleOpen = false;
-    menuClose();
+mp.events.add('attachObject', attachObject);
+mp.events.add('detachObject', function (player) {
+    try {
+        if (player && mp.players.exists(player)) {
+            if (attachedObjects[player.id] != undefined) { attachedObjects[player.id].destroy(); }
+            attachedObjects[player.id] = undefined;
+        }
+    } catch (e) {  } 
+});
+
+function attachObject(player) {
+    try {
+        if (player && mp.players.exists(player)) {
+            if (attachedObjects[player.id] != undefined) attachedObjects[player.id].destroy();
+
+            if (player.getVariable('attachedObject') == null) return;
+            let data = JSON.parse(player.getVariable('attachedObject'));
+            let boneID = player.getBoneIndex(data.Bone);
+            var object = mp.objects.new(data.Model, player.position,
+                {
+                    rotation: new mp.Vector3(0, 0, 0),
+                    alpha: 255,
+                    dimension: player.dimension
+                });
+
+            waitEntity(object).then(() => {
+                object.attachTo(player.handle, boneID, data.PosOffset.x, data.PosOffset.y, data.PosOffset.z, data.RotOffset.x, data.RotOffset.y, data.RotOffset.z, true, false, false, false, 0, true);
+                attachedObjects[player.id] = object;
+            });
+        }
+
+        function waitEntity(entity){
+            return new Promise(resolve => {
+                let wait = setInterval(() => {
+                    if(mp.game.entity.isAnEntity(entity.handle)){
+                        clearInterval(wait);
+                        resolve();
+                    }
+                }, 1);
+            });
+        }
+    } catch (e) { } 
 }
 
-function OpenFracData(title){
-if (menuCheck() || circleOpen) return;
-    board.execute(`circle.show("${title}",${pFraction})`);
-    circleTitle = title;
-    circleOpen = true;
-    menuOpen();
-}
+mp.events.add('toggleInvisible', function (player, toggle) {
+    try {
+        if (mp.players.exists(player)) {
+            if (toggle) player.setAlpha(0);
+            else player.setAlpha(255);
+        }
+    } catch (e) { }
+});
 
-// // //
-mp.events.add('circleCallback', (index) => {
-    if (index == -1) {
-        CloseCircle(false);
+mp._events.add("playerQuit", (player) => {
+    try {
+        if (attachedObjects[player.id] != undefined) {
+            attachedObjects[player.id].destroy();
+            attachedObjects[player.id] = undefined;
+        }
+    } catch (e) { }
+});
+mp.events.add('entityStreamOut', function (entity) {
+    try {
+        if (entity.type != 'player') return;
+        if (attachedObjects[entity.id] != undefined) {
+            attachedObjects[entity.id].destroy();
+            attachedObjects[entity.id] = undefined;
+        }
+    } catch (e) { } 
+});
+const PlayerHash = mp.game.joaat("PLAYER");
+const NonFriendlyHash = mp.game.joaat("FRIENDLY_PLAYER");
+const FriendlyHash = mp.game.joaat("NON_FRIENDLY_PLAYER");
+
+localplayer.setRelationshipGroupHash(PlayerHash);
+
+mp.game.ped.addRelationshipGroup("FRIENDLY_PLAYER", 0);
+mp.game.ped.addRelationshipGroup("NON_FRIENDLY_PLAYER", 0);
+
+mp.game.ped.setRelationshipBetweenGroups(0, PlayerHash, FriendlyHash);
+
+mp.game.ped.setRelationshipBetweenGroups(5, PlayerHash, NonFriendlyHash);
+mp.game.ped.setRelationshipBetweenGroups(5, NonFriendlyHash, PlayerHash);
+
+var dmgdisabled = false;
+mp.events.add('disabledmg', (toggle) => {
+    if(toggle) {
+        dmgdisabled = true;
+        mp.players.forEachInStreamRange(
+            (entity) => {
+                if(entity != localplayer) entity.setRelationshipGroupHash(FriendlyHash);
+            }
+        );
     } else {
-        CloseCircle(false);
-        switch (circleTitle) {
-            case "Машина":
-                switch (index) {
-                            case 0:
-                            case 1:
-                            case 2:
-                            case 3:
-		                    case 4:
-		                    case 5:
-                            case 6:    
-                            case 7:
-                                if (entity != null) 
-                                    mp.events.callRemote('vehicleSelected', entity, index);
-                            return;
-        }
-    return;
-            case "Игрок":
-                if (entity == null) return;
-                switch (index) {
-                    case 0:
-                        mp.events.callRemote('pSelected', entity, "Передать деньги");
-                        return;
-                    case 1:
-                        mp.events.callRemote('pSelected', entity, "Предложить обмен");
-                        return;
-                    case 2:
-                        if (pFraction === 0 || pFraction === 15) return;
-                        OpenCircle("Фракция", pFraction);
-                        return;
-                    case 3:
-                        mp.events.callRemote('passport', entity);
-                        return;
-                    case 4:
-                        mp.events.callRemote('licenses', entity);
-                        return;
-					case 5:
-                        mp.events.callRemote('pSelected', entity, "Показать пластик");
-                        return;		
-                    case 6:
-                        mp.events.callRemote('pSelected', entity, "Вылечить");
-                        return;
-                    case 7:
-                        OpenCircle("Дом", 0);
-                        return;
-					case 8:
-                        OpenCircle("Квартира", 0);
-                        return;
-                    case 9:
-                        mp.events.callRemote('pSelected', entity, "Пожать руку");
-                        return;
-					case 11:
-                        mp.events.callRemote('pSelected', entity, "Поцеловать");
-                        return;
-					
-					
-                }
-                return;
-            case "Дом":
-                switch (index) {
-                    case 0:
-                        mp.events.callRemote('pSelected', entity, "Продать машину");
-                        return;
-                    case 1:
-                        mp.events.callRemote('pSelected', entity, "Продать дом");
-                        return;
-                    case 2:
-                        mp.events.callRemote('pSelected', entity, "Заселить в дом");
-                        return;
-                    case 3:
-                        mp.events.callRemote('pSelected', entity, "Пригласить в дом");
-                        return;
-                }
-                return;
-			case "Квартира":
-                switch (index) {
-                    case 0:
-                        mp.events.callRemote('pSelected', entity, "Продать машину");
-                        return;
-                    case 1:
-                        mp.events.callRemote('pSelected', entity, "Продать квартиру");
-                        return;
-                    case 2:
-                        mp.events.callRemote('pSelected', entity, "Заселить в квартиру");
-                        return;
-                    case 3:
-                        mp.events.callRemote('pSelected', entity, "Пригласить в квартиру");
-                        return;
-                }
-                return;
-            case "Фракция":
-                if (entity == null) return;
-                circleEntity = entity;
-                if (fractionActions[pFraction] == undefined) return;
-                mp.events.callRemote('pSelected', entity, fractionActions[pFraction][index]);
-                return;
-			case "Семья":
-                if (entity == null) return;
-                circleEntity = entity;
-                mp.events.callRemote('pSelected', entity, fractionActions[1][index]);
-                return;
-        }
+        dmgdisabled = false;
+        mp.players.forEachInStreamRange(
+            (entity) => {
+                if(entity != localplayer) entity.setRelationshipGroupHash(NonFriendlyHash);
+            }
+        );
     }
 });
-var aCategory = -1;
 
-var pFraction = 0;
-var fractionActions = [];
-fractionActions[1] = ["Вести за собой", "Мешок", "Ограбить"];
-fractionActions[2] = ["Вести за собой", "Мешок", "Ограбить"];
-fractionActions[3] = ["Вести за собой", "Мешок", "Ограбить"];
-fractionActions[4] = ["Вести за собой", "Мешок", "Ограбить"];
-fractionActions[5] = ["Вести за собой", "Мешок", "Ограбить"];
-fractionActions[6] = ["Вести за собой", "Показать удостоверение", "Сорвать маску", "Обыскать"];
-fractionActions[7] = ["Вести за собой", "Обыскать", "Изъять оружие", "Изъять нелегал", "Сорвать маску", "Выписать штраф", "Показать удостоверение", "Выдать пластик", "Посадить в КПЗ"];
-fractionActions[8] = ["Продать аптечку", "Предложить лечение", "Показать удостоверение"];
-fractionActions[9] = ["Вести за собой", "Обыскать", "Изъять оружие", "Изъять нелегал", "Сорвать маску", "Показать удостоверение", "Посадить в КПЗ"];
-fractionActions[10] = ["Вести за собой", "Мешок", "Ограбить"];
-fractionActions[11] = ["Вести за собой", "Мешок", "Ограбить"];
-fractionActions[12] = ["Вести за собой", "Мешок", "Ограбить"];
-fractionActions[13] = ["Вести за собой", "Мешок", "Ограбить","Выдать сертификат"];
-fractionActions[14] = ["Вести за собой", "Мешок", "Сорвать маску", "Показать удостоверение", "Обыскать"];
-fractionActions[15] = ["Вести за собой", "Показать удостоверение"];
-fractionActions[16] = ["Вести за собой"];
-fractionActions[17] = ["Вести за собой", "Мешок", "Обыскать", "Изъять нелегал", "Сорвать маску", "Показать удостоверение", "Изъять оружие"];
-fractionActions[18] = ["Вести за собой", "Мешок", "Обыскать", "Изъять нелегал", "Сорвать маску", "Показать удостоверение", "Изъять оружие"];
-mp.events.add('fractionChange', (fraction) => {
-    pFraction = fraction;
+mp._events.add('playerWeaponShot', (targetPosition, targetEntity) => {
+    if(dmgdisabled == true) return true;
 });
-}Õ
+
+mp.game.streaming.requestAnimDict("creatures@cat@amb@world_cat_sleeping_ground@base");
+mp.game.streaming.requestAnimDict("creatures@rottweiler@amb@sleep_in_kennel@");
+mp.game.streaming.requestAnimDict("creatures@pug@amb@world_dog_sitting@base");
+mp.game.streaming.requestAnimDict("amb@world_human_sunbathe@male@back@base");
+mp.game.streaming.requestAnimDict("anim@amb@nightclub@peds@");
+mp.game.streaming.requestAnimDict("missheistdocks2aleadinoutlsdh_2a_int");
+mp.game.streaming.requestAnimDict("missstrip_club_lean");
+mp.game.streaming.requestAnimDict("misstrevor2");
+mp.game.streaming.requestAnimDict("creatures@retriever@amb@world_dog_sitting@base");
+mp.game.streaming.requestAnimDict("creatures@deer@amb@world_deer_grazing@idle_a");
+
+mp.game.streaming.requestAnimDict("mp_safehouseseated@female@heels@idle_b");
+
+mp.events.add('entityStreamIn', function (entity) {
+    try {
+        if (entity.type === 'player') {
+			SetWalkStyle(entity, walkstyles[entity.getVariable('playerws')]);
+			SetMood(entity, moods[entity.getVariable('playermood')]);
+			attachObject(entity);
+			if(dmgdisabled == true) entity.setRelationshipGroupHash(FriendlyHash);
+			else entity.setRelationshipGroupHash(NonFriendlyHash);
+			if (entity.getVariable('INVISIBLE') == true) entity.setAlpha(0);
+			else entity.setAlpha(255);
+		} else if(entity.type === 'ped') {
+			entity.taskLookAt(localplayer.handle, -1, 2048, 3);
+			if(entity.getModel() == 1462895032) entity.taskPlayAnim("creatures@cat@amb@world_cat_sleeping_ground@base", "base", 8.0, 1.0, -1, 1, 0.0, false, false, false); // Cat
+			else if(entity.getModel() == 1318032802) entity.taskPlayAnim("creatures@rottweiler@amb@sleep_in_kennel@", "sleep_in_kennel", 8.0, 1.0, -1, 1, 0.0, false, false, false); // Husky
+			else if(entity.getModel() == 1832265812) entity.taskPlayAnim("creatures@pug@amb@world_dog_sitting@base", "base", 8.0, 1.0, -1, 1, 0.0, false, false, false); // Pug
+			else if(entity.getModel() == 2910340283) entity.taskPlayAnim("creatures@pug@amb@world_dog_sitting@base", "base", 8.0, 1.0, -1, 1, 0.0, false, false, false); // Westy
+			else if(entity.getModel() == 1125994524) entity.taskPlayAnim("creatures@pug@amb@world_dog_sitting@base", "base", 8.0, 1.0, -1, 1, 0.0, false, false, false); // Poodle
+			else if(entity.getModel() == 940330470) entity.taskPlayAnim("amb@world_human_sunbathe@male@back@base", "base", 8.0, 1.0, -1, 1, 0.0, false, false, false); // Rashkovsky		
+			else if(entity.getModel() == 3613420592) entity.taskPlayAnim("anim@amb@nightclub@peds@", "rcmme_amanda1_stand_loop_cop", 8.0, 1.0, -1, 1, 0.0, false, false, false); // Bony
+			else if(entity.getModel() == 3439295882) entity.taskPlayAnim("missheistdocks2aleadinoutlsdh_2a_int", "sitting_loop_wade", 8.0, 1.0, -1, 1, 0.0, false, false, false); // Emma
+			else if(entity.getModel() == 1906124788) entity.taskPlayAnim("missstrip_club_lean", "player_lean_rail_loop", 8.0, 1.0, -1, 1, 0.0, false, false, false); // Frank
+			
+			
+			else if(entity.getModel() == 1146800212) entity.taskPlayAnim("mp_safehouseseated@female@heels@idle_b", "idle_e", 8.0, 1.0, -1, 1, 0.0, false, false, false); // NPC 1
+			else if(entity.getModel() == 365775923) entity.taskPlayAnim("mp_safehouseseated@female@heels@idle_b", "idle_e", 8.0, 1.0, -1, 1, 0.0, false, false, false); // NPC 2
+			else if(entity.getModel() == 826475330) entity.taskPlayAnim("mp_safehouseseated@female@heels@idle_b", "idle_e", 8.0, 1.0, -1, 1, 0.0, false, false, false); // NPC 3
+			else if(entity.getModel() == 2040438510) entity.taskPlayAnim("mp_safehouseseated@female@heels@idle_b", "idle_e", 8.0, 1.0, -1, 1, 0.0, false, false, false); // NPC 4
+			else if(entity.getModel() == 1206185632) entity.taskPlayAnim("mp_safehouseseated@female@heels@idle_b", "idle_e", 8.0, 1.0, -1, 1, 0.0, false, false, false); // NPC 5
+			else if(entity.getModel() == 1982350912) entity.taskPlayAnim("mp_safehouseseated@female@heels@idle_b", "idle_e", 8.0, 1.0, -1, 1, 0.0, false, false, false); // NPC 6
+			else if(entity.getModel() == 1189322339) entity.taskPlayAnim("mp_safehouseseated@female@heels@idle_b", "idle_e", 8.0, 1.0, -1, 1, 0.0, false, false, false); // NPC 7
+			
+			else if(entity.getModel() == 1596003233) entity.taskPlayAnim("misstrevor2", "gang_chatting_idle02_a", 8.0, 1.0, -1, 1, 0.0, false, false, false); // Muscle Prisoner
+			else if(entity.getModel() == 2506301981) entity.taskPlayAnim("creatures@retriever@amb@world_dog_sitting@base", "base", 8.0, 1.0, -1, 1, 0.0, false, false, false); // Gang Rottweiler
+			else if(entity.getModel() == 882848737) entity.taskPlayAnim("creatures@retriever@amb@world_dog_sitting@base", "base", 8.0, 1.0, -1, 1, 0.0, false, false, false); // Retriever Police
+			else if(entity.getModel() == 1126154828) entity.taskPlayAnim("creatures@retriever@amb@world_dog_sitting@base", "base", 8.0, 1.0, -1, 1, 0.0, false, false, false); // Shephard
+			else if(entity.getModel() == 3630914197) entity.taskPlayAnim("creatures@deer@amb@world_deer_grazing@idle_a", "idle_b", 8.0, 1.0, -1, 1, 0.0, false, false, false); // Retriever Police
+		}
+    } catch (e) { }
+});
+}ጉМϢ

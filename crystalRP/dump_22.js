@@ -1,175 +1,280 @@
 {
-﻿const Use3d 		= true;
-const UseAutoVolume = false;
-const MaxRange 		= 18.0;
-const VoiceVol 		= 1.0;
-const VoiceChatKey 	= 0x58; // X
+﻿var fathers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 42, 43, 44];
+var mothers = [21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 45];
 
-var DoubleClickReload 	= 0;
-var VoiceReloadDelay 	= 0;
+global.hairIDList = [
+    // male
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 30, 31, 32, 33, 34, 73, 76, 77, 78, 79, 80, 81, 82, 84, 85],
+    // female
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 31, 76, 77, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 90, 91]
+];
 
-mp.keys.bind(VoiceChatKey, false, function() {
-    mp.voiceChat.muted = true;
-	mp.gui.execute(`HUD.mic=${true}`);
-    mp.events.call("hudSetMicActive", false);
-    localplayer.playFacialAnim("mood_normal_1", "facials@gen_male@variations@normal");
+var validTorsoIDs = [
+    // male
+    [0, 0, 2, 14, 14, 5, 14, 14, 8, 0, 14, 15, 12],
+    // female
+    [0, 5, 2, 3, 4, 4, 5, 5, 5, 0]
+];
+
+var outClothes = 1;
+var pants = 0;
+var shoes = 1;
+
+var gender = true;
+var father = 0;
+var mother = 21;
+var similarity = 0.5;
+var skin = 0.5;
+
+var features = [];
+for (var i = 0; i < 20; i++) features[i] = 0.0;
+
+var hair = 0;
+var hairColor = 0;
+var eyeColor = 0;
+
+var appearance = [];
+for (var i = 0; i < 11; i++) appearance[i] = 255;
+
+
+function updateCharacterParents() {
+    localplayer.setHeadBlendData(
+        mother,
+        father,
+        0,
+
+        mother,
+        father,
+        0,
+
+        similarity,
+        skin,
+        0.0,
+
+        true
+    );
+}
+
+function updateCharacterHairAndColors() {
+    let currentGender = (gender) ? 0 : 1;
+    // hair
+    localplayer.setComponentVariation(2, hairIDList[currentGender][hair], 0, 0);
+    localplayer.setHairColor(hairColor, 0);
+
+    // appearance colors
+    localplayer.setHeadOverlayColor(2, 1, hairColor, 100); // eyebrow
+    localplayer.setHeadOverlayColor(1, 1, hairColor, 100); // beard
+    localplayer.setHeadOverlayColor(10, 1, hairColor, 100); // chesthair
+
+    // eye color
+    localplayer.setEyeColor(eyeColor);
+}
+
+function updateAppearance() {
+    for (var i = 0; i < 11; i++) {
+        localplayer.setHeadOverlay(i, appearance[i], 100, 0, 0);
+    }
+}
+
+function updateClothes() {
+    localplayer.setComponentVariation(11, outClothes, 1, 0);
+    localplayer.setComponentVariation(4, pants, 1, 0);
+    localplayer.setComponentVariation(6, shoes, 1, 0);
+    localplayer.setComponentVariation(8, 15, 0, 0);
+    let currentGender = (gender) ? 0 : 1;
+    localplayer.setComponentVariation(3, validTorsoIDs[currentGender][outClothes], 0, 0);
+}
+//var delCharInfo = { slot: 1, name: "", lastname: "", pass: "" }
+mp.events.add('deleteChar', (data) => {
+    mp.console.logInfo(`delete char: ${data}`)
+    var delChar =  JSON.parse(data);
+    mp.events.callRemote("delchar", delChar.slot, delChar.name, delChar.lastname, delChar.pass);
+ });
+mp.events.add('characterGender', (param) => {
+    gender = (param == "Male") ? true : false;
+    if (gender) {
+        localplayer.model = mp.game.joaat('mp_m_freemode_01');
+
+        outClothes = 1;
+        pants = 0;
+        shoes = 1;
+    }
+    else {
+        localplayer.model = mp.game.joaat('mp_f_freemode_01');
+
+        outClothes = 5;
+        pants = 0;
+        shoes = 3;
+    }
+
+    appearance[1] = 255;
+
+    updateCharacterParents();
+    updateAppearance();
+    updateCharacterHairAndColors();
+    updateClothes();
+    for (var i = 0; i < 20; i++) localplayer.setFaceFeature(i, features[i]);
+});
+mp.events.add('editorList', (param, value) => {
+    var hairParam = (gender) ? "hairM" : "hairF";
+    var browParam = (gender) ? "eyebrowsM" : "eyebrowsF";
+    var lvl = parseFloat(value);
+    //mp.gui.chat.push(lvl);
+    switch (param) {
+        case "similar":
+            similarity = lvl;
+            updateCharacterParents();
+            return;
+        case "skin":
+            skin = lvl;
+            updateCharacterParents();
+            return;
+        case "noseWidth": localplayer.setFaceFeature(0, lvl); features[0] = lvl; return;
+        case "noseHeight": localplayer.setFaceFeature(1, lvl); features[1] = lvl; return;
+        case "noseTipLength": localplayer.setFaceFeature(2, lvl); features[2] = lvl; return;
+        case "noseDepth": localplayer.setFaceFeature(3, lvl); features[3] = lvl; return;
+        case "noseTipHeight": localplayer.setFaceFeature(4, lvl); features[4] = lvl; return;
+        case "noseBroke": localplayer.setFaceFeature(5, lvl); features[5] = lvl; return;
+        case "eyebrowHeight": localplayer.setFaceFeature(6, lvl); features[6] = lvl; return;
+        case "eyebrowDepth": localplayer.setFaceFeature(7, lvl); features[7] = lvl; return;
+        case "cheekboneHeight": localplayer.setFaceFeature(8, lvl); features[8] = lvl; return;
+        case "cheekboneWidth": localplayer.setFaceFeature(9, lvl); features[9] = lvl; return;
+        case "cheekDepth": localplayer.setFaceFeature(10, lvl); features[10] = lvl; return;
+        case "eyeScale": localplayer.setFaceFeature(11, lvl); features[11] = lvl; return;
+        case "lipThickness": localplayer.setFaceFeature(12, lvl); features[12] = lvl; return;
+        case "jawWidth": localplayer.setFaceFeature(13, lvl); features[13] = lvl; return;
+        case "jawShape": localplayer.setFaceFeature(14, lvl); features[14] = lvl; return;
+        case "chinHeight": localplayer.setFaceFeature(15, lvl); features[15] = lvl; return;
+        case "chinDepth": localplayer.setFaceFeature(16, lvl); features[16] = lvl; return;
+        case "chinWidth": localplayer.setFaceFeature(17, lvl); features[17] = lvl; return;
+        case "chinIndent": localplayer.setFaceFeature(18, lvl); features[18] = lvl; return;
+        case "neck": localplayer.setFaceFeature(19, lvl); features[19] = lvl; return;
+        case "father":
+            father = fathers[value];
+            updateCharacterParents();
+            return;
+        case "mother":
+            mother = mothers[value];
+            updateCharacterParents();
+            return;
+        case `${hairParam}`:
+            hair = value;
+            updateCharacterHairAndColors();
+            return;
+        case `${browParam}`:
+            appearance[2] = value;
+            updateAppearance();
+            return;
+        case "beard":
+            var overlay = (value == 0) ? 255 : value - 1;
+            appearance[1] = overlay;
+            updateAppearance();
+            return;
+        case "hairColor":
+            hairColor = value;
+            updateCharacterHairAndColors();
+            return;
+        case "eyeColor":
+            eyeColor = value;
+            updateCharacterHairAndColors();
+            return;
+    }
 });
 
-mp.keys.bind(0x72, true, function() {
-    mp.voiceChat.cleanupAndReload(true, true, true);
-    g_voiceMgr.listeners.forEach((player) => {
-        g_voiceMgr.remove(player, true);
-    });
-    mp.game.graphics.notify('~s~Голосовой чат ~b~ был перезапущен!');
-});
+mp.events.add('characterSave', () => {
+	if(new Date().getTime() - global.lastCheck < 1000) return; 
+	global.lastCheck = new Date().getTime();
+	if(editorBrowser != null) {
+		editorBrowser.destroy();
+		editorBrowser = null;
+		mp.game.graphics.startScreenEffect("MinigameTransitionIn", 0, false);
+		let currentGender = (gender) ? 0 : 1;
 
-var ListMutePlayers = [];
+		var appearance_values = [];
+		for (var i = 0; i < 11; i++) appearance_values.push({ Value: appearance[i], Opacity: 100 });
 
-mp.events.add('updateMUTE', (mutetext) => {
-	ListMutePlayers = mutetext.split(' ');
-    mp.game.graphics.notify('Список замученых игроков ~g~обновлён~w~!');	
-	mp.events.callRemote('setmutelist', JSON.stringify(ListMutePlayers));	
-});
+		var hair_or_colors = [];
+		hair_or_colors.push(hairIDList[currentGender][hair]);
+		hair_or_colors.push(hairColor);
+		hair_or_colors.push(0);
+		hair_or_colors.push(hairColor);
+		hair_or_colors.push(hairColor);
+		hair_or_colors.push(eyeColor);
+		hair_or_colors.push(0);
+		hair_or_colors.push(0);
+		hair_or_colors.push(hairColor);
 
-mp.events.add('updateVOICE', () => {
-   mp.voiceChat.cleanupAndReload(true, true, true);
-    g_voiceMgr.listeners.forEach((player) => {
-        g_voiceMgr.remove(player, true);
-    });
-
-    mp.game.graphics.notify('~s~Голосовой чат ~b~ был перезапущен!');
-});
-mp.keys.bind(VoiceChatKey, true, function() {
-    if (global.walkieTalkie == null)
-		if (mp.gui.cursor.visible != false && ENABLE_VOICE_WITH_CURSOR == false) 
-			return;
-	if (localplayer.getVariable('voice.muted') == true || localplayer.getVariable('InDeath') == true) return;
-    mp.voiceChat.muted = false;
-    mp.gui.execute(`HUD.mic=${false}`);
-    mp.events.call("hudSetMicActive", true);
-    localplayer.playFacialAnim("mic_chatter", "mp_facial");
-});
-setInterval(function() {
-	if (localplayer.getVariable("muteTime") > 0)
-		mp.events.callRemote("reduceMuteTime");
-}, 15000);
-let g_voiceMgr =
-{
-	listeners: [],
-	add: function(player)
-	{
-		this.listeners.push(player);	
-		player.isListening = true;		
-		mp.events.callRemote("add_voice_listener", player);		
-		if(UseAutoVolume)
-			player.voiceAutoVolume = true;
-		else
-			player.voiceVolume = VoiceVol;		
-		if(Use3d)
-			player.voice3d = true;
-	},
-	
-	remove: function(player, notify)
-	{
-		let idx = this.listeners.indexOf(player);	
-		if(idx !== -1) this.listeners.splice(idx, 1);			
-		player.isListening = false;			
-		if(notify)
-			mp.events.callRemote("remove_voice_listener", player);
+		setTimeout(function () {
+			mp.events.callRemote("SaveCharacter", currentGender, father, mother, similarity, skin, JSON.stringify(features), JSON.stringify(appearance_values), JSON.stringify(hair_or_colors));
+		}, 5000);
 	}
-};
-
-mp.events.add("playerQuit", (player) => {
-	if(player.isListening)
-		g_voiceMgr.remove(player, false);
 });
 
-setInterval(() => {
-	let localPos = localplayer.position;	
-	mp.players.forEachInStreamRange(player =>
-	{
-		if(player != localplayer && (!PHONE.target || PHONE.target != player))
-		{
-			if(!player.isListening)
-			{
-				const playerPos = player.position;		
-				let dist = mp.game.system.vdist(playerPos.x, playerPos.y, playerPos.z, localPos.x, localPos.y, localPos.z);
-				
-				if(dist <= MaxRange)
-				{
-					g_voiceMgr.add(player);
-				}
-			}
-		}
-	});
+var editorBrowser = null;
+
+mp.events.add('CreatorCamera', (pos) => {
+	var camPos = localplayer.position;
+    if(pos != undefined) camPos = pos;
+    localplayer.freezePosition(true);
+    localplayer.setRotation(0.0, 0.0, -185.0, 2, true);
 	
-	g_voiceMgr.listeners.forEach((player) =>
-	{
-		if(player.handle !== 0)
-		{
-			const playerPos = player.position;		
-			let dist = mp.game.system.vdist(playerPos.x, playerPos.y, playerPos.z, localPos.x, localPos.y, localPos.z);
-			
-			if(dist > MaxRange)
-			{
-				g_voiceMgr.remove(player, true);
-			}
-			else if(!UseAutoVolume)
-			{
-				player.voiceVolume = (1 - (dist / MaxRange)) * VoiceVol;
-			}
-		}
-		else
-		{
-			g_voiceMgr.remove(player, true);
-		}
-	});
-}, 500);
+    bodyCamStart = camPos;
+    var camValues = { Angle: localplayer.getRotation(2).z + 90, Dist: 0.6, Height: 0.6 };
+    var pos = getCameraOffset(new mp.Vector3(bodyCamStart.x, bodyCamStart.y, bodyCamStart.z + camValues.Height), camValues.Angle, camValues.Dist);
+    bodyCam = mp.cameras.new('default', pos, new mp.Vector3(0, 0, 0), 50);
+    bodyCam.pointAtCoord(bodyCamStart.x, bodyCamStart.y, bodyCamStart.z + camValues.Height);
+    bodyCam.setActive(true);
+    mp.game.cam.renderScriptCams(true, false, 500, true, false);
 
+    updateCharacterParents();
+    for (var i = 0; i < 20; i++) localplayer.setFaceFeature(i, 0.0);
+    updateCharacterHairAndColors();
+    updateAppearance();
+    updateClothes();
 
-mp.game.streaming.requestAnimDict("mp_facial");
-mp.game.streaming.requestAnimDict("facials@gen_male@variations@normal");
+    localplayer.taskPlayAnim("amb@world_human_guard_patrol@male@base", "base", 8.0, 1, -1, 1, 0.0, false, false, false);
 
-mp.events.add('playerStartTalking', (player) => {
-    player.playFacialAnim("mic_chatter", "mp_facial");
+    if(editorBrowser == null) editorBrowser = mp.browsers.new('package://cef/character.html#content-1');
+
+    global.menuOpen();
+    mp.events.call('camMenu', true);
 });
 
-mp.events.add('playerStopTalking', (player) => {
-    player.playFacialAnim("mood_normal_1", "facials@gen_male@variations@normal");
-});
+mp.events.add('DestroyCamera', () => {
+    if (bodyCam == null) return;
+    bodyCam.setActive(false);
+    bodyCam.destroy();
+    mp.game.cam.renderScriptCams(false, false, 3000, true, true);
 
+    global.menuClose();
+    bodyCam = null;
 
+	if(editorBrowser != null) {
+		editorBrowser.destroy();
+		editorBrowser = null;
+	}
 
+    localplayer.stopAnim("amb@world_human_guard_patrol@male@base", "base", 0.0)
+    localplayer.freezePosition(false);
 
-var PHONE = {
-    target: null,
-    status: false
-};
+    mp.events.call('camMenu', false);
+    mp.events.call('showHUD', true);
+    mp.events.call('showAltTabHint');
 
-mp.events.add('voice.phoneCall', (target) => {
-    if (!PHONE.target) {
-        PHONE.target = target;
-        PHONE.status = true;
-        mp.events.callRemote("add_voice_listener", target);
-        target.voiceVolume = 1.0;
-        target.voice3d = false;
-        g_voiceMgr.remove(target, false);
+    if (global.menu == null)
+    {
+        global.loggedin = true;
+        global.menu = mp.browsers["new"]('package://cef/menu.html');
     }
 });
 
-mp.events.add("voice.phoneStop", () => {
-    if (PHONE.target) {
-        if (mp.players.exists(PHONE.target)) {
-            let localPos = localplayer.position;
-            const playerPos = PHONE.target.position;
-            let dist = mp.game.system.vdist(playerPos.x, playerPos.y, playerPos.z, localPos.x, localPos.y, localPos.z);
-            if (dist > MaxRange) mp.events.callRemote("remove_voice_listener", PHONE.target);
-            else g_voiceMgr.add(PHONE.target, false);
-        } else mp.events.callRemote("remove_voice_listener", PHONE.target);
-        PHONE.target = null;
-        PHONE.status = false;
+mp.events.add('entityStreamIn', (entity) => {
+    if (entity.type !== 'player') return;
+
+    if (entity.getVariable('HAT_DATA') != undefined) {
+        var data = JSON.parse(entity.getVariable('HAT_DATA'));
+        if (data[0] != -1)
+            entity.setPropIndex(0, data[0], data[1], true);
     }
 });
-
-
-}ꟙꥉǰ
+}

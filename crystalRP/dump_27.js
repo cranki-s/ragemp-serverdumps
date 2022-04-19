@@ -1,96 +1,92 @@
 {
-global.stats = mp.browsers.new('package://cef/tabletka.html');;
-
-var bool = false;
-
-var access = 0;
-
-mp.keys.bind(Keys.VK_F5, false, function () {
-	if (!loggedin || chatActive || editing || cuffed || localplayer.getVariable('InDeath') == true) return;   
-    if (!bool) {
-		if (global.menuCheck() )return;
-		mp.events.callRemote('getquests');	
-		mp.events.callRemote('getaccess');	
-		mp.events.callRemote('getlist');	
-		mp.events.callRemote('getforbes');
-		stats.execute(`tablet.active=true`);
-		stats.execute(`tablet.nick='${mp.players.local.name}'`);
-		bool = true; 
-		mp.gui.cursor.show(true, true);
-    }
-	 else
-	 {
-		mp.gui.cursor.show(false, false);
-		stats.execute(`tablet.active=false`);
-		bool = false;
-	 }
- })
- 
- mp.events.add('client::closetablet', function () {
-	mp.gui.cursor.show(false, false);
-	stats.execute(`tablet.active=false`);
-	bool = false;
+// my english level good (koltr <3)
+var gangarena = null;
+global.match = false;
+// < HOOK ON CLIENT >
+// on player press hide button and this man in lobby 
+mp.events.add('client::disconnectlobby', function () {
+	mp.events.callRemote("server::disconnectlobby");
+});
+// on player press connect button
+mp.events.add('client::getlobbylist', function () {
+	mp.events.callRemote("server::getlobbylist");
+});
+// on player press connect lobby button
+mp.events.add('client::connectlobby', function (index) {
+	mp.events.callRemote('server::connectlobby', index);
+});
+// on player press connect lobby button
+mp.events.add('client::kickplayer', function (nick) {
+	mp.events.callRemote('server::kickplayer', nick);
+});
+// on player press create lobby button
+mp.events.add('client::sendlobby', function (lobby) {
+	mp.events.callRemote('server::sendlobby', lobby);
+});
+mp.events.add('client::startmatch', function () {
+	mp.events.callRemote('server::startmatch');
+});
+mp.events.add('client::createlobby', function (listplayers, lobbyinfo) {
+	gangarena.execute(`gangarena.createlobby(${listplayers},${lobbyinfo})`);
+});
+// on player press e on shape lobby
+mp.events.add('client::openmenu', function () {
+	if (global.menuCheck() || gangarena != null) return;
+    menuOpen();
+	gangarena = mp.browsers.new('package://cef/gangarena.html');
+	gangarena.execute(`gangarena.show()`);
+});
+// for hooks (kick)
+mp.events.add('client::closemenu', function () {
+	if (gangarena == null) return;
+	menuClose();
+	gangarena.destroy();
+	gangarena = null;
+});
+// for hooks (start)
+mp.events.add('client::closemenuno', function () {
+	menuClose();
+	gangarena.execute(`gangarena.hidesno()`);
+});
+// on set hud
+mp.events.add('client::sethud', function (active) {
+	match = active;
+	mp.players.local.freezePosition(true);
+	setTimeout( () => { mp.players.local.freezePosition(false); }, 10000);
+	gangarena.execute(`hudis.hud=${active}`);
+});
+mp.events.add('client::setkills', function (kills) {
+	if (gangarena != null)
+		gangarena.execute(`hudis.kills='${kills}'`);
+});
+mp.events.add('client::setdeaths', function (deaths) {
+	if (gangarena != null)
+		gangarena.execute(`hudis.deaths='${deaths}'`);
+});
+mp.events.add('client::settime', function (time) {
+	if (gangarena != null)
+		gangarena.execute(`hudis.time='${time}'`);
+});
+// on player connect to lobby
+mp.events.add('client::refreshlobby', function (listplayers) {
+	if (gangarena != null)
+		gangarena.execute(`gangarena.refreshlobby(${listplayers})`);
+});
+// on player geting lobby
+mp.events.add('client::setlobbylist', function (listlobby) {
+	if (gangarena != null)
+		gangarena.execute(`gangarena.setlobbylist(${listlobby})`);
+});
+// on player end round
+mp.events.add('client::sendwinners', function (listwinners) {
+	if (gangarena != null)
+		gangarena.execute(`gangarena.sendwinners(${listwinners})`);
+});
+// on player connect lobby
+mp.events.add('client::setlobby', function (listplayers, lobbyinfo) {
+	if (gangarena != null)
+		gangarena.execute(`gangarena.setlobby(${listplayers},${lobbyinfo})`);
 });
 
-mp.events.add('sendbiz', function (id) {
-	mp.events.call('client::closetablet');
-    mp.events.callRemote('sendbiz', id);
-});
- 
-mp.events.add('setorders', function (data) {
-    stats.execute(`tablet.setorders(${data})`);
-});
-
-mp.events.add('setquests', function (data) {
-    stats.execute(`tablet.setquests(${data})`);
-});
-
-mp.events.add('setforbes', function (data, cars, bizlist) {
-    stats.execute(`tablet.setforbes(${data}, ${cars}, ${bizlist})`);
-});
-
-mp.events.add('setaccess', function (data) {
-    stats.execute(`tablet.setacceess(${data})`);
-	access = data;
-});
-
-mp.events.add('buyLicensePlate', (index, number) => {
-	mp.events.callRemote('changenum', index, number);
-});
-
-mp.events.add('sendinputs', function (id, mats) {
-	mp.events.callRemote('addorder', id, mats);
-	mp.gui.cursor.show(false, false);
-    bool = false;
-});
-
-mp.events.add('sendowner', function (owner) {
-	if (access == 2)
-		mp.events.callRemote('takeorder', owner);
-	else if (access == 3)
-		mp.events.callRemote('removeorder');
-	mp.gui.cursor.show(false, false);
-    bool = false;
-});
-
-mp.events.add('sendcancel', function () {
-	mp.events.callRemote('untake');
-	mp.gui.cursor.show(false, false);
-    bool = false;
-});
-
-mp.events.add('sendorder', function () {
-	mp.events.callRemote('removeorder');
-	mp.gui.cursor.show(false, false);
-    bool = false;
-});
- 
-mp.events.add('hidebool', function (toggle) {
-    bool = toggle;
-});
-
-mp.events.add("exitbgg", () => {
-	mp.gui.cursor.show(false, false);
-    bool = false;
-});
+
 }

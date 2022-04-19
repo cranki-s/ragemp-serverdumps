@@ -1,60 +1,38 @@
 {
-global.container = mp.browsers.new('package://cef/System/Containers/index.html');
-global.container.active = false;
-
-mp.events.add("openContainerMenu", (contID, Type, Name, Price, MinBet, betPlayerName) => {
-  if (!loggedin || chatActive || editing || cuffed) return;
-  global.container.active = true;
-  global.menuOpen();
-  global.container.execute(`container.active=true`);
-  global.container.execute(`container.addInfoContainer('${contID}','${Type}','${Name}','${Price}','${MinBet}','${betPlayerName}');`);
-});
-
-mp.events.add("openPrizMenu", (prizName, SellPrice, contID, Type, Name, Price, MinBet, betPlayerName) => {
-  if (!loggedin || chatActive || editing || cuffed) return;
-  global.container.active = true;
-  global.menuOpen();
-  global.container.execute(`container.active=true`);
-  global.container.execute(`container.addWin('${prizName}','${SellPrice}');`);
-  global.container.execute(`container.addInfoContainer('${contID}','${Type}','${Name}','${Price}','${MinBet}','${betPlayerName}');`);
-});
-
-mp.events.add("openMenuContainerOpener", (contID, Type, Name, Price, MinBet, betPlayerName) => {
-  if (!loggedin || chatActive || editing || cuffed) return;
-  global.container.active = true;
-  global.menuOpen();
-  global.container.execute(`container.active=true`);
-  global.container.execute(`container.addInfoWinner('${contID}','${Type}','${Name}','${Price}','${MinBet}','${betPlayerName}');`);
-});
-
-mp.events.add("closeContainer", () => {
-  if(global.container) {
-    global.menuClose();
-    global.container.active = false;
-  }
-});
-
-mp.events.add("ReadBet", () => {
-  mp.events.callRemote('ReadBet');
-});
-
-mp.events.add("SellPriz", () => {
-  mp.events.callRemote('SellPriz');
-});
-
-mp.events.add("GetPriz", () => {
-  mp.events.callRemote('GetPriz');
-});
-
-mp.events.add("SetMaxBet", (data) => {
-  global.container.execute(`container.putInput='${data}'`);
-});
-
-mp.events.add("setNewBet", (bet) => {
-  mp.events.callRemote('setNewBet', bet);
-});
-
-mp.events.add("OpenContainer", () => {
-  mp.events.callRemote('OpenContainer');
+let ParkingMenu = null
+mp.events.add('open_ParkingMenu', (json, id) => {
+    if (ParkingMenu == null) {
+        ParkingMenu = mp.browsers.new("package://cef/System/Parking/index.html")
+		global.menuOpen();
+		ParkingMenu.active = true;
+		mp.game.graphics.transitionToBlurred(100);
+		ParkingMenu.execute(`ParkingMenu.vehicles=${json}`);
+		ParkingMenu.execute(`ParkingMenu.parkname=${id}`);
+		ParkingMenu.execute(`ParkingMenu.street='${mp.game.ui.getStreetNameFromHashKey(mp.game.pathfind.getStreetNameAtCoord(mp.players.local.position.x, mp.players.local.position.y, mp.players.local.position.z, 0, 0).streetName)}'`);
+    } else if (ParkingMenu.active == false){
+		global.menuOpen();
+		ParkingMenu.active = true
+		mp.game.graphics.transitionToBlurred(100);
+		ParkingMenu.execute(`ParkingMenu.vehicles=${json}`);
+		ParkingMenu.execute(`ParkingMenu.parkname=${id}`);
+		ParkingMenu.execute(`ParkingMenu.street='${mp.game.ui.getStreetNameFromHashKey(mp.game.pathfind.getStreetNameAtCoord(mp.players.local.position.x, mp.players.local.position.y, mp.players.local.position.z, 0, 0).streetName)}'`);
+    }
+});
+
+mp.events.add('closeparking', () => {
+    ParkingMenu.active = false
+    mp.gui.cursor.show(false, false)
+	ParkingMenu.execute('ParkingMenu.style=0');
+	global.menuClose();
+	mp.game.graphics.transitionFromBlurred(100);
+});
+
+mp.events.add('takerentparking', (name, number) => {
+	mp.events.callRemote("takerentparking", name, number);
+    ParkingMenu.active = false
+    mp.gui.cursor.show(false, false)
+	ParkingMenu.execute('ParkingMenu.style=0');
+	global.menuClose();
+	mp.game.graphics.transitionFromBlurred(100);
 });
 }

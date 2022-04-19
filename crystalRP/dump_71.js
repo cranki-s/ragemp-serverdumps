@@ -1,22 +1,24 @@
 {
-let NewYearJob = null;
-mp.events.add('openNewYearJob', () => {  
-    if (global.menuCheck() || NewYearJob != null) return;
-    menuOpen();
-	NewYearJob = mp.browsers.new('package://cef/System/JobNewYear/index.html');
-    NewYearJob.execute(`CHRISTMAS.active=true`);
-});
-mp.events.add('StartWorkYearJob', () => {
-    if (NewYearJob != null) {
-        mp.events.callRemote("StartWorkYearJob:Server");
-		mp.events.call("CloseNewYearJob");
+let Taxi = null;
+mp.events.add("openTaxiMenu", (start) =>{
+    if (Taxi == null) {
+        Taxi = mp.browsers.new('package://cef/jobs/Taxi/index.html');   
+        Taxi.execute(`Taxi.active=true`);
+        Taxi.execute(`Taxi.start=${start}`);
+        menuOpen();
     }
-});
-mp.events.add('CloseNewYearJob', () => {
-    if (NewYearJob != null) {
-        NewYearJob.destroy();
-        NewYearJob = null;
-	    menuClose();
+    else
+        mp.events.call("closeTaxiMenu")
+})
+mp.events.add("acceptWorkTaxi", (id) => {
+    mp.events.call("closeTaxiMenu");
+    mp.events.callRemote("acceptWorkTaxi:Server", id);
+})
+mp.events.add("closeTaxiMenu", () => {
+    if (Taxi != null) {
+        Taxi.destroy()
+        Taxi = null;
+        menuClose()
     }
-});
+})
 }

@@ -1,28 +1,3 @@
 {
-  class CustomInterior {
-    constructor(a, b, c) {
-      (this.colshape = a),
-        (this.onEnter = b),
-        (this.onExit = c),
-        (this.isPlayerEnter = !1),
-        (this.colshape.customInterior = this);
-    }
-    static globalRectangleShape(a, b, c, d) {
-      var e = Math.abs;
-      const f = e(c - a),
-        g = e(d - b);
-      return mp.colshapes.newRectangle((a + c) / 2, (b + d) / 2, f, g, -1);
-    }
-  }
-  mp.events.add("playerEnterColshape", function (a) {
-    a.customInterior == null ||
-      a.customInterior.isPlayerEnter ||
-      ((a.customInterior.isPlayerEnter = !0), a.customInterior.onEnter());
-  }),
-    mp.events.add("playerExitColshape", function (a) {
-      a.customInterior != null &&
-        a.customInterior.isPlayerEnter &&
-        ((a.customInterior.isPlayerEnter = !1), a.customInterior.onExit());
-    }),
-    (global.CustomInterior = CustomInterior);
+const mp=global.mp;class Scaleform{constructor(a){this._handle=mp.game.graphics.requestScaleformMovie(a),this.queueCallFunction=[]}get isLoaded(){return!!mp.game.graphics.hasScaleformMovieLoaded(this._handle)}get isValid(){return 0!==this._handle}get handle(){return this._handle}callFunction(a,...b){if(this.isLoaded&&this.isValid){const c=mp.game.graphics;c.pushScaleformMovieFunction(this._handle,a),b.forEach(a=>{switch(typeof a){case"string":{c.pushScaleformMovieFunctionParameterString(a);break}case"boolean":{c.pushScaleformMovieFunctionParameterBool(a);break}case"number":+a===a&&0!=a%1?c.pushScaleformMovieFunctionParameterFloat(a):c.pushScaleformMovieFunctionParameterInt(a);}}),c.popScaleformMovieFunctionVoid()}else this.queueCallFunction.push([a,b])}onUpdate(){if(this.isLoaded&&this.isValid){for(const[a,b]of this.queueCallFunction)this.callFunction(a,...b);this.queueCallFunction=[]}}render2D(a,b,c,d){if(this.onUpdate(),this.isLoaded&&this.isValid){const e=mp.game.graphics;if("undefined"!=typeof a&&"undefined"!=typeof b&&"undefined"!=typeof c&&"undefined"!=typeof d){e.getScreenActiveResolution(0,0);e.drawScaleformMovie(this._handle,a,b,c,d,255,255,255,255,0)}else e.drawScaleformMovieFullscreen(this._handle,255,255,255,255,!1)}}render3D(a,b,c){this.onUpdate(),this.isLoaded&&this.isValid&&mp.game.graphics.drawScaleformMovie3dNonAdditive(this._handle,a.x,a.y,a.z,b.x,b.y,b.z,2,2,1,c.x,c.y,c.z,2)}render3DAdditive(a,b,c){this.onUpdate(),this.isLoaded&&this.isValid&&mp.game.graphics.drawScaleformMovie3d(this._handle,a.x,a.y,a.z,b.x,b.y,b.z,2,2,1,c.x,c.y,c.z,2)}destroy(){mp.game.graphics.setScaleformMovieAsNoLongerNeeded(this._handle)}}global.Scaleform=Scaleform;
 }

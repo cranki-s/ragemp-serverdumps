@@ -1,31 +1,3 @@
 {
-  var clientBlipMap = new Map();
-  mp.events.add("client_clientBlip_show", function (a, b, c, d, e, f, g) {
-    const h = clientBlipMap.get(a);
-    null != h && (h.destroy(), clientBlipMap.delete(a));
-    const i = mp.blips.new(c, e, {
-      name: b,
-      color: d,
-      shortRange: 1 != c && !g,
-      scale: 1,
-      dimension: f,
-    });
-    clientBlipMap.set(a, i);
-  }),
-    mp.events.add("client_clientBlip_showl", function (a) {
-      (a = JSON.parse(a)),
-        a.forEach((a) => mp.events.call("client_clientBlip_show", ...a));
-    }),
-    mp.events.add("client_clientBlip_setColor", function (a, b) {
-      const c = clientBlipMap.get(a);
-      null != c && c.setColour(b);
-    }),
-    mp.events.add("client_clientBlip_hide", function (a) {
-      const b = clientBlipMap.get(a);
-      null != b && (b.destroy(), clientBlipMap.delete(a));
-    }),
-    mp.events.add("client_clientBlip_hidel", function (a) {
-      (a = JSON.parse(a)),
-        a.forEach((a) => mp.events.call("client_clientBlip_hide", a));
-    });
+const mp=global.mp,serverWorldObjectUsedMap=new Map;class ServerWorldObjectUsed{constructor(a,b){this.id=parseInt(b[0]),this.actionColshape=new global.ActionColshape(a.position,a.dimension,parseInt(b[1]),b[2],()=>{global.actionAntiFlood("server_serverWorldObjectUsed_use",1500)&&mp.events.callRemote("server_serverWorldObjectUsed_use",this.id)}),serverWorldObjectUsedMap.set(this.id,this)}destroy(){this.actionColshape.destroy(),serverWorldObjectUsedMap.delete(this.id)}}let loadDataFirst=!1;setTimeout(()=>{mp.objects.forEach(a=>{const b=a.getVariable("_swo");b!=null&&new ServerWorldObjectUsed(a,b.split("%"))}),loadDataFirst=!0},9e3),mp.events.addDataHandler("_swo",(a,b)=>{loadDataFirst&&new ServerWorldObjectUsed(a,b.split("%"))}),mp.events.add("client_swo_destroy",a=>{const b=serverWorldObjectUsedMap.get(a);b&&b.destroy()});
 }

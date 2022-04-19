@@ -1,431 +1,286 @@
 {
-
-//дефолтные проценты, которые мы будем отнимать от входящего урона
-let defaultPercent = { "max": 85, "min": 40 , "head": 99};
-
-//список оружий и их процент, который мы будем снимать с входящего урона
-const weaponDamages = {
-	// Пистолеты
-	// хеш оружия
-	3249783761: {
-		//название оружия, это для нас, чтобы в будущем смогли быстро найти нужное нам оружие
-		"name": "Heavy Revolver",
-		//максимальный процент
-		"max": 85,
-		//минимальный процент
-		"min": 65,
-		//эти проценты нужны для функции рандома
-		"head": 70
-	},
-	// Пистолет пулеметы
-	324215364: {
-		"name": "Micro SMG",
-		"max": 8,
-		"min": 50,
-		"head": 10
-	},
-	736523883: {
-		"name": "SMG",
-		"max": 80,
-		"min": 50,
-		"head": 22
-	},
-	171789620: {
-		"name": "Combat PDW", // вписать название
-		"max": 60, // не трогай 
-		"min": 40, // не трогай 
-		"head": 15 // вписать урон в голову
-	},
-	// Пулеметы
-	2144741730: {
-		"name": "Combat MG",
-		"max": 65,
-		"min": 35,
-		"head": 20
-	},
-	// Карабины
-	3220176749: {
-		"name": "Assault Rifle",
-		"max": 70,
-		"min": 45,
-		"head": 20
-	},
-	// Дробовики
-	487013001: {
-		"name": "Pump Shotgun",
-		"max": 80,
-		"min": 30,
-		"head": 5
-	},
-	// Снайперы
-	100416529: {
-		"name": "Sniper Rifle",
-		"max": 80,
-		"min": 50,
-		"head": 105
-	},
-	// Холодное оружие
-	3441901897: {
-		"name": "Battle Axe",
-		"max": 50,
-		"min": 40,
-		"head": -1
-	},
-	//fix 17.10.2021
-	100416529: {
-		"name": "Heavy Sniper",
-		"max": 80,
-		"min": 50,
-		"head": 105
-	},
-	1649403952: {
-		"name": "Compact Rifle",
-		"max": 80,
-		"min": 50,
-		"head": 15
-	},
-	4024951519: {
-		"name": "Assault SMG",
-		"max": 80,
-		"min": 50,
-		"head": 11
-	},
-	2210333304: {
-		"name": "Carbine Rifle",
-		"max": 80,
-		"min": 50,
-		"head": 14
-	},
-	1627465347: {
-		"name": "Gusenberg Sweeper",
-		"max": 80,
-		"min": 50,
-		"head": 15
-	},
-	3675956304: {
-		"name": "Machine Pistol",
-		"max": 80,
-		"min": 50,
-		"head": 8
-	},
-	984333226: {
-		"name": "Heavy Shotgun",
-		"max": 80,
-		"min": 50,
-		"head": 45
-	},
-	2017895192: {
-		"name": "Sawed-Off Shotgun",
-		"max": 80,
-		"min": 50,
-		"head": 50
-	},
-	1593441988: {
-		"name": "Combat Pistol",
-		"max": 80,
-		"min": 50,
-		"head": 13
-	},
-	137902532: {
-		"name": "Vintage Pistol",
-		"max": 80,
-		"min": 50,
-		"head": 15
-	},
-	2640438543: {
-		"name": "Bullpup Shotgun",
-		"max": 80,
-		"min": 50,
-		"head": 9
-	},
-	453432689: {
-		"name": "Pistol",
-		"max": 80,
-		"min": 50,
-		"head": 9
-	},
-	2548703416: {
-		"name": "Double Action",
-		"max": 80,
-		"min": 50,
-		"head": 35
-	},
-	3523564046: {
-		"name": "Heavy Pistol",
-		"max": 80,
-		"min": 50,
-		"head": 30
-	},
-	2937143193: {
-		"name": "Advanced Rifle",
-		"max": 80,
-		"min": 50,
-		"head": 20
-	},
-	3173288789: {
-		"name": "Mini SMG",
-		"max": 80,
-		"min": 50,
-		"head": 10
-	},
-	2578377531: {
-		"name": "Pistol .50",
-		"max": 80,
-		"min": 50,
-		"head": 10
-	},	
-	3218215474: {
-		"name": "SNS Pistol",
-		"max": 80,
-		"min": 50,
-		"head": 13
-	},
-	3800352039: {
-		"name": "Assault Shotgun",
-		"max": 80,
-		"min": 50,
-		"head": 7
-	},
-	3686625920: {
-		"name": "Combat MG MK2",
-		"max": 80,
-		"min": 50,
-		"head": 33
-	},
-	177293209: {
-		"name": "Heavy Sniper MK2",
-		"max": 80,
-		"min": 50,
-		"head": 100
-	},
-	3415619887: {
-		"name": "Heavy Revolver MK2",
-		"max": 80,
-		"min": 50,
-		"head": 90
-	},
-	4208062921: {
-		"name": "Carbine Rifle MK2",
-		"max": 80,
-		"min": 50,
-		"head": 20
-	},
-	2526821735: {
-		"name": "Special Carbine MK2",
-		"max": 80,
-		"min": 50,
-		"head": 20
-	},
-	3231910285: {
-		"name": "Special Carbine",
-		"max": 80,
-		"min": 50,
-		"head": 15
-	},
-	961495388: {
-		"name": "Assault Rifle MK2",
-		"max": 80,
-		"min": 50,
-		"head": 25
-	}
-};
-
-//Если какое-либо оружие окажется в этом списке, мы не выполним скрипт
-const ignoreWeapons = {
-	911657153: "Stun Gun",
-};
-
-//функция генерации рандомного числа
-let randomInt = (min, max) => Math.random() * (max - min) + min;
-
-//Событие принятия входящего попадания игроком
-mp._events.add('incomingDamage', (sourceEntity, sourcePlayer, targetEntity, weapon, boneIndex, damage) => {
-	mp.console.logInfo(`boneIndex: ${boneIndex}`);
-	if (targetEntity.type === 'player' && sourcePlayer && !(weapon in ignoreWeapons)) {
-		
-		//Если у игрока поставлена админская неуязвимость не выполняем скрипт
-		if (global.admingm || player.getVariable('green')) return true;
-		//Ставим стандартный процент гасения урона
-		let max = defaultPercent.max;
-		let min = defaultPercent.min;
-		let head = defaultPercent.head;
-		let wp = "";
-		//Если оружие, с которого стреляли, есть у нас в списке, то берем его процент гасения
-		if (weapon in weaponDamages) {
-			max = weaponDamages[weapon].max;
-			min = weaponDamages[weapon].min;
-			head = weaponDamages[weapon].head;
-			wp = weaponDamages[weapon].name;
-		}
-		//Полученный значения используем для генерации случайного значения в их диапазоне
-		let percent = randomInt(min, max) / 100;
-		//Получаем кастомный урон, который будем применять
-		
-
-		let cDamage = damage - (damage * percent);
-		switch (wp) {
-			case "Heavy Revolver":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 33;
-				break;
-			case "Combat PDW":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 9;
-				break;
-			case "Assault Rifle":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 15;
-				break;
-			case "Pump Shotgun":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 4;
-				break;
-			case "Combat MG":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 14;
-				break;
-			case "SMG":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 12;
-				break;
-			case "Micro SMG":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 7;
-				break;
-			case "Sniper Rifle":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 65;
-				break;
-			case "Heavy Sniper":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 45;
-				break;
-			case "Compact Rifle":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 7;
-				break;
-			case "Assault SMG":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 7;
-				break;
-			case "Carbine Rifle":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 9;
-				break;
-			case "Gusenberg Sweeper":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 8;
-				break;
-			case "Machine Pistol":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 8;
-				break;
-			case "Heavy Shotgun":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 30;
-				break;
-			case "Sawed-Off Shotgun":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 40;
-				break;
-			case "Combat Pistol":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 10;
-				break;
-			case "Vintage Pistol":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 12;
-				break;
-			case "Bullpup Shotgun":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 4;
-				break;
-			case "Pistol":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 7;
-				break;
-			case "Double Action":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 28;
-				break;
-			case "Heavy Pistol":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 18;
-				break;
-			case "Advanced Rifle":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 10;
-				break;
-			case "Mini SMG":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 7;
-				break;
-			case "Pistol .50":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 9;
-				break;
-			case "SNS Pistol":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 9;
-				break;
-			case "Assault Shotgun":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 5;
-				break;
-			case "Combat MG MK2":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 18;
-				break;
-			case "Heavy Sniper MK2":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 80;
-				break;
-			case "Heavy Revolver MK2":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 45;
-				break;
-			case "Carbine Rifle MK2":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 15;
-				break;
-			case "Special Carbine MK2":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 12;
-				break;
-			case "Special Carbine":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 10;
-				break;
-			case "Assault Rifle MK2":
-				if (boneIndex === 20) cDamage = head;
-				else  cDamage = 18;
-				break;
-			default:
-				if (boneIndex === 20)
-					cDamage = damage - (damage * percent) / 10;
-				break;
-		}
-		//если попадание в голову, делим урон ещё на 10, дабы уменьшить ещё, так как в голову идет очень большой урон
-		//Применяем к игроку полученный урон
-		if (targetEntity.getVariable("UnderAlcohol") && targetEntity.getVariable("UnderAlcohol") == true)
-			cDamage -= cDamage / 100 * 35;
-		if (targetEntity.getVariable("UnderBong") && targetEntity.getVariable("UnderBong") == true)
-			cDamage -= cDamage / 100 * 40;
-		mp.gui.chat.push(cDamage);
-		targetEntity.applyDamageTo(parseInt(cDamage), true);
-
-		/* 
-		Узнаем сколько здоровья у игрока после урона
-		Если игрок не умер, то отменяем стандартное событие
-		Если игрок умер, то не отменяем, т.к. если отменим
-		То не сработает событие playerDeath как должно
-		*/
-		let currentHealth = mp.players.local.getHealth();
-		//Отменяем стандартное событие
-		if (currentHealth > 0) {
-			return true;
-		}
-	}
-});
+﻿var cam = mp.cameras.new('default', new mp.Vector3(0, 0, 0), new mp.Vector3(0, 0, 0), false);
+var effect = '';
+global.loggedin = false;
+global.lastCheck = 0;
+global.chatLastCheck = 0;
+global.pocketEnabled = false;
 
-}ጉ죀ϝ
+
+mp.events.add('outVeh', (flag) => {
+	const player = mp.players.local;
+	if (player.vehicle != null)
+		player.taskLeaveVehicle(player.vehicle.handle, 0);
+});
+
+mp.game.gameplay.disableAutomaticRespawn(true);
+mp.game.gameplay.ignoreNextRestart(true);
+mp.game.gameplay.setFadeInAfterDeathArrest(false);
+mp.game.gameplay.setFadeOutAfterDeath(false);
+mp.game.gameplay.setFadeInAfterLoad(false);
+
+mp.events.add('freeze', function (toggle) {
+    localplayer.freezePosition(toggle);
+});
+
+mp.events.add('destroyCamera', function () {
+    mp.game.cam.renderScriptCams(false, false, 3000, true, true);
+    if (cam != null)
+        cam.destroy();
+});
+
+mp.events.add('carRoom', function (x, y, z, x2, y2, z2) {
+    cam = mp.cameras.new('default', new mp.Vector3(x, y, z), new mp.Vector3(0, 0, 0), 45);
+    cam.pointAtCoord(x2, y2, z2);
+    cam.setActive(true);
+    mp.game.cam.renderScriptCams(true, false, 0, true, false);
+});
+
+mp.events.add('screenFadeOut', function (duration) {
+    mp.game.cam.doScreenFadeOut(duration);
+});
+
+mp.events.add('screenFadeIn', function (duration) {
+    mp.game.cam.doScreenFadeIn(duration);
+});
+
+var lastScreenEffect = "";
+mp.events.add('startScreenEffect', function (effectName, duration, looped) {
+	try {
+		lastScreenEffect = effectName;
+		mp.game.graphics.startScreenEffect(effectName, duration, looped);
+	} catch (e) { }
+});
+
+mp.events.add('stopScreenEffect', function (effectName) {
+	try {
+		var effect = (effectName == undefined) ? lastScreenEffect : effectName;
+		mp.game.graphics.stopScreenEffect(effect);
+	} catch (e) { }
+});
+
+mp.events.add('stopAndStartScreenEffect', function (stopEffect, startEffect, duration, looped) {
+	try {
+		mp.game.graphics.stopScreenEffect(stopEffect);
+		mp.game.graphics.startScreenEffect(startEffect, duration, looped);
+	} catch (e) { }
+});
+
+mp.events.add('setHUDVisible', function (arg) {
+    mp.game.ui.displayHud(arg);
+    mp.gui.chat.show(arg);
+    mp.game.ui.displayRadar(arg);
+});
+
+mp.events.add('setPocketEnabled', function (state) {
+    pocketEnabled = state;
+    if (state) {
+        mp.gui.execute("fx.set('inpocket')");
+        mp.game.invoke(getNative("SET_FOLLOW_PED_CAM_VIEW_MODE"), 4);
+    }
+    else {
+        mp.gui.execute("fx.reset()");
+    }
+});
+mp.keys.bind(Keys.VK_ALT, false, function () { // ALT key
+    if (global.menuCheck() || localplayer.getVariable('InDeath') == true && !localplayer.isInAnyVehicle(false)) return;
+    if (circleOpen) {
+        CloseCircle();
+        return;
+    }
+    if (!loggedin || chatActive || entity == null || new Date().getTime() - lastCheck < 1000) return;
+    switch (entity.type) {
+        case "player":
+			if (localplayer.getVariable('familycid') != null )
+			{
+				mp.gui.cursor.visible = true;
+				OpenCircle("Семья", 0);
+				return;
+			}
+            mp.gui.cursor.visible = true;
+            OpenFracData("Фракция");
+            return;
+    }
+    lastCheck = new Date().getTime();
+});
+mp.keys.bind(global.Keys.VK_E, false, function() {
+    mp.events.callRemote('takeferma');
+});
+mp.keys.bind(Keys.VK_K, false, function () {
+    if (!loggedin || chatActive || editing || new Date().getTime() - lastCheck < 1000 || global.menuOpened) return;
+    mp.events.callRemote('cancelPressed');
+    lastCheck = new Date().getTime();
+});
+
+mp.events.add('connected', function () {
+    mp.game.ui.displayHud(false);
+    cam = mp.cameras.new('default', startCamPos, startCamRot, 90.0);
+    cam.setActive(true);
+    mp.game.graphics.startScreenEffect('SwitchSceneMichael', 5000, false);
+    var effect = 'SwitchSceneMichael';
+});
+
+mp.events.add('ready', function () {
+    mp.game.ui.displayHud(true);
+});
+
+mp.events.add('loggedIn', function () {
+    loggedin = true;
+});
+
+mp.events.add('setFollow', function (toggle, entity) {
+    if (toggle) {
+        if (entity && mp.players.exists(entity))
+            localplayer.taskFollowToOffsetOf(entity.handle, 0, 0, 0, 1, -1, 1, true)
+    }
+    else
+        localplayer.clearTasks();
+});
+setInterval(function () {
+    if (localplayer.getArmour() <= 0 && localplayer.getVariable('HASARMOR') == true) {
+        mp.events.callRemote('deletearmor');
+    }
+}, 10);
+
+mp.keys.bind(Keys.VK_E, false, function () { // E key
+    if (!loggedin || chatActive || editing || new Date().getTime() - lastCheck < 1000 || global.menuOpened) return;
+    mp.events.callRemote('interactionPressed');
+    lastCheck = new Date().getTime();
+    global.acheat.pos();
+});
+
+mp.keys.bind(Keys.VK_LEFT, true, () => {
+	if(mp.gui.cursor.visible || !loggedin) return;
+	if(localplayer.vehicle) {
+		if(localplayer.vehicle.getPedInSeat(-1) != localplayer.handle) return;
+		if(new Date().getTime() - lastCheck > 500) {
+			lastCheck = new Date().getTime();
+			if(localplayer.vehicle.getVariable('leftlight') == true) 
+                mp.events.callRemote("VehStream_SetIndicatorLightsData", localplayer.vehicle, 0, 0);
+			else 
+                mp.events.callRemote("VehStream_SetIndicatorLightsData", localplayer.vehicle, 1, 0);
+		}
+	}
+});
+
+mp.keys.bind(Keys.VK_RIGHT, true, () => {
+	if(mp.gui.cursor.visible || !loggedin) return;
+	if(localplayer.vehicle) {
+		if(localplayer.vehicle.getPedInSeat(-1) != localplayer.handle) return;
+		if(new Date().getTime() - lastCheck > 500) {
+			lastCheck = new Date().getTime();
+			if (localplayer.vehicle.getVariable('rightlight') == true) 
+                mp.events.callRemote("VehStream_SetIndicatorLightsData", localplayer.vehicle, 0, 0);
+			else 
+                mp.events.callRemote("VehStream_SetIndicatorLightsData", localplayer.vehicle, 0, 1);
+		}
+	}
+});
+
+mp.keys.bind(Keys.VK_DOWN, true, () => {
+	if(mp.gui.cursor.visible || !loggedin) return;
+	if(localplayer.vehicle) {
+		if(localplayer.vehicle.getPedInSeat(-1) != localplayer.handle) return;
+		if(new Date().getTime() - lastCheck > 500) {
+			lastCheck = new Date().getTime();
+			if(localplayer.vehicle.getVariable('leftlight') == true && localplayer.vehicle.getVariable('rightlight') == true) mp.events.callRemote("VehStream_SetIndicatorLightsData", localplayer.vehicle, 0, 0);
+			else mp.events.callRemote("VehStream_SetIndicatorLightsData", localplayer.vehicle, 1, 1);
+		}
+	}
+});
+
+mp.keys.bind(Keys.VK_UP, false, function () { // Телефон
+    if (!loggedin || chatActive || localplayer.getVariable("IS_SP_MODE") == true || editing || global.menuCheck() || cuffed || localplayer.getVariable('InDeath') == true) return;
+    mp.events.callRemote('openPlayerMenu');
+    lastCheck = new Date().getTime();
+});
+var gproute = null;
+
+mp.events.add('syncWP', function (bX, bY, type) {
+    if(!mp.game.invoke('0x1DD1F58F493F1DA5')) {
+        gproute = mp.blips.new(38, new mp.Vector3(bX, bY), { alpha: 255, name: "", scale: 1, color: 1 });
+        gproute.setRoute(true);
+        gproute.setRouteColour(5);
+        if(type == 0) mp.events.call('notify', 2, 9, "Пассажир передал Вам информацию о своём маршруте!", 3000);
+        else if(type == 1) mp.events.call('notify', 2, 9, "Человек из списка контактов Вашего телефона передал Вам метку его местоположения!", 3000);
+    } else {
+        if(type == 0) mp.events.call('notify', 4, 9, "Пассажир попытался передать Вам информацию о маршруте, но у Вас уже установлен другой маршрут.", 5000);
+        else if(type == 1) mp.events.call('notify', 4, 9, "Человек из списка контактов Вашего телефона попытался передать Вам метку его местоположения, но у Вас уже установлена другая метка.", 5000);
+    }
+});
+
+mp.events.add('removeGRoute', function(){
+	try 
+	{
+		if (gproute != null)
+		{
+			gproute.destroy();
+			gproute = null;
+		}
+	}
+	catch (e) {}
+});
+
+mp.keys.bind(Keys.VK_U, false, function () { // U key
+    if (!loggedin || chatActive || editing || global.menuOpened || new Date().getTime() - lastCheck < 1000) return;
+    mp.events.callRemote('openCopCarMenu');
+    lastCheck = new Date().getTime();
+});
+
+mp.keys.bind(Keys.VK_OEM_3, false, function () { // ` key
+    if (chatActive || (global.menuOpened && mp.gui.cursor.visible)) return;
+    mp.gui.cursor.visible = !mp.gui.cursor.visible;
+});
+
+var lastPos = new mp.Vector3(0, 0, 0);
+mp.game.gameplay.setFadeInAfterDeathArrest(false);
+mp.game.gameplay.setFadeInAfterLoad(false);
+var deathTimerOn = false;
+var deathTimer = 0;
+
+mp.events.add('DeathTimer', (time) => {
+    if (time === false) {
+        deathTimerOn = false;
+		global.dialog.closeMED();
+	}
+    else {
+		global.menu.execute(`death.buttonact=false`);
+        deathTimerOn = true;
+        deathTimer = new Date().getTime() + time;
+    }
+});
+
+mp.events.add('render', () => {
+    if (localplayer.getVariable('InDeath') == true || intrunk) {
+        mp.game.controls.disableAllControlActions(2);
+        mp.game.controls.enableControlAction(2, 1, true);
+        mp.game.controls.enableControlAction(2, 2, true);
+        mp.game.controls.enableControlAction(2, 3, true);
+        mp.game.controls.enableControlAction(2, 4, true);
+        mp.game.controls.enableControlAction(2, 5, true);
+        mp.game.controls.enableControlAction(2, 6, true);
+    }
+	if (intrunk) {
+		mp.game.controls.enableControlAction(2, 27, false);
+		mp.game.controls.disableAllControlActions(32);
+	}
+    if (deathTimerOn) {
+        var secondsLeft = Math.trunc((deathTimer - new Date().getTime()) / 1000);
+        var minutes = Math.trunc(secondsLeft / 60);
+        var seconds = secondsLeft % 60;
+		var sseconds = seconds;
+		if (seconds <= 9 && seconds >= 1)
+			sseconds =  "0" + seconds;
+		else if (seconds <= 0)
+			sseconds = "00";
+		global.menu.execute(`death.time="${minutes}:${sseconds}"`);
+    }
+});
+
+mp.keys.bind(Keys.VK_E, false, function () { // E key
+    if (!loggedin || chatActive || editing || new Date().getTime() - lastCheck < 1000 || global.menuOpened) return;
+    mp.events.callRemote('interactionPressed');
+    lastCheck = new Date().getTime();
+    global.acheat.pos();
+});
+}

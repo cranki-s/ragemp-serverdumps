@@ -1,168 +1,290 @@
 {
-let pointing = {
-      active: false,
-      interval: null,
-      lastSent: 0,
-      start: function() {
-		  try{
-        if (!loggedin || chatActive || editing || cuffed || localplayer.getVariable('InDeath') == true || global.intrunk || mp.players.local.vehicle) return;
-        
-		if (!this.active) {
-              this.active = true;
-
-              mp.game.streaming.requestAnimDict("anim@mp_point");
-              while (!mp.game.streaming.hasAnimDictLoaded("anim@mp_point")) {
-                  mp.game.wait(0);
-              }
-              mp.game.invoke("0x0725a4ccfded9a70", mp.players.local.handle, 0, 1, 1, 1);
-              mp.players.local.setConfigFlag(36, true)
-              mp.players.local.taskMoveNetwork("task_mp_pointing", 0.5, false, "anim@mp_point", 24);
-              mp.game.streaming.removeAnimDict("anim@mp_point");
-
-              this.interval = setInterval(this.process.bind(this), 0);
-          }
-		  }
-		  catch {}
-      },
-
-       stop: function () {
-		try{
-        if (this.active) {
-            clearInterval(this.interval);
-            this.interval = null
-            this.active = false;
-
-            mp.game.invoke("0xd01015c7316ae176", mp.players.local.handle, "Stop");
-            if (!mp.players.local.isInjured()) {
-                mp.players.local.clearTasks();
-            }
-
-            if (!mp.players.local.isInAnyVehicle(true)) {
-                mp.game.invoke("0x0725a4ccfded9a70", mp.players.local.handle, 1, 1, 1, 1);
-            }
-
-            mp.players.local.setConfigFlag(36, false);
-            mp.players.local.clearTasks()
-        }
-		}
-		catch {}
-    },
-
-      gameplayCam: mp.cameras.new("gameplay"),
-      lastSync: 0,
-
-      getRelativePitch: function() {
-          let camRot = this.gameplayCam.getRot(2);
-
-          return camRot.x - mp.players.local.getPitch();
-      },
-
-      process: function() {
-		  try{
-          if (this.active) {
-              mp.game.invoke("0x921ce12c489c4c41", mp.players.local.handle);
-
-              let camPitch = this.getRelativePitch();
-
-              if (camPitch < -70.0) {
-                  camPitch = -70.0;
-              } else if (camPitch > 42.0) {
-                  camPitch = 42.0;
-              }
-              camPitch = (camPitch + 70.0) / 112.0;
-
-              let camHeading = mp.game.cam.getGameplayCamRelativeHeading();
-
-              let cosCamHeading = mp.game.system.cos(camHeading);
-              let sinCamHeading = mp.game.system.sin(camHeading);
-
-              if (camHeading < -180.0) {
-                  camHeading = -180.0;
-              } else if (camHeading > 180.0) {
-                  camHeading = 180.0;
-              }
-              camHeading = (camHeading + 180.0) / 360.0;
-
-              let coords = mp.players.local.getOffsetFromGivenWorldCoords((cosCamHeading * -0.2) - (sinCamHeading * (0.4 * camHeading + 0.3)), (sinCamHeading * -0.2) + (cosCamHeading * (0.4 * camHeading + 0.3)), 0.6);
-             let blocked = (typeof mp.raycasting.testPointToPoint(new mp.Vector3(coords.x, coords.y, coords.z - 0.2), new mp.Vector3(coords.x, coords.y, coords.z + 0.2), mp.players.local.handle, 7) !== 'undefined');
-
-              mp.game.invoke('0xd5bb4025ae449a4e', mp.players.local.handle, "Pitch", camPitch)
-              mp.game.invoke('0xd5bb4025ae449a4e', mp.players.local.handle, "Heading", camHeading * -1.0 + 1.0)
-              mp.game.invoke('0xb0a6cfd2c69c1088', mp.players.local.handle, "isBlocked", blocked)
-              mp.game.invoke('0xb0a6cfd2c69c1088', mp.players.local.handle, "isFirstPerson", mp.game.invoke('0xee778f8c7e1142e2', mp.game.invoke('0x19cafa3c87f7c2ff')) == 4)
-
-              if ((Date.now() - this.lastSent) > 100) {
-                  this.lastSent = Date.now();
-                  mp.events.callRemote("fpsync.update", camPitch, camHeading);
-              }
-          }
-		  }
-		  catch {}
-      }
-  }
-
-	  mp.events.add("fpsync.update", (id, camPitch, camHeading) => {
-		  try{
-		  let netPlayer = getPlayerByRemoteId(parseInt(id));
-		  if (netPlayer != null) {
-			  if (netPlayer != mp.players.local) {
-				  netPlayer.lastReceivedPointing = Date.now();
-
-				  if (!netPlayer.pointingInterval) {
-					  netPlayer.pointingInterval = setInterval((function() {
-						  if ((Date.now() - netPlayer.lastReceivedPointing) > 1000) {
-							  clearInterval(netPlayer.pointingInterval);
-
-							  netPlayer.lastReceivedPointing = undefined;
-							  netPlayer.pointingInterval = undefined;
-
-							  mp.game.invoke("0xd01015c7316ae176", netPlayer.handle, "Stop");
-
-
-							  if (!netPlayer.isInAnyVehicle(true)) {
-								  mp.game.invoke("0x0725a4ccfded9a70", netPlayer.handle, 1, 1, 1, 1);
-							  }
-							  netPlayer.setConfigFlag(36, false);
-
-						  }
-					  }).bind(netPlayer), 500);
-
-					  mp.game.streaming.requestAnimDict("anim@mp_point");
-
-					  while (!mp.game.streaming.hasAnimDictLoaded("anim@mp_point")) {
-						  mp.game.wait(0);
-					  }
-
-					  mp.game.invoke("0x0725a4ccfded9a70", netPlayer.handle, 0, 1, 1, 1);
-					  netPlayer.setConfigFlag(36, true)
-					  netPlayer.taskMoveNetwork("task_mp_pointing", 0.5, false, "anim@mp_point", 24);
-					  mp.game.streaming.removeAnimDict("anim@mp_point");
-				  }
-
-				  mp.game.invoke('0xd5bb4025ae449a4e', netPlayer.handle, "Pitch", camPitch)
-				  mp.game.invoke('0xd5bb4025ae449a4e', netPlayer.handle, "Heading", camHeading * -1.0 + 1.0)
-				  mp.game.invoke('0xb0a6cfd2c69c1088', netPlayer.handle, "isBlocked", 0);
-				  mp.game.invoke('0xb0a6cfd2c69c1088', netPlayer.handle, "isFirstPerson", 0);
-			  }
-		  }
-		  }
-		  catch {}
-	  });
-
-  mp.keys.bind(0x14, true, () => { 
-    pointing.start();
-  });
-
-  mp.keys.bind(0x14, false, () => {	   
-      pointing.stop();
-  });
-
-  function getPlayerByRemoteId(remoteId) {
-      let pla = mp.players.atRemoteId(remoteId);
-      if (pla == undefined || pla == null) {
-          return null;
-      }
-      return pla;
-  }
+﻿global.entity = null;
+global.nearestObject = null;
 
+var lastEntCheck = 0;
+var checkInterval = 200;
+
+var backlightColor = [196, 17, 21];
+
+var blockcontrols = false;
+global.cuffed = false;
+var hasmoney = false;
+var isInSafeZone = false;
+
+var lastCuffUpdate = new Date().getTime();
+
+function getLookingAtEntity() {
+    let startPosition = localplayer.getBoneCoords(12844, 0.5, 0, 0);
+    var resolution = mp.game.graphics.getScreenActiveResolution(1, 1);
+    let secondPoint = mp.game.graphics.screen2dToWorld3d([resolution.x / 2, resolution.y / 2, (2 | 4 | 8)]);
+    if (secondPoint == undefined) return null;
+
+    startPosition.z -= 0.3;
+    const result = mp.raycasting.testPointToPoint(startPosition, secondPoint, localplayer, (2 | 4 | 8 | 16));
+
+    if (typeof result !== 'undefined') {
+        if (typeof result.entity.type === 'undefined') return null;
+        if (result.entity.type == 'object' && result.entity.getVariable('TYPE') == undefined) return null;
+
+        let entPos = result.entity.position;
+        let lPos = localplayer.position;
+        if (mp.game.gameplay.getDistanceBetweenCoords(entPos.x, entPos.y, entPos.z, lPos.x, lPos.y, lPos.z, true) > 8) return null;
+        return result.entity;
+    }
+    return null;
 }
+
+function getNearestObjects() {
+
+    var tempO = null;
+    if (localplayer.isInAnyVehicle(false)) {
+        var players = mp.players.toArray();
+        players.forEach(
+            (player) => {
+                var posL = localplayer.position;
+                var posO = player.position;
+                var distance = mp.game.gameplay.getDistanceBetweenCoords(posL.x, posL.y, posL.z, posO.x, posO.y, posO.z, true);
+                if (localplayer != player && localplayer.dimension === player.dimension && distance < 2) {
+                    if (tempO === null) tempO = player;
+                    else if (mp.game.gameplay.getDistanceBetweenCoords(posL.x, posL.y, posL.z, posO.x, posO.y, posO.z, true) <
+                        mp.game.gameplay.getDistanceBetweenCoords(posL.x, posL.y, posL.z, tempO.position.x, tempO.position.y, tempO.position.z, true))
+                        tempO = player;
+                }
+            });
+    }
+    else {
+        var objects = mp.objects.toArray();
+        objects.forEach(
+            (object) => {
+                var posL = localplayer.position;
+                var posO = object.position;
+                var distance = mp.game.gameplay.getDistanceBetweenCoords(posL.x, posL.y, posL.z, posO.x, posO.y, posO.z, true);
+                if (object.getVariable('TYPE') != undefined && localplayer.dimension === object.dimension && distance < 3) {
+                    if (tempO === null) tempO = object;
+                    else if (mp.game.gameplay.getDistanceBetweenCoords(posL.x, posL.y, posL.z, posO.x, posO.y, posO.z, true) <
+                        mp.game.gameplay.getDistanceBetweenCoords(posL.x, posL.y, posL.z, tempO.position.x, tempO.position.y, tempO.position.z, true))
+                        tempO = object;
+                }
+            });
+    }
+    nearestObject = tempO;
+}
+
+let state = 0;
+let enter = false;
+
+mp.events.add("playerEnterVehicle", (vehicle) => {
+    try {
+        if (vehicle.getClass() == 8) return;
+		mp.events.call('notify', 3, 9, "Нажмите K чтобы надеть ремень безопасности", 3000);
+		enter = true;
+    } catch (e) { }
+});
+
+mp.events.add("playerLeaveVehicle", (vehicle) => {
+    try {
+        if (state == 0) return;
+		mp.players.local.setConfigFlag(32, true);
+		state = 0;
+		enter = false;
+		mp.events.call('notify', 3, 9, "Вы сняли ремень безопасности", 3000);
+		mp.events.call("updremen", false);
+    } catch (e) { }
+});
+mp.events.add("VehicleBelt", () => {
+    if (!enter) return;
+	if (!localplayer.isInAnyVehicle(false)) return;
+    if (state == 0) {
+		mp.events.call("updremen", true);
+        mp.players.local.setConfigFlag(32, false);
+		mp.events.call('notify', 3, 9, "Вы надели ремень безопасности", 3000);
+        state = 1;
+    } else {
+		mp.events.call("updremen", false);
+        mp.players.local.setConfigFlag(32, true);
+		mp.events.call('notify', 3, 9, "Вы сняли ремень безопасности", 3000);
+        state = 0;
+    }
+});
+
+mp.events.add('blockMove', function (argument) {
+    blockcontrols = argument;
+});
+
+mp.events.add('CUFFED', function (argument) {
+    cuffed = argument;
+});
+
+mp.events.add('hasMoney', function (argument) {
+    hasmoney = argument;
+    if (!argument) localplayer.setEnableHandcuffs(false);
+});
+
+mp.events.add('safeZone', function (argument) {
+	if (!argument) argument = false;
+	isInSafeZone = argument;
+	mp.gui.execute(`HUD.inGreenZone=${argument}`);
+});
+
+mp.keys.bind(Keys.VK_G, false, function () { // G key
+    if (global.menuCheck() || cuffed || localplayer.getVariable('InDeath') == true && !localplayer.isInAnyVehicle(false)) return;
+	if (global.localplayer.getVariable("attachToVehicleTrunk")) return;
+    if (circleOpen) {
+        CloseCircle();
+        return;
+    }
+    if (!loggedin || chatActive || entity == null || new Date().getTime() - lastCheck < 1000) return;
+    switch (entity.type) {
+        case "object":
+            if (entity && mp.objects.exists(entity)) {
+                mp.events.callRemote('oSelected', entity);
+            }
+            entity = null;
+            return;
+        case "player":
+            mp.gui.cursor.visible = true;
+            OpenCircle('Игрок', 0);
+            return;
+        case "vehicle":
+            if (localplayer.getVariable("TakeHijackingItem") >= 0) {
+                mp.events.callRemote("PutHijackingItemHouseInVehicle", entity);
+                return;
+            }
+            if (localplayer.getVariable('ON_WORKSS') == true) {
+               mp.events.callRemote("bins", entity);
+               return;
+            }
+            mp.gui.cursor.visible = true;
+            OpenCircle('Машина', 0);
+            return;
+    }
+    lastCheck = new Date().getTime();
+});
+
+mp.keys.bind(Keys.VK_F2, false, function () { // F2 key
+    if (global.menuCheck() || cuffed || localplayer.getVariable('InDeath') == true) return;
+	if (global.localplayer.getVariable("attachToVehicleTrunk")) return;
+    // player
+    if (circleOpen) {
+        CloseCircle();
+        return;
+    }
+    if (!loggedin || chatActive || nearestObject == null || new Date().getTime() - lastCheck < 1000) return;
+
+    if (nearestObject && nearestObject.type == 'object' && mp.objects.exists(nearestObject)) {
+        mp.events.callRemote('oSelected', nearestObject);
+    }
+    else if (nearestObject && mp.players.exists(nearestObject)) {
+        entity = nearestObject;
+        mp.gui.cursor.visible = true;
+        OpenCircle('Игрок', 0);
+    }
+
+    lastCheck = new Date().getTime();
+});
+
+
+var truckorderveh = null;
+
+mp.events.add('SetOrderTruck', (vehicle) => {
+    try {
+        if(truckorderveh == null) truckorderveh = vehicle;
+		else truckorderveh = null;
+    } catch (e) {
+	}
+});
+
+global.playerMovingDisabled = false;
+
+mp.events.add('render', () => {
+	try {
+		if (!loggedin) return;
+		mp.game.player.restoreStamina(100);
+		mp.game.player.setLockonRangeOverride(1.5);
+        mp.game.controls.disableControlAction(1, 7, true);
+		mp.game.controls.disableControlAction(1, 199, true); //Pause Menu (P)
+		
+		if (pocketEnabled) {
+	        mp.game.controls.disableControlAction(2, 0, true);
+	    }
+		
+		if (playerMovingDisabled) {
+			mp.game.controls.disableControlAction(0, 21, true); /// бег
+			mp.game.controls.disableControlAction(0, 22, true); /// прыжок
+			mp.game.controls.disableControlAction(0, 31, true); /// вперед назад
+			mp.game.controls.disableControlAction(0, 30, true); /// влево вправо
+			mp.game.controls.disableControlAction(0, 24, true); /// удары
+			mp.game.controls.disableControlAction(0, 25, true); /// INPUT_AIM
+			mp.game.controls.disableControlAction(0, 257, true); /// стрельба
+			mp.game.controls.disableControlAction(1, 200, true); // esc
+			mp.game.controls.disableControlAction(0, 140, true); /// удары R
+			mp.game.controls.disableControlAction(24, 37, true); /// Tab
+			mp.game.controls.disableControlAction(0, 257, true); // INPUT_ATTACK2
+		}
+
+	    if (blockcontrols) {
+		    mp.game.controls.disableAllControlActions(2);
+			mp.game.controls.enableControlAction(2, 30, true);
+	        mp.game.controls.enableControlAction(2, 31, true);
+		    mp.game.controls.enableControlAction(2, 32, true);
+			mp.game.controls.enableControlAction(2, 1, true);
+	        mp.game.controls.enableControlAction(2, 2, true);
+		}
+		if (hasmoney) {
+	        localplayer.setEnableHandcuffs(true);
+        }
+        if (isInSafeZone) {
+            mp.game.controls.disableControlAction(2, 24, true);
+            mp.game.controls.disableControlAction(2, 69, true);
+            mp.game.controls.disableControlAction(2, 70, true);
+            mp.game.controls.disableControlAction(2, 92, true);
+            mp.game.controls.disableControlAction(2, 114, true);
+            mp.game.controls.disableControlAction(2, 121, true);
+            mp.game.controls.disableControlAction(2, 140, true);
+            mp.game.controls.disableControlAction(2, 141, true);
+            mp.game.controls.disableControlAction(2, 142, true);
+            mp.game.controls.disableControlAction(2, 257, true);
+            mp.game.controls.disableControlAction(2, 263, true);
+            mp.game.controls.disableControlAction(2, 264, true);
+            mp.game.controls.disableControlAction(2, 331, true);
+        }
+		
+		if (mp.keys.isDown(32) && cuffed && new Date().getTime() - lastCuffUpdate >= 3000) {
+			mp.events.callRemote("cuffUpdate");
+	        lastCuffUpdate = new Date().getTime();
+		}
+		
+		if (!localplayer.isInAnyVehicle(false) && !localplayer.isDead()) {
+	        if (!circleOpen)
+		        entity = getLookingAtEntity();
+	        getNearestObjects();
+		    if (entity != null && entity.getVariable('INVISIBLE') == true) entity = null;
+		}
+        else {
+            getNearestObjects();
+            if (entity != nearestObject) entity = null;
+		}
+        if (nearestObject != null && (entity == null || entity.type != "object")) {
+		    mp.game.graphics.drawText("~h~~w~F2", [nearestObject.position.x, nearestObject.position.y, nearestObject.position.z], {
+                font: 0,
+                color: [255, 255, 255, 255],
+                scale: [0.25, 0.25],
+                outline: true
+            });
+		}
+        if (entity != null && !localplayer.isInAnyVehicle(false)) {
+			if (!entity.getVariable("INVISIBLE") && (entity.type == "player" || entity.type =="vehicle")) {
+				mp.game.graphics.drawText("~h~~w~G [Взаимодействие]", [entity.position.x, entity.position.y, entity.position.z], {
+                    font: 0,
+                    color: [255, 255, 255, 255],
+                    scale: [0.3, 0.3],
+                    outline: true
+                });
+            }
+        }
+	} catch (e) {
+        mp.game.graphics.notify('RE:' + e.toString());
+    }
+});
+}���ɩ

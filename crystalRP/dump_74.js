@@ -1,23 +1,22 @@
 {
-var ATM = null;
-mp.events.add('openATM', (data) => {  
-    if (global.menuCheck() || ATM != null) return;
+var GunShop = null;
+mp.events.add('openGunShop', (data) => {  
+    if (global.menuCheck() || GunShop != null) return;
     menuOpen();
-	ATM = mp.browsers.new('package://cef/System/bank/index.html');
-    ATM.execute(`Bankomat.open(${data})`);
+	GunShop = mp.browsers.new('package://cef/System/GunShop/index.html');
+    GunShop.execute(`GUNSHOP.open(${data})`);
 });
-mp.events.add('ATMTransaction', (type, money, numberAcc) => {
-    if (ATM != null) 
-        mp.events.callRemote("ATMTransaction:Sever", type, money, numberAcc);
+mp.events.add('BuyWeapon', (itemName) => {  
+    if (GunShop != null) 
+        mp.events.callRemote("BuyWeapon:Server", itemName)
 });
-mp.events.add('SetMoneyATM', (money) => {
-    if (ATM != null) 
-        ATM.execute(`Bankomat.setMoney(${money})`);
+mp.keys.bind(0x1B, false, function () { 
+    mp.events.call("CloseGunShop")
 });
-mp.events.add('CloseATM', () => {
-    if (ATM != null) {
-        ATM.destroy();
-        ATM = null;
+mp.events.add('CloseGunShop', () => {
+    if (GunShop != null) {
+        GunShop.destroy();
+        GunShop = null;
 	    menuClose();
     }
 });

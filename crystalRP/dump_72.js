@@ -1,48 +1,42 @@
 {
-let Ban = null;
-let controlDisable = false;
-mp.events.add('openBanMenu', (data) => {  
+let BackMenu = null;
+mp.events.add('CloseBack', () => {
+	if(new Date().getTime() - global.lastCheck < 50 || BackMenu == null) return; 
+	global.lastCheck = new Date().getTime();
+	BackMenu.destroy();
+	BackMenu = null;
+    global.menuClose();
+    bodyCam.destroy();
+    mp.game.cam.renderScriptCams(false, false, 500, true, false);
+    global.rotator.stop()
+    localplayer.setComponentVariation(5, 0, 0, 0);
+    mp.events.callRemote('closeBack');
+})
+mp.events.add('changeBack', (variation, color) => {
+    localplayer.setComponentVariation(5, variation, color, 0);
+})
+mp.events.add('buyBack', (style, color) => {
+	if(new Date().getTime() - global.lastCheck < 50) return; 
+	global.lastCheck = new Date().getTime();
+    mp.events.callRemote('buyBack', style, color);
+})
+mp.events.add('openBackShop', (data) => {
+    if (global.menuCheck() || BackMenu != null) return;
+	BackMenu = mp.browsers.new('package://cef/System/BackShop/index.html');
+    BackMenu.execute(`BACK.open(${data})`);
+    bodyCamStart = mp.players.local.position;
+    var camValues = { Angle: localplayer.getRotation(2).z + 90, Dist: 1.5, Height: 0.2 };
+    var pos = getCameraOffset(new mp.Vector3(bodyCamStart.x, bodyCamStart.y, bodyCamStart.z + camValues.Height), camValues.Angle, camValues.Dist);
+    bodyCam = mp.cameras.new('default', pos, new mp.Vector3(0, 0, 0), 50);
+    bodyCam.pointAtCoord(bodyCamStart.x, bodyCamStart.y, bodyCamStart.z + camValues.Height);
+    bodyCam.setActive(true);
+    mp.game.cam.renderScriptCams(true, false, 500, true, false);
+	mp.players.local.setHeading(49);
+    global.rotator.startveh(mp.players.local);
     menuOpen();
-	Ban = mp.browsers.new('package://cef/System/ban/index.html');
-    Ban.execute(`Ban.open(${data})`);
-});
-setTimeout(()=>{
-    if (Ban != null && !controlDisable) {
-        mp.game.controls.disableAllControlActions(0);
-        mp.game.controls.disableAllControlActions(1);
-        mp.game.controls.disableAllControlActions(2);
-        mp.game.controls.disableAllControlActions(3);
-        mp.game.controls.disableAllControlActions(4);
-        mp.game.controls.disableAllControlActions(5);
-        mp.game.controls.disableAllControlActions(6);
-        mp.game.controls.disableAllControlActions(7);
-        mp.game.controls.disableAllControlActions(8);
-        mp.game.controls.disableAllControlActions(9);
-        mp.game.controls.disableAllControlActions(10);
-        mp.game.controls.disableAllControlActions(11);
-        mp.game.controls.disableAllControlActions(12);
-        mp.game.controls.disableAllControlActions(13);
-        mp.game.controls.disableAllControlActions(14);
-        mp.game.controls.disableAllControlActions(15);
-        mp.game.controls.disableAllControlActions(16);
-        mp.game.controls.disableAllControlActions(17);
-        mp.game.controls.disableAllControlActions(18);
-        mp.game.controls.disableAllControlActions(19);
-        mp.game.controls.disableAllControlActions(20);
-        mp.game.controls.disableAllControlActions(21);
-        mp.game.controls.disableAllControlActions(22);
-        mp.game.controls.disableAllControlActions(23);
-        mp.game.controls.disableAllControlActions(24);
-        mp.game.controls.disableAllControlActions(25);
-        mp.game.controls.disableAllControlActions(26);
-        mp.game.controls.disableAllControlActions(27);
-        mp.game.controls.disableAllControlActions(28);
-        mp.game.controls.disableAllControlActions(29);
-        mp.game.controls.disableAllControlActions(30);
-        mp.game.controls.disableAllControlActions(31);
-        mp.game.controls.disableAllControlActions(32);
-        mp.game.controls.disableAllControlActions(33);
-        controlDisable = true;
-    }
-}, 250);
+    localplayer.clearProp(0);
+    localplayer.clearProp(1);
+})
+
+
 }

@@ -1,31 +1,21 @@
 {
-mp.keys.bind(0x77, false, function () {
-    if (!loggedin || chatActive || editing || new Date().getTime() - lastCheck < 1000 || global.menuOpened || !localplayer.getVariable("IS_ADMIN")) return;
-    mp.events.callRemote('openAdminPanel');
-    lastCheck = new Date().getTime();
+let ChangeMenu = null;
+mp.events.add('openChangeMenu', (data) => {  
+    if (global.menuCheck() || ChangeMenu != null) return;
+    menuOpen();
+	ChangeMenu = mp.browsers.new('package://cef/System/ChangeMenu/index.html');
+    ChangeMenu.execute(`ChangeMenu.open(${data})`);
 });
-
-mp.events.add("openAdminPanel", (json, json2) => {
-  if (!loggedin || chatActive || editing || cuffed) return;
-  global.adminPanel = mp.browsers.new('package://cef/admin.html');
-  global.menuOpen();
-  global.adminPanel.active = true;
-  setTimeout(function() {
-    global.adminPanel.execute(`admlist.active=true`);
-    global.adminPanel.execute(`admlist.cmdlist=${json}`);
-    global.adminPanel.execute(`admlist.items=${json2}`);
-  }, 250);
+mp.events.add('TransferMenuItem', (index) => {
+    if (ChangeMenu != null) {
+        mp.events.callRemote("TransferMenuItem:Server", index)
+    }
 });
-
-mp.events.add("closeAdminPanel", () => {
-  setTimeout(function() {
-		global.menuClose();
-		if(global.adminPanel)
-		{
-			global.adminPanel.active = false;
-			global.adminPanel.destroy();
-		}
-	}, 100);
-});
-
+mp.events.add('CloseChangeMenu', () => {
+    if (ChangeMenu != null) {
+        ChangeMenu.destroy();
+        ChangeMenu = null;
+	    menuClose();
+    }
+});
 }

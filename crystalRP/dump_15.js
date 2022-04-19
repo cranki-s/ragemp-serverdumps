@@ -1,163 +1,162 @@
 {
-class CameraRotator {
-	start(camera, basePosition, lookAtPosition, offsetVector, heading, fov = undefined) {
-		this.camera = camera;
-		this.basePosition = basePosition;
-		this.lookAtPosition = lookAtPosition;
-		this.offsetVector = offsetVector;
-		this.heading = heading;
-		this.baseHeading = heading;
-		this.currentPoint = { x: 0, y: 0 };
-		this.isPause = false;
-		this.zUp = 0;
-		this.zUpMultipler = 1;
-		this.xBound = [ 0, 0 ];
-		this.zBound = [ -0.01, 0.8 ];
+﻿global.circleEntity = null;
+global.circleOpen = false;
+var circleTitle = "";
 
-		this.changePosition();
-
-		camera.pointAtCoord(lookAtPosition.x, lookAtPosition.y, lookAtPosition.z);
-
-		if (fov) {
-			camera.setFov(fov);
-		}
-
-		this.activate(true);
-	}
-
-	pause(state) {
-		this.isPause = state;
-	}
-
-	stop() {
-		this.activate(false);
-	}
-
-	reset() {
-		this.heading = this.baseHeading;
-		this.zUp = 0;
-		this.changePosition();
-	}
-
-	setXBound(min, max) {
-		this.xBound = [ min, max ];
-	}
-
-	setZBound(min, max) {
-		this.zBound = [ min, max ];
-	}
-
-	setZUpMultipler(value) {
-		this.zUpMultipler = value;
-	}
-
-	getRelativeHeading() {
-		return this.normilizeHeading(this.baseHeading - this.heading);
-	}
-
-	activate(state) {
-		/* this.camera.setActive(state);
-		mp.game.cam.renderScriptCams(state, false, 3000, true, false); */
-		this.isActive = state;
-	}
-
-	onMouseMove(dX, dY) {
-		this.heading = this.normilizeHeading(this.heading + dX * 100);
-
-		let relativeHeading = this.getRelativeHeading();
-
-		if (relativeHeading > this.xBound[0] && relativeHeading < this.xBound[1]) {
-			relativeHeading = Math.abs(this.xBound[0] - relativeHeading) > Math.abs(this.xBound[1] - relativeHeading) 
-				? this.xBound[1]
-				: this.xBound[0];
-		}
-
-		this.heading = this.normilizeHeading(-relativeHeading + this.baseHeading);
-		this.zUp += dY * this.zUpMultipler * -1;
-
-		if (this.zUp > this.zBound[1]) {
-			this.zUp = this.zBound[1];
-		} else if (this.zUp < this.zBound[0]) {
-			this.zUp = this.zBound[0];
-		}
-
-		this.changePosition();
-	}
-
-	changePosition() {
-		const position = mp.game.object.getObjectOffsetFromCoords(this.basePosition.x, this.basePosition.y,
-			this.basePosition.z + this.zUp, this.heading, this.offsetVector.x, this.offsetVector.y, this.offsetVector.z);
-		
-		this.camera.setCoord(position.x, position.y, position.z);
-	}
-
-	isPointEmpty() {
-		return this.currentPoint.x === 0 && this.currentPoint.y === 0;
-	}
-
-	setPoint(x, y) {
-		this.currentPoint = { x, y };
-	}
-
-	getPoint() {
-		return this.currentPoint;
-	}
-
-	normilizeHeading(heading) {
-		if (heading > 360) {
-			heading = heading - 360;
-		} else if (heading < 0) {
-			heading = 360 + heading;
-		}
-
-		return heading;
-	}
+function OpenCircle(title, data) {
+    if (menuCheck() || circleOpen) return;
+	if (global.localplayer.getVariable("attachToVehicleTrunk")) return;
+    board.execute(`circle.show("${title}",${data})`);
+    circleTitle = title;
+    circleOpen = true;
+    menuOpen();
+}
+function CloseCircle(hide) {
+    if(hide) board.execute("circle.hide()");
+    circleOpen = false;
+    menuClose();
 }
 
-const cameraRotator = new CameraRotator();
+function OpenFracData(title){
+if (menuCheck() || circleOpen) return;
+    board.execute(`circle.show("${title}",${pFraction})`);
+    circleTitle = title;
+    circleOpen = true;
+    menuOpen();
+}
 
-mp.events.add("render", () => {
-	if (!mp.gui.cursor.visible || !cameraRotator.isActive || cameraRotator.isPause) {
-		return;
-	}
-
-	const x = mp.game.controls.getDisabledControlNormal(2, 239);
-	const y = mp.game.controls.getDisabledControlNormal(2, 240);
-
-	if (cameraRotator.isPointEmpty()) {
-		cameraRotator.setPoint(x, y);
-	}
-
-	const currentPoint = cameraRotator.getPoint();
-	const dX = currentPoint.x - x;
-	const dY = currentPoint.y - y;
-	
-	cameraRotator.setPoint(x, y);
-
-	// Comment before commit
-	// drawDebugText();
-
-	if (mp.game.controls.isDisabledControlPressed(2, 237)) {
-		cameraRotator.onMouseMove(dX, dY);
-	}
+// // //
+mp.events.add('circleCallback', (index) => {
+    if (index == -1) {
+        CloseCircle(false);
+    } else {
+        CloseCircle(false);
+        switch (circleTitle) {
+            case "Машина":
+                switch (index) {
+                            case 0:
+                            case 1:
+                            case 2:
+                            case 3:
+		                    case 4:
+		                    case 5:
+                            case 6:    
+                            case 7:
+                                if (entity != null) 
+                                    mp.events.callRemote('vehicleSelected', entity, index);
+                            return;
+        }
+    return;
+            case "Игрок":
+                if (entity == null) return;
+                switch (index) {
+                    case 0:
+                        mp.events.callRemote('pSelected', entity, "Передать деньги");
+                        return;
+                    case 1:
+                        mp.events.callRemote('pSelected', entity, "Предложить обмен");
+                        return;
+                    case 2:
+                        if (pFraction === 0 || pFraction === 15) return;
+                        OpenCircle("Фракция", pFraction);
+                        return;
+                    case 3:
+                        mp.events.callRemote('passport', entity);
+                        return;
+                    case 4:
+                        mp.events.callRemote('licenses', entity);
+                        return;
+					case 5:
+                        mp.events.callRemote('pSelected', entity, "Показать пластик");
+                        return;		
+                    case 6:
+                        mp.events.callRemote('pSelected', entity, "Вылечить");
+                        return;
+                    case 7:
+                        OpenCircle("Дом", 0);
+                        return;
+					case 8:
+                        OpenCircle("Квартира", 0);
+                        return;
+                    case 9:
+                        mp.events.callRemote('pSelected', entity, "Пожать руку");
+                        return;
+					case 11:
+                        mp.events.callRemote('pSelected', entity, "Поцеловать");
+                        return;
+					
+					
+                }
+                return;
+            case "Дом":
+                switch (index) {
+                    case 0:
+                        mp.events.callRemote('pSelected', entity, "Продать машину");
+                        return;
+                    case 1:
+                        mp.events.callRemote('pSelected', entity, "Продать дом");
+                        return;
+                    case 2:
+                        mp.events.callRemote('pSelected', entity, "Заселить в дом");
+                        return;
+                    case 3:
+                        mp.events.callRemote('pSelected', entity, "Пригласить в дом");
+                        return;
+                }
+                return;
+			case "Квартира":
+                switch (index) {
+                    case 0:
+                        mp.events.callRemote('pSelected', entity, "Продать машину");
+                        return;
+                    case 1:
+                        mp.events.callRemote('pSelected', entity, "Продать квартиру");
+                        return;
+                    case 2:
+                        mp.events.callRemote('pSelected', entity, "Заселить в квартиру");
+                        return;
+                    case 3:
+                        mp.events.callRemote('pSelected', entity, "Пригласить в квартиру");
+                        return;
+                }
+                return;
+            case "Фракция":
+                if (entity == null) return;
+                circleEntity = entity;
+                if (fractionActions[pFraction] == undefined) return;
+                mp.events.callRemote('pSelected', entity, fractionActions[pFraction][index]);
+                return;
+			case "Семья":
+                if (entity == null) return;
+                circleEntity = entity;
+                mp.events.callRemote('pSelected', entity, fractionActions[1][index]);
+                return;
+        }
+    }
 });
+var aCategory = -1;
 
-function drawDebugText() {
-	let message = `zUp: ${cameraRotator.zUp.toFixed(3)}`;
-
-	message += `\nHeading: ${cameraRotator.heading.toFixed(2)}`;
-	message += `\nBase Heading: ${cameraRotator.baseHeading.toFixed(2)}`;
-	message += `\nRelative Heading: ${cameraRotator.getRelativeHeading().toFixed(2)}`;
-
-	mp.game.graphics.drawText(message, [0.5, 0.005], { 
-		font: 7, 
-		color: [255, 255, 255, 185], 
-		scale: [0.8, 0.8], 
-		outline: true,
-		centre: true
-	});
-}
-
-exports = cameraRotator;
-
-}
+var pFraction = 0;
+var fractionActions = [];
+fractionActions[1] = ["Вести за собой", "Мешок", "Ограбить"];
+fractionActions[2] = ["Вести за собой", "Мешок", "Ограбить"];
+fractionActions[3] = ["Вести за собой", "Мешок", "Ограбить"];
+fractionActions[4] = ["Вести за собой", "Мешок", "Ограбить"];
+fractionActions[5] = ["Вести за собой", "Мешок", "Ограбить"];
+fractionActions[6] = ["Вести за собой", "Показать удостоверение", "Сорвать маску", "Обыскать"];
+fractionActions[7] = ["Вести за собой", "Обыскать", "Изъять оружие", "Изъять нелегал", "Сорвать маску", "Выписать штраф", "Показать удостоверение", "Выдать пластик", "Посадить в КПЗ"];
+fractionActions[8] = ["Продать аптечку", "Предложить лечение", "Показать удостоверение"];
+fractionActions[9] = ["Вести за собой", "Обыскать", "Изъять оружие", "Изъять нелегал", "Сорвать маску", "Показать удостоверение", "Посадить в КПЗ"];
+fractionActions[10] = ["Вести за собой", "Мешок", "Ограбить"];
+fractionActions[11] = ["Вести за собой", "Мешок", "Ограбить"];
+fractionActions[12] = ["Вести за собой", "Мешок", "Ограбить"];
+fractionActions[13] = ["Вести за собой", "Мешок", "Ограбить","Выдать сертификат"];
+fractionActions[14] = ["Вести за собой", "Мешок", "Сорвать маску", "Показать удостоверение", "Обыскать"];
+fractionActions[15] = ["Вести за собой", "Показать удостоверение"];
+fractionActions[16] = ["Вести за собой"];
+fractionActions[17] = ["Вести за собой", "Мешок", "Обыскать", "Изъять нелегал", "Сорвать маску", "Показать удостоверение", "Изъять оружие"];
+fractionActions[18] = ["Вести за собой", "Мешок", "Обыскать", "Изъять нелегал", "Сорвать маску", "Показать удостоверение", "Изъять оружие"];
+mp.events.add('fractionChange', (fraction) => {
+    pFraction = fraction;
+});
+}Ɂ

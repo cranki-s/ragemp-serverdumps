@@ -1,84 +1,462 @@
 {
-var Peds = [
-    { Hash: -39239064, Pos: new mp.Vector3(1395.184, 3613.144, 34.9892), Angle: 270.0 }, // Caleb Baker
-    { Hash: -1176698112, Pos: new mp.Vector3(166.6278, 2229.249, 90.73845), Angle: 47.0 }, // Matthew Allen
-    { Hash: 1161072059, Pos: new mp.Vector3(2887.687, 4387.17, 50.65578), Angle: 174.0 }, // Owen Nelson
-    { Hash: -1398552374, Pos: new mp.Vector3(2192.614, 5596.246, 53.75177), Angle: 318.0 }, // Daniel Roberts
-    { Hash: -459818001, Pos: new mp.Vector3(-215.4299, 6445.921, 31.30351), Angle: 262.0 }, // Michael Turner
-    { Hash: 0x9D0087A8, Pos: new mp.Vector3(480.9385, -1302.576, 29.24353), Angle: 224.0 }, // jimmylishman
-    { Hash: 368603149, Pos: new mp.Vector3(441.169, -978.3074, 30.669605), Angle: 180.16982 }, // Nancy_Spungen
-    { Hash: 941695432, Pos: new mp.Vector3(149.1317, -758.3485, 242.152), Angle: 66.82055 }, //  Steve_Hain
-    { Hash: 1558115333, Pos: new mp.Vector3(120.0836, -726.7773, 242.152), Angle: 248.3546 }, // Michael Bisping
-    { Hash: 1925237458, Pos: new mp.Vector3(-2347.958, 3268.936, 32.81076), Angle: 240.8822 }, // Ronny_Pain
-    { Hash: -1420211530, Pos: new mp.Vector3(251.4247, -1346.499, 24.5378), Angle: 223.6044 }, // Bdesma_Katsuni
-    { Hash: 1092080539, Pos: new mp.Vector3(262.3232, -1359.772, 24.53779), Angle: 49.42155 }, // Steve_Hobs
-    { Hash: -1306051250, Pos: new mp.Vector3(257.5671, -1344.612, 24.54937), Angle: 229.3922 }, // Billy_Bob
-    { Hash: -907676309, Pos: new mp.Vector3(724.8585, 134.1029, 80.95643), Angle: 245.0083 }, // Ronny_Bolls
-	{ Hash: 1097048408, Pos: new mp.Vector3(2485.132, 3445.385, 51.0670), Angle: 41.60225 },
-	{ Hash: -1369710022, Pos: new mp.Vector3(1550.667, 3800.679, 34.4111), Angle: 203.1918 },
-    { Hash: 0x55FE9B46, Pos: new mp.Vector3(-31.549833, -1113.1095, 26.402357), Angle: -7.1 }, // AutoSalon
-    { Hash: 0x55FE9B46, Pos: new mp.Vector3(-51.707607, -1088.6691, 26.402357), Angle: -180.1 }, // AutoSalon
-    { Hash: 0x55FE9B46, Pos: new mp.Vector3(268.28262, -1154.0964, 29.27169), Angle: -280.1 }, // AutoSalon
-    { Hash: 0x55FE9B46, Pos: new mp.Vector3(-804.05444, -222.72107, 37.217344), Angle: -190.1 }, // AutoSalon
-    { Hash: 0x55FE9B46, Pos: new mp.Vector3(-912.31946, -225.35014, 39.798162), Angle: -180.1 }, // AutoSalon
-    { Hash: 0x55FE9B46, Pos: new mp.Vector3(-1377.9928, -499.4511, 33.137376), Angle: -190.1 }, // AutoSalon
-	{ Hash: -50684386, Pos: new mp.Vector3(2220.723, 4900.9136, 40.965938), Angle: -42.2323 }, // Korova1
-    { Hash: -50684386, Pos: new mp.Vector3(2219.496, 4902.2153, 40.965938), Angle: -42.2323 }, // Korova2
-    { Hash: -50684386, Pos: new mp.Vector3(2218.4912, 4903.2583, 40.965938), Angle: -42.2323 }, // Korova3
-    { Hash: -50684386, Pos: new mp.Vector3(2249.899, 4905.576, 40.965938), Angle: 136.42168 }, // Korova1
-    { Hash: -50684386, Pos: new mp.Vector3(2248.5317, 4906.8213, 40.965938), Angle: 136.42168 }, // Korova2
-    { Hash: -50684386, Pos: new mp.Vector3(2247.2295, 4908.0063, 40.965938), Angle: 136.42168 }, // Korova3
-    { Hash: -50684386, Pos: new mp.Vector3(2248.1023, 4872.494, 40.965938), Angle: -41.132217 }, // Korova1
-    { Hash: -50684386, Pos: new mp.Vector3(2247.0042, 4873.5312, 40.965938), Angle: -41.132217 }, // Korova2
-    { Hash: -50684386, Pos: new mp.Vector3(2245.6777, 4874.731, 40.965938), Angle: -41.132217 }, // Korova3
-    { Hash: -951490775, Pos: new mp.Vector3(-1887.9357, 2076.2156, 141), Angle: -7.1 }, // vinogradnik
-    { Hash: -681546704, Pos: new mp.Vector3(-1871.59, 2069.9512, 141), Angle: -7.1 }, // vinogradnik
-    { Hash: 0x94562DD7, Pos: new mp.Vector3(2367.39, 4881.526, 42), Angle: 120 }, 
-    { Hash: 0xA7810923, Pos: new mp.Vector3(77.48507, -1387.6443, 29.3), Angle: -179 }, 
-    { Hash: 0xC3114CB1, Pos: new mp.Vector3(24.460543, -1346.4701, 29.5), Angle: -93 }, 
-    { Hash: 0xC3114CB1, Pos: new mp.Vector3(-47.192394, -1758.397, 29.4), Angle: 45 }, 
-    { Hash: 0x1E3E327D, Pos: new mp.Vector3(810.09607, -2159.037, 29.6), Angle: -5 }, 
-    { Hash: 0x1E3E327D, Pos: new mp.Vector3(842.60956, -1035.3448, 28.2), Angle: -5 }, //Оружейка
-    { Hash: 0xA7810923, Pos: new mp.Vector3(1134.2406, -982.48016, 46.4), Angle: -83 },
-    { Hash: 0x2F4AEC3E, Pos: new mp.Vector3(1211.4725, -470.8487, 66.2), Angle: 76 },
-    { Hash: 0xC3114CB1, Pos: new mp.Vector3(1164.8239, -323.1311, 69.2), Angle: 95 },
-    { Hash: 0xA7810923, Pos: new mp.Vector3(422.35947, -811.40784, 29.471122), Angle: -2.5 },
-    { Hash: 0x1E3E327D, Pos: new mp.Vector3(22.532536, -1105.5295, 29.9), Angle: 160 },
-    { Hash: 0xA7810923, Pos: new mp.Vector3(-816.6929, -1072.8788, 11.4), Angle: 122 },
-    { Hash: 0x1E3E327D, Pos: new mp.Vector3(-662.16925, -933.58765, 21.909236), Angle: -180 },
-    { Hash: 0xC3114CB1, Pos: new mp.Vector3(-1222.2808, -908.45355, 12.3), Angle: 34 },
-    { Hash: 0xC3114CB1, Pos: new mp.Vector3(-1486.0277, -378.32956, 40.2), Angle: 132 },
-    { Hash: 0xA7810923, Pos: new mp.Vector3(-1449.231, -238.46606, 49.8), Angle: 47 },
-    { Hash: 0xA7810923, Pos: new mp.Vector3(-708.6608, -152.32346, 37.4), Angle: 120 },
-    { Hash: 0xA7810923, Pos: new mp.Vector3(-164.84981, -302.61975, 39.813205), Angle: -105 },
-    { Hash: 0xA7810923, Pos: new mp.Vector3(126.90246, -224.26184, 54.63783), Angle: 70 },
-    { Hash: 0x2F4AEC3E, Pos: new mp.Vector3(-30.987543, -151.57292, 57.1), Angle: -23 },
-    { Hash: 0xC3114CB1, Pos: new mp.Vector3(372.60074, 326.88995, 103.58636), Angle: -108 },
-    { Hash: 0xC3114CB1, Pos: new mp.Vector3(-3039.6152, 584.25586,7.9), Angle: 14 },
-    { Hash: 0xC3114CB1, Pos: new mp.Vector3(-3242.9902, 1000.0479, 12.810706), Angle: -7 },
-    { Hash: 0x1E3E327D, Pos: new mp.Vector3(-3173.333, 1088.7589, 20.81875), Angle: -112 },
-    { Hash: 0x1E3E327D, Pos: new mp.Vector3(-1118.6765, 2699.9783, 18.684155), Angle: -140 },
-    { Hash: 0xA7810923, Pos: new mp.Vector3(-1095.5834, 2711.815, 19.1), Angle: 130 },
-    { Hash: 0xC3114CB1, Pos: new mp.Vector3(549.1472, 2670.4978, 42.33649), Angle: 96 },
-    { Hash: 0xC3114CB1, Pos: new mp.Vector3(1166.3652, 2710.8, 38.187712), Angle: 118 },
-    { Hash: 0xA7810923, Pos: new mp.Vector3(1202.0178, 2708.0625, 38.302592), Angle: 91 },
-    { Hash: 0x2F4AEC3E, Pos: new mp.Vector3(1930.9998, 3728.1777, 32.94442), Angle: -154 },
-    { Hash: 0xC3114CB1, Pos: new mp.Vector3(1692.6105, 3761.3376, 34.785323), Angle: -140 },
-    { Hash: 0xA7810923, Pos: new mp.Vector3(1691.8243, 4817.287, 42.1), Angle: 1.2 },
-    { Hash: 0xC3114CB1, Pos: new mp.Vector3(1697.9692, 4922.8853, 42.1), Angle: -37.87 },
-    { Hash: 0xC3114CB1, Pos: new mp.Vector3(1728.1357, 6415.8555, 35.1), Angle: -123.8 },
-    { Hash: 0xA7810923, Pos: new mp.Vector3(-0.15504424, 6510.1416, 31.987828), Angle: -48 },
-    { Hash: 0x2F4AEC3E, Pos: new mp.Vector3(-278.10028, 6230.319, 31.83552), Angle: 45 },
-    { Hash: 0x2F4AEC3E, Pos: new mp.Vector3(1117.8418, 220.09529, -50.855275), Angle: 90 },
-    { Hash: 0xA7810923, Pos: new mp.Vector3(1854.7834, 2593.0718, 45.6), Angle: -152 },
-    { Hash: 0x9E08633D, Pos: new mp.Vector3(816.70056, -2162.0447, 29.7), Angle: -80 },
-    { Hash: 0xC3114CB1, Pos: new mp.Vector3(-1422.4229, -204.35445, 46.6), Angle: -99 },
-    { Hash: 0xA5CD7CD8, Pos: new mp.Vector3(216.21605, -919.21924, 30.740919), Angle: 15 },
-    { Hash: 0x799E61F6, Pos: new mp.Vector3(195.41833, -996.5225, 30.071786), Angle: 25 },
-];
-setTimeout(function () {
-    Peds.forEach(ped => {
-        mp.peds.new(ped.Hash, ped.Pos, ped.Angle, 0);
-    });
-}, 1000);
+let rampKey = 324, // X
+    hookKey = 131; // Left Shift
+
+let player = mp.players.local
+
+function createBed(veh) {
+	try{
+  return new Promise((resolve, reject) => {
+    let bedRot = veh.getRotation(2)
+    let tempPos = veh.position
+    tempPos.z += 15
+    veh.bed = mp.objects.new(mp.game.joaat('imp_prop_flatbed_ramp'), tempPos, {rotation: {x: 14-bedRot.x, y: bedRot.y, z: bedRot.z + 180}, dimension: player.dimension})
+    veh.bed.streamingRange = 500
+    veh.bed.state = 0
+    
+  });
+	}
+	catch{}
+}
+
+let keypressCheck;
+
+mp.events.add('client::flatbed:setstate', () => {
+	let flatbed = player.vehicle
+	flatbed.bed.rope == null;
+	flatbed.bed.moving = false;
+	flatbed.bed.state = 0;
+	attachToBed(flatbed, false)
+    clearInterval(syncInterval)
+    syncInterval = null
+	mp.events.callRemote('fbAttachVehicle', flatbed.remoteId, false)
+});
+
+function checkForKeypress(toggle) {
+  if (!toggle) {
+    clearInterval(keypressCheck)
+    keypressCheck = null
+    return
+  }
+
+  if (keypressCheck == null) {
+    // same as render event
+    keypressCheck = setInterval(() => {
+      let flatbed = player.vehicle
+      if (mp.game.controls.isControlJustPressed(0, rampKey)) {
+        if (isDrivingFlatbed() && !flatbed.bed.moving && flatbed.bed.rope == null) {
+          if (flatbed.bed.state == 0) {
+            mp.events.callRemote('fbSetState', flatbed, 1)
+            extendBed(flatbed)
+            
+          } else if (flatbed.bed.state == 1) {
+            mp.events.callRemote('fbSetState', flatbed, 0)
+            retractBed(flatbed)
+          }
+        }
+      }
+
+      if (mp.game.controls.isControlJustPressed(0, hookKey)) {
+        if (isDrivingFlatbed() && !flatbed.bed.moving && flatbed.bed.state == 1
+          && flatbed.bed.rope == null && !flatbed.attachedVehicle) {
+          let targetVeh = getTargetVehicle(flatbed)
+          if (targetVeh) {
+            mp.events.callRemote('fbAttachRope', flatbed, targetVeh)
+            attachRope(flatbed, targetVeh)
+            setTimeout(async () => {
+              mp.events.callRemote('fbWindRope', flatbed)
+              let windingSuccess = await windRope(flatbed)
+              if (windingSuccess) {
+                if (attachToBed(flatbed, targetVeh)) {
+					
+                  mp.events.callRemote('fbAttachVehicle', flatbed.remoteId, targetVeh.remoteId)
+                  startSyncIntervalForVeh(targetVeh)
+                }
+              
+              }
+              mp.events.callRemote('fbAttachRope', flatbed, false)
+            }, 1000);
+          }
+
+        } else if (isDrivingFlatbed() && flatbed.attachedVehicle && !flatbed.bed.moving && flatbed.bed.state == 1) {
+          mp.events.callRemote('fbAttachVehicle', flatbed.remoteId, false)
+          attachToBed(flatbed, false)
+
+          clearInterval(syncInterval)
+          syncInterval = null
+        }
+      }
+    }, 0);
+  }
+}
+
+let syncInterval;
+function startSyncIntervalForVeh(veh) {
+  if (syncInterval != null) return
+
+  syncInterval = setInterval(() => {
+	  try{
+     if (isDrivingFlatbed() && player.vehicle.getVariable('fbAttachVehicle') == veh.remoteId) {
+      mp.events.callRemote('fbSyncPosition', veh.remoteId, JSON.stringify(veh.position), JSON.stringify(veh.getRotation(2)))
+
+    } else {
+      clearInterval(syncInterval)
+      syncInterval = null
+    }
+	  }
+	  catch{ }
+  }, 1000)
+}
+
+function extendBed(flatbed) {
+  let y = -3, z = -0.48, rotX = 14;
+  let toY = -8.6, toZ = -1.24, toRotX = 0;
+  flatbed.bed.moving = true;
+
+  // audio
+  let sound = mp.game.invoke('0x430386FE9BF80B45') // getSoundId
+  mp.game.audio.playSoundFromEntity(sound, "OPENING", flatbed.bed.handle, "DOOR_GARAGE", false, 0);
+
+  let render = new mp.Event('render', ()=> {
+    if (!flatbed.bed) {
+      return render.destroy()
+    }
+    
+    if (y > toY) {
+      y = parseFloat((y - 0.05).toFixed(2))
+
+    // after y finish transition
+    }
+    if (y <= toY) {
+      if (z > toZ) {
+        z = parseFloat((z - 0.04).toFixed(2))
+      }
+
+      if (rotX > toRotX) {
+        rotX = parseFloat((rotX - 0.8).toFixed(2))
+      }
+      
+    }
+    flatbed.bed.attachTo(flatbed.handle, flatbed.getBoneIndexByName('chassis_dummy'), 0,y,z, rotX,0,180, true, false, true, false,0,true)
+    if (y <= toY && z <= toZ && rotX <= toRotX) {
+      flatbed.bed.moving = false;
+      flatbed.bed.state = 1
+      render.destroy()
+      mp.game.audio.stopSound(sound)
+    }
+    
+  })
+}
+
+function retractBed(flatbed) {
+  let y = -8.6, z = -1.24, rotX = 0;
+  let toY = -3, toZ = -0.48, toRotX = 14;
+  flatbed.bed.moving = true;
+
+  // audio
+  let sound = mp.game.invoke('0x430386FE9BF80B45') // getSoundId
+  mp.game.audio.playSoundFromEntity(sound, "CLOSING", flatbed.bed.handle, "DOOR_GARAGE", false, 0);
+
+  let render = new mp.Event('render', ()=> {
+    if (!flatbed.bed) {
+      return render.destroy()
+    }
+
+    if (z < toZ) {
+      z = parseFloat((z + 0.04).toFixed(2))
+    }
+
+    if (rotX < toRotX) {
+      rotX = parseFloat((rotX + 0.8).toFixed(2))
+    }
+    
+    // after z and rotX finish transition
+    if (z >= toZ && rotX >= toRotX) {
+      if (y < toY) {
+        y = parseFloat((y + 0.05).toFixed(2))
+      }
+    }
+
+    flatbed.bed.attachTo(flatbed.handle, flatbed.getBoneIndexByName('chassis_dummy'), 0,y,z, rotX,0,180, true, false, true, false,0,true)
+    if (y >= toY && z >= toZ && rotX >= toRotX) {
+      flatbed.bed.moving = false;
+      flatbed.bed.state = 0
+      render.destroy()
+      mp.game.audio.stopSound(sound)
+    }
+    
+  })
+}
+
+mp.events.add({
+  async entityStreamIn(e) {
+	  try{    if (e.type == 'vehicle' && e.model == mp.game.joaat('flatbed')) {
+      await createBed(e)
+      if (e.getVariable('fbState') === 1) extendBed(e)
+
+      if (typeof e.getVariable('fbAttachRope') == 'number') {
+        let vehID = e.getVariable('fbAttachRope')
+        let veh = mp.vehicles.atRemoteId(vehID)
+        if (veh)
+          attachRope(e, veh)
+      }
+
+      if (typeof e.getVariable('fbAttachVehicle') == 'number') {
+        let veh = await waitFor(mp.vehicles.atRemoteId(e.getVariable('fbAttachVehicle')))
+        veh.setCollision(false, true)
+        if (veh)
+          attachToBed(e, veh)
+      }
+    }
+	  }
+	  catch{}
+  },
+  
+  entityStreamOut(e) {
+	  try{
+    if (e.type == 'vehicle' && e.model == mp.game.joaat('flatbed')) {
+      if (e.bed) {
+        if (e.bed.sound != null)
+          mp.game.audio.stopSound(e.bed.sound)
+        
+        if (e.bed.rope != null)
+          mp.game.rope.deleteRope(e.bed.rope)
+        
+        e.bed.destroy()
+        delete e.bed
+        
+        if (e.attachedVehicle)
+          delete e.attachedVehicle
+      }
+    }
+	  }
+	  catch{}
+  },
+
+  playerEnterVehicle(v, seat) {
+    if (v.model != mp.game.joaat('flatbed')) return
+    checkForKeypress(true)
+
+    if (seat === -1 && typeof v.getVariable('fbAttachVehicle') == 'number')
+      startSyncIntervalForVeh(mp.vehicles.atRemoteId(v.getVariable('fbAttachVehicle')))
+  },
+
+  playerLeaveVehicle(v) {
+    if (!v) return // vehicle destroyed
+    if (v.model != mp.game.joaat('flatbed')) return
+    checkForKeypress(false)
+  }
+})
+
+// sync code
+mp.events.addDataHandler('fbState', (fb, state)=> {
+  if (fb.handle == 0 || (fb == player.vehicle && player.seat == -1)) return
+  if (state == 1)
+    extendBed(fb)
+  else
+    retractBed(fb)
+})
+
+function getTargetVehicle(flatbed) {
+  let from = flatbed.bed.getOffsetFromInWorldCoords(0, 2,1)
+  let to = flatbed.bed.getOffsetFromInWorldCoords(0, 4, 0.7)
+  let raycast = mp.raycasting.testPointToPoint(from, to, null, 2)
+  let targetVeh = raycast && raycast.entity && raycast.entity.type == 'vehicle'? raycast.entity : null
+  return targetVeh
+}
+
+function isDrivingFlatbed() {
+  return player.vehicle && player.vehicle.model == mp.game.joaat('flatbed')
+  && player.vehicle.getPedInSeat(-1) == player.handle
+}
+
+function isVehicleFacingFlatbed(veh, fb) {
+  let direction = veh.getForwardVector()
+  direction = new mp.Vector3(direction.x, direction.y, direction.z)
+  let fbPos = new mp.Vector3(fb.position.x, fb.position.y, fb.position.z)
+  let vehPos = new mp.Vector3(veh.position.x, veh.position.y, veh.position.z)
+
+  function angle(from, to) {
+    let dot = from.unit().dot(to.unit())
+    return Math.acos(dot) * (180 / Math.PI)
+  }
+
+  return angle(direction, fbPos.subtract(vehPos)) < 90
+}
+
+function getVehicleHook(veh, forward) {
+	try{
+  if (forward) {
+    if (veh.getBoneIndexByName('neon_f') > -1) {
+      return veh.getWorldPositionOfBone(veh.getBoneIndexByName('neon_f'))
+    
+    } else if (veh.getBoneIndexByName('bumper_f') > -1) {
+      return veh.getWorldPositionOfBone(veh.getBoneIndexByName('bumper_f'))
+    
+    } else if (veh.getBoneIndexByName('engine') > -1) {
+      return veh.getWorldPositionOfBone(veh.getBoneIndexByName('engine'))
+    
+    } else {
+      let pos = closestVeh.position
+      let forwardVec = closestVeh.getForwardVector()
+      return new mp.Vector3(pos.x + forwardVec.x, pos.y + forwardVec.y, pos.z+forwardVec.z)
+    }
+
+  } else {
+    if (veh.getBoneIndexByName('neon_b') > -1) {
+      return veh.getWorldPositionOfBone(veh.getBoneIndexByName('neon_b'))
+    
+    } else if (veh.getBoneIndexByName('bumper_r') > -1) {
+      return veh.getWorldPositionOfBone(veh.getBoneIndexByName('bumper_r'))
+    
+    } else if (veh.getBoneIndexByName('trunk') > -1) {
+      return veh.getWorldPositionOfBone(veh.getBoneIndexByName('trunk'))
+    
+    } else {
+      let pos = closestVeh.position
+      let forwardVec = closestVeh.getForwardVector()
+      return new mp.Vector3(pos.x + forwardVec.x, pos.y + forwardVec.y, pos.z+forwardVec.z)
+    }
+  }
+	}
+	catch{}
+}
+
+function playSound(flatbed, sound) {
+  let id = -1
+  if (sound != 'OPENED')
+    id = mp.game.invoke('0x430386FE9BF80B45') // getSoundId
+  mp.game.audio.playSoundFromEntity(id, sound, flatbed.bed.handle, "DOOR_GARAGE", false, 0);
+  if (id > -1) flatbed.bed.sound = id
+  return id
+}
+
+function attachRope(flatbed, targetVeh) {
+  if (!flatbed.handle) return
+
+  if (targetVeh === false) {
+    if (flatbed.bed.rope == null) return
+    mp.game.rope.deleteRope(flatbed.bed.rope)
+    delete flatbed.bed.rope
+
+    return
+  }
+
+  if (!targetVeh.handle) return
+
+  let anchorPos = flatbed.getOffsetFromInWorldCoords(0,-5.9, 0.6)
+  anchorPos = new mp.Vector3(anchorPos.x, anchorPos.y, anchorPos.z)
+
+  let isForward = isVehicleFacingFlatbed(targetVeh, flatbed)
+  let hookPos = getVehicleHook(targetVeh, isForward)
+  hookPos = new mp.Vector3(hookPos.x, hookPos.y, hookPos.z)
+  let dist = anchorPos.subtract(hookPos).length()
+  
+  mp.game.invoke('0x9B9039DBF2D258C1') // loadRopeTextures
+  let rope = mp.game.invoke('0xE832D760399EB220', anchorPos.x, anchorPos.y, anchorPos.z, 0,0,0, dist, 6, dist, 0.1, 0.5, false, false, true, 1.0, false, 0) // addRope
+  flatbed.bed.rope = rope
+  mp.game.rope.attachEntitiesToRope(rope, flatbed.handle, targetVeh.handle, anchorPos.x, anchorPos.y, anchorPos.z, hookPos.x, hookPos.y, hookPos.z, dist,false, false, 0, 0)
+  mp.game.invoke('0x710311ADF0E20730', rope)  // activatePhysics
+  return rope
+}
+
+function windRope(flatbed) {
+  return new Promise((resolve, reject) => {
+    if (!flatbed.handle) return
+    
+    let rope = flatbed.bed.rope
+    mp.game.rope.startRopeWinding(rope)
+    let sound = playSound(flatbed, 'CLOSING')
+
+    let startTime = Date.now()
+    let interval = setInterval(() => {
+      if (!flatbed.handle) return clearInterval(interval)
+
+      // if rope winding takes more than 15 seconds, its stuck
+      if (Date.now() - startTime >= 15000) {
+        clearInterval(interval)
+        mp.game.rope.stopRopeWinding(rope)
+        mp.game.audio.stopSound(sound)
+        delete flatbed.bed.sound
+        attachRope(flatbed, false) // delete rope
+        return resolve(false)
+      }
+
+      if (flatbed.bed.rope == null) {
+        clearInterval(interval)
+        mp.game.audio.stopSound(sound)
+        delete flatbed.bed.sound
+        return
+      }
+
+      if (mp.game.rope.getRopeLength(flatbed.bed.rope) <= 1) {
+        clearInterval(interval)
+        mp.game.rope.stopRopeWinding(rope)
+        mp.game.audio.stopSound(sound)
+        delete flatbed.bed.sound
+        
+        setTimeout(() => {
+          attachRope(flatbed, false)
+        }, 800);
+
+        resolve(true)
+      }
+    }, 500)
+  })
+}
+
+function attachToBed(flatbed, targetVeh) {
+	try{
+  if (!flatbed.handle || (targetVeh !== false && !targetVeh.handle)) return
+
+  if (targetVeh === false) {
+    flatbed.attachedVehicle.detach(true, false)
+    delete flatbed.attachedVehicle
+
+  } else {
+    flatbed.freezePosition(true)
+    let pos = targetVeh.position
+    let height = targetVeh.getHeight(pos.x, pos.y, pos.z, true, false)
+    if (height <= 0.924 || targetVeh.model == mp.game.joaat('taxi'))
+      height += 1
+    else
+      height += 0.4
+    let rotX = 14, rotZ = 180
+
+    if (!isVehicleFacingFlatbed(targetVeh, flatbed)) {
+      rotX *= -1
+      rotZ = 0
+    }
+    
+    targetVeh.attachTo(flatbed.bed.handle, 0, 0,0,height, rotX,0,rotZ, true, false, true, false,0,true)
+    var attached = Boolean(targetVeh.isAttached())
+    if (attached)
+      flatbed.attachedVehicle = targetVeh
+    
+    setTimeout(() => {
+      flatbed.freezePosition(false)
+    }, 1000);
+  }
+  playSound(flatbed, 'OPENED')
+  if (attached) return attached
+	}
+	catch{}
+}
+
+function waitFor(e) {
+  return new Promise((resolve, reject) => {
+    let time = Date.now()
+    let interval = setInterval(() => {
+      if (e.handle) {
+        clearInterval(interval)
+        resolve(e)
+      }
+
+      if (Date.now() - time >= 5000) {
+        clearInterval(interval)
+        resolve(null)
+      }
+    }, 100)
+  })
+}
 }
