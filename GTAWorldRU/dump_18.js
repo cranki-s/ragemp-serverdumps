@@ -414,4 +414,4 @@ mp.events.add('render', () => {
 	}
 });
 
-}Ĉ
+}ɹ

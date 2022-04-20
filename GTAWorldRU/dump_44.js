@@ -25,4 +25,4 @@ mp.keys.bind(0x73, true, ()=>{
 	mp.gui.chat.activate(true)
 })
 
-}璹筛ĸ
+}慄煮ĩ

@@ -1,5 +1,5 @@
 {
-/*mp.markers.new(28, new mp.Vector3(-893.9126,-2402.5571,14.0244), 30, // DEBUG
+/*mp.markers.new(28, new mp.Vector3(-1921.5873,2057.5757,140.7345), 30, // DEBUG
 {
 	direction: new mp.Vector3(0, 0, 0),
 	rotation: new mp.Vector3(0, 180, 0),
@@ -8,111 +8,118 @@
 	dimension: 0
 });*/
 
-var airWorkZone = mp.colshapes.newSphere(-893.9126,-2402.5571,14.0244,30,0);
-var airImInWorkZone = false;
+var wineryDeliveryMomentStart = false;
 
-var curAirTask = false, airBlip = false;
-var airCheckpoint = false;
+var wineDeliveryWorkZone = mp.colshapes.newSphere(-1921.5873,2057.5757,140.7345, 30, 0);
+var wineDeliveryImInWorkZone = false;
 
-var airTasksBlocked = false;
+let wineDeliveryActionsForGoToBase = 0;
 
-function startAirJob() {
-	if(typeof(localPlayer.getVariable('player.lics')) === "undefined") return hud_browser.execute('jobPanelError("#startAirJob", "Технические неполадки системы лицензий..")');
+let wineDeliveryStartPos = {"x":0,"y":0,"z":0};
+
+let shopsPoses = [
+	["-3250.5977","993.4695","11.8418"],
+	["-2964.1775","374.4562","14.1664"],
+	["-3050.9368","592.3166","6.9213"],
+	["-1824.599","780.0491","137.2708"],
+	["-1535.5408","-435.3284","34.8015"],
+	["-703.1462","-856.6828","22.7301"],
+	["-821.5616","-1088.7628","10.3714"],
+	["1153.1721","-332.3593","68.1548"],
+	["1158.1664","-463.08","66.1327"],
+	["621.0651","2724.1501","41.1942"],
+	["540.8793","2678.7146","41.5967"],
+	["899.7198","3653.2046","32.1197"],
+	["1956.3341","3737.6384","31.5517"],
+	["2689.0732","3286.2234","54.5998"],
+	["1699.0613","4937.6123","41.4393"],
+	["1727.7451","6405.0898","33.7694"],
+	["58.5791","-1569.9891","28.8191"],
+	["-52.4347","-1761.9708","28.4277"],
+	["-39.8512","-1745.8295","28.9521"],
+	["160.7789","-1563.0822","28.9965"],
+	["-339.7714","-1478.3824","30.368"],
+	["-543.9476","-1219.6996","18.0325"],
+	["-709.2186","-920.8896","18.7641"],
+	["286.1028","-1261.6467","29.0347"],
+	["819.6342","-1038.234","26.3111"],
+	["1201.9935","-1388.4541","34.9774"],
+	["638.6503","261.4872","102.8744"],
+	["-1429.9175","-271.4662","45.9583"],
+	["-2079.02","-327.4526","12.8814"],
+	["-1823.5859","780.0934","137.598"],
+	["-2567.7939","2319.0459","32.8148"],
+	["270.0424","2600.8665","44.4079"],
+	["1775.8824","3331.6592","41.0718"],
+	["2659.8628","3261.1208","54.9909"],
+	["1720.809","6409.0308","33.7329"]
+
+];
+
+let wineDeliveryMarker = false;
+let wineDeliveryBlip = false;
+let wineDeliveryShape = false;
+
+function startWineDeliveryJob() {
+	if(typeof(localPlayer.getVariable('player.lics')) === "undefined") return hud_browser.execute('jobPanelError("#startWineDeliveryJob", "Технические неполадки системы лицензий..")');
 	let myLics = {};
 	if(IsJsonString(JSON.stringify(localPlayer.getVariable('player.lics')))) myLics = localPlayer.getVariable('player.lics');
-	if(myLics["airCat"] === undefined) return hud_browser.execute('jobPanelError("#startAirJob", "Отсутствует лицензия пилота « Самолётов »")');
+	if(myLics["cCat"] === undefined) return hud_browser.execute('jobPanelError("#startWineDeliveryJob", "Отсутствуют водительские права категории «C»")');
+	
 	closeJobTablet();
-	mp.events.callRemote('startAirJob');
-	mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вас приняли работать в авиацию", 5, false, true, 6500);
+	mp.events.callRemote('startWineDeliveryJob');
+	mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вас приняли работать на развозку вина", 5, false, true, 6500);
 	setTimeout(function() {
-		mp.game.ui.notifications.showWithPicture("ЦУП", "Добро пожаловать", "Получил рабочий планшет? Нажми F5 и выбери свой первый рейс.", "CHAR_ACTING_UP", 1, false, 1, 2);
+		mp.game.ui.notifications.showWithPicture("Босс", "Приветик, милок", "Получил рабочий планшет? Нажми F5 и начни смену.", "CHAR_MRS_THORNHILL", 1, false, 1, 2);
 	}, 2000);
 }
-mp.events.add("startAirJob", startAirJob);
+mp.events.add("startWineDeliveryJob", startWineDeliveryJob);
 
-function getAirTasks(){
-	if(!airBlip) mp.events.callRemote('getAirTasks');
-	else hud_browser.execute("gettedAirTasks('you_have_task');");
-}
-mp.events.add("getAirTasks", getAirTasks);
-
-function gettedAirTasks(airTasks){
-	if(airTasks) {
-		if(!curAirTask && typeof(localPlayer.getVariable("player.job")) !== "undefined") {
-			if(Object.keys(airTasks).length > 0) {
-				let jobData = localPlayer.getVariable("player.job");
-				
-				let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-					decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
-					
-				for (var k in airTasks) {
-					if(airTasks[k]) {
-						let taskData = airTasks[k];
-						taskData.planeName = "Самолёт";
-						if(parseInt(jobData.rank) >= parseInt(taskData.minRank)) {
-							if(typeof(taskData.plane) !== "undefined") {
-								if(typeof(decVehStats[0][taskData.plane]) !== "undefined") taskData.planeName = decVehStats[0][taskData.plane].name;
-								else taskData.planeName = taskData.plane;
-							}
-						}else{
-							delete airTasks[k];
-						}
-					}
-				}
-				airTasks = airTasks.filter(function (el) { return el != null; });
-				
-				hud_browser.execute("gettedAirTasks('ok', '"+JSON.stringify(airTasks)+"');");
-			}else{
-				hud_browser.execute("gettedAirTasks('empty');");
-			}
-		}else{
-			hud_browser.execute("gettedAirTasks('you_have_task');");
-		}
-	}
-}
-mp.events.add("gettedAirTasks", gettedAirTasks);
-
-function airStartStop() {
+function wineDeliveryStartStop() {
 	if(localPlayer.getVariable("player.job")) {
 		let jobData = localPlayer.getVariable("player.job");
 		closeJobTablet(true);
 		
 		if(jobData.work == 0) {
-			if(airImInWorkZone) {
+			if(wineDeliveryImInWorkZone) {
 				if(localPlayer.vehicle) {
-					mp.game.ui.notifications.showWithPicture("ЦУП", "Связь плохая", "Нельзя начать смену из транспорта.", "CHAR_ACTING_UP", 1, false, 1, 2);
+					mp.game.ui.notifications.showWithPicture("Босс", "Связь плохая", "Нельзя начать смену из транспорта.", "CHAR_MRS_THORNHILL", 1, false, 1, 2);
 				}else{
 					if(!activeJOBoperation) {
+						wineryDeliveryMomentStart = true;
+						setTimeout(function() { wineryDeliveryMomentStart = false; }, 3500);
 						mp.events.call("sleepAntiCheat");
 						mp.events.callRemote('startJobWork');
-						mp.game.ui.notifications.showWithPicture("ЦУП", "Смена началась", "Возьмите любую задачу. Задачи в планшете (F5)", "CHAR_ACTING_UP", 1, false, 1, 2);
+						mp.game.ui.notifications.showWithPicture("Босс", "Ну, милок, с богом", "Началась твоя рабочая смена. Статистика в планшете (F5)", "CHAR_MRS_THORNHILL", 1, false, 1, 2);
+						wineDeliveryActionsForGoToBase = 0;
+						wineDeliveryProccessor();
 					}
 				}
 			}else{
-				mp.game.ui.notifications.showWithPicture("ЦУП", "Явитесь в офис", "Смену можно начать только на территории ЦУПа.", "CHAR_ACTING_UP", 1, false, 1, 2);
-				chatAPI.sysPush("<span style=\"color:#FF6146\"> * Явитесь в Центр Управления Полётами что бы начать смену.</span>");
+				mp.game.ui.notifications.showWithPicture("Босс", "А ты где?", "Смену можно начать только на территории винного хранилища.", "CHAR_MRS_THORNHILL", 1, false, 1, 2);
+				notyAPI.error("Явитесь на территорию винного хранилища что бы начать смену.", 3000, true);
 			}
 		}else{
 			if(!activeJOBoperation) {
 				activeJOBoperation = true;
+				if(mp.markers.exists(wineDeliveryMarker)) wineDeliveryMarker.destroy();
+				wineDeliveryMarker = false;
+				if(mp.blips.exists(wineDeliveryBlip)) wineDeliveryBlip.destroy();
+				wineDeliveryBlip = false;
+				if(mp.colshapes.exists(wineDeliveryShape)) wineDeliveryShape.destroy();
+				wineDeliveryShape = false;
+
+				if(jobVehBackTimer) clearTimeout(jobVehBackTimer);
 				
-				if(curAirTask) mp.events.callRemote('cancelAirTask', JSON.stringify(curAirTask), false);
-				curAirTask = false;
-				
-				if(mp.blips.exists(airBlip)) airBlip.destroy();
-				airBlip = false;
-				if(mp.checkpoints.exists(airCheckpoint)) airCheckpoint.destroy();
-				airCheckpoint = false;
-		
 				if(jobData.workMoney > 0) {
 					//let resWorkMoney = roundNumber((parseInt(jobData.workMoney)-(parseInt(jobData.workMoney)*0.13)), 0);
 					let resWorkMoney = roundNumber(parseInt(jobData.workMoney), 0);
 					let workMoneyText = resWorkMoney.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
 					mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вы заработали за смену"+workMoneyText+" руб.", 5, false, true, 6500);
-					mp.game.ui.notifications.showWithPicture("ЦУП", "Было круто", "Отдохните и выходите на смену снова, от винта!", "CHAR_ACTING_UP", 1, false, 1, 2);
+					mp.game.ui.notifications.showWithPicture("Босс", "Буду ждать тебя, котик", "Ну вот и закончилась твоя рабочая смена. Славно.", "CHAR_MRS_THORNHILL", 1, false, 1, 2);
 				}else{
 					mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вы ничего не заработали за смену.", 5, false, true, 6500);
-					mp.game.ui.notifications.showWithPicture("ЦУП", "Это как так?", "Ты не выполнил ни одной задачи. Предупреждение.", "CHAR_ACTING_UP", 1, false, 1, 2);
+					mp.game.ui.notifications.showWithPicture("Босс", "Какого чёрта?", "Ты ничего не сделал за смену. Предупреждение.", "CHAR_MRS_THORNHILL", 1, false, 1, 2);
 				}
 				
 				mp.events.callRemote('stopJobWork');
@@ -120,269 +127,166 @@ function airStartStop() {
 		}
 	}
 }
-mp.events.add("airStartStop", airStartStop);
+mp.events.add("wineDeliveryStartStop", wineDeliveryStartStop);
 
-function acceptTaskAir(data){
-	if(data) {
-		closeJobTablet();
-		if(airTasksBlocked) {
-			restoreBinds();
-			jobPanel = false;
-			mp.game.ui.notifications.showWithPicture("ЦУП", "Блокировка доступа", "У Вас блок доступа к задачам на 1 мин.", "CHAR_ACTING_UP", 1, false, 1, 2);
-			return chatAPI.sysPush("<span style=\"color:#FF6146\"> * У Вас заблокирован доступ к задачам, попробуйте через минуту..</span>");
-		}
-		
-		if(localPlayer.vehicle) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы не должны быть в транспорте</span>");
-		
-		if(!airImInWorkZone) {
-			restoreBinds();
-			jobPanel = false;
-			mp.game.ui.notifications.showWithPicture("ЦУП", "Явитесь в офис", "Смену можно начать только на территории ЦУПа.", "CHAR_ACTING_UP", 1, false, 1, 2);
-			return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Явитесь в Центр Управления Полётами что бы взять задание.</span>");
-		}
-		
-		mp.events.call("sleepAntiCheat");
-		mp.events.callRemote('acceptTaskAir', data);
-	}
-}
-mp.events.add("acceptTaskAir", acceptTaskAir);
-
-function cancelAirJobTask(){
-	closeJobTablet(true);
-	if(curAirTask) {
-		if(mp.blips.exists(airBlip)) airBlip.destroy();
-		airBlip = false;
-		if(mp.checkpoints.exists(airCheckpoint)) airCheckpoint.destroy();
-		airCheckpoint = false;
-		
-		mp.game.ui.messages.showMidsized("~g~Вы успешно ~s~отказались от заказа", "~s~Новые заказы можно посмотреть в планшете (F5)");
-		mp.game.ui.notifications.showWithPicture("ЦУП", "Отказ от задачи", "Отменили и заблокировали задачи на 1 мин.", "CHAR_ACTING_UP", 1, false, 1, 2);
-		
-		airTasksBlocked = true;
-		setTimeout(function() {
-			mp.game.ui.notifications.showWithPicture("ЦУП", "Задачи доступны", "Мы разблокировали Вам задачи.", "CHAR_ACTING_UP", 1, false, 1, 2);
-			airTasksBlocked = false;
-		}, 60000);
-		
-		airJobOldDist = 0, airJobCourseWarns = 0;
-		
-		mp.events.call("sleepAntiCheat");
-		mp.events.callRemote('cancelAirTask', JSON.stringify(curAirTask), false);
-		curAirTask = false;
-	}
-}
-mp.events.add("cancelAirJobTask", cancelAirJobTask);
-
-function acceptedAirTask(isError, data){
-	restoreBinds();
-	jobPanel = false;
-	if(isError) {
-		return chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+isError+"</span>");
-	}else{
-		if(data) {
-			mp.events.call("sleepAntiCheat");
-			data = JSON.parse(data);
-			curAirTask = data;
-			curAirTask.curPoint = 0;
-			if(hud_browser) hud_browser.execute("hiddenAction('Загружаем локацию и задание пилота..');");
-		}else{
-			return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Сбой в работе ЦУПа, выберите другую задачу</span>");
-		}
-	}
-}
-mp.events.add("acceptedAirTask", acceptedAirTask);
-
-let airJobOldDist = 0, airJobCourseWarns = 0;
-function checkAirJobCourse() {
-	if(curAirTask) {
-		let myPos = localPlayer.position;
-		if(airJobOldDist == 0) {
-			if(typeof(curAirTask.curPoint) !== "undefined") {
-				let pointData = curAirTask.marshrut[curAirTask.curPoint.toString()];
-				if(typeof(curAirTask.marshrut[curAirTask.curPoint.toString()]) !== "undefined") {
-					if(typeof(pointData.x) !== "undefined") {
-						if(pointData.x) {
-							let airJobNewDist = mp.game.system.vdist2(parseFloat(pointData.x), parseFloat(pointData.y), parseFloat(pointData.z), parseFloat(myPos.x), parseFloat(myPos.y), parseFloat(myPos.z));
-							airJobOldDist = mp.game.system.vdist2(parseFloat(pointData.x), parseFloat(pointData.y), parseFloat(pointData.z), parseFloat(myPos.x), parseFloat(myPos.y), parseFloat(myPos.z));
-							airJobCourseWarns = 0;
-						}
-					}
-				}
-			}
-		}else{
-			if(typeof(curAirTask.marshrut[curAirTask.curPoint.toString()]) !== "undefined") {
-				let pointData = curAirTask.marshrut[curAirTask.curPoint.toString()];
-				if(typeof(pointData.x) !== "undefined") {
-					if(pointData.x) {
-						let airJobNewDist = mp.game.system.vdist2(parseFloat(pointData.x), parseFloat(pointData.y), parseFloat(pointData.z), parseFloat(myPos.x), parseFloat(myPos.y), parseFloat(myPos.z));
-						
-						if(airJobNewDist != airJobOldDist) {
-							if(airJobNewDist > airJobOldDist) {
-								airJobCourseWarns++;
-								if(airJobCourseWarns == 1) {
-									if(hud_browser) hud_browser.execute('playSound("soundAirWarn", "0.35");');
-								}else if(airJobCourseWarns == 2) {
-									if(hud_browser) hud_browser.execute('playSound("soundAirWarnEpic", "0.35");');
-								}else if(airJobCourseWarns >= 3) {
-									mp.game.ui.notifications.showWithPicture("ЦУП", "Предупреждение", "В целях безопасности мы перехватили Вашу задачу.", "CHAR_ACTING_UP", 1, false, 1, 2);
-									mp.game.ui.messages.showMidsized("~r~Рейс провален", "~s~Вы ничего не заработали, причина: отклонение от курса.");
-						
-									if(mp.blips.exists(airBlip)) airBlip.destroy();
-									airBlip = false;
-									if(mp.checkpoints.exists(airCheckpoint)) airCheckpoint.destroy();
-									airCheckpoint = false;
-
-									airJobOldDist = 0, airJobCourseWarns = 0;
-									
-									mp.events.call("sleepAntiCheat");
-									mp.events.callRemote('cancelAirTask', JSON.stringify(curAirTask), true);
-									curAirTask = false;
-								}
-							}else{
-								airJobOldDist = mp.game.system.vdist2(parseFloat(pointData.x), parseFloat(pointData.y), parseFloat(pointData.z), parseFloat(myPos.x), parseFloat(myPos.y), parseFloat(myPos.z));
-								airJobCourseWarns = 0;
-							}
-						}else{
-							airJobCourseWarns++;
-							if(airJobCourseWarns == 1) {
-								if(hud_browser) hud_browser.execute('playSound("airDontSleep", "0.35");');
-							}else if(airJobCourseWarns == 2) {
-								mp.game.ui.notifications.showWithPicture("ЦУП", "Предупреждение", "В целях безопасности мы перехватили Вашу задачу.", "CHAR_ACTING_UP", 1, false, 1, 2);
-								mp.game.ui.messages.showMidsized("~r~Рейс провален", "~s~Вы ничего не заработали, причина: уснул за штурвалом.");
-					
-								if(mp.blips.exists(airBlip)) airBlip.destroy();
-								airBlip = false;
-								if(mp.checkpoints.exists(airCheckpoint)) airCheckpoint.destroy();
-								airCheckpoint = false;
-
-								airJobOldDist = 0, airJobCourseWarns = 0;
-								
-								mp.events.call("sleepAntiCheat");
-								mp.events.callRemote('cancelAirTask', JSON.stringify(curAirTask), true);
-								curAirTask = false;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+function wineDeliveryForceStop() {
+	if(mp.markers.exists(wineDeliveryMarker)) wineDeliveryMarker.destroy();
+	wineDeliveryMarker = false;
+	if(mp.blips.exists(wineDeliveryBlip)) wineDeliveryBlip.destroy();
+	wineDeliveryBlip = false;
+	if(mp.colshapes.exists(wineDeliveryShape)) wineDeliveryShape.destroy();
+	wineDeliveryShape = false;
+	
+	if(jobVehBackTimer) clearTimeout(jobVehBackTimer);
 }
 
-function airProcessor() {
-	if(curAirTask) {
-		let noNext = false;
+function wineDeliveryProccessor() {
+	if(localPlayer.getVariable("player.job")) {
+		let jobData = localPlayer.getVariable("player.job");
 		
-		if(curAirTask.curPoint == 0) {
-			mp.game.ui.notifications.showWithPicture("ЦУП", "Задача получена", "Пилот, пожалуйста пристягните ремень и заведите двигатели", "CHAR_ACTING_UP", 1, false, 1, 2);
-			if(hud_browser) hud_browser.execute('playSound("startAirFly", "0.35");');
+		wineDeliveryActionsForGoToBase++;
+		let maxWineDeliveryActionsForGoToBase = jobData.rank + 1;
+		if(maxWineDeliveryActionsForGoToBase >= 5) maxWineDeliveryActionsForGoToBase = 5;
+		
+		if(wineDeliveryActionsForGoToBase >= maxWineDeliveryActionsForGoToBase) {
+			wineDeliveryStartPos = localPlayer.position;
 			
-			noNext = true;
-			curAirTask.curPoint++;
-		}
-		let pointData = curAirTask.marshrut[curAirTask.curPoint.toString()];
-		
-		if(airCheckpoint) {
-			airCheckpoint.destroy();
-			airCheckpoint = false;
-		}
-		
-		if(airBlip) {
-			airBlip.destroy();
-			airBlip = false;
-		}
-		
-		let checkPointType = 14;
-		let checkPointColor = [42, 193, 79, 125];
-		
-		let dir = new mp.Vector3(parseFloat(pointData.x), parseFloat(pointData.y), parseFloat(pointData.z)+25.5);
-		if(curAirTask.curPoint < Object.keys(curAirTask.marshrut).length-1) {
-			let nextPointData = curAirTask.marshrut[(curAirTask.curPoint+1).toString()];
-			dir = new mp.Vector3(parseFloat(nextPointData.x), parseFloat(nextPointData.y), parseFloat(nextPointData.z)+25.5);
-			
-			if(typeof(pointData.pleaseUp) !== "undefined" || typeof(pointData.pleaseUpChassis) !== "undefined" || typeof(pointData.pleaseDownChassis) !== "undefined" || typeof(pointData.pleaseLand) !== "undefined") {
-				if(typeof(pointData.pleaseUp) !== "undefined") {
-					if(hud_browser) hud_browser.execute('playSound("pleaseUpAir", "0.35");');
-				}else if(typeof(pointData.pleaseUpChassis) !== "undefined") {
-					if(hud_browser) hud_browser.execute('playSound("pleaseUpChassisAir", "0.35");');
-				}else if(typeof(pointData.pleaseDownChassis) !== "undefined") {
-					if(hud_browser) hud_browser.execute('playSound("pleaseDownChassisAir", "0.35");');
-				}else if(typeof(pointData.pleaseLand) !== "undefined") {
-					if(hud_browser) hud_browser.execute('playSound("pleaseLandAir", "0.35");');
-				}
-			}else{
-				let dist = mp.game.system.vdist2(parseFloat(pointData.x), parseFloat(pointData.y), parseFloat(pointData.z), parseFloat(nextPointData.x), parseFloat(nextPointData.y), parseFloat(nextPointData.z));
-				if(dist > 900000) {
-					let randSound = "newAirPoint"+getRandomInt(1,3);
-					if(hud_browser) hud_browser.execute('playSound("'+randSound+'", "0.35");');
-				}
-			}
-			
-			airBlip = mp.blips.new(1, new mp.Vector3(parseFloat(pointData.x), parseFloat(pointData.y), parseFloat(pointData.z)), {
-				name: "Актуальный курс",
-				scale: 1.5,
+			mp.game.ui.notifications.showWithPicture("Босс", "Пора на склады", "Новая партия товара для развозки ждёт тебя на базе.", "CHAR_MRS_THORNHILL", 1, false, 1, 2);
+			wineDeliveryShape = mp.colshapes.newSphere(-1904.4851, 2044.6267, 140.7399, 4.3/2, 0);
+			wineDeliveryMarker = mp.markers.new(1, new mp.Vector3(-1904.4851, 2044.6267, 140.7399-1.3), 2.3,
+			{
+				direction: new mp.Vector3(0, 0, 0),
+				rotation: new mp.Vector3(0, 0, 0),
+				color: [255, 0, 0, 200],
+				visible: true,
+				dimension: 0
+			});
+			wineDeliveryBlip = mp.blips.new(626, new mp.Vector3(-1904.4851, 2044.6267, 140.7399), {
+				name: "Точка погрузки на базе",
+				scale: 0.8,
 				color: 1,
 				shortRange: false,
 				dimension: 0
 			});
-			
-			airJobOldDist = 0;
+			wineDeliveryBlip.setRoute(true);
+			wineDeliveryBlip.setRouteColour(1);
+			wineDeliveryShape.data = {"type":"wineDeliveryJobEvent", "marker":wineDeliveryMarker, "blip":wineDeliveryBlip};
+			wineDeliveryActionsForGoToBase = 0;
 		}else{
-			checkPointType = 16;
-			checkPointColor = [255, 255, 255, 150];
-			dir = new mp.Vector3(parseFloat(pointData.x), parseFloat(pointData.y), parseFloat(pointData.z)+25.5);
-		}
+			wineDeliveryStartPos = localPlayer.position;
+			
+			let fieldPos = false;
+			
+			fieldPos = shopsPoses[getRandomInt(0, Object.keys(shopsPoses).length)];
 		
-		airCheckpoint = mp.checkpoints.new(checkPointType, new mp.Vector3(parseFloat(pointData.x), parseFloat(pointData.y), parseFloat(pointData.z)-6.7), 55,
-		{
-			direction: dir,
-			color: checkPointColor,
-			visible: true,
-			dimension: 0
-		});
-		airCheckpoint.posData = new mp.Vector3(parseFloat(pointData.x), parseFloat(pointData.y), parseFloat(pointData.z)-6.7);
-		
-		if(!noNext) curAirTask.curPoint++;
-	}
-}
-
-mp.events.add("playerEnterCheckpoint", (checkpoint) => {
-	if(typeof(checkpoint) !== "undefined" && typeof(airCheckpoint) !== "undefined") {
-		if(mp.checkpoints.exists(checkpoint)) {
-			if(mp.checkpoints.exists(airCheckpoint) && checkpoint == airCheckpoint) {
-				if(curAirTask.curPoint >= Object.keys(curAirTask.marshrut).length) {
-					if(airCheckpoint) {
-						airCheckpoint.destroy();
-						airCheckpoint = false;
-					}
-					
-					if(airBlip) {
-						airBlip.destroy();
-						airBlip = false;
-					}
-					
-					mp.game.ui.messages.showMidsized("~g~Рейс успешно ~s~завершён", "~s~вы заработали "+curAirTask.cost+" руб.");
-					mp.game.ui.notifications.showWithPicture("ЦУП", "Успешное задание", "Рейс завершён, проверь планшет на новые задачи (F5)", "CHAR_ACTING_UP", 1, false, 1, 2);
-					
-					mp.events.callRemote('actionMakedAirJob', curAirTask.id.toString());
-					curAirTask = false;
-				}else{
-					airProcessor();
-				}
+			if(fieldPos) {
+				wineDeliveryShape = mp.colshapes.newSphere(parseFloat(fieldPos[0]), parseFloat(fieldPos[1]), parseFloat(fieldPos[2]), 4.3/2, 0);
+				wineDeliveryMarker = mp.markers.new(1, new mp.Vector3(parseFloat(fieldPos[0]), parseFloat(fieldPos[1]), parseFloat(fieldPos[2])-1.3), 2.3,
+				{
+					direction: new mp.Vector3(0, 0, 0),
+					rotation: new mp.Vector3(0, 0, 0),
+					color: [255, 0, 0, 200],
+					visible: true,
+					dimension: 0
+				});
+				wineDeliveryBlip = mp.blips.new(626, new mp.Vector3(parseFloat(fieldPos[0]), parseFloat(fieldPos[1]), parseFloat(fieldPos[2])), {
+					name: "Магазин для поставки вина",
+					scale: 0.8,
+					color: 1,
+					shortRange: false,
+					dimension: 0
+				});
+				wineDeliveryShape.data = {"type":"wineDeliveryJobEvent", "marker":wineDeliveryMarker, "blip":wineDeliveryBlip};
+				wineDeliveryBlip.setRoute(true);
+				wineDeliveryBlip.setRouteColour(1);
 			}
 		}
 	}
-});
+}
 
 mp.events.add('playerEnterColshape', (shape) => {
 	if(typeof(shape) != "undefined") {
-		if(shape == airWorkZone) airImInWorkZone = true;
+		if(mp.colshapes.exists(shape)) {
+			if(typeof(shape.id) != "undefined") {
+				if(shape == wineDeliveryWorkZone) wineDeliveryImInWorkZone = true;
+				if(typeof(shape.data) != 'undefined') {
+					if(hud_browser && localPlayer.vehicle) {
+						let toVehDist = mp.game.system.vdist(localPlayer.position.x, localPlayer.position.y, localPlayer.position.z, Behaviour.inVehPos.x, Behaviour.inVehPos.y, Behaviour.inVehPos.z);
+						if(toVehDist > 50) return notyAPI.error("Неизвестная ошибка.", 3000, true);
+						if(localPlayer.vehicle.getVariable("veh.job")) {
+							if(mp.players.atRemoteId(parseInt(localPlayer.vehicle.getVariable('veh.job')))) {
+								let vehJob = mp.players.atRemoteId(parseInt(localPlayer.vehicle.getVariable('veh.job')));
+								if(vehJob.remoteId.toString() == localPlayer.remoteId.toString()) {
+									if(typeof shape.data.type != 'undefined') {
+										if(shape.data.type == "wineDeliveryJobEvent") {
+											if(!localPlayer.hasCollisionLoadedAround()) return notyAPI.error("Подождите полную прогрузку окружения.", 3000, true);
+											
+											if(typeof shape.data.marker != 'undefined') shape.data.marker.destroy();
+											if(typeof shape.data.blip != 'undefined') shape.data.blip.destroy();
+											//let eventTime = getRandomInt(5000, 10000);
+
+											let myPos = localPlayer.position;
+											let dist = mp.game.system.vdist(myPos.x, myPos.y, myPos.z, wineDeliveryStartPos.x, wineDeliveryStartPos.y, wineDeliveryStartPos.z);
+											if(shape.data) {
+												localPlayer.freezePosition(true);
+												localPlayer.vehicle.freezePosition(true);
+												
+												
+												mp.game.ui.messages.showMidsized("~g~Начинаем ~s~разгрузку", "~s~пожалуйста, подождите..");
+												
+												let shapePos = false;
+												if(typeof(shape) !== 'undefined' && mp.colshapes.exists(shape)) {
+													shapePos = shape.position;
+													shape.destroy();
+												}
+												
+												setTimeout(function() {
+													mp.game.ui.messages.showMidsized("~g~Успешно ~s~разгрузились", "~s~спасибо");
+													if(typeof shape !== 'undefined' && mp.colshapes.exists(shape)) shape.destroy();
+													if(shapePos) {
+														let cheatDist = mp.game.system.vdist(localPlayer.position.x, localPlayer.position.y, localPlayer.position.z, shapePos.x, shapePos.y, shapePos.z);
+														if(cheatDist > 20) return mp.events.callRemote('kickAct', localPlayer, "читы на телепорт на работе");
+													}
+													localPlayer.freezePosition(false);
+													if(localPlayer.vehicle) localPlayer.vehicle.freezePosition(false);
+													
+													if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") {
+														let myBlocks = localPlayer.getVariable("player.blocks");
+														if(typeof(myBlocks.premium) !== "undefined") notyAPI.info("<b>Премиум-доступ</b>: Вы получили надбавку к зарплате (10%).", 3000, true);
+													}
+													
+													mp.events.callRemote('actionMakedWineDeliveryJob', false, dist);
+													wineDeliveryProccessor();
+												}, 4000);
+											}else{
+												mp.game.ui.messages.showMidsized("~g~Успешно ~s~приняли новую партию", "~s~следуйте в следующий магазин для разгрузки");
+												if(typeof shape !== 'undefined' && mp.colshapes.exists(shape)) shape.destroy();
+			
+												if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") {
+													let myBlocks = localPlayer.getVariable("player.blocks");
+													if(typeof(myBlocks.premium) !== "undefined") notyAPI.info("<b>Премиум-доступ</b>: Вы получили надбавку к зарплате (10%).", 3000, true);
+												}
+			
+												mp.events.callRemote('actionMakedWineDeliveryJob', true, dist);
+												wineDeliveryProccessor();
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 });
 
 mp.events.add('playerExitColshape', (shape) => {
 	if(typeof(shape.id) != "undefined") {
-		if(shape == airWorkZone) airImInWorkZone = false;
+		if(mp.colshapes.exists(shape)) {
+			if(shape == wineDeliveryWorkZone) wineDeliveryImInWorkZone = false;
+		}
 	}
 });
-}䣄P眓̦
+}璽ͮ

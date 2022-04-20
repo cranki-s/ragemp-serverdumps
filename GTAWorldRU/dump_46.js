@@ -13,4 +13,4 @@ mp.events.add('CreateGenericMenu', (id, title, subtitle) => {
 mp.events.add('GenericMenu_AddItem', (itemData) => {
     currentMenu.execute(`addItem('` + itemData + `');`);
 });
-}ȶ
+}唃Ⱦ

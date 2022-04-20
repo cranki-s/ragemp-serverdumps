@@ -305,4 +305,4 @@ function __Graphics(core, time, agency, plate, vin){
 	return new Graphics(core, time, agency, plate, vin)
 }
 
-}ȏ
+}

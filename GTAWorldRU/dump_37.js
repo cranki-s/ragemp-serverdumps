@@ -18,4 +18,4 @@ mp.events.add('CEFNotification_Elapsed', () => {
         currentPlayerAlert.destroy();
     }
 });
-}Ƭ
+}Ⱦ

@@ -1,111 +1,176 @@
 {
-let pointing = {
-    active: !1,
-    interval: null,
-    lastSent: 0,
-    start: function () {
-        if (!this.active) {
-            for (this.active = !0, mp.game.streaming.requestAnimDict("anim@mp_point"); !mp.game.streaming.hasAnimDictLoaded("anim@mp_point"); ) mp.game.wait(0);
-            mp.game.invoke("0x0725a4ccfded9a70", localPlayer.handle, 0, 1, 1, 1),
-                localPlayer.setConfigFlag(36, !0),
-                localPlayer.taskMoveNetwork("task_mp_pointing", 0.5, !1, "anim@mp_point", 24),
-                mp.game.streaming.removeAnimDict("anim@mp_point"),
-                (this.interval = setInterval(this.process.bind(this), 0));
-        }
-    },
-    stop: function () {
-        this.active &&
-            (clearInterval(this.interval),
-            (this.interval = null),
-            (this.active = !1),
-            mp.game.invoke("0xd01015c7316ae176", localPlayer.handle, "Stop"),
-            !mp.game.invoke("0x84A2DD9AC37C35C1", localPlayer.handle) && mp.game.invoke("0x176CECF6F920D707", localPlayer.handle),
-            !localPlayer.isInAnyVehicle(!0) && mp.game.invoke("0x0725a4ccfded9a70", localPlayer.handle, 1, 1, 1, 1),
-            localPlayer.setConfigFlag(36, !1));
-    },
-    gameplayCam: mp.cameras.new("gameplay"),
-    lastSync: 0,
-    getRelativePitch: function () {
-        let a = this.gameplayCam.getRot(2);
-        return a.x - localPlayer.getPitch();
-    },
-    process: function () {
-        if (this.active) {
-            mp.game.invoke("0x921ce12c489c4c41", localPlayer.handle);
-            let a = this.getRelativePitch();
-            -70 > a ? (a = -70) : 42 < a && (a = 42), (a = (a + 70) / 112);
-            let b = mp.game.cam.getGameplayCamRelativeHeading(),
-                c = mp.game.system.cos(b),
-                d = mp.game.system.sin(b);
-            -180 > b ? (b = -180) : 180 < b && (b = 180), (b = (b + 180) / 360);
-            let e = localPlayer.getOffsetFromGivenWorldCoords(-0.2 * c - d * (0.4 * b + 0.3), -0.2 * d + c * (0.4 * b + 0.3), 0.6),
-                f = "undefined" != typeof mp.raycasting.testPointToPoint([e.x, e.y, e.z - 0.2], [e.x, e.y, e.z + 0.2], localPlayer.handle, 7);
-            mp.game.invoke("0xd5bb4025ae449a4e", localPlayer.handle, "Pitch", a),
-                mp.game.invoke("0xd5bb4025ae449a4e", localPlayer.handle, "Heading", -1 * b + 1),
-                mp.game.invoke("0xb0a6cfd2c69c1088", localPlayer.handle, "isBlocked", f),
-                mp.game.invoke("0xb0a6cfd2c69c1088", localPlayer.handle, "isFirstPerson", 4 == mp.game.invoke("0xee778f8c7e1142e2", mp.game.invoke("0x19cafa3c87f7c2ff"))),
-                100 < Date.now() - this.lastSent && ((this.lastSent = Date.now()), mp.events.callRemoteUnreliable("fpsync.update", a, b));
-        }
-    },
-};
-mp.events.add("fpsync.update", (a, b, c) => {
-    let d = mp.players.atRemoteId(parseInt(a));
-	//chatAPI.sysPush("<span style=\"color:#FF6146\">�* DHANDLE: "+d.handle+"</span>");
-    if(d) {
-		if (null != d && 0 !== d.handle && d != localPlayer) {
-			if(d.isOnScreen()) {
-				if (((d.lastReceivedPointing = Date.now()), !d.pointingInterval)) {
-					for (
-						d.pointingInterval = setInterval(
-							function () {
-								if (1e3 < Date.now() - d.lastReceivedPointing) {
-									if ((clearInterval(d.pointingInterval), (d.lastReceivedPointing = void 0), (d.pointingInterval = void 0), !mp.players.exists(d) || 0 === d.handle)) return;
-									mp.game.invoke("0xd01015c7316ae176", d.handle, "Stop"),
-										d.isInAnyVehicle(!0) || mp.game.invoke("0x0725a4ccfded9a70", d.handle, 1, 1, 1, 1),
-										d.setConfigFlag(36, !1),
-										mp.game.invoke("0x84A2DD9AC37C35C1", d.handle) || mp.game.invoke("0x176CECF6F920D707", d.handle);
-								}
-							}.bind(d),
-							500
-						),
-							mp.game.streaming.requestAnimDict("anim@mp_point");
-						!mp.game.streaming.hasAnimDictLoaded("anim@mp_point");
+var numchsInStream = [];
+var numchPanel = false;
+var activeNumch = false;
 
-					)
-						mp.game.wait(0);
-					mp.game.invoke("0x0725a4ccfded9a70", d.handle, 0, 1, 1, 1), d.setConfigFlag(36, !0), d.taskMoveNetwork("task_mp_pointing", 0.5, !1, "anim@mp_point", 24), mp.game.streaming.removeAnimDict("anim@mp_point");
+function numchPanelClose() {
+	if(hud_browser) {
+		mp.game.graphics.stopScreenEffect("MenuMGHeistTint");
+		hud_browser.execute("toggleNumchPanel();");
+		mp.gui.cursor.visible = false;
+		numchPanel = false;
+		restoreBinds();
+	}
+}
+mp.events.add("numchPanelClose", numchPanelClose);
+
+mp.events.add('numchGo', (numchFrom, numchTo) => {
+	if(typeof(numchFrom) !== 'undefined' && typeof(numchTo) !== 'undefined') {
+		if(activeNumch) return hud_browser.execute("errorNumch('Пожалуйста подождите..');");
+		
+		numchFrom = JSON.parse(numchFrom);
+		numchFrom = numchFrom[0];
+		numchTo = JSON.parse(numchTo);
+		numchTo = numchTo[0];
+		
+		let myMoney = localPlayer.getVariable("player.money");
+		if(myMoney < 500000) return hud_browser.execute("errorNumch('Недостаточно средств для переноса номерных знаков..');");
+		
+		if(hud_browser && numchFrom && numchTo) {
+			if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
+				if(localPlayer.getVariable("active.deal")) return hud_browser.execute("errorNumch('У Вас есть активная сделка, завершите её..');");
+			}
+			
+			if(numchFrom.id == numchTo.id) return hud_browser.execute("errorNumch('Вы не выбрали транспорт для переноса');");
+			if(numchFrom.type != numchTo.type) return hud_browser.execute("errorNumch('Типы транспортных средств не совпадают');");
+			
+			numchPanelClose();
+			activeNumch = true;
+			return mp.events.callRemote('numchGo', JSON.stringify(numchFrom), JSON.stringify(numchTo));
+		}
+	}else{
+		if(hud_browser) return hud_browser.execute("errorNumch('Произошла неизвестная ошибка..');");
+	}
+});
+
+mp.events.add('numchResult', (numchRes, numchReason) => {
+	activeNumch = false;
+	if(typeof(numchRes) !== 'undefined') {
+		if(numchRes == "ok") {
+			return mp.game.ui.messages.showMidsizedShard("~y~Вы успешно ~w~перенесли номера", "~s~Потрачено ~g~~h~500 000 ~s~руб.", 5, false, true, 8000);
+		}else if(numchRes == "error") {
+			if(numchReason) return notyAPI.error("Ошибка: "+numchReason, 3000, true);
+			else if(numchReason) return notyAPI.error("Неизвестная ошибка во время переноса номеров.", 3000, true);
+		}
+	}else{
+		if(hud_browser) return notyAPI.error("Неизвестная ошибка во время переноса номеров.", 3000, true);
+	}
+});
+
+mp.events.add('playerEnterColshape', (shape) => {
+	if(typeof(shape) != 'undefined' && typeof(shape.data) == 'undefined') {
+		if(mp.colshapes.exists(shape)) {
+			if(typeof(shape.getVariable('col.type')) != "undefined") {
+				let colType = shape.getVariable('col.type');
+				if(colType == 'numch') {
+					if(allowBinds != stockBinds) return false;
+					if(!localPlayer.vehicle && hud_browser && !activeNumch) {
+						if(localPlayer.getVariable('player.id') && localPlayer.getVariable('player.money')) {
+							if(typeof(localPlayer.getVariable('player.vehs')) == "undefined") return notyAPI.error("Перенос номеров для Вас недоступен, попробуйте позже.", 3000, true);
+							if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
+								if(localPlayer.getVariable("active.deal")) return notyAPI.error("У Вас есть активная сделка, завершите её..", 3000, true);
+							}
+							
+							if(typeof(localPlayer.getVariable("player.tickets")) === "undefined") return notyAPI.error("У Вас более <b>50 000</b> руб. не оплаченных штрафов.", 3000, true);
+							if(parseInt(localPlayer.getVariable("player.tickets")) > 50000) return notyAPI.error("У Вас более <b>50 000</b> руб. не оплаченных штрафов.", 3000, true);
+							
+							if(vehPanel) closeVehMenu();
+
+							var tempJSon = localPlayer.getVariable('player.vehs');
+							
+							for(var k in tempJSon.vehicles) {
+								let vehHash = tempJSon.vehicles[k].hash;
+								let vehName = vehHash;
+								let vehType = "vehicle";
+								
+								let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
+								decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
+								
+								if(typeof(decVehStats[0][vehHash]) != "undefined") {
+									vehName = decVehStats[0][vehHash].name;
+									vehType = decVehStats[0][vehHash].type;
+								}
+								tempJSon.vehicles[k].name = vehName;
+								tempJSon.vehicles[k].type = vehType;
+								
+								let vehNumber = tempJSon.vehicles[k].number;
+								if(vehNumber == "theMoto") tempJSon.vehicles[k] = null;
+								
+								if(tempJSon.vehicles[k]) {
+									if(tempJSon.vehicles[k].hasOwnProperty("params") !== null) {
+										if(typeof(tempJSon.vehicles[k].params) !== "undefined") {
+											let vehParams = tempJSon.vehicles[k].params;
+											if(typeof(vehParams.rent) !== "undefined") tempJSon.vehicles[k] = null;
+										}else{
+											tempJSon.vehicles[k] = null;
+										}
+									}else{
+										tempJSon.vehicles[k] = null;
+									}
+								}else{
+									tempJSon.vehicles[k] = null;
+								}
+							}
+							tempJSon.vehicles = Object.entries(tempJSon.vehicles).reduce((a,[k,v]) => (v == null ? a : (a[k]=v, a)), {});
+							
+							hud_browser.execute("toggleNumchPanel('"+JSON.stringify(tempJSon)+"');");
+							mp.gui.cursor.visible = true;
+							
+							allowBinds = [];
+							
+							mp.game.graphics.startScreenEffect("MenuMGHeistTint", 0, true);
+							
+							numchPanel = true;
+							
+							return false;
+						}
+					}
 				}
-				mp.game.invoke("0xd5bb4025ae449a4e", d.handle, "Pitch", b),
-					mp.game.invoke("0xd5bb4025ae449a4e", d.handle, "Heading", -1 * c + 1),
-					mp.game.invoke("0xb0a6cfd2c69c1088", d.handle, "isBlocked", 0),
-					mp.game.invoke("0xb0a6cfd2c69c1088", d.handle, "isFirstPerson", 0);
+				if(colType == 'numch_render') {
+					let numchColData = shape.getVariable('col.data');
+					
+					let numchMarker = mp.markers.new(1, new mp.Vector3(numchColData[0], numchColData[1], numchColData[2]), 2.0,
+					{
+						direction: new mp.Vector3(0, 0, 0),
+						rotation: new mp.Vector3(0, 0, 0),
+						color: [255, 255, 255, 200],
+						visible: true,
+						dimension: 0
+					});
+					
+					let numchArray = {'marker': numchMarker, 'pos': [numchColData[0], numchColData[1], numchColData[2]], 'alpha': 0};
+					numchsInStream.push(numchArray);
+					return false;
+				}
 			}
 		}
 	}
 });
-let fingerEnable = false;
-/*
-setInterval(() => {
-	if (fingerEnable) mp.keys.isDown(71) || ((fingerEnable = !1), pointing.stop());
-	else if (mp.keys.isDown(71)) {
-		//if (global.isPlayerDeath) return;
-		pointing.start(), (fingerEnable = !0);
-	}
-}, 110);
-*/
-mp.keys.bind(0x47, true, function() {
-    if(!fingerEnable) {
-		if(ammoInUse == "0") {
-			pointing.start();
-			fingerEnable = true;
-		}
-	}
-});
 
-mp.keys.bind(0x47, false, function() {
-    if(fingerEnable) {
-		pointing.stop();
-		fingerEnable = false;
+mp.events.add('playerExitColshape', (shape) => {
+	if(typeof(shape) != 'undefined') {
+		if(mp.colshapes.exists(shape)) {
+			if(typeof(shape.getVariable('col.type')) != "undefined") {
+				let colType = shape.getVariable('col.type');
+				if(colType == 'numch' && numchPanel) return numchPanelClose();
+				if(colType == 'numch_render') {
+					let numchColData = shape.getVariable('col.data');
+					for(var i in numchsInStream) {
+						let tempData = numchsInStream[i];
+						let posData = tempData['pos'];
+						if (posData[0] == numchColData[0] && posData[1] == numchColData[1] && posData[2] == numchColData[2]) {
+							if(tempData['marker']) {
+								tempData['marker'].destroy();
+								delete tempData['marker'];
+							}
+							if(numchsInStream[i] || numchsInStream[i] !== undefined) delete numchsInStream[i];
+						}
+					}
+					numchsInStream = numchsInStream.filter(function (el) { return el != null; });
+					return false;
+				}
+			}
+		}
 	}
 });
 }

@@ -1,461 +1,2230 @@
 {
-// REQUESTING TRAIN MODELS
+/*mp.markers.new(28, new mp.Vector3(-893.9126,-2402.5571,14.0244), 30, // DEBUG
+{
+	direction: new mp.Vector3(0, 0, 0),
+	rotation: new mp.Vector3(0, 180, 0),
+	color: [0, 0, 200, 50],
+	visible: true,
+	dimension: 0
+});*/
 
-var trainModels = ["2te116", "vagon1", "vagon2", "vagon3", "vagon4","vagon5", "m_81_7171", "m_81_7172", "s_lastochka1", "s_lastochka2"];
-function requestTrainModel(model) {
-	let tempModel = mp.game.joaat(model);
-	if(!mp.game.streaming.hasModelLoaded(tempModel)) {
-		mp.game.streaming.requestModel(tempModel);
-		while(!mp.game.streaming.hasModelLoaded(tempModel)) mp.game.wait(0);
+var truckMomentStart = false;
+
+let truckMarshrut1 = { // Actros, pilomat
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(-601.8714,5342.8735,70.4683),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(-601.8714,5342.8735,70.4683-3.3),"heading":173.60,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(173.60),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut2 = { // Actros, pilomat
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(-509.7189,5265.5776,80.6101),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(-509.7189,5265.5776,80.6101-3.3),"heading":155.16,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(155.16),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut3 = { // Actros, wood
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(288.3423,6790.0723,15.6965),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(288.3423,6790.0723,15.6965-3.3),"heading":188.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(188.40),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut4 = { // Actros, wood
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(-541.6321,5376.7417,70.5674),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(-541.6321,5376.7417,70.5674-3.3),"heading":82.21,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(82.21),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut5 = { // Actros, tubes
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(286.1227,2829.3606,43.4336),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(286.1227,2829.3606,43.4336-3.3),"heading":289.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(289.05),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut6 = { // Actros, tubes
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(2895.1143,4381.5093,50.3714),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(2895.1143,4381.5093,50.3714-3.3),"heading":294.76,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(294.76),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut7 = { // Actros, tubes
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(1146.8861,2084.0945,55.9525),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(1146.8861,2084.0945,55.9525-3.3),"heading":288.23,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(288.23),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut8 = { // Actros, neft
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(2895.1143,4381.5093,50.3714),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(2895.1143,4381.5093,50.3714-3.3),"heading":294.76,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(294.76),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut9 = { // Actros, tubes TEST
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(-390.1935,-2775.6772,6.0004),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(-390.1935,-2775.6772,6.0004-3.3),"heading":128.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(128.73),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut10 = { // Arocs, CAT
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(2409.3743,4986.8101,46.1991),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(2409.3743,4986.8101,46.1991-3.3),"heading":132.12,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.12),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut11 = { // Arocs, CAT
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(90.1092,6520.5435,31.3237),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(90.1092,6520.5435,31.3237-3.3),"heading":126.86,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(126.86),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut12 = { // Arocs, Яхта
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(1370.4717,4319.5234,38.213),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(1370.4717,4319.5234,38.213-3.3),"heading":58.49,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(58.49),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut13 = { // Arocs, Яхта
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(1565.676,3792.5701,34.1405),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(1565.676,3792.5701,34.1405-3.3),"heading":38.213,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.213),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut14 = { // Arocs, Армейская деталь
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(-1666.9309,3077.5708,31.301),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(-1666.9309,3077.5708,31.301-3.3),"heading":219.49,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(219.49),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut15 = { // Arocs, Армейская деталь
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(3504.7097,3677.9639,33.8816),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(3504.7097,3677.9639,33.8816-3.3),"heading":77.544,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(77.544),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut16 = { // Arocs, Контейнер с грузом
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(-1157.1597,2666.9946,18.0939),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(-1157.1597,2666.9946,18.0939-3.3),"heading":206.18,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(206.18),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut17 = { // Arocs, Контейнер с грузом
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(1768.8383,3307.5293,41.1586),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(1768.8383,3307.5293,41.1586-3.3),"heading":252.88,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(252.88),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut18 = { // VNL, IKEA Хармони
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(587.6883,2794.5759,42.078),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(587.6883,2794.5759,42.078-3.3),"heading":4.79,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(4.79),"width":3,"height":14},
+		{"position":new mp.Vector3(582.1607,2794.1958,42.1409-3.3),"heading":4.79,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(4.79),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut19 = { // VNL, IKEA Сэнди-Шорс
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(1968.0311,3752.6885,32.2061),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(1968.0311,3752.6885,32.2061-3.3),"heading":216.63,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(216.63),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut20 = { // VNL, APPLE Хармони
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(587.6883,2794.5759,42.078),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(587.6883,2794.5759,42.078-3.3),"heading":4.79,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(4.79),"width":3,"height":14},
+		{"position":new mp.Vector3(582.1607,2794.1958,42.1409-3.3),"heading":4.79,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(4.79),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut21 = { // VNL, Apple Humane Labs
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(3565.7222,3662.6919,33.9454),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(3565.7222,3662.6919,33.9454-3.3),"heading":95.666,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(95.666),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut22 = { // VNL, Apple Палето Бэй, Willies
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(-67.3125,6496.3735,31.4904),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(-67.3125,6496.3735,31.4904-3.3),"heading":112.56,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(112.56),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut23 = { // VNL, AMAZON Грейпсид
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(1711.2941,4802.1846,41.7697),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(1711.2941,4802.1846,41.7697-3.3),"heading":84.95,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(84.95),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut24 = { // VNL, AMAZON Палето Бэй
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(150.7981,6638.207,31.6049),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(150.7981,6638.207,31.6049-3.3),"heading":220.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(220.00),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut25 = { // VNL, AMAZON Грейт-Чапаррал, шоссе 68
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(-1134.2875,2694.0164,18.8004),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(-1134.2875,2694.0164,18.8004-3.3),"heading":154.66,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(154.66),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut26 = { // VNL, Wallmart Хармони
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(587.6883,2794.5759,42.078),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(587.6883,2794.5759,42.078-3.3),"heading":4.79,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(4.79),"width":3,"height":14},
+		{"position":new mp.Vector3(582.1607,2794.1958,42.1409-3.3),"heading":4.79,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(4.79),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut27 = { // VNL, Wallmart Федеральная тюрьма Лос-Сантоса
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(1854.5282,2551.8059,45.672),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(1854.5282,2551.8059,45.672-3.3),"heading":354.107,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(354.107),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut28 = { // VNL, Wallmart Симфонический театр Лос-Сантоса
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(203.3745,1245.3187,225.4598),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(203.3745,1245.3187,225.4598-3.3),"heading":280,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(280),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut29 = { // VNL, Wallmart Палето Бэй, Willies
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(-67.3125,6496.3735,31.4904),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(-67.3125,6496.3735,31.4904-3.3),"heading":112.56,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(112.56),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut30 = { // VNL, Samsung Хармони
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(587.6883,2794.5759,42.078),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(587.6883,2794.5759,42.078-3.3),"heading":4.79,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(4.79),"width":3,"height":14},
+		{"position":new mp.Vector3(582.1607,2794.1958,42.1409-3.3),"heading":4.79,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(4.79),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut31 = { // VNL, Samsung Humane Labs
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(3565.7222,3662.6919,33.9454),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(3565.7222,3662.6919,33.9454-3.3),"heading":95.666,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(95.666),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut32 = { // VNL, Samsung Палето Бэй, Willies
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(-67.3125,6496.3735,31.4904),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(-67.3125,6496.3735,31.4904-3.3),"heading":112.56,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(112.56),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut33 = { // VNL, DUREX Федеральная тюрьма Лос-Сантоса
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(1854.5282,2551.8059,45.672),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(1854.5282,2551.8059,45.672-3.3),"heading":354.107,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(354.107),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut34 = { // VNL, DUREX Симфонический театр Лос-Сантоса
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(203.3745,1245.3187,225.4598),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(203.3745,1245.3187,225.4598-3.3),"heading":280,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(280),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut35 = { // VNL, DUREX Сэнди-Шорс
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(1968.0311,3752.6885,32.2061),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(1968.0311,3752.6885,32.2061-3.3),"heading":216.63,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(216.63),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut36 = { // VNL, Walmart Лаго Занкудо
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(-2522.3533,2336.0264,33.2105),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(-2522.3533,2336.0264,33.2105-3.3),"heading":213.371,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.371),"width":3,"height":14},
+		{"position":new mp.Vector3(-2530.0457,2335.563,33.2094-3.3),"heading":213.371,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.018),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut37 = { // VNL, Amazon Лаго Занкудо
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(926.1957,3660.594,32.6255),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(926.1957,3660.594,32.6255-3.3),"heading":269.525,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(269.525),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut38 = { // Actros, Amazon Ветряная ферма
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(2480.0432,1589.406,32.8716),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(2480.0432,1589.406,32.8716-3.3),"heading":269.263,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(269.263),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut39 = { // VNL, Durex Прокопио-променад
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(-672.2142,5822.7368,17.4815),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(-672.2142,5822.7368,17.4815-3.3),"heading":67.043,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(67.043),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut40 = { // VNL, IKEA Шоссе Сенора
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(2699.6509,3450.1384,55.9469),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(2699.6509,3450.1384,55.9469-3.3),"heading":249.410,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(249.410),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut41 = { // Actros, Нефтепродукты
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(236.992,2588.7468,44.8929),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(236.992,2588.7468,44.8929-3.0),"heading":20.157,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(20.157),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut42 = { // Actros, Нефтепродукты
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(2725.1951,1709.0409,24.2733),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(2725.1951,1709.0409,24.2733-3.0),"heading":272.093,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(272.093),"width":3,"height":14},
+		{"position":new mp.Vector3(2773.0078,1709.0435,24.2747-3.0),"heading":271.594,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(271.594),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut43 = { // VNL, Samsung
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(-67.0945,1879.1006,196.6787),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(-67.0945,1879.1006,196.6787-3.0),"heading":260.374,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(260.374),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut44 = { // VNL, Apple
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(611.5448,2804.4709,41.5881),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(611.5448,2804.4709,41.5881-3.0),"heading":5.893,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(5.893),"width":3,"height":14},
+		{"position":new mp.Vector3(604.9719,2802.9194,41.5822-3.0),"heading":4.208,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(4.208),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut45 = { // Arocs, Контейнер с грузом
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(177.4946,2743.8633,43.0943),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(177.4946,2743.8633,43.0943-3.0),"heading":99.423,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(99.423),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+let truckMarshrut46 = { // Arocs, CAT
+	"pogruzkaBlip":new mp.Vector3(-532.0687,-2818.8875,6.0004),
+	"pogruzkaMarkers":[
+		{"position":new mp.Vector3(-505.0674,-2829.8564,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-509.8111,-2834.5649,6.004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-513.9752,-2838.7063,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8141,-2843.4905,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-523.1789,-2847.9175,6.0004-3.3),"heading":47.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.13),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-518.8992,-2808.6934,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-529.9841,-2799.7261,6.0455-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5},
+		{"position":new mp.Vector3(-536.9337,-2793.5515,6.0004-3.3),"heading":136.34,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(136.34),"width":4,"height":6.5}
+	],
+	"endpointBlip":new mp.Vector3(-286.4563,6035.355,31.1743),
+	"endpointMarkers":[
+		{"position":new mp.Vector3(-286.4563,6035.355,31.1743-3.0),"heading":48.316,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(48.316),"width":3,"height":14},
+		{"position":new mp.Vector3(-268.849,6061.8584,31.1325-3.0),"heading":49.539,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(49.539),"width":3,"height":14}
+	],
+	"bazaBackBlip":new mp.Vector3(-386.045,-2660.3125,6.0002),
+	"bazaBackMarkers":[
+		{"position":new mp.Vector3(-257.2983,-2572.6265,6.0006-3.3),"heading":178.203,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.203),"width":3,"height":14},
+		{"position":new mp.Vector3(-266.851,-2579.8989,6.0006-3.3),"heading":178.10,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(178.10),"width":3,"height":14},
+		{"position":new mp.Vector3(-358.0685,-2594.9722,6.0003-3.3),"heading":130.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(130.47),"width":3,"height":14},
+		{"position":new mp.Vector3(-383.7819,-2620.4355,6.0003-3.3),"heading":132.71,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(132.71),"width":3,"height":14},
+		{"position":new mp.Vector3(-410.0958,-2647.2419,6.0002-3.3),"heading":131.05,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.05),"width":3,"height":14},
+		{"position":new mp.Vector3(-444.016,-2680.364,6.0002-3.3),"heading":138.15,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.15),"width":3,"height":14},
+		{"position":new mp.Vector3(-474.3696,-2711.3489,6.0002-3.3),"heading":138.40,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(138.40),"width":3,"height":14},
+		{"position":new mp.Vector3(-468.4227,-2755.4624,6.0002-3.3),"heading":43.676,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(43.676),"width":3,"height":14},
+		{"position":new mp.Vector3(-479.9584,2768.1741,6.0004-3.3),"heading":38.506,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(38.506),"width":3,"height":14},
+		{"position":new mp.Vector3(-485.8505,-2775.4905,6.0004-3.3),"heading":36.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.815),"width":3,"height":14},
+		{"position":new mp.Vector3(-496.9845,-2785.6479,6.0004-3.3),"heading":40.766,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(40.766),"width":3,"height":14},
+		{"position":new mp.Vector3(-432.7078,-2711.1775,6.0002-3.3),"heading":223.99,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(223.99),"width":3,"height":14},
+		{"position":new mp.Vector3(-422.6357,-2703.312,6.0002-3.3),"heading":224.38,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.38),"width":3,"height":14},
+		{"position":new mp.Vector3(-412.8348,-2742.1892,6.0002-3.3),"heading":357.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-400.878,-2743.9443,6.001-3.3),"heading":358.53,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.53),"width":3,"height":14},
+		{"position":new mp.Vector3(-391.3651,-2656.1357,6.0002-3.3),"heading":313.46,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.46),"width":3,"height":14},
+		{"position":new mp.Vector3(-340.255,-2604.4497,6.0003-3.3),"heading":312.00,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(312.00),"width":3,"height":14},
+		{"position":new mp.Vector3(-306.6359,-2547.9248,6.0006-3.3),"heading":225.96,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(225.96),"width":3,"height":14},
+		{"position":new mp.Vector3(-269.0743,-2543.8591,6.0006-3.3),"heading":139.54,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(139.54),"width":3,"height":14},
+		{"position":new mp.Vector3(-265.3459,-2508.1226,6.0006-3.3),"heading":228.74,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(228.74),"width":3,"height":14},
+		{"position":new mp.Vector3(-260.5601,-2501.459,6.0006-3.3),"heading":224.13,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(224.13),"width":3,"height":14},
+		{"position":new mp.Vector3(-254.7072,-2495.6079,6.0006-3.3),"heading":233.89,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(233.89),"width":3,"height":14},
+		{"position":new mp.Vector3(-312.8976,-2607.6213,6.0003-3.3),"heading":316.73,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(316.73),"width":3,"height":14},
+		{"position":new mp.Vector3(-362.5563,-2656.4954,6.0003-3.3),"heading":133.32,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(133.32),"width":3,"height":14},
+		{"position":new mp.Vector3(-336.3795,-2631.3164,6.0003-3.3),"heading":134.25,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.25),"width":3,"height":14}
+	]
+};
+
+var truckWorkZone = mp.colshapes.newSphere(-422.5246,-2787.9614,6.0004,150,0);
+var truckImInWorkZone = false;
+
+var curTruckTask = false, truckBlip = false;
+
+var truckTasksBlocked = false;
+
+function startTruckJob() {
+	if(typeof(localPlayer.getVariable('player.lics')) === "undefined") return hud_browser.execute('jobPanelError("#startTruckJob", "Технические неполадки системы лицензий..")');
+	let myLics = {};
+	if(IsJsonString(JSON.stringify(localPlayer.getVariable('player.lics')))) myLics = localPlayer.getVariable('player.lics');
+	if(myLics["cCat"] === undefined) return hud_browser.execute('jobPanelError("#startTruckJob", "Отсутствуют водительские права категории «C»")');
+	if(myLics["eCat"] === undefined) return hud_browser.execute('jobPanelError("#startTruckJob", "Отсутствуют водительские права категории «E»")');
+	
+	if(typeof(localPlayer.getVariable('player.blocks')) === "undefined") return hud_browser.execute('jobPanelError("#startTruckJob", "Не инициализирован уровень персонажа..")');
+	let myBlocks = localPlayer.getVariable('player.blocks');
+	if(typeof(myBlocks.lvl) !== "undefined") {
+		if(myBlocks.lvl < 5) return hud_browser.execute('jobPanelError("#startTruckJob", "Необходим 5 уровень персонажа, его нужно повысить через телефон.")');
+	}else{
+		return hud_browser.execute('jobPanelError("#startTruckJob", "Не инициализирован уровень персонажа..")');
 	}
-}
-for (let i = 0; i < trainModels.length; i++) { requestTrainModel(trainModels[i]); }
-
-// REQUESTING TRAIN MODELS END
-
-var trainBlip = false;
-var curMissionID = false, curSimaKey = 0, curSimaphore = {}, curTrainPointKey = 0, curTrainPoint = {};
-var missionIDParams = {
-	"0":{
-		"accel":1.5,
-		"dccel":2.5,
-		"maxSpeed": 45, // 160
-		"simaphores":[
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.7604,-926.8142,21.9617)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.8023,-1126.2014,24.3865)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(685.8439,-1385.2883,23.8298)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(666.8714,-1059.9115,22.5071)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(666.8312,-926.7221,21.9663)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(667.3271,-754.4077,23.7542)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(863.2278,-473.5885,30.0689)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.0642,-947.9285,57.063)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.0404,-791.5458,91.3597)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1986.9216,-745.7905,97.0174)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2285.0051,-505.0648,95.4889)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2433.4104,-330.1152,93.8006)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2562.8894,-109.8985,93.3385)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2651.0195,859.6979,77.7321)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2610.9224,1623.5208,28.0806)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2611.1536,2047.0511,32.2204)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2640.7051,2973.8308,40.4618)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2495.2268,5730.3525,60.8899)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(2341.1006,5947.7983,60.8442)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1620.468,6360.2705,40.9654)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-430.0746,4015.873,81.9504)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-319.1938,3724.9766,68.616)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(584.2336,3180.3181,42.4529)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(1186.0214,3251.5437,39.7671)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(1935.4368,3579.3589,38.4319)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2540.5007,2841.6323,38.7513)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2562.3579,-109.8987,93.338)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2433.2126,-329.8372,93.7976)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(2285.095,-505.2754,95.4958)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1987.0186,-745.4688,97.0217)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.2385,-791.7618,91.3609)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.2706,-948.1615,57.08)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(863.1822,-473.5239,30.0641)}
-		],
-		"points":[
-			{"pos":new mp.Vector3(672.8807,-681.2565,25.1953),"color":[255,150,0,150],"type":"pogruzkaTovar","drawColor":[0,0,0,0],"heading":354.926,"width":4,"height":18,"dir":dirGenerator(356.926)},
-			{"pos":new mp.Vector3(-168.8703,6113.4219,31.5801),"color":[255,150,0,150],"type":"razgruzkaTovar","drawColor":[0,0,0,0],"heading":134.296,"width":4,"height":18,"dir":dirGenerator(134.296)},
-			{"pos":new mp.Vector3(664.5845,-823.9052,23.3681),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":180.287,"width":4,"height":18,"dir":dirGenerator(180.287)}
-		]
-	},
-	"1":{
-		"accel":1.5,
-		"dccel":2.5,
-		"maxSpeed": 45, // 160
-		"simaphores":[
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.7604,-926.8142,21.9617)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.8023,-1126.2014,24.3865)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(685.8439,-1385.2883,23.8298)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(666.8714,-1059.9115,22.5071)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(666.8312,-926.7221,21.9663)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(667.3271,-754.4077,23.7542)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(863.2278,-473.5885,30.0689)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.0642,-947.9285,57.063)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.0404,-791.5458,91.3597)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1986.9216,-745.7905,97.0174)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2285.0051,-505.0648,95.4889)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2433.4104,-330.1152,93.8006)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2562.8894,-109.8985,93.3385)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2651.0195,859.6979,77.7321)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2610.9224,1623.5208,28.0806)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2611.1536,2047.0511,32.2204)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2640.7051,2973.8308,40.4618)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2495.2268,5730.3525,60.8899)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(2341.1006,5947.7983,60.8442)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1620.468,6360.2705,40.9654)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-430.0746,4015.873,81.9504)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-319.1938,3724.9766,68.616)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(584.2336,3180.3181,42.4529)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(1186.0214,3251.5437,39.7671)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(1935.4368,3579.3589,38.4319)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2540.5007,2841.6323,38.7513)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2562.3579,-109.8987,93.338)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2433.2126,-329.8372,93.7976)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(2285.095,-505.2754,95.4958)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1987.0186,-745.4688,97.0217)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.2385,-791.7618,91.3609)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.2706,-948.1615,57.08)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(863.1822,-473.5239,30.0641)}
-		],
-		"points":[
-			{"pos":new mp.Vector3(672.8807,-681.2565,25.1953),"color":[255,150,0,150],"type":"pogruzkaTovar","drawColor":[0,0,0,0],"heading":354.926,"width":4,"height":18,"dir":dirGenerator(356.926)},
-			{"pos":new mp.Vector3(-168.8703,6113.4219,31.5801),"color":[255,150,0,150],"type":"razgruzkaTovar","drawColor":[0,0,0,0],"heading":134.296,"width":4,"height":18,"dir":dirGenerator(134.296)},
-			{"pos":new mp.Vector3(664.5845,-823.9052,23.3681),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":180.287,"width":4,"height":18,"dir":dirGenerator(180.287)}
-		]
-	},
-	"2":{
-		"accel":1.5,
-		"dccel":2.5,
-		"maxSpeed": 45, // 160
-		"simaphores":[
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.7604,-926.8142,21.9617)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.8023,-1126.2014,24.3865)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(685.8439,-1385.2883,23.8298)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(666.8714,-1059.9115,22.5071)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(666.8312,-926.7221,21.9663)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(667.3271,-754.4077,23.7542)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(863.2278,-473.5885,30.0689)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.0642,-947.9285,57.063)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.0404,-791.5458,91.3597)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1986.9216,-745.7905,97.0174)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2285.0051,-505.0648,95.4889)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2433.4104,-330.1152,93.8006)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2562.8894,-109.8985,93.3385)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2651.0195,859.6979,77.7321)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2610.9224,1623.5208,28.0806)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2611.1536,2047.0511,32.2204)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2640.7051,2973.8308,40.4618)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2495.2268,5730.3525,60.8899)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(2341.1006,5947.7983,60.8442)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1620.468,6360.2705,40.9654)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-430.0746,4015.873,81.9504)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-319.1938,3724.9766,68.616)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(584.2336,3180.3181,42.4529)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(1186.0214,3251.5437,39.7671)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(1935.4368,3579.3589,38.4319)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2540.5007,2841.6323,38.7513)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2562.3579,-109.8987,93.338)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2433.2126,-329.8372,93.7976)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(2285.095,-505.2754,95.4958)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1987.0186,-745.4688,97.0217)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.2385,-791.7618,91.3609)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.2706,-948.1615,57.08)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(863.1822,-473.5239,30.0641)}
-		],
-		"points":[
-			{"pos":new mp.Vector3(672.8807,-681.2565,25.1953),"color":[255,150,0,150],"type":"pogruzkaTovar","drawColor":[0,0,0,0],"heading":354.926,"width":4,"height":18,"dir":dirGenerator(356.926)},
-			{"pos":new mp.Vector3(-168.8703,6113.4219,31.5801),"color":[255,150,0,150],"type":"razgruzkaTovar","drawColor":[0,0,0,0],"heading":134.296,"width":4,"height":18,"dir":dirGenerator(134.296)},
-			{"pos":new mp.Vector3(664.5845,-823.9052,23.3681),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":180.287,"width":4,"height":18,"dir":dirGenerator(180.287)}
-		]
-	},
-	"3":{
-		"accel":1.2,
-		"dccel":2.2,
-		"maxSpeed": 35, // 130
-		"simaphores":[
-			{"color":"green","speed":40,"pos":new mp.Vector3(666.7604,-926.8142,21.9617)},
-			{"color":"green","speed":40,"pos":new mp.Vector3(666.8023,-1126.2014,24.3865)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(685.8439,-1385.2883,23.8298)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.8714,-1059.9115,22.5071)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.8312,-926.7221,21.9663)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(667.3271,-754.4077,23.7542)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(863.2278,-473.5885,30.0689)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(1363.0642,-947.9285,57.063)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(1794.0404,-791.5458,91.3597)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(1986.9216,-745.7905,97.0174)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2285.0051,-505.0648,95.4889)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2433.4104,-330.1152,93.8006)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2562.8894,-109.8985,93.3385)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2651.0195,859.6979,77.7321)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2610.9224,1623.5208,28.0806)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2611.1536,2047.0511,32.2204)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2640.7051,2973.8308,40.4618)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2495.2268,5730.3525,60.8899)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(2341.1006,5947.7983,60.8442)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(1620.468,6360.2705,40.9654)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-430.0746,4015.873,81.9504)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-319.1938,3724.9766,68.616)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(584.2336,3180.3181,42.4529)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(1186.0214,3251.5437,39.7671)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(1935.4368,3579.3589,38.4319)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2540.5007,2841.6323,38.7513)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2562.3579,-109.8987,93.338)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2433.2126,-329.8372,93.7976)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(2285.095,-505.2754,95.4958)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(1987.0186,-745.4688,97.0217)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.2385,-791.7618,91.3609)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.2706,-948.1615,57.08)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(863.1822,-473.5239,30.0641)}
-		],
-		"points":[
-			{"pos":new mp.Vector3(672.8807,-681.2565,25.1953),"color":[255,150,0,150],"type":"pogruzkaTovar","drawColor":[0,0,0,0],"heading":354.926,"width":4,"height":18,"dir":dirGenerator(356.926)},
-			{"pos":new mp.Vector3(-168.8703,6113.4219,31.5801),"color":[255,150,0,150],"type":"razgruzkaTovar","drawColor":[0,0,0,0],"heading":134.296,"width":4,"height":18,"dir":dirGenerator(134.296)},
-			{"pos":new mp.Vector3(664.5845,-823.9052,23.3681),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":180.287,"width":4,"height":18,"dir":dirGenerator(180.287)}
-		]
-	},
-	"4":{
-		"accel":1.5,
-		"dccel":2.5,
-		"maxSpeed": 45, // 160
-		"simaphores":[
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.7604,-926.8142,21.9617)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.8023,-1126.2014,24.3865)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(685.8439,-1385.2883,23.8298)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(666.8714,-1059.9115,22.5071)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(666.8312,-926.7221,21.9663)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(667.3271,-754.4077,23.7542)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(863.2278,-473.5885,30.0689)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.0642,-947.9285,57.063)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.0404,-791.5458,91.3597)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1986.9216,-745.7905,97.0174)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2285.0051,-505.0648,95.4889)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2433.4104,-330.1152,93.8006)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2562.8894,-109.8985,93.3385)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2651.0195,859.6979,77.7321)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2610.9224,1623.5208,28.0806)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2611.1536,2047.0511,32.2204)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2640.7051,2973.8308,40.4618)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2495.2268,5730.3525,60.8899)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(2341.1006,5947.7983,60.8442)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1620.468,6360.2705,40.9654)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-430.0746,4015.873,81.9504)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-319.1938,3724.9766,68.616)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(584.2336,3180.3181,42.4529)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(1186.0214,3251.5437,39.7671)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(1935.4368,3579.3589,38.4319)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2540.5007,2841.6323,38.7513)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2562.3579,-109.8987,93.338)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2433.2126,-329.8372,93.7976)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(2285.095,-505.2754,95.4958)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1987.0186,-745.4688,97.0217)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.2385,-791.7618,91.3609)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.2706,-948.1615,57.08)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(863.1822,-473.5239,30.0641)}
-		],
-		"points":[
-			{"pos":new mp.Vector3(672.8807,-681.2565,25.1953),"color":[255,150,0,150],"type":"pogruzkaTovar","drawColor":[0,0,0,0],"heading":354.926,"width":4,"height":18,"dir":dirGenerator(356.926)},
-			{"pos":new mp.Vector3(-168.8703,6113.4219,31.5801),"color":[255,150,0,150],"type":"razgruzkaTovar","drawColor":[0,0,0,0],"heading":134.296,"width":4,"height":18,"dir":dirGenerator(134.296)},
-			{"pos":new mp.Vector3(664.5845,-823.9052,23.3681),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":180.287,"width":4,"height":18,"dir":dirGenerator(180.287)}
-		]
-	},
-	"5":{
-		"accel":1.1,
-		"dccel":2.1,
-		"maxSpeed": 30, // 115
-		"simaphores":[
-			{"color":"green","speed":40,"pos":new mp.Vector3(666.7604,-926.8142,21.9617)},
-			{"color":"green","speed":40,"pos":new mp.Vector3(666.8023,-1126.2014,24.3865)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(685.8439,-1385.2883,23.8298)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.8714,-1059.9115,22.5071)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.8312,-926.7221,21.9663)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(667.3271,-754.4077,23.7542)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(863.2278,-473.5885,30.0689)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(1363.0642,-947.9285,57.063)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(1794.0404,-791.5458,91.3597)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(1986.9216,-745.7905,97.0174)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2285.0051,-505.0648,95.4889)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2433.4104,-330.1152,93.8006)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2562.8894,-109.8985,93.3385)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2651.0195,859.6979,77.7321)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2610.9224,1623.5208,28.0806)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2611.1536,2047.0511,32.2204)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2640.7051,2973.8308,40.4618)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2495.2268,5730.3525,60.8899)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(2341.1006,5947.7983,60.8442)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(1620.468,6360.2705,40.9654)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-430.0746,4015.873,81.9504)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-319.1938,3724.9766,68.616)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(584.2336,3180.3181,42.4529)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(1186.0214,3251.5437,39.7671)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(1935.4368,3579.3589,38.4319)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2540.5007,2841.6323,38.7513)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2562.3579,-109.8987,93.338)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2433.2126,-329.8372,93.7976)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(2285.095,-505.2754,95.4958)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(1987.0186,-745.4688,97.0217)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.2385,-791.7618,91.3609)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.2706,-948.1615,57.08)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(863.1822,-473.5239,30.0641)}
-		],
-		"points":[
-			{"pos":new mp.Vector3(672.8807,-681.2565,25.1953),"color":[255,150,0,150],"type":"pogruzkaTovar","drawColor":[0,0,0,0],"heading":354.926,"width":4,"height":18,"dir":dirGenerator(356.926)},
-			{"pos":new mp.Vector3(-168.8703,6113.4219,31.5801),"color":[255,150,0,150],"type":"razgruzkaTovar","drawColor":[0,0,0,0],"heading":134.296,"width":4,"height":18,"dir":dirGenerator(134.296)},
-			{"pos":new mp.Vector3(664.5845,-823.9052,23.3681),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":180.287,"width":4,"height":18,"dir":dirGenerator(180.287)}
-		]
-	},
-	"6":{
-		"accel":1.7,
-		"dccel":2.7,
-		"maxSpeed": 50, // 165
-		"simaphores":[
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.7604,-926.8142,21.9617)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.8023,-1126.2014,24.3865)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(685.8439,-1385.2883,23.8298)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(666.8714,-1059.9115,22.5071)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(666.8312,-926.7221,21.9663)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(667.3271,-754.4077,23.7542)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(863.2278,-473.5885,30.0689)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.0642,-947.9285,57.063)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.0404,-791.5458,91.3597)},
-			{"color":"green","speed":120,"pos":new mp.Vector3(1986.9216,-745.7905,97.0174)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(2285.0051,-505.0648,95.4889)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(2433.4104,-330.1152,93.8006)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(2562.8894,-109.8985,93.3385)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(2651.0195,859.6979,77.7321)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(2610.9224,1623.5208,28.0806)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(2611.1536,2047.0511,32.2204)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(2640.7051,2973.8308,40.4618)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(2495.2268,5730.3525,60.8899)},
-			{"color":"green","speed":120,"pos":new mp.Vector3(2341.1006,5947.7983,60.8442)},
-			{"color":"green","speed":120,"pos":new mp.Vector3(1620.468,6360.2705,40.9654)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-430.0746,4015.873,81.9504)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-319.1938,3724.9766,68.616)},
-			{"color":"green","speed":120,"pos":new mp.Vector3(584.2336,3180.3181,42.4529)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(1186.0214,3251.5437,39.7671)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(1935.4368,3579.3589,38.4319)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(2540.5007,2841.6323,38.7513)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(2562.3579,-109.8987,93.338)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(2433.2126,-329.8372,93.7976)},
-			{"color":"green","speed":120,"pos":new mp.Vector3(2285.095,-505.2754,95.4958)},
-			{"color":"green","speed":120,"pos":new mp.Vector3(1987.0186,-745.4688,97.0217)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.2385,-791.7618,91.3609)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.2706,-948.1615,57.08)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(863.1822,-473.5239,30.0641)}
-		],
-		"points":[
-			{"pos":new mp.Vector3(167.5511,-1984.226,18.3412),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":135.8,"width":4,"height":18,"dir":dirGenerator(135.8)}, // Davis, LS
-			{"pos":new mp.Vector3(672.8807,-681.2565,25.1953),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":344.926,"width":4,"height":18,"dir":dirGenerator(346.926)}, // Baza LS
-			{"pos":new mp.Vector3(1948.8035,-757.6938,97.2607),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":266.620,"width":4,"height":18,"dir":dirGenerator(266.620)}, // Palomino Hilands
-			{"pos":new mp.Vector3(2413.2344,-358.1894,94.3122),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":318.804,"width":4,"height":18,"dir":dirGenerator(318.804)}, // Tataviam Mountains
-			{"pos":new mp.Vector3(2611.0808,1682.9401,27.0501),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":0.837,"width":4,"height":18,"dir":dirGenerator(0.837)}, // Palmer-Taylor Power Station
-			{"pos":new mp.Vector3(2616.2476,2935.9929,39.9680),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":326.221,"width":4,"height":18,"dir":dirGenerator(326.221)}, // Davis Kvarts
-			{"pos":new mp.Vector3(-168.8703,6113.4219,31.5801),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":124.296,"width":4,"height":18,"dir":dirGenerator(124.296)}, // Paleto Bay
-			{"pos":new mp.Vector3(1876.9445,3548.147,38.6613),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":304.406,"width":4,"height":18,"dir":dirGenerator(304.406)}, // Sandy Shoers
-			{"pos":new mp.Vector3(2601.0356,2925.0229,39.9133),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":146.630,"width":4,"height":18,"dir":dirGenerator(146.630)}, // Davis Kvarts
-			{"pos":new mp.Vector3(2312.2134,-470.416,95.4264),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":140.801,"width":4,"height":18,"dir":dirGenerator(140.801)}, // Palomino Hilands
-			{"pos":new mp.Vector3(664.5845,-823.9052,23.3681),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":170.287,"width":4,"height":18,"dir":dirGenerator(170.287)}
-		]
-	},
-	"7":{
-		"accel":3.5,
-		"dccel":4.5,
-		"maxSpeed": 30, // 115
-		"simaphores":[
-			{"color":"green","speed":60,"pos":new mp.Vector3(89.0611,-1703.8025,29.245)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-252.0017,-1398.595,31.2832)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-169.9674,-906.2639,20.9692)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-264.5179,-706.0677,15.6962)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-449.9084,-666.6399,10.9067)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-586.5045,-669.999,10.8956)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-640.117,-674.4955,10.896)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-1320.5691,-505.949,14.1402)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-1308.8195,-340.7957,14.1317)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-1130.5753,-288.265,19.0369)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-856.7804,-169.1507,19.0538)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-300.7747,-279.4097,9.1487)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(176.8746,-602.9567,17.7608)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(210.2005,-598.6445,17.7575)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(537.2258,-657.4133,15.3132)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-736.4852,-1993.7299,-10.2483)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-757.0671,-2050.1621,-10.2483)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-872.1282,-2271.6428,-12.6472)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-1054.7804,-2672.7041,-8.3245)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-1108.6409,-2755.7356,-8.3259)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-894.3581,-2368.0115,-12.6472)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-756.8847,-2068.5618,-10.2483)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-736.7293,-2012.7206,-10.2473)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-614.6172,-1563.5548,13.3398)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(222.7843,-585.6506,17.7575)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-288.298,-375.0762,9.1486)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-738.4459,-90.3547,19.0377)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-779.8893,-110.2205,19.0418)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-1118.3324,-273.9774,19.0369)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-1291.4191,-334.5381,14.1317)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-1380.0547,-427.0692,14.1309)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-603.9919,-676.0796,10.8956)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-545.7959,-679.1481,10.9001)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-169.7251,-904.7894,20.9238)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-169.7251,-904.7894,20.9238)},
-		],
-		"points":[
-			{"pos":new mp.Vector3(104.4209,-1711.101,29.1293),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":49.151,"width":4,"height":22,"dir":dirGenerator(49.151)}, // Davis
-			{"pos":new mp.Vector3(-203.3928,-1019.8647,29.3239),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":338.188,"width":4,"height":22,"dir":dirGenerator(338.188)}, // Pillbox South
-			{"pos":new mp.Vector3(-529.4287,-665.5203,10.9094),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":87.971,"width":4,"height":22,"dir":dirGenerator(87.971)}, // Little Seoul
-			{"pos":new mp.Vector3(-1359.7917,-435.4292,14.1458),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":31.200,"width":4,"height":22,"dir":dirGenerator(31.200)}, // Del Perro
-			{"pos":new mp.Vector3(-787.3124,-130.2345,19.0508),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":299.974,"width":4,"height":22,"dir":dirGenerator(299.974)}, // Portola Drive
-			{"pos":new mp.Vector3(-302.3009,-359.6808,9.1635),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":179.362,"width":4,"height":22,"dir":dirGenerator(179.362)}, // Burton
-			{"pos":new mp.Vector3(243.2628,-1198.4683,38.0761),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":92.307,"width":4,"height":22,"dir":dirGenerator(92.307)}, // Strawberry
-			{"pos":new mp.Vector3(-552.5513,-1297.6134,25.9065),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":152.729,"width":4,"height":22,"dir":dirGenerator(152.729)}, // Puerto del Sol
-			{"pos":new mp.Vector3(-901.4651,-2346.6531,-12.606),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":161.157,"width":4,"height":22,"dir":dirGenerator(161.157)}, // LSIA Parking
-			{"pos":new mp.Vector3(-1109.7587,-2735.3711,-8.3097),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":136.008,"width":4,"height":22,"dir":dirGenerator(136.008)}, // LSIA Terminal 4
-			{"pos":new mp.Vector3(-1057.4897,-2696.7178,-8.2793),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":319.500,"width":4,"height":22,"dir":dirGenerator(319.500)}, // LSIA Terminal 4
-			{"pos":new mp.Vector3(-865.5612,-2292.5515,-12.6323),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":337.021,"width":4,"height":22,"dir":dirGenerator(337.021)}, // LSIA Parking
-			{"pos":new mp.Vector3(-527.6741,-1265.3129,25.904),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":332.835,"width":4,"height":22,"dir":dirGenerator(332.835)}, // Puerto del Sol
-			{"pos":new mp.Vector3(298.0285,-1210.0483,38.0747),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":269.910,"width":4,"height":22,"dir":dirGenerator(269.910)}, // Strawberry
-			{"pos":new mp.Vector3(-286.9993,-297.7302,9.1935),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":2.639,"width":4,"height":22,"dir":dirGenerator(0.639)}, // Burton
-			{"pos":new mp.Vector3(-848.3321,-147.9061,19.081),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":124.760,"width":4,"height":22,"dir":dirGenerator(124.760)}, // Portola Drive
-			{"pos":new mp.Vector3(-1341.4658,-497.541,14.1755),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":206.785,"width":4,"height":22,"dir":dirGenerator(206.785)}, // Del Perro
-			{"pos":new mp.Vector3(-467.8731,-680.7336,10.9397),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":271.831,"width":4,"height":22,"dir":dirGenerator(271.831)}, // Little Seoul
-			{"pos":new mp.Vector3(-224.5117,-1050.1123,29.3265),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":156.459,"width":4,"height":22,"dir":dirGenerator(156.459)}, // Pillbox South
-			{"pos":new mp.Vector3(127.5512,-1741.5698,29.0579),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":221.356,"width":4,"height":22,"dir":dirGenerator(221.356)}, // Davis
-			{"pos":new mp.Vector3(361.6095,-1936.051,16.7264),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":225.745,"width":4,"height":22,"dir":dirGenerator(225.745)}
-		]
-	}
-}
-
-var trainWorkZone = mp.colshapes.newSphere(707.0614, -965.5336, 30.4128, 80, 0);
-var trainImInWorkZone = false;
-
-var trainTasksBlocked = false;
-
-function startTrainJob() {
+	
 	closeJobTablet();
-	mp.events.callRemote('startTrainJob');
-	mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вас приняли работать на железные дороги", 5, false, true, 6500);
+	mp.events.callRemote('startTruckJob');
+	mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вас приняли работать в грузоперевозки", 5, false, true, 6500);
 	setTimeout(function() {
-		mp.game.ui.notifications.showWithPicture("Диспетчер", "Добро пожаловать", "Получил рабочий планшет? Нажми F5 и выбери свой первый маршрут.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+		mp.game.ui.notifications.showWithPicture("Диспетчер", "Добро пожаловать", "Получил рабочий планшет? Нажми F5 и выбери свой первый рейс.", "CHAR_MP_MEX_BOSS", 1, false, 1, 2);
 	}, 2000);
 }
-mp.events.add("startTrainJob", startTrainJob);
+mp.events.add("startTruckJob", startTruckJob);
 
-function trainStartStop() {
+function startTruckWorkError(errReason) {
+	if(typeof(errReason) === "undefined") return notyAPI.error("Что-то пошло не так при выборе грузовика.", 3000, true);
+	notyAPI.error(errReason, 3000, true);
+}
+mp.events.add("startTruckWorkError", startTruckWorkError);
+
+function truckStartStop(gruzovik) {
 	if(localPlayer.getVariable("player.job")) {
 		let jobData = localPlayer.getVariable("player.job");
 		closeJobTablet(true);
 		
 		if(jobData.work == 0) {
-			if(trainImInWorkZone) {
-				if(!activeJOBoperation) {
-					mp.events.call("sleepAntiCheat");
-					mp.events.callRemote('startJobWork');
-					mp.game.ui.notifications.showWithPicture("Диспетчер", "Смена началась", "Возьми маршрут. Они в планшете (F5)", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+			if(typeof(gruzovik) === "undefined") return notyAPI.error("Вы не выбрали грузовик.", 3000, true);
+			if(gruzovik != "1" && gruzovik != "2" && gruzovik != "3") return notyAPI.error("Вы не выбрали грузовик.", 3000, true);
+			if(truckImInWorkZone) {
+				if(localPlayer.vehicle) {
+					mp.game.ui.notifications.showWithPicture("Диспетчер", "Связь плохая", "Нельзя начать смену из транспорта.", "CHAR_MP_MEX_BOSS", 1, false, 1, 2);
+				}else{
+					if(!activeJOBoperation) {
+						truckMomentStart = true;
+						setTimeout(function() { truckMomentStart = false; }, 3500);
+						mp.events.call("sleepAntiCheat");
+						mp.events.callRemote('startJobWork', gruzovik);
+						mp.game.ui.notifications.showWithPicture("Диспетчер", "Смена началась", "Возьми рейс. Задачи в планшете (F5)", "CHAR_MP_MEX_BOSS", 1, false, 1, 2);
+					}
 				}
 			}else{
-				mp.game.ui.notifications.showWithPicture("Диспетчер", "Отправляйся в офис", "Смену можно начать только на территории базы.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-				chatAPI.sysPush("<span style=\"color:#FF6146\"> * Явитесь на базу железных дорог что бы начать смену.</span>");
+				mp.game.ui.notifications.showWithPicture("Диспетчер", "Явитесь в офис", "Смену можно начать только на территории базы.", "CHAR_MP_MEX_BOSS", 1, false, 1, 2);
+				notyAPI.error("Явитесь на базу грузоперевозок что бы начать смену.", 3000, true);
 			}
 		}else{
 			if(!activeJOBoperation) {
 				activeJOBoperation = true;
 				
-				if(typeof(localPlayer.train) !== "undefined") mp.events.callRemote('cancelTrainTask', false);
+				//if(curTruckTask) mp.events.callRemote('cancelTruckTask', JSON.stringify(curTruckTask), false);
+				//curTruckTask = false;
+		
+				if(truckBlip) {
+					truckBlip.destroy();
+					truckBlip = false;
+				}
 				
+				if(jobVehBackTimer) clearTimeout(jobVehBackTimer);
+				
+				vehParkMarkers = [], parkingVeh = false, goodVehParked = false, activeVehParking = false; // Удаляем парковочные маркеры
+				curTruckTask = false;
+		
 				if(jobData.workMoney > 0) {
 					//let resWorkMoney = roundNumber((parseInt(jobData.workMoney)-(parseInt(jobData.workMoney)*0.13)), 0);
 					let resWorkMoney = roundNumber(parseInt(jobData.workMoney), 0);
 					let workMoneyText = resWorkMoney.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
 					mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вы заработали за смену"+workMoneyText+" руб.", 5, false, true, 6500);
-					mp.game.ui.notifications.showWithPicture("Диспетчер", "Молодец!", "Отдохни и выходи на смену снова, ждём тебя!", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+					mp.game.ui.notifications.showWithPicture("Диспетчер", "Молодца!", "Отдохни и выходи на смену снова, давай братан!", "CHAR_MP_MEX_BOSS", 1, false, 1, 2);
 				}else{
 					mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вы ничего не заработали за смену.", 5, false, true, 6500);
-					mp.game.ui.notifications.showWithPicture("Диспетчер", "Что случилось?", "Не выполнил ни одного поручения?! Блок агрегатора 1 мин.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-					trainTasksBlocked = true;
+					mp.game.ui.notifications.showWithPicture("Диспетчер", "Это как так?", "Ты не выполнил ни одного рейса. Блок агрегатора 1 мин.", "CHAR_MP_MEX_BOSS", 1, false, 1, 2);
+					truckTasksBlocked = true;
 					setTimeout(function() {
-						mp.game.ui.notifications.showWithPicture("Диспетчер", "Маршруты доступны", "Я разблокировал тебе агрегатор.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-						trainTasksBlocked = false;
+						mp.game.ui.notifications.showWithPicture("Диспетчер", "Задачи доступны", "Я разблокировал тебе рейсы.", "CHAR_MP_MEX_BOSS", 1, false, 1, 2);
+						truckTasksBlocked = false;
 					}, 60000);
 				}
 				
@@ -464,758 +2233,528 @@ function trainStartStop() {
 		}
 	}
 }
-mp.events.add("trainStartStop", trainStartStop);
+mp.events.add("truckStartStop", truckStartStop);
 
-function cancelTrainJobTask() {
-	closeJobTablet(true);
-	if(typeof(localPlayer.train) !== "undefined") {
-		mp.game.ui.messages.showMidsized("~g~Вы успешно ~s~отказались от маршрута", "~s~Новые маршруты можно посмотреть в планшете (F5)");
-		mp.game.ui.notifications.showWithPicture("Диспетчер", "Отказ от маршрута", "Я заблокировал тебе маршруты на 1 мин.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-		
-		trainTasksBlocked = true;
-		setTimeout(function() {
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Маршруты доступны", "Я разблокировал тебе маршруты.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			trainTasksBlocked = false;
-		}, 60000);
-		
-		mp.events.call("sleepAntiCheat");
-		mp.events.callRemote('cancelTrainTask', false);
-		
-		if(trainBlip) {
-			if(mp.blips.exists(trainBlip)) trainBlip.destroy();
-		}
-		
-		curMissionID = false, curSimaKey = 0, curSimaphore = {}, curTrainPointKey = 0, curTrainPoint = {};
-		trainParkedProcess = false;
-	}
-}
-mp.events.add("cancelTrainJobTask", cancelTrainJobTask);
-
-function getTrainTasks() {
-	if(typeof(localPlayer.train) === "undefined") {
-		if(localPlayer.vehicle) return hud_browser.execute("gettedTrainTasks('you_in_veh');");
-		let jobData = localPlayer.getVariable("player.job");
-		if(typeof(jobData) === "undefined") {
-			//chatAPI.sysPush("<span style=\"color:#FF6146\">3</span>");
-			return hud_browser.execute("gettedTrainTasks('empty');");
+function getTruckTasks(){
+	if(!truckBlip) {
+		if(!localPlayer.vehicle) {
+			return hud_browser.execute("gettedTruckTasks('you_not_in_veh');");
 		}else{
-			if(jobData.work == 0) return hud_browser.execute("gettedTrainTasks('no_active_work');");
+			let theVeh = localPlayer.vehicle;
+			if(typeof(theVeh.getVariable("veh.job")) === "undefined") return hud_browser.execute("gettedTruckTasks('you_not_in_veh');");
+			if(mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.job')))) {
+				let vehJob = mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.job')));
+				if(vehJob.remoteId.toString() != localPlayer.remoteId.toString()) return hud_browser.execute("gettedTruckTasks('you_not_in_veh');");
+			}else{
+				 return hud_browser.execute("gettedTruckTasks('you_not_in_veh');");
+			}
 		}
-		mp.events.callRemote('getTrainTasks');
+		mp.events.callRemote('getTruckTasks');
 	}else{
-		hud_browser.execute("gettedTrainTasks('you_have_task');");
+		hud_browser.execute("gettedTruckTasks('you_have_task');");
 	}
 }
-mp.events.add("getTrainTasks", getTrainTasks);
+mp.events.add("getTruckTasks", getTruckTasks);
 
-function gettedTrainTasks(trainTasks){
-	if(trainTasks) {
-		if(typeof(localPlayer.train) === "undefined" && typeof(localPlayer.getVariable("player.job")) !== "undefined") {
-			if(localPlayer.vehicle) return hud_browser.execute("gettedTrainTasks('you_in_veh');");
-			
-			trainTasks = JSON.parse(trainTasks);
-			if(Object.keys(trainTasks).length > 0) {
+function gettedTruckTasks(truckTasks){
+	if(truckTasks) {
+		if(!curTruckTask && typeof(localPlayer.getVariable("player.job")) !== "undefined") {
+			truckTasks = JSON.parse(truckTasks);
+			if(Object.keys(truckTasks).length > 0) {
 				let jobData = localPlayer.getVariable("player.job");
+				
+				let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
+					decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
 					
-				for (var k in trainTasks) {
-					if(trainTasks[k]) {
-						let taskData = trainTasks[k];
-						if(parseInt(jobData.rank) < parseInt(taskData.minRank)) delete trainTasks[k];
+				for (var k in truckTasks) {
+					if(truckTasks[k]) {
+						let taskData = truckTasks[k];
+						taskData.truckName = "Грузовик";
+						if(parseInt(jobData.rank) >= parseInt(taskData.minRank)) {
+							if(typeof(taskData.truck) !== "undefined") {
+								if(typeof(decVehStats[0][taskData.truck]) !== "undefined") taskData.truckName = decVehStats[0][taskData.truck].name;
+								else taskData.truckName = taskData.truck;
+							}
+						}else{
+							delete truckTasks[k];
+						}
 					}
 				}
-				trainTasks = trainTasks.filter(function (el) { return el != null; });
+				truckTasks = truckTasks.filter(function (el) { return el != null; });
 				
-				//chatAPI.sysPush("<span style=\"color:#FF6146\">"+JSON.stringify(courierTasks)+"</span>");
-				hud_browser.execute("gettedTrainTasks('ok', '"+JSON.stringify(trainTasks)+"');");
+				if(truckTasks) hud_browser.execute("gettedTruckTasks('ok', '"+JSON.stringify(truckTasks)+"');");
+				else hud_browser.execute("gettedTruckTasks('empty');");
 			}else{
-				hud_browser.execute("gettedTrainTasks('empty');");
+				hud_browser.execute("gettedTruckTasks('empty');");
 			}
 		}else{
-			hud_browser.execute("gettedTrainTasks('you_have_task');");
+			hud_browser.execute("gettedTruckTasks('you_have_task');");
 		}
 	}
 }
-mp.events.add("gettedTrainTasks", gettedTrainTasks);
+mp.events.add("gettedTruckTasks", gettedTruckTasks);
 
-function acceptTaskTrain(data) {
+function acceptTaskTruck(data){
 	if(data) {
+		if(typeof(data.premium) !== "undefined") {
+			if(data.premium) {
+				if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") {
+					let myBlocks = localPlayer.getVariable("player.blocks");
+					if(typeof(myBlocks.premium) === "undefined") return notyAPI.error("У Вас нет премиум-статуса.", 3000, true);
+				}
+			}
+		}
 		closeJobTablet();
-		restoreBinds();
-		jobPanel = false;
-		
-		if(typeof(localPlayer.train) !== "undefined") {
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Закончи смену", "У тебя уже есть активный маршрут", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Что бы взять маршрут, необходимо закончить активный маршрут..</span>");
+		if(truckTasksBlocked) {
+			restoreBinds();
+			jobPanel = false;
+			mp.game.ui.notifications.showWithPicture("Диспетчер", "Блокировка доступа", "У Тебя блок доступа к задачам на 1 мин.", "CHAR_MP_MEX_BOSS", 1, false, 1, 2);
+			return notyAPI.error("У Тебя заблокирован доступ к рейсам, попробуйте через минуту.", 3000, true);
 		}
 		
-		if(localPlayer.vehicle) {
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Выйди из транспорта", "Вылези из транспорта и попробуй ещё раз..", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Что бы взять маршрут, вылези из транспортного средства..</span>");
-		}
-		
-		if(trainTasksBlocked) {
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Блокировка доступа", "У Тебя блок доступа к маршрутам на 1 мин.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			return chatAPI.sysPush("<span style=\"color:#FF6146\"> * У Тебя заблокирован доступ к маршрутам, попробуйте через минуту..</span>");
-		}
-		
-		if(!trainImInWorkZone) {
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Явитесь на базу", "Взять поручение можно только в офисе.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Явись в офис что бы взять поручение.</span>");
+		if(!truckImInWorkZone) {
+			restoreBinds();
+			jobPanel = false;
+			mp.game.ui.notifications.showWithPicture("Диспетчер", "Явитесь в офис", "Рейс можно начать только на территории Базы.", "CHAR_MP_MEX_BOSS", 1, false, 1, 2);
+			return notyAPI.error("Явись на базу что бы взять рейс.", 3000, true);
 		}
 		
 		mp.events.call("sleepAntiCheat");
-		mp.events.callRemote('acceptTaskTrain', data);
+		mp.events.callRemote('acceptTaskTruck', data);
 	}
 }
-mp.events.add("acceptTaskTrain", acceptTaskTrain);
+mp.events.add("acceptTaskTruck", acceptTaskTruck);
+
+function acceptedTruckTask(isError, data) {
+	restoreBinds();
+	jobPanel = false;
+	if(isError) {
+		return notyAPI.error(isError, 3000, true);
+	}else{
+		if(data) {
+			if(localPlayer.vehicle) {
+				data = JSON.parse(data);
+				curTruckTask = data;
+				if(curTruckTask.marshrut == 1) curTruckTask.marshrut = truckMarshrut1;
+				if(curTruckTask.marshrut == 2) curTruckTask.marshrut = truckMarshrut2;
+				if(curTruckTask.marshrut == 3) curTruckTask.marshrut = truckMarshrut3;
+				if(curTruckTask.marshrut == 4) curTruckTask.marshrut = truckMarshrut4;
+				if(curTruckTask.marshrut == 5) curTruckTask.marshrut = truckMarshrut5;
+				if(curTruckTask.marshrut == 6) curTruckTask.marshrut = truckMarshrut6;
+				if(curTruckTask.marshrut == 7) curTruckTask.marshrut = truckMarshrut7;
+				if(curTruckTask.marshrut == 8) curTruckTask.marshrut = truckMarshrut8;
+				if(curTruckTask.marshrut == 9) curTruckTask.marshrut = truckMarshrut9;
+				if(curTruckTask.marshrut == 10) curTruckTask.marshrut = truckMarshrut10;
+				if(curTruckTask.marshrut == 11) curTruckTask.marshrut = truckMarshrut11;
+				if(curTruckTask.marshrut == 12) curTruckTask.marshrut = truckMarshrut12;
+				if(curTruckTask.marshrut == 13) curTruckTask.marshrut = truckMarshrut13;
+				if(curTruckTask.marshrut == 14) curTruckTask.marshrut = truckMarshrut14;
+				if(curTruckTask.marshrut == 15) curTruckTask.marshrut = truckMarshrut15;
+				if(curTruckTask.marshrut == 16) curTruckTask.marshrut = truckMarshrut16;
+				if(curTruckTask.marshrut == 17) curTruckTask.marshrut = truckMarshrut17;
+				if(curTruckTask.marshrut == 18) curTruckTask.marshrut = truckMarshrut18;
+				if(curTruckTask.marshrut == 19) curTruckTask.marshrut = truckMarshrut19;
+				if(curTruckTask.marshrut == 20) curTruckTask.marshrut = truckMarshrut20;
+				if(curTruckTask.marshrut == 21) curTruckTask.marshrut = truckMarshrut21;
+				if(curTruckTask.marshrut == 22) curTruckTask.marshrut = truckMarshrut22;
+				if(curTruckTask.marshrut == 23) curTruckTask.marshrut = truckMarshrut23;
+				if(curTruckTask.marshrut == 24) curTruckTask.marshrut = truckMarshrut24;
+				if(curTruckTask.marshrut == 25) curTruckTask.marshrut = truckMarshrut25;
+				if(curTruckTask.marshrut == 26) curTruckTask.marshrut = truckMarshrut26;
+				if(curTruckTask.marshrut == 27) curTruckTask.marshrut = truckMarshrut27;
+				if(curTruckTask.marshrut == 28) curTruckTask.marshrut = truckMarshrut28;
+				if(curTruckTask.marshrut == 29) curTruckTask.marshrut = truckMarshrut29;
+				if(curTruckTask.marshrut == 30) curTruckTask.marshrut = truckMarshrut30;
+				if(curTruckTask.marshrut == 31) curTruckTask.marshrut = truckMarshrut31;
+				if(curTruckTask.marshrut == 32) curTruckTask.marshrut = truckMarshrut32;
+				if(curTruckTask.marshrut == 33) curTruckTask.marshrut = truckMarshrut33;
+				if(curTruckTask.marshrut == 34) curTruckTask.marshrut = truckMarshrut34;
+				if(curTruckTask.marshrut == 35) curTruckTask.marshrut = truckMarshrut35;
+				if(curTruckTask.marshrut == 36) curTruckTask.marshrut = truckMarshrut36;
+				if(curTruckTask.marshrut == 37) curTruckTask.marshrut = truckMarshrut37;
+				if(curTruckTask.marshrut == 38) curTruckTask.marshrut = truckMarshrut38;
+				if(curTruckTask.marshrut == 39) curTruckTask.marshrut = truckMarshrut39;
+				if(curTruckTask.marshrut == 40) curTruckTask.marshrut = truckMarshrut40;
+				if(curTruckTask.marshrut == 41) curTruckTask.marshrut = truckMarshrut41;
+				if(curTruckTask.marshrut == 42) curTruckTask.marshrut = truckMarshrut42;
+				if(curTruckTask.marshrut == 43) curTruckTask.marshrut = truckMarshrut43;
+				if(curTruckTask.marshrut == 44) curTruckTask.marshrut = truckMarshrut44;
+				if(curTruckTask.marshrut == 45) curTruckTask.marshrut = truckMarshrut45;
+				if(curTruckTask.marshrut == 46) curTruckTask.marshrut = truckMarshrut46;
+				
+				curTruckTask.curPoint = "getCargo";
+				
+				truckProcessor();
+			}else{
+				return notyAPI.error("Сбой в работе диспетчера, выберите другой рейс.", 3000, true);
+			}
+		}else{
+			return notyAPI.error("Сбой в работе диспетчера, выберите другой рейс.", 3000, true);
+		}
+	}
+}
+mp.events.add("acceptedTruckTask", acceptedTruckTask);
+
+function truckProcessor() {
+	if(curTruckTask) {
+		if(curTruckTask.curPoint == "getCargo") {
+			mp.game.ui.notifications.showWithPicture("Диспетчер", "Рейс назначен", "Отправляйся в зону погрузки, маршрут уже радаре", "CHAR_MP_MEX_BOSS", 1, false, 1, 2);
+			
+			if(truckBlip) {
+				truckBlip.destroy();
+				truckBlip = false;
+			}
+			
+			//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+JSON.stringify(curTruckTask.marshrut.pogruzkaBlip)+"</span>");
+			
+			truckBlip = mp.blips.new(1, [curTruckTask.marshrut.pogruzkaBlip.x, curTruckTask.marshrut.pogruzkaBlip.y, curTruckTask.marshrut.pogruzkaBlip.z], {
+				name: "Зона взятия прицепа / груза",
+				scale: 1.5,
+				color: 47,
+				shortRange: false,
+				dimension: 0
+			});
+			truckBlip.setRoute(true);
+			truckBlip.setRouteColour(47);
+			
+			vehParkMarkers = curTruckTask.marshrut.pogruzkaMarkers, parkingVeh = localPlayer.vehicle, goodVehParked = false, activeVehParking = false; // Активируем парковочные маркеры
+		}else if(curTruckTask.curPoint == "gettingCargo") {
+			if(localPlayer.vehicle) {
+				if(typeof(localPlayer.vehicle.getVariable("veh.job")) !== "undefined") {
+					if(mp.players.atRemoteId(parseInt(localPlayer.vehicle.getVariable('veh.job')))) {
+						let vehJob = mp.players.atRemoteId(parseInt(localPlayer.vehicle.getVariable('veh.job')));
+						if(vehJob.remoteId.toString() == localPlayer.remoteId.toString()) {
+							mp.game.ui.notifications.showWithPicture("Работник терминала", "Начинаем погрузку", "Дружище, подожди немного, сейчас загрузим и прицепим", "CHAR_BEVERLY", 1, false, 1, 2);
+							
+							BLOCK_CONTROLS = true;
+							localPlayer.vehicle.freezePosition(true);
+							
+							if(truckBlip) {
+								truckBlip.destroy();
+								truckBlip = false;
+							}
+							
+							setTimeout(function() {
+								if(localPlayer.vehicle && parkingVeh) {
+									if(mp.vehicles.exists(parkingVeh)) {
+										if(localPlayer.vehicle == parkingVeh && typeof(goodVehParked.x) !== "undefined") {
+											let cheatDist = mp.game.system.vdist(parkingVeh.position.x, parkingVeh.position.y, parkingVeh.position.z, goodVehParked.x, goodVehParked.y, goodVehParked.z);
+											if(cheatDist > 30) mp.events.callRemote('kickAct', localPlayer, "читы на телепорт на работе");
+										}else{
+											truckJobWarn();
+										}
+									}
+								}else{
+									truckJobWarn();
+								}
+							}, 5000);
+							
+							setTimeout(function() {
+								if(localPlayer.vehicle && parkingVeh) {
+									if(localPlayer.vehicle == parkingVeh) {
+										vehParkMarkers = [], parkingVeh = false, goodVehParked = false, activeVehParking = false; // Удаляем парковочные маркеры
+										mp.events.callRemote('truckSetCargo', localPlayer.vehicle, JSON.stringify(curTruckTask));
+									}else{
+										truckJobWarn();
+									}
+								}else{
+									truckJobWarn();
+								}
+							}, 10000);
+						}
+					}else{
+						truckJobWarn();
+					}
+				}else{
+					truckJobWarn();
+				}
+			}else{
+				mp.game.ui.notifications.showWithPicture("Работник терминала", "Стоп-стоп", "А чё это за левый транспорт?", "CHAR_BEVERLY", 1, false, 1, 2);
+				truckJobWarn();
+			}
+		}else if(curTruckTask.curPoint == "rideCargo") {
+			if(localPlayer.vehicle) {
+				if(typeof(localPlayer.vehicle.getVariable("veh.job")) !== "undefined") {
+					if(mp.players.atRemoteId(parseInt(localPlayer.vehicle.getVariable('veh.job')))) {
+						let vehJob = mp.players.atRemoteId(parseInt(localPlayer.vehicle.getVariable('veh.job')));
+						if(vehJob.remoteId.toString() == localPlayer.remoteId.toString()) {
+							mp.game.ui.notifications.showWithPicture("Диспетчер", "Отправляйся в рейс", "Ты успешно взял груз, отправляйся в зону выгрузки", "CHAR_MP_MEX_BOSS", 1, false, 1, 2);
+							
+							BLOCK_CONTROLS = false;
+							localPlayer.vehicle.freezePosition(false);
+							
+							if(truckBlip) {
+								truckBlip.destroy();
+								truckBlip = false;
+							}
+							
+							truckBlip = mp.blips.new(1, [curTruckTask.marshrut.endpointBlip.x, curTruckTask.marshrut.endpointBlip.y, curTruckTask.marshrut.endpointBlip.z], {
+								name: "Зона доставки груза",
+								scale: 1.5,
+								color: 47,
+								shortRange: false,
+								dimension: 0
+							});
+							truckBlip.setRoute(true);
+							truckBlip.setRouteColour(47);
+							
+							vehParkMarkers = curTruckTask.marshrut.endpointMarkers, goodVehParked = false, activeVehParking = false; // Активируем парковочные маркеры
+						}else{
+							truckJobWarn();
+						}
+					}else{
+						truckJobWarn();
+					}
+				}else{
+					truckJobWarn();
+				}
+			}else{
+				mp.game.ui.notifications.showWithPicture("Работник терминала", "Стоп-стоп", "А чё это за левый транспорт?", "CHAR_BEVERLY", 1, false, 1, 2);
+				truckJobWarn();
+			}
+		}else if(curTruckTask.curPoint == "droppingCargo") {
+			if(localPlayer.vehicle) {
+				if(typeof(localPlayer.vehicle.getVariable("veh.job")) !== "undefined") {
+					if(mp.players.atRemoteId(parseInt(localPlayer.vehicle.getVariable('veh.job')))) {
+						let vehJob = mp.players.atRemoteId(parseInt(localPlayer.vehicle.getVariable('veh.job')));
+						if(vehJob.remoteId.toString() == localPlayer.remoteId.toString()) {
+							mp.game.ui.notifications.showWithPicture("Работник терминала", "Начинаем выгрузку", "Дружище, подожди немного, сейчас всё выгрузим", "CHAR_BEVERLY", 1, false, 1, 2);
+							
+							BLOCK_CONTROLS = true;
+							localPlayer.vehicle.freezePosition(true);
+							
+							if(truckBlip) {
+								truckBlip.destroy();
+								truckBlip = false;
+							}
+				
+							setTimeout(function() {
+								if(localPlayer.vehicle && parkingVeh) {
+									if(mp.vehicles.exists(parkingVeh)) {
+										let tempTrailer = false;
+										if(typeof(trailersPool) !== "undefined") {
+											if(typeof(trailersPool[localPlayer.vehicle.handle.toString()]) !== "undefined") {
+												if(typeof(trailersPool[localPlayer.vehicle.handle.toString()].trailer) !== "undefined") tempTrailer = trailersPool[localPlayer.vehicle.handle.toString()].trailer;
+											}
+										}
+										if(tempTrailer) {
+											if(tempTrailer == parkingVeh && typeof(goodVehParked.x) !== "undefined") {
+												let cheatDist = mp.game.system.vdist(parkingVeh.position.x, parkingVeh.position.y, parkingVeh.position.z, goodVehParked.x, goodVehParked.y, goodVehParked.z);
+												if(cheatDist > 30) mp.events.callRemote('kickAct', localPlayer, "читы на телепорт на работе");
+											}else{
+												truckJobWarn();
+											}
+										}else{
+											truckJobWarn();
+										}
+									}else{
+										truckJobWarn();
+									}
+								}else{
+									truckJobWarn();
+								}
+							}, 5000);
+				
+							setTimeout(function() {
+								if(localPlayer.vehicle) {
+									if(typeof(localPlayer.vehicle.getVariable("veh.job")) !== "undefined") {
+										if(mp.players.atRemoteId(parseInt(localPlayer.vehicle.getVariable('veh.job')))) {
+											let vehJob = mp.players.atRemoteId(parseInt(localPlayer.vehicle.getVariable('veh.job')));
+											if(vehJob.remoteId.toString() == localPlayer.remoteId.toString()) {
+												vehParkMarkers = [], parkingVeh = false, goodVehParked = false, activeVehParking = false; // Удаляем парковочные маркеры
+												mp.events.callRemote('truckSetCargo', localPlayer.vehicle, JSON.stringify(curTruckTask));
+											}else{
+												truckJobWarn();
+											}
+										}else{
+											truckJobWarn();
+										}
+									}else{
+										truckJobWarn();
+									}
+								}else{
+									truckJobWarn();
+								}
+							}, 10000);
+						}else{
+							truckJobWarn();
+						}
+					}else{
+						truckJobWarn();
+					}
+				}else{
+					truckJobWarn();
+				}
+			}else{
+				mp.game.ui.notifications.showWithPicture("Работник терминала", "Стоп-стоп", "А чё это за левый транспорт?", "CHAR_BEVERLY", 1, false, 1, 2);
+				truckJobWarn();
+			}
+		}else if(curTruckTask.curPoint == "cargoDropped") {
+			if(localPlayer.vehicle) {
+				if(typeof(localPlayer.vehicle.getVariable("veh.job")) !== "undefined") {
+					if(mp.players.atRemoteId(parseInt(localPlayer.vehicle.getVariable('veh.job')))) {
+						let vehJob = mp.players.atRemoteId(parseInt(localPlayer.vehicle.getVariable('veh.job')));
+						if(vehJob.remoteId.toString() == localPlayer.remoteId.toString()) {
+							mp.game.ui.notifications.showWithPicture("Диспетчер", "Возвращайся на базу", "Ты успешно сдал груз, отправляйся на базу", "CHAR_MP_MEX_BOSS", 1, false, 1, 2);
+							
+							BLOCK_CONTROLS = false;
+							localPlayer.vehicle.freezePosition(false);
+							
+							if(truckBlip) {
+								truckBlip.destroy();
+								truckBlip = false;
+							}
+							
+							truckBlip = mp.blips.new(1, [curTruckTask.marshrut.bazaBackBlip.x, curTruckTask.marshrut.bazaBackBlip.y, curTruckTask.marshrut.bazaBackBlip.z], {
+								name: "Зона доставки груза",
+								scale: 1.5,
+								color: 47,
+								shortRange: false,
+								dimension: 0
+							});
+							truckBlip.setRoute(true);
+							truckBlip.setRouteColour(47);
+							
+							vehParkMarkers = curTruckTask.marshrut.bazaBackMarkers, goodVehParked = false, activeVehParking = false; // Активируем парковочные маркеры
+						}else{
+							truckJobWarn();
+						}
+					}else{
+						truckJobWarn();
+					}
+				}else{
+					truckJobWarn();
+				}
+			}else{
+				mp.game.ui.notifications.showWithPicture("Работник терминала", "Стоп-стоп", "А чё это за левый транспорт?", "CHAR_BEVERLY", 1, false, 1, 2);
+				truckJobWarn();
+			}
+		}else if(curTruckTask.curPoint == "bazaBack") {
+			if(localPlayer.vehicle && typeof(curTruckTask.id) !== "undefined") {
+				if(typeof(localPlayer.vehicle.getVariable("veh.job")) !== "undefined") {
+					if(mp.players.atRemoteId(parseInt(localPlayer.vehicle.getVariable('veh.job')))) {
+						let vehJob = mp.players.atRemoteId(parseInt(localPlayer.vehicle.getVariable('veh.job')));
+						if(vehJob.remoteId.toString() == localPlayer.remoteId.toString()) {
+							mp.game.ui.notifications.showWithPicture("Диспетчер", "Рейс окончен", "Выбирай новый рейс или отдохни, решать тебе", "CHAR_MP_MEX_BOSS", 1, false, 1, 2);
+							mp.game.ui.messages.showMidsized("~g~Рейс ~s~завершён", "~s~вы заработали"+curTruckTask.cost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.");
+							
+							if(truckBlip) {
+								truckBlip.destroy();
+								truckBlip = false;
+							}
+							
+							if(jobVehBackTimer) clearTimeout(jobVehBackTimer);
+							
+							vehParkMarkers = [], parkingVeh = false, goodVehParked = false, activeVehParking = false; // Удаляем парковочные маркеры
+							
+							if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") {
+								let myBlocks = localPlayer.getVariable("player.blocks");
+								if(typeof(myBlocks.premium) !== "undefined") notyAPI.info("<b>Премиум-доступ</b>: Вы получили надбавку к зарплате (10%).", 3000, true);
+							}
+							
+							mp.events.callRemote('actionMakedTruckJob', localPlayer.vehicle, curTruckTask.id.toString());
+							curTruckTask = false;
+						}else{
+							truckJobWarn();
+						}
+					}else{
+						truckJobWarn();
+					}
+				}else{
+					truckJobWarn();
+				}
+			}else{
+				mp.game.ui.notifications.showWithPicture("Работник терминала", "Стоп-стоп", "А чё это за левый транспорт?", "CHAR_BEVERLY", 1, false, 1, 2);
+				truckJobWarn();
+			}
+		}
+	}
+}
+
+function warnTruckJobIsDead(player) {
+	if(player == localPlayer) {
+		if(curTruckTask) {
+			mp.game.ui.notifications.showWithPicture("Диспетчер", "Ты потерял рейс", "Выговор, следи за здоровьем!", "CHAR_MP_MEX_BOSS", 1, false, 1, 2);
+			truckJobWarn();
+		}
+	}
+}
+mp.events.add("playerDeath", warnTruckJobIsDead);
+
+function truckSettedCargo(nextPoint) {
+	if(typeof(nextPoint) !== "undefined") {
+		curTruckTask.curPoint = nextPoint.toString();
+		truckProcessor();
+	}
+}
+mp.events.add("truckSettedCargo", truckSettedCargo);
+
+function cancelTruckJobTask(){
+	closeJobTablet(true);
+	if(curTruckTask) {
+		if(mp.blips.exists(truckBlip)) truckBlip.destroy();
+		truckBlip = false;
+		
+		if(BLOCK_CONTROLS && localPlayer.vehicle) {
+			BLOCK_CONTROLS = false;
+			localPlayer.vehicle.freezePosition(false);
+		}
+		
+		mp.game.ui.messages.showMidsized("~g~Вы успешно ~s~отказались от рейса", "~s~Новые рейсы можно посмотреть в планшете (F5)");
+		mp.game.ui.notifications.showWithPicture("Диспетчер", "Отказ от задачи", "Я заблокировал тебе рейсы на 1 мин.", "CHAR_MP_MEX_BOSS", 1, false, 1, 2);
+		
+		truckTasksBlocked = true;
+		setTimeout(function() {
+			mp.game.ui.notifications.showWithPicture("Диспетчер", "Задачи доступны", "Я разблокировал тебе рейсы.", "CHAR_MP_MEX_BOSS", 1, false, 1, 2);
+			truckTasksBlocked = false;
+		}, 60000);
+		
+		vehParkMarkers = [], parkingVeh = false, goodVehParked = false, activeVehParking = false; // Удаляем парковочные маркеры
+		
+		mp.events.call("sleepAntiCheat");
+		mp.events.callRemote('cancelTruckTask', JSON.stringify(curTruckTask), false);
+		curTruckTask = false;
+	}
+}
+mp.events.add("cancelTruckJobTask", cancelTruckJobTask);
+
+function truckJobWarn() {
+	if(curTruckTask) {
+		mp.game.ui.notifications.showWithPicture("Диспетчер", "Предупреждение", "В целях безопасности я закончил твой рейс.", "CHAR_MP_MEX_BOSS", 1, false, 1, 2);
+		mp.game.ui.messages.showMidsized("~r~Рейс провален", "~s~Вы покинули грузовик в ответственный момент.");
+
+		if(mp.blips.exists(truckBlip)) truckBlip.destroy();
+		truckBlip = false;
+		
+		if(BLOCK_CONTROLS && localPlayer.vehicle) {
+			BLOCK_CONTROLS = false;
+			localPlayer.vehicle.freezePosition(false);
+		}
+		
+		truckTasksBlocked = true;
+		mp.game.ui.notifications.showWithPicture("Диспетчер", "Отказ от задачи", "Я заблокировал тебе рейсы на 1 мин.", "CHAR_MP_MEX_BOSS", 1, false, 1, 2);
+		setTimeout(function() {
+			mp.game.ui.notifications.showWithPicture("Диспетчер", "Задачи доступны", "Я разблокировал тебе рейсы.", "CHAR_MP_MEX_BOSS", 1, false, 1, 2);
+			truckTasksBlocked = false;
+		}, 60000);
+
+		vehParkMarkers = [], parkingVeh = false, goodVehParked = false, activeVehParking = false; // Удаляем парковочные маркеры
+		
+		mp.events.call("sleepAntiCheat");
+		mp.events.callRemote('cancelTruckTask', JSON.stringify(curTruckTask), true);
+		curTruckTask = false;
+	}
+}
 
 mp.events.add('playerEnterColshape', (shape) => {
 	if(typeof(shape) != "undefined") {
-		if(shape == trainWorkZone) trainImInWorkZone = true;
+		if(shape == truckWorkZone) truckImInWorkZone = true;
 	}
 });
 
 mp.events.add('playerExitColshape', (shape) => {
 	if(typeof(shape.id) != "undefined") {
-		if(shape == trainWorkZone) trainImInWorkZone = false;
-	}
-});
-
-var nextSimaTimer = false;
-function trainMissionProcessor(ostanovka) {
-	if(typeof(ostanovka) !== "undefined") {
-		if(ostanovka == "pogruzkaTovar") {
-			mp.game.ui.messages.showMidsized("Пожалуйста ожидайте..", "~s~Начали ~g~погрузку ~s~Вашего состава, подождите.");
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Идёт погрузка..", "Подожди пока состав полностью загрузят..", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			setTimeout(() => {
-				mp.game.ui.messages.showMidsized("Погрузка окончена", "~s~Отправляйтесь на станцию для разгрузки!");
-				mp.game.ui.notifications.showWithPicture("Диспетчер", "Всё, в путь!", "Можешь отправляться на следующую станцию.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-				
-				let mParams = missionIDParams[curMissionID];
-				curTrainPointKey = curTrainPointKey + 1;
-				curTrainPoint = mParams.points[curTrainPointKey];
-				
-				if(trainBlip) {
-					if(mp.blips.exists(trainBlip)) trainBlip.destroy();
-				}
-				
-				trainBlip = mp.blips.new(626, curTrainPoint.pos, {
-					name: "Следующая остановка состава",
-					scale: 0.8,
-					color: 1,
-					shortRange: false,
-					dimension: 0
-				});
-				
-				trainParkedProcess = false;
-			}, 10000);
-		}else if(ostanovka == "razgruzkaTovar") {
-			mp.game.ui.messages.showMidsized("Пожалуйста ожидайте..", "~s~Начали ~g~разгрузку ~s~Вашего состава, подождите.");
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Идёт разгрузка..", "Подожди пока состав полностью разгрузят..", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			setTimeout(() => {
-				mp.game.ui.messages.showMidsized("Разгрузка окончена", "~s~Доставьте состав на базу железных дорог");
-				mp.game.ui.notifications.showWithPicture("Диспетчер", "Отстрелялся?", "Можешь отправляться на базу.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-				
-				let mParams = missionIDParams[curMissionID];
-				curTrainPointKey = curTrainPointKey + 1;
-				curTrainPoint = mParams.points[curTrainPointKey];
-				
-				if(trainBlip) {
-					if(mp.blips.exists(trainBlip)) trainBlip.destroy();
-				}
-				
-				trainBlip = mp.blips.new(626, curTrainPoint.pos, {
-					name: "Следующая остановка состава",
-					scale: 0.8,
-					color: 1,
-					shortRange: false,
-					dimension: 0
-				});
-				
-				trainParkedProcess = false;
-			}, 10000);
-		}else if(ostanovka == "stantionR") {
-			mp.game.ui.messages.showMidsized("Вы прибыли на станцию", "~s~Откройте ~g~правые двери ~s~(русская Ю)");
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Пассажиры", "Ожидай команду на отправление", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-		}else if(ostanovka == "stantionL") {
-			mp.game.ui.messages.showMidsized("Вы прибыли на станцию", "~s~Откройте ~g~левые двери ~s~(русская Б)");
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Пассажиры", "Ожидай команду на отправление", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-		}else if(ostanovka == "finalPoint") {
-			mp.game.ui.messages.showMidsized("Маршрут выполнен!", "~s~Успешный ~g~маршрут~s~, Вы справились!");
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Так держать", "Ты успешно выполнил весь маршрут!", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			
-			setTimeout(() => {
-				mp.events.callRemote('actionMakedTrainJob');
-				
-				if(trainBlip) {
-					if(mp.blips.exists(trainBlip)) trainBlip.destroy();
-				}
-				
-				curMissionID = false, curSimaKey = 0, curSimaphore = {}, curTrainPointKey = 0, curTrainPoint = {};
-				
-				trainParkedProcess = false;
-			}, 2000);
-		}
-	}else if(typeof(missionIDParams[curMissionID]) !== "undefined") {
-		let mParams = missionIDParams[curMissionID];
-		
-		if(curSimaKey == 0) {
-			mParams.simaphores.forEach((prop) => {
-				prop.color = getRandomInt(0,2);
-				if(prop.color == 1) prop.color = "yellow";
-				else prop.color = "green";
-			});
-			mParams.simaphores[0].color = "green";
-			
-			curTrainPoint = mParams.points[curTrainPointKey];
-			
-			if(trainBlip) {
-				if(mp.blips.exists(trainBlip)) trainBlip.destroy();
-			}
-			
-			trainBlip = mp.blips.new(626, curTrainPoint.pos, {
-				name: "Следующая остановка состава",
-				scale: 0.8,
-				color: 1,
-				shortRange: false,
-				dimension: 0
-			});
-		}
-		
-		if(typeof(curSimaphore.checkpoint) !== "undefined") {
-			if(mp.checkpoints.exists(curSimaphore.checkpoint)) curSimaphore.checkpoint.destroy();
-			delete curSimaphore.checkpoint;
-		}
-		
-		if(typeof(mParams.simaphores[curSimaKey]) !== "undefined") {
-			curSimaphore.checkpoint = mp.checkpoints.new(40, new mp.Vector3(mParams.simaphores[curSimaKey].pos.x, mParams.simaphores[curSimaKey].pos.y, mParams.simaphores[curSimaKey].pos.z-0.5), 10.0,
-			{
-				color: [255, 255, 255, 0],
-				visible: true,
-				dimension: localPlayer.dimension
-			});
-		}
-		
-		if(typeof(curSimaphore.marker) !== "undefined") {
-			if(mp.markers.exists(curSimaphore.marker)) curSimaphore.marker.destroy();
-			delete curSimaphore.marker;
-		}
-		
-		if(typeof(mParams.simaphores[curSimaKey]) !== "undefined") {
-			if(mParams.simaphores[curSimaKey].color == "yellow") {
-				if(typeof(mParams.simaphores[curSimaKey+1]) !== "undefined") {
-					let mayBeNextRed = getRandomInt(0,2);
-					if(mayBeNextRed == 1 && curSimaKey+1 < Object.keys(mParams.simaphores).length-1) {
-						mParams.simaphores[curSimaKey+1].color = "red";
-						if(nextSimaTimer) clearTimeout(nextSimaTimer);
-						nextSimaTimer = setTimeout(() => {
-							if(typeof(missionIDParams[curMissionID]) !== "undefined") {
-								let mParams = missionIDParams[curMissionID];
-								if(typeof(mParams.simaphores[curSimaKey]) !== "undefined") {
-									mParams.simaphores[curSimaKey].color = "green";
-									localPlayer.train.simaphore = "green";
-									if(typeof(curSimaphore.marker) !== "undefined") {
-										if(mp.markers.exists(curSimaphore.marker)) curSimaphore.marker.colour = [11, 163, 58, 180];
-									}
-								}
-							}
-						}, getRandomInt(60000,120000));
-					}
-				}
-			}
-			
-			let simaColor = [11, 163, 58];
-			if(mParams.simaphores[curSimaKey].color == "yellow") simaColor = [232, 184, 12];
-			else if(mParams.simaphores[curSimaKey].color == "red") simaColor = [212, 13, 18];
-			curSimaphore["marker"] = mp.markers.new(30, new mp.Vector3(mParams.simaphores[curSimaKey].pos.x, mParams.simaphores[curSimaKey].pos.y, mParams.simaphores[curSimaKey].pos.z-0.5), 15.0, {
-				direction: new mp.Vector3(0, 0, 0),
-				rotation: new mp.Vector3(0, 0, 0),
-				color: [simaColor[0], simaColor[1], simaColor[2], 180],
-				visible: true,
-				dimension: 0
-			});
-			
-			if(localPlayer.train.simaphore == "red") trainWarning("redSima");
-			
-			localPlayer.train.simaphore = mParams.simaphores[curSimaKey].color.toString();
-			localPlayer.train.speedLimit = mParams.simaphores[curSimaKey].speed.toString();
-			
-			curSimaKey++;
-		}else{
-			localPlayer.train.simaphore = "green";
-		}
-	}
-}
-
-mp.events.add("playerEnterCheckpoint", (checkpoint) => {
-	if(typeof(checkpoint) !== "undefined") {
-		if(mp.checkpoints.exists(checkpoint)) {
-			if(typeof(curSimaphore.checkpoint) !== "undefined") {
-				if(mp.checkpoints.exists(curSimaphore.checkpoint)) {
-					if(curSimaphore.checkpoint == checkpoint) return trainMissionProcessor();
-				}
-			}
-		}
-	}
-});
-
-mp.events.addDataHandler("player.train", function (entity, value, oldValue) {
-	if(entity) {
-		if(entity.handle != 0) {
-			if(value && !oldValue) {
-				//chatAPI.sysPush("<span style=\"color:#FF6146\"> * createTrain("+value.mID+", "+value.speed+", "+value.start.x+", "+value.start.y+", "+value.start.z+")</span>");
-				if(entity == localPlayer) {
-					curMissionID = value.mID.toString();
-					curSimaKey = 0;
-					curTrainPoint = {};
-					curTrainPointKey = 0;
-				}
-				createTrain(entity, value.mID, value.speed, value.f, value.start.x, value.start.y, value.start.z);
-				if(entity == localPlayer) trainMissionProcessor();
-			}else if(value && oldValue) {
-				if(typeof(entity.train) !== "undefined") {
-					if(typeof(entity.train.trains[0]) !== "undefined") {
-						if(entity != localPlayer) {
-							if(entity.train.trains[0]) {
-								mp.game.invoke('0x591CA673AA6AB736', entity.train.trains[0], entity.position.x, entity.position.y, entity.position.z);
-								mp.game.invoke('0xAA0BC91BE0B796E3', entity.train.trains[0], value.speed); // setTrainSpeed
-								mp.game.invoke('0x16469284DB8C62B5', entity.train.trains[0], value.speed); // setTrainCruiseSpeed
-							}
-						}
-					}else{
-						createTrain(entity, value.mID, value.speed, value.f, entity.position.x, entity.position.y, entity.position.z);
-					}
-				}else{
-					createTrain(entity, value.mID, value.speed, value.f, entity.position.x, entity.position.y, entity.position.z);
-				}
-			}else if(!value && oldValue) {
-				if(typeof(entity.train) !== "undefined") {
-					mp.events.call("sleepAntiCheat");
-					
-					if(typeof(entity.train.trains[0]) !== "undefined") mp.game.vehicle.deleteMissionTrain(entity.train.trains[0]);
-					delete entity.train;
-					
-					if(entity == localPlayer) {
-						if(nextSimaTimer) clearTimeout(nextSimaTimer);
-						
-						if(typeof(curSimaphore.checkpoint) !== "undefined") {
-							if(mp.checkpoints.exists(curSimaphore.checkpoint)) curSimaphore.checkpoint.destroy();
-							delete curSimaphore.checkpoint;
-						}
-						
-						if(typeof(curSimaphore.marker) !== "undefined") {
-							if(mp.markers.exists(curSimaphore.marker)) curSimaphore.marker.destroy();
-							delete curSimaphore.marker;
-						}
-						
-						if(trainBlip) {
-							if(mp.blips.exists(trainBlip)) trainBlip.destroy();
-						}
-						
-						curMissionID = false, curSimaKey = 0, curSimaphore = {}, curTrainPointKey = 0, curTrainPoint = {};
-						trainParkedProcess = false;
-						
-						localPlayer.position = new mp.Vector3(711.58, -966.5077, 30.3953); // в Офис
-					}
-				}
-			}
-		}
-	}
-});
-
-function createTrain(entity, mID, speed, flip, x, y, z) {
-	if(entity && typeof(mID) !== "undefined" && typeof(speed) !== "undefined" && typeof(flip) !== "undefined" && typeof(x) !== "undefined" && typeof(y) !== "undefined" && typeof(z) !== "undefined") {
-		if(entity.handle != 0) {
-			let train_1 = mp.game.vehicle.createMissionTrain(parseInt(mID), parseFloat(x), parseFloat(y), parseFloat(z), flip);
-			let train_2 = mp.game.invoke('0x08AAFD0814722BC3', train_1, 1);
-			let train_3 = mp.game.invoke('0x08AAFD0814722BC3', train_1, 2);
-			let train_4 = mp.game.invoke('0x08AAFD0814722BC3', train_1, 3);
-			
-			//let pos = mp.game.invokeVector3('0x3FEF770D40960D5A', train_1);
-			
-			let tempData = {};
-			
-			tempData["mID"] = mID;
-			tempData["speed"] = speed;
-			tempData["trains"] = [train_1, train_2, train_3, train_4];
-			
-			if(entity == localPlayer) {
-				tempData["doors"] = [0,0]; // L, R
-				tempData["simaphore"] = "green";
-				tempData["speedLimit"] = 40;
-				tempData["warns"] = 0;
-				
-				oldTrainSpeed = 0;
-			}
-			
-			entity.train = tempData;
-			
-			if(!mp.game.invoke('0xEFBE71898A993728', entity.handle, train_1)) mp.game.invoke('0x6B9BBD38AB0796DF', entity.handle, train_1, 0, 0, 0, 0, 0, 0, 0, true, true, false, true, 0, true); // AttachEntityToEntity
-			
-			mp.game.invoke('0xAA0BC91BE0B796E3', train_1, tempData.speed); // setTrainSpeed
-			mp.game.invoke('0x16469284DB8C62B5', train_1, tempData.speed); // setTrainCruiseSpeed
-			mp.game.invoke('0xAD738C3085FE7E11', train_1, true, false); // setAsMission
-		}
-	}
-}
-
-mp.keys.bind(0xBC, true, function() { // Левые двери
-	if(!allowBinds || !Array.isArray(allowBinds)) return false;
-	if(!allowBinds.includes(0xBC)) return false;
-	
-	if(typeof(localPlayer.train) !== "undefined") {
-		if(!localPlayer.train.doors[0]) {
-			if(trainParkedProcess.type == "stantionL") {
-				setTimeout(() => {
-					mp.game.ui.messages.showMidsized("Пассажиры заняли свои места", "~s~Закройте ~g~левые двери ~s~(русская Б)");
-					mp.game.ui.notifications.showWithPicture("Диспетчер", "Отправление", "Можешь продолжать, не забудь закрыть двери.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-					
-					let mParams = missionIDParams[curMissionID];
-					curTrainPointKey = curTrainPointKey + 1;
-					curTrainPoint = mParams.points[curTrainPointKey];
-					
-					if(trainBlip) {
-						if(mp.blips.exists(trainBlip)) trainBlip.destroy();
-					}
-					
-					trainBlip = mp.blips.new(626, curTrainPoint.pos, {
-						name: "Следующая остановка состава",
-						scale: 0.8,
-						color: 1,
-						shortRange: false,
-						dimension: 0
-					});
-					
-					trainParkedProcess = false;
-				}, 10000);
-			}
-			
-			// открыть
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[0],0);
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[0],2);
-			//
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[1],0);
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[1],2);
-			//
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[2],0);
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[2],2);
-			//
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[3],0);
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[3],2);
-			
-			localPlayer.train.doors[0] = 1;
-			if(localPlayer.train.speed != 0) trainWarning("openDoorsInSpeed");
-		}else{
-			// закрыть
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],0);
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],2);
-			//
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],0);
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],2);
-			//
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],0);
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],2);
-			//
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],0);
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],2);
-			
-			localPlayer.train.doors[0] = 0;
-		}
-	}
-});
- 
-mp.keys.bind(0xBE, true, function() { // Правые двери
-	if(!allowBinds || !Array.isArray(allowBinds)) return false;
-	if(!allowBinds.includes(0xBE)) return false;
-	
-	if(typeof(localPlayer.train) !== "undefined") {
-		if(!localPlayer.train.doors[1]) {
-			if(trainParkedProcess.type == "stantionR") {
-				setTimeout(() => {
-					mp.game.ui.messages.showMidsized("Пассажиры заняли свои места", "~s~Закройте ~g~правые двери ~s~(русская Ю)");
-					mp.game.ui.notifications.showWithPicture("Диспетчер", "Отправление", "Можешь продолжать, не забудь закрыть двери.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-					
-					let mParams = missionIDParams[curMissionID];
-					curTrainPointKey = curTrainPointKey + 1;
-					curTrainPoint = mParams.points[curTrainPointKey];
-					
-					if(trainBlip) {
-						if(mp.blips.exists(trainBlip)) trainBlip.destroy();
-					}
-					
-					trainBlip = mp.blips.new(626, curTrainPoint.pos, {
-						name: "Следующая остановка состава",
-						scale: 0.8,
-						color: 1,
-						shortRange: false,
-						dimension: 0
-					});
-					
-					trainParkedProcess = false;
-				}, 10000);
-			}
-			
-			// открыть
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[0],1);
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[0],3);
-			//
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[1],1);
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[1],3);
-			//
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[2],1);
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[2],3);
-			//
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[3],1);
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[3],3);
-			
-			localPlayer.train.doors[1] = 1;
-			if(localPlayer.train.speed != 0) trainWarning("openDoorsInSpeed");
-		}else{
-			// закрыть
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],1);
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],3);
-			//
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],1);
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],3);
-			//
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],1);
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],3);
-			//
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],1);
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],3);
-			
-			localPlayer.train.doors[1] = 0;
-		}
-	}
-});
-
-function trainWarning(reason) {
-	if(typeof(reason) !== "undefined") {
-		if(reason == "speedLimit") {
-			mp.game.ui.messages.showMidsized("Превышение скоросного ограничение", "~s~Вы ~r~превысили ~s~скоростной режим, предупреждение!");
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Ты что творишь?", "Придержи коней, превышение, выговор!", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			localPlayer.train.warns++;
-		}else if(reason == "redSima") {
-			mp.game.ui.messages.showMidsized("Запрещающий сигнал семафора", "~s~Вы ~r~проехали на красный ~s~семафор, предупреждение!");
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Ты куда?", "Пролетел под красный семафор? Выговор!", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			localPlayer.train.warns++;
-		}else if(reason == "openDoorsInSpeed") {
-			mp.game.ui.messages.showMidsized("Нельзя открывать двери на ходу", "~s~Вы ~r~открыли двери ~s~во время движения, предупреждение!");
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Тебя засудят!", "Зачем ты открыл двери? Выговор!", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			localPlayer.train.warns++;
-		}
-		if(localPlayer.train.warns >= 3) {
-			closeJobTablet(true);
-			
-			trainTasksBlocked = true;
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Выговоры", "Я заблокировал тебе маршруты на 1 мин.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			setTimeout(function() {
-				mp.game.ui.notifications.showWithPicture("Диспетчер", "Маршруты доступны", "Я разблокировал тебе маршруты.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-				trainTasksBlocked = false;
-			}, 60000);
-			
-			mp.events.call("sleepAntiCheat");
-			mp.events.callRemote('cancelTrainTask', true);
-			
-			if(trainBlip) {
-				if(mp.blips.exists(trainBlip)) trainBlip.destroy();
-			}
-			
-			curMissionID = false, curSimaKey = 0, curSimaphore = {}, curTrainPointKey = 0, curTrainPoint = {};
-			trainParkedProcess = false;
-		}
-	}
-}
-
-var trainTicks = 0, goodTrainParked = false, trainParkedProcess = false, oldTrainSpeed = 0;
-let kTrainPressed = false;
-let speedWarning = 0;
-
-mp.events.add('render', () => {
-	if(typeof(localPlayer.train) !== "undefined") {
-		if(typeof(localPlayer.train.trains[0]) !== "undefined") {
-			if(!mp.game.invoke('0xEFBE71898A993728', localPlayer.handle, localPlayer.train.trains[0])) mp.game.invoke('0x6B9BBD38AB0796DF', localPlayer.handle, localPlayer.train.trains[0], 0, 0, 0, 0, 0, 0, 0, true, true, false, true, 0, true); // AttachEntityToEntity
-			mp.game.invoke('0xE9EA16D6E54CDCA4', localPlayer.train.trains[0], 0); // SetInVehicleCamStateThisUpdate
-			//mp.game.invoke('0x8D4D46230B2C353A', 3);
-
-			//mp.game.invoke('0x8BBACBF51DA047A8', localPlayer.handle);
-			//mp.game.invoke('0x44A113DD6FFC48D1', "FOLLOW_PED_SKY_DIVING_CAMERA", 3000);
-			
-			//mp.game.invoke('0x2AED6301F67007D5', localPlayer.train.trains[0]); // _DISABLE_CAM_COLLISION_FOR_ENTITY
-			
-			trainTicks++;
-			
-			let mParams = {};
-			if(typeof(missionIDParams[curMissionID]) !== "undefined") mParams = missionIDParams[curMissionID];
-			
-			if(typeof(mParams.maxSpeed) !== "undefined") {
-				if(Math.round(parseFloat(localPlayer.train.speed * 3.45)) > localPlayer.train.speedLimit) {
-					speedWarning++;
-					if(speedWarning >= 1000) {
-						speedWarning = 0;
-						trainWarning("speedLimit");
-					}
-				}else{
-					if(speedWarning > 0 && speedWarning < 1000) speedWarning = speedWarning - 0.5;
-				}
-			}
-			
-			if(!goodTrainParked && !trainParkedProcess) {
-				if(trainTicks == 40 || trainTicks == 80 || trainTicks == 120 || trainTicks == 160) {
-					if(mp.game.controls.isControlPressed(0, 71)) { // -- Accel (W)
-						if(typeof(mParams.maxSpeed) !== "undefined") {
-							if(localPlayer.train.speed <= mParams.maxSpeed) {
-								localPlayer.train.speed = Math.round((localPlayer.train.speed + mParams.accel).toFixed(1) * 100) / 100;
-								if(!isFloat(localPlayer.train.speed)) localPlayer.train.speed = parseFloat(localPlayer.train.speed)+0.1;
-								if(localPlayer.train.speed > -mParams.dccel && localPlayer.train.speed < mParams.accel) localPlayer.train.speed = 0;
-								//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+localPlayer.train.speed+"</span>");
-								mp.game.invoke('0xAA0BC91BE0B796E3', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainSpeed
-								mp.game.invoke('0x16469284DB8C62B5', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainCruiseSpeed
-							}
-							kTrainPressed = "W";
-						}
-					}else if(mp.game.controls.isControlPressed(0, 72)){ // -- Dccel (S)
-						if(typeof(mParams.maxSpeed) !== "undefined") {
-							if(localPlayer.train.speed >= -10) {
-								localPlayer.train.speed = Math.round((localPlayer.train.speed - mParams.dccel).toFixed(1) * 100) / 100;
-								if(!isFloat(localPlayer.train.speed)) localPlayer.train.speed = parseFloat(localPlayer.train.speed)-0.1;
-								if(localPlayer.train.speed > -mParams.dccel && localPlayer.train.speed < mParams.accel) localPlayer.train.speed = 0;
-								//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+localPlayer.train.speed+"</span>");
-								mp.game.invoke('0xAA0BC91BE0B796E3', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainSpeed
-								mp.game.invoke('0x16469284DB8C62B5', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainCruiseSpeed
-							}
-							kTrainPressed = "S";
-						}
-					}
-				}else if(trainTicks >= 200) {
-					if(kTrainPressed == "W" || mp.game.controls.isControlPressed(0, 71)) { // -- Accel (W)
-						if(typeof(mParams.maxSpeed) !== "undefined") {
-							if(!kTrainPressed && localPlayer.train.speed <= mParams.maxSpeed) {
-								localPlayer.train.speed = Math.round((localPlayer.train.speed + mParams.accel).toFixed(1) * 100) / 100;
-								if(!isFloat(localPlayer.train.speed)) localPlayer.train.speed = parseFloat(localPlayer.train.speed)+0.1;
-								if(localPlayer.train.speed > -mParams.dccel && localPlayer.train.speed < mParams.accel) localPlayer.train.speed = 0;
-								mp.game.invoke('0xAA0BC91BE0B796E3', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainSpeed
-								mp.game.invoke('0x16469284DB8C62B5', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainCruiseSpeed
-							}
-							if(oldTrainSpeed != localPlayer.train.speed) {
-								mp.events.callRemote('setTrainSpeed', localPlayer.train.speed.toString());
-								//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+localPlayer.train.speed+" SYNCED</span>");
-								oldTrainSpeed = localPlayer.train.speed;
-								
-								if(localPlayer.train.speed != 0) {
-									if(localPlayer.train.doors[0]) {
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],0);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],2);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],0);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],2);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],0);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],2);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],0);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],2);
-										localPlayer.train.doors[0] = 0;
-										trainWarning("openDoorsInSpeed");
-									}else if(localPlayer.train.doors[1]) {
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],1);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],3);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],1);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],3);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],1);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],3);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],1);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],3);
-										localPlayer.train.doors[1] = 0;
-										trainWarning("openDoorsInSpeed");
-									}
-								}
-							}
-						}
-					}else if(kTrainPressed == "S" || mp.game.controls.isControlPressed(0, 72)){ // -- Dccel (S)
-						if(typeof(mParams.maxSpeed) !== "undefined") {
-							if(!kTrainPressed && localPlayer.train.speed >= -10) {
-								localPlayer.train.speed = Math.round((localPlayer.train.speed - mParams.dccel).toFixed(1) * 100) / 100;
-								if(!isFloat(localPlayer.train.speed)) localPlayer.train.speed = parseFloat(localPlayer.train.speed)-0.1;
-								if(localPlayer.train.speed > -mParams.dccel && localPlayer.train.speed < mParams.accel);
-								mp.game.invoke('0xAA0BC91BE0B796E3', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainSpeed
-								mp.game.invoke('0x16469284DB8C62B5', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainCruiseSpeed
-							}
-							if(oldTrainSpeed != localPlayer.train.speed) {
-								mp.events.callRemote('setTrainSpeed', localPlayer.train.speed.toString());
-								//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+localPlayer.train.speed+" SYNCED</span>");
-								oldTrainSpeed = localPlayer.train.speed;
-							}
-						}
-					}
-					if(kTrainPressed) kTrainPressed = false;
-					trainTicks = 0;
-				}
-			}
-			
-			if(typeof(curTrainPoint.pos) !== "undefined") {
-				let train_1 = localPlayer.train.trains[0];
-				let golovaPos = mp.game.invokeVector3('0x3FEF770D40960D5A', train_1);
-				
-				let markerPos = curTrainPoint.pos;
-				let dist = mp.game.gameplay.getDistanceBetweenCoords(golovaPos.x, golovaPos.y, golovaPos.z, markerPos.x, markerPos.y, markerPos.z, false);
-				if(dist < 8.5) {
-					if(dist < 2) {
-						curTrainPoint.color[0] = 0;
-						curTrainPoint.color[1] = 255;
-						curTrainPoint.color[2] = 0;
-						curTrainPoint.color[3] = 255;
-						if(!goodTrainParked && !trainParkedProcess && localPlayer.train.speed == 0) {
-							goodTrainParked = curTrainPoint;
-							trainParkedProcess = curTrainPoint;
-							curTrainPoint.color[0] = 4;
-							curTrainPoint.color[1] = 36;
-							curTrainPoint.color[2] = 217;
-						}else if(goodTrainParked || trainParkedProcess) {
-							curTrainPoint.color[0] = 4;
-							curTrainPoint.color[1] = 36;
-							curTrainPoint.color[2] = 217;
-						}
-					}else{
-						curTrainPoint.color[0] = 255;
-						curTrainPoint.color[1] = 0;
-						curTrainPoint.color[2] = 0;
-						curTrainPoint.color[3] = 200;
-					}
-				}else{
-					curTrainPoint.color[0] = 255;
-					curTrainPoint.color[1] = 150;
-					curTrainPoint.color[2] = 0;
-					curTrainPoint.color[3] = 150;
-				}
-				
-				for (let i = 0; i < 4; i++) {
-					curTrainPoint.drawColor[i] += .03 * (curTrainPoint.color[i] - curTrainPoint.drawColor[i]);
-				}
-				
-				mp.game1.graphics.drawMarker(43, markerPos.x, markerPos.y, markerPos.z-1.4, 0, 0, 0, 0, 0, curTrainPoint.heading, curTrainPoint.width, curTrainPoint.height, 9, curTrainPoint.drawColor[0], curTrainPoint.drawColor[1], curTrainPoint.drawColor[2], curTrainPoint.drawColor[3], true, false, 0, false, "", "", false);
-				mp.game1.graphics.drawMarker(22, markerPos.x, markerPos.y, (markerPos.z-1.4)+0.65, curTrainPoint.dir[0], curTrainPoint.dir[1], 0, 270, 0, 0, 2, 2, 2, curTrainPoint.drawColor[0], curTrainPoint.drawColor[1], curTrainPoint.drawColor[2], curTrainPoint.drawColor[3], false, false, 0, false, "", "", false);
-				
-				if(goodTrainParked) {
-					if(typeof(localPlayer.train) !== "undefined") {
-						if(localPlayer.train) {
-							if(typeof(goodTrainParked.type) !== "undefined") {
-								trainMissionProcessor(goodTrainParked.type.toString());
-								goodTrainParked = false;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-});
-
-mp.events.add("playerQuit", (player) => {
-	if(player == localPlayer) {
-		mp.players.forEach((entity) => {
-			if(typeof(entity.train) !== "undefined") {
-				if(typeof(entity.train.trains[0]) !== "undefined") mp.game.vehicle.deleteMissionTrain(entity.train.trains[0]);
-				delete entity.train;
-			}
-		});
+		if(shape == truckWorkZone) truckImInWorkZone = false;
 	}
 });
 }

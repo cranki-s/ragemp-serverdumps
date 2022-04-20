@@ -31,4 +31,4 @@ function finalizeOrder()
     closeOrderForm();
 }
 
-}朿¸
+}ꐇř

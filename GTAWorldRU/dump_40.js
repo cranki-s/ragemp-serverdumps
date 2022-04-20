@@ -113,4 +113,4 @@ mp.events.add('cancelPurchase', () => {
     mp.events.callRemote('CancelPurchase');
 });
 
-}癹筘ĸ
+}唁Ⱦ

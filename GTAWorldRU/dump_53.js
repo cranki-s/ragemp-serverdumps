@@ -49,4 +49,4 @@ mp.events.add("render", () => {
     }
 });
 
-}ጉ뗘Ƭ
+}䍩⪧G

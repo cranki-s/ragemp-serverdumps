@@ -1,405 +1,582 @@
 {
-let vehCam = false;
-let camStartPos = {};
-let camLookAt = {};
-let autosalonVehicle = false;
+var businessCreate_browser = null;
+var businessMenu_browser = null;
 
-var autosalonsInStream = [];
+var tempBusinessCreateData = {'name':'Бизнес','cost':500000,'income':15000};
+var businessesInStream = {};
+var myBusinessesBlips = [];
 
-let exitPos = "0,0,0";
-var salonName = "Неизвестно";
+var tempBusinessData = null;
 
-mp.events.add('playerEnterColshape', (shape) => {
-	if(typeof(shape.data) == 'undefined' && typeof(shape.id) != "undefined") {
-		if(typeof(shape.getVariable('col.type')) != "undefined") {
-			let colType = shape.getVariable('col.type');
-			if(colType == 'autosalon_render') {
-				let salonData = shape.getVariable('col.data');
+var sellToBusinessID = 0, sellToNick = false, sellToID = 0, sellToCost = 0;
+var sellFromBusinessID = 0, sellFromNick = false, sellFromID = 0, sellFromCost = 0;
+
+var businessActAction = false;
+
+let businessMissionBlip = false, businessMissionCheckpoint = false, businessMissionMarker = false;
+let missionCost = CryptoJS.AES.encrypt("0", krKey);
+
+function startBusinessEvent(bizID, eventData) {
+	if (businessMenu_browser) {
+		businessMenu_browser.destroy();
+		businessMenu_browser = null;
+		mp.gui.cursor.visible = false;
+		restoreBinds();
+		
+		if(businessMissionCheckpoint) {
+			return notyAPI.error("У Вас уже есть активная задача.", 3000, true);
+		}else{
+			if(bizID && eventData) {
+				bizID = parseInt(bizID);
+				if(bizID <= 0) return notyAPI.error("Не удалось получить задачу, попробуйте позже.", 3000, true);
+				eventData = str_replace_all(eventData, "~", "\"")
+				//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+eventData+".</span>");
+				eventData = JSON.parse(eventData);
+				mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~коммерция", "~s~"+eventData.name+"~n~Задача взята, маршрут и иконка уже на радаре.", 5, false, true, 6500);
+			
+				if(mp.blips.exists(businessMissionBlip)) businessMissionBlip.destroy();
+				businessMissionBlip = false;
+				if(mp.checkpoints.exists(businessMissionCheckpoint)) businessMissionCheckpoint.destroy();
+				businessMissionCheckpoint = false;
+				if(mp.markers.exists(businessMissionMarker)) businessMissionMarker.destroy();
+				businessMissionMarker = false;
 				
-				let salonMarker = mp.markers.new(1, new mp.Vector3(parseFloat(salonData[0]), parseFloat(salonData[1]), parseFloat(salonData[2])), 1.1,
+				let myPos = localPlayer.position;
+				let distToPoint = mp.game.gameplay.getDistanceBetweenCoords(parseFloat(myPos.x), parseFloat(myPos.y), parseFloat(myPos.z), parseFloat(eventData.pos.x), parseFloat(eventData.pos.y), parseFloat(eventData.pos.z), true);
+				distToPoint = roundNumber(distToPoint/1000, 1);
+				
+				missionCost = roundNumber(3000 * distToPoint, 0);
+				if(missionCost <= 0) missionCost = 2500;
+				missionCost = CryptoJS.AES.encrypt(missionCost.toString(), krKey);
+				
+				businessMissionBlip = mp.blips.new(570, new mp.Vector3(parseFloat(eventData.pos.x), parseFloat(eventData.pos.y), parseFloat(eventData.pos.z)), {
+					name: "Задача для Вашей коммерции",
+					scale: 1.0,
+					color: 6,
+					shortRange: false,
+					dimension: 0
+				});
+				businessMissionBlip.setRoute(true);
+				businessMissionBlip.setRouteColour(6);
+				
+				businessMissionCheckpoint = mp.checkpoints.new(0, new mp.Vector3(parseFloat(eventData.pos.x), parseFloat(eventData.pos.y), parseFloat(eventData.pos.z)-1), 2.2,
 				{
-					direction: new mp.Vector3(0, 0, 0),
-					rotation: new mp.Vector3(0, 0, 0),
-					color: [255, 255, 255, 200],
+					color: [242, 75, 75, 0],
 					visible: true,
 					dimension: 0
 				});
+				businessMissionCheckpoint.businessMission = {"bizID":bizID,"data":eventData};
 				
-				let tunArray = {'marker': salonMarker, 'data': salonData[3], 'pos': [parseFloat(salonData[0]), parseFloat(salonData[1]), parseFloat(salonData[2])], 'alpha': 0};
-				autosalonsInStream.push(tunArray);
-				salonMarker = null;
+				businessMissionMarker = mp.markers.new(1, new mp.Vector3(parseFloat(eventData.pos.x), parseFloat(eventData.pos.y), parseFloat(eventData.pos.z-1.3)), 2.3,
+				{
+					direction: new mp.Vector3(0, 0, 0),
+					rotation: new mp.Vector3(0, 0, 0),
+					color: [242, 75, 75, 200],
+					visible: true,
+					dimension: 0
+				});
+			}else{
+				return notyAPI.error("Не удалось получить задачу, попробуйте позже.", 3000, true);
 			}
-			if(colType == 'autosalon') {
-				if(!localPlayer.vehicle && hud_browser) {
-					mp.events.call("sleepAntiCheat");
-					
-					let salonData = shape.getVariable('col.data');
-					let sData = JSON.parse(salonData[3]);
-					
-					salonName = sData["name"];
-					
-					localPlayer.freezePosition(true);
-					if(hud_browser) hud_browser.execute("hiddenAction('Открываем каталог "+salonName+"..');");
-					mp.events.callRemote('playerToSalon', false, salonName);
-					exitPos = sData["blipPos"];
-					
-					let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-					decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
-					
-					let vehs = {};
-					let sShowCars = sData["showCars"];
-					for (var k in sShowCars) {
-						let vehName = k;
-						if(typeof(decVehStats[0][k]) != "undefined") vehName = decVehStats[0][k].name;
-						else vehName = k;
-						
-						let vehCost = 999999999;
-						if(typeof(decVehStats[0][k]) != "undefined") vehCost = decVehStats[0][k].cost;
-						vehCost = vehCost.toString();
-						
-						vehs[k] = {"title":vehName,"cost":vehCost};
+		}
+	}
+}
+mp.events.add("startBusinessEvent", startBusinessEvent);
+
+mp.events.add("playerDeath", (player, reason, killer) => {
+	if(player == localPlayer && businessMissionCheckpoint) {
+		if(mp.blips.exists(businessMissionBlip)) businessMissionBlip.destroy();
+		businessMissionBlip = false;
+		if(mp.checkpoints.exists(businessMissionCheckpoint)) businessMissionCheckpoint.destroy();
+		businessMissionCheckpoint = false;
+		if(mp.markers.exists(businessMissionMarker)) businessMissionMarker.destroy();
+		businessMissionMarker = false;
+	}
+});
+
+function businessCreate() {
+	if (!businessCreate_browser) {
+		allowBinds = [];
+		businessCreate_browser = mp.browsers.new("package://CEF/createBusiness/index.html");
+		let myPos = localPlayer.position;
+		businessCreate_browser.execute("installBusinessPos("+roundNumber(parseFloat(myPos.x), 4)+", "+roundNumber(parseFloat(myPos.y), 4)+", "+roundNumber(parseFloat(myPos.z), 4)+");");
+		setTimeout(function() {
+			allowBinds = [];
+			businessCreate_browser.execute("tempBusinessData('"+tempBusinessCreateData.name+"', "+tempBusinessCreateData.cost+", "+tempBusinessCreateData.income+");");
+			mp.gui.cursor.visible = true;
+		}, 100);
+	}
+}
+
+function createBusinessDismiss() {
+	if (businessCreate_browser) {
+		businessCreate_browser.destroy();
+		businessCreate_browser = null;
+		mp.gui.cursor.visible = false;
+		restoreBinds();
+	}
+}
+mp.events.add("createBusinessDismiss", createBusinessDismiss);
+
+function createBusinessAccepted(data) {
+	if (businessCreate_browser) {
+		businessCreate_browser.destroy();
+		businessCreate_browser = null;
+		mp.gui.cursor.visible = false;
+		restoreBinds();
+	}
+	mp.events.callRemote('createBusiness', data);
+}
+mp.events.add("createBusinessAccepted", createBusinessAccepted);
+
+function buyBusiness() {
+	if (businessMenu_browser) {
+		if(tempBusinessData && localPlayer.getVariable('player.id')) {
+			if(typeof(localPlayer.getVariable("player.businesses")) === "undefined") return businessMenu_browser.execute("msg_error('Ошибка базы данных, повторите позднее');");
+			let businessesData = localPlayer.getVariable("player.businesses");
+			
+			let isPremium = false;
+			if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") {
+				let myBlocks = localPlayer.getVariable("player.blocks");
+				if(typeof(myBlocks.premium) !== "undefined") isPremium = true;
+			}
+			
+			if(isPremium) {
+				if(typeof(businessesData.count) === "undefined") return businessMenu_browser.execute("msg_error('У Вас уже есть 3 коммерции, продайте другие коммерции');");
+				if(parseInt(businessesData.count) >= 4) return businessMenu_browser.execute("msg_error('У Вас уже есть 3 коммерции, продайте другие коммерции');");
+			}else{
+				if(typeof(businessesData.count) === "undefined") return businessMenu_browser.execute("msg_error('У Вас уже есть 4 коммерции, продайте другие коммерции');");
+				if(parseInt(businessesData.count) >= 3) return businessMenu_browser.execute("msg_error('У Вас уже есть 4 коммерции, продайте другие коммерции');");
+			}
+			
+			if(typeof(localPlayer.getVariable("player.tickets")) === "undefined") return businessMenu_browser.execute("msg_error('Ошибка базы данных, повторите позднее');");
+			if(parseInt(localPlayer.getVariable("player.tickets")) > 50000) return businessMenu_browser.execute("msg_error('У Вас более 50 000 руб. не оплаченных штрафов');");
+			
+			if(businessActAction) return false;
+			businessActAction = true;
+			
+			mp.events.callRemote('buyBusiness', JSON.stringify(tempBusinessData));
+			exitBusinessMenu();
+		}else{
+			businessMenu_browser.destroy();
+			businessMenu_browser = null;
+			mp.gui.cursor.visible = false;
+			restoreBinds();
+		}
+	}
+}
+mp.events.add("buyBusiness", buyBusiness);
+
+function sellBusiness() {
+	if (businessMenu_browser) {
+		if(tempBusinessData && localPlayer.getVariable('player.id')) {
+			if(businessActAction) return false;
+			businessActAction = true;
+			mp.events.callRemote('sellBusiness', JSON.stringify(tempBusinessData));
+			exitBusinessMenu();
+		}else{
+			businessMenu_browser.destroy();
+			businessMenu_browser = null;
+			mp.gui.cursor.visible = false;
+			restoreBinds();
+		}
+	}
+}
+mp.events.add("sellBusiness", sellBusiness);
+
+function businessSold(cost) {
+	if (cost) {
+		cost = parseInt(cost);
+		if(localPlayer.getVariable('player.id')) {
+			let sellCost = parseInt(cost) - (parseInt(cost) * 0.10);
+			let costText = sellCost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
+			mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~коммерция", "~s~Продана за"+costText+" руб.", 5, false, true, 6500);
+			businessActAction = false;
+		}
+	}
+}
+mp.events.add("businessSold", businessSold);
+
+function businessBought(cost) {
+	if (cost) {
+		cost = parseInt(cost);
+		if(localPlayer.getVariable('player.id')) {
+			let costText = cost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
+			mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~коммерция", "~s~Преобретена за"+costText+" руб.", 5, false, true, 6500);
+			businessActAction = false;
+		}
+	}
+}
+mp.events.add("businessBought", businessBought);
+
+function businessBuyError(reason) {
+	if (businessMenu_browser && reason) {
+		if(tempBusinessData && localPlayer.getVariable('player.id')) {
+			businessMenu_browser.execute("msg_error('"+reason+"');");
+		}else{
+			businessMenu_browser.destroy();
+			businessMenu_browser = null;
+			mp.gui.cursor.visible = false;
+			restoreBinds();
+		}
+		businessActAction = false;
+	}
+}
+mp.events.add("businessBuyError", businessBuyError);
+
+function exitBusinessMenu() {
+	if (businessMenu_browser) {
+		businessMenu_browser.destroy();
+		businessMenu_browser = null;
+		mp.gui.cursor.visible = false;
+		restoreBinds();
+	}
+}
+mp.events.add("exitBusinessMenu", exitBusinessMenu);
+
+function getPlayersForSellBusiness() {
+	if (businessMenu_browser) {
+		let tempPlayers = [];
+		let myPos = localPlayer.position;
+		let counter = 0;
+		mp.players.forEachInStreamRange(
+			(player, id) => {
+				if(player != localPlayer) {
+					let plPos = player.position;
+					if(mp.game.gameplay.getDistanceBetweenCoords(myPos.x, myPos.y, myPos.z, plPos.x, plPos.y, plPos.z, true) <= 5) {
+						if(!player.vehicle && player.getVariable("player.id") && player.getVariable("player.nick")) {
+							tempPlayers.push({"nick":player.getVariable("player.nick").toString(),"id":parseInt(player.getVariable("player.id"))});
+							counter++;
+						}
 					}
-					vehs = JSON.stringify(vehs);
+				}
+			}
+		);
+		if(counter > 0) businessMenu_browser.execute("initPlayersForSellBusiness('"+JSON.stringify(tempPlayers)+"')");
+	}
+}
+mp.events.add("getPlayersForSellBusiness", getPlayersForSellBusiness);
+
+function startBusinessDealTo(bizid, nick, id, cost) {
+	if(nick && bizid && id && cost && businessMenu_browser) {
+		sellToBusinessID = parseInt(bizid);
+		sellToNick = nick.toString();
+		sellToID = parseInt(id);
+		sellToCost = parseInt(cost);
+		sellToCost = Math.round(sellToCost);
+		
+		if(sellToID <= 0) return businessMenu_browser.execute("msg_error('Вы не выбрали игрока');");
+		if(sellToCost <= 0) return businessMenu_browser.execute("msg_error('Вы не указали стоимость');");
+		if(sellToCost > 100000000) return businessMenu_browser.execute("msg_error('Стоимость не может быть больше 100 000 000 руб.');");
+		
+		if(typeof(localPlayer.getVariable("player.tickets")) === "undefined") return businessMenu_browser.execute("msg_error('Ошибка базы данных, повторите позднее');");
+		if(parseInt(localPlayer.getVariable("player.tickets")) > 50000) return businessMenu_browser.execute("msg_error('У Вас более 50 000 руб. не оплаченных штрафов');");
+		
+		businessActAction = true;
+		exitBusinessMenu();
+		mp.events.callRemote('startBusinessDealTo', sellToBusinessID, sellToNick, sellToID, sellToCost);
+	}
+}
+mp.events.add("startBusinessDealTo", startBusinessDealTo);
+
+function startBusinessDeal(initiator, bizid, nick, id, cost) {
+	if(nick && bizid && id && cost) {
+		bizid = parseInt(bizid);
+		nick = nick.toString();
+		id = parseInt(id);
+		cost = parseInt(cost);
+		cost = Math.round(cost);
+		
+		if(initiator) {
+			sellToBusinessID = bizid;
+			sellToNick = nick;
+			sellToID = id;
+			sellToCost = cost;
+		}else{
+			sellFromBusinessID = bizid;
+			sellFromNick = nick;
+			sellFromID = id;
+			sellFromCost = cost;
+		}
+		
+		businessActAction = true;
+		allowBinds = [];
+		if(businessMenu_browser) exitBusinessMenu();
+		businessMenu_browser = mp.browsers.new("package://CEF/businessMenu/index.html");
+		setTimeout(function() {
+			if(businessMenu_browser) {
+				businessMenu_browser.execute("initDealData('"+initiator.toString()+"', '"+bizid.toString()+"', '"+nick.toString()+"', '"+id.toString()+"', '"+cost.toString()+"');");
+				mp.gui.cursor.visible = true;
+			}
+		}, 100);
+	}
+}
+mp.events.add("startBusinessDeal", startBusinessDeal);
+
+function cancelBusinessDeal(canceler, noSendToServer) {
+	if(businessMenu_browser) {
+		exitBusinessMenu();
+		if(canceler) {
+			if(sellToBusinessID) notyAPI.success("Вы отменили сделку с игроком <b>"+sellToNick+"</b>.", 3000, true);
+			else if(sellFromBusinessID) notyAPI.success("Вы отклонили сделку с игроком <b>"+sellFromNick+"</b>.", 3000, true);
+			sellToBusinessID = 0, sellToNick = false, sellToID = 0, sellToCost = 0;
+			sellFromBusinessID = 0, sellFromNick = false, sellFromID = 0, sellFromCost = 0;
+		}else{
+			if(sellToBusinessID) notyAPI.success("<b>"+sellToNick+"</b> отклонил Ваше предложение.", 3000, true);
+			else if(sellFromBusinessID) notyAPI.success("<b>"+sellFromNick+"</b> отменил предложение.", 3000, true);
+			sellToBusinessID = 0, sellToNick = false, sellToID = 0, sellToCost = 0;
+			sellFromBusinessID = 0, sellFromNick = false, sellFromID = 0, sellFromCost = 0;
+		}
+		
+		if(mp.players.atRemoteId(parseInt(localPlayer.getVariable("active.deal")))) {
+			let playerDeal = mp.players.atRemoteId(parseInt(localPlayer.getVariable("active.deal")));
+			if(playerDeal && !noSendToServer) mp.events.callRemote('cancelBusinessDeal', playerDeal);
+		}
+		businessActAction = false;
+	}
+}
+mp.events.add("cancelBusinessDeal", cancelBusinessDeal);
+
+function acceptBusinessDeal(noSendToServer) {
+	if(businessMenu_browser) {
+		if(!noSendToServer) {
+			if(!localPlayer.getVariable("active.deal")) {
+				mp.events.callRemote('cancelBusinessDeal');
+				businessMenu_browser.execute("msg_error('Игрок не в сети или далеко, сделка отменена');");
+				
+				sellToBusinessID = 0, sellToNick = false, sellToID = 0, sellToCost = 0;
+				sellFromBusinessID = 0, sellFromNick = false, sellFromID = 0, sellFromCost = 0;
+				
+				return exitBusinessMenu();
+			}
+			if(!localPlayer.getVariable("player.money")) return businessMenu_browser.execute("msg_error('Недостаточно средств для совершения сделки');");
+			let myMoney = parseInt(localPlayer.getVariable("player.money"));
+			let resCost = roundNumber(parseInt(sellFromCost) + (parseInt(sellFromCost) * 0.05), 0);
+			if(myMoney < resCost) return businessMenu_browser.execute("msg_error('Недостаточно средств для совершения сделки');");
+			
+			let isPremium = false;
+			if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") {
+				let myBlocks = localPlayer.getVariable("player.blocks");
+				if(typeof(myBlocks.premium) !== "undefined") isPremium = true;
+			}
+			
+			if(isPremium) {
+				if(typeof(localPlayer.getVariable("player.businesses")) === "undefined") return businessMenu_browser.execute("msg_error('У Вас уже есть 4 коммерции, продайте другие коммерции');");
+			}else{
+				if(typeof(localPlayer.getVariable("player.businesses")) === "undefined") return businessMenu_browser.execute("msg_error('У Вас уже есть 3 коммерции, продайте другие коммерции');");
+			}
+			
+			if(typeof(localPlayer.getVariable("player.tickets")) === "undefined") return businessMenu_browser.execute("msg_error('Ошибка базы данных, повторите позднее');");
+			if(parseInt(localPlayer.getVariable("player.tickets")) > 50000) return businessMenu_browser.execute("msg_error('У Вас более 50 000 руб. не оплаченных штрафов');");
+			
+			let businessesData = localPlayer.getVariable("player.businesses");
+			
+			if(isPremium) {
+				if(typeof(businessesData.count) === "undefined") return businessMenu_browser.execute("msg_error('У Вас уже есть 4 коммерции, продайте другие коммерции');");
+				if(parseInt(businessesData.count) >= 4) return businessMenu_browser.execute("msg_error('У Вас уже есть 4 коммерции, продайте другие коммерции');");
+			}else{
+				if(typeof(businessesData.count) === "undefined") return businessMenu_browser.execute("msg_error('У Вас уже есть 3 коммерции, продайте другие коммерции');");
+				if(parseInt(businessesData.count) >= 3) return businessMenu_browser.execute("msg_error('У Вас уже есть 3 коммерции, продайте другие коммерции');");
+			}
+			
+			let myPos = localPlayer.position;
+			if(mp.players.atRemoteId(parseInt(localPlayer.getVariable("active.deal")))) {
+				let playerDeal = mp.players.atRemoteId(parseInt(localPlayer.getVariable("active.deal")));
+				if(playerDeal) {
+					if(!playerDeal.position) return homeMenu_browser.execute("msg_error('Вы слишком далеко от места совершения сделки');");
 					
+					let plPos = playerDeal.position;
+					if(mp.game.gameplay.getDistanceBetweenCoords(myPos.x, myPos.y, myPos.z, plPos.x, plPos.y, plPos.z, true) > 5) return homeMenu_browser.execute("msg_error('Вы слишком далеко от места совершения сделки');");
+					
+					mp.events.callRemote('acceptBusinessDeal', playerDeal, sellFromBusinessID, sellFromNick, sellFromID, sellFromCost);
+				}else{
+					return homeMenu_browser.execute("msg_error('Вы слишком далеко от места совершения сделки');");
+				}
+			}
+		}
+		
+		businessActAction = true;
+		exitBusinessMenu();
+		
+		if(sellToBusinessID) notyAPI.success("<b>"+sellToNick+"</b> принял Ваше предложение", 3000, true);
+		else if(sellFromBusinessID) notyAPI.success("Вы приняли предложение от <b>"+sellFromNick+"</b>", 3000, true);
+		
+		sellToBusinessID = 0, sellToNick = false, sellToID = 0, sellToCost = 0;
+		sellFromBusinessID = 0, sellFromNick = false, sellFromID = 0, sellFromCost = 0;
+	}
+}
+mp.events.add("acceptBusinessDeal", acceptBusinessDeal);
+
+function businessDealSuccess(initiator, cost) {
+	if(cost) {
+		if(initiator) mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~коммерция", "~s~Вы продали коммерцию за"+cost.toString().replace(new RegExp(/(\d{1,3})(?=((\d{3})*)$)/g), ' $1')+" руб.", 5, false, true, 6500);
+		else mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~коммерция", "~s~Вы купили коммерцию за"+cost.toString().replace(new RegExp(/(\d{1,3})(?=((\d{3})*)$)/g), ' $1')+" руб.", 5, false, true, 6500);
+		businessActAction = false;
+	}
+}
+mp.events.add("businessDealSuccess", businessDealSuccess);
+
+function businessBalanceDown(bizid, summa) {
+	if(businessMenu_browser) {
+		if(bizid && summa) {
+			bizid = parseInt(bizid);
+			summa = parseInt(summa);
+			exitBusinessMenu();
+			
+			if(businessActAction) return false;
+			businessActAction = true;
+			
+			mp.events.callRemote('businessBalanceDown', bizid, summa);
+		}else{
+			return businessMenu_browser.execute("msg_error('Неизвестная ошибка');");
+		}
+	}
+}
+mp.events.add("businessBalanceDown", businessBalanceDown);
+
+function setBusinessBalanceSuccess(newBalance) {
+	if(newBalance) {
+		mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~коммерция", "~s~Новый баланс коммерции"+newBalance.toString().replace(new RegExp(/(\d{1,3})(?=((\d{3})*)$)/g), ' $1')+" руб.", 5, false, true, 6500);
+		businessActAction = false;
+	}
+}
+mp.events.add("setBusinessBalanceSuccess", setBusinessBalanceSuccess);
+
+mp.events.add("playerEnterColshape", (shape) => {
+	if(mp.colshapes.exists(shape)) {
+		if(typeof(shape.getVariable("col.type")) !== "undefined") {
+			let colType = shape.getVariable("col.type");
+			if(colType == "business_render") {
+				if(typeof(shape.getVariable('col.data')) !== "undefined") {
+					let businessData = shape.getVariable('col.data');
+					if(typeof(businessData.own) !== "undefined") {
+						let markerColor = [46, 204, 113, 185];
+						if(businessData.own > 0) markerColor = [225, 59, 59, 185];
+						if(businessData.own == localPlayer.getVariable('player.id')) markerColor = [240, 203, 88, 185];
+						let businessMarker = mp.markers.new(20, new mp.Vector3(parseFloat(businessData.pos[0]), parseFloat(businessData.pos[1]), parseFloat(businessData.pos[2])-0.2), 1.2,
+						{
+							direction: new mp.Vector3(0, 0, 0),
+							rotation: new mp.Vector3(0, 180, 0),
+							color: markerColor,
+							visible: true,
+							dimension: 0
+						});
+						
+						let businessCheck = mp.checkpoints.new(40, new mp.Vector3(parseFloat(businessData.pos[0]), parseFloat(businessData.pos[1]), parseFloat(businessData.pos[2])-0.2), 0.5,
+						{
+							color: [255, 255, 255, 0],
+							visible: true,
+							dimension: localPlayer.dimension
+						});
+						businessCheck.businessData = businessData;
+						
+						let businessBlip = {};
+						businessBlip.id = false;
+						let businessName = "коммерция";
+						let blipColor = 2;
+						if(businessData.own > 0) {
+							businessName = "коммерция";
+							blipColor = 1;
+						}
+						if(businessData.own != localPlayer.getVariable('player.id')) {
+							businessBlip = mp.blips.new(374, new mp.Vector3(parseFloat(businessData.pos[0]), parseFloat(businessData.pos[1]), parseFloat(businessData.pos[2])), {
+								name: businessName,
+								scale: 0.6,
+								color: blipColor,
+								shortRange: true,
+								dimension: 0
+							});
+							if(blipColor != 2)  businessBlip.setCategory(11);
+						}
+						blipColor = null;
+						
+						businessesInStream[businessData.id] = {'data': businessData,'marker': businessMarker.id.toString(),'check': businessCheck.id.toString(),'blip': businessBlip.id.toString(),'alpha': 0};
+					}
+				}
+			}
+		}
+	}
+});
+
+mp.events.add("playerExitColshape", (shape) => {
+	if(mp.colshapes.exists(shape)) {
+		if(typeof(shape.getVariable("col.type")) !== "undefined") {
+			let checkPointType = shape.getVariable("col.type");
+			if(checkPointType == "business_render") {
+				let businessData = shape.getVariable('col.data');
+				
+				if(typeof(businessData) !== "undefined") {
+					if(typeof(businessesInStream[businessData.id]) !== "undefined") {
+						let tempData = businessesInStream[businessData.id];
+						let tempMarker = mp.markers.at(parseInt(tempData['marker']));
+						if(mp.markers.exists(tempMarker)) tempMarker.destroy();
+						let tempCheck = mp.checkpoints.at(parseInt(tempData['check']));
+						if(mp.checkpoints.exists(tempCheck)) tempCheck.destroy();
+						if(tempData['blip'] != "false") {
+							let tempBlip = mp.blips.at(parseInt(tempData['blip']));
+							if(mp.blips.exists(tempBlip)) tempBlip.destroy();
+						}
+						businessesInStream[businessData.id] = undefined;
+						businessesInStream = JSON.parse(JSON.stringify(businessesInStream));
+					}
+				}
+			}
+		}
+	}
+});
+
+mp.events.add("playerEnterCheckpoint", (checkpoint) => {
+	if(mp.checkpoints.exists(checkpoint)) {
+		if(typeof(checkpoint.businessData) !== "undefined") {
+			if(localPlayer.getVariable('player.id') && hud_browser && !localPlayer.vehicle && !businessActAction && (typeof(localPlayer.getVariable("active.deal")) === "undefined" || !localPlayer.getVariable("active.deal"))) {
+				if(typeof(localPlayer.getVariable('player.businesses')) === "undefined") return false;
+				if(allowBinds != stockBinds) return false;
+				
+				tempBusinessData = checkpoint.businessData;
+				
+				if (!businessMenu_browser) {
+					businessMenu_browser = mp.browsers.new("package://CEF/businessMenu/index.html");
 					setTimeout(function() {
-						if(!vehCam) {
-							let vehPos = {"x":-1507.3842, "y":-2993.9888, "z":-82.4855};
-							if(salonName == "Салон вертолётов") vehPos = {"x":-144.8816,"y":-592.0447,"z":212.0109};
-							if(salonName != "Салон вертолётов") {
-								vehCam = mp.cameras.new('default', new mp.Vector3(vehPos.x+4.2, vehPos.y+4.2, vehPos.z+1.5), new mp.Vector3(vehPos.x, vehPos.y, vehPos.z), 40);
-								camStartPos = {"x":vehPos.x+4.2, "y":vehPos.y+4.2, "z":vehPos.z+1.5};
-							}else{
-								vehCam = mp.cameras.new('default', new mp.Vector3(vehPos.x+14.2, vehPos.y+14.2, vehPos.z+6.5), new mp.Vector3(vehPos.x, vehPos.y, vehPos.z), 40);
-								camStartPos = {"x":vehPos.x+14.2, "y":vehPos.y+14.2, "z":vehPos.z+6.5};
-							}
-							vehCam.pointAtCoord(vehPos.x, vehPos.y, vehPos.z);
-							camLookAt = {"x":vehPos.x, "y":vehPos.y, "z":vehPos.z};
-							vehCam.setActive(true);
-							vehCam.setMotionBlurStrength(100);
-							mp.game.cam.renderScriptCams(true, false, 0, true, false);
-							mp.game.ui.displayRadar(false);
+						if(businessMenu_browser) {
+							businessMenu_browser.execute("initBusinessData("+localPlayer.getVariable('player.id')+", "+tempBusinessData.id+", '"+tempBusinessData.name+"', "+tempBusinessData.balance+", "+tempBusinessData.cost+", "+tempBusinessData.own+", '"+tempBusinessData.ownlog+"', '"+tempBusinessData.income+"', '"+JSON.stringify(tempBusinessData.events)+"');");
+							mp.gui.cursor.visible = true;
 						}
-						if(hud_browser) hud_browser.execute("hiddenAction('');");
-						if(hud_browser) hud_browser.execute("toggleAutoSalonMenu('"+vehs+"', '"+salonName+"');");
-						mp.gui.cursor.visible = true;
-						allowBinds = [];
-					}, 2000);
-					
-					salonData = null;
-					sData = null;
-					return false;
+					}, 100);
+					allowBinds = [];
 				}
 			}
 		}
-	}
-});
-
-mp.events.add('playerExitColshape', (shape) => {
-	if(typeof(shape.data) == 'undefined' && typeof(shape.id) != "undefined") {
-		if(typeof(shape.getVariable('col.type')) != "undefined") {
-			let colType = shape.getVariable('col.type');
-			if(colType == 'autosalon_render') {
-				let tunRenderData = shape.getVariable('col.data');
-				for(var i in autosalonsInStream) {
-					let tempData = autosalonsInStream[i];
-					let posData = tempData['pos'];
-					if (posData[0] == tunRenderData[0] && posData[1] == tunRenderData[1] && posData[2] == tunRenderData[2]) {
-						if(tempData['marker']) {
-							tempData['marker'].destroy();
-							delete tempData['marker'];
-						}
-						if(autosalonsInStream[i] || autosalonsInStream[i] !== undefined) delete autosalonsInStream[i];
+		if(mp.checkpoints.exists(businessMissionCheckpoint)) {
+			if(checkpoint == businessMissionCheckpoint) {
+				if(typeof(businessMissionCheckpoint.businessMission) !== "undefined") {
+					if(businessMissionCheckpoint) {
+						missionCost = parseInt((CryptoJS.AES.decrypt(missionCost, krKey)).toString(CryptoJS.enc.Utf8));
+						
+						mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~коммерция", "~w~"+businessMissionCheckpoint.businessMission.data.name+"~n~~g~Задача выполнена~w~, поздравляем! Вы получили~g~"+missionCost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" ~w~руб.", 5, false, true, 6500);
+						//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+businessMissionCheckpoint.businessMission.bizID+": "+businessMissionCheckpoint.businessMission.data.name+"</span>");
+						
+						mp.events.callRemote('businessMissionComplete', businessMissionCheckpoint.businessMission.bizID, businessMissionCheckpoint.businessMission.data.name, missionCost.toString());
+						
+						if(mp.blips.exists(businessMissionBlip)) businessMissionBlip.destroy();
+						businessMissionBlip = false;
+						if(mp.checkpoints.exists(businessMissionCheckpoint)) businessMissionCheckpoint.destroy();
+						businessMissionCheckpoint = false;
+						if(mp.markers.exists(businessMissionMarker)) businessMissionMarker.destroy();
+						businessMissionMarker = false;
 					}
-					tempData = null;
 				}
-				autosalonsInStream = autosalonsInStream.filter(function (el) { return el != null; });
-				
-				tunRenderData = null;
 			}
 		}
 	}
 });
 
-let selectedVeh;
-function salonGenVeh(hash) {
-	if(hash) {
-		let dim = localPlayer.dimension;
-		if(selectedVeh) {
-			selectedVeh.destroy();
-			selectedVeh = null;
+mp.events.add("playerExitCheckpoint", (checkpoint) => {
+	if(mp.checkpoints.exists(checkpoint)) {
+		if(typeof(checkpoint.businessData) !== "undefined") {
+			if(localPlayer.getVariable("active.deal")) cancelBusinessDeal(true);
+			tempBusinessData = null;
+			exitBusinessMenu();
 		}
-		
-		let vehPos = {"x":-1507.3842,"y":-2993.9888,"z":-82.7855};
-		if(salonName == "Салон вертолётов") vehPos = {"x":-144.8816,"y":-592.0447,"z":212.0109};
-		
-		selectedVeh = mp.vehicles.new(mp.game.joaat(hash), vehPos,
-		{
-			heading: -5,
-			color: [[255,255,255],[0,0,0]],
-			locked: false,
-			engine: false,
-			dimension: dim
-		});
-		selectedVeh.hash = hash;
-		selectedVeh.isAutoSalon = true;
-	}else{
-		if(selectedVeh) {
-			selectedVeh.destroy();
-			selectedVeh = null;
-		}
-	}
-}
-mp.events.add("salonGenVeh", salonGenVeh);
-
-function setTempVehBuyData(name, value) {
-	if(selectedVeh && name !== undefined && value !== undefined) {
-		if(name == "color1") {
-			selectedVeh.color1 = value;
-			let vData = explode(",", value);
-			selectedVeh.setCustomPrimaryColour(parseInt(vData[0]), parseInt(vData[1]), parseInt(vData[2]));
-		}else if(name == "color2") {
-			selectedVeh.color2 = value;
-			let vData = explode(",", value);
-			selectedVeh.setCustomSecondaryColour(parseInt(vData[0]), parseInt(vData[1]), parseInt(vData[2]));
-		}
-	}
-}
-mp.events.add("setTempVehBuyData", setTempVehBuyData);
-
-function salonTestDrive(tdCost) {
-	if(selectedVeh && tdCost != undefined) {
-		tdCost = parseInt(tdCost);
-		let myMoney = parseInt(localPlayer.getVariable("player.money"));
-		if(tdCost > myMoney) return hud_browser.execute("testDriveNeedMoney();");
-		
-		mp.events.call("sleepAntiCheat");
-		mp.events.callRemote('playerStartTestDrive', tdCost);
-		
-		if(hud_browser) hud_browser.execute("hiddenAction('Начинаем тест-драйв транспортного средства..');");
-		
-		if(salonName != "Салон вертолётов") {
-			localPlayer.position = new mp.Vector3(-843.5933, 1880.6595, 159.7293);
-			selectedVeh.position = new mp.Vector3(-843.5933, 1880.6595, 159.7293);
-		}else{
-			localPlayer.position = new mp.Vector3(-1001.226, 4511.9438, 159.3271);
-			selectedVeh.position = new mp.Vector3(-1001.226, 4511.9438, 159.3271);
-		}
-		
-		selectedVeh.makedTestDrive = true;
-		
-		if(vehCam) {
-			vehCam.setActive(false);
-			vehCam.detach();
-			vehCam.destroy();
-			vehCam = null;
-		}
-		mp.game.cam.renderScriptCams(false, false, 0, false, false);
-		mp.game.ui.displayRadar(true);
-		mp.gui.cursor.visible = false;
-	}
-}
-mp.events.add("salonTestDrive", salonTestDrive);
-
-mp.events.add("playerLeaveVehicle", (vehicle, seat) => {
-	if(vehicle) {
-		if(vehicle.makedTestDrive && hud_browser) hud_browser.execute("stopTestDrive();");
-	}
-});
-
-function stopTestDrive() {
-	mp.events.call("sleepAntiCheat");
-	
-	localPlayer.freezePosition(true);
-	if(hud_browser) hud_browser.execute("hiddenAction('Тест-драйв окончен, возвращаемся в автосалон..');");
-	mp.events.callRemote('playerToSalon', true, salonName);
-	
-	delete selectedVeh.makedTestDrive;
-	if(salonName != "Салон вертолётов") selectedVeh.position = new mp.Vector3(-1507.3842, -2993.9888, -82.7855);
-	else selectedVeh.position = new mp.Vector3(-144.8816, -592.0447, 212.0109);
-		
-	if(!vehCam) {
-		let vehPos = {"x":-1507.3842, "y":-2993.9888, "z":-82.4855};
-		if(salonName == "Салон вертолётов") vehPos = {"x":-144.8816,"y":-592.0447,"z":212.0109};
-		if(salonName != "Салон вертолётов") {
-			vehCam = mp.cameras.new('default', new mp.Vector3(vehPos.x+4.2, vehPos.y+4.2, vehPos.z+1.5), new mp.Vector3(vehPos.x, vehPos.y, vehPos.z), 40);
-			camStartPos = {"x":vehPos.x+4.2, "y":vehPos.y+4.2, "z":vehPos.z+1.5};
-		}else{
-			vehCam = mp.cameras.new('default', new mp.Vector3(vehPos.x+14.2, vehPos.y+14.2, vehPos.z+6.5), new mp.Vector3(vehPos.x, vehPos.y, vehPos.z), 40);
-			camStartPos = {"x":vehPos.x+14.2, "y":vehPos.y+14.2, "z":vehPos.z+6.5};
-		}
-		vehCam.pointAtCoord(vehPos.x, vehPos.y, vehPos.z);
-		camLookAt = {"x":vehPos.x, "y":vehPos.y, "z":vehPos.z};
-		vehCam.setActive(true);
-		vehCam.setMotionBlurStrength(100);
-		mp.game.cam.renderScriptCams(true, false, 0, true, false);
-		mp.game.ui.displayRadar(false);
-	}
-	
-	mp.gui.cursor.visible = true;
-}
-mp.events.add("stopTestDrive", stopTestDrive);
-
-function autoSalonExit(sHash, color1, color2, resCost) {
-	if(sHash !== undefined && color1 !== undefined && color2 !== undefined && resCost !== undefined) {
-		resCost = parseInt(resCost);
-		let myMoney = parseInt(localPlayer.getVariable("player.money"));
-		if(resCost > myMoney) return hud_browser.execute("autoSalonNeedMoney();");
-		
-		var vehsData = localPlayer.getVariable('player.vehs');
-		var housesData = localPlayer.getVariable('player.houses');
-		
-		let freeParks = 0;
-		if(housesData && vehsData) freeParks = parseInt(housesData.parks) - parseInt(vehsData.count);
-		
-		if(vehsData.count >= 36) return hud_browser.execute("autoSalon36Vehs();");
-		
-		if(freeParks < 1) return hud_browser.execute("autoSalonNeedParks();");
-		
-		let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-		decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
-		
-		let vehCost = 999999999;
-		if(typeof(decVehStats[0][sHash]) !== "undefined") vehCost = parseInt(decVehStats[0][sHash].cost);
-		else return hud_browser.execute("autoSalonUnknownError();");
-		//chatAPI.sysPush("<span style=\"color:#FF6146\"> * COST IN DUMP: "+vehCost+"</span>");
-		if(resCost != vehCost) return hud_browser.execute("autoSalonUnknownError();");
-		
-		mp.events.call("sleepAntiCheat");
-		
-		if(hud_browser) hud_browser.execute("hiddenAction('Заключаем договор с автосалоном..');");
-		
-		let vehType = "car";
-		if(salonName == "Салон вертолётов") vehType = "heli";
-		
-		let buyData = {"hash":sHash, "type":vehType, "color1":color1, "color2":color2, "resCost":resCost};
-		mp.events.callRemote('playerBuyVehicle', exitPos, JSON.stringify(buyData));
-		
-		if(selectedVeh) {
-			selectedVeh.destroy();
-			selectedVeh = null;
-		}
-		
-		if(vehCam) {
-			vehCam.setActive(false);
-			vehCam.detach();
-			vehCam.destroy();
-			vehCam = null;
-		}
-		mp.game.cam.renderScriptCams(false, false, 0, false, false);
-		mp.game.ui.displayRadar(true);
-		mp.gui.cursor.visible = false;
-		
-		setTimeout(function() {
-			if(hud_browser) hud_browser.execute("hiddenAction('Подписываем договор с автосалоном..');");
-		}, 1000);
-		
-		setTimeout(function() {
-			if(hud_browser) hud_browser.execute("hiddenAction('Отправляем запрос на регистрацию транспортного средства..');");
-		}, 2000);
-		
-		setTimeout(function() {
-			if(hud_browser) hud_browser.execute("hiddenAction('Получаем государственные номерные знаки..');");
-		}, 3000);
-		
-		setTimeout(function() {
-			if(hud_browser) hud_browser.execute("hiddenAction('Автосалон благодарит Вас за покупку, приятной эксплуатации!');");
-		}, 4000);
-		
-		setTimeout(function() {
-			if(hud_browser) hud_browser.execute("hiddenAction('');");
-			localPlayer.freezePosition(false);
-		}, 5000);
-		
-		let vehName = sHash;
-		if(typeof(decVehStats[0][sHash]) != "undefined") vehName = decVehStats[0][sHash].name;
-		let costText = resCost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
-		
-		setTimeout(function() {
-			mp.game.ui.messages.showMidsizedShard("~y~Вы купили ~w~транспорт", "~s~"+vehName+"~n~Оплачено~g~~h~"+costText+" ~s~руб.", 5, false, true, 8000);
-		}, 5500);
-		
-		setTimeout(function() {
-			mp.game.ui.notifications.showWithPicture("Менеджер автосалона", "Ого, поздравляем!", "Видим у Вас появился новый транспорт. Проверьте F3!", "CHAR_CARSITE", 1, false, 1, 2);
-		}, 10000);
-		
-		hud_browser.execute("toggleAutoSalonMenu();");
-		
-		restoreBinds();
-	}else{
-		if(hud_browser) hud_browser.execute("hiddenAction('Закрываем каталог транспортных средств..');");
-		mp.events.call("sleepAntiCheat");
-		mp.events.callRemote('playerFromSalon', exitPos);
-		
-		if(selectedVeh) {
-			selectedVeh.destroy();
-			selectedVeh = null;
-		}
-		
-		if(vehCam) {
-			vehCam.setActive(false);
-			vehCam.detach();
-			vehCam.destroy();
-			vehCam = null;
-		}
-		mp.game.cam.renderScriptCams(false, false, 0, false, false);
-		mp.game.ui.displayRadar(true);
-		mp.gui.cursor.visible = false;
-		
-		setTimeout(function() {
-			if(hud_browser) hud_browser.execute("hiddenAction('');");
-			localPlayer.freezePosition(false);
-		}, 2000);
-		
-		restoreBinds();
-	}
-}
-mp.events.add("autoSalonExit", autoSalonExit);
-
-let rotAngle = 0;
-mp.events.add('render', () => {
-	if(vehCam) {
-		let corrections = false;
-		
-		let pos = vehCam.getCoord();
-		let rot = vehCam.getRot(2);
-		let fov = vehCam.getFov();
-		
-		let cameraX = pos.x;
-		let cameraY = pos.y;
-		let cameraZ = pos.z;
-		
-		if (mp.keys.isDown(37) === true) {
-			corrections = true;
-			
-			rotAngle = rotAngle + 1.5;
-			rotAngle = (rotAngle) * (Math.PI/180); // Convert to radians
-
-			cameraX = Math.cos(rotAngle) * (pos.x - camLookAt.x) - Math.sin(rotAngle) * (pos.y-camLookAt.y) + camLookAt.x;
-			cameraY = Math.sin(rotAngle) * (pos.x - camLookAt.x) + Math.cos(rotAngle) * (pos.y - camLookAt.y) + camLookAt.y;
-		}
-		if (mp.keys.isDown(39) === true) {
-			corrections = true;
-
-			rotAngle = rotAngle - 1.5;
-			rotAngle = (rotAngle) * (Math.PI/180); // Convert to radians
-
-			cameraX = Math.cos(rotAngle) * (pos.x - camLookAt.x) - Math.sin(rotAngle) * (pos.y-camLookAt.y) + camLookAt.x;
-			cameraY = Math.sin(rotAngle) * (pos.x - camLookAt.x) + Math.cos(rotAngle) * (pos.y - camLookAt.y) + camLookAt.y;
-		}
-		if (mp.keys.isDown(38) === true) {
-			corrections = true;
-			let zLimitUpper = camStartPos.z + 1;
-			
-			if(pos.z <= (zLimitUpper)) cameraZ = pos.z + 0.025;
-		}
-		if (mp.keys.isDown(40) === true) {
-			corrections = true;
-			let zLimitDown = camStartPos.z - 0.7;
-			
-			if(pos.z >= (zLimitDown)) cameraZ = pos.z - 0.025;
-		}
-		
-		if(corrections) vehCam.setParams(cameraX, cameraY, cameraZ, rot.x, rot.y, rot.z, fov, 0, 1, 1, 2);
 	}
 });
-}죑໺α
+}Φ

@@ -249,4 +249,4 @@ function isVariantBlacklistedMale(comp, draw){
     if(item === undefined || item === null) found = false;
     return found;
 }
-}ç
+}Ì

@@ -1,301 +1,175 @@
 {
-let consts =
-{
-	MinAngle: 12.0,
-	MaxAngle: 80.0,
-	MinSpeed: 7.0,
-	
-	DriftEndReason:
-	{
-		LowSpeed: 0,
-		LowAngle: 1,
-		DamageDetected: 2,
-		OutOfVehicle: 3
-	},
-	
-	SpeedMultiply: 1.0,
-	AngleMultiply: 1.0,
-	
-	TimeMultiply: 1.0,
-	TimeBonusStart: 0,
-	
-	FinishResults:
-	{
-		High: 1000000,
-		Mid: 500000,
-		Low: 50000
-	}
-};
+let afVoice = false;
+var maxVoiceChatRange = 25.0;
+var voiceChatEnabled = true;
 
-// utils
-function fromDegree(angle) { return angle / (180.0 / Math.PI); }
-function toDegree(angle) { return angle * (180.0 / Math.PI); }
-
-function normalize2d(x, y)
-{
-	let t = mp.game.system.sqrt(x*x + y*y);
-
-	if (t > 0.000001)
-	{
-		let fRcpt = 1 / t;
-
-		x *= fRcpt;
-		y *= fRcpt;
-	}
-	
-	return [x, y];
-}
-
-let driftMngr =
-{	
-	isDrifting: false,
-	
-	startSnapshot:
-	{
-		health: 1000.0
-	},
-	
-	badAngleSince: 0,
-	
-	slippery: false,
-	slippedyIdx: 0,
-	
-	api:
-	[
-		[],	// start
-		[],	// end
-		[]	// process
-	],
-	
-	onDriftStarted: function(vehicle, health)
-	{
-		this.startSnapshot.health = health;
-		this.startSnapshot.startTime = Date.now();
-		this.isDrifting = true;
-		
-		if(this.api[0].length > 0)
-		{
-			for(let cb of this.api[0])
-			{
-				cb();
-			}
-		}
-	},
-	
-	onDriftEnded: function(reason)
-	{
-		this.isDrifting = false;
-		
-		if(this.api[1].length > 0)
-		{
-			for(let cb of this.api[1])
-			{
-				cb(reason);
-			}
-		}
-	},
-	
-	onDriftProcessed: function(angle, speed, active, stopProgress)
-	{
-		if(this.api[2].length > 0)
-		{
-			for(let cb of this.api[2])
-			{
-				cb(angle, speed, active, stopProgress);
-			}
-		}
-	},
-	
-	pulse: function()
-	{
-		let vehicle = localPlayer.vehicle;
-		
-		if(vehicle && vehicle.getClass() != 8 && vehicle.getClass() != 13 && vehicle.getClass() != 14 && vehicle.getClass() != 15 && vehicle.getClass() != 16 && vehicle.getClass() != 21)
-		{
-			this.slippedyIdx++;
+mp.keys.bind(0x58, true, function() {
+	if(voiceChatEnabled) {
+		if(mp.voiceChat.muted && !localPlayer.isTypingInTextChat) {
+			if(afVoice) return false;
+			afVoice = true;
+			setTimeout(function() { afVoice = false }, 500);
 			
-			if(this.slippedyIdx === 3)
-			{
-				this.slippedyIdx = 0;
-				vehicle.setReduceGrip(true);
-			}
-			else
-			{
-				vehicle.setReduceGrip(false);
+			if(typeof(localPlayer.getVariable("player.blocks")) != "undefined") {
+				let playerBlocks = localPlayer.getVariable("player.blocks");
+				if(typeof(playerBlocks.mute) !== "undefined") return notyAPI.error("Вы не можете говорить в голосовой чат, у Вас заглушка.", 3000, true);
 			}
 			
-			let velocity = vehicle.getVelocity();
-			let speed = vehicle.getSpeed();
+			mp.voiceChat.muted = false;
+			//mp.voiceChat.setPreprocessingParam(10,1);
+			if(hud_browser) hud_browser.execute('playSound("voice_on", 0.25);');
 			
-			let health = vehicle.getBodyHealth();
-			
-			///
-			let fv = vehicle.getForwardVector();
-			let fvn = normalize2d(fv.x, fv.y);
-			let fvvn = normalize2d(velocity.x, velocity.y);
-			
-			driftAngle = mp.game.gameplay.getAngleBetween2dVectors(fvn[0], fvn[1], fvvn[0], fvvn[1]);
-			
-			let angleOk = (driftAngle >= consts.MinAngle && driftAngle <= consts.MaxAngle);
-			let speedOk = (speed >= consts.MinSpeed);
-			let damageOk = this.isDrifting ? (health >= this.startSnapshot.health) : true;
-			let posOk = (vehicle.position.z >= 0);
-			
-			let isDriftingNow = (angleOk && speedOk && damageOk && posOk);
-			
-			if(this.isDrifting)
-            { 
-				if(isDriftingNow)
-				{
-					this.badAngleSince = 0;
-					this.onDriftProcessed(driftAngle, speed, true);
-				}
-				else
-				{
-					let end = true;
-					
-					if(!angleOk && speedOk && damageOk)
-					{
-						if(this.badAngleSince === 0)
-						{
-							this.badAngleSince = Date.now();
-							end = false;
-						}
-						else if((Date.now() - this.badAngleSince) < 2000)
-						{
-							end = false;
-						}
-					}
-					
-					if(end)
-					{
-						this.onDriftEnded(!angleOk ? consts.DriftEndReason.LowAngle : (!speedOk ? consts.DriftEndReason.LowSpeed : consts.DriftEndReason.DamageDetected));						
-						vehicle.setReduceGrip(false);
-					}
-					else
-					{
-						this.onDriftProcessed(driftAngle, speed, false, ((Date.now() - this.badAngleSince) / 2000));
-
-					}
-				}
-			}
-			else if(isDriftingNow)
-			{
-				this.onDriftStarted(vehicle, health);
-			}
-		}
-		else if(this.isDrifting)
-		{
-			this.onDriftEnded(consts.DriftEndReason.OutOfVehicle);
-		}
-	},
-	
-	addCallback: function(cb, type)
-	{
-		if(typeof(type) === 'number' && type >= 0 && type <= 2)
-		{
-			let api = this.api[type];
-			
-			if(api.indexOf(cb) === -1)
-			{
-				api.push(cb);
-			}
+			localPlayer.playFacialAnim("mic_chatter", "mp_facial");
 		}
 	}
-};
-
-mp.events.add("render", () =>
-{
-	driftMngr.pulse();
 });
 
-let counter =
-{
-	currentScore: 0,
-	startTimestamp: 0,
-	
-	allScore: 0,
-	
-	init: function()
-	{
-		driftMngr.addCallback(this.start.bind(this), 0);
-		driftMngr.addCallback(this.end.bind(this), 1);
-		driftMngr.addCallback(this.process.bind(this), 2);
-	},
-	
-	start: function()
-	{
-		if(vehSeat == -1) {
-			this.currentScore = 0;
-			this.startTimestamp = Date.now();
+mp.keys.bind(0x58, false, function() {
+	if(voiceChatEnabled) {
+		if(!mp.voiceChat.muted) {
+			afVoice = true;
+			setTimeout(function() { afVoice = false }, 500);
 			
-			if(hud_browser) hud_browser.execute('toggleDriftPanel(\'true\');');
-		}
-	},
-	
-	end: function(reason)
-	{
-		if(vehSeat == -1) {
-			if(hud_browser) hud_browser.execute('toggleDriftPanel();');
+			mp.voiceChat.muted = true;
+			if(hud_browser) hud_browser.execute('playSound("voice_off", 0.25);');
 			
-			if(reason === consts.DriftEndReason.LowSpeed || reason === consts.DriftEndReason.LowAngle)
-			{
-				if(this.currentScore > 1000 && this.currentScore > this.allScore) mp.events.callRemote('updateDriftScore', this.currentScore);
-				this.allScore += this.currentScore;					
-				
-				if(this.currentScore >= consts.FinishResults.Low)
-				{
-					if(this.currentScore >= consts.FinishResults.High)
-					{
-						// show a message?
-					}
-					else if(this.currentScore >= consts.FinishResults.Mid)
-					{
-					}
-					else
-					{
-					}
-				}
-			}
-			else
-			{
-			}
-		}
-	},
-	
-	process: function(angle, speed, active, stopProgress)
-	{
-		if(vehSeat == -1) {
-			if(active)
-			{
-				let score = (((angle - consts.MinAngle) * consts.AngleMultiply)
-					+ ((speed - consts.MinSpeed) * consts.SpeedMultiply));
-					
-				let timePassed = Date.now() - this.startTimestamp;
-				
-				if(timePassed > consts.TimeBonusStart)
-				{
-					score *= ((timePassed - consts.TimeBonusStart) * consts.TimeMultiply);
-				}
-				
-				score *= 0.00002;
-				
-				this.currentScore += score;
-			}
-			
-			let d = new Date(Date.now() - this.startTimestamp);
-			
-			let m = d.getMinutes().toString();
-			let s = d.getSeconds().toString();
-			
-			if(m.length === 1) m = "0" + m;
-			if(s.length === 1) s = "0" + s;
-			
-			let newTime = `${m}:${s}`;
-			
-			if(hud_browser) hud_browser.execute('updateDriftPanel(\''+this.currentScore.toFixed(0)+'\',\''+newTime+'\');');
+			//mp.events.callRemote("remove_mytalk");
+			localPlayer.playFacialAnim("mood_normal_1", "facials@gen_male@variations@normal");
 		}
 	}
+});
+
+var voiceManager =
+{
+	listeners: [],
+	
+	add: function(player) {
+		this.listeners.push(player);
+		
+		player.isListening = true;
+		mp.events.callRemote("add_voice_listener", player);
+		
+		player.voice3d = true;
+		
+		let localPos = localPlayer.position;
+		let playerPos = player.position;
+		let dist = mp.game.system.vdist(playerPos.x, playerPos.y, playerPos.z, localPos.x, localPos.y, localPos.z);
+		if(dist > maxVoiceChatRange) voiceManager.remove(player, true);
+		else player.voiceVolume = 1 - (dist / maxVoiceChatRange);
+	},
+	
+	remove: function(player, notify) {
+		let idx = this.listeners.indexOf(player);
+		if(idx !== -1) {
+			delete(this.listeners[idx]);
+			this.listeners = this.listeners.filter(function (el) { return el != null; });
+		}
+			
+		player.isListening = false;
+		player.voiceVolume = 0;
+		if(notify) mp.events.callRemote("remove_voice_listener", player);
+	}
 };
-counter.init();
+
+function restartVoiceChat() {
+	mp.players.forEachInStreamRange(player => {
+		if(player != localPlayer) {
+			if(player.isListening) voiceManager.remove(player, true);
+		}
+	});
+	mp.voiceChat.cleanupAndReload(true, true, true);
+}
+
+function toggleVoiceChat(theState) {
+	if(typeof(theState) !== "undefined") {
+		voiceChatEnabled = theState;
+		if(!voiceChatEnabled) {
+			mp.players.forEachInStreamRange(player => {
+				if(player != localPlayer && player.isListening) voiceManager.remove(player, true);
+			});
+		}
+	}
+}
+
+mp.events.add("playerQuit", (player) => {
+	if(player.isListening) voiceManager.remove(player, false);
+});
+
+mp.events.add("toggleTalker", (player, val) => {
+	if(mp.players.exists(player)) {
+		if(player.handle !== 0) {
+			if(player.isListening) {
+				if(!val) {
+					player.voiceVolume = 0;
+				}else{
+					let localPos = localPlayer.position;
+					let playerPos = player.position;		
+					let dist = mp.game.system.vdist(playerPos.x, playerPos.y, playerPos.z, localPos.x, localPos.y, localPos.z);
+					if(dist > maxVoiceChatRange) voiceManager.remove(player, true);
+					else player.voiceVolume = 1 - (dist / maxVoiceChatRange);
+				}
+			}
+		}else{
+			voiceManager.remove(player, true);
+		}
+	}else{
+		voiceManager.remove(player, true);
+	}
+});
+
+setInterval(() => {
+	if(voiceChatEnabled) {
+		let localPos = localPlayer.position;
+		
+		mp.players.forEachInStreamRange(player => {
+			if(player != localPlayer) {
+				if(!player.isListening) {
+					const playerPos = player.position;		
+					let dist = mp.game.system.vdist(playerPos.x, playerPos.y, playerPos.z, localPos.x, localPos.y, localPos.z);
+					
+					if(dist <= maxVoiceChatRange) voiceManager.add(player);
+				}
+			}
+		});
+		
+		voiceManager.listeners.forEach((player) => {
+			if(player.handle !== 0) {
+				let playerPos = player.position;		
+				let dist = mp.game.system.vdist(playerPos.x, playerPos.y, playerPos.z, localPos.x, localPos.y, localPos.z);
+				
+				if(dist > maxVoiceChatRange) voiceManager.remove(player, true);
+				else if(player.voiceVolume) player.voiceVolume = 1 - (dist / maxVoiceChatRange);
+			}else{
+				voiceManager.remove(player, true);
+			}
+		});
+	}
+	if(typeof(chatVisualMessages) !== "undefined" && Object.keys(chatVisualMessages).length > 0) {
+		for(let i in chatVisualMessages) {
+			let lifeTime = chatVisualMessages[i].lifeTime;
+			let curDate = Date.parse(new Date());
+			//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+chatVisualMessages[i].clearMsg+"</span>");
+			if((lifeTime - curDate) <= 0) delete chatVisualMessages[i];
+		}
+	}
+	/*if(typeof(trasserLinks) !== "undefined" && Object.keys(trasserLinks).length > 0) {
+		for(let i in trasserLinks) {
+			let lifeTime = trasserLinks[i].lifeTime;
+			let curDate = Date.parse(new Date());
+			if((lifeTime - curDate) <= 0) delete trasserLinks[i];
+		}
+	}*/
+}, 500);
+
+/*
+mp.events.add("playerStartTalking", (player) => {
+	chatAPI.sysPush("<span style=\"color:#FF6146;\"> * Кто-то начал пиздеть</span>");
+	if(!player.isPlayerTalking) player.isPlayerTalking = true;
+});
+
+mp.events.add("playerStopTalking", (player) => {
+	chatAPI.sysPush("<span style=\"color:#FF6146;\"> * Кто-то закончил пиздеть</span>");
+	if(player.isPlayerTalking) player.isPlayerTalking = false;
+});
+*/
 }

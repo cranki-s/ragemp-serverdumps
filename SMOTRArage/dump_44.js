@@ -1,58 +1,52 @@
 {
-var fVehInStream = [];
+var globalAdmEvent = {};
+var premissionToGlobalAdmEvent = false;
 
-mp.events.add('playerEnterColshape', (shape) => {
-	if(typeof(shape) != "undefined") {
-		if(mp.colshapes.exists(shape)) {
-			if(typeof(shape.data) == "undefined") {
-				if(shape.getVariable('col.type')) {
-					let colType = shape.getVariable('col.type');
-					if(colType == 'freeVeh_render') {
-						let fVehData = shape.getVariable('col.data');
-						
-						let fVehMarker = mp.markers.new(1, new mp.Vector3(fVehData[0], fVehData[1], fVehData[2]), 2.5,
-						{
-							direction: new mp.Vector3(0, 0, 0),
-							rotation: new mp.Vector3(0, 0, 0),
-							color: [214, 35, 30, 0],
-							visible: true,
-							dimension: 0
-						});
-						
-						let fVehArray = {'marker': fVehMarker, 'pos': [fVehData[0], fVehData[1], fVehData[2]], 'alpha': 0};
-						fVehInStream.push(fVehArray);
-						fVehMarker = null;
-						return null;
-					}
-				}
-			}
+function refreshGlobalAdmEvent(newValue) {
+	if(typeof(newValue) !== "undefined") globalAdmEvent = newValue;
+	else if(typeof(mp.world.data["globalAdmEvent"]) !== "undefined") globalAdmEvent = mp.world.data["globalAdmEvent"];
+	if(globalAdmEvent) {
+		if(JSON.stringify(globalAdmEvent) == "{}") {
+			chatAPI.notifyPush("Глобальное мероприятие <span style=\"color:#FEBC00\"><b>окончено</b></span>, спасибо Всем за участие!");
+			mp.game.ui.notifications.showWithPicture("Рупор свободы", "Мероприятие окончено", "Спасибо Всем за участие, до скорых встреч!", "CHAR_MP_STRIPCLUB_PR", 1, false, 1, 2);
 		}
+	}
+}
+			
+mp.events.add("globalAdmEventStarted", (eventMembers, eventName) => {
+	if(typeof(eventMembers) !== "undefined" && typeof(eventName) !== "undefined") {
+		if(localPlayer.dimension != 0) return false;
+		if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
+			if(localPlayer.getVariable("active.deal")) return false;
+		}
+		if(typeof(localPlayer.getVariable("player.blocks")) != "undefined") {
+			let playerBlocks = localPlayer.getVariable("player.blocks");
+			if(typeof(playerBlocks.jail) !== "undefined") return false;
+		}
+		
+		chatAPI.notifyPush("Начинается глобальное мероприятие <span style=\"color:#FEBC00\"><b>"+eventName+"</b></span> на <span style=\"color:#FEBC00\"><b>"+eventMembers+"</b></span> чел.");
+		chatAPI.notifyPush("Прямо сейчас нажмите <span style=\"color:#FEBC00\"><b>F8</b></span> что-бы принять участие!");
+		mp.game.ui.notifications.showWithPicture("Рупор свободы", "Глобальное мероприятие", "Нажми F8 что бы учавстовать!", "CHAR_MP_STRIPCLUB_PR", 1, false, 1, 2);
+		
+		premissionToGlobalAdmEvent = true;
 	}
 });
 
-mp.events.add('playerExitColshape', (shape) => {
-	if(typeof(shape) != "undefined") {
-		if(mp.colshapes.exists(shape)) {
-			if(typeof(shape.getVariable('col.type')) != "undefined") {
-				let colType = shape.getVariable('col.type');
-				if(colType == 'freeVeh_render') {
-					let fVehData = shape.getVariable('col.data');
-					for(var i in fVehInStream) {
-						let tempData = fVehInStream[i];
-						let posData = tempData['pos'];
-						if (posData[0] == fVehData[0] && posData[1] == fVehData[1] && posData[2] == fVehData[2]) {
-							if(tempData['marker']) {
-								tempData['marker'].destroy();
-								delete tempData['marker'];
-							}
-							if(fVehInStream[i] || fVehInStream[i] !== undefined) delete fVehInStream[i];
-						}
-					}
-					fVehInStream = fVehInStream.filter(function (el) { return el != null; });
-					return null;
-				}
-			}
-		}
+mp.events.add("worldDataChanged", (key, oldValue, newValue) => {
+	if(key == "globalAdmEvent") refreshGlobalAdmEvent();
+});
+
+mp.events.add("triggerAdmEvent", (eventMembers, eventName) => {
+	if(typeof(eventMembers) !== "undefined" && typeof(eventName) !== "undefined") {
+		chatAPI.notifyPush("Начинаем глобальное мероприятие <span style=\"color:#FEBC00\"><b>"+eventName+"</b></span> на <span style=\"color:#FEBC00\"><b>"+eventMembers+"</b></span> чел.");
+		mp.events.callRemote('triggerAdmEvent', eventMembers, eventName);
+	}
+});
+
+mp.events.add("globalAdmEventOk", (eventName) => {
+	if(typeof(eventName) !== "undefined") {
+		chatAPI.notifyPush("Вы приняли участие в глобальном мероприятии <span style=\"color:#FEBC00\"><b>"+eventName+"</b></span>.");
+		mp.game.ui.messages.showMidsizedShard("~y~Участие ~w~в мероприятии", "~s~~h~"+eventName+"", 5, false, true, 5000);
 	}
 });
 }

@@ -828,7 +828,7 @@ mp.events.add('render', () => {
                 drawText(interiorName, [minimap.rightX + WidescreenOffset_X + streetHUD_X, minimap.bottomY + WidescreenOffset_Y - streetHUD_Y], 4, [255, 255, 255, 200], streetHUD_Scale, streetHUD_Center);
             }
 
-            drawText("GTA-WORLD.RU - ~y~Roleplay v2.7 ~w~- " + m_onlineCount + "/1500", [(res_X / 2) / res_X, (res_Y - playerHUD_Y) / res_Y], 4, [255, 255, 255, 200], playerHUD_Scale, true);
+            drawText("GTA-WORLD.RU - ~y~Roleplay v2.7.10 ~w~- " + m_onlineCount + "/1500", [(res_X / 2) / res_X, (res_Y - playerHUD_Y) / res_Y], 4, [255, 255, 255, 200], playerHUD_Scale, true);
         }
         /*if (isInCCTV === true) {
             // CCTV UI
@@ -884,4 +884,4 @@ weaponSlots.forEach(weaponSlot => {
 });
 mp.events.callRemote('send_weaponlist', weapons);*/
 }
-}ȑ
+}얜˥

@@ -42,4 +42,4 @@ mp.events.add("render", () => {
     }
 });
 
-}`
+}ȫ

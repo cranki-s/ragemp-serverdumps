@@ -2067,18 +2067,19 @@ mp.events.add('entityStreamIn', (entity) => {
 
         }
 
-        if (entity !== mp.players.local)
-        {
-            toSync = true;
-            entityListToSync.push(entity);
+        if (entity !== mp.players.local) {
+            /*toSync = true;
+            entityListToSync.push(entity);*/
+            mp.events.callRemote("ReplayAnim", entity);
         }
+        
         if(DebugValues)
             mp.gui.chat.push("[DEBUG] event_handler.js - END");
     } catch(e){
 
     }
 });
-
+/*
 setInterval(function(){ 
     if (toSync)
     {
@@ -2087,7 +2088,7 @@ setInterval(function(){
         entityListToSync = [];
         toSync = false;
     }
-}, 500);
+}, 500);*/
 
 mp.events.add("CreatePermanentObject", (model, x, y, z, rotx, roty, rotz, dim, dropped, collision, property) => {
     var object = mp.objects.new(model, new mp.Vector3(x,y,z), {

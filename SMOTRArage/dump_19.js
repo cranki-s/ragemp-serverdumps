@@ -1,193 +1,69 @@
 {
-var afJobPanel = false;
-var activeJOBoperation = false;
-var jobsInStream = [];
+var racingStartInStream = {};
+var createRacePanel = false;
+var dialogRacePanel = false;
 
-var jobPanel = false;
-mp.keys.bind(0x74, true, function() { // F5 Меню (Рабочий планшет)
-	if(!allowBinds || !Array.isArray(allowBinds)) return false;
-	if(!allowBinds.includes(0x74)) return false;
-	
-	if(hud_browser) {
-		if(jobPanel) {
-			closeJobTablet(true);
-		}else{
-			if(afJobPanel) return false;
-			if(activeJOBoperation) return false;
-			afJobPanel = true;
-			setTimeout(function() { afJobPanel = false }, 1500);
-			
-			if(localPlayer.getVariable("player.job")) {
-				let jobData = localPlayer.getVariable("player.job");
-				if(jobData.name) {
-					//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+JSON.stringify(jobData)+"</span>");
-					hud_browser.execute('toggleJobsPanel(\''+JSON.stringify(jobData)+'\');');
-					mp.gui.cursor.visible = true;
-					jobPanel = true;
-					
-					allowBinds = [0x74];
-				}
-			}
-		}
-	}
-});
-
-function closeJobTablet(resBinds) {
-	if(hud_browser) {
-		hud_browser.execute('toggleJobsPanel()');
-		mp.gui.cursor.visible = false;
-		
-		if(resBinds) {
-			jobPanel = false;
-			restoreBinds();
-		}
-	}
-}
-mp.events.add("closeJobTablet", closeJobTablet);
-
-function leaveFromJob() {
-	if(localPlayer.getVariable("player.job")) {
-		let jobData = localPlayer.getVariable("player.job");
-		if(jobData.work != 0) return hud_browser.execute('jobPanelError(\'#makeLeaveFromJob\', \'Сначала завершите смену\')');
-	}
-
-	closeJobTablet(true);
-	
-	let myJobData = localPlayer.getVariable("player.job");
-	if(typeof(myJobData.name) !== 'undefined') {
-		if(myJobData.name == "winery") wineryForceStop();
-		else if(myJobData.name == "wineDelivery") wineDeliveryForceStop();
-		else if(myJobData.name == "taxi") taxiForceStop();
-	}
-	
-	mp.events.callRemote('leaveFromJob');
-	mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вы успешно уволились с работы", 5, false, true, 6500);
-}
-mp.events.add("leaveFromJob", leaveFromJob);
-
-function warnsJobFired(jobData) {
-	closeJobTablet(true);
-	mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вас уволили с работы без выплаты за последнюю смену.", 5, false, true, 6500);
-	
-	if(jobData) {
-		jobData = JSON.parse(jobData);
-		if(typeof(jobData.name) !== 'undefined') {
-			if(jobData.name == "winery") wineryForceStop();
-			else if(jobData.name == "wineDelivery") wineDeliveryForceStop();
-			else if(jobData.name == "taxi") taxiForceStop();
-		}
-	}
-}
-mp.events.add("warnsJobFired", warnsJobFired);
-
-function warnsJobRankDown() {
-	closeJobTablet(true);
-	mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вас понизили в ранге без выплаты за последнюю смену.", 5, false, true, 6500);
-}
-mp.events.add("warnsJobRankDown", warnsJobRankDown);
-
-function jobRankUp() {
-	closeJobTablet(true);
-	mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вас повысили в ранге, поздравляем!", 5, false, true, 6500);
-}
-mp.events.add("jobRankUp", jobRankUp);
-
-function unLockStopWork(isNaloged) {
-	if(typeof(isNaloged) !== "undefined") {
-		activeJOBoperation = false;
-		if(isNaloged) chatAPI.notifyPush("С зарплаты удержан подоходный налог в 13%, Ваша зарплата:"+isNaloged.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.");
-	}
-}
-mp.events.add("unLockStopWork", unLockStopWork);
-
-mp.events.add('playerEnterColshape', (shape) => {
-	if(typeof(shape.data) == 'undefined' && typeof(shape.id) != "undefined") {
-		if(typeof(shape.getVariable('col.type')) != "undefined") {
-			let colType = shape.getVariable('col.type');
-			if(colType == 'job_render') {
-				let jobData = shape.getVariable('col.data');
-				
-				let jobMarker = mp.markers.new(1, new mp.Vector3(parseFloat(jobData[0]), parseFloat(jobData[1]), parseFloat(jobData[2])), 1.1,
-				{
-					direction: new mp.Vector3(0, 0, 0),
-					rotation: new mp.Vector3(0, 0, 0),
-					color: [255, 0, 0, 200],
-					visible: true,
-					dimension: 0
-				});
-				
-				let jobCheck = mp.checkpoints.new(40, new mp.Vector3(parseFloat(jobData[0]), parseFloat(jobData[1]), parseFloat(jobData[2])), 1.0,
-				{
-					color: [255, 255, 255, 0],
-					visible: true,
-					dimension: localPlayer.dimension
-				});
-				jobCheck.jobData = jobData;
-				
-				let jobArray = {'marker': jobMarker, 'check': jobCheck, 'data': jobData[4], 'pos': [parseFloat(jobData[0]), parseFloat(jobData[1]), parseFloat(jobData[2])], 'alpha': 0};
-				jobsInStream.push(jobArray);
-			}
-		}
-	}
-});
+var activeStreetRace = false;
 
 mp.events.add("playerEnterCheckpoint", (checkpoint) => {
 	if(mp.checkpoints.exists(checkpoint)) {
-		if(typeof(checkpoint.jobData) !== "undefined") {
-			let jobData = checkpoint.jobData;
-			let jData = JSON.parse(jobData[4]);
-			
-			//if(jData.name == "Работа в такси") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Работа такси на доработке, попробуйте позже.</span>");
-			
-			if(localPlayer.getVariable("player.job") && !localPlayer.vehicle && hud_browser) {
-				let myJobData = localPlayer.getVariable("player.job");
-				if(myJobData.name) {
-					if(myJobData.name == jobData[3].toString()) {
-						chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы уже работаете на этой работе.</span>");
-						return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Используйте рабочий планшет для управления сменами (<b>F5</b>)</span>");
-					}else{
-						chatAPI.sysPush("<span style=\"color:#FF6146\"> * Что бы устроится сюда, необходимо быть безработным.</span>");
-						return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Увольтесь с текущей работы, через планшет (<b>F5</b>)</span>");
+		if(mp.checkpoints.exists(streetRaceCheckpoint)) {
+			if(streetRaceCheckpoint == checkpoint && activeStreetRace) {
+				mp.events.callRemote('finishStreetRace', JSON.stringify(activeStreetRace));
+				if(mp.checkpoints.exists(streetRaceCheckpoint)) {
+					streetRaceCheckpoint.destroy();
+					streetRaceCheckpoint = false;
+				}
+				if(mp.blips.exists(streetRaceBlip)) {
+					streetRaceBlip.destroy();
+					streetRaceBlip = false;
+				}
+				activeStreetRace = false;
+			}
+		}else{
+			if(typeof(checkpoint.getVariable("checkpoint.type")) !== "undefined") {
+				let checkPointType = checkpoint.getVariable("checkpoint.type");
+				if(checkPointType == "racingStart_render") {
+					if(typeof(checkpoint.getVariable("checkpoint.data")) !== "undefined") {
+						let racingStartData = checkpoint.getVariable("checkpoint.data");
+						let posData = new mp.Vector3(parseFloat(checkpoint.position.x), parseFloat(checkpoint.position.y), parseFloat(checkpoint.position.z)-1.1);
+						let racingStartMarker = mp.markers.new(1, posData, 2.4,
+						{
+							direction: new mp.Vector3(0, 0, 0),
+							rotation: new mp.Vector3(0, 0, 0),
+							color: [82, 202, 219, 200],
+							visible: true,
+							dimension: 0
+						});
+						racingStartInStream[racingStartData.key] = {'pos':posData,'marker':racingStartMarker.id.toString(),'alpha':0};
 					}
-				}else{
-					if(jobData[3].toString() == "winery") {
-						if(hud_browser) {
-							hud_browser.execute('toggleJobsPanel(\'{"name":"jobStartWinery"}\')');
-							mp.gui.cursor.visible = true;
+				}else if(checkPointType == "racingStart") {
+					if(hud_browser) {
+						if(typeof(checkpoint.getVariable("checkpoint.data")) !== "undefined") {
+							if(!localPlayer.vehicle) {
+								if(allowBinds != stockBinds) return false;
+								let racingStartData = checkpoint.getVariable("checkpoint.data");
+								allowBinds = [];
+								hud_browser.execute("toggleRacingPanel('"+racingStartData.active.toString()+"');");
+								mp.gui.cursor.visible = true;
+								createRacePanel = {"key":racingStartData.key,"checkID":racingStartData.checkID,"active":racingStartData.active.toString()};
+							}
 						}
-					}else if(jobData[3].toString() == "wineDelivery") {
-						if(hud_browser) {
-							hud_browser.execute('toggleJobsPanel(\'{"name":"jobStartWineDelivery"}\')');
-							mp.gui.cursor.visible = true;
-						}
-					}else if(jobData[3].toString() == "taxi") {
-						if(hud_browser) {
-							hud_browser.execute('toggleJobsPanel(\'{"name":"jobStartTaxi"}\')');
-							mp.gui.cursor.visible = true;
-						}
-					}else if(jobData[3].toString() == "air") {
-						if(hud_browser) {
-							hud_browser.execute('toggleJobsPanel(\'{"name":"jobStartAir"}\')');
-							mp.gui.cursor.visible = true;
-						}
-					}else if(jobData[3].toString() == "truck") {
-						if(hud_browser) {
-							hud_browser.execute('toggleJobsPanel(\'{"name":"jobStartTruck"}\')');
-							mp.gui.cursor.visible = true;
-						}
-					}else if(jobData[3].toString() == "courier") {
-						if(hud_browser) {
-							hud_browser.execute('toggleJobsPanel(\'{"name":"jobStartCourier"}\')');
-							mp.gui.cursor.visible = true;
-						}
-					}else if(jobData[3].toString() == "train") {
-						if(hud_browser) {
-							hud_browser.execute('toggleJobsPanel(\'{"name":"jobStartTrain"}\')');
-							mp.gui.cursor.visible = true;
-						}
-					}else if(jobData[3].toString() == "fire") {
-						if(hud_browser) {
-							hud_browser.execute('toggleJobsPanel(\'{"name":"jobStartFire"}\')');
+					}
+				}else if(checkPointType == "racingStart_startpos") {
+					if(hud_browser && localPlayer.vehicle && vehSeat == -1) {
+						if(typeof(checkpoint.getVariable('checkpoint.data')) !== "undefined") {
+							if(allowBinds != stockBinds) return false;
+							
+							let racingStartCheckData = checkpoint.getVariable('checkpoint.data');
+							if(racingStartCheckData.racer) return notyAPI.error("Кто-то уже занял эту позицию, выбери другую.", 3000, true);
+							if(typeof(localPlayer.getVariable("player.money")) === "undefined") return notyAPI.error("Недостаточно средств для участия в заезде.", 3000, true);
+							if(parseInt(localPlayer.getVariable("player.money")) < parseInt(racingStartCheckData.cost)) return notyAPI.error("Недостаточно средств для участия в заезде.", 3000, true);
+							
+							allowBinds = [];
+							dialogRacePanel = {"key":racingStartCheckData.key,"subkey":racingStartCheckData.subkey,"cost":racingStartCheckData.cost.toString(),"heading":racingStartCheckData.heading.toString(),"racer":racingStartCheckData.racer.toString()};
+							activeStreetRace = JSON.parse(JSON.stringify(dialogRacePanel));
+							hud_browser.execute("toggleRacingDialogPanel('"+racingStartCheckData.cost.toString()+"');");
 							mp.gui.cursor.visible = true;
 						}
 					}
@@ -197,173 +73,228 @@ mp.events.add("playerEnterCheckpoint", (checkpoint) => {
 	}
 });
 
-mp.events.add('playerExitColshape', (shape) => {
-	if(typeof(shape.data) == 'undefined' && typeof(shape.id) != "undefined") {
-		if(typeof(shape.getVariable('col.type')) != "undefined") {
-			let colType = shape.getVariable('col.type');
-			if(colType == 'job_render') {
-				let jobRenderData = shape.getVariable('col.data');
-				for(var i in jobsInStream) {
-					let tempData = jobsInStream[i];
-					let posData = tempData['pos'];
-					if (posData[0] == jobRenderData[0] && posData[1] == jobRenderData[1] && posData[2] == jobRenderData[2]) {
-						if(tempData['marker']) {
-							tempData['marker'].destroy();
-							delete tempData['marker'];
-						}
-						if(tempData['check']) {
-							tempData['check'].destroy();
-							delete tempData['check'];
-						}
-						if(jobsInStream[i] || jobsInStream[i] !== undefined) delete jobsInStream[i];
+mp.events.add("acceptStreetRace", () => {
+	if(hud_browser) {
+		if(dialogRacePanel && localPlayer.vehicle) {
+			let theVeh = localPlayer.vehicle;
+			if(typeof(theVeh.getVariable('veh.own')) !== "undefined") {
+				let vehOwn = mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.own')));
+				if(vehOwn.remoteId.toString() == localPlayer.remoteId.toString()) {
+					if(mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.own')))) {
+						let vehOwn = mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.own')));
+						if(vehOwn.remoteId.toString() != localPlayer.remoteId.toString()) return hud_browser.execute("createRacePanelError(2, 'Только личное ТС');");
+					}else{
+						return hud_browser.execute("createRacePanelError(2, 'Только личное ТС');");
 					}
-					tempData = null;
+					if(theVeh.getVariable('veh.num') == "theMoto") return hud_browser.execute("createRacePanelError(2, 'На мото нельзя');");
+					
+					if(typeof(theVeh.getVariable('veh.params')) !== "undefined") {
+						let vehParams = JSON.parse(theVeh.getVariable("veh.params"));
+						if(typeof(vehParams.rent) !== "undefined") return hud_browser.execute("createRacePanelError(2, 'Это арендованый транспорт');");
+					}
+					
+					if(theVeh.getClass() == 15) return hud_browser.execute("createRacePanelError(2, 'Это арендованый транспорт');");
+				}else{
+					return hud_browser.execute("createRacePanelError(2, 'Только личное ТС');");
 				}
-				jobsInStream = jobsInStream.filter(function (el) { return el != null; });
-				
-				jobRenderData = null;
-				return null;
+			}else{
+				return hud_browser.execute("createRacePanelError(2, 'Только личное ТС');");
+			}
+			
+			if(dialogRacePanel.racer == "true") return hud_browser.execute("createRacePanelError(2, 'На этой позиции уже есть гонщик');");
+			hud_browser.execute("toggleRacingDialogPanel();");
+			mp.gui.cursor.visible = false;
+			localPlayer.freezePosition(true);
+			if(localPlayer.vehicle) localPlayer.vehicle.freezePosition(true);
+			
+			if(dialogRacePanel.cost) mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~уличная гонка", "~s~Вы успешно приняли эту зарубу!~n~Оплачен взнос:"+dialogRacePanel.cost.replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.", 5, false, true, 6500);
+			
+			mp.events.callRemote('acceptStreetRace', JSON.stringify(dialogRacePanel));
+			localPlayer.vehicle.setHeading(parseFloat(dialogRacePanel.heading));
+		}
+	}
+});
+
+mp.events.add("acceptStreetRaceError", (errorText) => {
+	if(hud_browser) {
+		if(typeof(errorText) !== "undefined") return hud_browser.execute("createRacePanelError(2, '"+errorText+"');");
+	}
+});
+
+mp.events.add("closeRacingDialogPanel", () => {
+	if(hud_browser) {
+		if(dialogRacePanel) {
+			dialogRacePanel = false;
+			activeStreetRace = false;
+			if(hud_browser) {
+				hud_browser.execute("toggleRacingDialogPanel();");
+				mp.gui.cursor.visible = false;
+				restoreBinds();
 			}
 		}
+	}
+});
+
+mp.events.add("createStreetRace", (streetRaceCost) => {
+	if(hud_browser) {
+		if(createRacePanel) {
+			if(createRacePanel.active == "true") return hud_browser.execute("createRacePanelError(1, 'Кто-то уже начал гоночный сеанс!');");
+			if(typeof(streetRaceCost) === "undefined") return hud_browser.execute("createRacePanelError(1, 'Вы не указали сумму взноса');");
+			if(!streetRaceCost) return hud_browser.execute("createRacePanelError(1, 'Минимальный взнос 10 000 руб.');");
+			else if(parseInt(streetRaceCost) < 10000) return hud_browser.execute("createRacePanelError(1, 'Минимальный взнос 10 000 руб.');");
+			else if(parseInt(streetRaceCost) > 500000) return hud_browser.execute("createRacePanelError(1, 'Максимальный взнос 500 000 руб.');");
+			mp.events.callRemote('createStreetRace', streetRaceCost, JSON.stringify(createRacePanel));
+			if(createRacePanel) createRacePanel = false;
+			hud_browser.execute("toggleRacingPanel();");
+			mp.gui.cursor.visible = false;
+			restoreBinds();
+		}
+	}
+});
+
+mp.events.add("raceNotifyCreated", (nick, id, cost) => {
+	if(hud_browser && typeof(nick) !== "undefined" && typeof(id) !== "undefined" && typeof(cost) !== "undefined") {
+		notyAPI.info("Уличная гонка где-то рядом, <b>"+nick+"</b> (<b>"+id+"</b>) уже всё организовал, взнос:<b>"+cost.replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b> руб.", 3000, true);
+		chatAPI.notifyPush("Уличная гонка где-то рядом, <span style=\"color:#FEBC00\"><b>"+nick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+id+"</b></span>) уже всё организовал, взнос:<span style=\"color:#FEBC00\"><b>"+cost.replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб.");
+		chatAPI.notifyPush("У Вас есть 60 секунд, что бы <span style=\"color:#FEBC00\"><b>занять свободную позицию</b></span> старта!");
+		mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~уличная гонка", "~s~Игрок "+nick+" ("+id+") создал гоночную сессию!~n~И это где-то очень рядом, взнос:"+cost.replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.", 5, false, true, 6500);
+	}
+});
+
+mp.events.add("streetRaceResult", (winMoney, nick, id) => {
+	if(typeof(nick) !== "undefined" && typeof(id) !== "undefined" && typeof(winMoney) !== "undefined") {
+		if(mp.checkpoints.exists(streetRaceCheckpoint)) {
+			streetRaceCheckpoint.destroy();
+			streetRaceCheckpoint = false;
+		}
+		if(mp.blips.exists(streetRaceBlip)) {
+			streetRaceBlip.destroy();
+			streetRaceBlip = false;
+		}
+		if(activeStreetRace) activeStreetRace = false;
+		if(hud_browser) {
+			chatAPI.notifyPush("Заезд окончен! <span style=\"color:#FEBC00\"><b>"+nick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+id+"</b></span>) забирает куш в размере <span style=\"color:#FEBC00\"><b>"+winMoney.replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб.");
+			mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~уличная гонка", "~s~Игрок "+nick+" ("+id+") одержал победу!~n~Куш в размере:"+winMoney.replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб. достаётся ему!", 5, false, true, 6500);
+		}
+	}
+});
+
+mp.events.add("createStreetRaceError", (errorText) => {
+	if(hud_browser) {
+		if(typeof(errorText) !== "undefined") return hud_browser.execute("createRacePanelError(1, '"+errorText+"');");
+	}
+});
+
+mp.events.add("closeRacingPanel", () => {
+	if(createRacePanel) createRacePanel = false;
+	if(hud_browser) {
+		hud_browser.execute("toggleRacingPanel();");
+		mp.gui.cursor.visible = false;
+		restoreBinds();
+	}
+});
+
+var streetRaceBlip = false, streetRaceCheckpoint = false;
+mp.events.add("readyRace", (result, cost, finish) => {
+	if(!result) {
+		finish = JSON.parse(finish);
+		streetRaceBlip = mp.blips.new(610, finish.pos, {
+			name: "Точка финиша уличной гонки",
+			scale: 1.1,
+			color: 1,
+			shortRange: false,
+			dimension: 0
+		});
+		streetRaceBlip.setRoute(true);
+		streetRaceBlip.setRouteColour(6);
+		
+		finish.pos.z = finish.pos.z - 10;
+		
+		streetRaceCheckpoint = mp.checkpoints.new(4, finish.pos, 20.5,
+		{
+			color: [242, 75, 75, 200],
+			visible: true,
+			dimension: 0
+		});
+		
+		if(activeStreetRace) {
+			let cd = 0;
+			let cdInterval = setInterval(function(){
+				cd++;
+				if(cd == 1) {
+					if(hud_browser) hud_browser.execute('playSound("raceCD", "0.2");');
+					mp.game.ui.messages.showShard("Ready", "Давно тебя не было в уличных гонках..", 6, 2, 2000);
+				}else if(cd == 2) {
+					if(hud_browser) hud_browser.execute('playSound("raceCD", "0.25");');
+					mp.game.ui.messages.showShard("Set", "Готовься к старту!", 6, 2, 2000);
+				}else if(cd == 3) {
+					if(hud_browser) hud_browser.execute('playSound("raceCDGo", "0.3");');
+					mp.game.ui.messages.showShard("GO", "Вперёд! Поехали!!!", 6, 2, 2000);
+					clearInterval(cdInterval);
+					localPlayer.freezePosition(false);
+					if(localPlayer.vehicle) localPlayer.vehicle.freezePosition(false);
+				}
+			}, 1500);
+		}
+	}else{
+		if(activeStreetRace) activeStreetRace = false;
+		if(mp.checkpoints.exists(streetRaceCheckpoint)) {
+			streetRaceCheckpoint.destroy();
+			streetRaceCheckpoint = false;
+		}
+		if(mp.blips.exists(streetRaceBlip)) {
+			streetRaceBlip.destroy();
+			streetRaceBlip = false;
+		}
+		localPlayer.freezePosition(false);
+		if(localPlayer.vehicle) localPlayer.vehicle.freezePosition(false);
+		return notyAPI.error("Уличная гонка сорвалась, причина: <b>"+result+"</b>", 3000, true);
+	}
+});
+
+mp.events.add("playerDeath", (player, reason, killer) => {
+    if(activeStreetRace) activeStreetRace = false;
+	if(mp.checkpoints.exists(streetRaceCheckpoint)) {
+		streetRaceCheckpoint.destroy();
+		streetRaceCheckpoint = false;
+	}
+	if(mp.blips.exists(streetRaceBlip)) {
+		streetRaceBlip.destroy();
+		streetRaceBlip = false;
 	}
 });
 
 mp.events.add("playerExitCheckpoint", (checkpoint) => {
 	if(mp.checkpoints.exists(checkpoint)) {
-		if(typeof(checkpoint.jobData) !== "undefined") {
-			return closeJobTablet();
-		}
-	}
-});
-
-var jobVehBackTimer = false;
-function checkVehInWorkOnJob(vehicle, seat) {
-	if(vehicle && localPlayer.getVariable("player.job")) {
-		if(curCourierTask && parkingVeh) {
-			if(typeof(curCourierTask.courier) !== "undefined") {
-				if(typeof(vehicle.getVariable("veh.id")) !== "undefined") {
-					if(vehicle.getVariable("veh.id").toString() == curCourierTask.courier) parkingVeh = vehicle;
-				}
-			}else if(typeof(curTruckTask.curPoint) !== "undefined") {
-				if(typeof(vehicle.getVariable("veh.job")) !== "undefined") {
-					let vehJob = mp.players.atRemoteId(parseInt(vehicle.getVariable('veh.job')));
-					if(vehJob.remoteId.toString() == localPlayer.remoteId.toString()) {
-						if(curTruckTask.curPoint != "getCargo") {
-							if(typeof(trailersPool) !== "undefined") {
-								if(typeof(trailersPool[vehicle.handle.toString()]) !== "undefined") {
-									if(typeof(trailersPool[vehicle.handle.toString()].trailer) !== "undefined") {
-										let tempTrailer = trailersPool[vehicle.handle.toString()].trailer;
-										if(mp.vehicles.exists(tempTrailer) && mp.vehicles.exists(entity)) parkingVeh = tempTrailer;
-									}
-								}
-							}
-						}else{
-							parkingVeh = vehicle;
-						}
+		if(typeof(checkpoint.getVariable("checkpoint.type")) !== "undefined") {
+			let checkPointType = checkpoint.getVariable("checkpoint.type");
+			if(checkPointType == 'racingStart_render') {
+				if(typeof(checkpoint.getVariable('checkpoint.data')) !== "undefined") {
+					let racingStartData = checkpoint.getVariable('checkpoint.data');
+					if(typeof(racingStartInStream[racingStartData.key]) !== "undefined") {
+						let tempData = racingStartInStream[racingStartData.key];
+						let tempMarker = mp.markers.at(parseInt(tempData['marker']));
+						if(mp.markers.exists(tempMarker)) tempMarker.destroy();
+						racingStartInStream[racingStartData.key] = undefined;
+						racingStartInStream = JSON.parse(JSON.stringify(racingStartInStream));
 					}
 				}
-			}
-		}
-		let myJobData = localPlayer.getVariable("player.job");
-		if(typeof(myJobData.name) !== 'undefined') {
-			if(myJobData.name == "winery") {
-				if(typeof(myJobData.work) !== 'undefined' && myJobData.work == 1) {
-					if(typeof(vehicle.getVariable("veh.hash")) !== "undefined") {
-						if(vehicle.getVariable("veh.hash") != "faggio") {
-							mp.game.ui.notifications.showWithPicture("Босс", "Никакого транспорта", "Только на мопедах по полям. Предупреждение.", "CHAR_MRS_THORNHILL", 1, false, 1, 2);
-							mp.events.callRemote('warnJob');
-						}
-					}else{
-						mp.game.ui.notifications.showWithPicture("Босс", "Никакого транспорта", "Только на мопедах по полям. Предупреждение.", "CHAR_MRS_THORNHILL", 1, false, 1, 2);
-						mp.events.callRemote('warnJob');
-					}
+			}else if(checkPointType == "racingStart") {
+				if(createRacePanel) createRacePanel = false;
+				if(hud_browser) {
+					hud_browser.execute("toggleRacingPanel();");
+					mp.gui.cursor.visible = false;
+					restoreBinds();
 				}
-			}
-			if(seat == -1) {
-				if(typeof(vehicle.getVariable("veh.job")) !== "undefined") {
-					if(mp.players.atRemoteId(parseInt(vehicle.getVariable('veh.job')))) {
-						let vehJob = mp.players.atRemoteId(parseInt(vehicle.getVariable('veh.job')));
-						if(vehJob.remoteId.toString() == localPlayer.remoteId.toString()) {
-							if(jobVehBackTimer) {
-								clearTimeout(jobVehBackTimer);
-								mp.game.ui.messages.showMidsized("~s~Вы вернулись в ~g~рабочий транспорт", "~s~Теперь всё в полном порядке ^_^");
-								/*if(curTruckTask && parkingVeh) {
-									if(typeof(curTruckTask.curPoint) !== "undefined") parkingVeh = vehJob;
-								}*/
-							}
-						}
-					}
+			}else if(checkPointType == "racingStart_startpos") {
+				if(dialogRacePanel) dialogRacePanel = false;
+				if(hud_browser) {
+					hud_browser.execute("toggleRacingDialogPanel();");
+					mp.gui.cursor.visible = false;
+					restoreBinds();
 				}
-			}
-		}
-	}
-}
-mp.events.add("playerEnterVehicle", checkVehInWorkOnJob);
-
-function checkVehOutWorkOnJob(vehicle, seat) {
-	if(vehicle && localPlayer.getVariable("player.job")) {
-		let myJobData = localPlayer.getVariable("player.job");
-		if(typeof(myJobData.name) !== 'undefined') {
-			if(typeof(vehicle.getVariable("veh.job")) !== "undefined") {
-				if(mp.players.atRemoteId(parseInt(vehicle.getVariable('veh.job')))) {
-					let vehJob = mp.players.atRemoteId(parseInt(vehicle.getVariable('veh.job')));
-					if(vehJob.remoteId.toString() == localPlayer.remoteId.toString()) {
-						if(typeof(myJobData.work) !== "undefined") {
-							if(myJobData.work == 1) {
-								if(myJobData.name != "air" && myJobData.name != "fire") {
-									chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы покинули рабочий транспорт, у Вас есть 5 минут что бы вернуться в него.</span>");
-									mp.game.ui.messages.showMidsized("~s~Вы покинули ~r~рабочий транспорт", "~s~У Вас есть 5 минут что бы вернуться в него.\nИначе - смена будет закрыта автоматически.");
-									if(myJobData.name == "wineDelivery") jobVehBackTimer = setTimeout(wineDeliveryStartStop, 300000);
-									else if(myJobData.name == "taxi") jobVehBackTimer = setTimeout(taxiStartStop, 300000);
-									else if(myJobData.name == "truck") jobVehBackTimer = setTimeout(truckStartStop, 300000);
-								}else{
-									if(curAirTask) {
-										chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы покинули рабочий транспорт, задача отменена.</span>");
-										mp.game.ui.messages.showMidsized("~s~Вы покинули ~r~рабочий транспорт", "~s~Задача отменена автоматически.");
-										
-										airTasksBlocked = true;
-										setTimeout(function() {
-											mp.game.ui.notifications.showWithPicture("ЦУП", "Задачи доступны", "Мы разблокировали Вам задачи.", "CHAR_ACTING_UP", 1, false, 1, 2);
-											airTasksBlocked = false;
-										}, 60000);
-										
-										mp.events.call("sleepAntiCheat");
-										
-										if(curAirTask) mp.events.callRemote('cancelAirTask', JSON.stringify(curAirTask), false);
-										curAirTask = false;
-										
-										if(mp.blips.exists(airBlip)) airBlip.destroy();
-										airBlip = false;
-										if(mp.checkpoints.exists(airCheckpoint)) airCheckpoint.destroy();
-										airCheckpoint = false;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-}
-mp.events.add("playerLeaveVehicle", checkVehOutWorkOnJob);
-
-mp.events.addDataHandler('player.job', function (entity, value, oldValue) {
-	if(entity && entity.type === 'player' && typeof(value) != 'undefined') {
-		if(typeof(value.name) != 'undefined' && typeof(value.work) != 'undefined') {
-			if(value.name == "winery") {
-				if(value.work == 1) {
-					entity.setComponentVariation(5, 40, 0, 0);
-				}else{
-					entity.setComponentVariation(5, 0, 0, 0);
-				}
-			}
-		}
-		if(oldValue && typeof(value.name) == 'undefined' && typeof(oldValue.name) != 'undefined' && typeof(oldValue.work) != 'undefined') {
-			if(oldValue.name == "winery") {
-				if(oldValue.work == 1) entity.setComponentVariation(5, 0, 0, 0);
 			}
 		}
 	}
 });
-}
+}Φ

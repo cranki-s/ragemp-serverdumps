@@ -1,306 +1,712 @@
 {
-var shopBrowser = false;
-var shopsInStream = [];
-let inShopData = false;
+let oldFishingPos = false;
+let posFishingWarns = 0;
 
-mp.events.add('playerEnterColshape', (shape) => {
-	if(typeof(shape.data) == 'undefined' && typeof(shape.id) != "undefined") {
-		if(typeof(shape.getVariable('col.type')) != "undefined") {
-			let colType = shape.getVariable('col.type');
-			if(colType == 'shop_render') {
-				let colData = shape.getVariable('col.data');
-				
-				let shopMarker = mp.markers.new(1, new mp.Vector3(parseFloat(colData[6]), parseFloat(colData[7]), parseFloat(colData[8])-1), 1.1,
-				{
-					direction: new mp.Vector3(0, 0, 0),
-					rotation: new mp.Vector3(0, 0, 0),
-					color: [217, 54, 54, 200],
-					visible: true,
-					dimension: 0
-				});
-				
-				let shopCheck = mp.checkpoints.new(40, new mp.Vector3(parseFloat(colData[6]), parseFloat(colData[7]), parseFloat(colData[8])), 0.5,
-				{
-					color: [255, 255, 255, 0],
-					visible: true,
-					dimension: localPlayer.dimension
-				});
-				shopCheck.shopData = colData;
-				
-				let shopArray = {'marker':shopMarker,'check':shopCheck,'data':colData,'alpha':0};
-				//let shopArray = {'marker':shopMarker,'data':colData,'alpha':0};
-				shopsInStream.push(shopArray);
-				return false;
+function fishingStart() {
+    if(fishingMode && hud_browser) {
+		if(typeof(localPlayer.getVariable("player.inv")) === "undefined") return notyAPI.error("Инвентарь не инициализирован, рыбалка недоступна.", 3000, true);
+		let myInv = localPlayer.getVariable("player.inv");
+		if(typeof(myInv["instrument"]) !== "undefined") {
+			if(parseInt(myInv["instrument"].health) <= 0) return notyAPI.error("Рыболовная снасть слишком изношена.", 3000, true);
+		}else{
+			return notyAPI.error("У Вас должна быть удочка.", 3000, true);
+		}
+		
+		if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
+			if(localPlayer.getVariable("active.deal")) return notyAPI.error("У Вас есть активная сделка, рыбалка недоступна.", 3000, true);
+		}
+		
+		localPlayer.clearTasksImmediately();
+		
+		let breadCount = 0, insectsCount = 0, wormsCount = 0, bloodwormCount = 0, minfishCount = 0;
+		for (let i = 1; i <= 30; i++) {
+			if(typeof(myInv[i.toString()]) !== "undefined") {
+				if(myInv[i.toString()].hash == "bread") breadCount = breadCount + parseInt(myInv[i.toString()].amount);
+				else if(myInv[i.toString()].hash == "insects") insectsCount = insectsCount + parseInt(myInv[i.toString()].amount);
+				else if(myInv[i.toString()].hash == "worms") wormsCount = wormsCount + parseInt(myInv[i.toString()].amount);
+				else if(myInv[i.toString()].hash == "bloodworm") bloodwormCount = bloodwormCount + parseInt(myInv[i.toString()].amount);
+				else if(myInv[i.toString()].hash == "minifish") minfishCount = minfishCount + parseInt(myInv[i.toString()].amount);
 			}
 		}
-	}
-});
-
-mp.events.add("playerEnterCheckpoint", (checkpoint) => {
-	if(mp.checkpoints.exists(checkpoint)) {
-		if(typeof(checkpoint.shopData) !== "undefined") {
-			let shopData = checkpoint.shopData;
-			return enterToShop(shopData);
-		}
-	}
-});
-
-mp.events.add('playerExitColshape', (shape) => {
-	if(typeof(shape.data) == 'undefined' && typeof(shape.id) != "undefined") {
-		if(typeof(shape.getVariable('col.type')) != "undefined") {
-			let colType = shape.getVariable('col.type');
-			if(colType == 'shop_render') {
-				let colData = shape.getVariable('col.data');
-				for(var i in shopsInStream) {
-					let tempData = shopsInStream[i];
-					if(JSON.stringify(colData) == JSON.stringify(tempData.data)) {
-						if(tempData['marker']) {
-							tempData['marker'].destroy();
-							delete tempData['marker'];
-						}
-						if(tempData['check']) {
-							tempData['check'].destroy();
-							delete tempData['check'];
-						}
-						if(shopsInStream[i] || shopsInStream[i] !== undefined) delete shopsInStream[i];
-					}
-				}
-				shopsInStream = shopsInStream.filter(function (el) { return el != null; });
-				return false;
-			}
-		}
-	}
-});
-
-let shopCam = false;
-let targetPart = "body";
-let camOffsets = {
-	"head": new mp.Vector3(0.0, 0.0, 0.5),
-	"body": new mp.Vector3(0.0, 0.0, 0.0),
-	"legs": new mp.Vector3(0.0, 0.0, -0.5)
-};
-let plShopPos = new mp.Vector3(0,0,0);
-let camStartPos = new mp.Vector3(0,0,0);
-let plHeading = 0;
-let distCamToPlayer = 0;
-
-mp.game.streaming.requestAnimDict("mp_character_creation@customise@female_a");
-
-function enterToShop(colData) {
-	if(typeof(colData) !== "undefined") {
-		ammoInUseCount = parseInt((CryptoJS.AES.decrypt(ammoInUseCount, krKey)).toString(CryptoJS.enc.Utf8));
-		if(slotInUse != "0" || ammoInUseCount > 0) {
-			if(hud_browser) hud_browser.execute('playSound("noWeapShop", 0.15);');
-			ammoInUseCount = CryptoJS.AES.encrypt((ammoInUseCount).toString(), krKey);
-			return chatAPI.sysPush("<span style=\"color:#FF6146\"> * С оружием сюда нельзя, уберите оружие.</span>");
-		}
-		ammoInUseCount = CryptoJS.AES.encrypt((ammoInUseCount).toString(), krKey);
-		if(typeof(localPlayer.getVariable("player.money")) === "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Магазин закрыт, приходите позже.. (#1)</span>");
-		if(typeof(localPlayer.getVariable("player.bank")) === "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Магазин закрыт, приходите позже.. (#2)</span>");
-		if(typeof(localPlayer.getVariable("player.donate")) === "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Магазин закрыт, приходите позже.. (#3)</span>");
-		if(typeof(localPlayer.getVariable("player.inv")) === "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Магазин закрыт, приходите позже.. (#4)</span>");
-		if(typeof(localPlayer.getVariable("player.pers")) === "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Магазин закрыт, приходите позже.. (#5)</span>");
-		if(!shopCam) {
-			inShopData = colData;
-			
-			let shopName = inShopData[3].toString();
-			if(shopName == "Военторг « Полицейская форма »") {
-				if(typeof(localPlayer.getVariable("player.fraction")) === "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Военторг не доступен, повторите позже..</span>");
-				let myFraction = localPlayer.getVariable("player.fraction");
-				if(typeof(myFraction.name) === "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * К военторгу имеют доступ только полицейские</span>");
-				if(myFraction.name != "ПОЛИЦИЯ") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * К военторгу имеют доступ только полицейские</span>");
-			}else if(shopName == "Магазин инвентаря « Пожарный департамент »") {
-				if(typeof(localPlayer.getVariable("player.job")) === "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Магазин инвентаря не доступен, повторите позже..</span>");
-				let myJob = localPlayer.getVariable("player.job");
-				if(typeof(myJob.name) === "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Магазин инвентаря не доступен, повторите позже..</span>");
-				if(myJob.name != "fire") chatAPI.sysPush("<span style=\"color:#FF6146\"> * К этому магазину имеют доступ только пожарники</span>");
-			}
-			
-			mp.events.callRemote('playerEnterShop');
-			
-			plShopPos = new mp.Vector3(parseFloat(inShopData[9]),parseFloat(inShopData[10]),parseFloat(inShopData[11]));
-			camStartPos = new mp.Vector3(parseFloat(inShopData[9]),parseFloat(inShopData[10]),parseFloat(inShopData[11]));
-			plHeading = parseFloat(inShopData[12]);
-			distCamToPlayer = parseFloat(inShopData[13]);
-			
-			localPlayer.position = plShopPos;
-			localPlayer.setHeading(plHeading);
-			localPlayer.freezePosition(true);
-			if(mp.game.streaming.hasAnimDictLoaded("mp_character_creation@customise@female_a")) localPlayer.taskPlayAnim("mp_character_creation@customise@female_a", "drop_loop", 8.0, 1.0, -1, 1, 1.0, false, false, false);
-			
-			targetPart = "body";
-			camStartPos.x = plShopPos.x + Math.sin(radians(-plHeading))*2;
-			camStartPos.y = plShopPos.y + Math.cos(radians(-plHeading))*2;
-			camStartPos.z = camStartPos.z + camOffsets[targetPart].z;
-			shopCam = mp.cameras.new('default_shop', new mp.Vector3(camStartPos.x, camStartPos.y, camStartPos.z + camOffsets[targetPart].z-0.2), new mp.Vector3(plShopPos.x, plShopPos.y, plShopPos.z), 40);
-			shopCam.setCoord(camStartPos.x, camStartPos.y, camStartPos.z + camOffsets[targetPart].z+0.2);
-			shopCam.pointAtCoord(plShopPos.x, plShopPos.y, plShopPos.z + camOffsets[targetPart].z);
-			shopCam.setActive(true);
-			mp.game.cam.renderScriptCams(true, false, 0, true, false);
-
-			allowBinds = [];
-			
-			if(hud_browser) {
-				hud_browser.destroy();
-				hud_browser = null;
-			}
-			
-			hideHud = true;
-			mp.game.ui.displayRadar(false);
-			if (!shopBrowser) {
-				shopBrowser = mp.browsers.new("package://CEF/shop/index.html");
-				setTimeout(function() {
-					if(shopBrowser) {
-						let playerInv = localPlayer.getVariable("player.inv");
-						let persData = localPlayer.getVariable("player.pers");
-						
-						let emptySlots = 0;
-						for (let i = 1; i <= 30; i++) {
-							if(typeof(playerInv[i.toString()]) === "undefined") emptySlots++;
-						}
-						
-						let catalog = false;
-						
-						let decShopCatalogs = CryptoJS.AES.decrypt(shopCatalogs, krKey);
-						decShopCatalogs = JSON.parse(decShopCatalogs.toString(CryptoJS.enc.Utf8));
-						if(typeof(decShopCatalogs[shopName]) !== "undefined") catalog = decShopCatalogs[shopName];
-						
-						let shopData = {"name":shopName,"gender":persData.npGender,"catalog":catalog,"inv":playerInv,"invSlots":emptySlots,"money":localPlayer.getVariable("player.money"),"bank":localPlayer.getVariable("player.bank"),"donate":localPlayer.getVariable("player.donate")};
-						shopBrowser.execute('toggleShop(\''+JSON.stringify(shopData)+'\');');
-						mp.gui.cursor.visible = true;
-					}
-				}, 100);
-				allowBinds = [];
-			}
-		}
+		
+		if(breadCount == 0 && insectsCount == 0 && wormsCount == 0 && bloodwormCount == 0 && minfishCount == 0) return notyAPI.error("У Вас нет наживок, купите их в магазине 24/7.", 3000, true);
+		
+		allowBinds = [];
+		hud_browser.execute('toggleFishBait(\''+JSON.stringify(myInv)+'\');');
+		mp.gui.cursor.visible = true;
 	}
 }
 
-mp.events.add('shopSetCam', (camID) => {
-	if(typeof(camID) !== "undefined") {
-		if(shopCam) {
-			if(typeof(camOffsets[camID]) !== "undefined") {
-				targetPart = camID;
-				shopCam.setCoord(camStartPos.x, camStartPos.y, camStartPos.z + camOffsets[targetPart].z+0.2);
-				shopCam.pointAtCoord(plShopPos.x, plShopPos.y, plShopPos.z + camOffsets[targetPart].z);
+function fishingStop(isDeath) {
+    if(fishingMode) {
+		if(typeof(fishingMode.rod) !== "undefined") mp.events.callRemote('stopFishingRod', fishingMode.rod);
+		if(poklevkaTimer) clearInterval(poklevkaTimer);
+		if(typeof(fishingMode.popl) !== "undefined") {
+			if(fishingMode.popl) {
+				if(mp.vehicles.exists(fishingMode.popl)) {
+					fishingMode.popl.destroy();
+				}
 			}
 		}
-	}
-});
-
-mp.events.add('render', () => {
-	if(shopCam) {
-		if(mp.keys.isDown(37) === true) localPlayer.setHeading(localPlayer.getHeading()+2);
-		if(mp.keys.isDown(39) === true) localPlayer.setHeading(localPlayer.getHeading()-2);
-	}
-});
-
-function exitFromShop() {
-	if(inShopData) {
-		mp.events.callRemote('playerExitShop');
-		
+		if(typeof(isDeath) === "undefined") localPlayer.clearTasksImmediately();
 		localPlayer.freezePosition(false);
-		localPlayer.clearTasksImmediately();
-		localPlayer.position = new mp.Vector3(parseFloat(inShopData[0]),parseFloat(inShopData[1]),parseFloat(inShopData[2]));
+		restoreBinds();
+		fishingStartProcess = false;
+		fishingMode = {"rod":fishingMode.rod};
+	}
+}
+
+function closeFishingBait() {
+	if(hud_browser) {
+		hud_browser.execute("toggleFishBait();");
+		mp.gui.cursor.visible = false;
+		restoreBinds();
+	}
+}
+mp.events.add("closeFishingBait", closeFishingBait);
+
+var fishingStartProcess = false;
+function baitFishSelected(baitData) {
+	if(hud_browser && baitData) {
+		baitData = JSON.parse(baitData);
+		hud_browser.execute("toggleFishBait();");
+		mp.gui.cursor.visible = false;
 		
+		if(typeof(localPlayer.getVariable("player.inv")) === "undefined") {
+			restoreBinds();
+			return notyAPI.error("Инвентарь не инициализирован, рыбалка недоступна.", 3000, true);
+		}
+		
+		if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
+			if(localPlayer.getVariable("active.deal")) {
+				restoreBinds();
+				return notyAPI.error("У Вас есть активная сделка, рыбалка недоступна.", 3000, true);
+			}
+		}
+		
+		let myInv = localPlayer.getVariable("player.inv");
+		
+		if(typeof(myInv["instrument"]) !== "undefined") {
+			if(parseInt(myInv["instrument"].health) <= 0) return notyAPI.error("Рыболовная снасть слишком изношена.", 3000, true);
+		}else{
+			return notyAPI.error("У Вас должна быть удочка.", 3000, true);
+		}
+		
+		let breadCount = 0, insectsCount = 0, wormsCount = 0, bloodwormCount = 0, minfishCount = 0;
+		for (let i = 1; i <= 30; i++) {
+			if(typeof(myInv[i.toString()]) !== "undefined") {
+				if(myInv[i.toString()].hash == "bread") breadCount = breadCount + parseInt(myInv[i.toString()].amount);
+				else if(myInv[i.toString()].hash == "insects") insectsCount = insectsCount + parseInt(myInv[i.toString()].amount);
+				else if(myInv[i.toString()].hash == "worms") wormsCount = wormsCount + parseInt(myInv[i.toString()].amount);
+				else if(myInv[i.toString()].hash == "bloodworm") bloodwormCount = bloodwormCount + parseInt(myInv[i.toString()].amount);
+				else if(myInv[i.toString()].hash == "minifish") minfishCount = minfishCount + parseInt(myInv[i.toString()].amount);
+			}
+		}
+		
+		if(baitData.bait == "bread" && breadCount < 1) {
+			restoreBinds();
+			return notyAPI.error("У Вас нет хлебного мякиша, выберите другую наживку.", 3000, true);
+		}else if(baitData.bait == "insects" && insectsCount < 1) {
+			restoreBinds();
+			return notyAPI.error("У Вас нет личинок насекомых, выберите другую наживку.", 3000, true);
+		}else if(baitData.bait == "worms" && wormsCount < 1) {
+			restoreBinds();
+			return notyAPI.error("У Вас нет дождевых червей, выберите другую наживку.", 3000, true);
+		}else if(baitData.bait == "bloodworm" && bloodwormCount < 1) {
+			restoreBinds();
+			return notyAPI.error("У Вас нет личинок мотыля, выберите другую наживку.", 3000, true);
+		}else if(baitData.bait == "minifish" && minfishCount < 1) {
+			restoreBinds();
+			return notyAPI.error("У Вас нет мальков, выберите другую наживку.", 3000, true);
+		}
+		
+		if(dealerPanel) return notyAPI.error("У Вас есть активная сделка с барыгой.", 3000, true);
+		
+		fishingStartProcess = true;
 		restoreBinds();
 		
-		if(!hud_browser) {
-			hud_browser = mp.browsers.new("package://CEF/hud/index.html");
-			hud_browser.execute('newcfg(0,0); newcfg(1,0); newcfg(2,0); newcfg(3,1);');
-		}
-		
-		hideHud = false;
-		mp.game.ui.displayRadar(true);
-		
-		if(shopBrowser) {
-			shopBrowser.destroy();
-			shopBrowser = null;
-		}
-		
-		if(shopCam) {
-			shopCam.setActive(false);
-			shopCam.detach();
-			shopCam.destroy();
-			shopCam = null;
-			mp.game.cam.renderScriptCams(false, false, 0, false, false);
-		}
-		
-		mp.gui.cursor.visible = false;
-		inShopData = false;
+		let theRod = "rod";
+		if(typeof(fishingMode.rod) !== "undefined") theRod = fishingMode.rod;
+		mp.events.callRemote('startFishing', baitData.bait, baitData.force, theRod);
 	}
 }
+mp.events.add("baitFishSelected", baitFishSelected);
 
-mp.events.add('exitFromShop', () => {
-	exitFromShop();
-});
-
-mp.events.add('shopBuy', (basketData) => {
-	if(typeof(basketData) !== "undefined") {
-		basketData = JSON.parse(basketData);
-		let resCost = 0, resDonate = 0;
+mp.game.streaming.requestAnimDict("amb@world_human_stand_fishing@idle_a");
+function fishingStartResult(selectedBait, selectedForce) {
+	if(hud_browser && selectedBait && selectedForce) {
+		selectedForce = parseInt(selectedForce);
+		selectedForce = selectedForce/2;
 		
-		if(typeof(localPlayer.getVariable("player.money")) === "undefined") return shopBrowser.execute("buyError('Неизвестная ошибка #1');");
-		if(typeof(localPlayer.getVariable("player.bank")) === "undefined") return shopBrowser.execute("buyError('Неизвестная ошибка #2');");
-		if(typeof(localPlayer.getVariable("player.donate")) === "undefined") return shopBrowser.execute("buyError('Неизвестная ошибка #3');");
-		if(typeof(localPlayer.getVariable("player.inv")) === "undefined") return shopBrowser.execute("buyError('Неизвестная ошибка #4');");
-		if(typeof(localPlayer.getVariable("player.pers")) === "undefined") return shopBrowser.execute("buyError('Неизвестная ошибка #5');");
+		if(selectedForce < 5) selectedForce = 5;
+		else if(selectedForce > 100) selectedForce = 50;
 		
-		let myMoney = parseInt(localPlayer.getVariable("player.money"));
-		let myDonate = parseInt(localPlayer.getVariable("player.donate"));
-		
-		let buyItems = 0;
-		for(var k in basketData) {
-			buyItems++;
-			if(typeof(basketData[k].cost) !== "undefined") resCost = resCost + parseInt(basketData[k].cost);
-			if(typeof(basketData[k].donate) !== "undefined") resDonate = resDonate + parseInt(basketData[k].donate);
+		if(typeof(fishingMode.rod) !== "undefined") {
+			if(fishingMode.rod == "badrod") selectedForce = selectedForce / 3;
+			else if(fishingMode.rod == "rod") selectedForce = selectedForce / 1.5;
+			//chatAPI.sysPush("<span style=\"color:#FF6146;\"> * fishingMode.rod: "+fishingMode.rod+"</span>");
 		}
 		
-		if(myMoney < resCost) return shopBrowser.execute("buyError('Недостаточно средств для покупки');");
-		if(myDonate < resDonate) return shopBrowser.execute("buyError('Недостаточно донат единиц для покупки');");
+		if(selectedForce < 5) selectedForce = 5;
+		else if(selectedForce > 100) selectedForce = 50;
 		
-		let playerInv = localPlayer.getVariable("player.inv");
-		let emptySlots = 0;
-		for (let i = 1; i <= 30; i++) {
-			if(typeof(playerInv[i.toString()]) === "undefined") emptySlots++;
-		}
+		//chatAPI.sysPush("<span style=\"color:#FF6146;\"> * selectedForce: "+selectedForce+"</span>");
 		
-		if(emptySlots < buyItems) return shopBrowser.execute("buyError('Недостаточно мест в инвентаре');");
+		localPlayer.freezePosition(true);
+		localPlayer.taskPlayAnim("amb@world_human_stand_fishing@idle_a", "idle_c", 8.0, 1.0, -1, 1, 1.0, false, false, false);
+		allowBinds = [0x45, 0x54];
 		
-		shopBrowser.execute("buyingProcessStarted();");
-		mp.events.callRemote('shopBuy', JSON.stringify(basketData), resCost.toString(), resDonate.toString());
+		let myPos = localPlayer.position;
+		let myRot = localPlayer.getHeading();
+		
+		myPos.x = myPos.x + Math.sin(Math.radians(-myRot))*selectedForce;
+		myPos.y = myPos.y + Math.cos(Math.radians(-myRot))*selectedForce;
+		myPos.z = mp.game.gameplay.getGroundZFor3dCoord(myPos.x, myPos.y, myPos.z, parseFloat(0), false)+1;
+		
+		let objectPlaceChecker = mp.objects.new(mp.game.joaat("apa_mp_h_acc_candles_01"), myPos,
+		{
+			rotation: 0,
+			alpha: 0,
+			dimension: 0
+		});
+		
+		// waterchecker
+		let pedWaterChecker = mp.peds.new(
+			mp.game.joaat('a_c_fish'), 
+			myPos,
+			270.0,
+			localPlayer.dimension
+		);
+		setTimeout(function() { pedWaterChecker.freezePosition(false); }, 500);
+		
+		if(hud_browser) hud_browser.execute('playSound("fishStart", "0.15");');
+		
+		setTimeout(function() {
+			if(mp.peds.exists(pedWaterChecker) && mp.objects.exists(objectPlaceChecker)) {
+				localPlayer.taskPlayAnim("amb@world_human_stand_fishing@idle_a", "idle_a", 8.0, 1.0, -1, 1, 1.0, false, false, false);
+				
+				let inWater = pedWaterChecker.isInWater();
+				let isDead = pedWaterChecker.isDead();
+				//chatAPI.sysPush("<span style=\"color:#FF6146;\"> * isInWater: "+inWater.toString()+"</span>");
+				//chatAPI.sysPush("<span style=\"color:#FF6146;\"> * isDead: "+isDead.toString()+"</span>");
+				let fishPos = JSON.parse(JSON.stringify(pedWaterChecker.position));
+				let zWater = mp.game1.water.getWaterHeight(fishPos.x, fishPos.y, fishPos.z, 0);
+				pedWaterChecker.destroy();
+				
+				let fishDepth = roundNumber(mp.game.gameplay.getDistanceBetweenCoords(fishPos.x, fishPos.y, fishPos.z, fishPos.x, fishPos.y, zWater, true), 1);
+				
+				//if(fishDepth > 54 && fishDepth < 55.3) fishDepth = 3.5;
+				//else if(fishDepth > 100) fishDepth = false;
+				
+				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), 198.8398, -934.9554, 32.1712, 140)) fishDepth = 1.0; // ЛС, Новогодняя ёлка
+				
+				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), 1081.7274, -644.2034, 54.4545, 100)) fishDepth = 2.5; // Озеро ЛС, Зеркальный парк, миррор плейс.
+				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), 1218.9407, -89.261, 58.9954, 180)) fishDepth = 1.45; // Сеть речушек ЛС, Бульвар миррор-парк.
+				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), -1166.9042, 35.2409, 51.5676, 200)) fishDepth = 1.75; // Три озера ЛС, Дорсет драйв.
+				
+				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), -1544.209, 1458.4209, 116.2313, 350)) fishDepth = 2.45; // Долина Тонгва, Тонгва драйв. 1
+				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), -1421.0978, 2013.1532, 58.8455, 350)) fishDepth = 3.25; // Долина Тонгва, Тонгва драйв. 2
+				
+				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), 3097.5725, 6022.7881, 121.6004, 30)) fishDepth = 1.65; // Гора Гордо, Озеро 1
+				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), 2559.1509, 6153.6787, 161.1644, 30)) fishDepth = 3.15; // Гора Гордо, Озеро 2
+				
+				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), 1261.8419, -1051.9392, 38.6356, 100)) fishDepth = 1.35; // Высоты Муриетты, говнотечка.
+				
+				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), 1069.0568, 16.7011, 79.2786, 30)) fishDepth = 1.65; // Иподром возле Казино, Озеро 1
+				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), 1203.3315, 209.7524, 78.8071, 50)) fishDepth = 1.35; // Иподром возле Казино, Озеро 2
+				
+				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), -1319.1462, -430.8666, 34.7838, 30)) fishDepth = 1.35; // Фикс бассейна, Дель-Перро
+				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), -1708.988, -188.32, 56.3206, 100)) fishDepth = 1.55; // Фикс искусственного озера на кладбище ЛС
+				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), -2008.8386, -286.2224, 31.219, 80)) fishDepth = 1.35; // Фикс бассейна, Пасифик Блаффс.
+				
+				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), -2954.6509, 698.0601, 27.754, 100)) fishDepth = 1.55; // Фикс бассейнов в Каньоне Бэнхэм
+				
+				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), -1849.9648, 283.6768, 87.1439, 30)) fishDepth = 1.55; // Фикс бассейна в особняке на VW
+				
+				
+				if(imInZZ) fishDepth = 1.0; // Если возможна рыбалка в ЗЗ, то 1 м.
+				
+				objectPlaceChecker.destroy();
+				
+				if(fishDepth > 100) fishDepth = false;
+				
+				if(fishDepth && inWater == 1 && isDead == 0 && zWater > -1) {
+					// poplavok
+					
+					let poplVeh = mp.vehicles.new(mp.game.joaat("popl"), new mp.Vector3(fishPos.x, fishPos.y, zWater), {
+						alpha: 255,
+						color: [[255, 255, 255],[255, 255, 255]],
+						locked: true,
+						engine: true,
+						dimension: localPlayer.dimension
+					});
+					
+					poplVeh.setLights(3);
+					poplVeh.setLightMultiplier(0.5);
+					poplVeh.setFullbeam(false);
+					poplVeh.setMaxSpeed(0);
+					poplVeh.setEngineHealth(660);
+					poplVeh.setProofs(true, true, true, true, true, false, false, true);
+					
+					fishingMode["popl"] = poplVeh;
+					
+					fishingMode["pos"] = fishPos;
+					fishingMode["bait"] = selectedBait;
+					fishingMode["depth"] = fishDepth;
+					fishingMode["poklevka"] = false;
+					fishingMode["putting"] = false;
+					fishingMode["time"] = 0;
+					
+					fishingMode["tip"] = "всё в порядке";
+					
+					if(!oldFishingPos) {
+						oldFishingPos = localPlayer.position;
+						posFishingWarns = 0;
+					}else{
+						let oldAndNew = mp.game.system.vdist(localPlayer.position.x, localPlayer.position.y, localPlayer.position.z, oldFishingPos.x, oldFishingPos.y, oldFishingPos.z);
+						if(oldAndNew < getRandomInt(5,15)) {
+							posFishingWarns++;
+						}else{
+							oldFishingPos = false;
+							posFishingWarns = 0;
+						}
+					}
+					
+					if(posFishingWarns >= 4) {
+						fishingMode["tip"] = "говорят, надо сместиться в другое место";
+					}else{
+						if(fishDepth > 0 && fishDepth <= 5) {
+							if(selectedBait == "bread") fishingMode["tip"] = "всё нормально";
+							else if(selectedBait == "insects") fishingMode["tip"] = "в целом, всё нормально";
+							else if(selectedBait == "worms") fishingMode["tip"] = "в целом, так себе";
+							else if(selectedBait == "bloodworm") fishingMode["tip"] = "малая глубина для мотыля";
+							else if(selectedBait == "minifish") fishingMode["tip"] = "малая глубина для малька";
+						}else if(fishDepth > 5 && fishDepth <= 15) {
+							if(selectedBait == "bread") fishingMode["tip"] = "всё хорошо";
+							else if(selectedBait == "insects") fishingMode["tip"] = "всё нормально";
+							else if(selectedBait == "worms") fishingMode["tip"] = "всё хорошо";
+							else if(selectedBait == "bloodworm") fishingMode["tip"] = "ну, так себе";
+							else if(selectedBait == "minifish") fishingMode["tip"] = "малая глубина для малька";
+						}else if(fishDepth > 15 && fishDepth <= 25) {
+							if(selectedBait == "bread") fishingMode["tip"] = "всё отлично";
+							else if(selectedBait == "insects") fishingMode["tip"] = "всё хорошо";
+							else if(selectedBait == "worms") fishingMode["tip"] = "всё нормально";
+							else if(selectedBait == "bloodworm") fishingMode["tip"] = "ну, так себе";
+							else if(selectedBait == "minifish") fishingMode["tip"] = "тут вроде что-то есть";
+						}else if(fishDepth > 25 && fishDepth <= 45) {
+							if(selectedBait == "bread") fishingMode["tip"] = "слишком глубоко для мякиша";
+							else if(selectedBait == "insects") fishingMode["tip"] = "всё отлично";
+							else if(selectedBait == "worms") fishingMode["tip"] = "всё хорошо";
+							else if(selectedBait == "bloodworm") fishingMode["tip"] = "всё нормально";
+							else if(selectedBait == "minifish") fishingMode["tip"] = "ну, пойдёт";
+						}else if(fishDepth > 45 && fishDepth <= 65) {
+							if(selectedBait == "bread") fishingMode["tip"] = "слишком глубоко для мякиша";
+							else if(selectedBait == "insects") fishingMode["tip"] = "слишком глубоко для насекомых";
+							else if(selectedBait == "worms") fishingMode["tip"] = "всё супер";
+							else if(selectedBait == "bloodworm") fishingMode["tip"] = "всё отлично";
+							else if(selectedBait == "minifish") fishingMode["tip"] = "всё нормально";
+						}else if(fishDepth > 65 && fishDepth <= 85) {
+							if(selectedBait == "bread") fishingMode["tip"] = "слишком глубоко для мякиша";
+							else if(selectedBait == "insects") fishingMode["tip"] = "слишком глубоко для насекомых";
+							else if(selectedBait == "worms") fishingMode["tip"] = "слишком глубоко для червей";
+							else if(selectedBait == "bloodworm") fishingMode["tip"] = "всё отлично";
+							else if(selectedBait == "minifish") fishingMode["tip"] = "всё хорошо";
+						}else if(fishDepth > 85) {
+							if(selectedBait == "bread") fishingMode["tip"] = "слишком глубоко для мякиша";
+							else if(selectedBait == "insects") fishingMode["tip"] = "слишком глубоко для насекомых";
+							else if(selectedBait == "worms") fishingMode["tip"] = "слишком глубоко для червей";
+							else if(selectedBait == "bloodworm") fishingMode["tip"] = "слишком глубоко для мотыля";
+							else if(selectedBait == "minifish") fishingMode["tip"] = "всё отлично";
+						}
+					}
+					
+					if(hud_browser) hud_browser.execute('playSound("splash", "0.1");');
+					//chatAPI.sysPush("<span style=\"color:#FF6146;\"> * fishing: "+JSON.stringify(fishingMode)+"</span>");
+				}else{
+					if(!fishDepth) {
+						fishingStartProcess = false;
+						fishingStop();
+						mp.game.ui.messages.showMidsizedShard("~w~Не хватило ~r~лески~w~ или ~r~мёртвый ~w~водоём!", "~s~Глубоко или мёртвый водоём, попробуйте в другом месте..", 5, false, true, 6500);
+					}else{
+						fishingStartProcess = false;
+						fishingStop();
+						mp.game.ui.messages.showMidsizedShard("~w~Вся приманка ~r~рассыпалась~w~!", "~s~Попробуйте ещё раз..", 5, false, true, 6500);
+					}
+				}
+				
+				fishingStartProcess = false;
+			}
+		}, 2500);
 	}
-});
+}
+mp.events.add("fishingStartResult", fishingStartResult);
 
-mp.events.add('shopBuyingSuccess', (resCost, resDonate, basketData) => {
-	if(typeof(resCost) !== "undefined" && typeof(resDonate) !== "undefined" && typeof(basketData) !== "undefined") {
-		exitFromShop();
-		basketData = JSON.parse(basketData);
-		if(parseInt(resCost) > 0 && parseInt(resDonate) > 0) {
-			mp.game.ui.messages.showMidsizedShard("~w~Вы оплатили ~y~покупку ~w~в магазине", "~s~Потрачено"+resCost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.~n~Потрачено"+resDonate.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" донат ед.", 5, false, true, 8000);
+var poklevkaTimer = false;
+function fishingProcessor() {
+	if(typeof(fishingMode.time) !== "undefined") {
+		fishingMode.time = parseInt(fishingMode.time) + 1;
+		//chatAPI.sysPush("<span style=\"color:#FF6146;\"> * fishing: "+JSON.stringify(fishingMode)+"</span>");
+		
+		let isPoklevka = 0;
+		if(typeof(fishingMode.depth) !== "undefined") {
+			if(fishingMode.depth > 0 && fishingMode.depth <= 5) {
+				if(fishingMode.time == 1) isPoklevka = getRandomInt(0,3);
+				else if(fishingMode.time >= 2) isPoklevka = 1;
+			}else if(fishingMode.depth > 5 && fishingMode.depth <= 15) {
+				if(fishingMode.time == 1) isPoklevka = getRandomInt(0,4);
+				else if(fishingMode.time == 2) isPoklevka = getRandomInt(0,3);
+				else if(fishingMode.time >= 3) isPoklevka = 1;
+			}else if(fishingMode.depth > 15 && fishingMode.depth <= 25) {
+				if(fishingMode.time == 1) isPoklevka = getRandomInt(0,5);
+				else if(fishingMode.time == 2) isPoklevka = getRandomInt(0,4);
+				else if(fishingMode.time == 3) isPoklevka = getRandomInt(0,3);
+				else if(fishingMode.time >= 4) isPoklevka = 1;
+			}else if(fishingMode.depth > 25 && fishingMode.depth <= 45) {
+				if(fishingMode.time == 1) isPoklevka = getRandomInt(0,6);
+				else if(fishingMode.time == 2) isPoklevka = getRandomInt(0,5);
+				else if(fishingMode.time == 3) isPoklevka = getRandomInt(0,4);
+				else if(fishingMode.time == 4) isPoklevka = getRandomInt(0,3);
+				else if(fishingMode.time >= 5) isPoklevka = 1;
+			}else if(fishingMode.depth > 45 && fishingMode.depth <= 65) {
+				if(fishingMode.time == 1) isPoklevka = getRandomInt(0,7);
+				else if(fishingMode.time == 2) isPoklevka = getRandomInt(0,6);
+				else if(fishingMode.time == 3) isPoklevka = getRandomInt(0,5);
+				else if(fishingMode.time == 4) isPoklevka = getRandomInt(0,3);
+				else if(fishingMode.time >= 5) isPoklevka = 1;
+			}else if(fishingMode.depth > 65 && fishingMode.depth <= 85) {
+				if(fishingMode.time == 1) isPoklevka = getRandomInt(0,8);
+				else if(fishingMode.time == 2) isPoklevka = getRandomInt(0,7);
+				else if(fishingMode.time == 3) isPoklevka = getRandomInt(0,5);
+				else if(fishingMode.time == 4) isPoklevka = getRandomInt(0,3);
+				else if(fishingMode.time >= 5) isPoklevka = 1;
+			}else if(fishingMode.depth > 85) {
+				if(fishingMode.time == 1) isPoklevka = getRandomInt(0,10);
+				else if(fishingMode.time == 2) isPoklevka = getRandomInt(0,8);
+				else if(fishingMode.time == 3) isPoklevka = getRandomInt(0,6);
+				else if(fishingMode.time == 4) isPoklevka = getRandomInt(0,4);
+				else if(fishingMode.time >= 5) isPoklevka = 1;
+			}
+		}
+		
+		if(isPoklevka == 1) {
+			localPlayer.taskPlayAnim("amb@world_human_stand_fishing@idle_a", "idle_c", 8.0, 1.0, -1, 1, 1.0, false, false, false);
+			fishingMode.poklevka = true;
+			mp.game.ui.messages.showMidsized("~w~Ого, у Вас ~g~клюёт", "~w~Подсекайте рыбу, срочно нажмите ~g~E ~w~!");
+			if(hud_browser) hud_browser.execute('playSound("poklevka", "0.15");');
+			
+			let poklevkaTimes = 0;
+			poklevkaTimer = setInterval(function() {
+				poklevkaTimes++;
+				if(poklevkaTimes >= 5) {
+					clearInterval(poklevkaTimer);
+					fishingStop();
+					mp.game.ui.messages.showMidsizedShard("~w~Рыба ~r~сорвалась~w~!", "~s~Вы не смогли поймать рыбу~n~Очень жаль, в следующий раз получится!", 5, false, true, 6500);
+				}
+			}, 1000);
 		}else{
-			if(parseInt(resCost) > 0) mp.game.ui.messages.showMidsizedShard("~w~Вы оплатили ~y~покупку ~w~в магазине", "~s~Потрачено"+resCost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.", 5, false, true, 8000);
-			else if(parseInt(resDonate) > 0) mp.game.ui.messages.showMidsizedShard("~w~Вы оплатили ~y~покупку ~w~в магазине", "~s~Потрачено"+resDonate.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" донат ед.", 5, false, true, 8000);
-		}
-	}
-});
-
-mp.events.add('shopBuyingError', (errReason) => {
-	if(typeof(errReason) !== "undefined") {
-		exitFromShop();
-		mp.game.ui.messages.showMidsizedShard("~w~Оплата ~r~не ~w~прошла", "~s~"+errReason, 5, false, true, 8000);
-	}
-});
-
-/*
-mp.events.add("playerEnterCheckpoint", (checkpoint) => {
-	if(typeof(checkpoint) !== "undefined") {
-		if(mp.checkpoints.exists(checkpoint)) {
-			if(typeof(checkpoint.shopData) !== "undefined") {
-				return enterToShop(checkpoint.shopData);
+			if(hud_browser && getRandomInt(0,2) == 1) {
+				hud_browser.execute('playSound("fakePoklevka", "0.15");');
+				localPlayer.taskPlayAnim("amb@world_human_stand_fishing@idle_a", "idle_b", 8.0, 1.0, -1, 1, 1.0, false, false, false);
+			}else{
+				localPlayer.taskPlayAnim("amb@world_human_stand_fishing@idle_a", "idle_a", 8.0, 1.0, -1, 1, 1.0, false, false, false);
 			}
 		}
 	}
-});
-*/
-}ᖙླྀȡ
+}
+
+function poklevkaOk() {
+	if(poklevkaTimer) clearInterval(poklevkaTimer);
+	if(hud_browser) {
+		fishingMode.putting = true;
+		hud_browser.execute("toggleFishPutting(true);");
+		mp.gui.cursor.visible = true;
+		allowBinds = [];
+	}
+}
+
+function fishPutting(putResult) {
+	if(hud_browser && typeof(putResult) !== "undefined") {
+		hud_browser.execute("toggleFishPutting();");
+		if(putResult) {
+			if(typeof(fishingMode.depth) !== "undefined" && typeof(fishingMode.bait) !== "undefined") {
+				let fishHash = fishGenerator(fishingMode.depth, fishingMode.bait);
+				if(typeof(allStuff["fish"][fishHash]) !== "undefined") {
+					let fishName = allStuff["fish"][fishHash].name;
+					mp.game.ui.messages.showMidsizedShard("~w~Рыба ~g~поймана~w~!", "~w~Вы поймали ~g~"+fishName+"~n~~w~Проверьте Ваш инвентарь!", 5, false, true, 6500);
+					mp.events.callRemote('invPutFish', fishHash);
+				}else{
+					mp.game.ui.messages.showMidsizedShard("~w~Приманка ~r~оторвалась~w~!", "~s~Вы не смогли поймать рыбу~n~Очень жаль, в следующий раз получится!", 5, false, true, 6500);
+				}
+			}else{
+				mp.game.ui.messages.showMidsizedShard("~w~Приманка ~r~оторвалась~w~!", "~s~Вы не смогли поймать рыбу~n~Очень жаль, в следующий раз получится!", 5, false, true, 6500);
+			}
+		}else{
+			mp.game.ui.messages.showMidsizedShard("~w~Рыба ~r~сорвалась~w~!", "~s~Вы не смогли поймать рыбу~n~Очень жаль, в следующий раз получится!", 5, false, true, 6500);
+		}
+		mp.gui.cursor.visible = false;
+	}
+	fishingStop();
+}
+mp.events.add("fishPutting", fishPutting);
+
+function fishGenerator(theDepth, theBait) {
+	if(typeof(theDepth) !== "undefined" && typeof(theBait) !== "undefined") {
+		if(theDepth && theBait) {
+			let theFishResult = false;
+			
+			let theRod = "badrod";
+			
+			if(typeof(fishingMode.rod) !== "undefined") theRod = fishingMode.rod;
+			
+			if(posFishingWarns >= 4) {
+				theFishResult = "deadfish";
+			}else{
+				if(theDepth > 0 && theDepth <= 5) {
+					if(theBait == "bread") {
+						let getRand = getRandomInt(0,4);
+						if(getRand == 0) theFishResult = "ukleyka";
+						else if(getRand == 1) theFishResult = "peskar";
+						else if(getRand == 2) theFishResult = "ukleyka";
+						else if(getRand == 3) theFishResult = "peskar";
+					}else if(theBait == "insects") {
+						let getRand = getRandomInt(0,4);
+						if(getRand == 0) theFishResult = "krasnoperka";
+						else if(getRand == 1) theFishResult = "ukleyka";
+						else if(getRand == 2) theFishResult = "plotva";
+						else if(getRand == 3) theFishResult = "zherekh";
+					}else if(theBait == "worms") {
+						let getRand = getRandomInt(0,4);
+						if(getRand == 0) theFishResult = "lesh";
+						else if(getRand == 1) theFishResult = "lesh";
+						else if(getRand == 2) theFishResult = "karas";
+						else if(getRand == 3) theFishResult = "karas";
+					}else if(theBait == "bloodworm") {
+						theFishResult = false;
+					}else if(theBait == "minifish") {
+						theFishResult = false;
+					}
+				}else if(theDepth > 5 && theDepth <= 15) {
+					if(theBait == "bread") {
+						let getRand = getRandomInt(0,4);
+						if(getRand == 0) theFishResult = "peskar";
+						else if(getRand == 1) theFishResult = "peskar";
+						else if(getRand == 2) theFishResult = "ukleyka";
+						else if(getRand == 3) theFishResult = "gustera";
+					}else if(theBait == "insects") {
+						let getRand = getRandomInt(0,4);
+						if(getRand == 0) theFishResult = "krasnoperka";
+						else if(getRand == 1) theFishResult = "ukleyka";
+						else if(getRand == 2) theFishResult = "zherekh";
+						else if(getRand == 3) theFishResult = "plotva";
+					}else if(theBait == "worms") {
+						let getRand = getRandomInt(0,4);
+						if(getRand == 0) theFishResult = "lesh";
+						else if(getRand == 1) theFishResult = "karas";
+						else if(getRand == 2) theFishResult = "karas";
+						else if(getRand == 3) theFishResult = "golavl";
+					}else if(theBait == "bloodworm") {
+						if(theRod == "badrod") {
+							let getRand = getRandomInt(0,4);
+							if(getRand == 0) theFishResult = "lesh";
+							else if(getRand == 1) theFishResult = "karas";
+							else if(getRand == 2) theFishResult = "karas";
+							else if(getRand == 3) theFishResult = "golavl";
+						}else{
+							let getRand = getRandomInt(0,4);
+							if(getRand == 0) theFishResult = "forel";
+							else if(getRand == 1) theFishResult = "forel";
+							else if(getRand == 2) theFishResult = "losos";
+							else if(getRand == 3) theFishResult = "tunec";
+						}
+					}else if(theBait == "minifish") {
+						theFishResult = false;
+					}
+				}else if(theDepth > 15 && theDepth <= 25) {
+					if(theBait == "bread") {
+						let getRand = getRandomInt(0,4);
+						if(getRand == 0) theFishResult = "krasnoperka";
+						else if(getRand == 1) theFishResult = "ukleyka";
+						else if(getRand == 2) theFishResult = "peskar";
+						else if(getRand == 3) theFishResult = "zherekh";
+					}else if(theBait == "insects") {
+						let getRand = getRandomInt(0,4);
+						if(getRand == 0) theFishResult = "krasnoperka";
+						else if(getRand == 1) theFishResult = "plotva";
+						else if(getRand == 2) theFishResult = "peskar";
+						else if(getRand == 3) theFishResult = "gustera";
+					}else if(theBait == "worms") {
+						let getRand = getRandomInt(0,4);
+						if(getRand == 0) theFishResult = "sazan";
+						else if(getRand == 1) theFishResult = "golavl";
+						else if(getRand == 2) theFishResult = "lesh";
+						else if(getRand == 3) theFishResult = "karas";
+					}else if(theBait == "bloodworm") {
+						if(theRod == "badrod") {
+							let getRand = getRandomInt(0,4);
+							if(getRand == 0) theFishResult = "sazan";
+							else if(getRand == 1) theFishResult = "golavl";
+							else if(getRand == 2) theFishResult = "lesh";
+							else if(getRand == 3) theFishResult = "karas";
+						}else{
+							let getRand = getRandomInt(0,4);
+							if(getRand == 0) theFishResult = "losos";
+							else if(getRand == 1) theFishResult = "forel";
+							else if(getRand == 2) theFishResult = "scat";
+							else if(getRand == 3) theFishResult = "tunec";
+						}
+					}else if(theBait == "minifish") {
+						let getRand = getRandomInt(0,2);
+						if(getRand == 0) theFishResult = "scat";
+						else if(getRand == 1) theFishResult = "tunec";
+					}
+				}else if(theDepth > 25 && theDepth <= 45) {
+					if(theBait == "bread") {
+						theFishResult = false;
+					}else if(theBait == "insects") {
+						let getRand = getRandomInt(0,4);
+						if(getRand == 0) theFishResult = "krasnoperka";
+						else if(getRand == 1) theFishResult = "plotva";
+						else if(getRand == 2) theFishResult = "zherekh";
+						else if(getRand == 3) theFishResult = "gustera";
+					}else if(theBait == "worms") {
+						let getRand = getRandomInt(0,4);
+						if(getRand == 0) theFishResult = "sazan";
+						else if(getRand == 1) theFishResult = "golavl";
+						else if(getRand == 2) theFishResult = "lesh";
+						else if(getRand == 3) theFishResult = "karas";
+					}else if(theBait == "bloodworm") {
+						if(theRod == "badrod") {
+							let getRand = getRandomInt(0,4);
+							if(getRand == 0) theFishResult = "sazan";
+							else if(getRand == 1) theFishResult = "golavl";
+							else if(getRand == 2) theFishResult = "lesh";
+							else if(getRand == 3) theFishResult = "karas";
+						}else{
+							let getRand = getRandomInt(0,4);
+							if(getRand == 0) theFishResult = "losos";
+							else if(getRand == 1) theFishResult = "forel";
+							else if(getRand == 2) theFishResult = "scat";
+							else if(getRand == 3) theFishResult = "tunec";
+						}
+					}else if(theBait == "minifish") {
+						if(theRod == "badrod") {
+							let getRand = getRandomInt(0,4);
+							if(getRand == 0) theFishResult = "sazan";
+							else if(getRand == 1) theFishResult = "golavl";
+							else if(getRand == 2) theFishResult = "lesh";
+							else if(getRand == 3) theFishResult = "karas";
+						}else{
+							let getRand = getRandomInt(0,4);
+							if(getRand == 0) theFishResult = "littleshark";
+							else if(getRand == 1) theFishResult = "beluga";
+							else if(getRand == 2) theFishResult = "scat";
+							else if(getRand == 3) theFishResult = "tunec";
+						}
+					}
+				}else if(theDepth > 45 && theDepth <= 65) {
+					if(theBait == "bread") {
+						theFishResult = false;
+					}else if(theBait == "insects") {
+						theFishResult = false;
+					}else if(theBait == "worms") {
+						let getRand = getRandomInt(0,4);
+						if(getRand == 0) theFishResult = "sazan";
+						else if(getRand == 1) theFishResult = "golavl";
+						else if(getRand == 2) theFishResult = "lesh";
+						else if(getRand == 3) theFishResult = "karas";
+					}else if(theBait == "bloodworm") {
+						if(theRod == "badrod") {
+							let getRand = getRandomInt(0,4);
+							if(getRand == 0) theFishResult = "sazan";
+							else if(getRand == 1) theFishResult = "golavl";
+							else if(getRand == 2) theFishResult = "lesh";
+							else if(getRand == 3) theFishResult = "karas";
+						}else{
+							let getRand = getRandomInt(0,4);
+							if(getRand == 0) theFishResult = "losos";
+							else if(getRand == 1) theFishResult = "forel";
+							else if(getRand == 2) theFishResult = "scat";
+							else if(getRand == 3) theFishResult = "tunec";
+						}
+					}else if(theBait == "minifish") {
+						if(theRod == "badrod") {
+							let getRand = getRandomInt(0,4);
+							if(getRand == 0) theFishResult = "sazan";
+							else if(getRand == 1) theFishResult = "golavl";
+							else if(getRand == 2) theFishResult = "lesh";
+							else if(getRand == 3) theFishResult = "karas";
+						}else{
+							let getRand = getRandomInt(0,4);
+							if(getRand == 0) theFishResult = "littleshark";
+							else if(getRand == 1) theFishResult = "beluga";
+							else if(getRand == 2) theFishResult = "scat";
+							else if(getRand == 3) theFishResult = "tunec";
+						}
+					}
+				}else if(theDepth > 65 && theDepth <= 85) {
+					if(theBait == "bread") {
+						theFishResult = false;
+					}else if(theBait == "insects") {
+						theFishResult = false;
+					}else if(theBait == "worms") {
+						theFishResult = false;
+					}else if(theBait == "bloodworm") {
+						if(theRod == "badrod") {
+							let getRand = getRandomInt(0,4);
+							if(getRand == 0) theFishResult = "sazan";
+							else if(getRand == 1) theFishResult = "golavl";
+							else if(getRand == 2) theFishResult = "lesh";
+							else if(getRand == 3) theFishResult = "karas";
+						}else{
+							let getRand = getRandomInt(0,4);
+							if(getRand == 0) theFishResult = "losos";
+							else if(getRand == 1) theFishResult = "forel";
+							else if(getRand == 2) theFishResult = "scat";
+							else if(getRand == 3) theFishResult = "tunec";
+						}
+					}else if(theBait == "minifish") {
+						if(theRod == "badrod") {
+							let getRand = getRandomInt(0,4);
+							if(getRand == 0) theFishResult = "sazan";
+							else if(getRand == 1) theFishResult = "golavl";
+							else if(getRand == 2) theFishResult = "lesh";
+							else if(getRand == 3) theFishResult = "karas";
+						}else{
+							let getRand = getRandomInt(0,4);
+							if(getRand == 0) theFishResult = "littleshark";
+							else if(getRand == 1) theFishResult = "beluga";
+							else if(getRand == 2) theFishResult = "scat";
+							else if(getRand == 3) theFishResult = "tunec";
+						}
+					}
+				}else if(theDepth > 85) {
+					if(theBait == "bread") {
+						theFishResult = false;
+					}else if(theBait == "insects") {
+						theFishResult = false;
+					}else if(theBait == "worms") {
+						theFishResult = false;
+					}else if(theBait == "bloodworm") {
+						theFishResult = false;
+					}else if(theBait == "minifish") {
+						if(theRod == "badrod") {
+							let getRand = getRandomInt(0,4);
+							if(getRand == 0) theFishResult = "sazan";
+							else if(getRand == 1) theFishResult = "golavl";
+							else if(getRand == 2) theFishResult = "lesh";
+							else if(getRand == 3) theFishResult = "karas";
+						}else{
+							let getRand = getRandomInt(0,4);
+							if(getRand == 0) theFishResult = "littleshark";
+							else if(getRand == 1) theFishResult = "beluga";
+							else if(getRand == 2) theFishResult = "scat";
+							else if(getRand == 3) theFishResult = "tunec";
+						}
+					}
+				}
+			}
+			return theFishResult;
+		}
+	}
+}
+}댧œ

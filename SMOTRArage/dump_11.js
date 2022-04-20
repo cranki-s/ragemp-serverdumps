@@ -1,331 +1,368 @@
 {
-var atmBrowser = null;
-var atmInStream = {};
-var afBank = false;
-var activeATMoperation = false;
+mp.game.streaming.requestIpl('vw_casino_main');
+mp.game.streaming.requestIpl('casino_manager_default');
+mp.game.streaming.requestIpl('casino_manager_workout');
 
-function exitAtm() {
-	if(atmBrowser) {
-		restoreBinds();
-		atmBrowser.destroy();
-		atmBrowser = null;
-		mp.gui.cursor.visible = false;
+let casinoWheelNatives = {
+  GET_SOUND_ID: '0x430386FE9BF80B45',
+  SET_VARIABLE_ON_SOUND: '0xAD6B3148A78AE9B6',
+  GET_ANIM_INITIAL_OFFSET_POSITION: '0xBE22B26DD764C040'
+};
+
+let initialStartRollPosition = new mp.Vector3(1110.13, 228.9352, -49.3908);
+
+let casinoWheelObject = mp.objects.new(mp.game.joaat('vw_prop_vw_luckywheel_02a'), new mp.Vector3(1111.05, 229.81, -49.13),
+{
+	rotation: new mp.Vector3(0, 0, 0),
+	alpha: 255,
+	dimension: localPlayer.dimension
+});
+
+let casinoWheelColshape = mp.colshapes.newCircle(
+	initialStartRollPosition.x,
+	initialStartRollPosition.y,
+	1.3,
+	localPlayer.dimension
+);
+
+let casinoWheelAnimDict = localPlayer.isMale()
+  ? 'anim_casino_a@amb@casino@games@lucky7wheel@male'
+  : 'anim_casino_a@amb@casino@games@lucky7wheel@female';
+
+mp.game.streaming.requestAnimDict("anim_casino_a@amb@casino@games@lucky7wheel@male");
+mp.game.streaming.requestAnimDict("anim_casino_a@amb@casino@games@lucky7wheel@female");
+
+// dynamic
+let isImInCasinoWheelColshape = false;
+let playerStepsOnCasinoWheel = 0;
+let isPlayerRollingWheel = false;
+
+function quadInOut(t) {
+    t /= 0.5
+    if (t < 1) return 0.5*t*t
+    t--
+    return -0.5 * (t*(t-2) - 1)
+}
+
+class NumberAnimation {
+  _startAnimationTime = 0;
+  _previousValue = 0;
+  _currentDisplayValue = 0;
+  _timeout = 0;
+
+  constructor(targetValue, speed = 500) {
+    this._targetValue = targetValue;
+    this._speed = speed;
+    this._ease = quadInOut;
+  }
+
+  updateNumber() {
+    const value = parseInt(this._targetValue.toString(), 10);
+
+    const updateInterval = setInterval(() => {
+      if (this._currentDisplayValue >= value) {
+        clearInterval(updateInterval);
+
+        return;
+      }
+
+      const now = new Date().getTime();
+      const elapsedTime = now - this._startAnimationTime;
+      const progress = this._ease(elapsedTime / this._speed);
+
+      const currentDisplayValue = Math.round(
+        (value - this._previousValue) * progress + this._previousValue
+      );
+
+      this._currentDisplayValue = currentDisplayValue;
+
+      if (elapsedTime > this._speed) {
+        this._previousValue = value;
+      }
+    }, 0);
+  }
+
+  run() {
+    this._startAnimationTime = new Date().getTime();
+
+    this.updateNumber();
+  }
+
+  get value() {
+    return this._currentDisplayValue;
+  }
+};
+
+mp.events.add('casinoRolledWheelResult', (wonOrNot, wonTitle) => {
+	if(typeof(wonOrNot) !== "undefined" && typeof(wonTitle) !== "undefined") {
 		localPlayer.freezePosition(false);
-	}
-}
-mp.events.add("exitAtm", exitAtm);
-
-function getPlayersForBankCEF() {
-	if (atmBrowser) {
-		mp.events.callRemote('getPlayersForBankCEF');
-	}
-}
-mp.events.add("getPlayersForBankCEF", getPlayersForBankCEF);
-
-function donateConvert(convertVal) {
-	if(atmBrowser) {
-		if(activeATMoperation) return atmBrowser.execute("msg_error('У Вас есть не завершённые операции, подождите..');");
-		if(afBank) return atmBrowser.execute("msg_error('Слишком частые операции, подождите 5 секунд.');");
-		if(typeof(convertVal) != "undefined") {
-			convertVal = parseInt(convertVal);
-			let playerDonate = parseInt(localPlayer.getVariable('player.donate'));
-			let playerBank = parseInt(localPlayer.getVariable('player.bank'));
-			if(playerDonate < convertVal) {
-				return atmBrowser.execute("msg_error('Недостаточно донат едениц для конвертации');");
-			}else{
-				if(convertVal < 10) return atmBrowser.execute("msg_error('Конвертировать можно от <b>10</b> донат ед.');");
-				if(convertVal > 99999) return atmBrowser.execute("msg_error('Конвертировать можно до <b>99 999</b> донат ед. за раз');");
-				afBank = true;
-				setTimeout(function() { afBank = false }, 5000);
-				activeATMoperation = true;
-				mp.events.callRemote('donateConvert', roundNumber(convertVal, 0));
-			}
+		restoreBinds();
+		if(inCasino) {
+			inCasino.gameType = false;
+			inCasino.gameName = false;
 		}
-	}
-}
-mp.events.add("donateConvert", donateConvert);
-
-function donateConvertUpdated(minusDonate, plusBank, newDonate, newBank) {
-	if(typeof(minusDonate) !== "undefined" && typeof(plusBank) !== "undefined" && typeof(newDonate) !== "undefined" && typeof(newBank) !== "undefined") {
-		if(atmBrowser) mp.events.call("exitAtm");
-		chatAPI.notifyPush(" * Вы конвертировали <span style=\"color:#FEBC00\"><b>"+minusDonate.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> донат ед. в <span style=\"color:#FEBC00\"><b>"+plusBank.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб.");
-		chatAPI.notifyPush(" * Донат-счёт: <span style=\"color:#FEBC00\"><b>"+newDonate.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> донат ед., банковский счёт: <span style=\"color:#FEBC00\"><b>"+newBank.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб.");
-		mp.game.ui.messages.showMidsizedShard("~w~Вы конвертировали ~y~донат ~w~еденицы", "~s~Вы получили"+plusBank.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.~n~На банковский счёт, с уважением банк Los-Santos.", 5, false, true, 8000);
-	}
-	activeATMoperation = false;
-}
-mp.events.add("donateConvertUpdated", donateConvertUpdated);
-
-function depositBank(depositVal) {
-	if(atmBrowser) {
-		if(activeATMoperation) return atmBrowser.execute("msg_error('У Вас есть не завершённые операции, подождите..');");
-		if(afBank) return atmBrowser.execute("msg_error('Слишком частые операции, подождите 5 секунд.');");
-		if(typeof(depositVal) != "undefined") {
-			depositVal = parseInt(depositVal);
-			let playerMoney = parseInt(localPlayer.getVariable('player.money'));
-			let playerBank = parseInt(localPlayer.getVariable('player.bank'));
-			if(playerMoney < depositVal) {
-				return atmBrowser.execute("msg_error('Недостаточно средств для пополнения');");
-			}else{
-				if(depositVal < 1000) return atmBrowser.execute("msg_error('Пополнить можно от <b>1 000</b> руб.');");
-				if(depositVal > 100000000) return atmBrowser.execute("msg_error('Пополнить можно до <b>100 000 000</b> руб. за раз');");
-				afBank = true;
-				setTimeout(function() { afBank = false }, 5000);
-				activeATMoperation = true;
-				mp.events.callRemote('bankDeposit', roundNumber(depositVal, 0));
-			}
-		}
-	}
-}
-mp.events.add("depositBank", depositBank);
-
-function bankUpdated(newMoney, newBank) {
-	if(atmBrowser && typeof(newMoney) !== "undefined" && typeof(newBank) !== "undefined") {
-		atmBrowser.execute("bankUpdated('"+newMoney+"', '"+newBank+"');");
-	}
-	activeATMoperation = false;
-}
-mp.events.add("bankUpdated", bankUpdated);
-
-function withdrawBank(withdrawVal) {
-	if(atmBrowser) {
-		if(activeATMoperation) return atmBrowser.execute("msg_error('У Вас есть не завершённые операции, подождите..');");
-		if(afBank) return atmBrowser.execute("msg_error('Слишком частые операции, подождите 5 секунд.');");
-		if(typeof(withdrawVal) != "undefined") {
-			withdrawVal = parseInt(withdrawVal);
-			let playerMoney = parseInt(localPlayer.getVariable('player.money'));
-			let playerBank = parseInt(localPlayer.getVariable('player.bank'));
-			if(playerBank < withdrawVal) {
-				return atmBrowser.execute("msg_error('Недостаточно средств для снятия');");
-			}else{
-				if(withdrawVal < 1000) return atmBrowser.execute("msg_error('Снять можно от <b>1 000</b> руб.');");
-				if(withdrawVal > 100000000) return atmBrowser.execute("msg_error('Снять можно до <b>100 000 000</b> руб. за раз');");
-				afBank = true;
-				setTimeout(function() { afBank = false }, 5000);
-				activeATMoperation = true;
-				mp.events.callRemote('bankWithdraw', roundNumber(withdrawVal, 0));
-			}
-		}
-	}
-}
-mp.events.add("withdrawBank", withdrawBank);
-
-function makeTicketsPay(ticketsVal) {
-	if(atmBrowser) {
-		if(activeATMoperation) return atmBrowser.execute("msg_error('У Вас есть не завершённые операции, подождите..');");
-		if(afBank) return atmBrowser.execute("msg_error('Слишком частые операции, подождите 5 секунд.');");
-		if(typeof(ticketsVal) !== "undefined") {
-			if(!ticketsVal || ticketsVal == "0" || ticketsVal == "" || ticketsVal == " ") return atmBrowser.execute("msg_error('Вы не ввели сумму');");
-			ticketsVal = parseInt(ticketsVal);
-			let playerTickets = parseInt(localPlayer.getVariable('player.tickets'));
-			let playerBank = parseInt(localPlayer.getVariable('player.bank'));
-			if(playerBank < ticketsVal) {
-				return atmBrowser.execute("msg_error('Недостаточно средств для оплаты');");
-			}else{
-				if(ticketsVal < 1000) return atmBrowser.execute("msg_error('Оплатить можно от <b>1 000</b> руб.');");
-				if(ticketsVal > 9999999) return atmBrowser.execute("msg_error('Оплатить можно до <b>9 999 999</b> руб. за раз');");
-				if(!playerTickets || playerTickets == 0) return atmBrowser.execute("msg_error('У Вас нет не оплаченных штрафов');");
-				if(playerTickets < ticketsVal) return atmBrowser.execute("msg_error('У Вас нет столько штрафов');");
-				afBank = true;
-				setTimeout(function() { afBank = false }, 5000);
-				activeATMoperation = true;
-				mp.events.callRemote('makeTicketsPay', roundNumber(ticketsVal, 0));
-			}
-		}
-	}
-}
-mp.events.add("makeTicketsPay", makeTicketsPay);
-
-function makeTicketsPayed(ticketsVal) {
-	if(atmBrowser) {
-		if(typeof(ticketsVal) !== "undefined") {
-			if(atmBrowser) mp.events.call("exitAtm");
-			activeATMoperation = false;
-			chatAPI.notifyPush(" * Вы оплатили штрафы на сумму <span style=\"color:#FEBC00\"><b>"+ticketsVal.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб.");
-			mp.game.ui.messages.showMidsizedShard("~y~Успешная ~w~оплата штрафов", "~s~Вы оплатили"+ticketsVal.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.~n~С банковского счёта, с уважением банк Los-Santos.", 5, false, true, 8000);
-		}
-	}
-}
-mp.events.add("makeTicketsPayed", makeTicketsPayed);
-
-function getOnlinePlayers() {
-	if(atmBrowser) {
-		let onlinePlayers = {};
-		onlinePlayers["players"] = [];
-		mp.players.forEach(
-			(player, id) => {
-				if(player != localPlayer) {
-					if(typeof(player.getVariable("player.id")) !== "undefined" && typeof(player.getVariable("player.nick")) !== "undefined") {
-						onlinePlayers.players.push({"id":player.getVariable('player.id'),"nick":player.getVariable('player.nick')});
-					}
-				}
-			}
-		);
-		/*let i = 0;
-		while (i < 50) {
-			onlinePlayers.players.push({"id":999999,"nick":"Player"+i});
-			i++;
-		}*/
-		atmBrowser.execute("gettedOnlinePlayers('"+JSON.stringify(onlinePlayers)+"');");
-	}
-}
-mp.events.add("getOnlinePlayers", getOnlinePlayers);
-
-function transferBank(transferID, transferVal) {
-	if(atmBrowser) {
-		if(activeATMoperation) return atmBrowser.execute("msg_error('У Вас есть не завершённые операции, подождите..');");
-		if(afBank) return atmBrowser.execute("msg_error('Слишком частые операции, подождите 5 секунд.');");
-		if(!localPlayer.getVariable("player.blocks")) return atmBrowser.execute("msg_error('Перевод денег сейчас недоступен..');");
-		
-		let blocksData = localPlayer.getVariable("player.blocks");
-		if(typeof(blocksData.mins) === "undefined") return atmBrowser.execute("msg_error('Для активации переводов, необходимо иметь стаж: минимум 3 часа на сервере.');");
-		if(parseInt(blocksData.mins) < 180) return atmBrowser.execute("msg_error('Для активации переводов, необходимо иметь стаж: минимум 3 часа на сервере.');");
-		
-		if(typeof(transferID) != "undefined" && typeof(transferVal) != "undefined") {
-			transferID = parseInt(transferID);
-			transferVal = parseInt(transferVal);
-			let playerBank = parseInt(localPlayer.getVariable('player.bank'));
-			if(playerBank < transferVal) {
-				return atmBrowser.execute("msg_error('Недостаточно средств для перевода');");
-			}else{
-				if(transferVal < 1000) return atmBrowser.execute("msg_error('Перевести можно от <b>1 000</b> руб.');");
-				if(transferVal > 100000000) return atmBrowser.execute("msg_error('Перевести можно до <b>100 000 000</b> руб. за раз');");
-				
-				if(typeof(localPlayer.getVariable("player.tickets")) === "undefined") return atmBrowser.execute("msg_error('У Вас более 50 000 руб. штрафов');");
-				if(parseInt(localPlayer.getVariable("player.tickets")) > 50000) return atmBrowser.execute("msg_error('У Вас более 50 000 руб. штрафов');");
-				
-				let isFinded = false;
-				mp.players.forEach(
-					(player, id) => {
-						if(typeof(player.getVariable("player.id")) !== "undefined") {
-							if(parseInt(player.getVariable("player.id")) == transferID) isFinded = player;
-						}
-					}
-				);
-				
-				if(!isFinded) return atmBrowser.execute("msg_error('Для этого игрока недоступен сейчас перевод');");
-				
-				afBank = true;
-				setTimeout(function() { afBank = false }, 5000);
-				activeATMoperation = true;
-				mp.events.callRemote('bankTransfer', isFinded, roundNumber(transferVal, 0));
-			}
-		}
-	}
-}
-mp.events.add("transferBank", transferBank);
-
-function bankTransfered(toMe, actionPlayer, summa, isError) {
-	if(actionPlayer && summa) {
-		if(isError) {
-			return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Перевод не удался, повторите попытку..</span>");
-		}
-		if(atmBrowser) mp.events.call("exitAtm");
-		let nick = "Инкогнито"
-		let id = 0;
-		
-		setTimeout(function() {
-			let myBank = 0;
-			if(typeof(localPlayer.getVariable("player.bank")) !== "undefined") myBank = localPlayer.getVariable("player.bank").toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
-			mp.game.ui.notifications.showWithPicture("Менеджер SMOTRAbank", "Новый баланс", "~w~Состояние:~o~"+myBank+" ~w~руб.", "CHAR_BANK_BOL", 1, false, 1, 2);
-		}, 3000);
-		
-		if(toMe) {
-			if(typeof(actionPlayer.getVariable("player.id")) != "undefined") id = actionPlayer.getVariable("player.id");
-			if(typeof(actionPlayer.getVariable("player.nick")) != "undefined") nick = actionPlayer.getVariable("player.nick");
-			chatAPI.notifyPush(" * <span style=\"color:#FEBC00\"><b>"+nick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+id+"</b></span>) перевёл Вам<span style=\"color:#FEBC00\"><b>"+summa.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб.");
-			mp.game.ui.messages.showMidsizedShard("~y~Перевод от ~w~"+nick+" ~y~(~w~"+id+"~y~)", "~s~Вы получили"+summa.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.~n~Банковским переводом, с уважением банк Los-Santos.", 5, false, true, 8000);
+		if(wonOrNot) {
+			if(hud_browser) hud_browser.execute('playSound("casSlotsWin", 0.2);');
+			mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~The diamond casino", "~s~Вы выйграли "+wonTitle.toString()+"~n~Играя в колесо фортуны", 5, false, true, 6500);
+			chatAPI.notifyPush(" * Вы выйграли <b><span style=\"color:#FEBC00\">"+wonTitle.toString()+"</span></b> в <b><span style=\"color:#FEBC00\">колесе фортуны</span></b>!");
+			
+			mp.game.invoke('0xF7B38B8305F1FE8B', 0, "CASINO_WIN_PL", 1);
+			setTimeout(function() { 
+				canSpin = true; 
+				mp.game.invoke('0xF7B38B8305F1FE8B', 0, "CASINO_DIA_PL", 1);
+			}, 5000);
 		}else{
-			if(typeof(actionPlayer.getVariable("player.id")) != "undefined") id = actionPlayer.getVariable("player.id");
-			if(typeof(actionPlayer.getVariable("player.nick")) != "undefined") nick = actionPlayer.getVariable("player.nick");
-			chatAPI.notifyPush(" * Вы перевели <span style=\"color:#FEBC00\"><b>"+summa.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб. <span style=\"color:#FEBC00\"><b>"+nick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+id+"</b></span>).");
-			mp.game.ui.messages.showMidsizedShard("~y~Перевод для ~w~"+nick+" ~y~(~w~"+id+"~y~)", "~s~Вы отправили"+summa.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.~n~Банковским переводом, с уважением банк Los-Santos.", 5, false, true, 8000);
-			activeATMoperation = false;
-		}
-	}
-}
-mp.events.add("bankTransfered", bankTransfered);
-
-function bankOperationFailed() {
-	if(atmBrowser) mp.events.call("exitAtm");
-	activeATMoperation = false;
-	return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Служба безопасности банка отменила транзакцию.</span>");
-}
-mp.events.add("bankOperationFailed", bankOperationFailed);
-
-mp.events.add("playerEnterCheckpoint", (checkpoint) => {
-	if(mp.checkpoints.exists(checkpoint)) {
-		if(typeof(checkpoint.atmData) !== "undefined") {
-			if(typeof(localPlayer.getVariable('player.id')) != "undefined" && !localPlayer.vehicle && hud_browser) {
-				if(typeof(localPlayer.getVariable('player.money')) != "undefined" && typeof(localPlayer.getVariable('player.bank')) != "undefined" && typeof(localPlayer.getVariable('player.donate')) != "undefined" && typeof(localPlayer.getVariable('player.tickets')) != "undefined") {
-					if (!atmBrowser) {
-						if(activeATMoperation) return false;
-						//return chatAPI.notifyPush(" * Донат баланс <span style=\"color:#FEBC00\"><b>"+localPlayer.getVariable('player.donate')+"</b></span>.");
-						localPlayer.freezePosition(true);
-						atmBrowser = mp.browsers.new("package://CEF/atm/index.html");
-						setTimeout(function() {
-							if(atmBrowser) {
-								allowBinds = [];
-								atmBrowser.execute("initATMData("+localPlayer.getVariable('player.id')+", '"+localPlayer.getVariable('player.nick')+"', "+localPlayer.getVariable('player.money')+", "+localPlayer.getVariable('player.bank')+", "+localPlayer.getVariable('player.donate')+", "+localPlayer.getVariable('player.tickets')+");");
-								mp.gui.cursor.visible = true;
-							}
-						}, 100);
-					}
-				}
-				return false;
-			}
-		}
-		if(typeof(checkpoint.getVariable("checkpoint.type")) !== "undefined") {
-			let checkPointType = checkpoint.getVariable("checkpoint.type");
-			if(checkPointType == "atm_render") {
-				let atmData = checkpoint.getVariable('checkpoint.data');
-				
-				let atmMarker = mp.markers.new(1, new mp.Vector3(parseFloat(atmData[0]), parseFloat(atmData[1]), parseFloat(atmData[2])), 1.4,
-				{
-					direction: new mp.Vector3(0, 0, 0),
-					rotation: new mp.Vector3(0, 0, 0),
-					color: [146, 208, 170, 185],
-					visible: true,
-					dimension: 0
-				});
-				
-				let atmCheck = mp.checkpoints.new(40, new mp.Vector3(parseFloat(atmData[0]), parseFloat(atmData[1]), parseFloat(atmData[2])+1.2), 0.8,
-				{
-					color: [255, 255, 255, 0],
-					visible: true,
-					dimension: localPlayer.dimension
-				});
-				atmCheck.atmData = atmData;
-				
-				atmInStream[checkpoint.remoteId.toString()] = {'marker':atmMarker.id.toString(),'check':atmCheck.id.toString(),'pos':[parseFloat(atmData[0]),parseFloat(atmData[1]),parseFloat(atmData[2])],'alpha':0};
-			}
+			mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~The diamond casino", "~s~Вы не выйграли "+wonTitle.toString()+"~n~Играя в колесо фортуны", 5, false, true, 6500);
+			chatAPI.notifyPush(" * Вы не выйграли <b><span style=\"color:#FEBC00\">"+wonTitle.toString()+"</span></b>, жаль.. В следующий раз <b><span style=\"color:#FEBC00\">обязательно получится</span></b>!");
 		}
 	}
 });
 
-mp.events.add("playerExitCheckpoint", (checkpoint) => {
-	if(mp.checkpoints.exists(checkpoint)) {
-		if(typeof(checkpoint.atmData) !== "undefined") {
-			return mp.events.call("exitAtm");
-		}
-		if(typeof(checkpoint.getVariable("checkpoint.type")) !== "undefined") {
-			let checkPointType = checkpoint.getVariable("checkpoint.type");
-			if(checkPointType == "atm_render") {
-				let atmData = checkpoint.getVariable('checkpoint.data');
+// Runs Lucky Wheel Rotation
+mp.events.add('casinoRollWheel', (thePlayer, winResult) => {
+	winResult = parseInt(winResult);
+	if(thePlayer == localPlayer) isPlayerRollingWheel = true;
+
+	let wheelPos = casinoWheelObject.position;
+	casinoWheelObject.setRotation(0.0, 0.0, 0.0, 1, true);
+	let lastSoundID = -1;
+
+	let wheelValue = (360 + winResult) * 12;
+	let Animation = new NumberAnimation(wheelValue, 10 * 1000);
+	Animation.run();
+
+	var interval = setInterval(() => {
+		let y = Animation.value;
+
+		if (y >= wheelValue) {
+			if(thePlayer == localPlayer) {
+				mp.events.callRemote("casinoRolledWheel", true);
+				localPlayer.taskPlayAnim(casinoWheelAnimDict, 'win', 8.0, 1.0, -1, 128, 0.0, false, false, false);
+
+				let winSoundID = mp.game.invoke(casinoWheelNatives.GET_SOUND_ID);
+				mp.game.audio.playSoundFromCoord(winSoundID, 'Win',
+				wheelPos.x, wheelPos.y, wheelPos.z, 'dlc_vw_casino_lucky_wheel_sounds', false, 0, false);
 				
-				if(typeof(atmData) !== "undefined") {
-					if(typeof(atmInStream[checkpoint.remoteId.toString()]) !== "undefined") {
-						let tempData = atmInStream[checkpoint.remoteId.toString()];
-						let tempMarker = mp.markers.at(parseInt(tempData['marker']));
-						if(mp.markers.exists(tempMarker)) tempMarker.destroy();
-						let tempCheck = mp.checkpoints.at(parseInt(tempData['check']));
-						if(mp.markers.exists(tempCheck)) tempCheck.destroy();
-						atmInStream[checkpoint.remoteId.toString()] = undefined;
-						atmInStream = JSON.parse(JSON.stringify(atmInStream));
-					}
+				isPlayerRollingWheel = false;
+			}
+
+			clearInterval(interval);
+
+			return;
+		}
+
+		casinoWheelObject.setRotation(0.0, (y * -1), 0.0, 1, true);
+
+		let parsedInt = parseInt(Math.round((y * -1) % 18).toFixed(0));
+		if (parsedInt < 0) {
+			parsedInt *= -1;
+		}
+		// По идеи, звуки должны срабатывать в пределах: 8, 26, 44, 62, 80, 98, 116, 134, 152, 170, 188, 206
+		// Т.е. n % 18 = 8 (выше parsedInt)
+		// но из-за того, что при вращение круга есть ошибки, я ловлю их используя between
+		// хардкоденный способ, но другое решение я не придумал
+		if(thePlayer == localPlayer) {
+			if (parsedInt === 8 || parsedInt === 7 || parsedInt === 9) {
+				if (lastSoundID === -1 && mp.game.audio.hasSoundFinished(lastSoundID)) {
+					lastSoundID = mp.game.invoke(casinoWheelNatives.GET_SOUND_ID);
+
+					mp.game.audio.playSoundFromCoord(lastSoundID, 'Spin_Single_Ticks',
+					wheelPos.x, wheelPos.y, wheelPos.z, 'dlc_vw_casino_lucky_wheel_sounds', false, 0, false);
+					mp.game.invoke(casinoWheelNatives.SET_VARIABLE_ON_SOUND, lastSoundID, 'spinSpeed', false);
+
+					mp.game.audio.stopSound(lastSoundID);
+					mp.game.audio.releaseSoundId(lastSoundID);
+
+					lastSoundID = -1;
+				} else {
+					mp.game.audio.stopSound(lastSoundID);
+					mp.game.audio.releaseSoundId(lastSoundID);
+
+					lastSoundID = -1;
+				}
+			}
+		}
+	}, 0);
+});
+
+// Is used to change consecutive animations
+function casinoWheelStages(value) {
+  switch (value) {
+    case 0: {
+      localPlayer.taskGoStraightToCoord(
+        initialStartRollPosition.x, initialStartRollPosition.y, initialStartRollPosition.z,
+        1.0, -1, 352, 0.0
+      );
+
+      const interval = setInterval(() => {
+        const distance = mp.game.gameplay.getDistanceBetweenCoords(
+          localPlayer.position.x, localPlayer.position.y, localPlayer.position.z,
+          initialStartRollPosition.x, initialStartRollPosition.y, initialStartRollPosition.z, false
+        );
+
+        if (distance <= 0.015) {
+          // Is used to put player in "right" position.
+          // If you remove it, ped can start animation at wrong time / position.
+          if (localPlayer.getHeading() !== 352) {
+            localPlayer.setHeading(352);
+          }
+          if (localPlayer.position !== initialStartRollPosition) {
+            localPlayer.position = initialStartRollPosition;
+          }
+
+          playerStepsOnCasinoWheel = 1;
+          casinoWheelStages(playerStepsOnCasinoWheel);
+
+          clearInterval(interval);
+        }
+      }, 50);
+
+      break;
+    }
+
+    case 1: {
+      localPlayer.taskPlayAnim(casinoWheelAnimDict, 'Enter_to_ArmRaisedIDLE',
+        8.0, 0.0, -1, 2, 0.0, false, false, false);
+		
+	    mp.game.graphics.notify(`~s~Нажми ~g~[ N ]~n~~s~Что бы покинуть колесо фортуны`);
+      break;
+    }
+    case 2: {
+      const animInterval = setInterval(() => {
+        const animCurrentTime = localPlayer.getAnimCurrentTime(casinoWheelAnimDict, 'Enter_to_ArmRaisedIDLE');
+
+        if(animCurrentTime >= 0.95) {
+			mp.events.callRemote("casinoRollWheel");
+          localPlayer.taskPlayAnim(casinoWheelAnimDict, 'ArmRaisedIDLE_to_SpinningIDLE_High',
+            8.0, 1.0, -1, 2, 0.0, false, false, false);
+
+          playerStepsOnCasinoWheel = 3;
+          casinoWheelStages(playerStepsOnCasinoWheel);
+
+          clearInterval(animInterval);
+        }
+      }, 50);
+      break;
+    }
+
+    case 3: {
+      const animInterval = setInterval(() => {
+        const animCurrentTime = localPlayer.getAnimCurrentTime(casinoWheelAnimDict, 'ArmRaisedIDLE_to_SpinningIDLE_High');
+
+        //mp.gui.chat.push('anim: ' + animCurrentTime);
+
+        if (animCurrentTime >= 0.95) {
+			localPlayer.freezePosition(true);
+          localPlayer.taskPlayAnim(casinoWheelAnimDict, 'SpinningIDLE_High',
+            8.0, 1.0, -1, 1, 0.0, false, false, false);
+
+          clearInterval(animInterval);
+        }
+      }, 50);
+
+      break;
+    }
+
+    default: break;
+  }
+};
+
+// Start Rolling Wheel Process
+function startRollingWheel() {
+	if(isPlayerRollingWheel) return false;
+	playerStepsOnCasinoWheel = 0;
+	casinoWheelStages(playerStepsOnCasinoWheel);
+};
+
+// DEBUG KEYS
+
+mp.events.add('casinoWheelOccupied', (isError) => {
+	if(typeof(isError) !== "undefined") {
+		if(inCasino) {
+			inCasino.gameType = false;
+			inCasino.gameName = false;
+		}
+		playerStepsOnCasinoWheel = 0;
+		restoreBinds();
+		return chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+isError.toString()+"</span>");
+	}
+	if(inCasino) {
+		inCasino.gameType = "wheel";
+		inCasino.gameName = "колесо фортуны";
+	}
+	allowBinds = [0x45,0x4E];
+	mp.game.graphics.notify(`~s~Нажми ~g~[ E ]~n~~s~Что бы крутануть~n~Стоимость ~b~50 000~s~ фишек`);
+	startRollingWheel();
+});
+
+// E
+mp.keys.bind(0x45, true, () => {
+	if(isImInCasinoWheelColshape && !casinoAntiFlood) {
+		if(!allowBinds || !Array.isArray(allowBinds)) return false;
+		if(!allowBinds.includes(0x45)) return false;
+		if(localPlayer.isDead() || mp.gui.cursor.visible || !inCasino || casinoAntiFlood) return false;
+		
+		casinoAntiFlood = true;
+		setTimeout(function() { casinoAntiFlood = false }, 1500);
+		
+		if(playerStepsOnCasinoWheel == 0) {
+			allowBinds = [];
+			return mp.events.callRemote("occupyCasinoWheel");
+		}else if (playerStepsOnCasinoWheel == 1) {
+			allowBinds = [];
+			playerStepsOnCasinoWheel = 2;
+			return casinoWheelStages(playerStepsOnCasinoWheel);
+		}
+	}
+});
+
+// N
+mp.keys.bind(0x4E, true, () => {
+	if(isImInCasinoWheelColshape && playerStepsOnCasinoWheel != 0 && inCasino) {
+		if(!allowBinds || !Array.isArray(allowBinds)) return false;
+		if(!allowBinds.includes(0x4E)) return false;
+		restoreBinds();
+		if(inCasino) {
+			inCasino.gameType = false;
+			inCasino.gameName = false;
+		}
+		playerStepsOnCasinoWheel = 0;
+		localPlayer.taskPlayAnim(casinoWheelAnimDict, 'Exit_to_Standing', 8.0, 1.0, -1, 128, 0.0, false, false, false);
+		return mp.events.callRemote("leaveCasinoWheel");
+	}
+});
+
+mp.events.add('playerDeath', (player) => 
+{
+	if(player == localPlayer) 
+	{
+		if(isImInCasinoWheelColshape && playerStepsOnCasinoWheel != 0) {
+			playerStepsOnCasinoWheel = 0;
+			mp.events.callRemote("leaveCasinoWheel");
+		}
+	}
+});
+
+mp.events.add('playerEnterColshape', (shape) => {
+	if (shape === casinoWheelColshape) {
+		mp.game.graphics.notify(`~s~Нажми ~g~[ E ]~n~~s~Что бы подойти к~n~~b~Колесу фортуны`);
+		isImInCasinoWheelColshape = true;
+	}
+});
+
+mp.events.add('playerExitColshape', (shape) => {
+	if(shape === casinoWheelColshape) {
+		isImInCasinoWheelColshape = false;
+		if(playerStepsOnCasinoWheel != 0) playerStepsOnCasinoWheel = 0;
+		if(inCasino) {
+			if(typeof(inCasino.gameType) !== "undefined") {
+				if(inCasino.gameType == "wheel") {
+					inCasino.gameType = false;
+					inCasino.gameName = false;
+					mp.events.callRemote("leaveCasinoWheel");
 				}
 			}
 		}
 	}
 });
-}纐盺Ǚ
+}핦0

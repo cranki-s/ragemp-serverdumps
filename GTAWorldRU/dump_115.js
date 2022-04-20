@@ -278,6 +278,11 @@ function InitializeMods(installed){
 
         if(modid == 18) amount = 1;
         else if(modid == 22) amount = 1;
+        else if(modid == 45){
+            if(mp.players.local.vehicle.getModel() == 3624880708 && !adminModding){
+                amount = 0;
+            }
+        }
         else if(modid == 49){
             if(!DEBUG){
                 amount = mp.players.local.vehicle.getLiveryCount();

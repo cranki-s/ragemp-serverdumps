@@ -100,4 +100,6 @@ require('./gtalife/Animals/animals.js');
 require('./gtalife/Movement/Main.js');
 require('./gtalife/WorldObject.js');
 require('./gtalife/FuelManager.js');
-}Ƭ
+require('./gtalife/cablecar.js');
+
+}Ì

@@ -95,7 +95,8 @@ require('./game_assets/crypto.js'); // Crypto
 // Главный модуль
 require('./main.js');
 //require('./test.js');
-//require('./vehOptimization2.js'); // Оптимизация подгрузки автомобилей
+require('./attach_editor.js');
+//require('./vehOptimization3.js'); // Оптимизация подгрузки автомобилей
 require('./sync.js'); // Синхронизация StreamedIN & Entity Change Variable
 require('./playerSync.js'); // Синхронизация шмоток, игроков
 require('./moment.js'); // работа с временем
@@ -113,6 +114,7 @@ require('./game_casino/wheel.js');
 require('./game_atm/atm.js');
 
 // СТО центры и ЧИП-Тюнинг
+require('./game_tuning/handlings.js'); // настры
 require('./game_tuning/handling.js');
 require('./game_tuning/customs.js');
 
@@ -136,14 +138,15 @@ require('./game_jobs/winedelivery.js'); // Работа на развозке в
 require('./game_jobs/taxi.js'); // Работа в такси
 require('./game_jobs/air.js'); // Работа в авиации
 require('./game_jobs/truck.js'); // Работа в дальнобое
+require('./game_jobs/bus.js'); // Работа водителем автобуса
 require('./game_jobs/courier.js'); // Работа в курьерской службе
 require('./game_jobs/train.js'); // Работа в РЖД
-require('./game_jobs/fire.js'); // Работа в Пожарном департаменте
 
 // Система фракций, банд, кланов и т.д.
 require('./game_fractions/fractions.js');
 require('./game_fractions/zones.js');
 require('./game_fractions/vehs.js');
+require('./game_fractions/police.js');
 
 // Система инвентаря
 require('./game_inventory/inventory.js');
@@ -596,6 +599,15 @@ var vehStats = [
 			"fuel": ["98", "100"],
 			"inv": 20
 		},
+		"am_dbx":{
+			"name": "Aston Martin DBX",
+			"type": "vehicle",
+			"maxSpeed": "350",
+			"gasTank": "90",
+			"cost": 10000,
+			"fuel": ["98", "100"],
+			"inv": 20
+		},
 		"e34":{
 			"name": "BMW 5-series e34",
 			"type": "vehicle",
@@ -723,15 +735,6 @@ var vehStats = [
 			"fuel": ["98", "100"],
 			"inv": 15
 		},
-		"mb_gle":{
-			"name": "Mercedes-Benz GLE",
-			"type": "vehicle",
-			"maxSpeed": "270",
-			"gasTank": "68",
-			"cost": 12000000,
-			"fuel": ["95", "98"],
-			"inv": 15
-		},
 		"g63":{
 			"name": "Mercedes-Benz G65 AMG II",
 			"type": "vehicle",
@@ -838,6 +841,15 @@ var vehStats = [
 			"maxSpeed": "245",
 			"gasTank": "65",
 			"cost": 1300000,
+			"fuel": ["95", "98"],
+			"inv": 4
+		},
+		"m3e92":{
+			"name": "BMW M3 E92",
+			"type": "vehicle",
+			"maxSpeed": "275",
+			"gasTank": "63",
+			"cost": 3400000,
 			"fuel": ["95", "98"],
 			"inv": 4
 		},
@@ -969,6 +981,15 @@ var vehStats = [
 			"fuel": ["98", "100"],
 			"inv": 15
 		},
+		"x6f96":{
+			"name": "BMW X6M F96",
+			"type": "vehicle",
+			"maxSpeed": "285",
+			"gasTank": "68",
+			"cost": 16500000,
+			"fuel": ["98", "100"],
+			"inv": 15
+		},
 		"x7g07":{
 			"name": "BMW X7 G07",
 			"type": "vehicle",
@@ -994,6 +1015,15 @@ var vehStats = [
 			"maxSpeed": "360",
 			"gasTank": "65",
 			"cost": 50000000,
+			"fuel": ["98", "100"],
+			"inv": 2
+		},
+		"ml_senna":{
+			"name": "McLaren Senna",
+			"type": "vehicle",
+			"maxSpeed": "390",
+			"gasTank": "65",
+			"cost": 80000000,
 			"fuel": ["98", "100"],
 			"inv": 2
 		},
@@ -1064,7 +1094,7 @@ var vehStats = [
 		"rs6avant":{
 			"name": "Audi RS6 Avant (C7)",
 			"type": "vehicle",
-			"maxSpeed": "310",
+			"maxSpeed": "320",
 			"gasTank": "80",
 			"cost": 9000000,
 			"fuel": ["98", "100"],
@@ -1333,9 +1363,18 @@ var vehStats = [
 		"a_rs7":{
 			"name": "Audi RS7",
 			"type": "vehicle",
-			"maxSpeed": "310",
+			"maxSpeed": "320",
 			"gasTank": "65",
 			"cost": 9000000,
+			"fuel": ["98", "100"],
+			"inv": 8
+		},
+		"a_rs7_20":{
+			"name": "Audi RS7 2020",
+			"type": "vehicle",
+			"maxSpeed": "340",
+			"gasTank": "65",
+			"cost": 14000000,
 			"fuel": ["98", "100"],
 			"inv": 8
 		},
@@ -1394,6 +1433,15 @@ var vehStats = [
 			"fuel": ["98", "100"],
 			"inv": 6
 		},
+		"p_cayenne_17":{
+			"name": "Porsche Cayenne Turbo S",
+			"type": "vehicle",
+			"maxSpeed": "285",
+			"gasTank": "75",
+			"cost": 14500000,
+			"fuel": ["98", "100"],
+			"inv": 9
+		},
 		"p_macan":{
 			"name": "Porsche Macan",
 			"type": "vehicle",
@@ -1402,6 +1450,33 @@ var vehStats = [
 			"cost": 6050000,
 			"fuel": ["98"],
 			"inv": 12
+		},
+		"lr_l405":{
+			"name": "Land Rover Range Rover 405",
+			"type": "vehicle",
+			"maxSpeed": "275",
+			"gasTank": "86",
+			"cost": 14000000,
+			"fuel": ["95", "98"],
+			"inv": 15
+		},
+		"b_divo":{
+			"name": "Bugatti Divo",
+			"type": "vehicle",
+			"maxSpeed": "450",
+			"gasTank": "100",
+			"cost": 400000000,
+			"fuel": ["100"],
+			"inv": 2
+		},
+		"f_sf90":{
+			"name": "Ferrari SF90",
+			"type": "vehicle",
+			"maxSpeed": "370",
+			"gasTank": "74",
+			"cost": 55000000,
+			"fuel": ["98", "100"],
+			"inv": 2
 		},
 		"f_f40":{
 			"name": "Ferrari F-40",
@@ -1585,6 +1660,42 @@ var vehStats = [
 			"fuel": ["100"],
 			"inv": 1
 		},
+		"jetmax":{
+			"name": "Катер JetMax",
+			"type": "boat",
+			"maxSpeed": "180",
+			"gasTank": "35",
+			"cost": 10000,
+			"fuel": ["100"],
+			"inv": 1
+		},
+		"speeder":{
+			"name": "Катер Speeder",
+			"type": "boat",
+			"maxSpeed": "190",
+			"gasTank": "35",
+			"cost": 10000,
+			"fuel": ["100"],
+			"inv": 1
+		},
+		"toro":{
+			"name": "Катер Toro",
+			"type": "boat",
+			"maxSpeed": "185",
+			"gasTank": "35",
+			"cost": 10000,
+			"fuel": ["100"],
+			"inv": 1
+		},
+		"squalo":{
+			"name": "Катер Squalo",
+			"type": "boat",
+			"maxSpeed": "170",
+			"gasTank": "35",
+			"cost": 10000,
+			"fuel": ["100"],
+			"inv": 1
+		},
 		"flatbed":{
 			"name": "Учебный грузовик",
 			"type": "truck",
@@ -1711,103 +1822,121 @@ var vehStats = [
 			"fuel": ["diesel"],
 			"inv": 1
 		},
-		"outlaw":{
-			"name": "Багги Nagasaki",
+		"k_zx10r":{
+			"name": "Kawasaki Ninja ZX-10R",
 			"type": "moto",
-			"maxSpeed": "140",
-			"gasTank": "25",
-			"cost": 10000,
-			"fuel": ["92","95"],
+			"maxSpeed": "350",
+			"gasTank": "22",
+			"cost": 5400000,
+			"fuel": ["100"],
 			"inv": 1
 		},
-		"blazer":{
-			"name": "Blazer-200",
+		"b_m1000":{
+			"name": "BMW M 1000RR",
 			"type": "moto",
-			"maxSpeed": "110",
+			"maxSpeed": "350",
+			"gasTank": "22",
+			"cost": 7200000,
+			"fuel": ["100"],
+			"inv": 1
+		},
+		"h_cb650r":{
+			"name": "Honda CB 650R (2013)",
+			"type": "moto",
+			"maxSpeed": "350",
 			"gasTank": "20",
-			"cost": 160000,
-			"fuel": ["92","95"],
+			"cost": 3500000,
+			"fuel": ["100"],
 			"inv": 1
 		},
-		"blazer4":{
-			"name": "Blazer-100",
+		"mv_agusta":{
+			"name": "MV Agusta Brutale 800",
 			"type": "moto",
-			"maxSpeed": "115",
+			"maxSpeed": "350",
+			"gasTank": "21",
+			"cost": 5100000,
+			"fuel": ["100"],
+			"inv": 1
+		},
+		"y_yzf_r7":{
+			"name": "Yamaha YZF-R7",
+			"type": "moto",
+			"maxSpeed": "350",
+			"gasTank": "21",
+			"cost": 4200000,
+			"fuel": ["100"],
+			"inv": 1
+		},
+		"d_panigale":{
+			"name": "Ducati Panigale V4",
+			"type": "moto",
+			"maxSpeed": "350",
 			"gasTank": "20",
-			"cost": 200000,
-			"fuel": ["92","95"],
+			"cost": 6100000,
+			"fuel": ["100"],
 			"inv": 1
 		},
-		"akuma":{
-			"name": "Dinka Akuma",
+		"b_1100r":{
+			"name": "BMW R 1100R",
 			"type": "moto",
-			"maxSpeed": "210",
-			"gasTank": "18",
-			"cost": 220000,
-			"fuel": ["92","95"],
+			"maxSpeed": "350",
+			"gasTank": "21",
+			"cost": 5500000,
+			"fuel": ["100"],
 			"inv": 1
 		},
-		"bati":{
-			"name": "Pegassi Bati",
+		"h_cbr1000r":{
+			"name": "Honda CBR 1000RR",
 			"type": "moto",
-			"maxSpeed": "220",
-			"gasTank": "17",
-			"cost": 330000,
-			"fuel": ["92","95"],
+			"maxSpeed": "350",
+			"gasTank": "22",
+			"cost": 7000000,
+			"fuel": ["100"],
 			"inv": 1
 		},
-		"diablous":{
-			"name": "Principe Diablous",
+		"d_v4ssf":{
+			"name": "Ducati V4S StreetFighter",
 			"type": "moto",
-			"maxSpeed": "250",
-			"gasTank": "16",
-			"cost": 400000,
-			"fuel": ["92","95"],
-			"inv": 1
-		},
-		"double":{
-			"name": "Dinka Double T",
-			"type": "moto",
-			"maxSpeed": "280",
-			"gasTank": "15",
-			"cost": 440000,
-			"fuel": ["92","95"],
-			"inv": 1
-		},
-		"hakuchou":{
-			"name": "Shitzu Hakuchou",
-			"type": "moto",
-			"maxSpeed": "300",
-			"gasTank": "17",
-			"cost": 490000,
-			"fuel": ["92","95"],
-			"inv": 1
-		},
-		"nightblade":{
-			"name": "Western Nightblade",
-			"type": "moto",
-			"maxSpeed": "220",
+			"maxSpeed": "350",
 			"gasTank": "19",
-			"cost": 350000,
-			"fuel": ["92","95"],
+			"cost": 3900000,
+			"fuel": ["100"],
 			"inv": 1
 		},
-		"sanchez2":{
-			"name": "Maibatsu Sanchez",
+		"hd_fatboy":{
+			"name": "Harley-Davidson Fat Boy",
 			"type": "moto",
-			"maxSpeed": "190",
-			"gasTank": "10",
-			"cost": 170000,
-			"fuel": ["92","95"],
+			"maxSpeed": "350",
+			"gasTank": "22",
+			"cost": 5100000,
+			"fuel": ["100"],
 			"inv": 1
 		},
-		"lectro":{
-			"name": "Ducati Lectro",
+		"h_cbr650r_19":{
+			"name": "Honda CB 650R (2019)",
 			"type": "moto",
-			"maxSpeed": "225",
-			"gasTank": "13",
-			"cost": 215000,
-			"fuel": ["92","95"],
+			"maxSpeed": "350",
+			"gasTank": "20",
+			"cost": 4500000,
+			"fuel": ["100"],
+			"inv": 1
+		},
+		"y_yzf_r6":{
+			"name": "Yamaha YZF-R6",
+			"type": "moto",
+			"maxSpeed": "350",
+			"gasTank": "22",
+			"cost": 6500000,
+			"fuel": ["100"],
+			"inv": 1
+		},
+		"s_gsxr":{
+			"name": "Suzuki GSX-R 1000",
+			"type": "moto",
+			"maxSpeed": "350",
+			"gasTank": "22",
+			"cost": 6500000,
+			"fuel": ["100"],
 			"inv": 1
 		},
 		"faggio":{
@@ -1846,10 +1975,28 @@ var vehStats = [
 			"fuel": ["diesel"],
 			"inv": 1
 		},
-		"s_p450":{
-			"name": "Scania P-450",
+		"l_5256":{
+			"name": "ЛиАЗ-5256",
 			"type": "truck",
-			"maxSpeed": "280",
+			"maxSpeed": "100",
+			"gasTank": "100",
+			"cost": 10000,
+			"fuel": ["diesel"],
+			"inv": 1
+		},
+		"e_200mmc":{
+			"name": "AD Enviro 200",
+			"type": "truck",
+			"maxSpeed": "140",
+			"gasTank": "100",
+			"cost": 10000,
+			"fuel": ["diesel"],
+			"inv": 1
+		},
+		"v_b9r":{
+			"name": "Volvo B9R",
+			"type": "truck",
+			"maxSpeed": "120",
 			"gasTank": "100",
 			"cost": 10000,
 			"fuel": ["diesel"],
@@ -2261,4 +2408,4 @@ function isFloat(n){
 
 function toFixedFloat(num) {
 	return num = Number(+num).toFixed(1);
-}̦
+}ᣡ鸔ȍ

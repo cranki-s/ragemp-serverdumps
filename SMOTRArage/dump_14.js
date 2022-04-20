@@ -1,784 +1,474 @@
 {
-var homeCreate_browser = null;
-var homeMenu_browser = null;
-
-var tempHouseCreateData = {'interior':1,'cost':1000000,'park':1};
-var housesInStream = {};
-var myHousesBlips = [];
-
-var tempHouseData = null;
-var markerNoReaktOnTeleport = false;
-
-var sellToHouseID = 0, sellToNick = false, sellToID = 0, sellToCost = 0;
-var sellFromHouseID = 0, sellFromNick = false, sellFromID = 0, sellFromCost = 0;
-
-var houseActAction = false;
-
-function homeCreate() {
-	if(!homeCreate_browser) {
-		allowBinds = [];
-		homeCreate_browser = mp.browsers.new("package://CEF/createHouse/index.html");
-		let myPos = localPlayer.position;
-		homeCreate_browser.execute("installHomePos("+roundNumber(parseFloat(myPos.x), 4)+", "+roundNumber(parseFloat(myPos.y), 4)+", "+roundNumber(parseFloat(myPos.z), 4)+");");
-		setTimeout(function() {
-			allowBinds = [];
-			homeCreate_browser.execute("tempHouseData("+tempHouseCreateData.interior+", "+tempHouseCreateData.cost+", "+tempHouseCreateData.park+");");
-			mp.gui.cursor.visible = true;
-		}, 100);
-	}
-}
-
 /*
-mp.keys.bind(0x49, true, function() { // I Key
-	homeCreate();
+mp.markers.new(28, new mp.Vector3(471.7285,-1886.5043,26.0981), 10, // DEBUG
+{
+	direction: new mp.Vector3(0, 0, 0),
+	rotation: new mp.Vector3(0, 180, 0),
+	color: [0, 0, 200, 50],
+	visible: true,
+	dimension: 0
 });
 */
+var chipsInStream = [];
 
-function createHouseDismiss() {
-	if (homeCreate_browser) {
-		homeCreate_browser.destroy();
-		homeCreate_browser = null;
-		mp.gui.cursor.visible = false;
-		restoreBinds();
-	}
-}
-mp.events.add("createHouseDismiss", createHouseDismiss);
+var chip1shape = mp.colshapes.newSphere(471.7285,-1886.5043,26.0981, 15, 0);
+var chip2shape = mp.colshapes.newSphere(545.5057,-181.9909,54.4777, 15, 0);
+var chip3shape = mp.colshapes.newSphere(1144.9686,-782.0062,57.5987, 15, 0);
+var chip4shape = mp.colshapes.newSphere(-1285.8651,-1364.4087,4.322, 15, 0);
+var chip5shape = mp.colshapes.newSphere(-213.1524,6235.4424,31.5094, 15, 0);
+var chip6shape = mp.colshapes.newSphere(641.551,250.8256,103.1587, 15, 0);
+var chip7shape = mp.colshapes.newSphere(29.1332,-1323.8102,29.5218, 15, 0);
+var chip8shape = mp.colshapes.newSphere(1767.3389,3327.5876,41.4386, 15, 0);
+var chipImInZone = false;
 
-function createHouseAccepted(data) {
-	if (homeCreate_browser) {
-		homeCreate_browser.destroy();
-		homeCreate_browser = null;
-		mp.gui.cursor.visible = false;
-		restoreBinds();
-	}
-	mp.events.callRemote('createHouse', data);
-}
-mp.events.add("createHouseAccepted", createHouseAccepted);
-
-function createFlat(selectedIntID, flatParks, resCost) {
-	if(homeMenu_browser) {
-		if(typeof(selectedIntID) !== "undefined" && typeof(flatParks) !== "undefined" && typeof(resCost) !== "undefined") {
-			if(!tempHouseData) return homeMenu_browser.execute("msg_error('Ошибка инициализации');unlockFlatCreate();");
-			houseActAction = true;
-			mp.events.callRemote('createFlat', JSON.stringify(tempHouseData), selectedIntID, flatParks, resCost);
-		}
-	}
-}
-mp.events.add("createFlat", createFlat);
-
-function flatCreated(cost, park, flatData) {
-	if (cost && park && flatData) {
-		if(homeMenu_browser) {
-			homeMenu_browser.destroy();
-			homeMenu_browser = null;
-			mp.gui.cursor.visible = false;
-			markerNoReaktOnTeleport = false;
-			restoreBinds();
-		}
-		cost = parseInt(cost);
-		park = parseInt(park);
-		if(localPlayer.getVariable('player.id')) {
-			let costText = cost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
-			mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~квартира создана", "~s~Преобретено за"+costText+" руб., добавлено "+park+" парк. мест", 5, false, true, 6500);
-			flatData = JSON.parse(flatData);
-			if(typeof(flatData.flat) !== "undefined") {
-				if(typeof(flatData.flat.name) !== "undefined") {
-					mp.game.ui.notifications.showWithPicture(flatData.flat.name, "Добро пожаловать", flatData.flat.desc, "CHAR_BRYONY", 1, false, 1, 2);
-					mp.game.ui.notifications.showWithPicture("Успешная сделка", costText+" руб.", "В паркинге за Вами закреплено "+park+" мест", "CHAR_BRYONY", 1, false, 1, 2);
-				}
-			}
-		}
-		houseActAction = false;
-	}
-}
-mp.events.add("flatCreated", flatCreated);
-
-function flatCreateError(reason) {
-	if (homeMenu_browser && reason) {
-		if(localPlayer.getVariable('player.id')) {
-			homeMenu_browser.execute("msg_error('"+reason+"');unlockFlatCreate();");
-		}else{
-			homeMenu_browser.destroy();
-			homeMenu_browser = null;
-			mp.gui.cursor.visible = false;
-			markerNoReaktOnTeleport = false;
-			restoreBinds();
-		}
-		houseActAction = false;
-	}
-}
-mp.events.add("flatCreateError", flatCreateError);
-
-function enterToHome() {
-	if (homeMenu_browser) {
-		if(hud_browser) hud_browser.execute("hiddenAction('Переносим персонажа из мира в интерьер..');");
-		localPlayer.freezePosition(true);
-		
-		if(tempHouseData) {
-			if(typeof(tempHouseData.interior) !== "undefined") {
-				if(typeof(ints[parseInt(tempHouseData.interior)]) !== "undefined") {
-					let interior = ints[parseInt(tempHouseData.interior)];
-					if(typeof(interior.ipl) !== "undefined") mp.game.streaming.requestIpl(interior.ipl.toString());
-					if(typeof(interior.x) !== "undefined" && typeof(interior.y) !== "undefined" && typeof(interior.z) !== "undefined") {
-						interior.x = parseInt(interior.x);
-						interior.y = parseInt(interior.y);
-						interior.z = parseInt(interior.z);
-						localPlayer.position = new mp.Vector3(interior.x, interior.y, interior.z);
-					}
-				}
-			}
-			
-			if(typeof(tempHouseData.name) !== "undefined" && typeof(tempHouseData.pos.x) !== "undefined") {
-				tempHouseData.pos = [tempHouseData.pos.x, tempHouseData.pos.y, tempHouseData.pos.z];
-			}
-			
-			if(typeof(tempHouseData.flatID) !== "undefined") tempHouseData.id = tempHouseData.flatID;
-			
-			mp.events.call("sleepAntiCheat");
-			mp.events.callRemote('enterToHome', JSON.stringify(tempHouseData));
-		}
-		
-		setTimeout(() => { 
-			if(hud_browser) hud_browser.execute("hiddenAction();");
-			localPlayer.freezePosition(false);
-		}, 5000);
-
-		markerNoReaktOnTeleport = true;
-		homeMenu_browser.destroy();
-		homeMenu_browser = null;
-		mp.gui.cursor.visible = false;
-		restoreBinds();
-	}
-}
-mp.events.add("enterToHome", enterToHome);
-
-function enterToHomeGarage() {
-	if (homeMenu_browser) {
-		if(hud_browser) hud_browser.execute("hiddenAction('Переносим персонажа из мира в гараж..');");
-		localPlayer.freezePosition(true);
-		if(tempHouseData) {
-			mp.events.call("sleepAntiCheat");
-			
-			if(typeof(tempHouseData.name) !== "undefined" && typeof(tempHouseData.pos.x) !== "undefined") {
-				tempHouseData.pos = [tempHouseData.pos.x, tempHouseData.pos.y, tempHouseData.pos.z];
-			}
-			
-			if(typeof(tempHouseData.flatID) !== "undefined") tempHouseData.id = tempHouseData.flatID;
-			
-			mp.events.callRemote('enterToGarage', JSON.stringify(tempHouseData));
-		}
-		
-		setTimeout(() => { 
-			if(hud_browser) hud_browser.execute("hiddenAction();");
-			localPlayer.freezePosition(false);
-		}, 3500);
-
-		markerNoReaktOnTeleport = true;
-		homeMenu_browser.destroy();
-		homeMenu_browser = null;
-		mp.gui.cursor.visible = false;
-		restoreBinds();
-	}
-}
-mp.events.add("enterToHomeGarage", enterToHomeGarage);
-
-function setMyIPL(ipl) {
-	if(ipl) mp.game.streaming.requestIpl(ipl.toString());
-}
-mp.events.add("setMyIPL", setMyIPL);
-
-function buyHome() {
-	if (homeMenu_browser) {
-		if(tempHouseData && localPlayer.getVariable('player.id')) {
-			if(typeof(localPlayer.getVariable("player.houses")) === "undefined") return homeMenu_browser.execute("msg_error('Ошибка базы данных, повторите позднее');");
-			let housesData = localPlayer.getVariable("player.houses");
-			if(typeof(housesData.count) === "undefined") return homeMenu_browser.execute("msg_error('У Вас уже есть 3 дома, продайте другие дома');");
-			if(parseInt(housesData.count) >= 3) return homeMenu_browser.execute("msg_error('У Вас уже есть 3 дома, продайте другие дома');");
-			markerNoReaktOnTeleport = true;
-			
-			if(houseActAction) return false;
-			houseActAction = true;
-			
-			if(typeof(localPlayer.getVariable("player.tickets")) === "undefined") return homeMenu_browser.execute("msg_error('Ошибка базы данных, повторите позднее');");
-			if(parseInt(localPlayer.getVariable("player.tickets")) > 50000) return homeMenu_browser.execute("msg_error('У Вас более 50 000 руб. не оплаченных штрафов');");
-			
-			mp.events.callRemote('buyHome', JSON.stringify(tempHouseData));
-			exitHouseMenu();
-		}else{
-			homeMenu_browser.destroy();
-			homeMenu_browser = null;
-			mp.gui.cursor.visible = false;
-			markerNoReaktOnTeleport = false;
-			restoreBinds();
-		}
-	}
-}
-mp.events.add("buyHome", buyHome);
-
-function sellHome(hID) {
-	if (homeMenu_browser && typeof(hID) !== "undefined") {
-		if(tempHouseData && localPlayer.getVariable('player.id')) {
-			if(houseActAction) return false;
-			markerNoReaktOnTeleport = true;
-			houseActAction = true;
-			mp.events.callRemote('sellHome', hID, JSON.stringify(tempHouseData));
-			exitHouseMenu();
-		}else{
-			homeMenu_browser.destroy();
-			homeMenu_browser = null;
-			mp.gui.cursor.visible = false;
-			markerNoReaktOnTeleport = false;
-			restoreBinds();
-		}
-	}
-}
-mp.events.add("sellHome", sellHome);
-
-function houseSold(cost, park) {
-	if (cost && park) {
-		cost = parseInt(cost);
-		park = parseInt(park);
-		if(localPlayer.getVariable('player.id')) {
-			let sellCost = parseInt(cost) - (parseInt(cost) * 0.10);
-			let costText = sellCost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
-			mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~жилое имущество", "~s~Продано за"+costText+" руб., убрано "+park+" парк. мест", 5, false, true, 6500);
-		}
-		houseActAction = false;
-	}
-}
-mp.events.add("houseSold", houseSold);
-
-function houseBought(cost, park) {
-	if (cost && park) {
-		cost = parseInt(cost);
-		park = parseInt(park);
-		if(localPlayer.getVariable('player.id')) {
-			let costText = cost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
-			mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~жилое имущество", "~s~Преобретено за"+costText+" руб., добавлено "+park+" парк. мест", 5, false, true, 6500);
-		}
-		houseActAction = false;
-	}
-}
-mp.events.add("houseBought", houseBought);
-
-function houseBuyError(reason) {
-	if (homeMenu_browser && reason) {
-		if(tempHouseData && localPlayer.getVariable('player.id')) {
-			homeMenu_browser.execute("msg_error('"+reason+"');");
-		}else{
-			homeMenu_browser.destroy();
-			homeMenu_browser = null;
-			mp.gui.cursor.visible = false;
-			markerNoReaktOnTeleport = false;
-			restoreBinds();
-		}
-		houseActAction = false;
-	}
-}
-mp.events.add("houseBuyError", houseBuyError);
-
-function exitHouseMenu() {
-	if (homeMenu_browser) {
-		homeMenu_browser.destroy();
-		homeMenu_browser = null;
-		mp.gui.cursor.visible = false;
-		markerNoReaktOnTeleport = false;
-		restoreBinds();
-	}
-}
-mp.events.add("exitHouseMenu", exitHouseMenu);
-
-function getPlayersForSellHouse() {
-	if (homeMenu_browser) {
-		let tempPlayers = [];
-		let myPos = localPlayer.position;
-		let counter = 0;
-		mp.players.forEachInStreamRange(
-			(player, id) => {
-				if(player != localPlayer) {
-					let plPos = player.position;
-					if(mp.game.gameplay.getDistanceBetweenCoords(myPos.x, myPos.y, myPos.z, plPos.x, plPos.y, plPos.z, true) <= 5) {
-						if(!player.vehicle && player.getVariable("player.id") && player.getVariable("player.nick")) {
-							tempPlayers.push({"nick":player.getVariable("player.nick").toString(),"id":parseInt(player.getVariable("player.id"))});
-							counter++;
-						}
-					}
-				}
-			}
-		);
-		if(counter > 0) homeMenu_browser.execute("initPlayersForSellHouse('"+JSON.stringify(tempPlayers)+"')");
-	}
-}
-mp.events.add("getPlayersForSellHouse", getPlayersForSellHouse);
-
-function startHouseDealTo(hid, nick, id, cost) {
-	if(nick && hid && id && cost && homeMenu_browser) {
-		sellToHouseID = parseInt(hid);
-		sellToNick = nick.toString();
-		sellToID = parseInt(id);
-		sellToCost = parseInt(cost);
-		sellToCost = Math.round(sellToCost);
-		
-		if(sellToID <= 0) return homeMenu_browser.execute("msg_error('Вы не выбрали игрока');");
-		if(sellToCost <= 0) return homeMenu_browser.execute("msg_error('Вы не указали стоимость');");
-		if(sellToCost > 100000000) return homeMenu_browser.execute("msg_error('Стоимость не может быть больше 100 000 000 руб.');");
-		
-		if(typeof(localPlayer.getVariable("player.tickets")) === "undefined") return homeMenu_browser.execute("msg_error('Ошибка базы данных, повторите позднее');");
-		if(parseInt(localPlayer.getVariable("player.tickets")) > 50000) return homeMenu_browser.execute("msg_error('У Вас более 50 000 руб. не оплаченных штрафов');");
-		
-		houseActAction = true;
-		exitHouseMenu();
-		mp.events.callRemote('startHouseDealTo', sellToHouseID, sellToNick, sellToID, sellToCost);
-	}
-}
-mp.events.add("startHouseDealTo", startHouseDealTo);
-
-function startHouseDeal(initiator, hid, nick, id, cost) {
-	if(nick && hid && id && cost) {
-		hid = parseInt(hid);
-		nick = nick.toString();
-		id = parseInt(id);
-		cost = parseInt(cost);
-		cost = Math.round(cost);
-		
-		if(initiator) {
-			sellToHouseID = hid;
-			sellToNick = nick;
-			sellToID = id;
-			sellToCost = cost;
-		}else{
-			sellFromHouseID = hid;
-			sellFromNick = nick;
-			sellFromID = id;
-			sellFromCost = cost;
-		}
-		
-		houseActAction = true;
-		allowBinds = [];
-		if(homeMenu_browser) exitHouseMenu();
-		homeMenu_browser = mp.browsers.new("package://CEF/houseMenu/index.html");
-		setTimeout(function() {
-			if(homeMenu_browser) {
-				homeMenu_browser.execute("initDealData('"+initiator.toString()+"', '"+hid.toString()+"', '"+nick.toString()+"', '"+id.toString()+"', '"+cost.toString()+"');");
-				mp.gui.cursor.visible = true;
-			}
-		}, 100);
-	}
-}
-mp.events.add("startHouseDeal", startHouseDeal);
-
-function cancelHouseDeal(canceler, noSendToServer) {
-	if(homeMenu_browser) {
-		exitHouseMenu();
-		
-		if(canceler) {
-			if(sellToHouseID) chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы отменили сделку с игроком</span> <b><span style=\"color:#FFF\">"+sellToNick+"</span></b>");
-			else if(sellFromHouseID) chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы отклонили сделку с игроком</span> <b><span style=\"color:#FFF\">"+sellFromNick+"</span></b>");
-			sellToHouseID = 0, sellToNick = false, sellToID = 0, sellToCost = 0;
-			sellFromHouseID = 0, sellFromNick = false, sellFromID = 0, sellFromCost = 0;
-		}else{
-			if(sellToHouseID) chatAPI.sysPush("<span style=\"color:#FF6146\"> * </span> <b><span style=\"color:#FFF\">"+sellToNick+"</span></b> <span style=\"color:#FF6146\">отклонил Ваше предложение</span>");
-			else if(sellFromHouseID) chatAPI.sysPush("<span style=\"color:#FF6146\"> * </span> <b><span style=\"color:#FFF\">"+sellFromNick+"</span></b> <span style=\"color:#FF6146\">отменил предложение</span>");
-			sellToHouseID = 0, sellToNick = false, sellToID = 0, sellToCost = 0;
-			sellFromHouseID = 0, sellFromNick = false, sellFromID = 0, sellFromCost = 0;
-		}
-		
-		if(mp.players.atRemoteId(parseInt(localPlayer.getVariable("active.deal")))) {
-			let playerDeal = mp.players.atRemoteId(parseInt(localPlayer.getVariable("active.deal")));
-			if(playerDeal && !noSendToServer) mp.events.callRemote('cancelHouseDeal', playerDeal);
-		}
-		
-		houseActAction = false;
-	}
-}
-mp.events.add("cancelHouseDeal", cancelHouseDeal);
-
-function acceptHouseDeal(noSendToServer) {
-	if(homeMenu_browser) {
-		if(!noSendToServer) {
-			if(!localPlayer.getVariable("active.deal")) {
-				mp.events.callRemote('cancelHouseDeal');
-				homeMenu_browser.execute("msg_error('Игрок не в сети или далеко, сделка отменена');");
+mp.events.add('playerEnterColshape', (shape) => {
+	if(typeof(shape.data) == 'undefined' && typeof(shape.id) != "undefined") {
+		if(typeof(shape.getVariable('col.type')) != "undefined") {
+			let colType = shape.getVariable('col.type');
+			if(colType == 'chip_render') {
+				let chipData = shape.getVariable('col.data');
 				
-				sellToHouseID = 0, sellToNick = false, sellToID = 0, sellToCost = 0;
-				sellFromHouseID = 0, sellFromNick = false, sellFromID = 0, sellFromCost = 0;
+				let chipArray = {'pos': [parseFloat(chipData[0]), parseFloat(chipData[1]), parseFloat(chipData[2])], 'alpha': 0};
+				chipsInStream.push(chipArray);
+			}
+		}
+	}
+	if(typeof(shape) != "undefined") {
+		if(shape == chip1shape || shape == chip2shape || shape == chip3shape || shape == chip4shape || shape == chip5shape || shape == chip6shape || shape == chip7shape || shape == chip8shape) {
+			chipImInZone = true;
+		}
+	}
+});
+
+mp.events.add('playerExitColshape', (shape) => {
+	if(typeof(shape.data) == 'undefined' && typeof(shape.id) != "undefined") {
+		if(typeof(shape.getVariable('col.type')) != "undefined") {
+			let colType = shape.getVariable('col.type');
+			if(colType == 'chip_render') {
+				let chipRenderData = shape.getVariable('col.data');
+				for(var i in chipsInStream) {
+					let tempData = chipsInStream[i];
+					let posData = tempData['pos'];
+					if (posData[0] == chipRenderData[0] && posData[1] == chipRenderData[1] && posData[2] == chipRenderData[2]) {
+						if(chipsInStream[i] || chipsInStream[i] !== undefined) delete chipsInStream[i];
+					}
+				}
+				chipsInStream = chipsInStream.filter(function (el) { return el != null; });
+			}
+		}
+	}
+	if(typeof(shape.id) != "undefined") {
+		if(shape == chip1shape || shape == chip2shape || shape == chip3shape || shape == chip4shape || shape == chip5shape || shape == chip6shape || shape == chip7shape || shape == chip8shape) {
+			chipImInZone = false;
+			if(hud_browser) {
+				if(tuningPanel) {
+					hud_browser.execute('toggleTuningPanel(false);');
+					mp.gui.cursor.visible = false;
+					tuningPanel = false;
+					
+					restoreBinds();
+				}
+			}
+		}
+	}
+});
+
+mp.events.add({
+	"playerEnterVehicle": (vehicle, seat) => {
+		if(tuningPanel) {
+			if(hud_browser) {
+				hud_browser.execute('toggleTuningPanel(false);');
+				mp.gui.cursor.visible = false;
+				tuningPanel = false;
 				
-				return exitHouseMenu();
+				restoreBinds();
 			}
-			if(!localPlayer.getVariable("player.money")) return homeMenu_browser.execute("msg_error('Недостаточно средств для совершения сделки');");
-			let myMoney = parseInt(localPlayer.getVariable("player.money"));
-			let resCost = roundNumber(parseInt(sellFromCost) + (parseInt(sellFromCost) * 0.05), 0);
-			if(myMoney < resCost) return homeMenu_browser.execute("msg_error('Недостаточно средств для совершения сделки');");
-			if(typeof(localPlayer.getVariable("player.houses")) === "undefined") return homeMenu_browser.execute("msg_error('Не инициализировано личное имущество, перезайдите');");
+		}
+
+		if(typeof(vehicle.getVariable("veh.handling")) !== "undefined" && typeof(vehicle.getVariable("veh.hash")) !== "undefined" && typeof(vehicle.getVariable("veh.job")) === "undefined") {
+			let vehHash = vehicle.getVariable("veh.hash");
 			
-			if(typeof(localPlayer.getVariable("player.tickets")) === "undefined") return homeMenu_browser.execute("msg_error('Ошибка базы данных, повторите позднее');");
-			if(parseInt(localPlayer.getVariable("player.tickets")) > 50000) return homeMenu_browser.execute("msg_error('У Вас более 50 000 руб. не оплаченных штрафов');");
-			
-			let housesData = localPlayer.getVariable("player.houses");
-			if(typeof(housesData.count) === "undefined") return homeMenu_browser.execute("msg_error('У Вас уже есть 3 дома, продайте другие дома');");
-			if(parseInt(housesData.count) >= 3) return homeMenu_browser.execute("msg_error('У Вас уже есть 3 дома, продайте другие дома');");
-			
-			let findHouse = false;
-			mp.colshapes.forEachInStreamRange(
-				(shape, id) => {
-					if(typeof(shape.getVariable("col.type")) !== "undefined") {
-						if(shape.getVariable("col.type") == "house_render") {
-							if(typeof(shape.getVariable("col.data")) !== "undefined") {
-								let tempData = shape.getVariable("col.data");
-								if(tempData.id.toString() == sellFromHouseID.toString()) findHouse = tempData;
-							}
+			if(typeof(getHandling) !== "undefined" && typeof(getHandling2) !== "undefined") {
+				if(typeof(getHandling[vehHash]) !== "undefined" || typeof(getHandling2[vehHash]) !== "undefined") {
+					let handlingTable = JSON.parse(vehicle.getVariable("veh.handling"));
+					
+					let stockChip = {};
+					if(typeof(getHandling[vehHash]) !== "undefined") stockChip = getHandling[vehHash].HandlingData.Item;
+					else if(typeof(getHandling2[vehHash]) !== "undefined") stockChip = getHandling2[vehHash].HandlingData.Item;
+					
+					for(var k in handlingTable) {
+						let isSet = false;
+						if(k.toUpperCase() == "fInitialDriveMaxFlatVel".toUpperCase()) {
+							handlingTable[k] = parseFloat(handlingTable[k]) / 3.6;
+							isSet = true;
+						}else if(k.toUpperCase() == "fSuspensionRaise".toUpperCase()) {
+							if(parseFloat(handlingTable[k]) < -0.05 || parseFloat(handlingTable[k]) > 0.3) handlingTable[k] = parseFloat(stockChip.fSuspensionRaise);
+							handlingTable[k] = parseFloat(handlingTable[k]);
+							isSet = true;
+						}else if(k.toUpperCase() == "fSuspensionLowerLimit".toUpperCase()) {
+							if(parseFloat(handlingTable[k]) < -0.5 || parseFloat(handlingTable[k]) > 0.5) handlingTable[k] = parseFloat(stockChip.fSuspensionLowerLimit);
+							handlingTable[k] = parseFloat(handlingTable[k]);
+							isSet = true;
+						}else if(k.toUpperCase() == "fSuspensionUpperLimit".toUpperCase()) {
+							if(parseFloat(handlingTable[k]) < -0.5 || parseFloat(handlingTable[k]) > 0.5) handlingTable[k] = parseFloat(stockChip.fSuspensionUpperLimit);
+							handlingTable[k] = parseFloat(handlingTable[k]);
+							isSet = true;
+						}else if(k.toUpperCase() == "fSuspensionForce".toUpperCase()) {
+							if(parseFloat(handlingTable[k]) < 1 || parseFloat(handlingTable[k]) > 4) handlingTable[k] = parseFloat(stockChip.fSuspensionForce);
+							handlingTable[k] = parseFloat(handlingTable[k]);
+							isSet = true;
+						}else if(k.toUpperCase() == "fLowSpeedTractionLossMult".toUpperCase()) {
+							if(parseFloat(handlingTable[k]) < 0 || parseFloat(handlingTable[k]) > 1.5) handlingTable[k] = parseFloat(stockChip.fLowSpeedTractionLossMult);
+							handlingTable[k] = parseFloat(handlingTable[k]);
+							isSet = true;
+						}else if(k.toUpperCase() == "fTractionSpringDeltaMax".toUpperCase()) {
+							if(parseFloat(handlingTable[k]) < 0.1 || parseFloat(handlingTable[k]) > 0.5) handlingTable[k] = parseFloat(stockChip.fTractionSpringDeltaMax);
+							handlingTable[k] = parseFloat(handlingTable[k]);
+							isSet = true;
+						}else if(k.toUpperCase() == "fTractionCurveMin".toUpperCase()) {
+							if(parseFloat(handlingTable[k]) < 0.5 || parseFloat(handlingTable[k]) > 4.5) handlingTable[k] = parseFloat(stockChip.fTractionCurveMin);
+							handlingTable[k] = parseFloat(handlingTable[k]);
+							isSet = true;
+						}else if(k.toUpperCase() == "fTractionCurveMax".toUpperCase()) {
+							if(parseFloat(handlingTable[k]) < 1 || parseFloat(handlingTable[k]) > 5) handlingTable[k] = parseFloat(stockChip.fTractionCurveMax);
+							handlingTable[k] = parseFloat(handlingTable[k]);
+							isSet = true;
+						}else if(k.toUpperCase() == "fHandBrakeForce".toUpperCase()) {
+							if(parseFloat(handlingTable[k]) < 0.01 || parseFloat(handlingTable[k]) > 5) handlingTable[k] = parseFloat(stockChip.fHandBrakeForce);
+							handlingTable[k] = parseFloat(handlingTable[k]);
+							isSet = true;
+						}else if(k.toUpperCase() == "fBrakeForce".toUpperCase()) {
+							if(parseFloat(handlingTable[k]) < 0.01 || parseFloat(handlingTable[k]) > 2) handlingTable[k] = parseFloat(stockChip.fBrakeForce);
+							handlingTable[k] = parseFloat(handlingTable[k]);
+							isSet = true;
+						}else if(k.toUpperCase() == "fDriveBiasFront".toUpperCase()) {
+							if(parseFloat(handlingTable[k]) < 0 || parseFloat(handlingTable[k]) > 1) handlingTable[k] = parseFloat(stockChip.fDriveBiasFront);
+							handlingTable[k] = parseFloat(handlingTable[k]);
+							isSet = true;
+						}else if(k.toUpperCase() == "fBrakeBiasFront".toUpperCase()) {
+							if(parseFloat(handlingTable[k]) < 0 || parseFloat(handlingTable[k]) > 1) handlingTable[k] = parseFloat(stockChip.fBrakeBiasFront);
+							handlingTable[k] = parseFloat(handlingTable[k]) * 2;
+							isSet = true;
+						}else if(k.toUpperCase() == "fSteeringLock".toUpperCase()) {
+							if(parseFloat(handlingTable[k]) < 30 || parseFloat(handlingTable[k]) > 80) handlingTable[k] = parseFloat(stockChip.fSteeringLock);
+							handlingTable[k] = parseFloat(handlingTable[k]) * 0.017453292;
+							isSet = true;
+						}else if(k.toUpperCase() == "fTractionCurveLateral".toUpperCase()) {
+							if(parseFloat(handlingTable[k]) < 1 || parseFloat(handlingTable[k]) > 27) handlingTable[k] = parseFloat(stockChip.fTractionCurveLateral);
+							handlingTable[k] = parseFloat(handlingTable[k]) * 0.017453292;
+							isSet = true;
+						}else if(k.toUpperCase() == "fTractionBiasFront".toUpperCase()) {
+							if(parseFloat(handlingTable[k]) < 0.2 || parseFloat(handlingTable[k]) > 0.5) handlingTable[k] = parseFloat(stockChip.fTractionBiasFront);
+							handlingTable[k] = parseFloat(handlingTable[k]) * 2;
+							isSet = true;
+						}else if(k.toUpperCase() == "fSuspensionCompDamp".toUpperCase()) {
+							if(parseFloat(handlingTable[k]) < 0.5 || parseFloat(handlingTable[k]) > 2.5) handlingTable[k] = parseFloat(stockChip.fSuspensionCompDamp);
+							handlingTable[k] = parseFloat(handlingTable[k]) / 10;
+							isSet = true;
+						}else if(k.toUpperCase() == "fSuspensionReboundDamp".toUpperCase()) {
+							if(parseFloat(handlingTable[k]) < 0.5 || parseFloat(handlingTable[k]) > 2.5) handlingTable[k] = parseFloat(stockChip.fSuspensionReboundDamp);
+							handlingTable[k] = parseFloat(handlingTable[k]) / 10;
+							isSet = true;
+						}else if(k.toUpperCase() == "fSuspensionBiasFront".toUpperCase()) {
+							handlingTable[k] = parseFloat(handlingTable[k]) * 2;
+							isSet = true;
+						}else if(k.toUpperCase() == "fAntiRollBarBiasFront".toUpperCase()) {
+							handlingTable[k] = parseFloat(handlingTable[k]) * 2;
+							isSet = true;
 						}
+						//chatAPI.sysPush("<span style=\"color:#FF6146;\"> * "+k+": "+handlingTable[k]+"</span>");
+						if(isSet) vehicle.setHandling(k.toString(), handlingTable[k], true);
 					}
 				}
-			);
-			
-			if(!findHouse) {
-				let findFlat = false;
-				if(typeof(housesData.houses) !== "undefined") {
-					if(Object.keys(housesData.houses).length > 0) {
-						for (var k in housesData.houses) {
-							let houseData = housesData.houses[k];
-							if(typeof(houseData.id) !== "undefined" && typeof(houseData.params) !== "undefined") {
-								if(typeof(houseData.params.flat) !== "undefined") findFlat = houseData;
-							}
-						}
-					}
-				}
-				if(findFlat) return homeMenu_browser.execute("msg_error('У Вас же есть квартира в "+findFlat.params.flat.name+"');");
 			}
+		}
+	},
+	"playerLeaveVehicle": (vehicle, seat) => {
+		if(tuningPanel) {
+			if(hud_browser) {
+				hud_browser.execute('toggleTuningPanel(false);');
+				mp.gui.cursor.visible = false;
+				tuningPanel = false;
+				
+				restoreBinds();
+			}
+		}
+	}
+});
+
+var tuningPanel = false;
+
+mp.keys.bind(0x42, true, function() { // B Меню (Handling Editor)
+	if(!allowBinds || !Array.isArray(allowBinds)) return false;
+	if(!allowBinds.includes(0x42)) return false;
+	
+	if(hud_browser) {
+		if(tuningPanel) {
+			hud_browser.execute('toggleTuningPanel(false);');
+			mp.gui.cursor.visible = false;
+			tuningPanel = false;
 			
-			let myPos = localPlayer.position;
+			restoreBinds();
+		}else{
+			if(allowBinds != stockBinds) return false;
+			if(afTuningPanel) return false;
+			afTuningPanel = true;
+			setTimeout(function() { afTuningPanel = false }, 500);
 			
-			if(mp.players.atRemoteId(parseInt(localPlayer.getVariable("active.deal")))) {
-				let playerDeal = mp.players.atRemoteId(parseInt(localPlayer.getVariable("active.deal")));
-				if(playerDeal) {
-					if(!playerDeal.position) return homeMenu_browser.execute("msg_error('Вы слишком далеко от места совершения сделки');");
+			if(!chipImInZone) return notyAPI.error("Вы должны находится в боксе чип-тюнинг станции.", 3000, true);
+			if(vehSeat != -1) return notyAPI.error("Вы должны быть за рулём.", 3000, true);
+			
+			let vehicle = localPlayer.vehicle;
+			if(vehicle) {
+				if(typeof(vehicle.getVariable("veh.job")) !== "undefined" || typeof(vehicle.getVariable("veh.id")) === "undefined" || typeof(vehicle.getVariable("veh.tuning")) === "undefined" || typeof(vehicle.getVariable("veh.hash")) === "undefined") return notyAPI.error("Транспорт не подготовлен для чип-тюнинга.", 3000, true);
+				
+				let vehHash = vehicle.getVariable("veh.hash");
+				if(typeof(getHandling[vehHash]) === "undefined" && typeof(getHandling2[vehHash]) === "undefined") return notyAPI.error("Транспорт не подготовлен для чип-тюнинга.", 3000, true);
+				
+				if(vehicle.getVariable("veh.id")) {
+					hud_browser.execute('toggleTuningPanel(true);');
+					reloadChipTuningData();
+					mp.gui.cursor.visible = true;
+					tuningPanel = true;
 					
-					let plPos = playerDeal.position;
-					if(mp.game.gameplay.getDistanceBetweenCoords(myPos.x, myPos.y, myPos.z, plPos.x, plPos.y, plPos.z, true) > 5) return homeMenu_browser.execute("msg_error('Вы слишком далеко от места совершения сделки');");
-					
-					mp.events.callRemote('acceptHouseDeal', playerDeal, sellFromHouseID, sellFromNick, sellFromID, sellFromCost);
+					allowBinds = [0x42];
 				}else{
-					return homeMenu_browser.execute("msg_error('Вы слишком далеко от места совершения сделки');");
-				}
-			}
-		}
-		
-		houseActAction = true;
-		
-		if(sellToHouseID) chatAPI.sysPush("<span style=\"color:#FF6146\"> * </span> <b><span style=\"color:#FFF\">"+sellToNick+"</span></b> <span style=\"color:#FF6146\">принял Ваше предложение</span>");
-		else if(sellFromHouseID) chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы приняли предложение от</span> <b><span style=\"color:#FFF\">"+sellFromNick+"</span></b>");
-		
-		sellToHouseID = 0, sellToNick = false, sellToID = 0, sellToCost = 0;
-		sellFromHouseID = 0, sellFromNick = false, sellFromID = 0, sellFromCost = 0;
-		
-		exitHouseMenu();
-	}
-}
-mp.events.add("acceptHouseDeal", acceptHouseDeal);
-
-function houseDealSuccess(initiator, park, cost) {
-	if(park && cost) {
-		if(initiator) {
-			mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~жилое имущество", "~s~Вы продали жильё за"+cost.toString().replace(new RegExp(/(\d{1,3})(?=((\d{3})*)$)/g), ' $1')+" руб.", 5, false, true, 6500);
-			exitHouseMenu();
-		}else{
-			mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~жилое имущество", "~s~Вы купили жильё за"+cost.toString().replace(new RegExp(/(\d{1,3})(?=((\d{3})*)$)/g), ' $1')+" руб.", 5, false, true, 6500);
-		}
-		houseActAction = false;
-	}
-}
-mp.events.add("houseDealSuccess", houseDealSuccess);
-
-function setNewKey(hID, newKey) {
-	if(homeMenu_browser) {
-		if(hID && newKey) {
-			exitHouseMenu();
-			houseActAction = true;
-			mp.events.callRemote('setNewKey', hID, newKey);
-		}else{
-			return homeMenu_browser.execute("msg_error('Неизвестная ошибка');");
-		}
-	}
-}
-mp.events.add("setNewKey", setNewKey);
-
-function setNewKeySuccess(newKey) {
-	if(newKey) {
-		houseActAction = false;
-		mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~жилое имущество", "~s~Установлен новый ключ "+newKey+", запишите его.", 5, false, true, 6500);
-	}
-}
-mp.events.add("setNewKeySuccess", setNewKeySuccess);
-
-function houseBalanceUp(hID, summa) {
-	if(homeMenu_browser) {
-		if(hID && summa) {
-			if(houseActAction) return false;
-			hID = parseInt(hID);
-			summa = parseInt(summa);
-			let myMoney = parseInt(localPlayer.getVariable("player.money"));
-			if(myMoney < summa) return homeMenu_browser.execute("msg_error('Недостаточно средств для пополнения баланса');");
-			exitHouseMenu();
-			houseActAction = true;
-			mp.events.callRemote('houseBalanceUp', hID, summa);
-		}else{
-			return homeMenu_browser.execute("msg_error('Неизвестная ошибка');");
-		}
-	}
-}
-mp.events.add("houseBalanceUp", houseBalanceUp);
-
-function houseBalanceDown(hID, summa) {
-	if(homeMenu_browser) {
-		if(hID && summa) {
-			if(houseActAction) return false;
-			hID = parseInt(hID);
-			summa = parseInt(summa);
-			exitHouseMenu();
-			houseActAction = true;
-			mp.events.callRemote('houseBalanceDown', hID, summa);
-		}else{
-			return homeMenu_browser.execute("msg_error('Неизвестная ошибка');");
-		}
-	}
-}
-mp.events.add("houseBalanceDown", houseBalanceDown);
-
-function setHouseBalanceSuccess(newBalance) {
-	if(newBalance) {
-		houseActAction = false;
-		mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~жилое имущество", "~s~Новый баланс жилья"+newBalance.toString().replace(new RegExp(/(\d{1,3})(?=((\d{3})*)$)/g), ' $1')+" руб.", 5, false, true, 6500);
-	}
-}
-mp.events.add("setHouseBalanceSuccess", setHouseBalanceSuccess);
-
-mp.events.add("playerEnterColshape", (shape) => {
-	if(mp.colshapes.exists(shape)) {
-		if(typeof(shape.getVariable("col.type")) !== "undefined") {
-			let colType = shape.getVariable("col.type");
-			if(colType == "house_render") {
-				let houseData = shape.getVariable('col.data');
-				if(typeof(houseData.name) === "undefined") {
-					if(typeof(houseData.own) !== "undefined") {
-						let markerColor = [46, 204, 113, 185];
-						if(houseData.own > 0) markerColor = [225, 59, 59, 185];
-						if(houseData.own == localPlayer.getVariable('player.id')) markerColor = [240, 203, 88, 185];
-						let houseMarker = mp.markers.new(20, new mp.Vector3(parseFloat(houseData.pos[0]), parseFloat(houseData.pos[1]), parseFloat(houseData.pos[2])-0.2), 1.2,
-						{
-							direction: new mp.Vector3(0, 0, 0),
-							rotation: new mp.Vector3(0, 180, 0),
-							color: markerColor,
-							visible: true,
-							dimension: 0
-						});
-						
-						let houseCheck = mp.checkpoints.new(40, new mp.Vector3(parseFloat(houseData.pos[0]), parseFloat(houseData.pos[1]), parseFloat(houseData.pos[2])-0.2), 0.5,
-						{
-							color: [255, 255, 255, 0],
-							visible: true,
-							dimension: localPlayer.dimension
-						});
-						houseCheck.houseData = houseData;
-						
-						/*
-						houseMarker = mp.markers.new(28, new mp.Vector3(parseFloat(houseData.pos[0]), parseFloat(houseData.pos[1]), parseFloat(houseData.pos[2])), 50, // DEBUG
-						{
-							direction: new mp.Vector3(0, 0, 0),
-							rotation: new mp.Vector3(0, 180, 0),
-							color: [0, 0, 200, 50],
-							visible: true,
-							dimension: 0
-						});
-						*/
-						
-						let houseBlip = {};
-						houseBlip.id = false;
-						let houseName = "жилое имущество";
-						let blipColor = 2;
-						if(houseData.own > 0) {
-							blipColor = 1;
-							houseName = "жилое имущество";
-						}
-						if(houseData.own != localPlayer.getVariable('player.id')) {
-							houseBlip = mp.blips.new(40, new mp.Vector3(parseFloat(houseData.pos[0]), parseFloat(houseData.pos[1]), parseFloat(houseData.pos[2])), {
-								name: houseName,
-								scale: 0.8,
-								color: blipColor,
-								shortRange: true,
-								dimension: 0
-							});
-							if(blipColor != 2) houseBlip.setCategory(11);
-						}
-						
-						housesInStream[houseData.id] = {'data': houseData,'marker': houseMarker.id.toString(),'check': houseCheck.id.toString(),'blip': houseBlip.id.toString(),'alpha': 0};
-					}
-				}else{
-					let houseMarker = mp.markers.new(20, new mp.Vector3(parseFloat(houseData.pos.x), parseFloat(houseData.pos.y), parseFloat(houseData.pos.z)-0.2), 1.2,
-					{
-						direction: new mp.Vector3(0, 0, 0),
-						rotation: new mp.Vector3(0, 180, 0),
-						color: [223, 138, 48, 185],
-						visible: true,
-						dimension: 0
-					});
-					
-					let houseCheck = mp.checkpoints.new(40, new mp.Vector3(parseFloat(houseData.pos.x), parseFloat(houseData.pos.y), parseFloat(houseData.pos.z)-0.2), 0.5,
-					{
-						color: [255, 255, 255, 0],
-						visible: true,
-						dimension: localPlayer.dimension
-					});
-					houseCheck.houseData = houseData;
-					
-					housesInStream[houseData.id] = {'data': houseData,'marker': houseMarker.id.toString(),'check': houseCheck.id.toString(),'alpha': 0};
+					return notyAPI.error("Транспорт не подготовлен для чип-тюнинга.", 3000, true);
 				}
 			}
 		}
 	}
 });
 
-mp.events.add("playerExitColshape", (shape) => {
-	if(mp.colshapes.exists(shape)) {
-		if(typeof(shape.getVariable("col.type")) !== "undefined") {
-			let checkPointType = shape.getVariable("col.type");
-			if(checkPointType == "house_render") {
-				let houseData = shape.getVariable('col.data');
-				if(typeof(houseData) !== "undefined") {
-					if(typeof(housesInStream[houseData.id]) !== "undefined") {
-						let tempData = housesInStream[houseData.id];
-						let tempMarker = mp.markers.at(parseInt(tempData['marker']));
-						if(mp.markers.exists(tempMarker)) tempMarker.destroy();
-						let tempCheck = mp.checkpoints.at(parseInt(tempData['check']));
-						if(mp.checkpoints.exists(tempCheck)) tempCheck.destroy();
-						if(tempData['blip'] != "false") {
-							let tempBlip = mp.blips.at(parseInt(tempData['blip']));
-							if(mp.blips.exists(tempBlip)) tempBlip.destroy();
-						}
-						housesInStream[houseData.id] = undefined;
-						housesInStream = JSON.parse(JSON.stringify(housesInStream));
-					}
-				}
-			}
+function reloadChipTuningData() {
+	let vehicle = localPlayer.vehicle;
+	if(vehicle && vehicle.getVariable("veh.id") && vehicle.getVariable("veh.tuning")) {
+		let vehTuning = JSON.parse(vehicle.getVariable("veh.tuning"));
+		vehTuning = {
+			"engineStage": parseInt(vehTuning["11"] !== undefined ? vehTuning["11"] : -1),
+			"gearboxStage": parseInt(vehTuning["13"] !== undefined ? vehTuning["13"] : -1),
+			"brakeStage": parseInt(vehTuning["12"] !== undefined ? vehTuning["12"] : -1),
+			"turboStage": parseInt(vehTuning["18"] !== undefined ? vehTuning["18"] : -1),
+			"suspStage": parseInt(vehTuning["15"] !== undefined ? vehTuning["15"] : -1)
 		}
+		vehTuning = JSON.stringify(vehTuning);
+		//chatAPI.sysPush("CHECKING");
+		
+		let vehName = "Транспорт";
+		let stockChip = false;
+		if(vehicle.getVariable("veh.hash")) {
+			let vehHash = vehicle.getVariable("veh.hash");
+			
+			let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
+			decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
+			
+			if(typeof(decVehStats[0][vehHash]) != "undefined") vehName = decVehStats[0][vehHash].name;
+			else vehName = vehHash;
+			
+			//chatAPI.sysPush(" * "+JSON.stringify(getHandling2[vehHash]));
+			
+			if(typeof(getHandling[vehHash]) !== "undefined") stockChip = JSON.stringify(getHandling[vehHash].HandlingData.Item);
+			else if(typeof(getHandling2[vehHash]) !== "undefined") stockChip = JSON.stringify(getHandling2[vehHash].HandlingData.Item);
+			//chatAPI.sysPush(" * : "+stockChip);
+		}
+		
+		let vehID = vehicle.getVariable("veh.id");
+		let handlingTable = {};
+		if(typeof(vehicle.getVariable("veh.handling")) !== "undefined") {
+			handlingTable = JSON.parse(vehicle.getVariable("veh.handling"));
+		
+			/*
+			for(var k in handlingTable) {
+				if(k.toUpperCase() == "fInitialDriveMaxFlatVel".toUpperCase()) { handlingTable[k] = parseFloat(handlingTable[k]) * 3.6; }
+				else if(k.toUpperCase() == "fBrakeBiasFront".toUpperCase()) { handlingTable[k] = parseFloat(handlingTable[k]) / 2; }
+				else if(k.toUpperCase() == "fSteeringLock".toUpperCase()) {
+					let tmpVal = parseFloat(handlingTable[k]);
+					handlingTable[k] = tmpVal / 0.017453292; 
+					handlingTable[k] = (tmpVal / handlingTable[k]) * handlingTable[k]; }
+				else if(k.toUpperCase() == "fTractionCurveLateral".toUpperCase()) {
+					let tmpVal = parseFloat(handlingTable[k]);
+					handlingTable[k] = tmpVal / 0.017453292; 
+					handlingTable[k] = (tmpVal / handlingTable[k]) * handlingTable[k]; }
+				else if(k.toUpperCase() == "fTractionBiasFront".toUpperCase()) { handlingTable[k] = parseFloat(handlingTable[k]) / 2; }
+				else if(k.toUpperCase() == "fSuspensionCompDamp".toUpperCase()) { handlingTable[k] = parseFloat(handlingTable[k]) * 10; }
+				else if(k.toUpperCase() == "fSuspensionReboundDamp".toUpperCase()) { handlingTable[k] = parseFloat(handlingTable[k]) * 10; }
+				else if(k.toUpperCase() == "fSuspensionBiasFront".toUpperCase()) { handlingTable[k] = parseFloat(handlingTable[k]) / 2; }
+				else if(k.toUpperCase() == "fAntiRollBarBiasFront".toUpperCase()) { handlingTable[k] = parseFloat(handlingTable[k]) / 2; }
+			}
+			*/
+		}
+		
+		let savedChips = JSON.stringify(mp.storage.data.chips);
+		if(!savedChips) savedChips = false;
+		
+		//chatAPI.sysPush("GETTED: "+savedChips.toString());
+		
+		let sendTuningData = '[{"vehName":"'+vehName+'","vehID":"'+vehID+'","handling":'+JSON.stringify(handlingTable)+',"tuning":'+vehTuning+',"stchip":'+stockChip+',"saved":'+savedChips+'}]';
+		//chatAPI.sysPush(sendTuningData);
+		hud_browser.execute('sendTuningData(\''+sendTuningData+'\');');
+	}else{
+		hud_browser.execute('toggleTuningPanel(false);');
+		mp.gui.cursor.visible = false;
+		tuningPanel = false;
+		restoreBinds();
 	}
-});
+}
 
-mp.events.add("playerEnterCheckpoint", (checkpoint) => {
-	if(mp.checkpoints.exists(checkpoint)) {
-		if(typeof(checkpoint.houseData) !== "undefined") {
-			if(localPlayer.getVariable('player.id') && hud_browser && !localPlayer.vehicle && !houseActAction && (typeof(localPlayer.getVariable("active.deal")) === "undefined" || !localPlayer.getVariable("active.deal"))) {
-				if(!markerNoReaktOnTeleport) {
-					if(typeof(localPlayer.getVariable('player.houses')) === "undefined") return false;
-					
-					//chatAPI.sysPush("<span style=\"color:#FF6146\"> * IN Тип: "+checkpoint.getVariable('checkpoint.type')+"</span>");
-					tempHouseData = checkpoint.houseData;
-					//chatAPI.sysPush("<span style=\"color:#FF6146\"> * ID Дома: "+tempHouseData.id+"</span>");
-					//chatAPI.sysPush("<span style=\"color:#FF6146\"> * Владелец: "+tempHouseData.ownlog+" ("+tempHouseData.own+")</span>");
-					//chatAPI.sysPush("<span style=\"color:#FF6146\"> * Интерьер: "+tempHouseData.interior+"</span>");
-					//chatAPI.sysPush("<span style=\"color:#FF6146\"> * Стоимость дома: "+tempHouseData.cost.replace(/(\d{1,3})(?=((\d{3})*)$)/g, ' $1')+"</span>");
-					//chatAPI.sysPush("<span style=\"color:#FF6146\"> * Парковочных мест: "+tempHouseData.park+"</span>");
-					//chatAPI.sysPush("<span style=\"color:#FF6146\"> * Ключ: "+tempHouseData.key+"</span>");
-					
-					markerNoReaktOnTeleport = true;
-					
-					if(typeof(tempHouseData.name) === "undefined") {
-						if (!homeMenu_browser) {
-							homeMenu_browser = mp.browsers.new("package://CEF/houseMenu/index.html");
-							setTimeout(function() {
-								if(homeMenu_browser) {
-									homeMenu_browser.execute("initHomeData("+localPlayer.getVariable('player.id')+", "+tempHouseData.id+", "+tempHouseData.interior+", "+tempHouseData.balance+", "+tempHouseData.cost+", "+tempHouseData.park+", "+tempHouseData.own+", '"+tempHouseData.ownlog+"', "+tempHouseData.key+");");
-									mp.gui.cursor.visible = true;
-								}
-							}, 100);
-							allowBinds = [];
-						}
-					}else{
-						if (!homeMenu_browser) {
-							homeMenu_browser = mp.browsers.new("package://CEF/houseMenu/index.html");
-							setTimeout(function() {
-								if(homeMenu_browser) {
-									let playerHOUSES = localPlayer.getVariable('player.houses');
-									let findFlat = false;
-									if(typeof(playerHOUSES.houses) !== "undefined") {
-										if(Object.keys(playerHOUSES.houses).length > 0) {
-											for (var k in playerHOUSES.houses) {
-												let houseData = playerHOUSES.houses[k];
-												if(typeof(houseData.id) !== "undefined" && typeof(houseData.params) !== "undefined") {
-													if(typeof(houseData.params.flat) !== "undefined") findFlat = houseData;
-												}
-											}
-										}
-									}
-									if(findFlat) {
-										if(typeof(findFlat.interior) != "undefined") {
-											tempHouseData["flatID"] = findFlat.id;
-											tempHouseData["interior"] = findFlat.interior;
-											tempHouseData["park"] = findFlat.park;
-											tempHouseData["cost"] = findFlat.cost;
-										}else{
-											restoreBinds();
-											return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Ошибка инициализации квартиры</span>");
-										}
-									}
-									homeMenu_browser.execute("initFlatHouse("+localPlayer.getVariable('player.id')+", '"+JSON.stringify(localPlayer.getVariable('player.houses'))+"', '"+JSON.stringify(tempHouseData)+"');");
-									mp.gui.cursor.visible = true;
-								}
-							}, 200);
-							allowBinds = [];
-						}
-					}
-				}else{
-					markerNoReaktOnTeleport = false;
-				}
-			}
-		}
-		if(typeof(checkpoint.getVariable("checkpoint.type")) !== "undefined") {
-			let checkPointType = checkpoint.getVariable("checkpoint.type");
-			if(checkPointType == "exitHouse") {
-				if(localPlayer.getVariable('player.id') && localPlayer.getVariable('player.inHouse')) {
-					if(!markerNoReaktOnTeleport) {
-						let houseData = localPlayer.getVariable('player.inHouse')
-						//chatAPI.sysPush("<span style=\"color:#FF6146\"> * Выход из дома ID: "+houseData.id+"</span>");
-						//chatAPI.sysPush("<span style=\"color:#FF6146\"> * Выход на позицию X: "+houseData.pos[0]+"</span>");
-						//chatAPI.sysPush("<span style=\"color:#FF6146\"> * Выход на позицию Y: "+houseData.pos[1]+"</span>");
-						//chatAPI.sysPush("<span style=\"color:#FF6146\"> * Выход на позицию Z: "+houseData.pos[2]+"</span>");
-						markerNoReaktOnTeleport = true;
-						
-						if(hud_browser) hud_browser.execute("hiddenAction('Переносим персонажа из интерьера в мир..');");
-						localPlayer.freezePosition(true);
-						setTimeout(() => { 
-							if(hud_browser) hud_browser.execute("hiddenAction();");
-							localPlayer.freezePosition(false);
-						}, 5000);
-						
-						if(houseData) {
-							mp.events.call("sleepAntiCheat");
-							mp.events.callRemote('exitFromHome', JSON.stringify(houseData));
-						}
-					}
-				}
-			}
-		}
+function closeChipTuning() {
+	if(tuningPanel && hud_browser) {
+		hud_browser.execute('toggleTuningPanel(false);');
+		mp.gui.cursor.visible = false;
+		tuningPanel = false;
+		restoreBinds();
 	}
-});
+}
+mp.events.add("closeChipTuning", closeChipTuning);
 
-mp.events.add("playerExitCheckpoint", (checkpoint) => {
-	if(mp.checkpoints.exists(checkpoint)) {
-		if(typeof(checkpoint.houseData) !== "undefined") {
-			if(localPlayer.getVariable("active.deal")) cancelHouseDeal(true);
-			tempHouseData = null;
-			exitHouseMenu();
-		}
-		if(typeof(checkpoint.getVariable("checkpoint.type")) !== "undefined") {
-			let checkPointType = checkpoint.getVariable("checkpoint.type");
-			//chatAPI.notifyPush("checkPointType: "+checkPointType);
-			if(checkPointType == 'exitHouse') {
-				if(localPlayer.getVariable('player.id') && localPlayer.getVariable('player.inHouse')) {
-					if(markerNoReaktOnTeleport) markerNoReaktOnTeleport = false;
+function applyChipTuning(handlingTable) {
+	if(typeof(handlingTable) !== "undefined") {
+		let vehicle = localPlayer.vehicle;
+		//chatAPI.sysPush("<span style=\"color:#FF6146;\"> * NEW: "+handlingTable+"</span>");
+		if(vehicle) {
+			if(typeof(vehicle.getVariable("veh.job")) === "undefined") {
+				let handlingTableToSave = handlingTable;
+				handlingTable = JSON.parse(handlingTable);
+				
+				let stockChip = false;
+				if(vehicle.getVariable("veh.hash")) {
+					let vehHash = vehicle.getVariable("veh.hash");
+					
+					let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
+					decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
+					
+					if(typeof(decVehStats[0][vehHash]) != "undefined") vehName = decVehStats[0][vehHash].name;
+					else vehName = vehHash;
+					
+					if(typeof(getHandling[vehHash]) !== "undefined") stockChip = JSON.stringify(getHandling[vehHash].HandlingData.Item);
+					else if(typeof(getHandling2[vehHash]) !== "undefined") stockChip = JSON.stringify(getHandling2[vehHash].HandlingData.Item);
+					//chatAPI.sysPush(" * : "+stockChip);
 				}
+				
+				for(var k in handlingTable) {
+					let isSet = false;
+					if(k.toUpperCase() == "fInitialDriveMaxFlatVel".toUpperCase()) {
+						handlingTable[k] = parseFloat(handlingTable[k]) / 3.6;
+						isSet = true;
+					}else if(k.toUpperCase() == "fSuspensionRaise".toUpperCase()) {
+						if(parseFloat(handlingTable[k]) < -0.05 || parseFloat(handlingTable[k]) > 0.3) handlingTable[k] = parseFloat(stockChip.fSuspensionRaise);
+						handlingTable[k] = parseFloat(handlingTable[k]);
+						isSet = true;
+					}else if(k.toUpperCase() == "fSuspensionLowerLimit".toUpperCase()) {
+						if(parseFloat(handlingTable[k]) < -0.5 || parseFloat(handlingTable[k]) > 0.5) handlingTable[k] = parseFloat(stockChip.fSuspensionLowerLimit);
+						handlingTable[k] = parseFloat(handlingTable[k]);
+						isSet = true;
+					}else if(k.toUpperCase() == "fSuspensionUpperLimit".toUpperCase()) {
+						if(parseFloat(handlingTable[k]) < -0.5 || parseFloat(handlingTable[k]) > 0.5) handlingTable[k] = parseFloat(stockChip.fSuspensionUpperLimit);
+						handlingTable[k] = parseFloat(handlingTable[k]);
+						isSet = true;
+					}else if(k.toUpperCase() == "fSuspensionForce".toUpperCase()) {
+						if(parseFloat(handlingTable[k]) < 1 || parseFloat(handlingTable[k]) > 4) handlingTable[k] = parseFloat(stockChip.fSuspensionForce);
+						handlingTable[k] = parseFloat(handlingTable[k]);
+						isSet = true;
+					}else if(k.toUpperCase() == "fLowSpeedTractionLossMult".toUpperCase()) {
+						if(parseFloat(handlingTable[k]) < 0 || parseFloat(handlingTable[k]) > 1.5) handlingTable[k] = parseFloat(stockChip.fLowSpeedTractionLossMult);
+						handlingTable[k] = parseFloat(handlingTable[k]);
+						isSet = true;
+					}else if(k.toUpperCase() == "fTractionSpringDeltaMax".toUpperCase()) {
+						if(parseFloat(handlingTable[k]) < 0.1 || parseFloat(handlingTable[k]) > 0.5) handlingTable[k] = parseFloat(stockChip.fTractionSpringDeltaMax);
+						handlingTable[k] = parseFloat(handlingTable[k]);
+						isSet = true;
+					}else if(k.toUpperCase() == "fTractionCurveMin".toUpperCase()) {
+						if(parseFloat(handlingTable[k]) < 0.5 || parseFloat(handlingTable[k]) > 4.5) handlingTable[k] = parseFloat(stockChip.fTractionCurveMin);
+						handlingTable[k] = parseFloat(handlingTable[k]);
+						isSet = true;
+					}else if(k.toUpperCase() == "fTractionCurveMax".toUpperCase()) {
+						if(parseFloat(handlingTable[k]) < 1 || parseFloat(handlingTable[k]) > 5) handlingTable[k] = parseFloat(stockChip.fTractionCurveMax);
+						handlingTable[k] = parseFloat(handlingTable[k]);
+						isSet = true;
+					}else if(k.toUpperCase() == "fHandBrakeForce".toUpperCase()) {
+						if(parseFloat(handlingTable[k]) < 0.01 || parseFloat(handlingTable[k]) > 5) handlingTable[k] = parseFloat(stockChip.fHandBrakeForce);
+						handlingTable[k] = parseFloat(handlingTable[k]);
+						isSet = true;
+					}else if(k.toUpperCase() == "fBrakeForce".toUpperCase()) {
+						if(parseFloat(handlingTable[k]) < 0.01 || parseFloat(handlingTable[k]) > 2) handlingTable[k] = parseFloat(stockChip.fBrakeForce);
+						handlingTable[k] = parseFloat(handlingTable[k]);
+						isSet = true;
+					}else if(k.toUpperCase() == "fDriveBiasFront".toUpperCase()) {
+						if(parseFloat(handlingTable[k]) < 0 || parseFloat(handlingTable[k]) > 1) handlingTable[k] = parseFloat(stockChip.fDriveBiasFront);
+						handlingTable[k] = parseFloat(handlingTable[k]);
+						isSet = true;
+					}else if(k.toUpperCase() == "fBrakeBiasFront".toUpperCase()) {
+						if(parseFloat(handlingTable[k]) < 0 || parseFloat(handlingTable[k]) > 1) handlingTable[k] = parseFloat(stockChip.fBrakeBiasFront);
+						handlingTable[k] = parseFloat(handlingTable[k]) * 2;
+						isSet = true;
+					}else if(k.toUpperCase() == "fSteeringLock".toUpperCase()) {
+						if(parseFloat(handlingTable[k]) < 30 || parseFloat(handlingTable[k]) > 80) handlingTable[k] = parseFloat(stockChip.fSteeringLock);
+						handlingTable[k] = parseFloat(handlingTable[k]) * 0.017453292;
+						isSet = true;
+					}else if(k.toUpperCase() == "fTractionCurveLateral".toUpperCase()) {
+						if(parseFloat(handlingTable[k]) < 1 || parseFloat(handlingTable[k]) > 27) handlingTable[k] = parseFloat(stockChip.fTractionCurveLateral);
+						handlingTable[k] = parseFloat(handlingTable[k]) * 0.017453292;
+						isSet = true;
+					}else if(k.toUpperCase() == "fTractionBiasFront".toUpperCase()) {
+						if(parseFloat(handlingTable[k]) < 0.2 || parseFloat(handlingTable[k]) > 0.5) handlingTable[k] = parseFloat(stockChip.fTractionBiasFront);
+						handlingTable[k] = parseFloat(handlingTable[k]) * 2;
+						isSet = true;
+					}else if(k.toUpperCase() == "fSuspensionCompDamp".toUpperCase()) {
+						if(parseFloat(handlingTable[k]) < 0.5 || parseFloat(handlingTable[k]) > 2.5) handlingTable[k] = parseFloat(stockChip.fSuspensionCompDamp);
+						handlingTable[k] = parseFloat(handlingTable[k]) / 10;
+						isSet = true;
+					}else if(k.toUpperCase() == "fSuspensionReboundDamp".toUpperCase()) {
+						if(parseFloat(handlingTable[k]) < 0.5 || parseFloat(handlingTable[k]) > 2.5) handlingTable[k] = parseFloat(stockChip.fSuspensionReboundDamp);
+						handlingTable[k] = parseFloat(handlingTable[k]) / 10;
+						isSet = true;
+					}else if(k.toUpperCase() == "fSuspensionBiasFront".toUpperCase()) {
+						handlingTable[k] = parseFloat(handlingTable[k]) * 2;
+						isSet = true;
+					}else if(k.toUpperCase() == "fAntiRollBarBiasFront".toUpperCase()) {
+						handlingTable[k] = parseFloat(handlingTable[k]) * 2;
+						isSet = true;
+					}
+					//chatAPI.sysPush("<span style=\"color:#FF6146;\"> * "+k+": "+handlingTable[k]+"</span>");
+					if(isSet) vehicle.setHandling(k.toString(), handlingTable[k], true);
+				}
+				handlingTable[k] = roundNumber(handlingTable[k], 5);
+				//vehForApplyChip = {"id": vehicle.getVariable("veh.id"), "heading": vehicle.getHeading()};
+				mp.events.callRemote('setVehHandling', vehicle, handlingTableToSave);
+				//if(hud_browser) hud_browser.execute("hiddenAction('Загружаем настройки чип-тюнинга..');");
 			}
 		}
 	}
-});
-}
+}
+mp.events.add("applyChipTuning", applyChipTuning);
+
+function saveChipTuning(handlingTable, theVehName, chipName) {
+	if(handlingTable && theVehName && chipName) {
+		let vehicle = localPlayer.vehicle;
+		if(vehicle) {
+			handlingTable = JSON.parse(handlingTable);
+			if(!mp.storage.data.chips) {
+				mp.storage.data.chips = {};
+				mp.storage.data.chips[chipName] = {theVehName, handlingTable};
+			}else{
+				mp.storage.data.chips[chipName] = {theVehName, handlingTable};
+			}
+			mp.events.callRemote('updateStorage', JSON.stringify(mp.storage.data));
+		}
+		reloadChipTuningData();
+	}
+}
+mp.events.add("saveChipTuning", saveChipTuning);
+
+function deleteChipTuning(chipName) {
+	if(chipName) {
+		if(mp.storage.data.chips) {
+			let chips = mp.storage.data.chips;
+			for(var k in chips) {
+				if(k == chipName) delete mp.storage.data.chips[chipName];
+			}
+			mp.events.callRemote('updateStorage', JSON.stringify(mp.storage.data));
+		}
+	}
+}
+mp.events.add("deleteChipTuning", deleteChipTuning);
+}Ὡ꞊ø

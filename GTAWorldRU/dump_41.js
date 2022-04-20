@@ -44,4 +44,4 @@ mp.keys.bind(0x4F, true, (player) => {
 mp.events.add('setTriggeringPlayerList', (toggle) => {
 	mp.events.callRemote('SetTriggeringPlayerList', toggle);
 });
-}ȶ
+}涧ʧ

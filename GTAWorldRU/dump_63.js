@@ -78,4 +78,4 @@
 function __Spotlight(){
 	return new Spotlight()
 }
-}Ǐ
+}

@@ -35,4 +35,4 @@ mp.events.add("render", () =>{
 })
 
 
-}Ẕˮ
+}셗ï

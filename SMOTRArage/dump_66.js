@@ -1,176 +1,111 @@
 {
-let afTickets = false;
-mp.events.add('playerEnterColshape', (shape) => {
-	if(shape) {
-		if(typeof(shape.data) === 'undefined' && typeof(shape.id) !== "undefined") {
-			if(typeof(shape.getVariable('col.type')) !== "undefined") {
-				let colType = shape.getVariable('col.type');
-				if(colType == 'ticket_camera' && typeof(shape.getVariable('col.data')) !== "undefined") {
-					if(localPlayer.vehicle && vehSeat == -1 && typeof(localPlayer.getVariable("player.tickets")) !== "undefined") {
-						if(afTickets) return false;
-						
-						if(typeof(curCourierTask) !== "undefined") {
-							if(typeof(curCourierTask.workTimer) !== "undefined") return false;
-						}
-						
-						let theVeh = localPlayer.vehicle;
-						
-						if(typeof(theVeh.getVariable("veh.hash")) !== "undefined") {
-							if(theVeh.getVariable("veh.hash") == "s_p450") return false;
-						}
-						
-						let colData = shape.getVariable('col.data');
-						
-						let vehClass = theVeh.getClass().toString();
-						if(vehClass == "0" || parseInt(vehClass) <= 12 || (parseInt(vehClass) >= 17 && parseInt(vehClass) <= 20)) {
-							if(typeof(theVeh.getVariable("veh.num")) !== "undefined") {
-								let vehNum = str_replace_all(theVeh.getVariable("veh.num"), " ", "");
-								vehNum = explode("|", vehNum);
-			
-								let speed = roundNumber(theVeh.getSpeed() * 3.6, 0);
-								let maxSpeed = colData.maxSpeed;
-								
-								let isRemen = true;
-								if(localPlayer.getConfigFlag(32, true) && vehClass != "8") isRemen = false;
-								
-								if(speed-10 > maxSpeed) {
-									let ticketData = {};
-									ticketData["speed"] = speed;
-									ticketData["maxSpeed"] = maxSpeed;
-									ticketData["cost"] = 2500;
-									if(speed-maxSpeed >= 60) ticketData["cost"] = 10000;
-									else if(speed-maxSpeed >= 40) ticketData["cost"] = 7500;
-									else if(speed-maxSpeed >= 20) ticketData["cost"] = 5000;
-									
-									ticketData["isRemen"] = "1";
-									if(!isRemen) {
-										ticketData["isRemen"] = "0";
-										ticketData["cost"] = ticketData["cost"]+1000;
-									}
-									
-									mp.events.callRemote('newTicket', ticketData["cost"].toString());
-									ticketData["cost"] = ticketData["cost"].toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
-									
-									let myPos = localPlayer.position;
-									let getStreet = mp.game.pathfind.getStreetNameAtCoord(myPos.x, myPos.y, myPos.z, 0, 0);
-									let zoneName = mp.game.zone.getNameOfZone(myPos.x, myPos.y, myPos.z);
-
-									let realZoneName = "San Andreas";
-									if(zoneNamesShort.includes(zoneName)) {
-										let zoneID = zoneNamesShort.indexOf(zoneName);
-										realZoneName = zoneNames[zoneID];
-									}
-									
-									let street = mp.game.ui.getStreetNameFromHashKey(getStreet.streetName);
-									ticketData["photoLocation"] = realZoneName+", "+street;
-									
-									let month = curMonth;
-									if(month == 1) month = "янв";
-									else if(month == 2) month = "фев";
-									else if(month == 3) month = "мар";
-									else if(month == 4) month = "апр";
-									else if(month == 5) month = "мая";
-									else if(month == 6) month = "июня";
-									else if(month == 7) month = "июля";
-									else if(month == 8) month = "авг";
-									else if(month == 9) month = "сен";
-									else if(month == 10) month = "окт";
-									else if(month == 11) month = "ноя";
-									else if(month == 12) month = "дек";
-									
-									let hours = curHours;
-									let minutes = curMinutes;
-									if(hours < 10) hours = "0"+hours;
-									if(minutes < 10) minutes = "0"+minutes;
-									
-									ticketData["dateTime"] = curDay+" "+month+" "+curYear+", "+hours+":"+minutes;
-									
-									ticketData["number"] = false;
-									if(theVeh.getVariable("veh.num") != "theMoto") {
-										if(Object.keys(vehNum).length > 0 && typeof(vehNum[1]) !== "undefined") ticketData["number"] = {"body":vehNum[0],"region":vehNum[1]};
-									}else{
-										ticketData["number"] = theVeh.getVariable("veh.num");
-									}
-									mp.gui.takeScreenshot("vehTicket.jpg", 0, 25, 100);
-									if(hud_browser) hud_browser.execute('giveTicket(\''+JSON.stringify(ticketData)+'\');');
-									mp.game.graphics.startScreenEffect("MinigameTransitionOut", 1500, false);
-									mp.game.graphics.startScreenEffect("HeistLocate", 1500, false);
-									
-									afTickets = true;
-									setTimeout(function() {
-										if(hud_browser) hud_browser.execute("giveTicket();");
-										afTickets = false;
-										mp.game.ui.notifications.showWithPicture("Полиция штата", "~w~Штраф~r~"+ticketData["cost"]+" ~w~руб.", "~w~Всего~r~"+localPlayer.getVariable("player.tickets").toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" ~w~руб.~n~Оплата в любом АТМ.", "CHAR_CALL911", 1, false, 1, 2);
-									}, 10000);
-								}else if(!isRemen) {
-									let ticketData = {};
-									ticketData["speed"] = speed;
-									ticketData["maxSpeed"] = maxSpeed;
-									ticketData["cost"] = 1000;
-									ticketData["isRemen"] = "2";
-									
-									mp.events.callRemote('newTicket', ticketData["cost"].toString());
-									ticketData["cost"] = ticketData["cost"].toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
-									
-									let myPos = localPlayer.position;
-									let getStreet = mp.game.pathfind.getStreetNameAtCoord(myPos.x, myPos.y, myPos.z, 0, 0);
-									let zoneName = mp.game.zone.getNameOfZone(myPos.x, myPos.y, myPos.z);
-
-									let realZoneName = "San Andreas";
-									if(zoneNamesShort.includes(zoneName)) {
-										let zoneID = zoneNamesShort.indexOf(zoneName);
-										realZoneName = zoneNames[zoneID];
-									}
-									
-									let street = mp.game.ui.getStreetNameFromHashKey(getStreet.streetName);
-									ticketData["photoLocation"] = realZoneName+", "+street;
-									
-									let month = curMonth;
-									if(month == 1) month = "янв";
-									else if(month == 2) month = "фев";
-									else if(month == 3) month = "мар";
-									else if(month == 4) month = "апр";
-									else if(month == 5) month = "мая";
-									else if(month == 6) month = "июня";
-									else if(month == 7) month = "июля";
-									else if(month == 8) month = "авг";
-									else if(month == 9) month = "сен";
-									else if(month == 10) month = "окт";
-									else if(month == 11) month = "ноя";
-									else if(month == 12) month = "дек";
-									
-									let hours = curHours;
-									let minutes = curMinutes;
-									if(hours < 10) hours = "0"+hours;
-									if(minutes < 10) minutes = "0"+minutes;
-									
-									ticketData["dateTime"] = curDay+" "+month+" "+curYear+", "+hours+":"+minutes;
-									
-									ticketData["number"] = false;
-									if(theVeh.getVariable("veh.num") != "theMoto") {
-										if(Object.keys(vehNum).length > 0 && typeof(vehNum[1]) !== "undefined") ticketData["number"] = {"body":vehNum[0],"region":vehNum[1]};
-									}else{
-										ticketData["number"] = theVeh.getVariable("veh.num");
-									}
-									mp.gui.takeScreenshot("vehTicket.jpg", 0, 25, 100);
-									if(hud_browser) hud_browser.execute('giveTicket(\''+JSON.stringify(ticketData)+'\');');
-									mp.game.graphics.startScreenEffect("MinigameTransitionOut", 1500, false);
-									mp.game.graphics.startScreenEffect("HeistLocate", 1500, false);
-									
-									afTickets = true;
-									setTimeout(function() {
-										if(hud_browser) hud_browser.execute("giveTicket();");
-										afTickets = false;
-										mp.game.ui.notifications.showWithPicture("Полиция штата", "~w~Штраф~r~"+ticketData["cost"]+" ~w~руб.", "~w~Всего~r~"+localPlayer.getVariable("player.tickets").toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" ~w~руб.~n~Оплата в любом АТМ.", "CHAR_CALL911", 1, false, 1, 2);
-									}, 10000);
+let pointing = {
+    active: !1,
+    interval: null,
+    lastSent: 0,
+    start: function () {
+        if (!this.active) {
+            for (this.active = !0, mp.game.streaming.requestAnimDict("anim@mp_point"); !mp.game.streaming.hasAnimDictLoaded("anim@mp_point"); ) mp.game.wait(0);
+            mp.game.invoke("0x0725a4ccfded9a70", localPlayer.handle, 0, 1, 1, 1),
+                localPlayer.setConfigFlag(36, !0),
+                localPlayer.taskMoveNetwork("task_mp_pointing", 0.5, !1, "anim@mp_point", 24),
+                mp.game.streaming.removeAnimDict("anim@mp_point"),
+                (this.interval = setInterval(this.process.bind(this), 0));
+        }
+    },
+    stop: function () {
+        this.active &&
+            (clearInterval(this.interval),
+            (this.interval = null),
+            (this.active = !1),
+            mp.game.invoke("0xd01015c7316ae176", localPlayer.handle, "Stop"),
+            !mp.game.invoke("0x84A2DD9AC37C35C1", localPlayer.handle) && mp.game.invoke("0x176CECF6F920D707", localPlayer.handle),
+            !localPlayer.isInAnyVehicle(!0) && mp.game.invoke("0x0725a4ccfded9a70", localPlayer.handle, 1, 1, 1, 1),
+            localPlayer.setConfigFlag(36, !1));
+    },
+    gameplayCam: mp.cameras.new("gameplay"),
+    lastSync: 0,
+    getRelativePitch: function () {
+        let a = this.gameplayCam.getRot(2);
+        return a.x - localPlayer.getPitch();
+    },
+    process: function () {
+        if (this.active) {
+            mp.game.invoke("0x921ce12c489c4c41", localPlayer.handle);
+            let a = this.getRelativePitch();
+            -70 > a ? (a = -70) : 42 < a && (a = 42), (a = (a + 70) / 112);
+            let b = mp.game.cam.getGameplayCamRelativeHeading(),
+                c = mp.game.system.cos(b),
+                d = mp.game.system.sin(b);
+            -180 > b ? (b = -180) : 180 < b && (b = 180), (b = (b + 180) / 360);
+            let e = localPlayer.getOffsetFromGivenWorldCoords(-0.2 * c - d * (0.4 * b + 0.3), -0.2 * d + c * (0.4 * b + 0.3), 0.6),
+                f = "undefined" != typeof mp.raycasting.testPointToPoint([e.x, e.y, e.z - 0.2], [e.x, e.y, e.z + 0.2], localPlayer.handle, 7);
+            mp.game.invoke("0xd5bb4025ae449a4e", localPlayer.handle, "Pitch", a),
+                mp.game.invoke("0xd5bb4025ae449a4e", localPlayer.handle, "Heading", -1 * b + 1),
+                mp.game.invoke("0xb0a6cfd2c69c1088", localPlayer.handle, "isBlocked", f),
+                mp.game.invoke("0xb0a6cfd2c69c1088", localPlayer.handle, "isFirstPerson", 4 == mp.game.invoke("0xee778f8c7e1142e2", mp.game.invoke("0x19cafa3c87f7c2ff"))),
+                100 < Date.now() - this.lastSent && ((this.lastSent = Date.now()), mp.events.callRemoteUnreliable("fpsync.update", a, b));
+        }
+    },
+};
+mp.events.add("fpsync.update", (a, b, c) => {
+    let d = mp.players.atRemoteId(parseInt(a));
+	//chatAPI.sysPush("<span style=\"color:#FF6146\">�* DHANDLE: "+d.handle+"</span>");
+    if(d) {
+		if (null != d && 0 !== d.handle && d != localPlayer) {
+			if(d.isOnScreen()) {
+				if (((d.lastReceivedPointing = Date.now()), !d.pointingInterval)) {
+					for (
+						d.pointingInterval = setInterval(
+							function () {
+								if (1e3 < Date.now() - d.lastReceivedPointing) {
+									if ((clearInterval(d.pointingInterval), (d.lastReceivedPointing = void 0), (d.pointingInterval = void 0), !mp.players.exists(d) || 0 === d.handle)) return;
+									mp.game.invoke("0xd01015c7316ae176", d.handle, "Stop"),
+										d.isInAnyVehicle(!0) || mp.game.invoke("0x0725a4ccfded9a70", d.handle, 1, 1, 1, 1),
+										d.setConfigFlag(36, !1),
+										mp.game.invoke("0x84A2DD9AC37C35C1", d.handle) || mp.game.invoke("0x176CECF6F920D707", d.handle);
 								}
-							}
-						}
-					}
-					return false;
+							}.bind(d),
+							500
+						),
+							mp.game.streaming.requestAnimDict("anim@mp_point");
+						!mp.game.streaming.hasAnimDictLoaded("anim@mp_point");
+
+					)
+						mp.game.wait(0);
+					mp.game.invoke("0x0725a4ccfded9a70", d.handle, 0, 1, 1, 1), d.setConfigFlag(36, !0), d.taskMoveNetwork("task_mp_pointing", 0.5, !1, "anim@mp_point", 24), mp.game.streaming.removeAnimDict("anim@mp_point");
 				}
+				mp.game.invoke("0xd5bb4025ae449a4e", d.handle, "Pitch", b),
+					mp.game.invoke("0xd5bb4025ae449a4e", d.handle, "Heading", -1 * c + 1),
+					mp.game.invoke("0xb0a6cfd2c69c1088", d.handle, "isBlocked", 0),
+					mp.game.invoke("0xb0a6cfd2c69c1088", d.handle, "isFirstPerson", 0);
 			}
 		}
 	}
+});
+let fingerEnable = false;
+/*
+setInterval(() => {
+	if (fingerEnable) mp.keys.isDown(71) || ((fingerEnable = !1), pointing.stop());
+	else if (mp.keys.isDown(71)) {
+		//if (global.isPlayerDeath) return;
+		pointing.start(), (fingerEnable = !0);
+	}
+}, 110);
+*/
+mp.keys.bind(0x47, true, function() {
+    if(!fingerEnable) {
+		if(ammoInUse == "0") {
+			pointing.start();
+			fingerEnable = true;
+		}
+	}
+});
+
+mp.keys.bind(0x47, false, function() {
+    if(fingerEnable) {
+		pointing.stop();
+		fingerEnable = false;
+	}
 });
-}즳Ā
+}

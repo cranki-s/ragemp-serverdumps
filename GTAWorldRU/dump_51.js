@@ -11,4 +11,4 @@ mp.game.ui.messages = {
     showMidsizedShard: (title, message, bgColor, useDarkerShard, condensed, time = 5000) => mp.events.call("ShowMidsizedShardMessage", title, message, bgColor, useDarkerShard, condensed, time)
 };
 
-}̦
+}ȫ

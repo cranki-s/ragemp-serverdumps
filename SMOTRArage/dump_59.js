@@ -1,736 +1,336 @@
 {
-var obmensInStream = [];
-var obmenData = false;
+const cameraRotator = require('./game_assets/cameraRotator.js');
+mp.game.streaming.requestAnimDict('misshair_shop@barbers');
 
-function closeObmenPanel() {
-	if(hud_browser) {
-		mp.game.graphics.stopScreenEffect("MenuMGHeistTint");
-		hud_browser.execute("toggleObmenPanel();");
-		mp.gui.cursor.visible = false;
-		restoreBinds();
-	}
+var bsAndTattoInStream = []; // Pool
+let tempBSAndTattoData = false;
+
+// Барбер-шопы
+
+var BARBER_ID = 0;
+var BARBER_ped = null;
+var BARBER_cam = null;
+
+function play_anim_(entity, name, name2, pos) {
+    entity.taskPlayAnimAdvanced(
+        name,name2,
+        pos[0],pos[1],pos[2],
+        0,0,pos[3],
+        1000,-1000,-1,5642,0,2,1
+    );
 }
-mp.events.add("closeObmenPanel", closeObmenPanel);
+
+function object_attach(entity, data) {
+    var object = mp.objects.new(data.name, localPlayer.position, { rotation: new mp.Vector3(0,0,0), alpha: 255, dimension: localPlayer.dimension });
+    waitEntity(object).then(() => { object.attachTo(entity.handle, entity.getBoneIndex(data.bone), data.x,data.y,data.z,data.r1,data.r2,data.r3, true, true, false, false, 0, true); entity.object = object; });
+    function waitEntity(entity) { return new Promise(resolve => { let wait = setInterval(() => {if(mp.game.entity.isAnEntity(entity.handle)){ clearInterval(wait); resolve(); }},1);}); }
+}
+
+let tempHair = {"hair":false,"hairColor1":1,"hairColor2":1,"npHeadOverlay":false};
+mp.events.add('tryHairStyle', (hairstyle, haircost) => {
+	if(typeof(hairstyle) !== "undefined" && typeof(haircost) !== "undefined") {
+		hairstyle = parseInt(hairstyle);
+		
+		mp.game.cam.doScreenFadeOut(50);
+		
+		if(hud_browser) hud_browser.execute('toggleBarberShop();');
+		mp.events.call("sleepAntiCheat");
+		
+		cameraRotator.pause(true);
+		cameraRotator.reset();
+		play_anim_(BARBER_ped,'misshair_shop@barbers','keeper_idle_b',tempBSAndTattoData[5]);
+		setTimeout(() => {
+			mp.game.cam.doScreenFadeIn(250);
+		}, 1200);
+		setTimeout(() => {
+			tempHair.hair = hairstyle;
+			localPlayer.setComponentVariation(2, tempHair.hair, 0, 0);
+			let clothesData = localPlayer.getVariable("player.clothes");
+			let persData = localPlayer.getVariable("player.pers");
+			tempHair.hairColor1 = parseInt(persData.npHairColor1);
+			tempHair.hairColor2 = parseInt(persData.npHairColor2);
+			localPlayer.setHairColor(tempHair.hairColor1, tempHair.hairColor2);
+		}, 6000);
+		setTimeout(() => {
+			let clothesData = localPlayer.getVariable("player.clothes");
+			if(hud_browser) hud_browser.execute('toggleBarberShop(\''+clothesData.npGender+'\',\''+haircost+'\',\''+tempHair.npHeadOverlay+'\');');
+			BARBER_ped.taskPlayAnim('misshair_shop@barbers', "keeper_base", 8.0, 1.0, -1, 1, 1.0, false, false, false);
+			cameraRotator.pause(false);
+		}, 12000);
+	}
+});
+
+mp.events.add('cancelBarberHair', () => {
+	mp.game.cam.doScreenFadeOut(50);
+	
+	if(hud_browser) hud_browser.execute('toggleBarberShop();');
+	mp.events.call("sleepAntiCheat");
+	
+	cameraRotator.pause(true);
+	cameraRotator.reset();
+	play_anim_(BARBER_ped,'misshair_shop@barbers','keeper_idle_b',tempBSAndTattoData[5]);
+	setTimeout(() => {
+		mp.game.cam.doScreenFadeIn(250);
+	}, 1200);
+	setTimeout(() => {
+		tempHair.hair = false;
+		let clothesData = localPlayer.getVariable("player.clothes");
+		localPlayer.setComponentVariation(2, parseInt(clothesData.npHair), 0, 0);
+		let persData = localPlayer.getVariable("player.pers");
+		tempHair.hairColor1 = persData.npHairColor1;
+		tempHair.hairColor2 = persData.npHairColor2;
+		localPlayer.setHairColor(parseInt(tempHair.hairColor1), parseInt(tempHair.hairColor2));
+	}, 6000);
+	setTimeout(() => {
+		let clothesData = localPlayer.getVariable("player.clothes");
+		if(hud_browser) hud_browser.execute('toggleBarberShop(\''+clothesData.npGender+'\',false,\''+tempHair.npHeadOverlay+'\');');
+		BARBER_ped.taskPlayAnim('misshair_shop@barbers', "keeper_base", 8.0, 1.0, -1, 1, 1.0, false, false, false);
+		cameraRotator.pause(false);
+	}, 12000);
+});
+
+mp.events.add('confirmHair', () => {
+	if(hud_browser) hud_browser.execute('toggleBarberShop();');
+	mp.events.call("sleepAntiCheat");
+	mp.events.callRemote('confirmHair', JSON.stringify(tempHair));
+});
+
+mp.events.add('confirmHairResult', (isErrorOrCost, isReasonError) => {
+	if(typeof(isErrorOrCost) !== "undefined" && typeof(localPlayer.getVariable("player.clothes")) !== "undefined") {
+		let clothesData = localPlayer.getVariable("player.clothes");
+		if(isErrorOrCost) {
+			mp.game.ui.messages.showMidsizedShard("~w~Вы оплатили ~y~стрижку ~w~в барбер-шопе", "~s~Потрачено"+isErrorOrCost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.", 5, false, true, 8000);
+		}else if(typeof(isReasonError) !== "undefined") {
+			mp.game.ui.messages.showMidsizedShard("~w~Произошла ~r~ошибка", "~s~"+isReasonError.toString(), 5, false, true, 8000);
+		}
+		if(hud_browser) hud_browser.execute('toggleBarberShop(\''+clothesData.npGender+'\',false,\''+tempHair.npHeadOverlay+'\');');
+	}
+});
+
+mp.events.add('confirmFaceHair', () => {
+	if(hud_browser) hud_browser.execute('toggleBarberShop();');
+	mp.events.call("sleepAntiCheat");
+	mp.events.callRemote('confirmFaceHair', JSON.stringify(tempHair));
+});
+
+mp.events.add('confirmFaceHairResult', (isErrorOrCost, isReasonError) => {
+	if(typeof(isErrorOrCost) !== "undefined" && typeof(localPlayer.getVariable("player.clothes")) !== "undefined") {
+		let clothesData = localPlayer.getVariable("player.clothes");
+		if(isErrorOrCost) {
+			mp.game.ui.messages.showMidsizedShard("~w~Вы оплатили ~y~уход за лицом ~w~в барбер-шопе", "~s~Потрачено"+isErrorOrCost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.", 5, false, true, 8000);
+		}else if(typeof(isReasonError) !== "undefined") {
+			mp.game.ui.messages.showMidsizedShard("~w~Произошла ~r~ошибка", "~s~"+isReasonError.toString(), 5, false, true, 8000);
+		}
+		if(hud_browser) hud_browser.execute('toggleBarberShop(\''+clothesData.npGender+'\',false,\''+tempHair.npHeadOverlay+'\');');
+	}
+});
+
+mp.events.add('setHairColor', (whoColor, theColor) => {
+	if(typeof(whoColor) !== "undefined" && typeof(theColor) !== "undefined") {
+		if(whoColor == 1) {
+			tempHair.hairColor1 = parseInt(theColor);
+			localPlayer.setHairColor(parseInt(tempHair.hairColor1), parseInt(tempHair.hairColor2));
+		}else{
+			tempHair.hairColor2 = parseInt(theColor);
+			localPlayer.setHairColor(parseInt(tempHair.hairColor1), parseInt(tempHair.hairColor2));
+		}
+	}
+});
+
+mp.events.add('setHeadOverlayBarber', (who, index, value) => {
+	if(typeof(index) !== "undefined" && typeof(value) !== "undefined") {
+		if(typeof(tempHair.npHeadOverlay[index]) !== "undefined") {
+			index = parseInt(index);
+			if(who == "value") {
+				tempHair.npHeadOverlay[index.toString()].v = parseFloat(value);
+			}else if(who == "opacity") {
+				tempHair.npHeadOverlay[index.toString()].o = parseFloat(value);
+			}else if(who == "color") {
+				tempHair.npHeadOverlay[index.toString()].c = parseFloat(value);
+			}
+			if(typeof(tempHair.npHeadOverlay[index.toString()]) !== "undefined") {
+				localPlayer.setHeadOverlay(index, parseInt(tempHair.npHeadOverlay[index.toString()].v), parseFloat(tempHair.npHeadOverlay[index.toString()].o), parseInt(tempHair.npHeadOverlay[index.toString()].c), parseInt(tempHair.npHeadOverlay[index.toString()].c));
+			}
+		}
+	}
+});
 
 mp.events.add('playerEnterColshape', (shape) => {
 	if(typeof(shape) != 'undefined' && typeof(shape.data) == 'undefined') {
 		if(mp.colshapes.exists(shape)) {
-			if(typeof(shape.getVariable('col.type')) != "undefined") {
+			if(typeof(shape.getVariable('col.type')) !== "undefined") {
 				let colType = shape.getVariable('col.type');
-				if(colType == 'obmen') {
-					if(!localPlayer.vehicle && hud_browser) {
-						if(localPlayer.getVariable('player.id') && localPlayer.getVariable('player.money')) {
-							if(typeof(localPlayer.getVariable('player.vehs')) == "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Обменник для Вас недоступен, попробуйте позже..</span>");
-							if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
-								if(localPlayer.getVariable("active.deal")) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * У Вас уже есть активная сделка..</span>");
-							}
-							
-							if(typeof(localPlayer.getVariable("player.tickets")) === "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * У Вас более 50 000 руб. не оплаченных штрафов</span>");
-							if(parseInt(localPlayer.getVariable("player.tickets")) > 50000) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * У Вас более 50 000 руб. не оплаченных штрафов</span>");
-							
-							allowBinds = [];
-							obmenData = false;
-							
-							let tempPlayers = [];
-							let myPos = localPlayer.position;
-							let counter = 0;
-							mp.players.forEachInStreamRange(
-								(player, id) => {
-									if(player != localPlayer) {
-										let plPos = player.position;
-										if(mp.game.gameplay.getDistanceBetweenCoords(myPos.x, myPos.y, myPos.z, plPos.x, plPos.y, plPos.z, true) <= 10) {
-											if(!player.vehicle && player.getVariable("player.id") && player.getVariable("player.nick")) {
-												tempPlayers.push({"nick":player.getVariable("player.nick").toString(),"id":parseInt(player.getVariable("player.id"))});
-												counter++;
-											}
-										}
-									}
-								}
-							);
-							
-							if(vehPanel) closeVehMenu();
-							
-							hud_browser.execute('toggleObmenPanelStuffCreation(\''+JSON.stringify(tempPlayers)+'\');');
-							mp.gui.cursor.visible = true;
-							mp.game.graphics.startScreenEffect("MenuMGHeistTint", 0, true);
-							return false;
-						}
-					}
-				}
-				if(colType == 'obmen_render') {
-					let obmenColData = shape.getVariable('col.data');
+				if(colType == 'bs_tatto_render') {
+					let bsTattoColData = shape.getVariable('col.data');
 					
-					let obmenMarker = mp.markers.new(1, new mp.Vector3(obmenColData[0], obmenColData[1], obmenColData[2]), 2.0,
+					let bsAndTattoMarker = mp.markers.new(1, new mp.Vector3(parseFloat(bsTattoColData[0]), parseFloat(bsTattoColData[1]), parseFloat(bsTattoColData[2])), 1.5,
 					{
 						direction: new mp.Vector3(0, 0, 0),
 						rotation: new mp.Vector3(0, 0, 0),
-						color: [91, 184, 232, 200],
+						color: [255, 255, 255, 200],
 						visible: true,
 						dimension: 0
 					});
 					
-					let obmenArray = {'marker': obmenMarker, 'pos': [obmenColData[0], obmenColData[1], obmenColData[2]], 'alpha': 0};
-					obmensInStream.push(obmenArray);
-					return null;
+					let bsAndTattoCheck = mp.checkpoints.new(40, new mp.Vector3(bsTattoColData[0], bsTattoColData[1], bsTattoColData[2]+2.0), 1.2,
+					{
+						color: [255, 255, 255, 0],
+						visible: true,
+						dimension: localPlayer.dimension
+					});
+					bsAndTattoCheck.bsAndTattoData = bsTattoColData;
+					
+					let bsAndTattoArray = {'marker': bsAndTattoMarker, 'check': bsAndTattoCheck, 'thisIs': bsTattoColData[3], 'pos': [parseFloat(bsTattoColData[0]), parseFloat(bsTattoColData[1]), parseFloat(bsTattoColData[2])], 'alpha': 0};
+					bsAndTattoInStream.push(bsAndTattoArray);
 				}
 			}
 		}
 	}
 });
 
-function closeAllObmenWindows() {
-	if(hud_browser) hud_browser.execute('toggleObmenPanel();');
-	mp.gui.cursor.visible = false;
-	restoreBinds();
-	mp.game.graphics.stopScreenEffect("MenuMGHeistTint");
-}
+mp.events.add("playerEnterCheckpoint", (checkpoint) => {
+	if(mp.checkpoints.exists(checkpoint)) {
+		if(typeof(checkpoint.bsAndTattoData) !== "undefined") {
+			if(!localPlayer.vehicle) {
+				if(allowBinds != stockBinds) return false;
+				if(typeof(localPlayer.getVariable("player.clothes")) === "undefined" || typeof(localPlayer.getVariable("player.pers")) === "undefined") return notyAPI.error("Ваш персонаж не инициализирован.", 3000, true);
+				//chatAPI.sysPush("<span style=\"color:#FFFFFF;\"> * colData: "+JSON.stringify(checkpoint.bsAndTattoData)+"</span>");
+				allowBinds = [];
+				BLOCK_CONTROLS = true;
+				mp.game.cam.doScreenFadeOut(250);
+				mp.events.callRemote('barberTryEnter');
+				tempBSAndTattoData = checkpoint.bsAndTattoData;
+			}
+		}
+	}
+});
 
 mp.events.add('playerExitColshape', (shape) => {
-	if(typeof(shape) != 'undefined') {
-		if(mp.colshapes.exists(shape)) {
-			if(typeof(shape.getVariable('col.type')) != "undefined") {
-				let colType = shape.getVariable('col.type');
-				if(colType == 'obmen') {
-					obmenData = false;
-					return closeAllObmenWindows();
-				}
-				if(colType == 'obmen_render') {
-					let obmenColData = shape.getVariable('col.data');
-					for(var i in obmensInStream) {
-						let tempData = obmensInStream[i];
-						let posData = tempData['pos'];
-						if (posData[0] == obmenColData[0] && posData[1] == obmenColData[1] && posData[2] == obmenColData[2]) {
-							if(tempData['marker']) {
-								tempData['marker'].destroy();
-								delete tempData['marker'];
-							}
-							if(obmensInStream[i] || obmensInStream[i] !== undefined) delete obmensInStream[i];
+	if(typeof(shape.id) != "undefined") {
+		if(typeof(shape.getVariable('col.type')) != "undefined") {
+			let colType = shape.getVariable('col.type');
+			if(colType == 'bs_tatto_render') {
+				let bsAndTatto = shape.getVariable('col.data');
+				for(var i in bsAndTattoInStream) {
+					let tempData = bsAndTattoInStream[i];
+					let posData = tempData['pos'];
+					if (posData[0] == bsAndTatto[0] && posData[1] == bsAndTatto[1] && posData[2] == bsAndTatto[2]) {
+						if(tempData['marker']) {
+							tempData['marker'].destroy();
+							delete tempData['marker'];
 						}
+						if(tempData['check']) {
+							tempData['check'].destroy();
+							delete tempData['check'];
+						}
+						if(bsAndTattoInStream[i] || bsAndTattoInStream[i] !== undefined) delete bsAndTattoInStream[i];
 					}
-					obmensInStream = obmensInStream.filter(function (el) { return el != null; });
-					return false;
 				}
+				bsAndTattoInStream = bsAndTattoInStream.filter(function (el) { return el != null; });
 			}
 		}
 	}
 });
 
-mp.events.add('refreshObmenPlayers', () => {
-	if(hud_browser) {
-		let tempPlayers = [];
-		let myPos = localPlayer.position;
-		let counter = 0;
-		mp.players.forEachInStreamRange(
-			(player, id) => {
-				if(player != localPlayer) {
-					let plPos = player.position;
-					if(mp.game.gameplay.getDistanceBetweenCoords(myPos.x, myPos.y, myPos.z, plPos.x, plPos.y, plPos.z, true) <= 10) {
-						if(!player.vehicle && player.getVariable("player.id") && player.getVariable("player.nick")) {
-							tempPlayers.push({"nick":player.getVariable("player.nick").toString(),"id":parseInt(player.getVariable("player.id"))});
-							counter++;
-						}
-					}
-				}
-			}
-		);
-		hud_browser.execute('toggleObmenPanelStuffCreation(\''+JSON.stringify(tempPlayers)+'\');');
-	}
-});
-
-mp.events.add('obmenPanelStuffCreationClose', () => {
-	if(hud_browser) {
-		if(obmenData) {
-			if(typeof(obmenData.obmenNick) != "undefined" && typeof(obmenData.obmenID) != "undefined" && typeof(obmenData.initiator) != "undefined") {
-				let thePlayer = false;
-				mp.players.forEach(
-					(player) => {
-						if(typeof(player.getVariable("player.id")) != "undefined") {
-							if(player.getVariable("player.id") == obmenData.obmenID) thePlayer = player;
-						}
-					}
-				);
-				chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы отменили сеанс обмена с <span style=\"color:#fff;\">"+obmenData.obmenNick+"</span> (<span style=\"color:#fff;\">"+obmenData.obmenID+"</span>)</span>");
-				if(thePlayer) mp.events.callRemote('cancelObmen', thePlayer, obmenData.initiator);
-				else mp.events.callRemote('cancelObmen');
-			}
-		}else{
-			mp.events.callRemote('cancelObmen');
-		}
-		if(vehPanel) closeVehMenu();
-		obmenData = false;
-		return closeAllObmenWindows();
-	}
-});
-
-mp.events.add('sendObmenOffer', (theNick, theID) => {
-	if(hud_browser && theNick && theID) {
-		theNick = theNick.toString();
-		theID = parseInt(theID);
-		let thePlayer = false;
-		
-		let myPos = localPlayer.position;
-		mp.players.forEachInStreamRange(
-			(player) => {
-				if(player != localPlayer) {
-					let plPos = player.position;
-					if(mp.game.gameplay.getDistanceBetweenCoords(myPos.x, myPos.y, myPos.z, plPos.x, plPos.y, plPos.z, true) <= 10) {
-						if(typeof(player.getVariable("player.id")) != "undefined") {
-							if(theID == player.getVariable("player.id")) thePlayer = player;
-						}
-					}
-				}
-			}
-		);
-		
-		if(thePlayer) {
-			if(thePlayer.getVariable("active.deal")) return hud_browser.execute('errorObmenPanelStuffCreation("У Игрока '+theNick+' есть активный обмен.");');
-			obmenData = {"initiator":true,"com":0,"fromVehs":[],"fromStuff":[],"toStuff":[],"obmenNick":theNick,"obmenID":theID,"fromReady":false,"fromGo":false,"toReady":false,"toGo":false};
-			hud_browser.execute('toggleObmenPanelStuffOffer(true,"'+theNick+'","'+theID+'");');
-			mp.events.callRemote('offerObmen', thePlayer, obmenData.initiator);
-		}else{
-			hud_browser.execute('errorObmenPanelStuffCreation("Игрока '+theNick+' нет рядом.");');
-		}
-		
-		if(vehPanel) closeVehMenu();
-	}else{
-		if(vehPanel) closeVehMenu();
-		mp.events.callRemote('cancelObmen');
-		obmenData = false;
-		return closeAllObmenWindows();
-	}
-});
-
-mp.events.add('obmenOffered', (theNick, theID, isInitiator) => {
-	if(typeof(theNick) != "undefined" && typeof(theID) != "undefined" && typeof(isInitiator) != "undefined") {
-		obmenData = {"initiator":false,"com":0,"fromVehs":[],"fromStuff":[],"toStuff":[],"obmenNick":theNick,"obmenID":theID,"fromReady":false,"fromGo":false,"toReady":false,"toGo":false};
-		if(hud_browser) hud_browser.execute('toggleObmenPanelStuffOffer(false,"'+theNick+'","'+theID+'");');
-		mp.gui.cursor.visible = true;
-		allowBinds = [];
-		mp.game.graphics.startScreenEffect("MenuMGHeistTint", 0, true);
-		if(vehPanel) closeVehMenu();
-		if(numchPanel) numchPanelClose();
-	}
-});
-
-mp.events.add('obmenCanceled', (theNick, theID, isInitiator) => {
-	if(typeof(theNick) != "undefined" && typeof(theID) != "undefined" && typeof(isInitiator) != "undefined") {
-		if(obmenData && theNick && theID) chatAPI.sysPush("<span style=\"color:#FF6146\"> * <span style=\"color:#fff;\">"+theNick+"</span> (<span style=\"color:#fff;\">"+theID+"</span>) отменил сеанс обмена.</span>");
-		if(hud_browser) hud_browser.execute('toggleObmenPanel();');
-		obmenData = false;
-		mp.gui.cursor.visible = false;
-		restoreBinds();
-		mp.game.graphics.stopScreenEffect("MenuMGHeistTint");
-		if(vehPanel) closeVehMenu();
-		if(numchPanel) numchPanelClose();
-	}
-});
-
-mp.events.add('acceptObmen', () => {
-	if(hud_browser) {
-		if(obmenData) {
-			if(vehPanel) closeVehMenu();
-			if(numchPanel) numchPanelClose();
-			
-			if(typeof(localPlayer.getVariable("player.tickets")) === "undefined") return hud_browser.execute('errorObmenPanelStuffOffer("У Вас более 50 000 руб. не оплаченных штрафов");');
-			if(parseInt(localPlayer.getVariable("player.tickets")) > 50000) return hud_browser.execute('errorObmenPanelStuffOffer("У Вас более 50 000 руб. не оплаченных штрафов");');
-			
-			let thePlayer = false;
-			
-			let myPos = localPlayer.position;
-			mp.players.forEach(
-				(player) => {
-					let plPos = player.position;
-					if(mp.game.gameplay.getDistanceBetweenCoords(myPos.x, myPos.y, myPos.z, plPos.x, plPos.y, plPos.z, true) <= 10) {
-						if(typeof(player.getVariable("player.id")) != "undefined") {
-							if(player.getVariable("player.id") == obmenData.obmenID) thePlayer = player;
-						}
-					}
-				}
-			);
-			
-			let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-			decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
-			
-			if(thePlayer) {
-				obmenData.fromVehs = [];
-				var tempJSon = localPlayer.getVariable('player.vehs');
-				for(var k in tempJSon.vehicles) {
-					let vehID = tempJSon.vehicles[k].id;
-					let vehHash = tempJSon.vehicles[k].hash;
-					let vehName = vehHash;
-					let vehType = "vehicle";
-					let vehOwners = 1;
-					if(typeof(tempJSon.vehicles[k].owners) != "undefined") vehOwners = tempJSon.vehicles[k].owners;
-					
-					if(typeof(decVehStats[0][vehHash]) != "undefined") {
-						vehName = decVehStats[0][vehHash].name;
-						vehType = decVehStats[0][vehHash].type;
-					}
-					tempJSon.vehicles[k].name = vehName;
-					let vehNum = tempJSon.vehicles[k].number;
-					
-					if(tempJSon.vehicles[k]) {
-						if(tempJSon.vehicles[k].hasOwnProperty("params") !== null) {
-							if(typeof(tempJSon.vehicles[k].params) !== "undefined") {
-								let vehParams = tempJSon.vehicles[k].params;
-								if(typeof(vehParams.rent) !== "undefined") tempJSon.vehicles[k] = null;
-							}else{
-								tempJSon.vehicles[k] = null;
-							}
-						}else{
-							tempJSon.vehicles[k] = null;
-						}
-					}else{
-						tempJSon.vehicles[k] = null;
-					}
-					
-					if(tempJSon.vehicles[k]) obmenData.fromVehs.push({"id":parseInt(vehID),"hash":vehHash.toString(),"name":vehName.toString(),"vehtype":vehType.toString(),"num":vehNum.toString(),"owners":vehOwners.toString()});
-				}
+mp.events.add('barberTryEnter', (dim) => {
+	if(dim) {
+		setTimeout(() => {
+			if(tempBSAndTattoData) {
+				mp.game.ui.displayRadar(false);
+				localPlayer.clearProp(0);
+				localPlayer.clearProp(1); // Очки
+				localPlayer.setComponentVariation(1, 0, 0, 0);
 				
-				chatAPI.notifyPush(" * Вы приняли предложение обмена от <span style=\"color:#FEBC00\"><b>"+obmenData.obmenNick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+obmenData.obmenID+"</b></span>).");
-				hud_browser.execute('toggleObmenPanel(\''+JSON.stringify(obmenData)+'\');');
-				myVehSaving = true;
-				mp.events.callRemote('acceptObmen', thePlayer, obmenData.initiator);
-			}else{
-				hud_browser.execute('errorObmenPanelStuffOffer("Игрока '+obmenData.obmenNick+' нет рядом.");');
-			}
-		}else{
-			if(vehPanel) closeVehMenu();
-			if(numchPanel) numchPanelClose();
-			mp.events.callRemote('cancelObmen');
-			obmenData = false;
-			return closeAllObmenWindows();
-		}
-	}else{
-		if(vehPanel) closeVehMenu();
-		if(numchPanel) numchPanelClose();
-		
-		mp.events.callRemote('cancelObmen');
-		obmenData = false;
-		return closeAllObmenWindows();
-	}
-});
-
-mp.events.add('obmenAccepted', (theNick, theID) => {
-	if(hud_browser && theNick && theID && obmenData) {
-		if(vehPanel) closeVehMenu();
-		if(numchPanel) numchPanelClose();
-		
-		obmenData.fromVehs = [];
-		var tempJSon = localPlayer.getVariable('player.vehs');
-		
-		let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-		decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
-		
-		for(var k in tempJSon.vehicles) {
-			let vehID = tempJSon.vehicles[k].id;
-			let vehHash = tempJSon.vehicles[k].hash;
-			let vehName = vehHash;
-			let vehType = "vehicle";
-			let vehOwners = 1;
-			if(typeof(tempJSon.vehicles[k].owners) != "undefined") vehOwners = tempJSon.vehicles[k].owners;
-			
-			if(typeof(decVehStats[0][vehHash]) != "undefined") {
-				vehName = decVehStats[0][vehHash].name;
-				vehType = decVehStats[0][vehHash].type;
-			}
-			tempJSon.vehicles[k].name = vehName;
-			let vehNum = tempJSon.vehicles[k].number;
-			
-			if(tempJSon.vehicles[k]) {
-				if(tempJSon.vehicles[k].hasOwnProperty("params") !== null) {
-					if(typeof(tempJSon.vehicles[k].params) !== "undefined") {
-						let vehParams = tempJSon.vehicles[k].params;
-						if(typeof(vehParams.rent) !== "undefined") tempJSon.vehicles[k] = null;
-					}else{
-						tempJSon.vehicles[k] = null;
-					}
-				}else{
-					tempJSon.vehicles[k] = null;
-				}
-			}else{
-				tempJSon.vehicles[k] = null;
-			}
-			
-			if(tempJSon.vehicles[k]) obmenData.fromVehs.push({"id":parseInt(vehID),"hash":vehHash.toString(),"name":vehName.toString(),"vehtype":vehType.toString(),"num":vehNum.toString(),"owners":vehOwners.toString()});
-		}
-		
-		myVehSaving = true;
-		chatAPI.notifyPush(" * <span style=\"color:#FEBC00\"><b>"+obmenData.obmenNick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+obmenData.obmenID+"</b></span>) принял Ваше предложение обмена.");
-		hud_browser.execute('toggleObmenPanel(\''+JSON.stringify(obmenData)+'\');');
-	}else{
-		if(vehPanel) closeVehMenu();
-		if(numchPanel) numchPanelClose();
-		
-		mp.events.callRemote('cancelObmen');
-		obmenData = false;
-		return closeAllObmenWindows();
-	}
-});
-
-mp.events.add('obmenStuffAdd', (stuffData) => {
-	if(hud_browser && obmenData && stuffData) {
-		if(vehPanel) closeVehMenu();
-		if(numchPanel) numchPanelClose();
-		
-		stuffData = JSON.parse(stuffData);
-		
-		let thePlayer = false;
-		mp.players.forEach(
-			(player) => {
-				if(typeof(player.getVariable("player.id")) != "undefined") {
-					if(player.getVariable("player.id") == obmenData.obmenID) thePlayer = player;
-				}
-			}
-		);
-		
-		if(thePlayer) {
-			if(stuffData.type == "veh" || stuffData.type == "num") {
-				obmenData.fromStuff.push({"type":stuffData.type,"id":stuffData.id,"hash":stuffData.hash,"name":stuffData.name,"vehtype":stuffData.vehtype,"num":stuffData.num,"owners":stuffData.owners});
-				if(stuffData.type == "veh") {
-					let vehCost = 0;
-					
-					let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-					decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
-					
-					if(typeof(decVehStats[0][stuffData.hash]) != "undefined" && typeof(decVehStats[0][stuffData.hash].cost) != "undefined") obmenData.com += roundNumber(parseInt(decVehStats[0][stuffData.hash].cost)*0.01, 0);
-				}else if(stuffData.type == "num") {
-					obmenData.com += 1350000;
-				}
-			}else if(stuffData.type == "money") {
-				obmenData.com = roundNumber(parseInt(obmenData.com) + (parseInt(stuffData.value) * 0.015), 0);
-				obmenData.fromStuff.push({"type":stuffData.type,"value":stuffData.value});
-			}
-			
-			if(obmenData.com <= 0) obmenData.com = 0;
-			hud_browser.execute('toggleObmenPanel(\''+JSON.stringify(obmenData)+'\');');
-			mp.events.callRemote('addObmenStuff', thePlayer, JSON.stringify(stuffData));
-		}else{
-			mp.events.callRemote('cancelObmen');
-			obmenData = false;
-			return closeAllObmenWindows();
-		}
-	}else{
-		if(vehPanel) closeVehMenu();
-		if(numchPanel) numchPanelClose();
-		
-		mp.events.callRemote('cancelObmen');
-		obmenData = false;
-		return closeAllObmenWindows();
-	}
-});
-
-mp.events.add('obmenStuffAdded', (stuffData) => {
-	if(hud_browser && obmenData && stuffData) {
-		if(vehPanel) closeVehMenu();
-		if(numchPanel) numchPanelClose();
-		
-		stuffData = JSON.parse(stuffData);
-
-		if(stuffData.type == "veh" || stuffData.type == "num") {
-			obmenData.toStuff.push({"type":stuffData.type,"id":stuffData.id,"hash":stuffData.hash,"name":stuffData.name,"vehtype":stuffData.vehtype,"num":stuffData.num,"owners":stuffData.owners});
-			if(stuffData.type == "veh") {
-				let vehCost = 0;
+				let clothesData = localPlayer.getVariable("player.clothes");
+				localPlayer.setComponentVariation(2, parseInt(clothesData.npHair), 0, 0);
+				let persData = localPlayer.getVariable("player.pers");
+				tempHair.hairColor1 = parseInt(persData.npHairColor1);
+				tempHair.hairColor2 = parseInt(persData.npHairColor2);
+				tempHair.npHeadOverlay = persData.npHeadOverlay;
+				localPlayer.setHairColor(tempHair.hairColor1, tempHair.hairColor2);
 				
-				let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-				decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
+				mp.events.call("sleepAntiCheat");
+				play_anim_(localPlayer,'misshair_shop@barbers','player_enterchair', tempBSAndTattoData[5]);
+				BARBER_ped = mp.peds.new(mp.game.joaat("s_f_m_fembarber"), new mp.Vector3(tempBSAndTattoData[5][0], tempBSAndTattoData[5][1], tempBSAndTattoData[5][2]-5), 0, dim);
+				setTimeout(() => {
+					BARBER_ped.freezePosition(false);
+					BARBER_ped.setInvincible(false);
+					BARBER_ped.setProofs(false, false, false, false, false, false, false, false);
+					play_anim_(BARBER_ped,'misshair_shop@barbers','keeper_enterchair', tempBSAndTattoData[5]);
+					
+					setTimeout(() => {
+						BARBER_ped.taskPlayAnim('misshair_shop@barbers', "keeper_base", 8.0, 1.0, -1, 1, 1.0, false, false, false);
+						cameraRotator.pause(false);
+					}, 4000);
+					
+					object_attach(BARBER_ped,{'name':'v_ret_gc_scissors','bone':6286,'x':0.08,'y':0.1,'z':-0.03,'r1':0,'r2':-25,'r3':-15});
+					
+					if(hud_browser) {
+						hud_browser.execute('toggleBarberShop(\''+clothesData.npGender+'\',false,\''+tempHair.npHeadOverlay+'\');');
+						mp.gui.cursor.visible = true;
+					}
+				}, 1000);
 				
-				if(typeof(decVehStats[0][stuffData.hash]) != "undefined" && typeof(decVehStats[0][stuffData.hash].cost) != "undefined") obmenData.com += roundNumber(parseInt(decVehStats[0][stuffData.hash].cost)*0.01, 0);
-			}else if(stuffData.type == "num") {
-				obmenData.com += 1350000;
+				// cam
+				BARBER_cam = mp.cameras.new('default');
+				BARBER_cam.setFov(47);
+				BARBER_cam.setActive(true);
+				mp.game.cam.renderScriptCams(true, false, 3000, true, false);
+				
+				var cam = tempBSAndTattoData[4];
+				//chatAPI.sysPush("<span style=\"color:#FFFFFF;\"> * cam: "+JSON.stringify(cam)+"</span>");
+				cameraRotator.start(BARBER_cam, cam[0], cam[0], cam[1], cam[2]);
+				cameraRotator.setXBound(150, 240);
+				cameraRotator.pause(true);
+				
+				BLOCK_CONTROLS = false;
+				mp.game.cam.doScreenFadeIn(250);
+			}else{
+				BLOCK_CONTROLS = false;
+				mp.game.cam.doScreenFadeIn(250);
 			}
-		}else if(stuffData.type == "money") {
-			obmenData.toStuff.push({"type":stuffData.type,"value":stuffData.value});
-			obmenData.com = roundNumber(parseInt(obmenData.com) + (parseInt(stuffData.value) * 0.015), 0);
-			obmenData.com = roundNumber(obmenData.com, 0);
-		}
-		
-		if(obmenData.com <= 0) obmenData.com = 0;
-		hud_browser.execute('toggleObmenPanel(\''+JSON.stringify(obmenData)+'\');');
+		}, 750);
 	}else{
-		if(vehPanel) closeVehMenu();
-		if(numchPanel) numchPanelClose();
-		
-		mp.events.callRemote('cancelObmen');
-		obmenData = false;
-		return closeAllObmenWindows();
+		BLOCK_CONTROLS = false;
+		mp.game.cam.doScreenFadeIn(250);
 	}
 });
 
-mp.events.add('obmenStuffDelete', (stuffData) => {
-	if(hud_browser && obmenData && stuffData) {
-		if(vehPanel) closeVehMenu();
-		if(numchPanel) numchPanelClose();
-		
-		stuffData = JSON.parse(stuffData);
-		
-		let thePlayer = false;
-		mp.players.forEach(
-			(player) => {
-				if(typeof(player.getVariable("player.id")) != "undefined") {
-					if(player.getVariable("player.id") == obmenData.obmenID) thePlayer = player;
-				}
+mp.events.add('barberShopExit', (shape) => {
+	if(tempBSAndTattoData) {
+		mp.events.call("sleepAntiCheat");
+		cameraRotator.pause(true);
+		cameraRotator.reset();
+		play_anim_(localPlayer,'misshair_shop@barbers','player_exitchair',tempBSAndTattoData[5]);
+		setTimeout(() => {
+			restoreBinds();
+			mp.gui.cursor.visible = false;
+			BLOCK_CONTROLS = false;
+			mp.events.callRemote('barberShopExit');
+			
+			localPlayer.clearTasks();
+			if(BARBER_ped.object) {
+				if(mp.objects.exists(BARBER_ped.object)) BARBER_ped.object.destroy();
 			}
-		);
-		
-		let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-		decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
-		
-		if(thePlayer) {
-			if(stuffData.type == "veh" || stuffData.type == "num") {
-				for(var i in obmenData.fromStuff) {
-					if(obmenData.fromStuff[i] || obmenData.fromStuff[i] !== undefined) {
-						let tempData = obmenData.fromStuff[i];
-						if(tempData.type == stuffData.type && tempData.id == stuffData.id) {
-							if(stuffData.type == "veh") {
-								let vehCost = 0;
-								if(typeof(decVehStats[0][stuffData.hash]) != "undefined" && typeof(decVehStats[0][stuffData.hash].cost) != "undefined") obmenData.com -= roundNumber(parseInt(decVehStats[0][stuffData.hash].cost)*0.01, 0);
-							}else if(stuffData.type == "num") {
-								obmenData.com -= 1350000;
-							}
-							
-							if(obmenData.com < 0) obmenData.com = 0;
-							delete obmenData.fromStuff[i];
-							break;
-						}
-					}
-				}
-				obmenData.fromStuff = obmenData.fromStuff.filter(function (el) { return el != null; });
-			}else if(stuffData.type == "money") {
-				for(var i in obmenData.fromStuff) {
-					if(obmenData.fromStuff[i] || obmenData.fromStuff[i] !== undefined) {
-						let tempData = obmenData.fromStuff[i];
-						if(tempData.type == "money" && tempData.value == stuffData.value) {
-							obmenData.com = roundNumber(parseInt(obmenData.com) - (parseInt(stuffData.value) * 0.015), 0);
-							delete obmenData.fromStuff[i];
-							break;
-						}
-					}
-				}
-				obmenData.fromStuff = obmenData.fromStuff.filter(function (el) { return el != null; });
+			if(mp.peds.exists(BARBER_ped)) BARBER_ped.destroy();
+			BARBER_ped = false;
+			
+			makePersonage(localPlayer, true, true);
+			if(typeof(localPlayer.getVariable("player.pers")) !== "undefined") {
+				let persData = localPlayer.getVariable("player.pers");
+				if(typeof(persData.npHeadOverlay["1"]) !== "undefined") localPlayer.setHeadOverlay(1, parseInt(persData.npHeadOverlay["1"].v), parseFloat(persData.npHeadOverlay["1"].o), parseInt(persData.npHeadOverlay["1"].c), parseInt(persData.npHeadOverlay["1"].c));
+				if(typeof(persData.npHeadOverlay["2"]) !== "undefined") localPlayer.setHeadOverlay(2, parseInt(persData.npHeadOverlay["2"].v), parseFloat(persData.npHeadOverlay["2"].o), parseInt(persData.npHeadOverlay["2"].c), parseInt(persData.npHeadOverlay["2"].c));
 			}
 			
-			if(obmenData.com <= 0) obmenData.com = 0;
-			hud_browser.execute('toggleObmenPanel(\''+JSON.stringify(obmenData)+'\');');
-			mp.events.callRemote('deleteObmenStuff', thePlayer, JSON.stringify(stuffData));
-		}else{
-			mp.events.callRemote('cancelObmen');
-			obmenData = false;
-			return closeAllObmenWindows();
-		}
-	}else{
-		if(vehPanel) closeVehMenu();
-		if(numchPanel) numchPanelClose();
-		
-		mp.events.callRemote('cancelObmen');
-		obmenData = false;
-		return closeAllObmenWindows();
+			mp.game.cam.renderScriptCams(false, false, 3000, true, false);
+			BARBER_cam.destroy();
+			cameraRotator.stop();
+			cameraRotator.pause(false);
+			
+			mp.game.ui.displayRadar(true);
+		}, 4000);
 	}
 });
 
-mp.events.add('obmenStuffDeleted', (stuffData) => {
-	if(hud_browser && obmenData && stuffData) {
-		if(vehPanel) closeVehMenu();
-		if(numchPanel) numchPanelClose();
-		
-		stuffData = JSON.parse(stuffData);
-
-		let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-		decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
-
-		if(stuffData.type == "veh" || stuffData.type == "num") {
-			for(var i in obmenData.toStuff) {
-				if(obmenData.toStuff[i] || obmenData.toStuff[i] !== undefined) {
-					let tempData = obmenData.toStuff[i];
-					if(tempData.type == stuffData.type && tempData.id == stuffData.id) {
-						if(stuffData.type == "veh") {
-							let vehCost = 0;
-							
-							if(typeof(decVehStats[0][stuffData.hash]) != "undefined" && typeof(decVehStats[0][stuffData.hash].cost) != "undefined") obmenData.com -= roundNumber(parseInt(decVehStats[0][stuffData.hash].cost)*0.01, 0);
-						}else if(stuffData.type == "num") {
-							obmenData.com -= 1350000;
-						}
-						if(obmenData.com < 0) obmenData.com = 0;
-						delete obmenData.toStuff[i];
-						break;
-					}
-				}
-			}
-			obmenData.toStuff = obmenData.toStuff.filter(function (el) { return el != null; });
-		}else if(stuffData.type == "money") {
-			for(var i in obmenData.toStuff) {
-				if(obmenData.toStuff[i] || obmenData.toStuff[i] !== undefined) {
-					let tempData = obmenData.toStuff[i];
-					if(tempData.type == "money" && tempData.value == stuffData.value) {
-						obmenData.com = roundNumber(parseInt(obmenData.com) - (parseInt(stuffData.value) * 0.015), 0);
-						delete obmenData.toStuff[i];
-						break;
-					}
-				}
-			}
-			obmenData.toStuff = obmenData.toStuff.filter(function (el) { return el != null; });
-		}
-		
-		hud_browser.execute('toggleObmenPanel(\''+JSON.stringify(obmenData)+'\');');
-	}else{
-		if(vehPanel) closeVehMenu();
-		if(numchPanel) numchPanelClose();
-		
-		mp.events.callRemote('cancelObmen');
-		obmenData = false;
-		return closeAllObmenWindows();
-	}
-});
-
-mp.events.add('obmenReady', (theStatus) => {
-	if(hud_browser && obmenData && typeof(theStatus) != "undefined") {
-		if(vehPanel) closeVehMenu();
-		if(numchPanel) numchPanelClose();
-		
-		let thePlayer = false;
-		mp.players.forEach(
-			(player) => {
-				if(typeof(player.getVariable("player.id")) != "undefined") {
-					if(player.getVariable("player.id") == obmenData.obmenID) thePlayer = player;
-				}
-			}
-		);
-		
-		if(thePlayer) {
-			obmenData.fromReady = theStatus;
-			if(!theStatus) {
-				obmenData.fromGo = false;
-				obmenData.toGo = false;
-			}
-			hud_browser.execute('toggleObmenPanel(\''+JSON.stringify(obmenData)+'\');');
-			mp.events.callRemote('obmenReady', thePlayer, theStatus);
-		}else{
-			mp.events.callRemote('cancelObmen');
-			obmenData = false;
-			return closeAllObmenWindows();
-		}
-	}else{
-		if(vehPanel) closeVehMenu();
-		if(numchPanel) numchPanelClose();
-		
-		mp.events.callRemote('cancelObmen');
-		obmenData = false;
-		return closeAllObmenWindows();
-	}
-});
-
-mp.events.add('obmenReadyChanged', (theStatus) => {
-	if(hud_browser && obmenData && typeof(theStatus) != "undefined") {
-		if(vehPanel) closeVehMenu();
-		if(numchPanel) numchPanelClose();
-		
-		obmenData.toReady = theStatus;
-		if(!theStatus) {
-			obmenData.fromGo = false;
-			obmenData.toGo = false;
-		}
-		hud_browser.execute('toggleObmenPanel(\''+JSON.stringify(obmenData)+'\');');
-	}else{
-		if(vehPanel) closeVehMenu();
-		if(numchPanel) numchPanelClose();
-		
-		mp.events.callRemote('cancelObmen');
-		obmenData = false;
-		return closeAllObmenWindows();
-	}
-});
-
-mp.events.add('obmenGo', (theStatus) => {
-	if(hud_browser && obmenData && typeof(theStatus) != "undefined") {
-		if(vehPanel) closeVehMenu();
-		if(numchPanel) numchPanelClose();
-		
-		let thePlayer = false;
-		mp.players.forEach(
-			(player) => {
-				if(typeof(player.getVariable("player.id")) != "undefined") {
-					if(player.getVariable("player.id") == obmenData.obmenID) thePlayer = player;
-				}
-			}
-		);
-		
-		if(thePlayer) {
-			obmenData.fromGo = theStatus;
-			if(obmenData.fromGo && obmenData.toGo) {
-				mp.events.callRemote('obmenGo', thePlayer, obmenData.fromGo, obmenData.toGo, JSON.stringify(obmenData));
-				return closeAllObmenWindows();
-			}else{
-				hud_browser.execute('toggleObmenPanel(\''+JSON.stringify(obmenData)+'\');');
-				mp.events.callRemote('obmenGo', thePlayer, obmenData.fromGo, obmenData.toGo, JSON.stringify(obmenData));
-			}
-		}else{
-			mp.events.callRemote('cancelObmen');
-			obmenData = false;
-			return closeAllObmenWindows();
-		}
-	}else{
-		if(vehPanel) closeVehMenu();
-		if(numchPanel) numchPanelClose();
-		
-		mp.events.callRemote('cancelObmen');
-		obmenData = false;
-		return closeAllObmenWindows();
-	}
-});
-
-mp.events.add('obmenGoChanged', (fromGoStatus, toGoStatus, resultat, theMoneyAdded, theMoneyRecived, theNumAdded, theNumRecived) => {
-	if(hud_browser && obmenData && typeof(fromGoStatus) != "undefined" && typeof(toGoStatus) != "undefined" && typeof(resultat) != "undefined" && typeof(theMoneyAdded) != "undefined" && typeof(theMoneyRecived) != "undefined" && typeof(theNumAdded) != "undefined" && typeof(theNumRecived) != "undefined") {
-		if(vehPanel) closeVehMenu();
-		if(numchPanel) numchPanelClose();
-		
-		obmenData.toGo = fromGoStatus;
-		//chatAPI.notifyPush(fromGoStatus.toString()+" | "+toGoStatus.toString()+" | "+resultat.toString());
-		if(fromGoStatus && toGoStatus) {
-			if(hud_browser) hud_browser.execute('unsetSelVehData();');
-			theMoneyAdded = parseInt(theMoneyAdded);
-			theMoneyRecived = parseInt(theMoneyRecived);
-			if(resultat) {
-				if(resultat == "ok") {
-					chatAPI.notifyPush(" * Вы успешно произвели обмен с <span style=\"color:#FEBC00\"><b>"+obmenData.obmenNick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+obmenData.obmenID+"</b></span>).");
-					if(obmenData.initiator) chatAPI.notifyPush(" * Комиссия оплачена в размере<span style=\"color:#FEBC00\"><b>"+obmenData.com.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб.");
-					
-					if(theNumAdded) chatAPI.notifyPush(" * Вы получили номерной знак <span style=\"color:#FEBC00\"><b>"+theNumAdded+"</b></span> в ходе обмена.");
-					if(theNumRecived) chatAPI.notifyPush(" * Вы отдали номерной знак <span style=\"color:#FEBC00\"><b>"+theNumRecived+"</b></span> в ходе обмена.");
-				
-					if(theMoneyRecived > 0) chatAPI.notifyPush(" * Отправлена доплата в размере<span style=\"color:#FEBC00\"><b>"+theMoneyRecived.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб.");
-					if(theMoneyAdded > 0) chatAPI.notifyPush(" * Получена доплата в размере<span style=\"color:#FEBC00\"><b>"+theMoneyAdded.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб.");
-					
-					mp.game.ui.messages.showMidsizedShard("~y~Успешный обмен с ~w~"+obmenData.obmenNick+" ~y~(~w~"+obmenData.obmenID+"~y~)", "~s~Статистика сделки находится в чате.~n~Благодарим Вас за использование пункта обмена.", 5, false, true, 8000);
-				}else if(resultat == "comMoney") {
-					if(obmenData.initiator) chatAPI.sysPush("<span style=\"color:#FF6146\"> * У Вас не хватило средств на оплату сделки.</span>");
-					else chatAPI.sysPush("<span style=\"color:#FF6146\"> * У <span style=\"color:#fff;\">"+obmenData.obmenNick+"</span> (<span style=\"color:#fff;\">"+obmenData.obmenID+"</span>) не хватило средств на сделку.</span>");
-				}else if(resultat == "noFreeParks") {
-					chatAPI.sysPush("<span style=\"color:#FF6146\"> * У одного из Вас не хватает мест для совершения обмена.</span>");
-				}else if(resultat == "more36Vehs") {
-					chatAPI.sysPush("<span style=\"color:#FF6146\"> * У одного из Вас будет больше 36 машин, а это лимит.</span>");
-				}else if(resultat == "error") {
-					chatAPI.sysPush("<span style=\"color:#FF6146\"> * Во время обмена произошла неизвестная ошибка.</span>");
-				}else if(resultat == "owners") {
-					chatAPI.sysPush("<span style=\"color:#FF6146\"> * Во время обмена произошла ошибка при сверке владельцев.</span>");
-				}else if(resultat == "no_json") {
-					chatAPI.sysPush("<span style=\"color:#FF6146\"> * Во время обмена произошла ошибка при проверке JSON.</span>");
-				}
-			}else{
-				chatAPI.sysPush("<span style=\"color:#FF6146\"> * Во время обмена произошла неизвестная ошибка.</span>");
-			}
-			obmenData = false;
-			return closeAllObmenWindows();
-		}else{
-			hud_browser.execute('toggleObmenPanel(\''+JSON.stringify(obmenData)+'\');');
-		}
-	}else{
-		if(vehPanel) closeVehMenu();
-		if(numchPanel) numchPanelClose();
-		
-		mp.events.callRemote('cancelObmen');
-		obmenData = false;
-		return closeAllObmenWindows();
-	}
-});
-
+// Тату-салоны
 }

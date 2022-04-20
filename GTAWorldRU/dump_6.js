@@ -152,4 +152,4 @@ mp.events.add("render", () => {
     mp.game.graphics.drawLine(line_vector1.x, line_vector1.y, line_vector1.z, line_vector2.x, line_vector2.y, line_vector2.z, 255, 125, 75, 255);
 });
 
-}뗘Ƭ
+}Ì

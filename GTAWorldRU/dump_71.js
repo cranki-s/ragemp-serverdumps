@@ -142,4 +142,4 @@ mp.events.add('EL::chat', (string) => {
         mp.gui.chat.push(string);
     }
 });
-}钩덧ɺ
+}

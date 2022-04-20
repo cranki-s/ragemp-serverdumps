@@ -48,4 +48,4 @@ class Core{
 function __Core(time, agency, plate, vin){
 	return new Core(time, agency, plate, vin)
 }
-}륮`
+}䣣ȫ

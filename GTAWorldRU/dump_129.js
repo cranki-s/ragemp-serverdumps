@@ -79,7 +79,7 @@ class Preview{
         this.m_TickInfo = Date.now()
         mp.gui.chat.push(`!{Orange}[ИНФО]!{White} Чтобы использовать дополнительные места, используйте !{#39A2FF}Shift + G!{White}`)
         mp.gui.chat.push(`!{Orange}[ИНФО]!{White} Для смены сиденья в транспорте используйте !{#39A2FF}Стрелка Влево!{White} или !{#39A2FF}Стрелка Вправо!{White}`)
-        mp.gui.chat.push(`!{Orange}[ИНФО]!{White} Чтобы поверачивать сиденье используйте !{#39A2FF}A!{White} или !{#39A2FF}D!{White}`)
+        mp.gui.chat.push(`!{Orange}[ИНФО]!{White} Чтобы поворачивать сиденье используйте !{#39A2FF}A!{White} или !{#39A2FF}D!{White}`)
     }
 
     

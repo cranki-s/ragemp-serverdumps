@@ -1,296 +1,133 @@
 {
-var racingStartInStream = {};
-var createRacePanel = false;
-var dialogRacePanel = false;
+'use strict';
 
-var activeStreetRace = false;
+var d3vehs = [
+	{"hash":"rr_cullinan","number":"M 707 MM | 78","x":-3205.6311,"y":843.8768,"z":8.8377,"heading":"324.8417663574219",'colors':'{"material":"1","color1":"0,0,0","pearl":"-1","color2":"0,0,0","wheels":2,"tyre":"245,41,41"}','handling':'{"FDRIVEBIASFRONT":"0.78","NINITIALDRIVEGEARS":6,"FINITIALDRIVEFORCE":0.36,"FDRIVEINERTIA":1,"FCLUTCHCHANGERATESCALEUPSHIFT":6,"FCLUTCHCHANGERATESCALEDOWNSHIFT":6,"INITIALDRIVEMAXFLATVEL":265.1,"FBRAKEFORCE":"2","FBRAKEBIASFRONT":"0.8","FHANDBRAKEFORCE":"2","FSTEERINGLOCK":"45","FTRACTIONCURVEMAX":"4","FTRACTIONCURVEMIN":"3.5","FTRACTIONCURVELATERAL":"27","FTRACTIONSPRINGDELTAMAX":"0.1","FLOWSPEEDTRACTIONLOSSMULT":"0.000001","FCAMBERSTIFFNESSS":0.000001,"FTRACTIONBIASFRONT":"0.48","FTRACTIONLOSSMULT":1,"FSUSPENSIONFORCE":"2","FSUSPENSIONCOMPDAMP":"1.9","FSUSPENSIONREBOUNDDAMP":"1.9","FSUSPENSIONUPPERLIMIT":"0.15","FSUSPENSIONLOWERLIMIT":"-0.15","FSUSPENSIONRAISE":"0.000001","FSUSPENSIONBIASFRONT":0.52,"FANTIROLLBARFORCE":0.9,"FANTIROLLBARBIASFRONT":0.6,"FROLLCENTREHEIGHTFRONT":0.34,"FROLLCENTREHEIGHTREAR":0.34}','tuning':'{"11":"2","12":"2","13":"2","15":"3","18":"0","22":"0"}','params':'{"tint":1,"neon":"3,0,205,163,0","livery":"0","tyresCanBurst":1,"lock":1}'},
+	{"hash":"7f02","number":"C 707 AM | 99","x":-3203.9089,"y":840.9463,"z":8.5338,"heading":"327.13348388671875",'colors':'{"material":1,"color1":"0,0,0","pearl":1,"color2":"255,255,255","tyre":"0,0,0","wheels":4}','handling':'{"FDRIVEBIASFRONT":"0.78","NINITIALDRIVEGEARS":6,"FINITIALDRIVEFORCE":0.36,"FDRIVEINERTIA":1,"FCLUTCHCHANGERATESCALEUPSHIFT":6,"FCLUTCHCHANGERATESCALEDOWNSHIFT":6,"INITIALDRIVEMAXFLATVEL":265.1,"FBRAKEFORCE":"2","FBRAKEBIASFRONT":"0.8","FHANDBRAKEFORCE":"2","FSTEERINGLOCK":"45","FTRACTIONCURVEMAX":"4","FTRACTIONCURVEMIN":"3.5","FTRACTIONCURVELATERAL":"27","FTRACTIONSPRINGDELTAMAX":"0.1","FLOWSPEEDTRACTIONLOSSMULT":"0.000001","FCAMBERSTIFFNESSS":0.000001,"FTRACTIONBIASFRONT":"0.48","FTRACTIONLOSSMULT":1,"FSUSPENSIONFORCE":"2","FSUSPENSIONCOMPDAMP":"1.9","FSUSPENSIONREBOUNDDAMP":"1.9","FSUSPENSIONUPPERLIMIT":"0.15","FSUSPENSIONLOWERLIMIT":"-0.15","FSUSPENSIONRAISE":"0.000001","FSUSPENSIONBIASFRONT":0.52,"FANTIROLLBARFORCE":0.9,"FANTIROLLBARBIASFRONT":0.6,"FROLLCENTREHEIGHTFRONT":0.34,"FROLLCENTREHEIGHTREAR":0.34}','tuning':'{"11":"2","12":"2","13":"2","15":"3","18":"0","22":"0","23":"-1"}','params':'{"tint":3,"lock":1,"neon":"3,0,255,255,255","livery":"1"}'},
+	{"hash":"m5f90cs","number":"B 707 XB | 77","x":-3202.1101,"y":837.9563,"z":8.5412,"heading":"331.20294189453125",'colors':'{"material":12,"color1":"0,21,9","pearl":50,"color2":"48,12,0","tyre":"0,0,0","wheels":"0"}','handling':'{}','tuning':'{"11":"2","12":"2","13":"2","15":"3","18":"0","22":"0","23":"-1"}','params':'{"tint":1,"lock":1}'},
+	{"hash":"m5e60","number":"T 116 EH | 77","x":-3200.2705,"y":835.0878,"z":8.4823,"heading":"331.00140380859375",'colors':'{"material":"1","color1":"17,9,9","pearl":46,"color2":"45,45,45","wheels":"0"}','handling':'{"FDRIVEBIASFRONT":"0.82","NINITIALDRIVEGEARS":6,"FINITIALDRIVEFORCE":0.25,"FDRIVEINERTIA":1,"FCLUTCHCHANGERATESCALEUPSHIFT":2.5,"FCLUTCHCHANGERATESCALEDOWNSHIFT":2.5,"INITIALDRIVEMAXFLATVEL":168.8,"FBRAKEFORCE":"2","FBRAKEBIASFRONT":"0.82","FHANDBRAKEFORCE":"2","FSTEERINGLOCK":"45","FTRACTIONCURVEMAX":"3.2","FTRACTIONCURVEMIN":"3.5","FTRACTIONCURVELATERAL":"27","FTRACTIONSPRINGDELTAMAX":"0.15","FLOWSPEEDTRACTIONLOSSMULT":"0.05","FCAMBERSTIFFNESSS":0.000001,"FTRACTIONBIASFRONT":"0.48","FTRACTIONLOSSMULT":1,"FSUSPENSIONFORCE":"4","FSUSPENSIONCOMPDAMP":"2.5","FSUSPENSIONREBOUNDDAMP":"2.5","FSUSPENSIONUPPERLIMIT":"0.1","FSUSPENSIONLOWERLIMIT":"-0.15","FSUSPENSIONRAISE":"0.001","FSUSPENSIONBIASFRONT":0.52,"FANTIROLLBARFORCE":0.6,"FANTIROLLBARBIASFRONT":0.65,"FROLLCENTREHEIGHTFRONT":0.4,"FROLLCENTREHEIGHTREAR":0.4}','tuning':'{"11":"2","12":"2","13":"2","15":"3","18":"0","22":"0","23":"82"}','params':'{"lock":1,"tint":1}'},
+	{"hash":"x5me70","number":"B 333 XB | 98","x":-3198.6931,"y":831.9705,"z":8.697,"heading":"330.4738464355469",'colors':'{"material":1,"color1":"108,59,0","pearl":159,"color2":"0,0,0","wheels":4}','handling':'{"FDRIVEBIASFRONT":0.78,"NINITIALDRIVEGEARS":6,"FINITIALDRIVEFORCE":0.36,"FDRIVEINERTIA":1,"FCLUTCHCHANGERATESCALEUPSHIFT":6,"FCLUTCHCHANGERATESCALEDOWNSHIFT":6,"INITIALDRIVEMAXFLATVEL":265.1,"FBRAKEFORCE":2,"FBRAKEBIASFRONT":0.8,"FHANDBRAKEFORCE":2,"FSTEERINGLOCK":45,"FTRACTIONCURVEMAX":4,"FTRACTIONCURVEMIN":3.5,"FTRACTIONCURVELATERAL":27,"FTRACTIONSPRINGDELTAMAX":0.1,"FLOWSPEEDTRACTIONLOSSMULT":0.000001,"FCAMBERSTIFFNESSS":0.000001,"FTRACTIONBIASFRONT":0.48,"FTRACTIONLOSSMULT":1,"FSUSPENSIONFORCE":2,"FSUSPENSIONCOMPDAMP":1.9,"FSUSPENSIONREBOUNDDAMP":1.9,"FSUSPENSIONUPPERLIMIT":0.15,"FSUSPENSIONLOWERLIMIT":-0.15,"FSUSPENSIONRAISE":0.000001,"FSUSPENSIONBIASFRONT":0.52,"FANTIROLLBARFORCE":0.9,"FANTIROLLBARBIASFRONT":0.6,"FROLLCENTREHEIGHTFRONT":0.34,"FROLLCENTREHEIGHTREAR":0.34}','tuning':'{"11":"2","12":"2","13":"2","15":"3","18":"0","22":"-1","23":"80"}','params':'{"tint":1,"tyresCanBurst":1,"neon":"3,0,255,5,5","livery":"0","lock":1}'},
+	{"hash":"7f02","number":"C 707 AM | 77","x":-3197.0461,"y":828.9957,"z":8.5451,"heading":"330.70367431640625",'colors':'{"material":12,"color1":"0,0,0","pearl":1,"color2":"255,255,255","tyre":"0,0,0","wheels":4}','handling':'{"FDRIVEBIASFRONT":"0.78","NINITIALDRIVEGEARS":6,"FINITIALDRIVEFORCE":0.36,"FDRIVEINERTIA":1,"FCLUTCHCHANGERATESCALEUPSHIFT":6,"FCLUTCHCHANGERATESCALEDOWNSHIFT":6,"INITIALDRIVEMAXFLATVEL":265.1,"FBRAKEFORCE":"2","FBRAKEBIASFRONT":"0.8","FHANDBRAKEFORCE":"2","FSTEERINGLOCK":"45","FTRACTIONCURVEMAX":"4","FTRACTIONCURVEMIN":"3.5","FTRACTIONCURVELATERAL":"27","FTRACTIONSPRINGDELTAMAX":"0.1","FLOWSPEEDTRACTIONLOSSMULT":"0.000001","FCAMBERSTIFFNESSS":0.000001,"FTRACTIONBIASFRONT":"0.48","FTRACTIONLOSSMULT":1,"FSUSPENSIONFORCE":"2","FSUSPENSIONCOMPDAMP":"1.9","FSUSPENSIONREBOUNDDAMP":"1.9","FSUSPENSIONUPPERLIMIT":"0.15","FSUSPENSIONLOWERLIMIT":"-0.15","FSUSPENSIONRAISE":"0.000001","FSUSPENSIONBIASFRONT":0.52,"FANTIROLLBARFORCE":0.9,"FANTIROLLBARBIASFRONT":0.6,"FROLLCENTREHEIGHTFRONT":0.34,"FROLLCENTREHEIGHTREAR":0.34}','tuning':'{"11":"2","12":"2","13":"2","15":"3","18":"0","22":"0","23":"-1"}','params':'{"tint":3,"lock":1,"neon":"3,0,255,255,255"}'},
+];
 
-mp.events.add("playerEnterCheckpoint", (checkpoint) => {
-	if(mp.checkpoints.exists(checkpoint)) {
-		if(mp.checkpoints.exists(streetRaceCheckpoint)) {
-			if(streetRaceCheckpoint == checkpoint && activeStreetRace) {
-				mp.events.callRemote('finishStreetRace', JSON.stringify(activeStreetRace));
-				if(mp.checkpoints.exists(streetRaceCheckpoint)) {
-					streetRaceCheckpoint.destroy();
-					streetRaceCheckpoint = false;
-				}
-				if(mp.blips.exists(streetRaceBlip)) {
-					streetRaceBlip.destroy();
-					streetRaceBlip = false;
-				}
-				activeStreetRace = false;
+function reSpawnD3Vehs() {
+	if(d3vehs) {
+		for(var i in d3vehs) {
+			let entity = mp.vehicles.new(mp.game.joaat(d3vehs[i].hash), new mp.Vector3(d3vehs[i].x, d3vehs[i].y, d3vehs[i].z),
+			{
+				numberPlate: d3vehs[i].number.toString(),
+				heading: parseFloat(d3vehs[i].heading),
+				dynamic: false,
+				locked: true,
+				color: [[255, 255, 255],[255, 255, 255]]
+			});
+			entity.rotation = new mp.Vector3(0, 0, parseFloat(d3vehs[i].heading));
+			
+			//entity.setEngineOn(true, true, true);
+			
+			//entity.setLights(2);
+			//entity.setLightMultiplier(0.5);
+			//entity.setFullbeam(false);
+			
+			let vehColors = JSON.parse(d3vehs[i].colors);
+			
+			if(vehColors["color1"] !== undefined) {
+				let vehColor1 = explode(",", vehColors["color1"]);
+				entity.setCustomPrimaryColour(parseInt(vehColor1[0]), parseInt(vehColor1[1]), parseInt(vehColor1[2]));
 			}
-		}else{
-			if(typeof(checkpoint.getVariable("checkpoint.type")) !== "undefined") {
-				let checkPointType = checkpoint.getVariable("checkpoint.type");
-				if(checkPointType == "racingStart_render") {
-					if(typeof(checkpoint.getVariable("checkpoint.data")) !== "undefined") {
-						let racingStartData = checkpoint.getVariable("checkpoint.data");
-						let posData = new mp.Vector3(parseFloat(checkpoint.position.x), parseFloat(checkpoint.position.y), parseFloat(checkpoint.position.z)-1.1);
-						let racingStartMarker = mp.markers.new(1, posData, 2.4,
-						{
-							direction: new mp.Vector3(0, 0, 0),
-							rotation: new mp.Vector3(0, 0, 0),
-							color: [82, 202, 219, 200],
-							visible: true,
-							dimension: 0
-						});
-						racingStartInStream[racingStartData.key] = {'pos':posData,'marker':racingStartMarker.id.toString(),'alpha':0};
-					}
-				}else if(checkPointType == "racingStart") {
-					if(hud_browser) {
-						if(typeof(checkpoint.getVariable("checkpoint.data")) !== "undefined") {
-							if(!localPlayer.vehicle) {
-								let racingStartData = checkpoint.getVariable("checkpoint.data");
-								allowBinds = [];
-								hud_browser.execute("toggleRacingPanel('"+racingStartData.active.toString()+"');");
-								mp.gui.cursor.visible = true;
-								createRacePanel = {"key":racingStartData.key,"checkID":racingStartData.checkID,"active":racingStartData.active.toString()};
-							}
-						}
-					}
-				}else if(checkPointType == "racingStart_startpos") {
-					if(hud_browser && localPlayer.vehicle && vehSeat == -1) {
-						if(typeof(checkpoint.getVariable('checkpoint.data')) !== "undefined") {
-							let racingStartCheckData = checkpoint.getVariable('checkpoint.data');
-							if(racingStartCheckData.racer) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Кто-то уже занял эту позицию, выбери другую..</span>");
-							if(typeof(localPlayer.getVariable("player.money")) === "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Недостаточно средств для участия в заезде.</span>");
-							if(parseInt(localPlayer.getVariable("player.money")) < parseInt(racingStartCheckData.cost)) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Недостаточно средств для участия в заезде.</span>");
-							
-							allowBinds = [];
-							dialogRacePanel = {"key":racingStartCheckData.key,"subkey":racingStartCheckData.subkey,"cost":racingStartCheckData.cost.toString(),"heading":racingStartCheckData.heading.toString(),"racer":racingStartCheckData.racer.toString()};
-							activeStreetRace = JSON.parse(JSON.stringify(dialogRacePanel));
-							hud_browser.execute("toggleRacingDialogPanel('"+racingStartCheckData.cost.toString()+"');");
-							mp.gui.cursor.visible = true;
-						}
-					}
-				}
+			
+			if(vehColors["color2"] !== undefined) {
+				let vehColor2 = explode(",", vehColors["color2"]);
+				entity.setCustomSecondaryColour(parseInt(vehColor2[0]), parseInt(vehColor2[1]), parseInt(vehColor2[2]));
 			}
-		}
-	}
-});
-
-mp.events.add("acceptStreetRace", () => {
-	if(hud_browser) {
-		if(dialogRacePanel && localPlayer.vehicle) {
-			let theVeh = localPlayer.vehicle;
-			if(typeof(theVeh.getVariable('veh.own')) !== "undefined") {
-				let vehOwn = mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.own')));
-				if(vehOwn.remoteId.toString() == localPlayer.remoteId.toString()) {
-					if(mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.own')))) {
-						let vehOwn = mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.own')));
-						if(vehOwn.remoteId.toString() != localPlayer.remoteId.toString()) return hud_browser.execute("createRacePanelError(2, 'Только личное ТС');");
-					}else{
-						return hud_browser.execute("createRacePanelError(2, 'Только личное ТС');");
-					}
-					if(theVeh.getVariable('veh.num') == "theMoto") return hud_browser.execute("createRacePanelError(2, 'На мото нельзя');");
-					
-					if(typeof(theVeh.getVariable('veh.params')) !== "undefined") {
-						let vehParams = JSON.parse(theVeh.getVariable("veh.params"));
-						if(typeof(vehParams.rent) !== "undefined") return hud_browser.execute("createRacePanelError(2, 'Это арендованый транспорт');");
-					}
-					
-					if(theVeh.getClass() == 15) return hud_browser.execute("createRacePanelError(2, 'Это арендованый транспорт');");
+			
+			if(vehColors["tyre"] !== undefined) {
+				entity.toggleMod(20, true);
+				let vehColorTyre = explode(",", vehColors["tyre"]);
+				if(parseInt(vehColorTyre[0]) == 0 && parseInt(vehColorTyre[1]) == 0 && parseInt(vehColorTyre[2]) == 0) vehColorTyre[0] = 1, vehColorTyre[1] = 1, vehColorTyre[2] = 1;
+				entity.setTyreSmokeColor(parseInt(vehColorTyre[0]), parseInt(vehColorTyre[1]), parseInt(vehColorTyre[2]));
+			}
+			
+			entity.setColours(parseInt(vehColors["material"]), parseInt(vehColors["material"]));
+			if(vehColors["pearl"] !== undefined) entity.setExtraColours(parseInt(vehColors["pearl"]), parseInt(vehColors["wheels"]));
+			
+			let tempTuning = JSON.parse(d3vehs[i].tuning);
+			for (var k in tempTuning) {
+				entity.setMod(parseInt(k), parseInt(tempTuning[k]));
+			}
+			
+			let vehParams = JSON.parse(d3vehs[i].params);
+			if(vehParams["tint"] !== undefined) entity.setWindowTint(parseInt(vehParams["tint"]));
+			if(typeof(vehParams["lock"]) !== "undefined") {
+				if(vehParams["lock"]) {
+					entity.setAlarm(true);
+					entity.setDoorsLockedForAllPlayers(true);
+					entity.setDoorsLocked(2);
 				}else{
-					return hud_browser.execute("createRacePanelError(2, 'Только личное ТС');");
+					entity.setAlarm(false);
+					entity.setDoorsLockedForAllPlayers(false);
+					entity.setDoorsLocked(1);
 				}
-			}else{
-				return hud_browser.execute("createRacePanelError(2, 'Только личное ТС');");
+				//chatAPI.sysPush("<span style=\"color:#FF6146;\">�ST "+vehParams["lock"]+" | "+entity.getDoorLockStatus()+"</span>");
 			}
-			
-			if(dialogRacePanel.racer == "true") return hud_browser.execute("createRacePanelError(2, 'На этой позиции уже есть гонщик');");
-			hud_browser.execute("toggleRacingDialogPanel();");
-			mp.gui.cursor.visible = false;
-			localPlayer.freezePosition(true);
-			if(localPlayer.vehicle) localPlayer.vehicle.freezePosition(true);
-			
-			if(dialogRacePanel.cost) mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~уличная гонка", "~s~Вы успешно приняли эту зарубу!~n~Оплачен взнос:"+dialogRacePanel.cost.replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.", 5, false, true, 6500);
-			
-			mp.events.callRemote('acceptStreetRace', JSON.stringify(dialogRacePanel));
-			localPlayer.vehicle.setHeading(parseFloat(dialogRacePanel.heading));
-		}
-	}
-});
-
-mp.events.add("acceptStreetRaceError", (errorText) => {
-	if(hud_browser) {
-		if(typeof(errorText) !== "undefined") return hud_browser.execute("createRacePanelError(2, '"+errorText+"');");
-	}
-});
-
-mp.events.add("closeRacingDialogPanel", () => {
-	if(hud_browser) {
-		if(dialogRacePanel) {
-			dialogRacePanel = false;
-			activeStreetRace = false;
-			if(hud_browser) {
-				hud_browser.execute("toggleRacingDialogPanel();");
-				mp.gui.cursor.visible = false;
-				restoreBinds();
-			}
-		}
-	}
-});
-
-mp.events.add("createStreetRace", (streetRaceCost) => {
-	if(hud_browser) {
-		if(createRacePanel) {
-			if(createRacePanel.active == "true") return hud_browser.execute("createRacePanelError(1, 'Кто-то уже начал гоночный сеанс!');");
-			if(typeof(streetRaceCost) === "undefined") return hud_browser.execute("createRacePanelError(1, 'Вы не указали сумму взноса');");
-			if(!streetRaceCost) return hud_browser.execute("createRacePanelError(1, 'Минимальный взнос 10 000 руб.');");
-			else if(parseInt(streetRaceCost) < 10000) return hud_browser.execute("createRacePanelError(1, 'Минимальный взнос 10 000 руб.');");
-			else if(parseInt(streetRaceCost) > 500000) return hud_browser.execute("createRacePanelError(1, 'Максимальный взнос 500 000 руб.');");
-			mp.events.callRemote('createStreetRace', streetRaceCost, JSON.stringify(createRacePanel));
-			if(createRacePanel) createRacePanel = false;
-			hud_browser.execute("toggleRacingPanel();");
-			mp.gui.cursor.visible = false;
-			restoreBinds();
-		}
-	}
-});
-
-mp.events.add("raceNotifyCreated", (nick, id, cost) => {
-	if(hud_browser && typeof(nick) !== "undefined" && typeof(id) !== "undefined" && typeof(cost) !== "undefined") {
-		chatAPI.notifyPush("Уличная гонка где-то рядом, <span style=\"color:#FEBC00\"><b>"+nick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+id+"</b></span>) уже всё организовал, взнос:<span style=\"color:#FEBC00\"><b>"+cost.replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб.");
-		chatAPI.notifyPush("У Вас есть 60 секунд, что бы <span style=\"color:#FEBC00\"><b>занять свободную позицию</b></span> старта!");
-		mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~уличная гонка", "~s~Игрок "+nick+" ("+id+") создал гоночную сессию!~n~И это где-то очень рядом, взнос:"+cost.replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.", 5, false, true, 6500);
-	}
-});
-
-mp.events.add("streetRaceResult", (winMoney, nick, id) => {
-	if(typeof(nick) !== "undefined" && typeof(id) !== "undefined" && typeof(winMoney) !== "undefined") {
-		if(mp.checkpoints.exists(streetRaceCheckpoint)) {
-			streetRaceCheckpoint.destroy();
-			streetRaceCheckpoint = false;
-		}
-		if(mp.blips.exists(streetRaceBlip)) {
-			streetRaceBlip.destroy();
-			streetRaceBlip = false;
-		}
-		if(activeStreetRace) activeStreetRace = false;
-		if(hud_browser) {
-			chatAPI.notifyPush("Заезд окончен! <span style=\"color:#FEBC00\"><b>"+nick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+id+"</b></span>) забирает куш в размере <span style=\"color:#FEBC00\"><b>"+winMoney.replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб.");
-			mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~уличная гонка", "~s~Игрок "+nick+" ("+id+") одержал победу!~n~Куш в размере:"+winMoney.replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб. достаётся ему!", 5, false, true, 6500);
-		}
-	}
-});
-
-mp.events.add("createStreetRaceError", (errorText) => {
-	if(hud_browser) {
-		if(typeof(errorText) !== "undefined") return hud_browser.execute("createRacePanelError(1, '"+errorText+"');");
-	}
-});
-
-mp.events.add("closeRacingPanel", () => {
-	if(createRacePanel) createRacePanel = false;
-	if(hud_browser) {
-		hud_browser.execute("toggleRacingPanel();");
-		mp.gui.cursor.visible = false;
-		restoreBinds();
-	}
-});
-
-var streetRaceBlip = false, streetRaceCheckpoint = false;
-mp.events.add("readyRace", (result, cost, finish) => {
-	if(!result) {
-		finish = JSON.parse(finish);
-		streetRaceBlip = mp.blips.new(610, finish.pos, {
-			name: "Точка финиша уличной гонки",
-			scale: 1.1,
-			color: 1,
-			shortRange: false,
-			dimension: 0
-		});
-		streetRaceBlip.setRoute(true);
-		streetRaceBlip.setRouteColour(6);
-		
-		finish.pos.z = finish.pos.z - 10;
-		
-		streetRaceCheckpoint = mp.checkpoints.new(4, finish.pos, 20.5,
-		{
-			color: [242, 75, 75, 200],
-			visible: true,
-			dimension: 0
-		});
-		
-		if(activeStreetRace) {
-			let cd = 0;
-			let cdInterval = setInterval(function(){
-				cd++;
-				if(cd == 1) {
-					if(hud_browser) hud_browser.execute('playSound("raceCD", "0.2");');
-					mp.game.ui.messages.showShard("Ready", "Давно тебя не было в уличных гонках..", 6, 2, 2000);
-				}else if(cd == 2) {
-					if(hud_browser) hud_browser.execute('playSound("raceCD", "0.25");');
-					mp.game.ui.messages.showShard("Set", "Готовься к старту!", 6, 2, 2000);
-				}else if(cd == 3) {
-					if(hud_browser) hud_browser.execute('playSound("raceCDGo", "0.3");');
-					mp.game.ui.messages.showShard("GO", "Вперёд! Поехали!!!", 6, 2, 2000);
-					clearInterval(cdInterval);
-					localPlayer.freezePosition(false);
-					if(localPlayer.vehicle) localPlayer.vehicle.freezePosition(false);
-				}
-			}, 1500);
-		}
-	}else{
-		if(activeStreetRace) activeStreetRace = false;
-		if(mp.checkpoints.exists(streetRaceCheckpoint)) {
-			streetRaceCheckpoint.destroy();
-			streetRaceCheckpoint = false;
-		}
-		if(mp.blips.exists(streetRaceBlip)) {
-			streetRaceBlip.destroy();
-			streetRaceBlip = false;
-		}
-		localPlayer.freezePosition(false);
-		if(localPlayer.vehicle) localPlayer.vehicle.freezePosition(false);
-		return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Уличная гонка сорвалась, причина: <span style=\"color:#fff;\">"+result+"</span></span>");
-	}
-});
-
-mp.events.add("playerDeath", (player, reason, killer) => {
-    if(activeStreetRace) activeStreetRace = false;
-	if(mp.checkpoints.exists(streetRaceCheckpoint)) {
-		streetRaceCheckpoint.destroy();
-		streetRaceCheckpoint = false;
-	}
-	if(mp.blips.exists(streetRaceBlip)) {
-		streetRaceBlip.destroy();
-		streetRaceBlip = false;
-	}
-});
-
-mp.events.add("playerExitCheckpoint", (checkpoint) => {
-	if(mp.checkpoints.exists(checkpoint)) {
-		if(typeof(checkpoint.getVariable("checkpoint.type")) !== "undefined") {
-			let checkPointType = checkpoint.getVariable("checkpoint.type");
-			if(checkPointType == 'racingStart_render') {
-				if(typeof(checkpoint.getVariable('checkpoint.data')) !== "undefined") {
-					let racingStartData = checkpoint.getVariable('checkpoint.data');
-					if(typeof(racingStartInStream[racingStartData.key]) !== "undefined") {
-						let tempData = racingStartInStream[racingStartData.key];
-						let tempMarker = mp.markers.at(parseInt(tempData['marker']));
-						if(mp.markers.exists(tempMarker)) tempMarker.destroy();
-						racingStartInStream[racingStartData.key] = undefined;
-						racingStartInStream = JSON.parse(JSON.stringify(racingStartInStream));
+			if(typeof(vehParams["neon"]) !== "undefined") {
+				let vehNeon = explode(",", vehParams["neon"]);
+				if(parseInt(vehNeon[1]) == 0) {
+					entity.setNeonLightEnabled(0, false);
+					entity.setNeonLightEnabled(1, false);
+					entity.setNeonLightEnabled(2, false);
+					entity.setNeonLightEnabled(3, false);
+				}else{
+					entity.setNeonLightsColour(parseInt(vehNeon[2]), parseInt(vehNeon[3]), parseInt(vehNeon[4]));
+					if(parseInt(vehNeon[0]) == 1) {
+						entity.setNeonLightEnabled(0, true);
+						entity.setNeonLightEnabled(1, true);
+					}else if(parseInt(vehNeon[0]) == 2) {
+						entity.setNeonLightEnabled(2, true);
+						entity.setNeonLightEnabled(3, true);
+					}else if(parseInt(vehNeon[0]) == 3) {
+						entity.setNeonLightEnabled(0, true);
+						entity.setNeonLightEnabled(1, true);
+						entity.setNeonLightEnabled(2, true);
+						entity.setNeonLightEnabled(3, true);
 					}
 				}
-			}else if(checkPointType == "racingStart") {
-				if(createRacePanel) createRacePanel = false;
-				if(hud_browser) {
-					hud_browser.execute("toggleRacingPanel();");
-					mp.gui.cursor.visible = false;
-					restoreBinds();
-				}
-			}else if(checkPointType == "racingStart_startpos") {
-				if(dialogRacePanel) dialogRacePanel = false;
-				if(hud_browser) {
-					hud_browser.execute("toggleRacingDialogPanel();");
-					mp.gui.cursor.visible = false;
-					restoreBinds();
-				}
 			}
+			if(typeof(vehParams["livery"]) !== "undefined") {
+				let vehLivery = parseInt(vehParams["livery"]);
+				entity.setMod(48, vehLivery);
+				entity.setLivery(vehLivery);
+			}else{
+				entity.setMod(48, -1);
+				entity.setLivery(-1);
+			}
+			if(vehParams["tyresCanBurst"] !== undefined) {
+				let tyresCanBurst = parseInt(vehParams["tyresCanBurst"]);
+				if(tyresCanBurst == 0) entity.setTyresCanBurst(true);
+				else entity.setTyresCanBurst(false);
+			}else{
+				entity.setTyresCanBurst(true);
+			}
+			
+			entity.setExtra(1, 1);
+			entity.setExtra(2, 1);
+			entity.setExtra(3, 1);
+			entity.setExtra(4, 1);
+				
+			if(parseInt(entity.isExtraTurnedOn(5)) != 1 && d3vehs[i].number) entity.setExtra(5, 0);
+			else entity.setExtra(5, 1);
+			if(parseInt(entity.isExtraTurnedOn(6)) != 1 && d3vehs[i].number) entity.setExtra(6, 0);
+			else entity.setExtra(6, 1);
+			let num = d3vehs[i].number.toString();
+			num = num.split("|").join("");
+			num = num.split(" ").join("");
+			entity.setNumberPlateText(num);
+			entity.numberPlateType = 4;
+			entity.setNumberPlateTextIndex(4);
+			
+			entity.d3Veh = JSON.parse(JSON.stringify(d3vehs[i]));
 		}
 	}
-});
+}
+reSpawnD3Vehs();
 }

@@ -110,4 +110,4 @@ mp.events.add('StopSingleFireByID', async (mainID, fireID) => {
         var fxID = mp.game.graphics.startParticleFxLoopedAtCoord("scr_bomb_gas", posX, posY, posZ + 1, 0, 0, 0, 1, false, false, false, false);
     }
     */
-}朼¸
+}셖ï

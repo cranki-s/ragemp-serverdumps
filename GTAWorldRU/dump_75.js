@@ -36,4 +36,4 @@ mp.events.add('XMR::updateVolume', (value) => {
 	mp.events.callRemote('XMR::UpdateVolume', parseInt(value));
 });
 
-}ß
+}

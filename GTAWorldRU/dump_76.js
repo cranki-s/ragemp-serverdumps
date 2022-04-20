@@ -22,4 +22,4 @@ mp.events.add('ALPR::update', (searching, name, plate, owner, insurance, license
 
 */
 
-}뗘Ƭ
+}

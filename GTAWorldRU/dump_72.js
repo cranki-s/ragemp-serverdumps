@@ -38,4 +38,4 @@ mp.events.add('SPAWNER::takeVehicle', (id) => {
     mp.events.callRemote('SPAWNER::TakeVehicle', id);
 });
 
-}站㳫Ȳ
+}

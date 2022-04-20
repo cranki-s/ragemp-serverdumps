@@ -1,153 +1,331 @@
 {
-let bigMessageScaleform = null;
-let bigMsgInit = 0;
-let bigMsgDuration = 5000;
-let bigMsgAnimatedOut = false;
+let startSound = false;
 
-let midsizedMessageScaleform = null;
-let msgInit = 0;
-let msgDuration = 5000;
-let msgAnimatedOut = false;
-let msgBgColor = 0;
+const CamerasManagerInfo = {
+    gameplayCamera: null,
+    activeCamera: null,
+    interpCamera: null,
+    interpActive: false,
+    _events: new Map(),
+    cameras: new Map([
+        ['testCamera', mp.cameras.new('default', new mp.Vector3(), new mp.Vector3(), 50.0)],
+    ])
+};
 
-class messageScaleform {
-    constructor(scaleformName) {
-        this.handle = mp.game.graphics.requestScaleformMovie(scaleformName);
-        while (!mp.game.graphics.hasScaleformMovieLoaded(this.handle)) mp.game.wait(0);
+mp.events.add('render', () => {
+    if (CamerasManagerInfo.interpCamera && CamerasManager.doesExist(CamerasManagerInfo.interpCamera) && !CamerasManagerInfo.activeCamera.isInterpolating()) {
+
+        CamerasManager.fireEvent('stopInterp', CamerasManagerInfo.activeCamera);
+
+        CamerasManagerInfo.interpCamera.setActive(false);
+        CamerasManagerInfo.interpCamera.destroy();
+        CamerasManagerInfo.interpCamera = null;
     }
+});
 
-    // thanks kemperrr
-    callFunction(functionName, ...args) {
-		if(hud_browser && !functionName.includes("OUT")) {
-			if(functionName == "SHOW_SHARD_MIDSIZED_MESSAGE") {
-				hud_browser.execute('playSound("magic_tone", 0.05);');
-				mp.game.graphics.startScreenEffect("SuccessNeutral", 0, false);
-			}else if(functionName == "SHOW_MIDSIZED_MESSAGE") {
-				hud_browser.execute('playSound("ifruit_1", 0.15);');
-			}
-		}
-		
-        mp.game.graphics.pushScaleformMovieFunction(this.handle, functionName);
+const cameraSerialize = (camera) => {
+    camera.setActiveCamera = (toggle) => {
+        CamerasManager.setActiveCamera(camera, toggle);
+    };
 
-        args.forEach(arg => {
-            switch(typeof arg) {
-                case "string": {
-                    mp.game.graphics.pushScaleformMovieFunctionParameterString(arg);
-                    break;
-                }
+    camera.setActiveCameraWithInterp = (position, rotation, duration, easeLocation, easeRotation) => {
+        CamerasManager.setActiveCameraWithInterp(camera, position, rotation, duration, easeLocation, easeRotation);
+    };
+};
 
-                case "boolean": {
-                    mp.game.graphics.pushScaleformMovieFunctionParameterBool(arg);
-                    break;
-                }
+class CamerasManager {
 
-                case "number": {
-                    if(Number(arg) === arg && arg % 1 !== 0) {
-                        mp.game.graphics.pushScaleformMovieFunctionParameterFloat(arg);
-                    } else {
-                        mp.game.graphics.pushScaleformMovieFunctionParameterInt(arg);
-                    }
-                }
+    static on(eventName, eventFunction) {
+        if (CamerasManagerInfo._events.has(eventName)) {
+            const event = CamerasManagerInfo._events.get(eventName);
+
+            if (!event.has(eventFunction)) {
+                event.add(eventFunction);
             }
-        });
-
-        mp.game.graphics.popScaleformMovieFunctionVoid();
+        } else {
+            CamerasManagerInfo._events.set(eventName, new Set([eventFunction]));
+        }
     }
 
-    renderFullscreen() {
-        mp.game.graphics.drawScaleformMovieFullscreen(this.handle, 255, 255, 255, 255, false);
+    static fireEvent(eventName, ...args) {
+        if (CamerasManagerInfo._events.has(eventName)) {
+            const event = CamerasManagerInfo._events.get(eventName);
+
+            event.forEach(eventFunction => {
+                eventFunction(...args);
+            });
+        }
     }
 
-    dispose() {
-        mp.game.graphics.setScaleformMovieAsNoLongerNeeded(this.handle);
+    static getCamera(name) {
+
+        const camera = CamerasManagerInfo.cameras.get(name);
+
+        if (typeof camera.setActiveCamera !== 'function') {
+            cameraSerialize(camera);
+        }
+
+        return camera;
+    }
+
+    static setCamera(name, camera) {
+        CamerasManagerInfo.cameras.set(name, camera);
+    }
+
+    static hasCamera(name) {
+        return CamerasManagerInfo.cameras.has(name);
+    }
+
+    static destroyCamera(camera) {
+        if (this.doesExist(camera)) {
+            if (camera === this.activeCamera) {
+                this.activeCamera.setActive(false);
+            }
+            camera.destroy();
+        }
+    }
+
+    static createCamera(name, type, position, rotation, fov) {
+        const cam = mp.cameras.new(type, position, rotation, fov);
+        cameraSerialize(cam);
+        CamerasManagerInfo.cameras.set(name, cam);
+        return cam;
+    }
+
+    static setActiveCamera(activeCamera, toggle) {
+        if (!toggle) {
+            if (this.doesExist(CamerasManagerInfo.activeCamera)) {
+                CamerasManagerInfo.activeCamera = null;
+                activeCamera.setActive(false);
+                mp.game.cam.renderScriptCams(false, false, 0, false, false);
+            }
+
+            if (this.doesExist(CamerasManagerInfo.interpCamera)) {
+                CamerasManagerInfo.interpCamera.setActive(false);
+                CamerasManagerInfo.interpCamera.destroy();
+                CamerasManagerInfo.interpCamera = null;
+            }
+
+        } else {
+            if (this.doesExist(CamerasManagerInfo.activeCamera)) {
+                CamerasManagerInfo.activeCamera.setActive(false);
+            }
+            CamerasManagerInfo.activeCamera = activeCamera;
+            activeCamera.setActive(true);
+            mp.game.cam.renderScriptCams(true, false, 0, false, false);
+        }
+    }
+
+    static setActiveCameraWithInterp(activeCamera, position, rotation, duration, easeLocation, easeRotation) {
+
+        if (this.doesExist(CamerasManagerInfo.activeCamera)) {
+            CamerasManagerInfo.activeCamera.setActive(false);
+        }
+
+        if (this.doesExist(CamerasManagerInfo.interpCamera)) {
+
+            CamerasManager.fireEvent('stopInterp', CamerasManagerInfo.interpCamera);
+
+            CamerasManagerInfo.interpCamera.setActive(false);
+            CamerasManagerInfo.interpCamera.destroy();
+            CamerasManagerInfo.interpCamera = null;
+        }
+        const interpCamera = mp.cameras.new('default', activeCamera.getCoord(), activeCamera.getRot(2), activeCamera.getFov());
+        activeCamera.setCoord(position.x, position.y, position.z);
+        activeCamera.setRot(rotation.x, rotation.y, rotation.z, 2);
+        activeCamera.stopPointing();
+
+        CamerasManagerInfo.activeCamera = activeCamera;
+        CamerasManagerInfo.interpCamera = interpCamera;
+        activeCamera.setActiveWithInterp(interpCamera.handle, duration, easeLocation, easeRotation);
+        mp.game.cam.renderScriptCams(true, false, 0, false, false);
+
+        CamerasManager.fireEvent('startInterp', CamerasManagerInfo.interpCamera);
+    }
+
+    static doesExist(camera) {
+        return mp.cameras.exists(camera) && camera.doesExist();
+    }
+
+    static get activeCamera() {
+        return CamerasManagerInfo.activeCamera;
+    }
+
+    static get gameplayCam() {
+        if (!CamerasManagerInfo.gameplayCamera) {
+            CamerasManagerInfo.gameplayCamera = mp.cameras.new("gameplay");
+        }
+        return CamerasManagerInfo.gameplayCamera;
     }
 }
 
-mp.events.add("ShowWeaponPurchasedMessage", (title, weaponName, weaponHash, time = 5000) => {
-    if (bigMessageScaleform == null) bigMessageScaleform = new messageScaleform("mp_big_message_freemode");
-    bigMessageScaleform.callFunction("SHOW_WEAPON_PURCHASED", title, weaponName, weaponHash);
+const proxyHandler = {
+    get: (target, name, receiver) => typeof CamerasManager[name] !== 'undefined' ? CamerasManager[name] : CamerasManagerInfo.cameras.get(name)
+};
 
-    bigMsgInit = Date.now();
-    bigMsgDuration = time;
-    bigMsgAnimatedOut = false;
-});
+exports = new Proxy({}, proxyHandler);
 
-mp.events.add("ShowPlaneMessage", (title, planeName, planeHash, time = 5000) => {
-    if (bigMessageScaleform == null) bigMessageScaleform = new messageScaleform("mp_big_message_freemode");
-    bigMessageScaleform.callFunction("SHOW_PLANE_MESSAGE", title, planeName, planeHash);
+/*
+    OTHER
+*/
 
-    bigMsgInit = Date.now();
-    bigMsgDuration = time;
-    bigMsgAnimatedOut = false;
-});
+const Natives = {
+    SWITCH_OUT_PLAYER: '0xAAB3200ED59016BC',
+    SWITCH_IN_PLAYER: '0xD8295AF639FD9CB8',
+    IS_PLAYER_SWITCH_IN_PROGRESS: '0xD9D2CFFF49FAB35F'
+};
+let gui;
+mp.events.add('moveSkyCamera', moveFromToAir);
 
-mp.events.add("ShowShardMessage", (title, message, titleColor, bgColor, time = 5000) => {
-    if (bigMessageScaleform == null) bigMessageScaleform = new messageScaleform("mp_big_message_freemode");
-    bigMessageScaleform.callFunction("SHOW_SHARD_CENTERED_MP_MESSAGE", title, message, titleColor, bgColor);
+function waitForCamSwitch() {
+  return new Promise((resolve) => {
+    const interval = setInterval(() => {
+      if (!mp.game.invoke(Natives.IS_PLAYER_SWITCH_IN_PROGRESS)) {
+        clearInterval(interval)
+		localPlayer.isFreeze = false;
+        localPlayer.freezePosition(false);
+      }
+    }, 400)
+  })
+}
 
-    bigMsgInit = Date.now();
-    bigMsgDuration = time;
-    bigMsgAnimatedOut = false;
-});
+function moveFromToAir(player, moveTo, switchType, showGui) {   
+    /*
+        switchType: 0 - 3
 
-mp.events.add("ShowMidsizedMessage", (title, message, time = 5000) => {
-    if (midsizedMessageScaleform == null) midsizedMessageScaleform = new messageScaleform("midsized_message");
-    midsizedMessageScaleform.callFunction("SHOW_MIDSIZED_MESSAGE", title, message);
+        0: 1 step towards ped
+        1: 3 steps out from ped (Recommended)
+        2: 1 step out from ped
+        3: 1 step towards ped
+    */
+   switch (moveTo) {
+       case 'up':
+            if (showGui == false) {
+				if(hud_browser) {
+					hud_browser.destroy();
+					hud_browser = null;
+					allowBinds = [];
+				}
+				hideHud = true;
+				mp.game.ui.displayRadar(false);
+                gui = 'false';
+            };
+            mp.game.invoke(Natives.SWITCH_OUT_PLAYER, player.handle, 0, parseInt(switchType));
+           break;
+       case 'down':
+            if (gui == 'false') {
+                checkCamInAir();
+            };
+            mp.game.invoke(Natives.SWITCH_IN_PLAYER, player.handle);
+           break;
+   
+       default:
+           break;
+   }
+}
 
-    msgInit = Date.now();
-    msgDuration = time;
-    msgAnimatedOut = false;
-});
-
-mp.events.add("ShowMidsizedShardMessage", (title, message, bgColor, useDarkerShard, condensed, time = 5000) => {
-    if (midsizedMessageScaleform == null) midsizedMessageScaleform = new messageScaleform("midsized_message");
-    midsizedMessageScaleform.callFunction("SHOW_SHARD_MIDSIZED_MESSAGE", title, message, bgColor, useDarkerShard, condensed);
-
-    msgInit = Date.now();
-    msgDuration = time;
-    msgAnimatedOut = false;
-    msgBgColor = bgColor;
-});
-
-mp.events.add("render", () => {
-    if (midsizedMessageScaleform != null) {
-        midsizedMessageScaleform.renderFullscreen();
-
-        if (msgInit > 0 && Date.now() - msgInit > msgDuration) {
-            if (!msgAnimatedOut) {
-                midsizedMessageScaleform.callFunction("SHARD_ANIM_OUT", msgBgColor);
-                msgAnimatedOut = true;
-                msgDuration += 750;
-            } else {
-                msgInit = 0;
-                midsizedMessageScaleform.dispose();
-                midsizedMessageScaleform = null;
-            }
-        }
+// Checks whether the camera is in the air. If so, then reset the timer
+function checkCamInAir() {
+    if(mp.game.invoke(Natives.IS_PLAYER_SWITCH_IN_PROGRESS)) {
+        setTimeout(() => {
+            checkCamInAir();
+        }, 400);
+    }else{
+		if (!hud_browser) {
+			hud_browser = mp.browsers.new("package://CEF/hud/index.html");
+			hud_browser.execute('newcfg(0,0); newcfg(1,0); newcfg(2,0); newcfg(3,1);');
+			
+			/*if(!startSound) {
+				setTimeout(() => {
+					//if(hud_browser) hud_browser.execute('playSound("betaStart", "0.1");');
+					startSound = true;
+				}, 2500);
+			}*/
+			
+			restoreBinds();
+			
+			hideHud = false;
+		}
+		mp.game.ui.displayRadar(true);
+		gui = 'true';
     }
+}
+
+mp.events.add('browserCreated', (hud_browser) => {
+	updateFastInv();
+});
+
+function camFocusOnPlayer() {
+	mp.game.invoke(Natives.SWITCH_IN_PLAYER, localPlayer.handle);
 	
-    if (bigMessageScaleform != null) {
-        bigMessageScaleform.renderFullscreen();
+	var pos = new mp.Vector3(916.4735,-3244.5046,-96.8637);
 
-        if (bigMsgInit > 0 && Date.now() - bigMsgInit > bigMsgDuration) {
-            if (!bigMsgAnimatedOut) {
-                bigMessageScaleform.callFunction("TRANSITION_OUT");
-                bigMsgAnimatedOut = true;
-                bigMsgDuration += 750;
-            } else {
-                bigMsgInit = 0;
-                bigMessageScaleform.dispose();
-                bigMessageScaleform = null;
-            }
-        }
-    }
-});
+	var rot = new mp.Vector3();
+	rot.z = localPlayer.heading + 180;
+	let mycam = mp.cameras.new('customize', pos, rot, 90.0);
+	mycam.setActive(true);
+	mp.game.cam.renderScriptCams(true, false, 3000, true, false);
+}
+mp.events.add("camFocusOnPlayer", camFocusOnPlayer);
 
-mp.game.ui.messages = {
-    showShard: (title, message, titleColor, bgColor, time = 5000) => mp.events.call("ShowShardMessage", title, message, titleColor, bgColor, time),
-    showWeaponPurchased: (title, weaponName, weaponHash, time = 5000) => mp.events.call("ShowWeaponPurchasedMessage", title, weaponName, weaponHash, time),
-    showPlane: (title, planeName, planeHash, time = 5000) => mp.events.call("ShowPlaneMessage", title, planeName, planeHash, time),
-    showMidsized: (title, message, time = 5000) => mp.events.call("ShowMidsizedMessage", title, message, time),
-    showMidsizedShard: (title, message, bgColor, useDarkerShard, condensed, time = 5000) => mp.events.call("ShowMidsizedShardMessage", title, message, bgColor, useDarkerShard, condensed, time)
-};
+function camFocusOnHead() {
+	var pos = new mp.Vector3(916.4735,-3244.5046,-96.8637);
+	//pos.y -= 0.3;
+	pos.z += 0.3;
+	var rot = new mp.Vector3();
+	rot.z = localPlayer.heading + 180;
+	let mycam = mp.cameras.new('customize', pos, rot, 90.0);
+	mycam.setActive(true);
+	mp.game.cam.renderScriptCams(true, false, 3000, true, false);
+}
+mp.events.add("camFocusOnHead", camFocusOnHead);
+
+function camFocusOnHeadDetail() {
+	var pos = new mp.Vector3(916.4735,-3244.5046,-96.8637);
+	pos.y += 1.0;
+	pos.z += 0.6;
+	var rot = new mp.Vector3();
+	rot.z = localPlayer.heading + 180;
+	let mycam = mp.cameras.new('customize', pos, rot, 90.0);
+	mycam.setActive(true);
+	mp.game.cam.renderScriptCams(true, false, 3000, true, false);
+}
+mp.events.add("camFocusOnHeadDetail", camFocusOnHeadDetail);
+
+function camFocusOnBody() {
+	var pos = new mp.Vector3(916.4735,-3244.5046,-96.8637);
+	pos.y += 0.7;
+	pos.z += 0.3;
+	var rot = new mp.Vector3();
+	rot.z = localPlayer.heading + 180;
+	let mycam = mp.cameras.new('customize', pos, rot, 90.0);
+	mycam.setActive(true);
+	mp.game.cam.renderScriptCams(true, false, 3000, true, false);
+}
+mp.events.add("camFocusOnBody", camFocusOnBody);
+
+function camFocusOnBodyDetail() {
+	var pos = new mp.Vector3(916.4735,-3244.5046,-96.8637);
+	pos.y += 1.0;
+	pos.z += 0.35;
+	var rot = new mp.Vector3();
+	rot.z = localPlayer.heading + 180;
+	let mycam = mp.cameras.new('customize', pos, rot, 90.0);
+	mycam.setActive(true);
+	mp.game.cam.renderScriptCams(true, false, 3000, true, false);
+}
+mp.events.add("camFocusOnBodyDetail", camFocusOnBodyDetail);
+
+function setDefaultCam() {
+	mp.game.ui.setMinimapVisible(false);
+	mp.game.ui.displayRadar(true);
+
+	localPlayer.freezePosition(false); // freezes the client at the current position
+	localPlayer.isFreeze = false;
+
+	let mycam = mp.cameras.new('gameplay', new mp.Vector3(0, 0, 300), new mp.Vector3(), 90.0);
+	mycam.setActive(false);
+	mp.game.cam.renderScriptCams(false, false, 0, true, false);
+}
+mp.events.add("setDefaultCam", setDefaultCam);
 }

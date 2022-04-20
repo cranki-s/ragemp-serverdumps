@@ -1,578 +1,1246 @@
 {
-var imInZone = false;
+// REQUESTING TRAIN MODELS
 
-var hexZoneColors = {
-	"1":{"color":"#E13B3B"},
-	"2":{"color":"#79CE79"},
-	"3":{"color":"#64B8E7"},
-	"4":{"color":"#F1F1F1"},
-	"5":{"color":"#EFCA57"},
-	"6":{"color":"#C65859"},
-	"7":{"color":"#A074B3"},
-	"8":{"color":"#FF81C8"},
-	"9":{"color":"#F6A480"},
-	"10":{"color":"#B6968B"},
-	"11":{"color":"#91CFAA"},
-	"12":{"color":"#78ADB3"},
-	"13":{"color":"#D4D2E7"},
-	"14":{"color":"#94849E"},
-	"15":{"color":"#71C8C1"},
-	"16":{"color":"#D8C69E"},
-	"17":{"color":"#EC9259"},
-	"18":{"color":"#9ECDEB"},
-	"19":{"color":"#B6698D"},
-	"20":{"color":"#94917F"},
-	"21":{"color":"#AA7B67"},
-	"22":{"color":"#B4AAAC"},
-	"23":{"color":"#E9939F"},
-	"24":{"color":"#BED863"},
-	"25":{"color":"#16815C"},
-	"26":{"color":"#80C7FF"},
-	"27":{"color":"#AE44E7"},
-	"28":{"color":"#D0AC18"},
-	"29":{"color":"#4E69B1"},
-	"30":{"color":"#34A9BB"},
-	"31":{"color":"#BDA184"},
-	"32":{"color":"#CCE1FE"},
-	"33":{"color":"#F1F19B"},
-	"34":{"color":"#ED90A3"},
-	"35":{"color":"#F98E8E"},
-	"36":{"color":"#FDF0AA"},
-	"37":{"color":"#F1F1F1"},
-	"38":{"color":"#3675BC"},
-	"39":{"color":"#9F9F9F"},
-	"40":{"color":"#555555"},
-	"41":{"color":"#F19D9D"},
-	"42":{"color":"#6DB8D6"},
-	"43":{"color":"#AFEDAE"},
-	"44":{"color":"#FEA65F"},
-	"45":{"color":"#F0F0F0"},
-	"46":{"color":"#EBEF28"},
-	"47":{"color":"#FE9917"},
-	"48":{"color":"#F745A5"},
-	"49":{"color":"#E03A3A"},
-	"50":{"color":"#896CE2"},
-	"51":{"color":"#FE8A5B"},
-	"52":{"color":"#426D42"},
-	"53":{"color":"#B2DDF2"},
-	"54":{"color":"#39647A"},
-	"55":{"color":"#9F9F9F"},
-	"56":{"color":"#837232"},
-	"57":{"color":"#65B9E7"},
-	"58":{"color":"#4B4176"},
-	"59":{"color":"#E03A3A"},
-	"60":{"color":"#F0CB58"},
-	"61":{"color":"#CE3F99"},
-	"62":{"color":"#CECECE"},
-	"63":{"color":"#286B9E"},
-	"64":{"color":"#D77A1A"},
-	"65":{"color":"#8E8393"},
-	"66":{"color":"#F0CB57"},
-	"67":{"color":"#64B9E7"},
-	"68":{"color":"#65B9E7"},
-	"69":{"color":"#79CD79"},
-	"70":{"color":"#F0CB57"},
-	"71":{"color":"#F0CB58"},
-	"72":{"color":"#000000"},
-	"73":{"color":"#EFCA57"},
-	"74":{"color":"#64B9E7"},
-	"75":{"color":"#E03A3A"},
-	"76":{"color":"#782424"},
-	"77":{"color":"#65B8E6"},
-	"78":{"color":"#3A647A"},
-	"79":{"color":"#E13B3B"},
-	"80":{"color":"#65B9E6"},
-	"81":{"color":"#F2A30C"},
-	"82":{"color":"#A4CBA9"},
-	"83":{"color":"#A753F1"},
-	"84":{"color":"#65B8E6"},
-	"85":{"color":"#000000"}
+var trainModels = ["2te116", "vagon1", "vagon2", "vagon3", "vagon4","vagon5", "m_81_7171", "m_81_7172", "s_lastochka1", "s_lastochka2"];
+function requestTrainModel(model) {
+	let tempModel = mp.game.joaat(model);
+	if(!mp.game.streaming.hasModelLoaded(tempModel)) {
+		mp.game.streaming.requestModel(tempModel);
+		while(!mp.game.streaming.hasModelLoaded(tempModel)) mp.game.wait(0);
+	}
 }
+for (let i = 0; i < trainModels.length; i++) { requestTrainModel(trainModels[i]); }
 
-var clanCapters = [];
+// REQUESTING TRAIN MODELS END
 
-function refreshCapters(newValue) {
-	if(typeof(newValue) !== "undefined") clanCapters = newValue;
-	else if(typeof(mp.world.data.capters) !== "undefined") clanCapters = mp.world.data.capters;
-	//chatAPI.sysPush("<span style=\"color:#FF6146;\"> * "+Object.keys(clanCapters).length+" | "+JSON.stringify(clanCapters)+"</span>");
-}
-
-mp.events.add("worldDataChanged", (key, oldValue, newValue) => {
-	if(key == "capters") refreshCapters();
-});
-
-var clanZones = false;
-/*
-var clanZones = {
-	"port":{"pos":new mp.Vector3(1017.3205,-3114.0554,5.9008),"own":{"id":0,"name":"false","color":"4"},"rot":0,"radius":240,"blip":false,"marker":false,"check":false},
-	"prom_zone":{"pos":new mp.Vector3(915.6882,-2270.1589,30.5534),"own":{"id":0,"name":"false","color":"4"},"rot":0,"radius":200,"blip":false,"marker":false,"check":false},
-	"prom_zone2":{"pos":new mp.Vector3(947.757,-1901.9379,31.2251),"own":{"id":0,"name":"false","color":"4"},"rot":0,"radius":165,"blip":false,"marker":false,"check":false},
-	"gasneft":{"pos":new mp.Vector3(1710.4633,-1678.4237,112.5605),"own":{"id":0,"name":"false","color":"4"},"rot":0,"radius":240,"blip":false,"marker":false,"check":false},
-	"utilization":{"pos":new mp.Vector3(1579.5038,-2181.2817,77.3682),"own":{"id":0,"name":"false","color":"4"},"rot":0,"radius":240,"blip":false,"marker":false,"check":false},
-	"burro_hitz":{"pos":new mp.Vector3(1295.1827,-1794.2158,47.1485),"own":{"id":0,"name":"false","color":"4"},"rot":0,"radius":115,"blip":false,"marker":false,"check":false},
-	"rancho_inno":{"pos":new mp.Vector3(479.0005,-1659.7737,29.2475),"own":{"id":0,"name":"false","color":"4"},"rot":0,"radius":200,"blip":false,"marker":false,"check":false},
-	"devis_strip":{"pos":new mp.Vector3(143.0299,-1435.9399,29.2884),"own":{"id":0,"name":"false","color":"4"},"rot":0,"radius":200,"blip":false,"marker":false,"check":false},
-	"groove":{"pos":new mp.Vector3(-11.8437,-1804.2772,27.2937),"own":{"id":0,"name":"false","color":"4"},"rot":0,"radius":200,"blip":false,"marker":false,"check":false},
-	"under_groove":{"pos":new mp.Vector3(-200.2635,-1510.7063,31.6289),"own":{"id":0,"name":"false","color":"4"},"rot":0,"radius":150,"blip":false,"marker":false,"check":false},
-	"vagos":{"pos":new mp.Vector3(317.7193,-2027.3,20.6397),"own":{"id":0,"name":"false","color":"4"},"rot":0,"radius":200,"blip":false,"marker":false,"check":false},
-	"arena":{"pos":new mp.Vector3(-290.3223,-1965.6022,25.561),"own":{"id":0,"name":"false","color":"4"},"rot":0,"radius":120,"blip":false,"marker":false,"check":false},
-	"la_puerta":{"pos":new mp.Vector3(-1084.6169,-1538.6398,4.5783),"own":{"id":0,"name":"false","color":"4"},"rot":0,"radius":150,"blip":false,"marker":false,"check":false},
-	"vesp_cannals":{"pos":new mp.Vector3(-1018.6486,-1063.6232,-1.0727),"own":{"id":0,"name":"false","color":"4"},"rot":0,"radius":150,"blip":false,"marker":false,"check":false},
-	"little_seoul":{"pos":new mp.Vector3(-634.2243,-1137.4353,10.5785),"own":{"id":0,"name":"false","color":"4"},"rot":0,"radius":130,"blip":false,"marker":false,"check":false},
-	"carrier":{"pos":new mp.Vector3(2969.8784,2853.8699,54.699),"own":{"id":0,"name":"false","color":"4"},"rot":0,"radius":240,"blip":false,"marker":false,"check":false}
-};
-*/
-
-function refreshZones(newValue) {
-	if(typeof(newValue) !== "undefined") {
-		if(!clanZones) {
-			for (var i in newValue) {
-				let tempZone = newValue[i];
-				
-				let blip = mp.blips.new(9, new mp.Vector3(tempZone.pos.x, tempZone.pos.y, tempZone.pos.z),
-				{
-					scale: 1,
-					color: tempZone.own.color,
-					alpha: 50,
-					shortRange: true,
-					rotation: tempZone.rot,
-					dimension: 0,
-					radius: tempZone.radius
-				});
-				tempZone.blip = blip;
-				
-				let blipInfo = mp.blips.new(674, new mp.Vector3(tempZone.pos.x, tempZone.pos.y, tempZone.pos.z),
-				{
-					name: "Территория банды "+tempZone.own.name,
-					scale: 1.9,
-					color: tempZone.own.color,
-					alpha: 100,
-					shortRange: true,
-					dimension: 0
-				});
-				blipInfo.setCategory(11);
-				tempZone.blipInfo = blipInfo;
-				
-				let rgbColor = [255, 255, 255, 0];
-				if(typeof(tempZone.war.id) !== "undefined" && typeof(hexZoneColors[tempZone.own.color].color) !== "undefined") rgbColor = [hexToRgb(hexZoneColors[tempZone.own.color].color).r, hexToRgb(hexZoneColors[tempZone.own.color].color).g, hexToRgb(hexZoneColors[tempZone.own.color].color).b, 100];
-				
-				let marker = mp.markers.new(28, new mp.Vector3(tempZone.pos.x, tempZone.pos.y, tempZone.pos.z), tempZone.radius,
-				{
-					direction: new mp.Vector3(0, 0, 0),
-					rotation: new mp.Vector3(0, 180, 0),
-					color: rgbColor,
-					visible: true,
-					dimension: 0
-				});
-				tempZone.marker = marker;
-				
-				/*mp.markers.new(28, new mp.Vector3(tempZone.pos.x, tempZone.pos.y, tempZone.pos.z), tempZone.radius, // DEBUG
-				{
-					direction: new mp.Vector3(0, 0, 0),
-					rotation: new mp.Vector3(0, 180, 0),
-					color: [0, 0, 200, 50],
-					visible: true,
-					dimension: 0
-				});*/
-
-				tempZone.shape = mp.colshapes.newSphere(parseFloat(tempZone.pos.x), parseFloat(tempZone.pos.y), parseFloat(tempZone.pos.z), parseFloat(tempZone.radius), 0);
-			}
-			clanZones = newValue;
-		}else{
-			for (var i in clanZones) {
-				let tempZone = clanZones[i];
-				let tempNewVaule = newValue[i];
-				if(mp.blips.exists(tempZone.blip)) tempZone.blip.destroy();
-				if(mp.blips.exists(tempZone.blipInfo)) tempZone.blipInfo.destroy();
-				if(mp.markers.exists(tempZone.marker)) tempZone.marker.destroy();
-				
-				tempZone.own = tempNewVaule.own;
-				tempZone.war = tempNewVaule.war;
-				
-				let blip = mp.blips.new(9, new mp.Vector3(tempNewVaule.pos.x, tempNewVaule.pos.y, tempNewVaule.pos.z),
-				{
-					scale: 1,
-					color: tempNewVaule.own.color,
-					alpha: 50,
-					shortRange: true,
-					rotation: tempNewVaule.rot,
-					dimension: 0,
-					radius: tempNewVaule.radius
-				});
-				tempZone.blip = blip;
-				
-				let blipInfo = mp.blips.new(674, new mp.Vector3(tempNewVaule.pos.x, tempNewVaule.pos.y, tempNewVaule.pos.z),
-				{
-					name: "Территория банды "+tempNewVaule.own.name,
-					scale: 1.9,
-					color: tempZone.own.color,
-					alpha: 100,
-					shortRange: true,
-					dimension: 0
-				});
-				blipInfo.setCategory(11);
-				tempZone.blipInfo = blipInfo;
-				
-				let rgbColor = [255, 255, 255, 0];
-				if(typeof(tempNewVaule.war.id) !== "undefined" && typeof(hexZoneColors[tempNewVaule.own.color].color) !== "undefined") rgbColor = [hexToRgb(hexZoneColors[tempNewVaule.own.color].color).r, hexToRgb(hexZoneColors[tempNewVaule.own.color].color).g, hexToRgb(hexZoneColors[tempNewVaule.own.color].color).b, 100];
-				
-				let marker = mp.markers.new(28, new mp.Vector3(tempNewVaule.pos.x, tempNewVaule.pos.y, tempNewVaule.pos.z), tempNewVaule.radius,
-				{
-					direction: new mp.Vector3(0, 0, 0),
-					rotation: new mp.Vector3(0, 180, 0),
-					color: rgbColor,
-					visible: true,
-					dimension: 0
-				});
-				tempZone.marker = marker;
-			}
-		}
+var trainBlip = false;
+var curMissionID = false, curSimaKey = 0, curSimaphore = {}, curTrainPointKey = 0, curTrainPoint = {};
+var missionIDParams = {
+	"0":{
+		"accel":1.5,
+		"dccel":2.5,
+		"maxSpeed": 45, // 160
+		"simaphores":[
+			{"color":"green","speed":60,"pos":new mp.Vector3(666.7604,-926.8142,21.9617)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(666.8023,-1126.2014,24.3865)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(685.8439,-1385.2883,23.8298)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(666.8714,-1059.9115,22.5071)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(666.8312,-926.7221,21.9663)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(667.3271,-754.4077,23.7542)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(863.2278,-473.5885,30.0689)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1363.0642,-947.9285,57.063)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1794.0404,-791.5458,91.3597)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(1986.9216,-745.7905,97.0174)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2285.0051,-505.0648,95.4889)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2433.4104,-330.1152,93.8006)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2562.8894,-109.8985,93.3385)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2651.0195,859.6979,77.7321)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2610.9224,1623.5208,28.0806)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2611.1536,2047.0511,32.2204)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2640.7051,2973.8308,40.4618)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2495.2268,5730.3525,60.8899)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(2341.1006,5947.7983,60.8442)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(1620.468,6360.2705,40.9654)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(-430.0746,4015.873,81.9504)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(-319.1938,3724.9766,68.616)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(584.2336,3180.3181,42.4529)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(1186.0214,3251.5437,39.7671)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(1935.4368,3579.3589,38.4319)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2540.5007,2841.6323,38.7513)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2562.3579,-109.8987,93.338)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2433.2126,-329.8372,93.7976)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(2285.095,-505.2754,95.4958)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(1987.0186,-745.4688,97.0217)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1794.2385,-791.7618,91.3609)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1363.2706,-948.1615,57.08)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(863.1822,-473.5239,30.0641)}
+		],
+		"points":[
+			{"pos":new mp.Vector3(672.8807,-681.2565,25.1953),"color":[255,150,0,150],"type":"pogruzkaTovar","drawColor":[0,0,0,0],"heading":354.926,"width":4,"height":18,"dir":dirGenerator(356.926)},
+			{"pos":new mp.Vector3(-168.8703,6113.4219,31.5801),"color":[255,150,0,150],"type":"razgruzkaTovar","drawColor":[0,0,0,0],"heading":134.296,"width":4,"height":18,"dir":dirGenerator(134.296)},
+			{"pos":new mp.Vector3(664.5845,-823.9052,23.3681),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":180.287,"width":4,"height":18,"dir":dirGenerator(180.287)}
+		]
+	},
+	"1":{
+		"accel":1.5,
+		"dccel":2.5,
+		"maxSpeed": 45, // 160
+		"simaphores":[
+			{"color":"green","speed":60,"pos":new mp.Vector3(666.7604,-926.8142,21.9617)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(666.8023,-1126.2014,24.3865)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(685.8439,-1385.2883,23.8298)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(666.8714,-1059.9115,22.5071)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(666.8312,-926.7221,21.9663)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(667.3271,-754.4077,23.7542)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(863.2278,-473.5885,30.0689)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1363.0642,-947.9285,57.063)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1794.0404,-791.5458,91.3597)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(1986.9216,-745.7905,97.0174)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2285.0051,-505.0648,95.4889)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2433.4104,-330.1152,93.8006)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2562.8894,-109.8985,93.3385)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2651.0195,859.6979,77.7321)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2610.9224,1623.5208,28.0806)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2611.1536,2047.0511,32.2204)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2640.7051,2973.8308,40.4618)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2495.2268,5730.3525,60.8899)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(2341.1006,5947.7983,60.8442)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(1620.468,6360.2705,40.9654)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(-430.0746,4015.873,81.9504)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(-319.1938,3724.9766,68.616)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(584.2336,3180.3181,42.4529)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(1186.0214,3251.5437,39.7671)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(1935.4368,3579.3589,38.4319)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2540.5007,2841.6323,38.7513)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2562.3579,-109.8987,93.338)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2433.2126,-329.8372,93.7976)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(2285.095,-505.2754,95.4958)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(1987.0186,-745.4688,97.0217)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1794.2385,-791.7618,91.3609)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1363.2706,-948.1615,57.08)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(863.1822,-473.5239,30.0641)}
+		],
+		"points":[
+			{"pos":new mp.Vector3(672.8807,-681.2565,25.1953),"color":[255,150,0,150],"type":"pogruzkaTovar","drawColor":[0,0,0,0],"heading":354.926,"width":4,"height":18,"dir":dirGenerator(356.926)},
+			{"pos":new mp.Vector3(-168.8703,6113.4219,31.5801),"color":[255,150,0,150],"type":"razgruzkaTovar","drawColor":[0,0,0,0],"heading":134.296,"width":4,"height":18,"dir":dirGenerator(134.296)},
+			{"pos":new mp.Vector3(664.5845,-823.9052,23.3681),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":180.287,"width":4,"height":18,"dir":dirGenerator(180.287)}
+		]
+	},
+	"2":{
+		"accel":1.5,
+		"dccel":2.5,
+		"maxSpeed": 45, // 160
+		"simaphores":[
+			{"color":"green","speed":60,"pos":new mp.Vector3(666.7604,-926.8142,21.9617)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(666.8023,-1126.2014,24.3865)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(685.8439,-1385.2883,23.8298)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(666.8714,-1059.9115,22.5071)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(666.8312,-926.7221,21.9663)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(667.3271,-754.4077,23.7542)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(863.2278,-473.5885,30.0689)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1363.0642,-947.9285,57.063)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1794.0404,-791.5458,91.3597)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(1986.9216,-745.7905,97.0174)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2285.0051,-505.0648,95.4889)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2433.4104,-330.1152,93.8006)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2562.8894,-109.8985,93.3385)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2651.0195,859.6979,77.7321)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2610.9224,1623.5208,28.0806)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2611.1536,2047.0511,32.2204)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2640.7051,2973.8308,40.4618)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2495.2268,5730.3525,60.8899)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(2341.1006,5947.7983,60.8442)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(1620.468,6360.2705,40.9654)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(-430.0746,4015.873,81.9504)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(-319.1938,3724.9766,68.616)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(584.2336,3180.3181,42.4529)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(1186.0214,3251.5437,39.7671)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(1935.4368,3579.3589,38.4319)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2540.5007,2841.6323,38.7513)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2562.3579,-109.8987,93.338)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2433.2126,-329.8372,93.7976)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(2285.095,-505.2754,95.4958)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(1987.0186,-745.4688,97.0217)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1794.2385,-791.7618,91.3609)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1363.2706,-948.1615,57.08)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(863.1822,-473.5239,30.0641)}
+		],
+		"points":[
+			{"pos":new mp.Vector3(672.8807,-681.2565,25.1953),"color":[255,150,0,150],"type":"pogruzkaTovar","drawColor":[0,0,0,0],"heading":354.926,"width":4,"height":18,"dir":dirGenerator(356.926)},
+			{"pos":new mp.Vector3(-168.8703,6113.4219,31.5801),"color":[255,150,0,150],"type":"razgruzkaTovar","drawColor":[0,0,0,0],"heading":134.296,"width":4,"height":18,"dir":dirGenerator(134.296)},
+			{"pos":new mp.Vector3(664.5845,-823.9052,23.3681),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":180.287,"width":4,"height":18,"dir":dirGenerator(180.287)}
+		]
+	},
+	"3":{
+		"accel":1.2,
+		"dccel":2.2,
+		"maxSpeed": 35, // 130
+		"simaphores":[
+			{"color":"green","speed":40,"pos":new mp.Vector3(666.7604,-926.8142,21.9617)},
+			{"color":"green","speed":40,"pos":new mp.Vector3(666.8023,-1126.2014,24.3865)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(685.8439,-1385.2883,23.8298)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(666.8714,-1059.9115,22.5071)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(666.8312,-926.7221,21.9663)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(667.3271,-754.4077,23.7542)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(863.2278,-473.5885,30.0689)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(1363.0642,-947.9285,57.063)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(1794.0404,-791.5458,91.3597)},
+			{"color":"green","speed":90,"pos":new mp.Vector3(1986.9216,-745.7905,97.0174)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(2285.0051,-505.0648,95.4889)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(2433.4104,-330.1152,93.8006)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(2562.8894,-109.8985,93.3385)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(2651.0195,859.6979,77.7321)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(2610.9224,1623.5208,28.0806)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(2611.1536,2047.0511,32.2204)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(2640.7051,2973.8308,40.4618)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(2495.2268,5730.3525,60.8899)},
+			{"color":"green","speed":90,"pos":new mp.Vector3(2341.1006,5947.7983,60.8442)},
+			{"color":"green","speed":90,"pos":new mp.Vector3(1620.468,6360.2705,40.9654)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(-430.0746,4015.873,81.9504)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(-319.1938,3724.9766,68.616)},
+			{"color":"green","speed":90,"pos":new mp.Vector3(584.2336,3180.3181,42.4529)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(1186.0214,3251.5437,39.7671)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(1935.4368,3579.3589,38.4319)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(2540.5007,2841.6323,38.7513)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(2562.3579,-109.8987,93.338)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(2433.2126,-329.8372,93.7976)},
+			{"color":"green","speed":90,"pos":new mp.Vector3(2285.095,-505.2754,95.4958)},
+			{"color":"green","speed":90,"pos":new mp.Vector3(1987.0186,-745.4688,97.0217)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1794.2385,-791.7618,91.3609)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1363.2706,-948.1615,57.08)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(863.1822,-473.5239,30.0641)}
+		],
+		"points":[
+			{"pos":new mp.Vector3(672.8807,-681.2565,25.1953),"color":[255,150,0,150],"type":"pogruzkaTovar","drawColor":[0,0,0,0],"heading":354.926,"width":4,"height":18,"dir":dirGenerator(356.926)},
+			{"pos":new mp.Vector3(-168.8703,6113.4219,31.5801),"color":[255,150,0,150],"type":"razgruzkaTovar","drawColor":[0,0,0,0],"heading":134.296,"width":4,"height":18,"dir":dirGenerator(134.296)},
+			{"pos":new mp.Vector3(664.5845,-823.9052,23.3681),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":180.287,"width":4,"height":18,"dir":dirGenerator(180.287)}
+		]
+	},
+	"4":{
+		"accel":1.5,
+		"dccel":2.5,
+		"maxSpeed": 45, // 160
+		"simaphores":[
+			{"color":"green","speed":60,"pos":new mp.Vector3(666.7604,-926.8142,21.9617)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(666.8023,-1126.2014,24.3865)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(685.8439,-1385.2883,23.8298)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(666.8714,-1059.9115,22.5071)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(666.8312,-926.7221,21.9663)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(667.3271,-754.4077,23.7542)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(863.2278,-473.5885,30.0689)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1363.0642,-947.9285,57.063)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1794.0404,-791.5458,91.3597)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(1986.9216,-745.7905,97.0174)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2285.0051,-505.0648,95.4889)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2433.4104,-330.1152,93.8006)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2562.8894,-109.8985,93.3385)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2651.0195,859.6979,77.7321)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2610.9224,1623.5208,28.0806)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2611.1536,2047.0511,32.2204)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2640.7051,2973.8308,40.4618)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2495.2268,5730.3525,60.8899)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(2341.1006,5947.7983,60.8442)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(1620.468,6360.2705,40.9654)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(-430.0746,4015.873,81.9504)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(-319.1938,3724.9766,68.616)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(584.2336,3180.3181,42.4529)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(1186.0214,3251.5437,39.7671)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(1935.4368,3579.3589,38.4319)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2540.5007,2841.6323,38.7513)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2562.3579,-109.8987,93.338)},
+			{"color":"green","speed":150,"pos":new mp.Vector3(2433.2126,-329.8372,93.7976)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(2285.095,-505.2754,95.4958)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(1987.0186,-745.4688,97.0217)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1794.2385,-791.7618,91.3609)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1363.2706,-948.1615,57.08)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(863.1822,-473.5239,30.0641)}
+		],
+		"points":[
+			{"pos":new mp.Vector3(672.8807,-681.2565,25.1953),"color":[255,150,0,150],"type":"pogruzkaTovar","drawColor":[0,0,0,0],"heading":354.926,"width":4,"height":18,"dir":dirGenerator(356.926)},
+			{"pos":new mp.Vector3(-168.8703,6113.4219,31.5801),"color":[255,150,0,150],"type":"razgruzkaTovar","drawColor":[0,0,0,0],"heading":134.296,"width":4,"height":18,"dir":dirGenerator(134.296)},
+			{"pos":new mp.Vector3(664.5845,-823.9052,23.3681),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":180.287,"width":4,"height":18,"dir":dirGenerator(180.287)}
+		]
+	},
+	"5":{
+		"accel":1.1,
+		"dccel":2.1,
+		"maxSpeed": 30, // 115
+		"simaphores":[
+			{"color":"green","speed":40,"pos":new mp.Vector3(666.7604,-926.8142,21.9617)},
+			{"color":"green","speed":40,"pos":new mp.Vector3(666.8023,-1126.2014,24.3865)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(685.8439,-1385.2883,23.8298)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(666.8714,-1059.9115,22.5071)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(666.8312,-926.7221,21.9663)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(667.3271,-754.4077,23.7542)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(863.2278,-473.5885,30.0689)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(1363.0642,-947.9285,57.063)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(1794.0404,-791.5458,91.3597)},
+			{"color":"green","speed":90,"pos":new mp.Vector3(1986.9216,-745.7905,97.0174)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(2285.0051,-505.0648,95.4889)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(2433.4104,-330.1152,93.8006)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(2562.8894,-109.8985,93.3385)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(2651.0195,859.6979,77.7321)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(2610.9224,1623.5208,28.0806)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(2611.1536,2047.0511,32.2204)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(2640.7051,2973.8308,40.4618)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(2495.2268,5730.3525,60.8899)},
+			{"color":"green","speed":90,"pos":new mp.Vector3(2341.1006,5947.7983,60.8442)},
+			{"color":"green","speed":90,"pos":new mp.Vector3(1620.468,6360.2705,40.9654)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(-430.0746,4015.873,81.9504)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(-319.1938,3724.9766,68.616)},
+			{"color":"green","speed":90,"pos":new mp.Vector3(584.2336,3180.3181,42.4529)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(1186.0214,3251.5437,39.7671)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(1935.4368,3579.3589,38.4319)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(2540.5007,2841.6323,38.7513)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(2562.3579,-109.8987,93.338)},
+			{"color":"green","speed":130,"pos":new mp.Vector3(2433.2126,-329.8372,93.7976)},
+			{"color":"green","speed":90,"pos":new mp.Vector3(2285.095,-505.2754,95.4958)},
+			{"color":"green","speed":90,"pos":new mp.Vector3(1987.0186,-745.4688,97.0217)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1794.2385,-791.7618,91.3609)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1363.2706,-948.1615,57.08)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(863.1822,-473.5239,30.0641)}
+		],
+		"points":[
+			{"pos":new mp.Vector3(672.8807,-681.2565,25.1953),"color":[255,150,0,150],"type":"pogruzkaTovar","drawColor":[0,0,0,0],"heading":354.926,"width":4,"height":18,"dir":dirGenerator(356.926)},
+			{"pos":new mp.Vector3(-168.8703,6113.4219,31.5801),"color":[255,150,0,150],"type":"razgruzkaTovar","drawColor":[0,0,0,0],"heading":134.296,"width":4,"height":18,"dir":dirGenerator(134.296)},
+			{"pos":new mp.Vector3(664.5845,-823.9052,23.3681),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":180.287,"width":4,"height":18,"dir":dirGenerator(180.287)}
+		]
+	},
+	"6":{
+		"accel":1.7,
+		"dccel":2.7,
+		"maxSpeed": 50, // 165
+		"simaphores":[
+			{"color":"green","speed":60,"pos":new mp.Vector3(666.7604,-926.8142,21.9617)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(666.8023,-1126.2014,24.3865)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(685.8439,-1385.2883,23.8298)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(666.8714,-1059.9115,22.5071)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(666.8312,-926.7221,21.9663)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(667.3271,-754.4077,23.7542)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(863.2278,-473.5885,30.0689)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1363.0642,-947.9285,57.063)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1794.0404,-791.5458,91.3597)},
+			{"color":"green","speed":120,"pos":new mp.Vector3(1986.9216,-745.7905,97.0174)},
+			{"color":"green","speed":165,"pos":new mp.Vector3(2285.0051,-505.0648,95.4889)},
+			{"color":"green","speed":165,"pos":new mp.Vector3(2433.4104,-330.1152,93.8006)},
+			{"color":"green","speed":165,"pos":new mp.Vector3(2562.8894,-109.8985,93.3385)},
+			{"color":"green","speed":165,"pos":new mp.Vector3(2651.0195,859.6979,77.7321)},
+			{"color":"green","speed":165,"pos":new mp.Vector3(2610.9224,1623.5208,28.0806)},
+			{"color":"green","speed":165,"pos":new mp.Vector3(2611.1536,2047.0511,32.2204)},
+			{"color":"green","speed":165,"pos":new mp.Vector3(2640.7051,2973.8308,40.4618)},
+			{"color":"green","speed":165,"pos":new mp.Vector3(2495.2268,5730.3525,60.8899)},
+			{"color":"green","speed":120,"pos":new mp.Vector3(2341.1006,5947.7983,60.8442)},
+			{"color":"green","speed":120,"pos":new mp.Vector3(1620.468,6360.2705,40.9654)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(-430.0746,4015.873,81.9504)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(-319.1938,3724.9766,68.616)},
+			{"color":"green","speed":120,"pos":new mp.Vector3(584.2336,3180.3181,42.4529)},
+			{"color":"green","speed":165,"pos":new mp.Vector3(1186.0214,3251.5437,39.7671)},
+			{"color":"green","speed":165,"pos":new mp.Vector3(1935.4368,3579.3589,38.4319)},
+			{"color":"green","speed":165,"pos":new mp.Vector3(2540.5007,2841.6323,38.7513)},
+			{"color":"green","speed":165,"pos":new mp.Vector3(2562.3579,-109.8987,93.338)},
+			{"color":"green","speed":165,"pos":new mp.Vector3(2433.2126,-329.8372,93.7976)},
+			{"color":"green","speed":120,"pos":new mp.Vector3(2285.095,-505.2754,95.4958)},
+			{"color":"green","speed":120,"pos":new mp.Vector3(1987.0186,-745.4688,97.0217)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1794.2385,-791.7618,91.3609)},
+			{"color":"green","speed":80,"pos":new mp.Vector3(1363.2706,-948.1615,57.08)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(863.1822,-473.5239,30.0641)}
+		],
+		"points":[
+			{"pos":new mp.Vector3(167.5511,-1984.226,18.3412),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":135.8,"width":4,"height":18,"dir":dirGenerator(135.8)}, // Davis, LS
+			{"pos":new mp.Vector3(672.8807,-681.2565,25.1953),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":344.926,"width":4,"height":18,"dir":dirGenerator(346.926)}, // Baza LS
+			{"pos":new mp.Vector3(1948.8035,-757.6938,97.2607),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":266.620,"width":4,"height":18,"dir":dirGenerator(266.620)}, // Palomino Hilands
+			{"pos":new mp.Vector3(2413.2344,-358.1894,94.3122),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":318.804,"width":4,"height":18,"dir":dirGenerator(318.804)}, // Tataviam Mountains
+			{"pos":new mp.Vector3(2611.0808,1682.9401,27.0501),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":0.837,"width":4,"height":18,"dir":dirGenerator(0.837)}, // Palmer-Taylor Power Station
+			{"pos":new mp.Vector3(2616.2476,2935.9929,39.9680),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":326.221,"width":4,"height":18,"dir":dirGenerator(326.221)}, // Davis Kvarts
+			{"pos":new mp.Vector3(-168.8703,6113.4219,31.5801),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":124.296,"width":4,"height":18,"dir":dirGenerator(124.296)}, // Paleto Bay
+			{"pos":new mp.Vector3(1876.9445,3548.147,38.6613),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":304.406,"width":4,"height":18,"dir":dirGenerator(304.406)}, // Sandy Shoers
+			{"pos":new mp.Vector3(2601.0356,2925.0229,39.9133),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":146.630,"width":4,"height":18,"dir":dirGenerator(146.630)}, // Davis Kvarts
+			{"pos":new mp.Vector3(2312.2134,-470.416,95.4264),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":140.801,"width":4,"height":18,"dir":dirGenerator(140.801)}, // Palomino Hilands
+			{"pos":new mp.Vector3(664.5845,-823.9052,23.3681),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":170.287,"width":4,"height":18,"dir":dirGenerator(170.287)}
+		]
+	},
+	"7":{
+		"accel":3.5,
+		"dccel":4.5,
+		"maxSpeed": 30, // 115
+		"simaphores":[
+			{"color":"green","speed":60,"pos":new mp.Vector3(89.0611,-1703.8025,29.245)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(-252.0017,-1398.595,31.2832)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(-169.9674,-906.2639,20.9692)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(-264.5179,-706.0677,15.6962)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(-449.9084,-666.6399,10.9067)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(-586.5045,-669.999,10.8956)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(-640.117,-674.4955,10.896)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(-1320.5691,-505.949,14.1402)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(-1308.8195,-340.7957,14.1317)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(-1130.5753,-288.265,19.0369)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(-856.7804,-169.1507,19.0538)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(-300.7747,-279.4097,9.1487)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(176.8746,-602.9567,17.7608)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(210.2005,-598.6445,17.7575)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(537.2258,-657.4133,15.3132)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(-736.4852,-1993.7299,-10.2483)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(-757.0671,-2050.1621,-10.2483)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(-872.1282,-2271.6428,-12.6472)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(-1054.7804,-2672.7041,-8.3245)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(-1108.6409,-2755.7356,-8.3259)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(-894.3581,-2368.0115,-12.6472)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(-756.8847,-2068.5618,-10.2483)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(-736.7293,-2012.7206,-10.2473)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(-614.6172,-1563.5548,13.3398)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(222.7843,-585.6506,17.7575)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(-288.298,-375.0762,9.1486)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(-738.4459,-90.3547,19.0377)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(-779.8893,-110.2205,19.0418)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(-1118.3324,-273.9774,19.0369)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(-1291.4191,-334.5381,14.1317)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(-1380.0547,-427.0692,14.1309)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(-603.9919,-676.0796,10.8956)},
+			{"color":"green","speed":110,"pos":new mp.Vector3(-545.7959,-679.1481,10.9001)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(-169.7251,-904.7894,20.9238)},
+			{"color":"green","speed":60,"pos":new mp.Vector3(-169.7251,-904.7894,20.9238)},
+		],
+		"points":[
+			{"pos":new mp.Vector3(104.4209,-1711.101,29.1293),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":49.151,"width":4,"height":22,"dir":dirGenerator(49.151)}, // Davis
+			{"pos":new mp.Vector3(-203.3928,-1019.8647,29.3239),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":338.188,"width":4,"height":22,"dir":dirGenerator(338.188)}, // Pillbox South
+			{"pos":new mp.Vector3(-529.4287,-665.5203,10.9094),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":87.971,"width":4,"height":22,"dir":dirGenerator(87.971)}, // Little Seoul
+			{"pos":new mp.Vector3(-1359.7917,-435.4292,14.1458),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":31.200,"width":4,"height":22,"dir":dirGenerator(31.200)}, // Del Perro
+			{"pos":new mp.Vector3(-787.3124,-130.2345,19.0508),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":299.974,"width":4,"height":22,"dir":dirGenerator(299.974)}, // Portola Drive
+			{"pos":new mp.Vector3(-302.3009,-359.6808,9.1635),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":179.362,"width":4,"height":22,"dir":dirGenerator(179.362)}, // Burton
+			{"pos":new mp.Vector3(243.2628,-1198.4683,38.0761),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":92.307,"width":4,"height":22,"dir":dirGenerator(92.307)}, // Strawberry
+			{"pos":new mp.Vector3(-552.5513,-1297.6134,25.9065),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":152.729,"width":4,"height":22,"dir":dirGenerator(152.729)}, // Puerto del Sol
+			{"pos":new mp.Vector3(-901.4651,-2346.6531,-12.606),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":161.157,"width":4,"height":22,"dir":dirGenerator(161.157)}, // LSIA Parking
+			{"pos":new mp.Vector3(-1109.7587,-2735.3711,-8.3097),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":136.008,"width":4,"height":22,"dir":dirGenerator(136.008)}, // LSIA Terminal 4
+			{"pos":new mp.Vector3(-1057.4897,-2696.7178,-8.2793),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":319.500,"width":4,"height":22,"dir":dirGenerator(319.500)}, // LSIA Terminal 4
+			{"pos":new mp.Vector3(-865.5612,-2292.5515,-12.6323),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":337.021,"width":4,"height":22,"dir":dirGenerator(337.021)}, // LSIA Parking
+			{"pos":new mp.Vector3(-527.6741,-1265.3129,25.904),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":332.835,"width":4,"height":22,"dir":dirGenerator(332.835)}, // Puerto del Sol
+			{"pos":new mp.Vector3(298.0285,-1210.0483,38.0747),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":269.910,"width":4,"height":22,"dir":dirGenerator(269.910)}, // Strawberry
+			{"pos":new mp.Vector3(-286.9993,-297.7302,9.1935),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":2.639,"width":4,"height":22,"dir":dirGenerator(0.639)}, // Burton
+			{"pos":new mp.Vector3(-848.3321,-147.9061,19.081),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":124.760,"width":4,"height":22,"dir":dirGenerator(124.760)}, // Portola Drive
+			{"pos":new mp.Vector3(-1341.4658,-497.541,14.1755),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":206.785,"width":4,"height":22,"dir":dirGenerator(206.785)}, // Del Perro
+			{"pos":new mp.Vector3(-467.8731,-680.7336,10.9397),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":271.831,"width":4,"height":22,"dir":dirGenerator(271.831)}, // Little Seoul
+			{"pos":new mp.Vector3(-224.5117,-1050.1123,29.3265),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":156.459,"width":4,"height":22,"dir":dirGenerator(156.459)}, // Pillbox South
+			{"pos":new mp.Vector3(127.5512,-1741.5698,29.0579),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":221.356,"width":4,"height":22,"dir":dirGenerator(221.356)}, // Davis
+			{"pos":new mp.Vector3(361.6095,-1936.051,16.7264),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":225.745,"width":4,"height":22,"dir":dirGenerator(225.745)}
+		]
 	}
 }
 
-mp.events.add("worldDataChanged", (key, oldValue, newValue) => {
-	if(key == "zones") {
-		if(typeof(newValue) !== "undefined") refreshZones(newValue);
-	}
-});
+var trainWorkZone = mp.colshapes.newSphere(707.0614, -965.5336, 30.4128, 80, 0);
+var trainImInWorkZone = false;
 
-let flashVector = 1;
-setInterval(function() {
-	if(clanZones) {
-		if(Object.keys(clanZones).length > 0) {
-			for (var i in clanZones) {
-				let tempZone = clanZones[i];
-				if(typeof(tempZone.war) !== "undefined") {
-					if(tempZone.war) {
-						if(typeof(tempZone.war.id) !== "undefined") {
-							let getBlipAlpha = tempZone.blip.getAlpha();
-							if(flashVector == 1) {
-								if(getBlipAlpha > 0) {
-									tempZone.blip.setAlpha(getBlipAlpha-10);
-								}else{
-									flashVector = 2;
-								}
-							}else if(flashVector == 2) {
-								if(getBlipAlpha < 100) tempZone.blip.setAlpha(getBlipAlpha+10);
-								else flashVector = 1;
-							}
-						}
-					}
+var trainTasksBlocked = false;
+
+function startTrainJob() {
+	if(typeof(localPlayer.getVariable('player.blocks')) === "undefined") return hud_browser.execute('jobPanelError("#startTrainJob", "Не инициализирован уровень персонажа..")');
+	let myBlocks = localPlayer.getVariable('player.blocks');
+	if(typeof(myBlocks.lvl) !== "undefined") {
+		if(myBlocks.lvl < 8) return hud_browser.execute('jobPanelError("#startTrainJob", "Необходим 8 уровень персонажа, его нужно повысить через телефон.")');
+	}else{
+		return hud_browser.execute('jobPanelError("#startTrainJob", "Не инициализирован уровень персонажа..")');
+	}
+	closeJobTablet();
+	mp.events.callRemote('startTrainJob');
+	mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вас приняли работать на железные дороги", 5, false, true, 6500);
+	setTimeout(function() {
+		mp.game.ui.notifications.showWithPicture("Диспетчер", "Добро пожаловать", "Получил рабочий планшет? Нажми F5 и выбери свой первый маршрут.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+	}, 2000);
+}
+mp.events.add("startTrainJob", startTrainJob);
+
+function trainStartStop() {
+	if(localPlayer.getVariable("player.job")) {
+		let jobData = localPlayer.getVariable("player.job");
+		closeJobTablet(true);
+		
+		if(jobData.work == 0) {
+			if(trainImInWorkZone) {
+				if(!activeJOBoperation) {
+					mp.events.call("sleepAntiCheat");
+					mp.events.callRemote('startJobWork');
+					mp.game.ui.notifications.showWithPicture("Диспетчер", "Смена началась", "Возьми маршрут. Они в планшете (F5)", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
 				}
-			}
-		}
-	}
-}, 150);
-
-var afCaptButton = false;
-function fracCapt() {
-	if(hud_browser) {
-		let myFraction = {}
-		if(typeof(localPlayer.getVariable("player.id")) !== "undefined" && typeof(localPlayer.getVariable("player.fraction")) !== "undefined") {
-			if(!clanZones) return hud_browser.execute('fractionPanelsError(\'#fracCapt\', \'Территории временно недоступны\');');
-			if(localPlayer.getVariable("player.fraction")) {
-				myFraction = localPlayer.getVariable("player.fraction");
-				if(typeof(myFraction.id) === "undefined" || typeof(myFraction.name) === "undefined" || typeof(myFraction.rank) === "undefined") return hud_browser.execute('fractionPanelsError(\'#fracCapt\', \'Вы не можете начать капт\');');
-				
-				if(typeof(mp.world.data.fractions[myFraction.id]) === "undefined") return hud_browser.execute('fractionPanelsError(\'#fracCapt\', \'Капты не инициализированы\');');
-				if(typeof(mp.world.data.fractions[myFraction.id].settings) === "undefined") return hud_browser.execute('fractionPanelsError(\'#fracCapt\', \'Капты не инициализированы\');');
-				
-				let fractionData = mp.world.data.fractions[myFraction.id];
-				let fracSettings = mp.world.data.fractions[myFraction.id].settings;
-				
-				if(typeof(fracSettings[myFraction.rank.toString()].captGangs) === "undefined") hud_browser.execute('fractionPanelsError(\'#fracCapt\', \'Вашему рангу недоступно\');');
-				
-				if(typeof(mp.world.data.fractions[myFraction.id]) !== "undefined") {
-					let fraction = mp.world.data.fractions[myFraction.id];
-					
-					/*let countDownTimer = 5000;
-					let zonesCounter = 0;
-					for (var i in clanZones) {
-						let tempZone = clanZones[i];
-						if(tempZone.own.id.toString() == myFraction.id.toString()) zonesCounter++;
-					}
-					countDownTimer = countDownTimer * zonesCounter;*/
-					
-					if(typeof(mp.world.data.capters[myFraction.id]) !== "undefined") return hud_browser.execute('fractionPanelsError(\'#fracCapt\', \'Вы уже подали заявку на капт\');');
-					
-					if(afCaptButton) return hud_browser.execute('fractionPanelsError(\'#fracCapt\', \'Слишком частые нажатия, '+(2500/1000)+' сек.\');');
-					afCaptButton = true;
-					setTimeout(function() { afCaptButton = false }, 2500);
-				}else{
-					return hud_browser.execute('fractionPanelsError(\'#fracCapt\', \'Организация не инициализирована\');');
-				}
-				
-				if(!imInZone) return hud_browser.execute('fractionPanelsError(\'#fracCapt\', \'Вы не на территории\');');
-				
-				if(typeof(mp.world.data.zones[imInZone]) !== "undefined") {
-					let tempZone = mp.world.data.zones[imInZone];
-					let myPos = localPlayer.position;
-					if(tempZone.own.id.toString() == myFraction.id.toString()) return hud_browser.execute('fractionPanelsError(\'#fracCapt\', \'Это территория Вашей организации\');');
-					
-					/*let zonesCounter = 0;
-					for (var i in clanZones) {
-						let tempZone1 = clanZones[i];
-						if(tempZone1.own.id.toString() == myFraction.id.toString()) zonesCounter++;
-					}
-					if(zonesCounter >= 6) return hud_browser.execute('fractionPanelsError(\'#fracCapt\', \'У Вашей организации уже есть 6 территорий\');');*/
-					
-					let gangMans = [];
-					let counter = 0;
-					mp.players.forEach(
-						(player, id) => {
-							if(typeof(player.getVariable("player.id")) !== "undefined" && typeof(player.getVariable("player.nick")) !== "undefined" && typeof(player.getVariable("player.status")) !== "undefined" && typeof(player.getVariable("player.blocks")) !== "undefined") {
-								if(typeof(player.getVariable("player.fraction")) !== "undefined") {
-									let playerFraction = player.getVariable("player.fraction");
-									if(typeof(playerFraction.id) !== "undefined") {
-										if(myFraction.id.toString() == playerFraction.id.toString()) {
-											gangMans.push(player.getVariable("player.id"));
-											counter++;
-										}
-									}
-								}
-							}
-						}
-					);
-					
-					if(counter < 5) return hud_browser.execute('fractionPanelsError(\'#fracCapt\', \'Минимальный онлайн для капта 5 чел.\');');
-					
-					//if(mp.game.gameplay.getDistanceBetweenCoords(myPos.x, myPos.y, myPos.z, tempZone.pos.x, tempZone.pos.y, tempZone.pos.z, true) > 65) return hud_browser.execute('fractionPanelsError(\'#fracCapt\', \'Сместитесь ближе к центру\');');
-					if(!fractionAction) mp.events.callRemote('fracCapt', myFraction.id, imInZone, JSON.stringify(gangMans));
-					fractionAction = true;
-				}else{
-					return hud_browser.execute('fractionPanelsError(\'#fracCapt\', \'Территория недоступна\');');
-				}
-			}
-		}
-	}
-}
-mp.events.add("fracCapt", fracCapt);
-
-function youAreStartCapt() {
-	if(hud_browser) hud_browser.execute('fractionEnableWorkZones();');
-	if(fracPanel) closeFracMenu();
-	if(fractionAction) fractionAction = false;
-}
-mp.events.add("youAreStartCapt", youAreStartCapt);
-
-mp.events.add("zoneCaptError", (reason) => {
-	if(typeof(reason) !== "undefined") {
-		fractionAction = false;
-		return hud_browser.execute('fractionPanelsError(\'#fracCapt\', \''+reason+'\');');
-	}
-});
-
-mp.events.add("zoneCaptElectionFault", () => {
-	chatAPI.warningPush(" * Капта не будет <span style=\"color:#FEBC00\"><b>что-то пошло не так</b></span>..");
-	chatAPI.warningPush(" * Выйгравший в голосовании клан-участник <span style=\"color:#FEBC00\"><b>не смог организоваться</b></span>!");
-	if(warClanElectionActive) warClanElectionActive = false;
-});
-
-mp.events.add("zoneCaptElectionOK", () => {
-	fractionAction = false;
-	if(fracPanel) closeFracMenu();
-	chatAPI.warningPush(" * Ваш клан зарегистрирован на участие <span style=\"color:#FEBC00\"><b>в капте</b></span>!");
-	chatAPI.warningPush(" * Чей клан наберёт больше голосов <span style=\"color:#FEBC00\"><b>тот и будет учавствовать</b></span>!");
-	//mp.game.ui.messages.showMidsizedShard("~w~Вы зарегистрировались на капт", "~s~Капт может начаться в течении минуты, удачи в голосовании!", 5, false, true, 8000);
-	//if(warClanElectionActive) warClanElectionActive = false;
-});
-
-mp.events.add("youFractionAreCapturedZone", () => {
-	chatAPI.warningPush(" * Ваша организация захватила <span style=\"color:#FEBC00\"><b>новую территорию</b></span>!");
-	mp.game.ui.messages.showMidsizedShard("~w~Захвачена ~y~территория", "~s~Ваша организация расширяется, поздравляем!", 5, false, true, 8000);
-	if(warClanElectionActive) warClanElectionActive = false;
-});
-
-function captDefused(captEnemyName, captEnemyColor, ownKills, warKills) {
-	if(typeof(captEnemyName) !== "undefined" && typeof(captEnemyColor) !== "undefined" && typeof(ownKills) !== "undefined" && typeof(warKills) !== "undefined") {
-		chatAPI.warningPush(" * Ваша организация отбила атаку от <span style=\"color:#FEBC00\"><b>"+captEnemyName+"</b></span>!");
-		mp.game.ui.messages.showMidsizedShard("~w~Вы отбили атаку от "+gangColorsForRender[captEnemyColor]+captEnemyName, "~s~Победа со счётом "+ownKills+" - "+warKills+"!", 5, false, true, 8000);
-		if(warClanElectionActive) warClanElectionActive = false;
-	}
-}
-mp.events.add("captDefused", captDefused);
-
-function captDefFailed(captEnemyName, captEnemyColor, ownKills, warKills) {
-	if(typeof(captEnemyName) !== "undefined" && typeof(captEnemyColor) !== "undefined" && typeof(ownKills) !== "undefined" && typeof(warKills) !== "undefined") {
-		chatAPI.warningPush(" * Вашу территорию захватили <span style=\"color:#FEBC00\"><b>"+captEnemyName+"</b></span>!");
-		mp.game.ui.messages.showMidsizedShard(gangColorsForRender[captEnemyColor]+captEnemyName+" ~w~захватили Вашу территорию!", "~s~Проигрыш со счётом "+ownKills+" - "+warKills+"!", 5, false, true, 8000);
-		if(warClanElectionActive) warClanElectionActive = false;
-		if(hud_browser) hud_browser.execute('playSound("zonelost", "0.03");');
-	}
-}
-mp.events.add("captDefFailed", captDefFailed);
-
-function captFailed(captEnemyName, captEnemyColor, ownKills, warKills) {
-	if(typeof(captEnemyName) !== "undefined" && typeof(captEnemyColor) !== "undefined" && typeof(ownKills) !== "undefined" && typeof(warKills) !== "undefined") {
-		chatAPI.warningPush(" * Не получилось захватить территорию <span style=\"color:#FEBC00\"><b>"+captEnemyName+"</b></span>!");
-		mp.game.ui.messages.showMidsizedShard(gangColorsForRender[captEnemyColor]+captEnemyName+" ~w~отбили территорию!", "~s~Проигрыш со счётом "+ownKills+" - "+warKills+"!", 5, false, true, 8000);
-		if(warClanElectionActive) warClanElectionActive = false;
-	}
-}
-mp.events.add("captFailed", captFailed);
-
-function captSuccess(captEnemyName, captEnemyColor, ownKills, warKills) {
-	if(typeof(captEnemyName) !== "undefined" && typeof(captEnemyColor) !== "undefined" && typeof(ownKills) !== "undefined" && typeof(warKills) !== "undefined") {
-		chatAPI.warningPush(" * Вы захватили территорию <span style=\"color:#FEBC00\"><b>"+captEnemyName+"</b></span>!");
-		mp.game.ui.messages.showMidsizedShard("~w~Территория "+gangColorsForRender[captEnemyColor]+captEnemyName+" ~w~захвачена!", "~s~Победа со счётом "+ownKills+" - "+warKills+"!", 5, false, true, 8000);
-		if(warClanElectionActive) warClanElectionActive = false;
-		if(hud_browser) hud_browser.execute('playSound("zonecaptured", "0.03");');
-	}
-}
-mp.events.add("captSuccess", captSuccess);
-
-function youZoneCapturing(captEnemyName, captEnemyColor) {
-	if(typeof(captEnemyName) !== "undefined" && typeof(captEnemyColor) !== "undefined") {
-		chatAPI.warningPush(" * <span style=\"color:#FEBC00\"><b>"+captEnemyName+"</b></span> начали захват Вашей территории!");
-		mp.game.ui.messages.showMidsizedShard(""+gangColorsForRender[captEnemyColor]+captEnemyName+" ~w~захватывают Вас!", "~s~Срочно выдвигайтесь на территорию, её захватывают!", 5, false, true, 8000);
-		if(warClanElectionActive) warClanElectionActive = false;
-	}
-}
-mp.events.add("youZoneCapturing", youZoneCapturing);
-
-function fractionZoneCaptStarted(captEnemyName, captEnemyColor) {
-	if(typeof(captEnemyName) !== "undefined" && typeof(captEnemyColor) !== "undefined") {
-		chatAPI.warningPush(" * Ваша организация захватывает территорию <span style=\"color:#FEBC00\"><b>"+captEnemyName+"</b></span>!");
-		mp.game.ui.messages.showMidsizedShard("~w~Начался захват "+gangColorsForRender[captEnemyColor]+captEnemyName, "~s~Срочно выдвигайтесь на территорию, помогите товарищам!", 5, false, true, 8000);
-		if(warClanElectionActive) warClanElectionActive = false;
-	}
-}
-mp.events.add("fractionZoneCaptStarted", fractionZoneCaptStarted);
-
-var warClanElectionActive = false;
-function warClanElection(ownID, ownName, ownColor) {
-	if(typeof(ownID) !== "undefined" && typeof(ownName) !== "undefined" && typeof(ownColor) !== "undefined") {
-		if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined" && typeof(curSeconds) !== "undefined") {
-			let myBlocks = localPlayer.getVariable("player.blocks");
-			if(typeof(myBlocks.fInvNewbieBlock) !== "undefined") {
-				chatAPI.warningPush(" * Ваш клан хочет начать войну с <span style=\"color:#FEBC00\"><b>"+ownName+"</b></span>!");
-				let expDate = moment.duration(moment(myBlocks.fInvNewbieBlock).add(1,'day').diff(moment(curDay+"-"+curMonth+"-"+curYear+" "+curHours+":"+curMinutes+":"+curSeconds,"DD-MM-YYYY HH:mm:ss")));
-				chatAPI.warningPush(" * Вы сможете голосовать за войну через <span style=\"color:#FEBC00\"><b>"+expDate._data.hours+"</b></span> ч., <span style=\"color:#FEBC00\"><b>"+expDate._data.minutes+"</b></span> мин., <span style=\"color:#FEBC00\"><b>"+expDate._data.seconds+"</b></span> сек.");
-				mp.game.ui.messages.showMidsizedShard("~w~Ваш клан хочет начать войну с "+gangColorsForRender[ownColor.toString()]+ownName, "~s~Доступ к голосованиям через "+expDate._data.hours+" ч., "+expDate._data.minutes+" мин., "+expDate._data.seconds+" сек.", 5, false, true, 8000);
 			}else{
-				warClanElectionActive = ownName;
-				chatAPI.warningPush(" * Ваш клан хочет начать войну с <span style=\"color:#FEBC00\"><b>"+ownName+"</b></span>!");
-				chatAPI.warningPush(" * Нажмите <span style=\"color:#FEBC00\"><b>F8</b></span>, что бы проголосовать за войну!");
-				mp.game.ui.messages.showMidsizedShard("~w~Ваш клан хочет начать войну с "+gangColorsForRender[ownColor.toString()]+ownName, "~s~Нажмите ( F8 ), что бы проголосовать за войну", 5, false, true, 8000);
+				mp.game.ui.notifications.showWithPicture("Диспетчер", "Отправляйся в офис", "Смену можно начать только на территории базы.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+				notyAPI.error("Явитесь на базу железных дорог что бы начать смену.", 3000, true);
+			}
+		}else{
+			if(!activeJOBoperation) {
+				activeJOBoperation = true;
+				
+				if(typeof(localPlayer.train) !== "undefined") mp.events.callRemote('cancelTrainTask', false);
+				
+				if(jobData.workMoney > 0) {
+					//let resWorkMoney = roundNumber((parseInt(jobData.workMoney)-(parseInt(jobData.workMoney)*0.13)), 0);
+					let resWorkMoney = roundNumber(parseInt(jobData.workMoney), 0);
+					let workMoneyText = resWorkMoney.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
+					mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вы заработали за смену"+workMoneyText+" руб.", 5, false, true, 6500);
+					mp.game.ui.notifications.showWithPicture("Диспетчер", "Молодец!", "Отдохни и выходи на смену снова, ждём тебя!", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+				}else{
+					mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вы ничего не заработали за смену.", 5, false, true, 6500);
+					mp.game.ui.notifications.showWithPicture("Диспетчер", "Что случилось?", "Не выполнил ни одного поручения?! Блок агрегатора 1 мин.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+					trainTasksBlocked = true;
+					setTimeout(function() {
+						mp.game.ui.notifications.showWithPicture("Диспетчер", "Маршруты доступны", "Я разблокировал тебе агрегатор.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+						trainTasksBlocked = false;
+					}, 60000);
+				}
+				
+				mp.events.callRemote('stopJobWork');
 			}
 		}
 	}
 }
-mp.events.add("warClanElection", warClanElection);
+mp.events.add("trainStartStop", trainStartStop);
 
-mp.keys.bind(0x77, true, function() { // F8 - Голосование
-	if(!allowBinds || !Array.isArray(allowBinds)) return false;
-	if(!allowBinds.includes(0x77)) return false;
-	
-	if(warClanElectionActive) {
-		if(typeof(localPlayer.getVariable("player.fraction")) !== "undefined") {
-			let myFraction = localPlayer.getVariable("player.fraction");
-			if(typeof(myFraction.id) !== "undefined") {
-				chatAPI.notifyPush("Вы проголосовали за капт-войну с <span style=\"color:#FEBC00\"><b>"+warClanElectionActive+"</b></span>, спасибо!");
-				mp.events.callRemote('warElectionVote', myFraction.id.toString());
-			}
+function cancelTrainJobTask() {
+	closeJobTablet(true);
+	if(typeof(localPlayer.train) !== "undefined") {
+		mp.game.ui.messages.showMidsized("~g~Вы успешно ~s~отказались от маршрута", "~s~Новые маршруты можно посмотреть в планшете (F5)");
+		mp.game.ui.notifications.showWithPicture("Диспетчер", "Отказ от маршрута", "Я заблокировал тебе маршруты на 1 мин.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+		
+		trainTasksBlocked = true;
+		setTimeout(function() {
+			mp.game.ui.notifications.showWithPicture("Диспетчер", "Маршруты доступны", "Я разблокировал тебе маршруты.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+			trainTasksBlocked = false;
+		}, 60000);
+		
+		mp.events.call("sleepAntiCheat");
+		mp.events.callRemote('cancelTrainTask', false);
+		
+		if(trainBlip) {
+			if(mp.blips.exists(trainBlip)) trainBlip.destroy();
 		}
-		return warClanElectionActive = false;
+		
+		curMissionID = false, curSimaKey = 0, curSimaphore = {}, curTrainPointKey = 0, curTrainPoint = {};
+		trainParkedProcess = false;
 	}
-	
-	if(typeof(globalAdmEvent) !== "undefined") {
-		if(JSON.stringify(globalAdmEvent) != "{}") {
-			if(premissionToGlobalAdmEvent) {
-				premissionToGlobalAdmEvent = false;
-				
-				if(localPlayer.dimension != 0) return false;
-				if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
-					if(localPlayer.getVariable("active.deal")) return false;
+}
+mp.events.add("cancelTrainJobTask", cancelTrainJobTask);
+
+function getTrainTasks() {
+	if(typeof(localPlayer.train) === "undefined") {
+		if(localPlayer.vehicle) return hud_browser.execute("gettedTrainTasks('you_in_veh');");
+		let jobData = localPlayer.getVariable("player.job");
+		if(typeof(jobData) === "undefined") {
+			//chatAPI.sysPush("<span style=\"color:#FF6146\">3</span>");
+			return hud_browser.execute("gettedTrainTasks('empty');");
+		}else{
+			if(jobData.work == 0) return hud_browser.execute("gettedTrainTasks('no_active_work');");
+		}
+		mp.events.callRemote('getTrainTasks');
+	}else{
+		hud_browser.execute("gettedTrainTasks('you_have_task');");
+	}
+}
+mp.events.add("getTrainTasks", getTrainTasks);
+
+function gettedTrainTasks(trainTasks){
+	if(trainTasks) {
+		if(typeof(localPlayer.train) === "undefined" && typeof(localPlayer.getVariable("player.job")) !== "undefined") {
+			if(localPlayer.vehicle) return hud_browser.execute("gettedTrainTasks('you_in_veh');");
+			
+			trainTasks = JSON.parse(trainTasks);
+			if(Object.keys(trainTasks).length > 0) {
+				let jobData = localPlayer.getVariable("player.job");
+					
+				for (var k in trainTasks) {
+					if(trainTasks[k]) {
+						let taskData = trainTasks[k];
+						if(parseInt(jobData.rank) < parseInt(taskData.minRank)) delete trainTasks[k];
+					}
 				}
-				if(typeof(localPlayer.getVariable("player.blocks")) != "undefined") {
-					let playerBlocks = localPlayer.getVariable("player.blocks");
-					if(typeof(playerBlocks.jail) !== "undefined") return false;
-				}
+				trainTasks = trainTasks.filter(function (el) { return el != null; });
 				
-				if(typeof(globalAdmEvent.maxMembers) !== "undefined") {
-					if(parseInt(globalAdmEvent.maxMembers) <= parseInt(globalAdmEvent.members)) return chatAPI.warningPush(" * Вы не успели подать <span style=\"color:#FEBC00\"><b>заявку на участие</b></span>, слишком много людей!");
-				}
-				
-				mp.events.call("sleepAntiCheat");
-				return mp.events.callRemote('globalAdmEventVote');
+				//chatAPI.sysPush("<span style=\"color:#FF6146\">"+JSON.stringify(courierTasks)+"</span>");
+				hud_browser.execute("gettedTrainTasks('ok', '"+JSON.stringify(trainTasks)+"');");
+			}else{
+				hud_browser.execute("gettedTrainTasks('empty');");
 			}
+		}else{
+			hud_browser.execute("gettedTrainTasks('you_have_task');");
 		}
 	}
-});
+}
+mp.events.add("gettedTrainTasks", gettedTrainTasks);
+
+function acceptTaskTrain(data) {
+	if(data) {
+		closeJobTablet();
+		restoreBinds();
+		jobPanel = false;
+		
+		if(typeof(localPlayer.train) !== "undefined") {
+			mp.game.ui.notifications.showWithPicture("Диспетчер", "Закончи смену", "У тебя уже есть активный маршрут", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+			return notyAPI.error("Что бы взять маршрут, необходимо закончить активный маршрут.", 3000, true);
+		}
+		
+		if(localPlayer.vehicle) {
+			mp.game.ui.notifications.showWithPicture("Диспетчер", "Выйди из транспорта", "Вылези из транспорта и попробуй ещё раз..", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+			return notyAPI.error("Что бы взять маршрут, вылези из транспортного средства.", 3000, true);
+		}
+		
+		if(trainTasksBlocked) {
+			mp.game.ui.notifications.showWithPicture("Диспетчер", "Блокировка доступа", "У Тебя блок доступа к маршрутам на 1 мин.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+			return notyAPI.error("У Тебя заблокирован доступ к маршрутам, попробуйте через минуту.", 3000, true);
+		}
+		
+		if(!trainImInWorkZone) {
+			mp.game.ui.notifications.showWithPicture("Диспетчер", "Явитесь на базу", "Взять поручение можно только в офисе.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+			return notyAPI.error("Явись в офис что бы взять маршрут.", 3000, true);
+		}
+		
+		mp.events.call("sleepAntiCheat");
+		mp.events.callRemote('acceptTaskTrain', data);
+	}
+}
+mp.events.add("acceptTaskTrain", acceptTaskTrain);
 
 mp.events.add('playerEnterColshape', (shape) => {
-	if(typeof(shape) !== "undefined") {
-		if(mp.colshapes.exists(shape) && typeof(clanZones) !== "undefined" && clanZones) {
-			let tempZoneName = false;
-			let tempZoneWarID = false;
-			let tempZoneOwnID = false;
-			for (var i in clanZones) {
-				let tempZone = clanZones[i];
-				if(mp.colshapes.exists(tempZone.shape)) {
-					if(tempZone.shape == shape) {
-						tempZoneName = i
-						tempZoneWarID = tempZone.war.id;
-						tempZoneOwnID = tempZone.own.id;
-						break;
-					}
-				}
-			}
-			if(tempZoneName) {
-				imInZone = tempZoneName;
-				
-				if(imInZZ) imInZZ = false;
-				if(typeof(localPlayer.getVariable("player.passive")) !== "undefined") {
-					if(localPlayer.getVariable("player.passive")) {
-						mp.game.ui.messages.showMidsized("~r~Опасная ~w~зона", "~s~Выключаем пассивный режим, включить можно в телефоне.");
-						mp.events.callRemote('togglePassive', false);
-					}
-				}
-				
-				if(typeof(localPlayer.getVariable("player.fraction")) !== "undefined" && typeof(localPlayer.getVariable("player.passive")) !== "undefined") {
-					let myFraction = localPlayer.getVariable("player.fraction");
-					//chatAPI.sysPush("<span style=\"color:#FF6146;\"> * PASSIVE CHECKER</span>");
-					if((tempZoneOwnID == myFraction.id || tempZoneWarID == myFraction.id) && localPlayer.getVariable("player.passive")) mp.events.callRemote('togglePassive', false);
-				}
-				
-				//return chatAPI.sysPush("<span style=\"color:#FF6146;\"> * Enter: "+tempZoneName+"</span>");
-			}
-		}
+	if(typeof(shape) != "undefined") {
+		if(shape == trainWorkZone) trainImInWorkZone = true;
 	}
 });
 
 mp.events.add('playerExitColshape', (shape) => {
-	if(typeof(shape) !== "undefined") {
-		if(mp.colshapes.exists(shape) && typeof(clanZones) !== "undefined" && clanZones) {
-			for (var i in clanZones) {
-				let tempZone = clanZones[i];
-				if(mp.colshapes.exists(tempZone.shape)) {
-					if(tempZone.shape == shape) {
-						imInZone = false;
-						break;
+	if(typeof(shape.id) != "undefined") {
+		if(shape == trainWorkZone) trainImInWorkZone = false;
+	}
+});
+
+var nextSimaTimer = false;
+function trainMissionProcessor(ostanovka) {
+	if(typeof(ostanovka) !== "undefined") {
+		if(ostanovka == "pogruzkaTovar") {
+			mp.game.ui.messages.showMidsized("Пожалуйста ожидайте..", "~s~Начали ~g~погрузку ~s~Вашего состава, подождите.");
+			mp.game.ui.notifications.showWithPicture("Диспетчер", "Идёт погрузка..", "Подожди пока состав полностью загрузят..", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+			setTimeout(() => {
+				mp.game.ui.messages.showMidsized("Погрузка окончена", "~s~Отправляйтесь на станцию для разгрузки!");
+				mp.game.ui.notifications.showWithPicture("Диспетчер", "Всё, в путь!", "Можешь отправляться на следующую станцию.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+				
+				let mParams = missionIDParams[curMissionID];
+				curTrainPointKey = curTrainPointKey + 1;
+				curTrainPoint = mParams.points[curTrainPointKey];
+				
+				if(trainBlip) {
+					if(mp.blips.exists(trainBlip)) trainBlip.destroy();
+				}
+				
+				trainBlip = mp.blips.new(626, curTrainPoint.pos, {
+					name: "Следующая остановка состава",
+					scale: 0.8,
+					color: 1,
+					shortRange: false,
+					dimension: 0
+				});
+				
+				trainParkedProcess = false;
+			}, 10000);
+		}else if(ostanovka == "razgruzkaTovar") {
+			mp.game.ui.messages.showMidsized("Пожалуйста ожидайте..", "~s~Начали ~g~разгрузку ~s~Вашего состава, подождите.");
+			mp.game.ui.notifications.showWithPicture("Диспетчер", "Идёт разгрузка..", "Подожди пока состав полностью разгрузят..", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+			setTimeout(() => {
+				mp.game.ui.messages.showMidsized("Разгрузка окончена", "~s~Доставьте состав на базу железных дорог");
+				mp.game.ui.notifications.showWithPicture("Диспетчер", "Отстрелялся?", "Можешь отправляться на базу.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+				
+				let mParams = missionIDParams[curMissionID];
+				curTrainPointKey = curTrainPointKey + 1;
+				curTrainPoint = mParams.points[curTrainPointKey];
+				
+				if(trainBlip) {
+					if(mp.blips.exists(trainBlip)) trainBlip.destroy();
+				}
+				
+				trainBlip = mp.blips.new(626, curTrainPoint.pos, {
+					name: "Следующая остановка состава",
+					scale: 0.8,
+					color: 1,
+					shortRange: false,
+					dimension: 0
+				});
+				
+				trainParkedProcess = false;
+			}, 10000);
+		}else if(ostanovka == "stantionR") {
+			mp.game.ui.messages.showMidsized("Вы прибыли на станцию", "~s~Откройте ~g~правые двери ~s~(русская Ю)");
+			mp.game.ui.notifications.showWithPicture("Диспетчер", "Пассажиры", "Ожидай команду на отправление", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+		}else if(ostanovka == "stantionL") {
+			mp.game.ui.messages.showMidsized("Вы прибыли на станцию", "~s~Откройте ~g~левые двери ~s~(русская Б)");
+			mp.game.ui.notifications.showWithPicture("Диспетчер", "Пассажиры", "Ожидай команду на отправление", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+		}else if(ostanovka == "finalPoint") {
+			mp.game.ui.messages.showMidsized("Маршрут выполнен!", "~s~Успешный ~g~маршрут~s~, Вы справились!");
+			mp.game.ui.notifications.showWithPicture("Диспетчер", "Так держать", "Ты успешно выполнил весь маршрут!", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+			
+			setTimeout(() => {
+				if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") {
+					let myBlocks = localPlayer.getVariable("player.blocks");
+					if(typeof(myBlocks.premium) !== "undefined") notyAPI.info("<b>Премиум-доступ</b>: Вы получили надбавку к зарплате (10%).", 3000, true);
+				}
+				
+				mp.events.callRemote('actionMakedTrainJob', curMissionID.toString());
+				
+				if(trainBlip) {
+					if(mp.blips.exists(trainBlip)) trainBlip.destroy();
+				}
+				
+				curMissionID = false, curSimaKey = 0, curSimaphore = {}, curTrainPointKey = 0, curTrainPoint = {};
+				
+				trainParkedProcess = false;
+			}, 2000);
+		}
+	}else if(typeof(missionIDParams[curMissionID]) !== "undefined") {
+		let mParams = missionIDParams[curMissionID];
+		
+		if(curSimaKey == 0) {
+			mParams.simaphores.forEach((prop) => {
+				prop.color = getRandomInt(0,2);
+				if(prop.color == 1) prop.color = "yellow";
+				else prop.color = "green";
+			});
+			mParams.simaphores[0].color = "green";
+			
+			curTrainPoint = mParams.points[curTrainPointKey];
+			
+			if(trainBlip) {
+				if(mp.blips.exists(trainBlip)) trainBlip.destroy();
+			}
+			
+			trainBlip = mp.blips.new(626, curTrainPoint.pos, {
+				name: "Следующая остановка состава",
+				scale: 0.8,
+				color: 1,
+				shortRange: false,
+				dimension: 0
+			});
+		}
+		
+		if(typeof(curSimaphore.checkpoint) !== "undefined") {
+			if(mp.checkpoints.exists(curSimaphore.checkpoint)) curSimaphore.checkpoint.destroy();
+			delete curSimaphore.checkpoint;
+		}
+		
+		if(typeof(mParams.simaphores[curSimaKey]) !== "undefined") {
+			curSimaphore.checkpoint = mp.checkpoints.new(40, new mp.Vector3(mParams.simaphores[curSimaKey].pos.x, mParams.simaphores[curSimaKey].pos.y, mParams.simaphores[curSimaKey].pos.z-0.5), 10.0,
+			{
+				color: [255, 255, 255, 0],
+				visible: true,
+				dimension: localPlayer.dimension
+			});
+		}
+		
+		if(typeof(curSimaphore.marker) !== "undefined") {
+			if(mp.markers.exists(curSimaphore.marker)) curSimaphore.marker.destroy();
+			delete curSimaphore.marker;
+		}
+		
+		if(typeof(mParams.simaphores[curSimaKey]) !== "undefined") {
+			if(mParams.simaphores[curSimaKey].color == "yellow") {
+				if(typeof(mParams.simaphores[curSimaKey+1]) !== "undefined") {
+					let mayBeNextRed = getRandomInt(0,2);
+					if(mayBeNextRed == 1 && curSimaKey+1 < Object.keys(mParams.simaphores).length-1) {
+						mParams.simaphores[curSimaKey+1].color = "red";
+						if(nextSimaTimer) clearTimeout(nextSimaTimer);
+						nextSimaTimer = setTimeout(() => {
+							if(typeof(missionIDParams[curMissionID]) !== "undefined") {
+								let mParams = missionIDParams[curMissionID];
+								if(typeof(mParams.simaphores[curSimaKey]) !== "undefined") {
+									mParams.simaphores[curSimaKey].color = "green";
+									localPlayer.train.simaphore = "green";
+									if(typeof(curSimaphore.marker) !== "undefined") {
+										if(mp.markers.exists(curSimaphore.marker)) curSimaphore.marker.colour = [11, 163, 58, 180];
+									}
+								}
+							}
+						}, getRandomInt(60000,120000));
 					}
 				}
 			}
-			//return chatAPI.sysPush("<span style=\"color:#FF6146;\"> * Exit: "+checkpoint.zoneData.name+"</span>");
+			
+			let simaColor = [11, 163, 58];
+			if(mParams.simaphores[curSimaKey].color == "yellow") simaColor = [232, 184, 12];
+			else if(mParams.simaphores[curSimaKey].color == "red") simaColor = [212, 13, 18];
+			curSimaphore["marker"] = mp.markers.new(30, new mp.Vector3(mParams.simaphores[curSimaKey].pos.x, mParams.simaphores[curSimaKey].pos.y, mParams.simaphores[curSimaKey].pos.z-0.5), 15.0, {
+				direction: new mp.Vector3(0, 0, 0),
+				rotation: new mp.Vector3(0, 0, 0),
+				color: [simaColor[0], simaColor[1], simaColor[2], 180],
+				visible: true,
+				dimension: 0
+			});
+			
+			if(localPlayer.train.simaphore == "red") trainWarning("redSima");
+			
+			localPlayer.train.simaphore = mParams.simaphores[curSimaKey].color.toString();
+			localPlayer.train.speedLimit = mParams.simaphores[curSimaKey].speed.toString();
+			
+			curSimaKey++;
+		}else{
+			localPlayer.train.simaphore = "green";
+		}
+	}
+}
+
+mp.events.add("playerEnterCheckpoint", (checkpoint) => {
+	if(typeof(checkpoint) !== "undefined") {
+		if(mp.checkpoints.exists(checkpoint)) {
+			if(typeof(curSimaphore.checkpoint) !== "undefined") {
+				if(mp.checkpoints.exists(curSimaphore.checkpoint)) {
+					if(curSimaphore.checkpoint == checkpoint) return trainMissionProcessor();
+				}
+			}
 		}
 	}
 });
 
-/*
-var blipToMe = mp.blips.new(9, new mp.Vector3(0, 0, 0),
-{
-	scale: 1,
-	color: 1,
-	alpha: 175,
-	shortRange: true,
-	rotation: 50,
-	dimension: 0,
-	radius: 60.0
-});
-
-mp.events.add('render', () => {
-	if(blipToMe.doesExist()) {
-		blipToMe.setCoords(localPlayer.position);
+mp.events.addDataHandler("player.train", function (entity, value, oldValue) {
+	if(entity) {
+		if(entity.handle != 0) {
+			if(value && !oldValue) {
+				//chatAPI.sysPush("<span style=\"color:#FF6146\"> * createTrain("+value.mID+", "+value.speed+", "+value.start.x+", "+value.start.y+", "+value.start.z+")</span>");
+				if(entity == localPlayer) {
+					curMissionID = value.mID.toString();
+					curSimaKey = 0;
+					curTrainPoint = {};
+					curTrainPointKey = 0;
+				}
+				createTrain(entity, value.mID, value.speed, value.f, value.start.x, value.start.y, value.start.z);
+				if(entity == localPlayer) trainMissionProcessor();
+			}else if(value && oldValue) {
+				if(typeof(entity.train) !== "undefined") {
+					if(typeof(entity.train.trains[0]) !== "undefined") {
+						if(entity != localPlayer) {
+							if(entity.train.trains[0]) {
+								mp.game.invoke('0x591CA673AA6AB736', entity.train.trains[0], entity.position.x, entity.position.y, entity.position.z);
+								mp.game.invoke('0xAA0BC91BE0B796E3', entity.train.trains[0], value.speed); // setTrainSpeed
+								mp.game.invoke('0x16469284DB8C62B5', entity.train.trains[0], value.speed); // setTrainCruiseSpeed
+							}
+						}
+					}else{
+						createTrain(entity, value.mID, value.speed, value.f, entity.position.x, entity.position.y, entity.position.z);
+					}
+				}else{
+					createTrain(entity, value.mID, value.speed, value.f, entity.position.x, entity.position.y, entity.position.z);
+				}
+			}else if(!value && oldValue) {
+				if(typeof(entity.train) !== "undefined") {
+					mp.events.call("sleepAntiCheat");
+					
+					if(typeof(entity.train.trains[0]) !== "undefined") mp.game.vehicle.deleteMissionTrain(entity.train.trains[0]);
+					delete entity.train;
+					
+					if(entity == localPlayer) {
+						if(nextSimaTimer) clearTimeout(nextSimaTimer);
+						
+						if(typeof(curSimaphore.checkpoint) !== "undefined") {
+							if(mp.checkpoints.exists(curSimaphore.checkpoint)) curSimaphore.checkpoint.destroy();
+							delete curSimaphore.checkpoint;
+						}
+						
+						if(typeof(curSimaphore.marker) !== "undefined") {
+							if(mp.markers.exists(curSimaphore.marker)) curSimaphore.marker.destroy();
+							delete curSimaphore.marker;
+						}
+						
+						if(trainBlip) {
+							if(mp.blips.exists(trainBlip)) trainBlip.destroy();
+						}
+						
+						curMissionID = false, curSimaKey = 0, curSimaphore = {}, curTrainPointKey = 0, curTrainPoint = {};
+						trainParkedProcess = false;
+						
+						localPlayer.position = new mp.Vector3(711.58, -966.5077, 30.3953); // в Офис
+					}
+				}
+			}
+		}
 	}
 });
-*/
+
+function createTrain(entity, mID, speed, flip, x, y, z) {
+	if(entity && typeof(mID) !== "undefined" && typeof(speed) !== "undefined" && typeof(flip) !== "undefined" && typeof(x) !== "undefined" && typeof(y) !== "undefined" && typeof(z) !== "undefined") {
+		if(entity.handle != 0) {
+			let train_1 = mp.game.vehicle.createMissionTrain(parseInt(mID), parseFloat(x), parseFloat(y), parseFloat(z), flip);
+			let train_2 = mp.game.invoke('0x08AAFD0814722BC3', train_1, 1);
+			let train_3 = mp.game.invoke('0x08AAFD0814722BC3', train_1, 2);
+			let train_4 = mp.game.invoke('0x08AAFD0814722BC3', train_1, 3);
+			
+			//let pos = mp.game.invokeVector3('0x3FEF770D40960D5A', train_1);
+			
+			let tempData = {};
+			
+			tempData["mID"] = mID;
+			tempData["speed"] = speed;
+			tempData["trains"] = [train_1, train_2, train_3, train_4];
+			
+			if(entity == localPlayer) {
+				tempData["doors"] = [0,0]; // L, R
+				tempData["simaphore"] = "green";
+				tempData["speedLimit"] = 40;
+				tempData["warns"] = 0;
+				
+				oldTrainSpeed = 0;
+			}
+			
+			entity.train = tempData;
+			
+			if(!mp.game.invoke('0xEFBE71898A993728', entity.handle, train_1)) mp.game.invoke('0x6B9BBD38AB0796DF', entity.handle, train_1, 0, 0, 0, 0, 0, 0, 0, true, true, false, true, 0, true); // AttachEntityToEntity
+			
+			mp.game.invoke('0xAA0BC91BE0B796E3', train_1, tempData.speed); // setTrainSpeed
+			mp.game.invoke('0x16469284DB8C62B5', train_1, tempData.speed); // setTrainCruiseSpeed
+			mp.game.invoke('0xAD738C3085FE7E11', train_1, true, false); // setAsMission
+		}
+	}
+}
+
+let antiFloodDoorsL = false;
+mp.keys.bind(0xBC, true, function() { // Левые двери
+	if(!allowBinds || !Array.isArray(allowBinds)) return false;
+	if(!allowBinds.includes(0xBC)) return false;
+	
+	if(typeof(localPlayer.train) !== "undefined") {
+		if(!localPlayer.train.doors[0]) {
+			if(trainParkedProcess.type == "stantionL") {
+				if(!antiFloodDoorsL) {
+					antiFloodDoorsL = true;
+					setTimeout(() => {
+						mp.game.ui.messages.showMidsized("Пассажиры заняли свои места", "~s~Закройте ~g~левые двери ~s~(русская Б)");
+						mp.game.ui.notifications.showWithPicture("Диспетчер", "Отправление", "Можешь продолжать, не забудь закрыть двери.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+						
+						let mParams = missionIDParams[curMissionID];
+						curTrainPointKey = curTrainPointKey + 1;
+						curTrainPoint = mParams.points[curTrainPointKey];
+						
+						if(trainBlip) {
+							if(mp.blips.exists(trainBlip)) trainBlip.destroy();
+						}
+						
+						trainBlip = mp.blips.new(626, curTrainPoint.pos, {
+							name: "Следующая остановка состава",
+							scale: 0.8,
+							color: 1,
+							shortRange: false,
+							dimension: 0
+						});
+						
+						trainParkedProcess = false;
+						antiFloodDoorsL = false;
+					}, 10000);
+				}
+			}
+			
+			// открыть
+			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[0],0);
+			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[0],2);
+			//
+			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[1],0);
+			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[1],2);
+			//
+			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[2],0);
+			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[2],2);
+			//
+			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[3],0);
+			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[3],2);
+			
+			localPlayer.train.doors[0] = 1;
+			if(localPlayer.train.speed != 0) trainWarning("openDoorsInSpeed");
+		}else{
+			// закрыть
+			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],0);
+			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],2);
+			//
+			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],0);
+			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],2);
+			//
+			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],0);
+			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],2);
+			//
+			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],0);
+			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],2);
+			
+			localPlayer.train.doors[0] = 0;
+		}
+	}
+});
+
+let antiFloodDoorsR = false;
+mp.keys.bind(0xBE, true, function() { // Правые двери
+	if(!allowBinds || !Array.isArray(allowBinds)) return false;
+	if(!allowBinds.includes(0xBE)) return false;
+	
+	if(typeof(localPlayer.train) !== "undefined") {
+		if(!localPlayer.train.doors[1]) {
+			if(trainParkedProcess.type == "stantionR") {
+				if(!antiFloodDoorsR) {
+					antiFloodDoorsR = true;
+					setTimeout(() => {
+						mp.game.ui.messages.showMidsized("Пассажиры заняли свои места", "~s~Закройте ~g~правые двери ~s~(русская Ю)");
+						mp.game.ui.notifications.showWithPicture("Диспетчер", "Отправление", "Можешь продолжать, не забудь закрыть двери.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+						
+						let mParams = missionIDParams[curMissionID];
+						curTrainPointKey = curTrainPointKey + 1;
+						curTrainPoint = mParams.points[curTrainPointKey];
+						
+						if(trainBlip) {
+							if(mp.blips.exists(trainBlip)) trainBlip.destroy();
+						}
+						
+						trainBlip = mp.blips.new(626, curTrainPoint.pos, {
+							name: "Следующая остановка состава",
+							scale: 0.8,
+							color: 1,
+							shortRange: false,
+							dimension: 0
+						});
+						
+						trainParkedProcess = false;
+						antiFloodDoorsR = false;
+					}, 10000);
+				}
+			}
+			
+			// открыть
+			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[0],1);
+			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[0],3);
+			//
+			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[1],1);
+			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[1],3);
+			//
+			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[2],1);
+			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[2],3);
+			//
+			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[3],1);
+			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[3],3);
+			
+			localPlayer.train.doors[1] = 1;
+			if(localPlayer.train.speed != 0) trainWarning("openDoorsInSpeed");
+		}else{
+			// закрыть
+			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],1);
+			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],3);
+			//
+			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],1);
+			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],3);
+			//
+			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],1);
+			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],3);
+			//
+			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],1);
+			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],3);
+			
+			localPlayer.train.doors[1] = 0;
+		}
+	}
+});
+
+function trainWarning(reason) {
+	if(typeof(reason) !== "undefined") {
+		if(reason == "speedLimit") {
+			mp.game.ui.messages.showMidsized("Превышение скоросного ограничение", "~s~Вы ~r~превысили ~s~скоростной режим, предупреждение!");
+			mp.game.ui.notifications.showWithPicture("Диспетчер", "Ты что творишь?", "Придержи коней, превышение, выговор!", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+			localPlayer.train.warns++;
+		}else if(reason == "redSima") {
+			mp.game.ui.messages.showMidsized("Запрещающий сигнал семафора", "~s~Вы ~r~проехали на красный ~s~семафор, предупреждение!");
+			mp.game.ui.notifications.showWithPicture("Диспетчер", "Ты куда?", "Пролетел под красный семафор? Выговор!", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+			localPlayer.train.warns++;
+		}else if(reason == "openDoorsInSpeed") {
+			mp.game.ui.messages.showMidsized("Нельзя открывать двери на ходу", "~s~Вы ~r~открыли двери ~s~во время движения, предупреждение!");
+			mp.game.ui.notifications.showWithPicture("Диспетчер", "Тебя засудят!", "Зачем ты открыл двери? Выговор!", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+			localPlayer.train.warns++;
+		}
+		if(localPlayer.train.warns >= 3) {
+			closeJobTablet(true);
+			
+			trainTasksBlocked = true;
+			mp.game.ui.notifications.showWithPicture("Диспетчер", "Выговоры", "Я заблокировал тебе маршруты на 1 мин.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+			setTimeout(function() {
+				mp.game.ui.notifications.showWithPicture("Диспетчер", "Маршруты доступны", "Я разблокировал тебе маршруты.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
+				trainTasksBlocked = false;
+			}, 60000);
+			
+			mp.events.call("sleepAntiCheat");
+			mp.events.callRemote('cancelTrainTask', true);
+			
+			if(trainBlip) {
+				if(mp.blips.exists(trainBlip)) trainBlip.destroy();
+			}
+			
+			curMissionID = false, curSimaKey = 0, curSimaphore = {}, curTrainPointKey = 0, curTrainPoint = {};
+			trainParkedProcess = false;
+		}
+	}
+}
+
+var trainTicks = 0, goodTrainParked = false, trainParkedProcess = false, oldTrainSpeed = 0;
+let kTrainPressed = false;
+let speedWarning = 0;
+
+mp.events.add('render', () => {
+	if(typeof(localPlayer.train) !== "undefined") {
+		if(typeof(localPlayer.train.trains[0]) !== "undefined") {
+			if(!mp.game.invoke('0xEFBE71898A993728', localPlayer.handle, localPlayer.train.trains[0])) mp.game.invoke('0x6B9BBD38AB0796DF', localPlayer.handle, localPlayer.train.trains[0], 0, 0, 0, 0, 0, 0, 0, true, true, false, true, 0, true); // AttachEntityToEntity
+			mp.game.invoke('0xE9EA16D6E54CDCA4', localPlayer.train.trains[0], 0); // SetInVehicleCamStateThisUpdate
+			//mp.game.invoke('0x8D4D46230B2C353A', 3);
+
+			//mp.game.invoke('0x8BBACBF51DA047A8', localPlayer.handle);
+			//mp.game.invoke('0x44A113DD6FFC48D1', "FOLLOW_PED_SKY_DIVING_CAMERA", 3000);
+			
+			//mp.game.invoke('0x2AED6301F67007D5', localPlayer.train.trains[0]); // _DISABLE_CAM_COLLISION_FOR_ENTITY
+			
+			trainTicks++;
+			
+			let mParams = {};
+			if(typeof(missionIDParams[curMissionID]) !== "undefined") mParams = missionIDParams[curMissionID];
+			
+			if(typeof(mParams.maxSpeed) !== "undefined") {
+				if(Math.round(parseFloat(localPlayer.train.speed * 3.45)) > localPlayer.train.speedLimit) {
+					speedWarning++;
+					if(speedWarning >= 1000) {
+						speedWarning = 0;
+						trainWarning("speedLimit");
+					}
+				}else{
+					if(speedWarning > 0 && speedWarning < 1000) speedWarning = speedWarning - 0.5;
+				}
+			}
+			
+			if(!goodTrainParked && !trainParkedProcess) {
+				if(trainTicks == 40 || trainTicks == 80 || trainTicks == 120 || trainTicks == 160) {
+					if(mp.game.controls.isControlPressed(0, 71)) { // -- Accel (W)
+						if(typeof(mParams.maxSpeed) !== "undefined") {
+							if(localPlayer.train.speed <= mParams.maxSpeed) {
+								localPlayer.train.speed = Math.round((localPlayer.train.speed + mParams.accel).toFixed(1) * 100) / 100;
+								if(!isFloat(localPlayer.train.speed)) localPlayer.train.speed = parseFloat(localPlayer.train.speed)+0.1;
+								if(localPlayer.train.speed > -mParams.dccel && localPlayer.train.speed < mParams.accel) localPlayer.train.speed = 0;
+								//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+localPlayer.train.speed+"</span>");
+								mp.game.invoke('0xAA0BC91BE0B796E3', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainSpeed
+								mp.game.invoke('0x16469284DB8C62B5', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainCruiseSpeed
+							}
+							kTrainPressed = "W";
+						}
+					}else if(mp.game.controls.isControlPressed(0, 72)){ // -- Dccel (S)
+						if(typeof(mParams.maxSpeed) !== "undefined") {
+							if(localPlayer.train.speed >= -10) {
+								localPlayer.train.speed = Math.round((localPlayer.train.speed - mParams.dccel).toFixed(1) * 100) / 100;
+								if(!isFloat(localPlayer.train.speed)) localPlayer.train.speed = parseFloat(localPlayer.train.speed)-0.1;
+								if(localPlayer.train.speed > -mParams.dccel && localPlayer.train.speed < mParams.accel) localPlayer.train.speed = 0;
+								//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+localPlayer.train.speed+"</span>");
+								mp.game.invoke('0xAA0BC91BE0B796E3', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainSpeed
+								mp.game.invoke('0x16469284DB8C62B5', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainCruiseSpeed
+							}
+							kTrainPressed = "S";
+						}
+					}
+				}else if(trainTicks >= 200) {
+					if(kTrainPressed == "W" || mp.game.controls.isControlPressed(0, 71)) { // -- Accel (W)
+						if(typeof(mParams.maxSpeed) !== "undefined") {
+							if(!kTrainPressed && localPlayer.train.speed <= mParams.maxSpeed) {
+								localPlayer.train.speed = Math.round((localPlayer.train.speed + mParams.accel).toFixed(1) * 100) / 100;
+								if(!isFloat(localPlayer.train.speed)) localPlayer.train.speed = parseFloat(localPlayer.train.speed)+0.1;
+								if(localPlayer.train.speed > -mParams.dccel && localPlayer.train.speed < mParams.accel) localPlayer.train.speed = 0;
+								mp.game.invoke('0xAA0BC91BE0B796E3', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainSpeed
+								mp.game.invoke('0x16469284DB8C62B5', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainCruiseSpeed
+							}
+							if(oldTrainSpeed != localPlayer.train.speed) {
+								mp.events.callRemote('setTrainSpeed', localPlayer.train.speed.toString());
+								//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+localPlayer.train.speed+" SYNCED</span>");
+								oldTrainSpeed = localPlayer.train.speed;
+								
+								if(localPlayer.train.speed != 0) {
+									if(localPlayer.train.doors[0]) {
+										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],0);
+										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],2);
+										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],0);
+										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],2);
+										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],0);
+										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],2);
+										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],0);
+										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],2);
+										localPlayer.train.doors[0] = 0;
+										trainWarning("openDoorsInSpeed");
+									}else if(localPlayer.train.doors[1]) {
+										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],1);
+										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],3);
+										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],1);
+										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],3);
+										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],1);
+										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],3);
+										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],1);
+										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],3);
+										localPlayer.train.doors[1] = 0;
+										trainWarning("openDoorsInSpeed");
+									}
+								}
+							}
+						}
+					}else if(kTrainPressed == "S" || mp.game.controls.isControlPressed(0, 72)){ // -- Dccel (S)
+						if(typeof(mParams.maxSpeed) !== "undefined") {
+							if(!kTrainPressed && localPlayer.train.speed >= -10) {
+								localPlayer.train.speed = Math.round((localPlayer.train.speed - mParams.dccel).toFixed(1) * 100) / 100;
+								if(!isFloat(localPlayer.train.speed)) localPlayer.train.speed = parseFloat(localPlayer.train.speed)-0.1;
+								if(localPlayer.train.speed > -mParams.dccel && localPlayer.train.speed < mParams.accel);
+								mp.game.invoke('0xAA0BC91BE0B796E3', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainSpeed
+								mp.game.invoke('0x16469284DB8C62B5', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainCruiseSpeed
+							}
+							if(oldTrainSpeed != localPlayer.train.speed) {
+								mp.events.callRemote('setTrainSpeed', localPlayer.train.speed.toString());
+								//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+localPlayer.train.speed+" SYNCED</span>");
+								oldTrainSpeed = localPlayer.train.speed;
+							}
+						}
+					}
+					if(kTrainPressed) kTrainPressed = false;
+					trainTicks = 0;
+				}
+			}
+			
+			if(typeof(curTrainPoint.pos) !== "undefined") {
+				let train_1 = localPlayer.train.trains[0];
+				let golovaPos = mp.game.invokeVector3('0x3FEF770D40960D5A', train_1);
+				
+				let markerPos = curTrainPoint.pos;
+				let dist = mp.game.gameplay.getDistanceBetweenCoords(golovaPos.x, golovaPos.y, golovaPos.z, markerPos.x, markerPos.y, markerPos.z, false);
+				if(dist < 8.5) {
+					if(dist < 2) {
+						curTrainPoint.color[0] = 0;
+						curTrainPoint.color[1] = 255;
+						curTrainPoint.color[2] = 0;
+						curTrainPoint.color[3] = 255;
+						if(!goodTrainParked && !trainParkedProcess && localPlayer.train.speed == 0) {
+							goodTrainParked = curTrainPoint;
+							trainParkedProcess = curTrainPoint;
+							curTrainPoint.color[0] = 4;
+							curTrainPoint.color[1] = 36;
+							curTrainPoint.color[2] = 217;
+						}else if(goodTrainParked || trainParkedProcess) {
+							curTrainPoint.color[0] = 4;
+							curTrainPoint.color[1] = 36;
+							curTrainPoint.color[2] = 217;
+						}
+					}else{
+						curTrainPoint.color[0] = 255;
+						curTrainPoint.color[1] = 0;
+						curTrainPoint.color[2] = 0;
+						curTrainPoint.color[3] = 200;
+					}
+				}else{
+					curTrainPoint.color[0] = 255;
+					curTrainPoint.color[1] = 150;
+					curTrainPoint.color[2] = 0;
+					curTrainPoint.color[3] = 150;
+				}
+				
+				for (let i = 0; i < 4; i++) {
+					curTrainPoint.drawColor[i] += .03 * (curTrainPoint.color[i] - curTrainPoint.drawColor[i]);
+				}
+				
+				mp.game1.graphics.drawMarker(43, markerPos.x, markerPos.y, markerPos.z-1.4, 0, 0, 0, 0, 0, curTrainPoint.heading, curTrainPoint.width, curTrainPoint.height, 9, curTrainPoint.drawColor[0], curTrainPoint.drawColor[1], curTrainPoint.drawColor[2], curTrainPoint.drawColor[3], true, false, 0, false, "", "", false);
+				mp.game1.graphics.drawMarker(22, markerPos.x, markerPos.y, (markerPos.z-1.4)+0.65, curTrainPoint.dir[0], curTrainPoint.dir[1], 0, 270, 0, 0, 2, 2, 2, curTrainPoint.drawColor[0], curTrainPoint.drawColor[1], curTrainPoint.drawColor[2], curTrainPoint.drawColor[3], false, false, 0, false, "", "", false);
+				
+				if(goodTrainParked) {
+					if(typeof(localPlayer.train) !== "undefined") {
+						if(localPlayer.train) {
+							if(typeof(goodTrainParked.type) !== "undefined") {
+								if(Behaviour.inVehPos) {
+									if(typeof(Behaviour.inVehPos.x) !== "undefined" && mp.game.gameplay.getDistanceBetweenCoords(golovaPos.x, golovaPos.y, golovaPos.z, Behaviour.inVehPos.x, Behaviour.inVehPos.y, Behaviour.inVehPos.z, true) > 320) return antiCheatDetected('Читы, телепорт на поезде');
+								}
+								trainMissionProcessor(goodTrainParked.type.toString());
+								goodTrainParked = false;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+});
+
+mp.events.add("playerQuit", (player) => {
+	if(player == localPlayer) {
+		mp.players.forEach((entity) => {
+			if(typeof(entity.train) !== "undefined") {
+				if(typeof(entity.train.trains[0]) !== "undefined") mp.game.vehicle.deleteMissionTrain(entity.train.trains[0]);
+				delete entity.train;
+			}
+		});
+	}
+});
 }

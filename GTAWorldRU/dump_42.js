@@ -372,4 +372,4 @@ mp.events.add('sendDEBUGPhone', (text) => {
 	mp.gui.chat.push("DEBUG: "+ text);
 });
 
-}ᶉȶ
+}ᯁ唂Ⱦ

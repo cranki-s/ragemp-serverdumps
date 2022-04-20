@@ -12,7 +12,7 @@ class WorldObjectManager{
         try{
             mp.console.logError("Exception@ ->" + where  +  " -> " + exception.message, false, true)
         } catch {
-            mp.console.logError("PoliceRadar@Exception: Print-Error", false, true)
+            mp.console.logError("WorldObject@Exception: Print-Error", false, true)
         }
     }
 }

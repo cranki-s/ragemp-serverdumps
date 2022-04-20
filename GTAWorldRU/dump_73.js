@@ -93,4 +93,4 @@ mp.events.add('PlayerDS::cancelPurchase', () => {
     mp.events.callRemote('PlayerDS::CancelPurchase');
 });
 
-}￿
+}

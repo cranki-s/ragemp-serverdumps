@@ -4,7 +4,1074 @@
 
 require('./modules/modules');
 
-},{"./modules/modules":178}],2:[function(require,module,exports){
+},{"./modules/modules":200}],2:[function(require,module,exports){
+"use strict";
+
+const { cbHelper } = require("../CircuitBreaker/CbHelper");
+const { CbPortLights } = require("../CircuitBreaker/CbPortLights");
+
+class CbGenericPorts {
+  constructor() {
+    this.startPortPos = { x: 0, y: 0 };
+    this.finishPortPos = { x: 0, y: 0 };
+    this.startPortHeading = -1;
+    this.finishPortHeading = -1;
+    this.startPortLights = null;
+    this.finishPortLights = null;
+    this.startPortBounds = [];
+    this.finishPortBounds = [];
+    this.winBounds = [];
+  }
+  isVectorZero(vector) {
+    return vector.x === 0 && vector.y === 0;
+  }
+  initialize(level) {
+    this.startPortPos = this.getStartPortPosition(level);
+    this.finishPortPos = this.getFinishPortPosition(level, this.startPortPos);
+    this.startPortHeading = this.getPortHeading(this.startPortPos);
+    this.finishPortHeading = this.getPortHeading(this.finishPortPos);
+    this.startPortLights = new CbPortLights(this.startPortPos, this.startPortHeading, 'START');
+    this.finishPortLights = new CbPortLights(this.finishPortPos, this.finishPortHeading, 'FINISH');
+    this.startPortBounds = this.getPortCollisionBounds(this.startPortPos, this.startPortHeading, true);
+    this.finishPortBounds = this.getPortCollisionBounds(this.finishPortPos, this.finishPortHeading, false);
+    this.winBounds = this.getWinBounds();
+  }
+  getRandom(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
+  drawPorts() {
+    if (this.isVectorZero(this.startPortPos) || this.isVectorZero(this.finishPortPos) || this.startPortHeading === -1 || this.finishPortHeading === -1) {
+      return;
+    }
+    this.drawPortSprite(this.startPortPos, this.startPortHeading);
+    this.drawPortSprite(this.finishPortPos, this.finishPortHeading);
+    if (this.startPortLights) this.startPortLights.drawLights();
+    if (this.finishPortLights) this.finishPortLights.drawLights();
+  }
+  isCollidingWithPort(pointPosition) {
+    return (cbHelper.isInPoly(this.startPortBounds, pointPosition) || cbHelper.isInPoly(this.finishPortBounds, pointPosition)) && !this.isPointInGameWinningPosition(pointPosition);
+  }
+  isPointInGameWinningPosition(pointPosition) {
+    return cbHelper.isInPoly(this.winBounds, pointPosition);
+  }
+  drawPortSprite(position, heading) {
+    const portHeight = heading === 0 || heading === 180 ? 0.055 : 0.0325;
+    const portWidth = heading === 0 || heading === 180 ? 0.02 : 0.0325;
+    mp.game1.graphics.drawSprite('MPCircuitHack', 'genericport', position.x, position.y, portWidth, portHeight, heading, 255, 255, 255, 255);
+  }
+  getMagnitude(heading, isStartPort) {
+    if (heading === 0 || heading === 180) {
+      return isStartPort ? 0.0279 : 0.0266;
+    }
+    return isStartPort ? 0.0211 : 0.0173;
+  }
+  getAngles(heading, isStartPort) {
+    if (heading === 0 || heading === 180) {
+      return isStartPort ? [289.75, 250.75, 109.75, 70] : [277.75, 259.25, 100.75, 82.5];
+    }
+    return isStartPort ? [313.25, 227.75, 132.25, 48.5] : [111, 66.5, 293.25, 249.25];
+  }
+  getPortCollisionBounds(position, heading, isStartPort) {
+    const magnitude = this.getMagnitude(heading, isStartPort);
+    const mult = heading === 0 || heading === 180 ? 1 : -1;
+    const angles = this.getAngles(heading, isStartPort);
+    const portBounds = [];
+    for (const angle of angles) {
+      portBounds.push(cbHelper.getOffsetPosition(position, magnitude, (heading + angle) % 360, mult));
+    }
+    return portBounds;
+  }
+  getMagnitudeAngleOffsetPairs(heading) {
+    return heading === 0 || heading === 180 ? [[0.0278, 70.25], [0.02807, 289.5], [0.02708, 282], [0.02665, 77.75]] : [[0.02088, 228.5], [0.01827, 238.75], [0.01806, 121.75], [0.02061, 131.75]];
+  }
+  getWinBounds() {
+    const mult = this.finishPortHeading === 0 || this.finishPortHeading === 180 ? 1 : -1;
+    const magnitudeAngleOffsetPairs = this.getMagnitudeAngleOffsetPairs(this.finishPortHeading);
+    const portBounds = [];
+    for (const pair of magnitudeAngleOffsetPairs) {
+      portBounds.push(cbHelper.getOffsetPosition(this.finishPortPos, pair[0], (this.finishPortHeading + pair[1]) % 360, mult));
+    }
+    return portBounds;
+  }
+  getStartPortPosition(level) {
+    const potentialPortBounds = this.getPortPositionBounds(level);
+    if (potentialPortBounds.some(e => this.isVectorZero(e[0]) || this.isVectorZero(e[1]))) {
+      return { x: 0, y: 0 };
+    }
+    const startPortBounds = potentialPortBounds[this.getRandom(0, potentialPortBounds.length - 1)];
+    let startPos = { x: 0, y: 0 };
+    let attempts = 20;
+    while (this.isVectorZero(startPos) && attempts > 0) {
+      startPos = this.getRandomPortPosition(startPortBounds);
+      attempts--;
+    }
+    return startPos;
+  }
+  getFinishPortPosition(level, startPortPosition) {
+    const potentialPortBounds = this.getPortPositionBounds(level);
+    let maxDist = 0;
+    let endPos = { x: 0, y: 0 };
+    for (const bounds of potentialPortBounds) {
+      let potentialPos = { x: 0, y: 0 };
+      while (this.isVectorZero(potentialPos)) {
+        potentialPos = this.getRandomPortPosition(bounds);
+      }
+      const startEndDist = cbHelper.getDistance(startPortPosition, potentialPos);
+      if (startEndDist > maxDist) {
+        maxDist = startEndDist;
+        endPos = potentialPos;
+      }
+    }
+    return endPos;
+  }
+  getPortHeading(portPosition) {
+    const minX = 0.159;
+    const maxX = 0.841;
+    const minY = 0.153;
+    const maxY = 0.848;
+    const xBounds = [minX, maxX];
+    const yBounds = [minY, maxY];
+    const closestX = xBounds.sort((a, b) => Math.abs(a - portPosition.x) - Math.abs(b - portPosition.x))[0];
+    const closestY = yBounds.sort((a, b) => Math.abs(a - portPosition.y) - Math.abs(b - portPosition.y))[0];
+    if (Math.abs(portPosition.x - closestX) < Math.abs(portPosition.y - closestY)) {
+      if (Math.abs(closestX - minX) < Math.abs(closestX - maxX)) {
+        return 0;
+      }
+      return 180;
+    }
+    if (Math.abs(closestY - minY) < Math.abs(closestY - maxY)) {
+      return 90;
+    }
+    return 270;
+  }
+  getRandomPortPosition(portBounds) {
+    if (portBounds.length < 2) return { x: 0, y: 0 };
+    const portX = this.getRandom(portBounds[0].x * 1000, portBounds[1].x * 1000) / 1000;
+    const portY = this.getRandom(portBounds[0].y * 1000, portBounds[1].y * 1000) / 1000;
+    return { x: portX, y: portY };
+  }
+  getPortPositionBounds(level) {
+    switch (level) {
+      case 1:
+        return [[{ x: 0.169, y: 0.613 }, { x: 0.169, y: 0.816 }], [{ x: 0.179, y: 0.837 }, { x: 0.284, y: 0.837 }], [{ x: 0.833, y: 0.181 }, { x: 0.833, y: 0.277 }], [{ x: 0.751, y: 0.163 }, { x: 0.823, y: 0.163 }]];
+      case 2:
+        return [[{ x: 0.169, y: 0.673 }, { x: 0.169, y: 0.818 }], [{ x: 0.18, y: 0.838 }, { x: 0.297, y: 0.838 }], [{ x: 0.832, y: 0.181 }, { x: 0.832, y: 0.324 }], [{ x: 0.778, y: 0.16 }, { x: 0.821, y: 0.16 }]];
+      case 3:
+        return [[{ x: 0.166, y: 0.182 }, { x: 0.166, y: 0.263 }], [{ x: 0.166, y: 0.745 }, { x: 0.166, y: 0.816 }], [{ x: 0.18, y: 0.837 }, { x: 0.31, y: 0.837 }], [{ x: 0.184, y: 0.164 }, { x: 0.277, y: 0.164 }]];
+      case 4:
+        return [[{ x: 0.169, y: 0.628 }, { x: 0.169, y: 0.817 }], [{ x: 0.183, y: 0.838 }, { x: 0.259, y: 0.838 }], [{ x: 0.833, y: 0.186 }, { x: 0.833, y: 0.359 }], [{ x: 0.797, y: 0.161 }, { x: 0.819, y: 0.161 }]];
+      case 5:
+        return [[{ x: 0.832, y: 0.742 }, { x: 0.832, y: 0.811 }], [{ x: 0.761, y: 0.839 }, { x: 0.821, y: 0.839 }], [{ x: 0.169, y: 0.184 }, { x: 0.169, y: 0.383 }], [{ x: 0.184, y: 0.162 }, { x: 0.234, y: 0.162 }]];
+      case 6:
+        return [[{ x: 0.167, y: 0.183 }, { x: 0.167, y: 0.3 }], [{ x: 0.18, y: 0.162 }, { x: 0.214, y: 0.162 }], [{ x: 0.833, y: 0.186 }, { x: 0.833, y: 0.282 }], [{ x: 0.768, y: 0.161 }, { x: 0.82, y: 0.161 }]];
+      default:
+        return []; // Not possible
+    }
+  }
+}
+
+exports.cbGenericPorts = new CbGenericPorts();
+
+},{"../CircuitBreaker/CbHelper":3,"../CircuitBreaker/CbPortLights":6}],3:[function(require,module,exports){
+"use strict";
+
+class CbHelper {
+  constructor() {
+    this.RED_COLOUR = { r: 188, g: 49, b: 43 };
+    this.GREEN_COLOUR = { r: 45, g: 203, b: 134 };
+  }
+  getMinimum(numbers) {
+    return Math.min(...numbers);
+  }
+  getMaximum(numbers) {
+    return Math.max(...numbers);
+  }
+  getDistance(startPos, endPos) {
+    return Math.sqrt(Math.pow(startPos.x - endPos.x, 2) + Math.pow(startPos.y - endPos.y, 2));
+  }
+  isInPoly(poly, point) {
+    const minX = this.getMinimum(poly.map(p => p.x));
+    const minY = this.getMinimum(poly.map(p => p.y));
+    const maxX = this.getMaximum(poly.map(p => p.x));
+    const maxY = this.getMaximum(poly.map(p => p.y));
+    if (point.x < minX || point.x > maxX || point.y < minY || point.y > maxY) return false;
+    let i = 0;
+    let j = poly.length - 1;
+    let isMatch = false;
+    for (; i < poly.length; j = i++) {
+      if (poly[i].x === point.x && poly[i].y === point.y) return true;
+      if (poly[j].x === point.x && poly[j].y === point.y) return true;
+      if (poly[i].x == poly[j].x && point.x == poly[i].x && point.y >= Math.min(poly[i].y, poly[j].y) && point.y <= Math.max(poly[i].y, poly[j].y)) return true;
+      if (poly[i].y == poly[j].y && point.y == poly[i].y && point.x >= Math.min(poly[i].x, poly[j].x) && point.x <= Math.max(poly[i].x, poly[j].x)) return true;
+      if (poly[i].y > point.y != poly[j].y > point.y && point.x < (poly[j].x - poly[i].x) * (point.y - poly[i].y) / (poly[j].y - poly[i].y) + poly[i].x) isMatch = !isMatch;
+    }
+    return isMatch;
+  }
+  getOffsetPosition(startPosition, magnitude, heading, multiplier) {
+    const cosx = multiplier * Math.cos(heading * (Math.PI / 180));
+    const siny = multiplier * Math.sin(heading * (Math.PI / 180));
+    return {
+      x: startPosition.x + cosx * magnitude,
+      y: startPosition.y + siny * magnitude
+    };
+  }
+}
+exports.cbHelper = new CbHelper();
+
+},{}],4:[function(require,module,exports){
+"use strict";
+
+class CbMapBoundaries {
+  getBoxBounds(mapNumber) {
+    switch (mapNumber) {
+      case 1:
+        return [[{ x: 0.18, y: 0.155 }, { x: 0.18, y: 0.583 }, { x: 0.307, y: 0.583 }, { x: 0.307, y: 0.154 }], [{ x: 0.321, y: 0.154 }, { x: 0.321, y: 0.477 }, { x: 0.382, y: 0.477 }, { x: 0.382, y: 0.154 }], [{ x: 0.396, y: 0.154 }, { x: 0.396, y: 0.379 }, { x: 0.429, y: 0.379 }, { x: 0.429, y: 0.155 }], [{ x: 0.443, y: 0.155 }, { x: 0.443, y: 0.378 }, { x: 0.477, y: 0.378 }, { x: 0.477, y: 0.154 }], [{ x: 0.491, y: 0.154 }, { x: 0.491, y: 0.379 }, { x: 0.525, y: 0.379 }, { x: 0.525, y: 0.155 }], [{ x: 0.538, y: 0.155 }, { x: 0.538, y: 0.308 }, { x: 0.585, y: 0.308 }, { x: 0.585, y: 0.155 }], [{ x: 0.597, y: 0.155 }, { x: 0.597, y: 0.308 }, { x: 0.645, y: 0.308 }, { x: 0.645, y: 0.155 }], [{ x: 0.66, y: 0.155 }, { x: 0.66, y: 0.255 }, { x: 0.73, y: 0.255 }, { x: 0.73, y: 0.154 }], [{ x: 0.692, y: 0.311 }, { x: 0.692, y: 0.373 }, { x: 0.584, y: 0.376 }, { x: 0.584, y: 0.452 }, { x: 0.838, y: 0.452 }, { x: 0.838, y: 0.31 }], [{ x: 0.343, y: 0.544 }, { x: 0.343, y: 0.639 }, { x: 0.398, y: 0.639 }, { x: 0.398, y: 0.544 }], [{ x: 0.302, y: 0.7 }, { x: 0.302, y: 0.846 }, { x: 0.434, y: 0.846 }, { x: 0.434, y: 0.7 }], [{ x: 0.451, y: 0.435 }, { x: 0.451, y: 0.847 }, { x: 0.569, y: 0.847 }, { x: 0.569, y: 0.436 }], [{ x: 0.587, y: 0.477 }, { x: 0.587, y: 0.846 }, { x: 0.705, y: 0.846 }, { x: 0.705, y: 0.477 }], [{ x: 0.721, y: 0.477 }, { x: 0.721, y: 0.846 }, { x: 0.838, y: 0.846 }, { x: 0.838, y: 0.475 }]];
+      case 2:
+        return [[{ x: 0.162, y: 0.152 }, { x: 0.163, y: 0.645 }, { x: 0.249, y: 0.643 }, { x: 0.252, y: 0.275 }, { x: 0.375, y: 0.275 }, { x: 0.375, y: 0.35 }, { x: 0.416, y: 0.35 }, { x: 0.416, y: 0.157 }], [{ x: 0.313, y: 0.36 }, { x: 0.313, y: 0.844 }, { x: 0.442, y: 0.844 }, { x: 0.442, y: 0.419 }, { x: 0.349, y: 0.415 }, { x: 0.348, y: 0.36 }], [{ x: 0.458, y: 0.238 }, { x: 0.458, y: 0.844 }, { x: 0.515, y: 0.844 }, { x: 0.515, y: 0.238 }], [{ x: 0.555, y: 0.156 }, { x: 0.555, y: 0.454 }, { x: 0.541, y: 0.458 }, { x: 0.538, y: 0.551 }, { x: 0.685, y: 0.551 }, { x: 0.688, y: 0.46 }, { x: 0.725, y: 0.456 }, { x: 0.728, y: 0.309 }, { x: 0.757, y: 0.303 }, { x: 0.759, y: 0.157 }], [{ x: 0.552, y: 0.635 }, { x: 0.552, y: 0.786 }, { x: 0.695, y: 0.787 }, { x: 0.695, y: 0.633 }], [{ x: 0.776, y: 0.36 }, { x: 0.776, y: 0.455 }, { x: 0.839, y: 0.455 }, { x: 0.839, y: 0.358 }], [{ x: 0.739, y: 0.517 }, { x: 0.739, y: 0.679 }, { x: 0.801, y: 0.681 }, { x: 0.801, y: 0.514 }], [{ x: 0.739, y: 0.749 }, { x: 0.739, y: 0.846 }, { x: 0.839, y: 0.846 }, { x: 0.838, y: 0.747 }]];
+      case 3:
+        return [[{ x: 0.299, y: 0.153 }, { x: 0.299, y: 0.245 }, { x: 0.372, y: 0.249 }, { x: 0.375, y: 0.343 }, { x: 0.465, y: 0.344 }, { x: 0.465, y: 0.247 }, { x: 0.448, y: 0.242 }, { x: 0.446, y: 0.154 }], [{ x: 0.163, y: 0.298 }, { x: 0.163, y: 0.715 }, { x: 0.328, y: 0.715 }, { x: 0.331, y: 0.578 }, { x: 0.499, y: 0.578 }, { x: 0.502, y: 0.771 }, { x: 0.567, y: 0.771 }, { x: 0.568, y: 0.564 }, { x: 0.649, y: 0.564 }, { x: 0.649, y: 0.473 }, { x: 0.574, y: 0.468 }, { x: 0.572, y: 0.247 }, { x: 0.501, y: 0.247 }, { x: 0.501, y: 0.403 }, { x: 0.329, y: 0.403 }, { x: 0.328, y: 0.299 }], [{ x: 0.365, y: 0.674 }, { x: 0.365, y: 0.846 }, { x: 0.436, y: 0.846 }, { x: 0.436, y: 0.674 }], [{ x: 0.615, y: 0.154 }, { x: 0.615, y: 0.383 }, { x: 0.839, y: 0.383 }, { x: 0.839, y: 0.155 }], [{ x: 0.698, y: 0.429 }, { x: 0.698, y: 0.561 }, { x: 0.839, y: 0.561 }, { x: 0.839, y: 0.43 }], [{ x: 0.613, y: 0.649 }, { x: 0.613, y: 0.845 }, { x: 0.839, y: 0.845 }, { x: 0.839, y: 0.649 }]];
+      case 4:
+        return [[{ x: 0.162, y: 0.154 }, { x: 0.162, y: 0.593 }, { x: 0.305, y: 0.595 }, { x: 0.307, y: 0.654 }, { x: 0.419, y: 0.658 }, { x: 0.421, y: 0.78 }, { x: 0.54, y: 0.78 }, { x: 0.542, y: 0.658 }, { x: 0.69, y: 0.653 }, { x: 0.69, y: 0.559 }, { x: 0.542, y: 0.552 }, { x: 0.54, y: 0.489 }, { x: 0.324, y: 0.484 }, { x: 0.322, y: 0.154 }], [{ x: 0.276, y: 0.728 }, { x: 0.276, y: 0.846 }, { x: 0.381, y: 0.846 }, { x: 0.381, y: 0.73 }], [{ x: 0.352, y: 0.22 }, { x: 0.352, y: 0.298 }, { x: 0.368, y: 0.302 }, { x: 0.369, y: 0.434 }, { x: 0.421, y: 0.434 }, { x: 0.422, y: 0.41 }, { x: 0.576, y: 0.41 }, { x: 0.576, y: 0.478 }, { x: 0.735, y: 0.48 }, { x: 0.736, y: 0.715 }, { x: 0.578, y: 0.718 }, { x: 0.578, y: 0.847 }, { x: 0.837, y: 0.847 }, { x: 0.837, y: 0.397 }, { x: 0.78, y: 0.397 }, { x: 0.779, y: 0.427 }, { x: 0.763, y: 0.427 }, { x: 0.761, y: 0.374 }, { x: 0.687, y: 0.369 }, { x: 0.687, y: 0.23 }, { x: 0.643, y: 0.23 }, { x: 0.643, y: 0.371 }, { x: 0.624, y: 0.371 }, { x: 0.623, y: 0.315 }, { x: 0.422, y: 0.313 }, { x: 0.421, y: 0.22 }], [{ x: 0.46, y: 0.154 }, { x: 0.46, y: 0.263 }, { x: 0.596, y: 0.261 }, { x: 0.597, y: 0.154 }], [{ x: 0.723, y: 0.154 }, { x: 0.723, y: 0.262 }, { x: 0.778, y: 0.262 }, { x: 0.778, y: 0.155 }]];
+      case 5:
+        return [[{ x: 0.254, y: 0.156 }, { x: 0.253, y: 0.436 }, { x: 0.195, y: 0.439 }, { x: 0.195, y: 0.514 }, { x: 0.253, y: 0.515 }, { x: 0.255, y: 0.701 }, { x: 0.337, y: 0.704 }, { x: 0.339, y: 0.788 }, { x: 0.372, y: 0.787 }, { x: 0.372, y: 0.636 }, { x: 0.401, y: 0.636 }, { x: 0.401, y: 0.673 }, { x: 0.471, y: 0.672 }, { x: 0.471, y: 0.637 }, { x: 0.606, y: 0.637 }, { x: 0.606, y: 0.682 }, { x: 0.652, y: 0.682 }, { x: 0.652, y: 0.483 }, { x: 0.497, y: 0.483 }, { x: 0.496, y: 0.53 }, { x: 0.328, y: 0.53 }, { x: 0.328, y: 0.261 }, { x: 0.409, y: 0.261 }, { x: 0.41, y: 0.359 }, { x: 0.441, y: 0.359 }, { x: 0.441, y: 0.244 }, { x: 0.531, y: 0.244 }, { x: 0.532, y: 0.305 }, { x: 0.577, y: 0.305 }, { x: 0.577, y: 0.255 }, { x: 0.605, y: 0.253 }, { x: 0.605, y: 0.154 }], [{ x: 0.163, y: 0.58 }, { x: 0.163, y: 0.635 }, { x: 0.219, y: 0.635 }, { x: 0.219, y: 0.581 }], [{ x: 0.232, y: 0.761 }, { x: 0.232, y: 0.844 }, { x: 0.305, y: 0.846 }, { x: 0.305, y: 0.761 }], [{ x: 0.383, y: 0.413 }, { x: 0.383, y: 0.493 }, { x: 0.461, y: 0.493 }, { x: 0.461, y: 0.414 }], [{ x: 0.417, y: 0.744 }, { x: 0.417, y: 0.846 }, { x: 0.654, y: 0.846 }, { x: 0.654, y: 0.744 }, { x: 0.552, y: 0.743 }, { x: 0.55, y: 0.704 }, { x: 0.497, y: 0.704 }, { x: 0.495, y: 0.742 }, { x: 0.417, y: 0.745 }], [{ x: 0.482, y: 0.301 }, { x: 0.482, y: 0.431 }, { x: 0.561, y: 0.431 }, { x: 0.561, y: 0.368 }, { x: 0.511, y: 0.364 }, { x: 0.509, y: 0.302 }], [{ x: 0.658, y: 0.199 }, { x: 0.657, y: 0.366 }, { x: 0.578, y: 0.368 }, { x: 0.578, y: 0.432 }, { x: 0.75, y: 0.434 }, { x: 0.75, y: 0.495 }, { x: 0.694, y: 0.496 }, { x: 0.694, y: 0.845 }, { x: 0.742, y: 0.845 }, { x: 0.743, y: 0.646 }, { x: 0.763, y: 0.644 }, { x: 0.764, y: 0.555 }, { x: 0.805, y: 0.554 }, { x: 0.805, y: 0.435 }, { x: 0.788, y: 0.432 }, { x: 0.787, y: 0.368 }, { x: 0.707, y: 0.367 }, { x: 0.706, y: 0.199 }], [{ x: 0.754, y: 0.155 }, { x: 0.753, y: 0.22 }, { x: 0.775, y: 0.22 }, { x: 0.775, y: 0.155 }], [{ x: 0.818, y: 0.259 }, { x: 0.818, y: 0.327 }, { x: 0.838, y: 0.325 }, { x: 0.838, y: 0.258 }], [{ x: 0.808, y: 0.616 }, { x: 0.809, y: 0.707 }, { x: 0.838, y: 0.706 }, { x: 0.838, y: 0.616 }]];
+      case 6:
+        return [[{ x: 0.232, y: 0.155 }, { x: 0.232, y: 0.218 }, { x: 0.254, y: 0.218 }, { x: 0.254, y: 0.154 }], [{ x: 0.225, y: 0.281 }, { x: 0.224, y: 0.328 }, { x: 0.162, y: 0.331 }, { x: 0.162, y: 0.515 }, { x: 0.214, y: 0.515 }, { x: 0.214, y: 0.425 }, { x: 0.247, y: 0.422 }, { x: 0.247, y: 0.281 }], [{ x: 0.163, y: 0.572 }, { x: 0.163, y: 0.847 }, { x: 0.273, y: 0.847 }, { x: 0.273, y: 0.758 }, { x: 0.205, y: 0.757 }, { x: 0.205, y: 0.622 }, { x: 0.216, y: 0.621 }, { x: 0.216, y: 0.572 }], [{ x: 0.24, y: 0.648 }, { x: 0.24, y: 0.715 }, { x: 0.261, y: 0.715 }, { x: 0.261, y: 0.649 }], [{ x: 0.301, y: 0.154 }, { x: 0.3, y: 0.249 }, { x: 0.284, y: 0.251 }, { x: 0.284, y: 0.327 }, { x: 0.3, y: 0.331 }, { x: 0.3, y: 0.47 }, { x: 0.251, y: 0.472 }, { x: 0.251, y: 0.563 }, { x: 0.299, y: 0.563 }, { x: 0.3, y: 0.537 }, { x: 0.324, y: 0.539 }, { x: 0.324, y: 0.603 }, { x: 0.298, y: 0.605 }, { x: 0.298, y: 0.697 }, { x: 0.324, y: 0.7 }, { x: 0.325, y: 0.806 }, { x: 0.499, y: 0.806 }, { x: 0.499, y: 0.758 }, { x: 0.377, y: 0.755 }, { x: 0.377, y: 0.598 }, { x: 0.425, y: 0.596 }, { x: 0.425, y: 0.543 }, { x: 0.377, y: 0.541 }, { x: 0.375, y: 0.458 }, { x: 0.354, y: 0.455 }, { x: 0.354, y: 0.253 }, { x: 0.392, y: 0.25 }, { x: 0.392, y: 0.155 }], [{ x: 0.375, y: 0.339 }, { x: 0.375, y: 0.407 }, { x: 0.396, y: 0.407 }, { x: 0.396, y: 0.339 }], [{ x: 0.453, y: 0.154 }, { x: 0.453, y: 0.225 }, { x: 0.474, y: 0.223 }, { x: 0.474, y: 0.155 }], [{ x: 0.454, y: 0.282 }, { x: 0.452, y: 0.341 }, { x: 0.425, y: 0.344 }, { x: 0.425, y: 0.423 }, { x: 0.599, y: 0.426 }, { x: 0.599, y: 0.511 }, { x: 0.525, y: 0.514 }, { x: 0.524, y: 0.65 }, { x: 0.422, y: 0.653 }, { x: 0.422, y: 0.71 }, { x: 0.536, y: 0.713 }, { x: 0.537, y: 0.846 }, { x: 0.838, y: 0.846 }, { x: 0.838, y: 0.747 }, { x: 0.755, y: 0.746 }, { x: 0.754, y: 0.696 }, { x: 0.647, y: 0.695 }, { x: 0.646, y: 0.745 }, { x: 0.591, y: 0.745 }, { x: 0.59, y: 0.653 }, { x: 0.57, y: 0.65 }, { x: 0.57, y: 0.598 }, { x: 0.651, y: 0.596 }, { x: 0.653, y: 0.342 }, { x: 0.666, y: 0.34 }, { x: 0.665, y: 0.216 }, { x: 0.629, y: 0.216 }, { x: 0.628, y: 0.342 }, { x: 0.478, y: 0.342 }, { x: 0.477, y: 0.282 }], [{ x: 0.464, y: 0.477 }, { x: 0.464, y: 0.616 }, { x: 0.485, y: 0.615 }, { x: 0.485, y: 0.477 }], [{ x: 0.51, y: 0.164 }, { x: 0.51, y: 0.286 }, { x: 0.589, y: 0.286 }, { x: 0.589, y: 0.165 }], [{ x: 0.698, y: 0.155 }, { x: 0.697, y: 0.577 }, { x: 0.681, y: 0.58 }, { x: 0.681, y: 0.629 }, { x: 0.747, y: 0.627 }, { x: 0.749, y: 0.559 }, { x: 0.796, y: 0.556 }, { x: 0.797, y: 0.458 }, { x: 0.749, y: 0.456 }, { x: 0.749, y: 0.154 }], [{ x: 0.779, y: 0.319 }, { x: 0.779, y: 0.402 }, { x: 0.838, y: 0.401 }, { x: 0.838, y: 0.319 }], [{ x: 0.784, y: 0.615 }, { x: 0.784, y: 0.696 }, { x: 0.837, y: 0.695 }, { x: 0.837, y: 0.615 }]];
+      default:
+        return [];
+    }
+  }
+}
+exports.cbMapBoundaries = new CbMapBoundaries();
+
+},{}],5:[function(require,module,exports){
+"use strict";
+
+var __awaiter = undefined && undefined.__awaiter || function (thisArg, _arguments, P, generator) {
+  function adopt(value) {
+    return value instanceof P ? value : new P(function (resolve) {
+      resolve(value);
+    });
+  }
+  return new (P || (P = Promise))(function (resolve, reject) {
+    function fulfilled(value) {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+    function rejected(value) {
+      try {
+        step(generator["throw"](value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+    function step(result) {
+      result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+    }
+    step((generator = generator.apply(thisArg, _arguments || [])).next());
+  });
+};
+
+const { cbGenericPorts } = require("../CircuitBreaker/CbGenericPorts");
+const { cbHelper } = require("../CircuitBreaker/CbHelper");
+
+class CbPoint {
+  constructor() {
+    this.pointHeadSize = 0.0125;
+    this.history = [];
+    this.alpha = 255;
+    this.isAlive = true;
+    this.isVisible = true;
+    this.lastDirection = 'NONE';
+    this.position = { x: 0, y: 0 };
+  }
+  resetData() {
+    this.alpha = 255;
+    this.isAlive = true;
+    this.isVisible = true;
+  }
+  initialize() {
+    this.resetData();
+    this.history = [];
+    this.setPointStartPosition();
+    this.history.push(cbGenericPorts.startPortPos);
+    this.setStartDirection(cbGenericPorts.startPortHeading);
+  }
+  drawPoint(status) {
+    if (!this.isAlive) {
+      mp.game1.graphics.drawSprite('MPCircuitHack', 'spark', this.position.x, this.position.y, 0.0125, 0.0125, 0, 255, 255, 255, this.alpha);
+    }
+    switch (status) {
+      case 'STARTING':
+      case 'INPROGRESS':
+      case 'SUCCESS':
+        mp.game1.graphics.drawSprite('MPCircuitHack', 'head', this.position.x, this.position.y, this.pointHeadSize, this.pointHeadSize, 0, cbHelper.GREEN_COLOUR.r, cbHelper.GREEN_COLOUR.g, cbHelper.GREEN_COLOUR.b, this.alpha);
+        return;
+      default:
+        mp.game1.graphics.drawSprite('MPCircuitHack', 'head', this.position.x, this.position.y, this.pointHeadSize, this.pointHeadSize, 0, cbHelper.RED_COLOUR.r, cbHelper.RED_COLOUR.g, cbHelper.RED_COLOUR.b, this.alpha);
+        return;
+    }
+  }
+  getCenterPoint(pos, xDeltaOverYDelta, xDelta, yDelta, distance) {
+    if (xDeltaOverYDelta) {
+      return xDelta < 0 ? { x: pos.x + distance / 2, y: pos.y } : { x: pos.x - distance / 2, y: pos.y };
+    }
+    return yDelta < 0 ? { x: pos.x, y: pos.y + distance / 2 } : { x: pos.x, y: pos.y - distance / 2 };
+  }
+  drawTailSpriteWidth(status, center, distance) {
+    switch (status) {
+      case 'STARTING':
+      case 'INPROGRESS':
+      case 'SUCCESS':
+        mp.game1.graphics.drawSprite('MPCircuitHack', 'tail', center.x, center.y, distance + 0.0018, 0.003, 0, cbHelper.GREEN_COLOUR.r, cbHelper.GREEN_COLOUR.g, cbHelper.GREEN_COLOUR.b, this.alpha);
+        return;
+      default:
+        mp.game1.graphics.drawSprite('MPCircuitHack', 'tail', center.x, center.y, distance + 0.0018, 0.003, 0, cbHelper.RED_COLOUR.r, cbHelper.RED_COLOUR.g, cbHelper.RED_COLOUR.b, this.alpha);
+        return;
+    }
+  }
+  drawTailSpriteHeight(status, center, distance) {
+    switch (status) {
+      case 'STARTING':
+      case 'INPROGRESS':
+      case 'SUCCESS':
+        mp.game1.graphics.drawSprite('MPCircuitHack', 'tail', center.x, center.y, 0.0018, distance + 0.003, 0, cbHelper.GREEN_COLOUR.r, cbHelper.GREEN_COLOUR.g, cbHelper.GREEN_COLOUR.b, this.alpha);
+        return;
+      default:
+        mp.game1.graphics.drawSprite('MPCircuitHack', 'tail', center.x, center.y, 0.0018, distance + 0.003, 0, cbHelper.RED_COLOUR.r, cbHelper.RED_COLOUR.g, cbHelper.RED_COLOUR.b, this.alpha);
+        return;
+    }
+  }
+  checkForCollision(xDeltaOverYDelta, center, distance) {
+    function toNDp(input, dp) {
+      return parseFloat(input.toFixed(dp));
+    }
+    const distance2 = distance / 2;
+    if (xDeltaOverYDelta) {
+      const roundedX = toNDp(this.position.x, 3);
+      if (roundedX <= toNDp(center.x - distance2, 3)) return false;
+      if (roundedX >= toNDp(center.x + distance2, 3)) return false;
+      if (Math.abs(this.position.y - center.y) > 0.003) return false;
+      return true;
+    }
+    const roundedY = toNDp(this.position.y, 3);
+    if (roundedY <= toNDp(center.y - distance2, 3)) return false;
+    if (roundedY >= toNDp(center.y + distance2, 3)) return false;
+    if (Math.abs(this.position.x - center.x) > 0.003) return false;
+    return true;
+  }
+  drawTailHistoryAndCheckCollisions(status) {
+    if (this.history.length === 0) return false;
+    let distance;
+    let xDelta;
+    let yDelta;
+    let centerPoint;
+    let historyPoint;
+    let historyNextPoint;
+    let xDeltaOverYDelta;
+    const historyClone = [...this.history];
+    for (let i = 0; i < historyClone.length; i++) {
+      historyPoint = historyClone[i];
+      if (i + 1 === historyClone.length) historyNextPoint = { x: this.position.x, y: this.position.y };else historyNextPoint = historyClone[i + 1];
+      distance = cbHelper.getDistance(historyNextPoint, historyPoint);
+      xDelta = historyNextPoint.x - historyPoint.x;
+      yDelta = historyNextPoint.y - historyPoint.y;
+      xDeltaOverYDelta = Math.abs(xDelta) > Math.abs(yDelta);
+      centerPoint = this.getCenterPoint(historyNextPoint, xDeltaOverYDelta, xDelta, yDelta, distance);
+      if (this.checkForCollision(xDeltaOverYDelta, centerPoint, distance)) return true;
+      this.drawTail(status, centerPoint, xDeltaOverYDelta, distance);
+    }
+    return false;
+  }
+  drawTail(status, center, xDeltaOverYDelta, distance) {
+    if (xDeltaOverYDelta) {
+      this.drawTailSpriteWidth(status, center, distance);
+    } else {
+      this.drawTailSpriteHeight(status, center, distance);
+    }
+  }
+  movePoint(speed) {
+    this.setPosition(this.lastDirection, speed);
+  }
+  addToTailHistory(directionChangePoint) {
+    if (!this.history.some(e => e.x === directionChangePoint.x && e.y === directionChangePoint.y)) {
+      this.history.push(directionChangePoint);
+    }
+  }
+  setStartDirection(heading) {
+    switch (heading) {
+      case 0:
+        this.lastDirection = 'RIGHT';
+        break;
+      case 90:
+        this.lastDirection = 'DOWN';
+        break;
+      case 180:
+        this.lastDirection = 'LEFT';
+        break;
+      default:
+        this.lastDirection = 'UP';
+        break;
+    }
+  }
+  getDirectionFromInput() {
+    if (mp.game1.controls.isDisabledControlPressed(0, 34)) return 'LEFT';
+    if (mp.game1.controls.isDisabledControlPressed(0, 35)) return 'RIGHT';
+    if (mp.game1.controls.isDisabledControlPressed(0, 32)) return 'UP';
+    if (mp.game1.controls.isDisabledControlPressed(0, 33)) return 'DOWN';
+    return this.lastDirection;
+  }
+  isOppositeOfCurrentDirection(direction) {
+    return this.lastDirection === 'LEFT' && direction === 'RIGHT' || this.lastDirection === 'RIGHT' && direction === 'LEFT' || this.lastDirection === 'UP' && direction === 'DOWN' || this.lastDirection === 'DOWN' && direction === 'UP';
+  }
+  getPointInputFromPlayer() {
+    const newDirection = this.getDirectionFromInput();
+    const lastPos = { x: this.position.x, y: this.position.y };
+    if (newDirection === this.lastDirection || this.isOppositeOfCurrentDirection(newDirection)) {
+      return;
+    }
+    this.lastDirection = newDirection;
+    this.addToTailHistory(lastPos);
+    mp.game1.audio.playSoundFrontend(-1, 'Click', 'DLC_HEIST_HACKING_SNAKE_SOUNDS', true);
+  }
+  startPointDeathAnimation() {
+    return __awaiter(this, void 0, void 0, function* () {
+      if (!this.isAlive) return;
+      this.isAlive = false;
+      while (this.alpha > 0) {
+        this.updateAlpha();
+        yield mp.game1.waitAsync(0);
+      }
+    });
+  }
+  updateAlpha() {
+    if (this.isAlive) return;
+    let newAlpha = this.alpha - 5;
+    if (newAlpha < 0) newAlpha = 0;
+    if (newAlpha > 255) newAlpha = 255;
+    this.alpha = newAlpha;
+    if (this.alpha <= 0) this.isVisible = false;
+  }
+  setPointStartPosition() {
+    const magnitude = cbGenericPorts.startPortHeading === 0 || cbGenericPorts.startPortHeading === 180 ? 0.0144 : 0.021;
+    this.position = cbHelper.getOffsetPosition(cbGenericPorts.startPortPos, magnitude, cbGenericPorts.startPortHeading, 1);
+  }
+  setPosition(direction, speed) {
+    switch (direction) {
+      case 'UP':
+        this.position.y -= speed;
+        break;
+      case 'DOWN':
+        this.position.y += speed;
+        break;
+      case 'LEFT':
+        this.position.x -= speed;
+        break;
+      case 'RIGHT':
+        this.position.x += speed;
+        break;
+      default:
+        break;
+    }
+    if (this.position.x < 0) this.position.x = 0;
+    if (this.position.x > 1) this.position.x = 1;
+    if (this.position.y < 0) this.position.y = 0;
+    if (this.position.y > 1) this.position.y = 1;
+  }
+}
+
+exports.cbPoint = new CbPoint();
+
+},{"../CircuitBreaker/CbGenericPorts":2,"../CircuitBreaker/CbHelper":3}],6:[function(require,module,exports){
+'use strict';
+
+const { cbHelper } = require("../CircuitBreaker/CbHelper");
+
+class CbPortLights {
+  constructor(position, heading, portType) {
+    this.position = position;
+    this.heading = heading;
+    this.portType = portType;
+    this.alpha = 255;
+    this.lastBlink = 0;
+    this.lightZeroPosition = this.getLightPosition(this.position, this.heading, 0);
+    this.lightOnePosition = this.getLightPosition(this.position, this.heading, 1);
+  }
+  drawLights() {
+    if (this.portType === 'START') {
+      this.drawLightSprite(this.lightZeroPosition, cbHelper.GREEN_COLOUR.r, cbHelper.GREEN_COLOUR.g, cbHelper.GREEN_COLOUR.b);
+      this.drawLightSprite(this.lightOnePosition, cbHelper.GREEN_COLOUR.r, cbHelper.GREEN_COLOUR.g, cbHelper.GREEN_COLOUR.b);
+      return;
+    }
+    if (this.lastBlink + 500 >= Date.now()) {
+      this.alpha = this.alpha === 255 ? 0 : 255;
+      this.lastBlink = Date.now();
+    }
+    this.drawLightSprite(this.lightZeroPosition, cbHelper.RED_COLOUR.r, cbHelper.RED_COLOUR.g, cbHelper.RED_COLOUR.b, this.alpha);
+    this.drawLightSprite(this.lightOnePosition, cbHelper.RED_COLOUR.r, cbHelper.RED_COLOUR.g, cbHelper.RED_COLOUR.b, this.alpha);
+  }
+  drawLightSprite(position, red, green, blue, alpha = 255) {
+    mp.game1.graphics.drawSprite('MPCircuitHack', 'light', position.x, position.y, 0.00775, 0.00775, 0, red, green, blue, alpha);
+  }
+  getAngleOffset(heading, lightNum) {
+    if (heading === 90 || heading === 270) {
+      return lightNum > 0 ? 128.75 : 232;
+    }
+    return lightNum > 0 ? 73 : 287.25;
+  }
+  getLightPosition(portPos, portHeading, lightNum) {
+    const magnitude = portHeading === 90 || portHeading === 270 ? 0.0164 : 0.0228;
+    const angleOffset = this.getAngleOffset(portHeading, lightNum);
+    const multiplier = portHeading === 90 || portHeading === 270 ? -1 : 1;
+    return cbHelper.getOffsetPosition(portPos, magnitude, (angleOffset + portHeading) % 360, multiplier);
+  }
+}
+
+exports.CbPortLights = CbPortLights;
+
+},{"../CircuitBreaker/CbHelper":3}],7:[function(require,module,exports){
+'use strict';
+
+const { clientCircuitBreakerManager } = require('../CircuitBreaker/CircuitBreaker.manager');
+
+mp.events.add({
+  CircuitBreakerStart: clientCircuitBreakerManager.start.bind(clientCircuitBreakerManager),
+  render: clientCircuitBreakerManager.handleRender.bind(clientCircuitBreakerManager)
+});
+
+},{"../CircuitBreaker/CircuitBreaker.manager":9}],8:[function(require,module,exports){
+"use strict";
+
+var _player = require("../player/player");
+
+var _player2 = _interopRequireDefault(_player);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var __awaiter = undefined && undefined.__awaiter || function (thisArg, _arguments, P, generator) {
+  function adopt(value) {
+    return value instanceof P ? value : new P(function (resolve) {
+      resolve(value);
+    });
+  }
+  return new (P || (P = Promise))(function (resolve, reject) {
+    function fulfilled(value) {
+      try {
+        step(generator.next(value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+    function rejected(value) {
+      try {
+        step(generator["throw"](value));
+      } catch (e) {
+        reject(e);
+      }
+    }
+    function step(result) {
+      result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+    }
+    step((generator = generator.apply(thisArg, _arguments || [])).next());
+  });
+};
+
+const { cbGenericPorts } = require('../CircuitBreaker/CbGenericPorts');
+const { cbHelper } = require('../CircuitBreaker/CbHelper');
+const { cbMapBoundaries } = require('../CircuitBreaker/CbMapBoundaries');
+const { cbPoint } = require('../CircuitBreaker/CbPoint');
+const { Scaleform } = require('../CircuitBreaker/Scaleform');
+
+class CircuitBreaker {
+  constructor(lives, difficulty, levels, callbackEvent, onDestroy) {
+    this.callbackEvent = callbackEvent;
+    this.lives = lives;
+    this.difficulty = difficulty;
+    this.levels = levels;
+    this.onDestroy = onDestroy;
+    // NONE, ERROR, FAILURE_OUTOFBOUNDS, FAILURE_COLLISIONWITHPORT, FAILURE_TRAILCOLLISION, QUIT, STARTING, INPROGRESS, DEATH, DISCONNECTED, SUCCESS
+    this.status = 'NONE';
+    this.soundId = -1;
+    this.blockedAreas = [];
+    this.gameBounds = [{ x: 0.159, y: 0.153 }, { x: 0.159, y: 0.848 }, { x: 0.841, y: 0.848 }, { x: 0.841, y: 0.153 //  Top Right
+    }];
+    this.textureDictionaries = ['MPCircuitHack', 'MPCircuitHack2', 'MPCircuitHack3'];
+    this.currentPointSpeed = 0.00085;
+    this.scaleform = null;
+    this.startTime = 0;
+    this.endTime = 0;
+    this.availableLevels = [1, 2, 3, 4, 5, 6];
+    this.levelsToComplete = [];
+    this.level = 1;
+    this.livesLeft = 1;
+    this.disconnected = false;
+    this.disconnectChance = 0;
+    this.disconnectCheckRateMs = 0;
+    this.nextTimeCheckDisconnect = 0;
+    this.reconnectIn = 0;
+    this.status = 'STARTING';
+    // Ensure levels aren't out of bounds
+    if (this.levels > 6) this.levels = 6;
+    if (this.levels < 1) this.levels = 1;
+    this.fillLevels(this.levels);
+    this.level = this.getLevel();
+    this.livesLeft = this.lives;
+    // Ensure lives aren't out of bounds
+    if (this.livesLeft > 10) this.livesLeft = 10;
+    if (this.livesLeft < 1) this.livesLeft = 1;
+    // Ensure difficulty isn't out of bounds
+    if (this.difficulty > 4) this.difficulty = 4;
+    if (this.difficulty < 0) this.difficulty = 0;
+    this.currentPointSpeed = this.getPointSpeedFromDifficulty(this.difficulty);
+    this.disconnectChance = this.getDisconnectChanceFromDifficulty(this.difficulty);
+    this.disconnectCheckRateMs = this.getDisconnectCheckRateMsFromDifficulty(this.difficulty);
+    this.init();
+  }
+  getLevel() {
+    var _a;
+    if (this.levelsToComplete.length === 0) return 1;
+    return (_a = this.levelsToComplete.shift()) !== null && _a !== void 0 ? _a : 1;
+  }
+  fillLevels(count) {
+    if (count < 1) return;
+    this.levelsToComplete = new Array(count).fill(1).map(() => this.getRandomLevel());
+  }
+  getRandom(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
+  getRandomLevel() {
+    if (this.availableLevels.length === 0) return 1;
+    const randomIndex = this.getRandom(0, this.availableLevels.length - 1);
+    return this.availableLevels[randomIndex];
+  }
+  gameDraw() {
+    if (this.scaleform === null) return false;
+    this.drawMapSprite(this.level);
+    const collisionHit = this.drawPointAndPortSprites();
+    this.scaleform.render2D();
+    return collisionHit;
+  }
+  checkDisconnect() {
+    if (Date.now() >= this.nextTimeCheckDisconnect) {
+      this.disconnected = this.getRandom(0, 100) <= this.disconnectChance;
+      return this.disconnected;
+    }
+    return false;
+  }
+  inProcessLogic(collisionHit) {
+    if (this.exitButtonPressed()) {
+      this.endGame(true);
+      return;
+    }
+    if (Date.now() < this.startTime) return;
+    if (this.disconnectChance > 0 && this.checkDisconnect()) {
+      this.status = 'DISCONNECTED';
+      return;
+    }
+    if (cbGenericPorts.isPointInGameWinningPosition(cbPoint.position)) {
+      this.status = 'SUCCESS';
+      return;
+    }
+    if (this.isPointOutOfBounds(this.blockedAreas, this.gameBounds)) {
+      this.status = 'FAILURE_OUTOFBOUNDS';
+      return;
+    }
+    if (cbGenericPorts.isCollidingWithPort(cbPoint.position)) {
+      this.status = 'FAILURE_COLLISIONWITHPORT';
+      return;
+    }
+    if (collisionHit) {
+      this.status = 'FAILURE_TRAILCOLLISION';
+      return;
+    }
+    if (cbPoint.isAlive) {
+      cbPoint.getPointInputFromPlayer();
+      cbPoint.movePoint(this.currentPointSpeed);
+    }
+  }
+  successLogic() {
+    const now = Date.now();
+    if (this.endTime === 0) {
+      this.showSuccessScreenAndPlaySound();
+      this.endTime = now + 3000;
+      return;
+    }
+    if (now < this.endTime) return;
+    if (this.checkLevelsToPlay()) {
+      this.continueGame();
+      return;
+    }
+    this.status = 'QUIT';
+    mp.events.callRemote(this.callbackEvent, true, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+  }
+  restartSameLevel() {
+    this.status = 'DEATH';
+    this.showDeathScreenAndPlaySound();
+    cbPoint.initialize();
+    this.startTime = Date.now() + 3000;
+    this.nextTimeCheckDisconnect = this.startTime + this.disconnectCheckRateMs;
+  }
+  failureLogic() {
+    this.livesLeft--;
+    if (this.livesLeft > 0) {
+      this.restartSameLevel();
+      return;
+    }
+    if (cbPoint.isAlive) {
+      cbPoint.startPointDeathAnimation();
+    }
+    if (!cbPoint.isVisible) {
+      const now = Date.now();
+      if (this.endTime === 0) {
+        this.showFailureScreenAndPlaySound();
+        this.endTime = Date.now() + 3000;
+        return;
+      }
+      if (now >= this.endTime) {
+        this.status = 'QUIT';
+        mp.events.callRemote(this.callbackEvent, false, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+      }
+    }
+  }
+  deathLogic() {
+    const now = Date.now();
+    if (now >= this.startTime) {
+      this.playStartSound();
+      this.resetDisplayScaleform();
+      this.status = 'INPROGRESS';
+      return;
+    }
+  }
+  disconnectLogic() {
+    if (this.reconnectIn === 0) {
+      mp.game1.audio.playSoundFrontend(-1, 'Power_Down', 'DLC_HEIST_HACKING_SNAKE_SOUNDS', true);
+      this.showDisplayScaleform('CONNECTION LOST', 'Reconnecting...', cbHelper.RED_COLOUR.r, cbHelper.RED_COLOUR.g, cbHelper.RED_COLOUR.b, false);
+      this.reconnectIn = Date.now() + this.getRandom(500, 5000);
+      return;
+    }
+    const now = Date.now();
+    if (now >= this.reconnectIn) {
+      this.playStartSound();
+      this.resetDisplayScaleform();
+      this.status = 'INPROGRESS';
+      this.reconnectIn = 0;
+      this.nextTimeCheckDisconnect = now + this.disconnectCheckRateMs;
+      return;
+    }
+  }
+  tick() {
+    if (this.status === 'NONE') return;
+    this.disableControls();
+    const collisionHit = this.gameDraw();
+    switch (this.status) {
+      case 'INPROGRESS':
+        this.inProcessLogic(collisionHit);
+        break;
+      case 'SUCCESS':
+        this.successLogic();
+        break;
+      case 'FAILURE_OUTOFBOUNDS':
+      case 'FAILURE_COLLISIONWITHPORT':
+      case 'FAILURE_TRAILCOLLISION':
+        this.failureLogic();
+        break;
+      case 'DEATH':
+        this.deathLogic();
+        break;
+      case 'DISCONNECTED':
+        this.disconnectLogic();
+        break;
+      case 'QUIT':
+        this.endGame(false);
+        break;
+      default:
+        break;
+    }
+  }
+  endGame(exit) {
+    if (exit) mp.events.callRemote(this.callbackEvent, false, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    this.status = 'NONE';
+    this.destroy();
+  }
+  checkLevelsToPlay() {
+    return this.levelsToComplete.length !== 0;
+  }
+  continueGame() {
+    this.resetDisplayScaleform();
+    this.level = this.getLevel();
+    this.blockedAreas = cbMapBoundaries.getBoxBounds(this.level);
+    cbGenericPorts.initialize(this.level);
+    cbPoint.initialize();
+    this.startTime = Date.now() + 3000;
+    this.nextTimeCheckDisconnect = this.startTime + this.disconnectCheckRateMs;
+    this.endTime = 0;
+    this.playStartSound();
+    this.status = 'INPROGRESS';
+  }
+  init() {
+    return __awaiter(this, void 0, void 0, function* () {
+      if (this.status !== 'STARTING') return;
+      yield this.loadResources();
+      this.soundId = mp.game1.invokeFloat('0x430386FE9BF80B45'); // GET_SOUND_ID
+      mp.game1.audio.playSoundFrontend(this.soundId, 'Background', 'DLC_HEIST_HACKING_SNAKE_SOUNDS', true);
+      this.blockedAreas = cbMapBoundaries.getBoxBounds(this.level);
+      cbGenericPorts.initialize(this.level);
+      cbPoint.initialize();
+      this.startTime = Date.now() + 3000;
+      this.nextTimeCheckDisconnect = this.startTime + this.disconnectCheckRateMs;
+      this.playStartSound();
+      this.status = 'INPROGRESS';
+    });
+  }
+  loadResources() {
+    return __awaiter(this, void 0, void 0, function* () {
+      yield this.loadTextures();
+      yield this.loadScaleform();
+    });
+  }
+  loadTextures() {
+    return __awaiter(this, void 0, void 0, function* () {
+      for (const dict of this.textureDictionaries) {
+        mp.game1.graphics.requestStreamedTextureDict(dict, false);
+        while (!mp.game1.graphics.hasStreamedTextureDictLoaded(dict)) {
+          yield new Promise(res => setTimeout(res, 5));
+        }
+      }
+    });
+  }
+  resetTextureDictionaries() {
+    for (const dict of this.textureDictionaries) {
+      mp.game1.graphics.setStreamedTextureDictAsNoLongerNeeded(dict);
+    }
+  }
+  resetSounds() {
+    if (this.soundId === -1) return;
+    mp.game1.audio.stopSound(this.soundId);
+    mp.game1.audio.releaseSoundId(this.soundId);
+    this.soundId = -1;
+  }
+  playStartSound() {
+    mp.game1.audio.playSoundFrontend(-1, 'Start', 'DLC_HEIST_HACKING_SNAKE_SOUNDS', true);
+  }
+  resetDisplayScaleform() {
+    if (this.scaleform === null) return;
+    this.scaleform.callFunction('SET_DISPLAY', -1);
+  }
+  showDisplayScaleform(title, msg, r, g, b, stagePassed) {
+    if (this.scaleform === null) return;
+    this.scaleform.callFunction('SET_DISPLAY', 0, title, msg, r, g, b, stagePassed);
+  }
+  showSuccessScreenAndPlaySound() {
+    mp.game1.audio.playSoundFrontend(-1, 'Success', 'DLC_HEIST_HACKING_SNAKE_SOUNDS', true);
+    this.showDisplayScaleform('CIRCUIT COMPLETE', 'Decryption Execution x86 Tunneling', cbHelper.GREEN_COLOUR.r, cbHelper.GREEN_COLOUR.g, cbHelper.GREEN_COLOUR.b, true);
+  }
+  showFailureScreenAndPlaySound() {
+    mp.game1.audio.playSoundFrontend(-1, 'Crash', 'DLC_HEIST_HACKING_SNAKE_SOUNDS', true);
+    this.showDisplayScaleform('CIRCUIT FAILED', 'Security Tunnel Detected', cbHelper.RED_COLOUR.r, cbHelper.RED_COLOUR.g, cbHelper.RED_COLOUR.b, false);
+  }
+  showDeathScreenAndPlaySound() {
+    mp.game1.audio.playSoundFrontend(-1, 'Crash', 'DLC_HEIST_HACKING_SNAKE_SOUNDS', true);
+    this.showDisplayScaleform('CIRCUIT FAILED', `${this.livesLeft} Attempts Left`, cbHelper.RED_COLOUR.r, cbHelper.RED_COLOUR.g, cbHelper.RED_COLOUR.b, false);
+  }
+  resetScaleform() {
+    if (this.scaleform === null) return;
+    this.scaleform.dispose();
+    this.scaleform = null;
+  }
+  loadScaleform() {
+    return __awaiter(this, void 0, void 0, function* () {
+      this.resetScaleform();
+      yield new Promise(res => setTimeout(res, 50));
+      this.scaleform = new Scaleform('HACKING_MESSAGE');
+      let loadAttempt = 0;
+      while (this.scaleform === null || !this.scaleform.isLoaded()) {
+        yield new Promise(res => setTimeout(res, 50));
+        loadAttempt++;
+        if (loadAttempt > 50) break;
+      }
+    });
+  }
+  drawMapSprite(currentMap) {
+    mp.game1.graphics.drawSprite(currentMap > 3 ? 'MPCircuitHack3' : 'MPCircuitHack2', `cblevel${this.level}`, 0.5, 0.5, 1, 1, 0, 255, 255, 255, 255);
+  }
+  drawPointAndPortSprites() {
+    cbPoint.drawPoint(this.status);
+    const collisionHit = cbPoint.drawTailHistoryAndCheckCollisions(this.status);
+    cbGenericPorts.drawPorts();
+    return collisionHit;
+  }
+  getPointSpeedFromDifficulty(difficulty) {
+    if (difficulty === 0) return 0.00085;
+    if (difficulty === 1) return 0.001;
+    if (difficulty === 2) return 0.002;
+    if (difficulty === 3) return 0.003;
+    if (difficulty === 4) return 0.01;
+    return 0.00085;
+  }
+  getDisconnectChanceFromDifficulty(difficulty) {
+    if (difficulty === 0) return 0;
+    if (difficulty === 1) return 0.15;
+    if (difficulty === 2) return 0.3;
+    if (difficulty === 3) return 0.45;
+    if (difficulty === 4) return 0.6;
+    return 0;
+  }
+  getDisconnectCheckRateMsFromDifficulty(difficulty) {
+    if (difficulty === 0) return 15000;
+    if (difficulty === 1) return 10000;
+    if (difficulty === 2) return 5000;
+    if (difficulty === 3) return 4000;
+    if (difficulty === 4) return 2000;
+    return 10000;
+  }
+  exitButtonPressed() {
+    return mp.game1.controls.isDisabledControlJustPressed(0, 44);
+  }
+  disableControls() {
+    mp.game1.controls.disableControlAction(0, 32, true); // W, Up
+    mp.game1.controls.disableControlAction(0, 33, true); // S, Down
+    mp.game1.controls.disableControlAction(0, 34, true); // A, Left
+    mp.game1.controls.disableControlAction(0, 35, true); // D, Right
+    mp.game1.controls.disableControlAction(0, 44, true); // Q, Cover
+  }
+  isPointOutOfBounds(polybounds, mapBounds) {
+    const headPts = this.getPointMaxPoints(cbPoint.position, cbPoint.pointHeadSize + -0.375 * cbPoint.pointHeadSize);
+    for (const pt of headPts) {
+      for (const bounds of polybounds) {
+        if (cbHelper.isInPoly(bounds, pt)) {
+          return true;
+        }
+      }
+      if (!cbHelper.isInPoly(mapBounds, pt)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  getPointMaxPoints(pointCoord, pointHeadSize) {
+    const headHeight = pointHeadSize;
+    const headWidth = pointHeadSize;
+    const headPts = [{ x: pointCoord.x - headWidth / 2, y: pointCoord.y }, { x: pointCoord.x + headWidth / 2, y: pointCoord.y }, { x: pointCoord.x, y: pointCoord.y - headHeight / 2 }, { x: pointCoord.x, y: pointCoord.y + headHeight / 2 }];
+    return [...headPts, pointCoord];
+  }
+  destroy() {
+    this.resetScaleform();
+    this.resetSounds();
+    this.resetTextureDictionaries();
+    this.onDestroy();
+  }
+}
+
+exports.CircuitBreaker = CircuitBreaker;
+
+},{"../CircuitBreaker/CbGenericPorts":2,"../CircuitBreaker/CbHelper":3,"../CircuitBreaker/CbMapBoundaries":4,"../CircuitBreaker/CbPoint":5,"../CircuitBreaker/Scaleform":10,"../player/player":208}],9:[function(require,module,exports){
+"use strict";
+
+const { CircuitBreaker } = require("../CircuitBreaker/CircuitBreaker");
+
+class CircuitBreakerManager {
+  constructor() {
+    this.game = null;
+  }
+  start(lives, difficulty, levels, callbackEvent) {
+    if (this.game !== null) return; // Cannot start twice
+    this.game = new CircuitBreaker(lives, difficulty, levels, callbackEvent, () => {
+      this.game = null;
+    });
+  }
+  handleRender() {
+    if (this.game === null) return;
+    this.game.tick();
+  }
+}
+exports.clientCircuitBreakerManager = new CircuitBreakerManager();
+
+},{"../CircuitBreaker/CircuitBreaker":8}],10:[function(require,module,exports){
+'use strict';
+
+class Scaleform {
+  constructor(scaleformStr) {
+    this.handle = mp.game1.graphics.requestScaleformMovie(scaleformStr);
+    this.queueCallFunction = new Map();
+  }
+  isLoaded() {
+    return !!mp.game1.graphics.hasScaleformMovieLoaded(this.handle);
+  }
+  isValid() {
+    return this.handle !== 0;
+  }
+  callFunction(strFunction, ...args) {
+    if (this.isLoaded() && this.isValid()) {
+      const graphics = mp.game.graphics;
+      graphics.pushScaleformMovieFunction(this.handle, strFunction);
+      args.forEach(arg => {
+        switch (typeof arg) {
+          case 'string':
+            {
+              graphics.pushScaleformMovieFunctionParameterString(arg);
+              break;
+            }
+          case 'boolean':
+            {
+              graphics.pushScaleformMovieFunctionParameterBool(arg);
+              break;
+            }
+          case 'number':
+            {
+              if (Number(arg) === arg && arg % 1 !== 0) {
+                graphics.pushScaleformMovieFunctionParameterFloat(arg);
+              } else {
+                graphics.pushScaleformMovieFunctionParameterInt(arg);
+              }
+            }
+        }
+      });
+      graphics.popScaleformMovieFunctionVoid();
+    } else {
+      this.queueCallFunction.set(strFunction, args);
+    }
+  }
+  onUpdate() {
+    if (this.isLoaded() && this.isValid()) {
+      this.queueCallFunction.forEach((args, strFunction) => {
+        this.callFunction(strFunction, ...args);
+        this.queueCallFunction.delete(strFunction);
+      });
+    }
+  }
+  render2D(x, y, width, height) {
+    this.onUpdate();
+    if (this.isLoaded() && this.isValid()) {
+      const graphics = mp.game.graphics;
+      if (typeof x !== 'undefined' && typeof y !== 'undefined' && typeof width !== 'undefined' && typeof height !== 'undefined') {
+        graphics.drawScaleformMovie(this.handle, x, y, width, height, 255, 255, 255, 255, 0);
+      } else {
+        graphics.drawScaleformMovieFullscreen(this.handle, 255, 255, 255, 255, false);
+      }
+    }
+  }
+  render3D(position, rotation, scale) {
+    this.onUpdate();
+    if (this.isLoaded() && this.isValid()) {
+      mp.game.graphics.drawScaleformMovie3dNonAdditive(this.handle, position.x, position.y, position.z, rotation.x, rotation.y, rotation.z, 2, 2, 1, scale.x, scale.y, scale.z, 2);
+    }
+  }
+  render3DAdditive(position, rotation, scale) {
+    this.onUpdate();
+    if (this.isLoaded() && this.isValid()) {
+      mp.game.graphics.drawScaleformMovie3d(this.handle, position.x, position.y, position.z, rotation.x, rotation.y, rotation.z, 2, 2, 1, scale.x, scale.y, scale.z, 2);
+    }
+  }
+  dispose() {
+    mp.game1.graphics.setScaleformMovieAsNoLongerNeeded(this.handle);
+    this.handle = 0;
+  }
+}
+exports.Scaleform = Scaleform;
+
+},{}],11:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -30,7 +1097,7 @@ class App extends _component2.default {
 
 exports.default = App;
 
-},{"../components/component":94,"./apps":3}],3:[function(require,module,exports){
+},{"../components/component":106,"./apps":12}],12:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -134,7 +1201,7 @@ class Apps {
 
 exports.default = new Apps();
 
-},{"../browser/browser":93}],4:[function(require,module,exports){
+},{"../browser/browser":104}],13:[function(require,module,exports){
 "use strict";
 
 require("./gps/gpsApp");
@@ -220,6 +1287,8 @@ require("./settings/settingsApp");
 require("./settings/settingsEditWallpaperApp");
 
 require("./settings/settingsEditRingtonesApp");
+
+require("./settings/settingsEditBlipsApp");
 
 require("./hitman/hitmanApp");
 
@@ -309,7 +1378,9 @@ require("./streifen/StreifenApp");
 
 require("./businessdetail/BusinessDetail");
 
-},{"./banking/bankingAppOverview":5,"./banking/bankingAppTransfer":6,"./business/businessApp":7,"./business/businessEdit":8,"./business/businessInvite":9,"./business/businessList":10,"./businessdetail/BusinessDetail":11,"./callManage":12,"./claw/clawOverviewApp":13,"./contacts/contactsAdd":14,"./contacts/contactsEdit":15,"./contacts/contactsList":16,"./contacts/contactsOverview":17,"./darknet/DarknetAgencySupportApp":18,"./darknet/DarknetApp":19,"./darknet/DarknetBountyApp":20,"./darknet/DarknetClearWantedsApp":21,"./desktop":22,"./email/EmailApp":23,"./export/ExportApp":24,"./fraktion/FraktionEditApp":25,"./fraktion/FraktionListApp":26,"./fraktion/FraktionRightsOverviewApp":27,"./funk":28,"./gps/gpsApp":29,"./hitman/hitmanApp":30,"./hitman/hitmanContractListApp":31,"./hitman/hitmanContractsApp":32,"./hitman/hitmanLocateApp":33,"./hitman/hitmanLocatePersonApp":34,"./home":35,"./house/HouseEdit":36,"./house/HouseList":37,"./house/HouseVehicleList":38,"./ipadDesktop":39,"./ipadMainScreen":40,"./kfzrent/KFZRentApp":41,"./laptopDesktop":42,"./laptopMainScreen":43,"./lifeinvader":44,"./marketplace/marketplaceApp":45,"./messenger/messengerApp":46,"./messenger/messengerListApp":47,"./messenger/messengerMessageApp":48,"./messenger/messengerOverviewApp":49,"./news/newsAddApp":50,"./news/newsApp":51,"./news/newsListApp":52,"./plate/plateOverviewApp":54,"./police/PoliceAktenSearchApp":55,"./police/PoliceEditPersonApp":56,"./police/PoliceEditWantedsApp":57,"./police/PoliceListAktenApp":58,"./police/PoliceListProgressApp":59,"./profile":60,"./service/serviceRequestApp":61,"./service/serviceSendRequestApp":62,"./servicelist/ServiceAcceptedApp":63,"./servicelist/serviceEvaluationApp":64,"./servicelist/serviceListApp":65,"./servicelist/serviceOwnApp":66,"./settings/settingsApp":67,"./settings/settingsEditRingtonesApp":68,"./settings/settingsEditWallpaperApp":69,"./streifen/StreifenApp":70,"./support/ticket/ServiceOverviewApp":71,"./support/ticket/SupportAcceptedTickets":72,"./support/ticket/SupportKonversation":73,"./support/ticket/SupportOpenTickets":74,"./support/ticket/SupportTicketOverview":75,"./support/vehicles/SupportVehicleApp":76,"./support/vehicles/SupportVehicleList":77,"./support/vehicles/SupportVehicleProfile":78,"./taxi/TaxiContact":79,"./taxi/TaxiListApp":80,"./taxi/TaxiServiceListApp":81,"./taxi/taxiApp":82,"./team/team-edit":83,"./team/team-list":84,"./telefon/telefon":85,"./telefon/telefonCalls":86,"./telefon/telefonInput":87,"./telefon/telefonSettings":88,"./vehicleimpound/vehicleImpoundApp":89,"./vehicleoverview/vehicleOverviewApp":90,"./vehicletax/vehicleTaxApp":91}],5:[function(require,module,exports){
+require("./service/LawyerOverview");
+
+},{"./banking/bankingAppOverview":14,"./banking/bankingAppTransfer":15,"./business/businessApp":16,"./business/businessEdit":17,"./business/businessInvite":18,"./business/businessList":19,"./businessdetail/BusinessDetail":20,"./callManage":21,"./claw/clawOverviewApp":22,"./contacts/contactsAdd":23,"./contacts/contactsEdit":24,"./contacts/contactsList":25,"./contacts/contactsOverview":26,"./darknet/DarknetAgencySupportApp":27,"./darknet/DarknetApp":28,"./darknet/DarknetBountyApp":29,"./darknet/DarknetClearWantedsApp":30,"./desktop":31,"./email/EmailApp":32,"./export/ExportApp":33,"./fraktion/FraktionEditApp":34,"./fraktion/FraktionListApp":35,"./fraktion/FraktionRightsOverviewApp":36,"./funk":37,"./gps/gpsApp":38,"./hitman/hitmanApp":39,"./hitman/hitmanContractListApp":40,"./hitman/hitmanContractsApp":41,"./hitman/hitmanLocateApp":42,"./hitman/hitmanLocatePersonApp":43,"./home":44,"./house/HouseEdit":45,"./house/HouseList":46,"./house/HouseVehicleList":47,"./ipadDesktop":48,"./ipadMainScreen":49,"./kfzrent/KFZRentApp":50,"./laptopDesktop":51,"./laptopMainScreen":52,"./lifeinvader":53,"./marketplace/marketplaceApp":54,"./messenger/messengerApp":55,"./messenger/messengerListApp":56,"./messenger/messengerMessageApp":57,"./messenger/messengerOverviewApp":58,"./news/newsAddApp":59,"./news/newsApp":60,"./news/newsListApp":61,"./plate/plateOverviewApp":63,"./police/PoliceAktenSearchApp":64,"./police/PoliceEditPersonApp":65,"./police/PoliceEditWantedsApp":66,"./police/PoliceListAktenApp":67,"./police/PoliceListProgressApp":68,"./profile":69,"./service/LawyerOverview":70,"./service/serviceRequestApp":71,"./service/serviceSendRequestApp":72,"./servicelist/ServiceAcceptedApp":73,"./servicelist/serviceEvaluationApp":74,"./servicelist/serviceListApp":75,"./servicelist/serviceOwnApp":76,"./settings/settingsApp":77,"./settings/settingsEditBlipsApp":78,"./settings/settingsEditRingtonesApp":79,"./settings/settingsEditWallpaperApp":80,"./streifen/StreifenApp":81,"./support/ticket/ServiceOverviewApp":82,"./support/ticket/SupportAcceptedTickets":83,"./support/ticket/SupportKonversation":84,"./support/ticket/SupportOpenTickets":85,"./support/ticket/SupportTicketOverview":86,"./support/vehicles/SupportVehicleApp":87,"./support/vehicles/SupportVehicleList":88,"./support/vehicles/SupportVehicleProfile":89,"./taxi/TaxiContact":90,"./taxi/TaxiListApp":91,"./taxi/TaxiServiceListApp":92,"./taxi/taxiApp":93,"./team/team-edit":94,"./team/team-list":95,"./telefon/telefon":96,"./telefon/telefonCalls":97,"./telefon/telefonInput":98,"./telefon/telefonSettings":99,"./vehicleimpound/vehicleImpoundApp":100,"./vehicleoverview/vehicleOverviewApp":101,"./vehicletax/vehicleTaxApp":102}],14:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -332,7 +1403,7 @@ class BankingAppOverview extends _app2.default {
 
 exports.default = new BankingAppOverview();
 
-},{"../../app/app":2}],6:[function(require,module,exports){
+},{"../../app/app":11}],15:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -355,7 +1426,7 @@ class BankingAppTransfer extends _app2.default {
 
 exports.default = new BankingAppTransfer();
 
-},{"../../app/app":2}],7:[function(require,module,exports){
+},{"../../app/app":11}],16:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -379,7 +1450,7 @@ class BusinessApp extends _app2.default {
 
 exports.default = new BusinessApp();
 
-},{"../../app/app":2}],8:[function(require,module,exports){
+},{"../../app/app":11}],17:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -400,7 +1471,7 @@ class BusinessEdit extends _app2.default {
 
 exports.default = new BusinessEdit();
 
-},{"../../app/app":2}],9:[function(require,module,exports){
+},{"../../app/app":11}],18:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -421,7 +1492,7 @@ class BusinessInviteApp extends _app2.default {
 
 exports.default = new BusinessInviteApp();
 
-},{"../../app/app":2}],10:[function(require,module,exports){
+},{"../../app/app":11}],19:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -442,7 +1513,7 @@ class BusinessList extends _app2.default {
 
 exports.default = new BusinessList();
 
-},{"../../app/app":2}],11:[function(require,module,exports){
+},{"../../app/app":11}],20:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -471,7 +1542,7 @@ class BusinessDetail extends _app2.default {
 
 exports.default = new BusinessDetail();
 
-},{"../../app/app":2}],12:[function(require,module,exports){
+},{"../../app/app":11}],21:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -548,7 +1619,7 @@ class CallManageApp extends _app2.default {
 
 exports.default = new CallManageApp();
 
-},{"../app/app":2,"../app/apps":3,"../browser/browser":93,"../player/player":186,"../windows/windows":204,"./home":35,"./telefon/telefon":85}],13:[function(require,module,exports){
+},{"../app/app":11,"../app/apps":12,"../browser/browser":104,"../player/player":208,"../windows/windows":235,"./home":44,"./telefon/telefon":96}],22:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -570,7 +1641,7 @@ class VehicleClawUebersichtApp extends _app2.default {
 
 exports.default = new VehicleClawUebersichtApp();
 
-},{"../../app/app":2}],14:[function(require,module,exports){
+},{"../../app/app":11}],23:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -606,7 +1677,7 @@ class ContactsAdd extends _app2.default {
 
 exports.default = new ContactsAdd();
 
-},{"../../app/app":2,"../../player/player":186,"./contactsList":16}],15:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":208,"./contactsList":25}],24:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -645,7 +1716,7 @@ class ContactsEdit extends _app2.default {
 
 exports.default = new ContactsEdit();
 
-},{"../../app/app":2,"../../player/player":186,"./contactsList":16}],16:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":208,"./contactsList":25}],25:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -684,7 +1755,7 @@ class ContactsApp extends _app2.default {
 
 exports.default = new ContactsApp();
 
-},{"../../app/app":2,"../../player/player":186}],17:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":208}],26:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -728,7 +1799,7 @@ class ContactsOverview extends _app2.default {
 
 exports.default = new ContactsOverview();
 
-},{"../../app/app":2,"../../player/player":186,"./contactsList":16}],18:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":208,"./contactsList":25}],27:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -748,7 +1819,7 @@ class DarknetAgencySupportApp extends _app2.default {
 }
 exports.default = new DarknetAgencySupportApp();
 
-},{"../../app/app":2}],19:[function(require,module,exports){
+},{"../../app/app":11}],28:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -769,7 +1840,7 @@ class DarknetApp extends _app2.default {
 
 exports.default = new DarknetApp();
 
-},{"../../app/app":2}],20:[function(require,module,exports){
+},{"../../app/app":11}],29:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -789,7 +1860,7 @@ class DarknetBountyApp extends _app2.default {
 }
 exports.default = new DarknetBountyApp();
 
-},{"../../app/app":2}],21:[function(require,module,exports){
+},{"../../app/app":11}],30:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -809,7 +1880,7 @@ class DarknetClearWantedsApp extends _app2.default {
 }
 exports.default = new DarknetClearWantedsApp();
 
-},{"../../app/app":2}],22:[function(require,module,exports){
+},{"../../app/app":11}],31:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -831,7 +1902,7 @@ class DesktopApp extends _app2.default {
 
 exports.default = new DesktopApp();
 
-},{"../app/app":2}],23:[function(require,module,exports){
+},{"../app/app":11}],32:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -853,7 +1924,7 @@ class EmailApp extends _app2.default {
 
 exports.default = new EmailApp();
 
-},{"../../app/app":2}],24:[function(require,module,exports){
+},{"../../app/app":11}],33:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -875,7 +1946,7 @@ class ExportApp extends _app2.default {
 
 exports.default = new ExportApp();
 
-},{"../../app/app":2}],25:[function(require,module,exports){
+},{"../../app/app":11}],34:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -896,7 +1967,7 @@ class FraktionEditApp extends _app2.default {
 
 exports.default = new FraktionEditApp();
 
-},{"../../app/app":2}],26:[function(require,module,exports){
+},{"../../app/app":11}],35:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -918,7 +1989,7 @@ class FraktionListApp extends _app2.default {
 
 exports.default = new FraktionListApp();
 
-},{"../../app/app":2}],27:[function(require,module,exports){
+},{"../../app/app":11}],36:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -939,7 +2010,7 @@ class FraktionRightsOverviewApp extends _app2.default {
 
 exports.default = new FraktionRightsOverviewApp();
 
-},{"../../app/app":2}],28:[function(require,module,exports){
+},{"../../app/app":11}],37:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -982,7 +2053,7 @@ class FunkApp extends _app2.default {
 
 exports.default = new FunkApp();
 
-},{"../app/app":2,"../interfaces/hud/player-panel":141}],29:[function(require,module,exports){
+},{"../app/app":11,"../interfaces/hud/player-panel":155}],38:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1010,7 +2081,7 @@ class GpsApp extends _app2.default {
 
 exports.default = new GpsApp();
 
-},{"../../app/app":2}],30:[function(require,module,exports){
+},{"../../app/app":11}],39:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1031,7 +2102,7 @@ class HitmanApp extends _app2.default {
 
 exports.default = new HitmanApp();
 
-},{"../../app/app":2}],31:[function(require,module,exports){
+},{"../../app/app":11}],40:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1053,7 +2124,7 @@ class HitmanContractListApp extends _app2.default {
 
 exports.default = new HitmanContractListApp();
 
-},{"../../app/app":2}],32:[function(require,module,exports){
+},{"../../app/app":11}],41:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1074,7 +2145,7 @@ class HitmanContractsApp extends _app2.default {
 
 exports.default = new HitmanContractsApp();
 
-},{"../../app/app":2}],33:[function(require,module,exports){
+},{"../../app/app":11}],42:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1096,7 +2167,7 @@ class HitmanLocateApp extends _app2.default {
 
 exports.default = new HitmanLocateApp();
 
-},{"../../app/app":2}],34:[function(require,module,exports){
+},{"../../app/app":11}],43:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1122,7 +2193,7 @@ class HitmanLocatePersonApp extends _app2.default {
 
 exports.default = new HitmanLocatePersonApp();
 
-},{"../../app/app":2}],35:[function(require,module,exports){
+},{"../../app/app":11}],44:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1175,7 +2246,7 @@ class HomeApp extends _app2.default {
 
 exports.default = new HomeApp();
 
-},{"../app/app":2,"../interfaces/hud/smartphone":145}],36:[function(require,module,exports){
+},{"../app/app":11,"../interfaces/hud/smartphone":162}],45:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1197,7 +2268,7 @@ class HouseEdit extends _app2.default {
 
 exports.default = new HouseEdit();
 
-},{"../../app/app":2}],37:[function(require,module,exports){
+},{"../../app/app":11}],46:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1219,7 +2290,7 @@ class HouseList extends _app2.default {
 
 exports.default = new HouseList();
 
-},{"../../app/app":2}],38:[function(require,module,exports){
+},{"../../app/app":11}],47:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1241,7 +2312,7 @@ class HouseVehicleList extends _app2.default {
 
 exports.default = new HouseVehicleList();
 
-},{"../../app/app":2}],39:[function(require,module,exports){
+},{"../../app/app":11}],48:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1263,7 +2334,7 @@ class ipadDesktop extends _app2.default {
 
 exports.default = new ipadDesktop();
 
-},{"../app/app":2}],40:[function(require,module,exports){
+},{"../app/app":11}],49:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1284,7 +2355,7 @@ class IpadMainScreen extends _app2.default {
 
 exports.default = new IpadMainScreen();
 
-},{"../app/app":2}],41:[function(require,module,exports){
+},{"../app/app":11}],50:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1306,7 +2377,7 @@ class KFZRentApp extends _app2.default {
 
 exports.default = new KFZRentApp();
 
-},{"../../app/app":2}],42:[function(require,module,exports){
+},{"../../app/app":11}],51:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1328,7 +2399,7 @@ class laptopDesktop extends _app2.default {
 
 exports.default = new laptopDesktop();
 
-},{"../app/app":2}],43:[function(require,module,exports){
+},{"../app/app":11}],52:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1349,7 +2420,7 @@ class LaptopMainScreen extends _app2.default {
 
 exports.default = new LaptopMainScreen();
 
-},{"../app/app":2}],44:[function(require,module,exports){
+},{"../app/app":11}],53:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1371,7 +2442,7 @@ class LifeInvaderApp extends _app2.default {
 
 exports.default = new LifeInvaderApp();
 
-},{"../app/app":2}],45:[function(require,module,exports){
+},{"../app/app":11}],54:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1398,7 +2469,7 @@ class MarketplaceApp extends _app2.default {
 }
 exports.default = new MarketplaceApp();
 
-},{"../../app/app":2,"../../browser/browser":93}],46:[function(require,module,exports){
+},{"../../app/app":11,"../../browser/browser":104}],55:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1419,7 +2490,7 @@ class MessengerApp extends _app2.default {
 
 exports.default = new MessengerApp();
 
-},{"../../app/app":2}],47:[function(require,module,exports){
+},{"../../app/app":11}],56:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1450,7 +2521,7 @@ class MessengerListApp extends _app2.default {
 }
 exports.default = new MessengerListApp();
 
-},{"../../app/app":2,"../phone":53}],48:[function(require,module,exports){
+},{"../../app/app":11,"../phone":62}],57:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1480,7 +2551,7 @@ class MessengerApp extends _app2.default {
 
 exports.default = new MessengerApp();
 
-},{"../../app/app":2}],49:[function(require,module,exports){
+},{"../../app/app":11}],58:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -1524,7 +2595,7 @@ class MessengerOverviewApp extends _app2.default {
 
 exports.default = new MessengerOverviewApp();
 
-},{"../../app/app":2,"../../player/player":186}],50:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":208}],59:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1562,7 +2633,7 @@ class NewsAddApp extends _app2.default {
 
 exports.default = new NewsAddApp();
 
-},{"../../app/app":2,"../../player/player":186}],51:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":208}],60:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1595,7 +2666,7 @@ class NewsApp extends _app2.default {
 
 exports.default = new NewsApp();
 
-},{"../../app/app":2,"../../player/player":186}],52:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":208}],61:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1630,7 +2701,7 @@ class NewsListApp extends _app2.default {
 
 exports.default = new NewsListApp();
 
-},{"../../app/app":2,"../../player/player":186}],53:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":208}],62:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1659,7 +2730,7 @@ class PhoneMainScreen extends _app2.default {
 
 exports.default = new PhoneMainScreen();
 
-},{"../app/app":2}],54:[function(require,module,exports){
+},{"../app/app":11}],63:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1681,7 +2752,7 @@ class PlateOverviewApp extends _app2.default {
 
 exports.default = new PlateOverviewApp();
 
-},{"../../app/app":2}],55:[function(require,module,exports){
+},{"../../app/app":11}],64:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1703,7 +2774,7 @@ class PoliceAktenSearchApp extends _app2.default {
 
 exports.default = new PoliceAktenSearchApp();
 
-},{"../../app/app":2}],56:[function(require,module,exports){
+},{"../../app/app":11}],65:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1731,7 +2802,7 @@ class PoliceEditPersonApp extends _app2.default {
 
 exports.default = new PoliceEditPersonApp();
 
-},{"../../app/app":2}],57:[function(require,module,exports){
+},{"../../app/app":11}],66:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1755,7 +2826,7 @@ class PoliceEditWantedsApp extends _app2.default {
 
 exports.default = new PoliceEditWantedsApp();
 
-},{"../../app/app":2}],58:[function(require,module,exports){
+},{"../../app/app":11}],67:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1777,7 +2848,7 @@ class PoliceListAktenApp extends _app2.default {
 
 exports.default = new PoliceListAktenApp();
 
-},{"../../app/app":2}],59:[function(require,module,exports){
+},{"../../app/app":11}],68:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1799,7 +2870,7 @@ class PoliceListProgressApp extends _app2.default {
 
 exports.default = new PoliceListProgressApp();
 
-},{"../../app/app":2}],60:[function(require,module,exports){
+},{"../../app/app":11}],69:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2018,6 +3089,9 @@ class ProfileApp extends _app2.default {
             case 45:
                 return "Bosozoku-Kai";
                 break;
+            case 47:
+                return "Aztecas";
+                break;
             case 48:
                 return "Midnight Club";
                 break;
@@ -2027,7 +3101,29 @@ class ProfileApp extends _app2.default {
 
 exports.default = new ProfileApp();
 
-},{"../app/app":2,"../player/player":186}],61:[function(require,module,exports){
+},{"../app/app":11,"../player/player":208}],70:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _app = require("../../app/app");
+
+var _app2 = _interopRequireDefault(_app);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class LawyerOverview extends _app2.default {
+    constructor() {
+        super("LawyerOverview");
+        this.forwardableEvents.add("responseLawyers");
+    }
+}
+
+exports.default = new LawyerOverview();
+
+},{"../../app/app":11}],71:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2048,7 +3144,7 @@ class ServiceRequestApp extends _app2.default {
 
 exports.default = new ServiceRequestApp();
 
-},{"../../app/app":2}],62:[function(require,module,exports){
+},{"../../app/app":11}],72:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2069,7 +3165,7 @@ class ServiceSendRequestApp extends _app2.default {
 
 exports.default = new ServiceSendRequestApp();
 
-},{"../../app/app":2}],63:[function(require,module,exports){
+},{"../../app/app":11}],73:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2097,7 +3193,7 @@ class ServiceAcceptedApp extends _app2.default {
 
 exports.default = new ServiceAcceptedApp();
 
-},{"../../app/app":2}],64:[function(require,module,exports){
+},{"../../app/app":11}],74:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2119,7 +3215,7 @@ class ServiceEvaluationApp extends _app2.default {
 
 exports.default = new ServiceEvaluationApp();
 
-},{"../../app/app":2}],65:[function(require,module,exports){
+},{"../../app/app":11}],75:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2147,7 +3243,7 @@ class ServiceListApp extends _app2.default {
 
 exports.default = new ServiceListApp();
 
-},{"../../app/app":2}],66:[function(require,module,exports){
+},{"../../app/app":11}],76:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2175,7 +3271,7 @@ class ServiceOwnApp extends _app2.default {
 
 exports.default = new ServiceOwnApp();
 
-},{"../../app/app":2}],67:[function(require,module,exports){
+},{"../../app/app":11}],77:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2216,7 +3312,67 @@ class SettingsApp extends _app2.default {
 
 exports.default = new SettingsApp();
 
-},{"../../app/app":2,"../../player/player":186,"../home":35}],68:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":208,"../home":44}],78:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _app = require("../../app/app");
+
+var _app2 = _interopRequireDefault(_app);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class SettingsEditBlipsApp extends _app2.default {
+    constructor() {
+        super("SettingsEditBlipsApp");
+
+        mp.events.add("playerReady", player => {
+            if (typeof mp.storage.data.removedblips !== 'undefined') {
+                mp.blips.forEach(blip => {
+                    if (mp.storage.data.removedblips.includes(blip.getSprite())) blip.setDisplay(0);
+                });
+            } else {
+                mp.storage.data.removedblips = [];
+                mp.storage.flush();
+            }
+        });
+    }
+
+    onEvent(name, ...args) {
+        if (name == "requestBlips") {
+            let blips = [{ id: 141, name: "HuntingSpots" }, { id: 543, name: "Gangwar" }, { id: 357, name: "Garagen" }, { id: 73, name: "Kleidungsladen" }, { id: 361, name: "Tankstellen" }, { id: 207, name: "Banken" }, { id: 93, name: "Bars" }, { id: 578, name: "Flughafen" }, { id: 225, name: "Fahrzeughandel" }, { id: 110, name: "Ammunation" }, { id: 71, name: "Friseur" }, { id: 75, name: "Tattooladen" }, { id: 67, name: "Job Trucker" }, { id: 315, name: "Rennarena" }, { id: 478, name: "Warenhandel" }];
+
+            this.callOnBrowser(`responseOwnBlips('${JSON.stringify(blips)}','${JSON.stringify(mp.storage.data.removedblips)}')`);
+        } else if (name == "updateBlip") {
+            if (args[0].visible) {
+                if (!mp.storage.data.removedblips.includes(args[0].id)) {
+                    mp.storage.data.removedblips.push(args[0].id);
+                }
+                mp.blips.forEach(blip => {
+                    if (blip.getSprite() == args[0].id) {
+                        blip.setDisplay(0);
+                    }
+                });
+            } else {
+                if (mp.storage.data.removedblips.includes(args[0].id)) {
+                    mp.storage.data.removedblips = mp.storage.data.removedblips.filter(item => item !== args[0].id);
+                }
+
+                mp.blips.forEach(blip => {
+                    if (blip.getSprite() == args[0].id) blip.setDisplay(6);
+                });
+            }
+
+            mp.storage.flush();
+        }
+    }
+}
+exports.default = new SettingsEditBlipsApp();
+
+},{"../../app/app":11}],79:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2237,7 +3393,7 @@ class SettingsEditRingtonesApp extends _app2.default {
 }
 exports.default = new SettingsEditRingtonesApp();
 
-},{"../../app/app":2}],69:[function(require,module,exports){
+},{"../../app/app":11}],80:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2268,7 +3424,7 @@ class SettingsEditWallpaperApp extends _app2.default {
 }
 exports.default = new SettingsEditWallpaperApp();
 
-},{"../../app/app":2,"../../interfaces/hud/smartphone":145}],70:[function(require,module,exports){
+},{"../../app/app":11,"../../interfaces/hud/smartphone":162}],81:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2291,7 +3447,7 @@ class StreifenApp extends _app2.default {
 
 exports.default = new StreifenApp();
 
-},{"../../app/app":2}],71:[function(require,module,exports){
+},{"../../app/app":11}],82:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2312,7 +3468,7 @@ class SupportOverviewApp extends _app2.default {
 
 exports.default = new SupportOverviewApp();
 
-},{"../../../app/app":2}],72:[function(require,module,exports){
+},{"../../../app/app":11}],83:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2334,7 +3490,7 @@ class SupportAcceptedTickets extends _app2.default {
 
 exports.default = new SupportAcceptedTickets();
 
-},{"../../../app/app":2}],73:[function(require,module,exports){
+},{"../../../app/app":11}],84:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2357,7 +3513,7 @@ class SupportKonversation extends _app2.default {
 
 exports.default = new SupportKonversation();
 
-},{"../../../app/app":2}],74:[function(require,module,exports){
+},{"../../../app/app":11}],85:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2379,7 +3535,7 @@ class SupportOpenTickets extends _app2.default {
 
 exports.default = new SupportOpenTickets();
 
-},{"../../../app/app":2}],75:[function(require,module,exports){
+},{"../../../app/app":11}],86:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2400,7 +3556,7 @@ class SupportTicketOverview extends _app2.default {
 
 exports.default = new SupportTicketOverview();
 
-},{"../../../app/app":2}],76:[function(require,module,exports){
+},{"../../../app/app":11}],87:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2421,7 +3577,7 @@ class SupportVehicleApp extends _app2.default {
 
 exports.default = new SupportVehicleApp();
 
-},{"../../../app/app":2}],77:[function(require,module,exports){
+},{"../../../app/app":11}],88:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2443,7 +3599,7 @@ class SupportVehicleList extends _app2.default {
 
 exports.default = new SupportVehicleList();
 
-},{"../../../app/app":2}],78:[function(require,module,exports){
+},{"../../../app/app":11}],89:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2465,7 +3621,7 @@ class SupportVehicleProfile extends _app2.default {
 
 exports.default = new SupportVehicleProfile();
 
-},{"../../../app/app":2}],79:[function(require,module,exports){
+},{"../../../app/app":11}],90:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2486,7 +3642,7 @@ class TaxiContact extends _app2.default {
 
 exports.default = new TaxiContact();
 
-},{"../../app/app":2}],80:[function(require,module,exports){
+},{"../../app/app":11}],91:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2508,7 +3664,7 @@ class TaxiListApp extends _app2.default {
 
 exports.default = new TaxiListApp();
 
-},{"../../app/app":2}],81:[function(require,module,exports){
+},{"../../app/app":11}],92:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2530,7 +3686,7 @@ class TaxiServiceListApp extends _app2.default {
 
 exports.default = new TaxiServiceListApp();
 
-},{"../../app/app":2}],82:[function(require,module,exports){
+},{"../../app/app":11}],93:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2551,7 +3707,7 @@ class TaxiApp extends _app2.default {
 
 exports.default = new TaxiApp();
 
-},{"../../app/app":2}],83:[function(require,module,exports){
+},{"../../app/app":11}],94:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2572,7 +3728,7 @@ class TeamEdit extends _app2.default {
 
 exports.default = new TeamEdit();
 
-},{"../../app/app":2}],84:[function(require,module,exports){
+},{"../../app/app":11}],95:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2596,13 +3752,13 @@ class TeamList extends _app2.default {
     }
 
     onReady() {
-        mp.events.callRemote("requestTeamMembers", _player2.default.remoteHashKey);
+        mp.events.callRemote("requestTeamMembers", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     }
 }
 
 exports.default = new TeamList();
 
-},{"../../app/app":2,"../../player/player":186}],85:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":208}],96:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2639,7 +3795,7 @@ class Telefon extends _app2.default {
 
 exports.default = new Telefon();
 
-},{"../../app/app":2,"../../player/player":186}],86:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":208}],97:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2664,7 +3820,7 @@ class TelefonCalls extends _app2.default {
 
 exports.default = new TelefonCalls();
 
-},{"../../app/app":2,"../../player/player":186}],87:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":208}],98:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2685,7 +3841,7 @@ class TelefonInput extends _app2.default {
 
 exports.default = new TelefonInput();
 
-},{"../../app/app":2}],88:[function(require,module,exports){
+},{"../../app/app":11}],99:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2707,7 +3863,7 @@ class TelefonSettings extends _app2.default {
 
 exports.default = new TelefonSettings();
 
-},{"../../app/app":2}],89:[function(require,module,exports){
+},{"../../app/app":11}],100:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2729,7 +3885,7 @@ class VehicleImpoundApp extends _app2.default {
 
 exports.default = new VehicleImpoundApp();
 
-},{"../../app/app":2}],90:[function(require,module,exports){
+},{"../../app/app":11}],101:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2757,7 +3913,7 @@ class VehicleOverviewApp extends _app2.default {
 
 exports.default = new VehicleOverviewApp();
 
-},{"../../app/app":2}],91:[function(require,module,exports){
+},{"../../app/app":11}],102:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2779,7 +3935,7 @@ class VehicleTaxApp extends _app2.default {
 
 exports.default = new VehicleTaxApp();
 
-},{"../../app/app":2}],92:[function(require,module,exports){
+},{"../../app/app":11}],103:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2818,7 +3974,7 @@ class Attachments {
                             if (!attachmentHandler.attachmentsSyncEntities.includes(streamedPlayer.handle)) {
 
                                 attachmentHandler.attachmentsSyncEntities.push(streamedPlayer.handle);
-                                mp.events.callRemoteUnreliable("requestAttachmentsPlayer", streamedPlayer, _player3.default.remoteHashKey);
+                                mp.events.callRemote("requestAttachmentsPlayer", streamedPlayer.remoteId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
                             }
                         } else if (attachmentHandler.attachmentsSyncEntities.includes(streamedPlayer.handle)) {
                             let index = attachmentHandler.attachmentsSyncEntities.indexOf(streamedPlayer.handle);
@@ -3087,7 +4243,7 @@ class Attachments {
 
 exports.default = new Attachments();
 
-},{"../player/player":186}],93:[function(require,module,exports){
+},{"../player/player":208}],104:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3115,6 +4271,7 @@ class Browser {
 
         if (!this.voice) {
             this.voice = mp.browsers.new('');
+            this.voice.execute(`document.body.style.display = "none";`);
         }
     }
 
@@ -3135,7 +4292,165 @@ class Browser {
 
 exports.default = new Browser();
 
-},{}],94:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
+"use strict";
+
+var _player = require("../player/player");
+
+var _player2 = _interopRequireDefault(_player);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+let objectplaceRot = 0.0;
+let boneIdx = 338;
+let rotationSpeed = 2.0;
+let positionSpeed = 0.05;
+let currHash = undefined;
+let returnEvent = "";
+let useUpDown = false;
+let xIndex = 0;
+let yIndex = 1.5;
+let zIndex = -1.0;
+
+mp.events.add('initPlacement', (return_event, hash, use_up_down) => {
+
+    // restore defaults
+    xIndex = 0;
+    yIndex = 1.5;
+    zIndex = -1.0;
+    objectplaceRot = 0.0;
+
+    useUpDown = use_up_down;
+    currHash = hash;
+    returnEvent = return_event;
+
+    if (_player2.default.placementObject != null && mp.objects.exists(_player2.default.placementObject)) {
+        _player2.default.placementObject.destroy();
+    }
+
+    _player2.default.placementObject = mp.objects.new(hash, mp.players.local.position, {
+        rotation: mp.players.local.rotation,
+        alpha: 200,
+        dimension: mp.players.local.dimension
+    });
+
+    let count = 0;
+
+    while ((_player2.default.placementObject == null || _player2.default.placementObject.handle === 0) && count < 30) {
+        mp.game.wait(100);
+        count++;
+    }
+
+    resyncObject();
+});
+
+// 4
+mp.keys.bind(0x64, true, () => {
+    if (_player2.default.placementObject !== undefined) {
+        xIndex -= positionSpeed;
+        resyncObject();
+    }
+});
+
+// 1
+mp.keys.bind(0x61, true, () => {
+    if (_player2.default.placementObject !== undefined) {
+        zIndex -= positionSpeed;
+        resyncObject();
+    }
+});
+
+// 3
+mp.keys.bind(0x63, true, () => {
+    if (_player2.default.placementObject !== undefined) {
+        zIndex += positionSpeed;
+        resyncObject();
+    }
+});
+
+// 6
+mp.keys.bind(0x66, true, () => {
+    if (_player2.default.placementObject !== undefined) {
+        xIndex += positionSpeed;
+        resyncObject();
+    }
+});
+
+// 8
+mp.keys.bind(0x68, true, () => {
+    if (_player2.default.placementObject !== undefined && useUpDown) {
+        yIndex += positionSpeed;
+        resyncObject();
+    }
+});
+
+// 2
+mp.keys.bind(0x62, true, () => {
+    if (_player2.default.placementObject !== undefined && useUpDown) {
+        yIndex -= positionSpeed;
+        resyncObject();
+    }
+});
+
+// 7 (DREHEN+)
+mp.keys.bind(0x67, true, () => {
+    if (_player2.default.placementObject !== undefined) {
+        objectplaceRot += rotationSpeed;
+        resyncObject();
+    }
+});
+
+// 9 (DREHEN-)
+mp.keys.bind(0x69, true, () => {
+    if (_player2.default.placementObject !== undefined) {
+        objectplaceRot -= rotationSpeed;
+        resyncObject();
+    }
+});
+
+function resyncObject() {
+    if (_player2.default.placementObject !== undefined) {
+        _player2.default.placementObject.attachTo(mp.players.local.handle, boneIdx, xIndex, yIndex, zIndex, 0.0, 0.0, objectplaceRot, false, false, true, false, 0, true);
+    }
+}
+
+// 0 Bestätigen
+mp.keys.bind(0x60, true, () => {
+    if (_player2.default.placementObject !== undefined) {
+
+        let position = _player2.default.placementObject.getCoords(false);
+        let rotation = _player2.default.placementObject.getRotation(2);
+
+        let tmpobj = mp.objects.new(currHash, position, {
+            rotation: rotation,
+            alpha: 0,
+            dimension: mp.players.local.dimension
+        });
+
+        let count = 0;
+
+        while ((tmpobj == null || tmpobj.handle === 0) && count < 30) {
+            mp.game.wait(100);
+            count++;
+        }
+
+        if (!useUpDown) {
+            mp.game.invoke("0x58A850EAEE20FAA3", tmpobj.handle);
+        }
+
+        mp.game.wait(500);
+        rotation = tmpobj.getRotation(2);
+        position = tmpobj.getCoords(false);
+
+        mp.events.callRemote(returnEvent, position.x, position.y, position.z, rotation.x, rotation.y, rotation.z, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+
+        tmpobj.destroy();
+        _player2.default.placementObject.destroy();
+        _player2.default.placementObject = undefined;
+    }
+});
+
+},{"../player/player":208}],106:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3297,7 +4612,7 @@ class Component {
 
 exports.default = Component;
 
-},{"../browser/browser":93,"./components":95}],95:[function(require,module,exports){
+},{"../browser/browser":104,"./components":107}],107:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3395,7 +4710,7 @@ class Components {
             eventArgs = [];
         }
 
-        eventArgs.push(_player2.default.remoteHashKey);
+        eventArgs.push("0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
 
         mp.events.callRemote(eventName, ...eventArgs);
     }
@@ -3403,7 +4718,7 @@ class Components {
 
 exports.default = new Components();
 
-},{"../player/player":186}],96:[function(require,module,exports){
+},{"../player/player":208}],108:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3419,7 +4734,7 @@ class Doors {
 
 exports.default = new Doors();
 
-},{}],97:[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3446,7 +4761,7 @@ class AdminWindow extends _window2.default {
 
 exports.default = new AdminWindow();
 
-},{"../../windows/window":203}],98:[function(require,module,exports){
+},{"../../windows/window":234}],110:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3481,7 +4796,7 @@ class AnimationWheelFavoritesList extends _window2.default {
 
 exports.default = new AnimationWheelFavoritesList();
 
-},{"../../windows/window":203,"../hud/n-menu":138}],99:[function(require,module,exports){
+},{"../../windows/window":234,"../hud/n-menu":152}],111:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3506,12 +4821,12 @@ class BankWindow extends _window2.default {
 
 exports.default = new BankWindow();
 
-},{"../../windows/window":203}],100:[function(require,module,exports){
+},{"../../windows/window":234}],112:[function(require,module,exports){
 "use strict";
 
 require("./bank-window");
 
-},{"./bank-window":99}],101:[function(require,module,exports){
+},{"./bank-window":111}],113:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3532,12 +4847,12 @@ class BannWindow extends _window2.default {
 
 exports.default = new BannWindow();
 
-},{"../../windows/window":203}],102:[function(require,module,exports){
+},{"../../windows/window":234}],114:[function(require,module,exports){
 "use strict";
 
 require("./bann-window");
 
-},{"./bann-window":101}],103:[function(require,module,exports){
+},{"./bann-window":113}],115:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3578,7 +4893,6 @@ class BarberWindow extends _window2.default {
                 return;
             case 'moveCam':
                 this.moveCam(args[0].offset);
-
                 break;
         }
     }
@@ -3625,7 +4939,7 @@ class BarberWindow extends _window2.default {
 
 exports.default = new BarberWindow();
 
-},{"../../utils/bodyCamera":194,"../../windows/window":203}],104:[function(require,module,exports){
+},{"../../utils/bodyCamera":225,"../../windows/window":234}],116:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3656,7 +4970,7 @@ class BusLinienWindow extends _window2.default {
 
 exports.default = new BusLinienWindow();
 
-},{"../../windows/window":203}],105:[function(require,module,exports){
+},{"../../windows/window":234}],117:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3679,12 +4993,12 @@ class CannabisLaborWindow extends _window2.default {
 
 exports.default = new CannabisLaborWindow();
 
-},{"../../windows/window":203}],106:[function(require,module,exports){
+},{"../../windows/window":234}],118:[function(require,module,exports){
 "use strict";
 
 require("./cannabislab-window");
 
-},{"./cannabislab-window":105}],107:[function(require,module,exports){
+},{"./cannabislab-window":117}],119:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3708,12 +5022,12 @@ class CarshopWindow extends _window2.default {
 
 exports.default = new CarshopWindow();
 
-},{"../../windows/window":203}],108:[function(require,module,exports){
+},{"../../windows/window":234}],120:[function(require,module,exports){
 "use strict";
 
 require("./carshop-window");
 
-},{"./carshop-window":107}],109:[function(require,module,exports){
+},{"./carshop-window":119}],121:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3739,7 +5053,7 @@ class SlotMachine extends _window2.default {
 
 exports.default = new SlotMachine();
 
-},{"../../windows/window":203}],110:[function(require,module,exports){
+},{"../../windows/window":234}],122:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -3845,7 +5159,7 @@ class CharacterCreator extends _window2.default {
 
 exports.default = new CharacterCreator();
 
-},{"../../utils/bodyCamera":194,"../../windows/window":203}],111:[function(require,module,exports){
+},{"../../utils/bodyCamera":225,"../../windows/window":234}],123:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3884,12 +5198,12 @@ class ChatWindow extends _window2.default {
 
 exports.default = new ChatWindow();
 
-},{"../../player/player":186,"../../windows/window":203}],112:[function(require,module,exports){
+},{"../../player/player":208,"../../windows/window":234}],124:[function(require,module,exports){
 "use strict";
 
 require("./chat-window");
 
-},{"./chat-window":111}],113:[function(require,module,exports){
+},{"./chat-window":123}],125:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -4142,7 +5456,7 @@ class ClothingShop extends _window2.default {
 
 exports.default = new ClothingShop();
 
-},{"../../utils/bodyCamera":194,"../../windows/window":203}],114:[function(require,module,exports){
+},{"../../utils/bodyCamera":225,"../../windows/window":234}],126:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4165,12 +5479,12 @@ class ConfirmWindow extends _window2.default {
 
 exports.default = new ConfirmWindow();
 
-},{"../../windows/window":203}],115:[function(require,module,exports){
+},{"../../windows/window":234}],127:[function(require,module,exports){
 "use strict";
 
 require("./confirm-window");
 
-},{"./confirm-window":114}],116:[function(require,module,exports){
+},{"./confirm-window":126}],128:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4193,12 +5507,12 @@ class DeathWindow extends _window2.default {
 
 exports.default = new DeathWindow();
 
-},{"../../windows/window":203}],117:[function(require,module,exports){
+},{"../../windows/window":234}],129:[function(require,module,exports){
 "use strict";
 
 require("./death-window");
 
-},{"./death-window":116}],118:[function(require,module,exports){
+},{"./death-window":128}],130:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4229,7 +5543,7 @@ class EjectWindow extends _window2.default {
 
 exports.default = new EjectWindow();
 
-},{"../../windows/window":203}],119:[function(require,module,exports){
+},{"../../windows/window":234}],131:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4252,12 +5566,12 @@ class FlyerWindow extends _window2.default {
 
 exports.default = new FlyerWindow();
 
-},{"../../windows/window":203}],120:[function(require,module,exports){
+},{"../../windows/window":234}],132:[function(require,module,exports){
 "use strict";
 
 require("./flyer-window");
 
-},{"./flyer-window":119}],121:[function(require,module,exports){
+},{"./flyer-window":131}],133:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4281,12 +5595,12 @@ class FriskWindow extends _window2.default {
 
 exports.default = new FriskWindow();
 
-},{"../../windows/window":203}],122:[function(require,module,exports){
+},{"../../windows/window":234}],134:[function(require,module,exports){
 "use strict";
 
 require("./frisk-window");
 
-},{"./frisk-window":121}],123:[function(require,module,exports){
+},{"./frisk-window":133}],135:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4310,12 +5624,12 @@ class GarageWindow extends _window2.default {
 
 exports.default = new GarageWindow();
 
-},{"../../windows/window":203}],124:[function(require,module,exports){
+},{"../../windows/window":234}],136:[function(require,module,exports){
 "use strict";
 
 require("./garage-window");
 
-},{"./garage-window":123}],125:[function(require,module,exports){
+},{"./garage-window":135}],137:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4338,12 +5652,37 @@ class GiveMoneyWindow extends _window2.default {
 
 exports.default = new GiveMoneyWindow();
 
-},{"../../windows/window":203}],126:[function(require,module,exports){
+},{"../../windows/window":234}],138:[function(require,module,exports){
 "use strict";
 
 require("./giveMoney-window");
 
-},{"./giveMoney-window":125}],127:[function(require,module,exports){
+},{"./giveMoney-window":137}],139:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _window = require('../../windows/window');
+
+var _window2 = _interopRequireDefault(_window);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class HeistOverview extends _window2.default {
+    constructor() {
+        super('HeistOverview');
+
+        this.setCurserVisible(true);
+        this.setChatVisible(false);
+    }
+
+}
+
+exports.default = new HeistOverview();
+
+},{"../../windows/window":234}],140:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4366,12 +5705,12 @@ class HeroinLaborWindow extends _window2.default {
 
 exports.default = new HeroinLaborWindow();
 
-},{"../../windows/window":203}],128:[function(require,module,exports){
+},{"../../windows/window":234}],141:[function(require,module,exports){
 "use strict";
 
 require("./heroinlab-window");
 
-},{"./heroinlab-window":127}],129:[function(require,module,exports){
+},{"./heroinlab-window":140}],142:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4412,7 +5751,32 @@ class AntiAFK extends _component2.default {
 
 exports.default = new AntiAFK();
 
-},{"../../components/component":94}],130:[function(require,module,exports){
+},{"../../components/component":106}],143:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _component = require("../../components/component");
+
+var _component2 = _interopRequireDefault(_component);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class BuildMenu extends _component2.default {
+    constructor() {
+        super("BuildMenu");
+
+        mp.events.add('showBuildMenu', state => {
+            this.callOnBrowser(`showBuildMenu(${state})`);
+        });
+    }
+}
+
+exports.default = new BuildMenu();
+
+},{"../../components/component":106}],144:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4441,7 +5805,7 @@ class Bus extends _component2.default {
 
 exports.default = new Bus();
 
-},{"../../components/component":94}],131:[function(require,module,exports){
+},{"../../components/component":106}],145:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4472,7 +5836,7 @@ class Fishing extends _component2.default {
 
 exports.default = new Fishing();
 
-},{"../../components/component":94}],132:[function(require,module,exports){
+},{"../../components/component":106}],146:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4505,7 +5869,7 @@ class Gangwar extends _component2.default {
 
 exports.default = new Gangwar();
 
-},{"../../components/component":94}],133:[function(require,module,exports){
+},{"../../components/component":106}],147:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4530,7 +5894,7 @@ class GlobalNotification extends _component2.default {
 
 exports.default = new GlobalNotification();
 
-},{"../../components/component":94}],134:[function(require,module,exports){
+},{"../../components/component":106}],148:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4563,7 +5927,7 @@ class HelpPanel extends _component2.default {
 
 exports.default = new HelpPanel();
 
-},{"../../components/component":94,"../../player/player":186}],135:[function(require,module,exports){
+},{"../../components/component":106,"../../player/player":208}],149:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4615,7 +5979,7 @@ class Hud extends _component2.default {
 
 exports.default = new Hud();
 
-},{"../../components/component":94}],136:[function(require,module,exports){
+},{"../../components/component":106}],150:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4640,7 +6004,7 @@ class Infocard extends _component2.default {
 
 exports.default = new Infocard();
 
-},{"../../components/component":94}],137:[function(require,module,exports){
+},{"../../components/component":106}],151:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -4690,7 +6054,7 @@ class Menu extends _component2.default {
 
 exports.default = new Menu();
 
-},{"../../components/component":94,"../hud/player-panel":141}],138:[function(require,module,exports){
+},{"../../components/component":106,"../hud/player-panel":155}],152:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -4738,14 +6102,14 @@ class NMenu extends _component2.default {
                 return;
             }
 
-            mp.events.callRemote('REQUEST_ANIMATION_USE', args[0], _player2.default.remoteHashKey);
+            mp.events.callRemote('REQUEST_ANIMATION_USE', args[0], "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         }
     }
 }
 
 exports.default = new NMenu();
 
-},{"../../components/component":94,"../../player/player":186}],139:[function(require,module,exports){
+},{"../../components/component":106,"../../player/player":208}],153:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4769,7 +6133,7 @@ class Nutrition extends _component2.default {
 
 exports.default = new Nutrition();
 
-},{"../../components/component":94}],140:[function(require,module,exports){
+},{"../../components/component":106}],154:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4821,7 +6185,7 @@ class Paintball extends _component2.default {
 
 exports.default = new Paintball();
 
-},{"../../components/component":94,"../../player/player":186}],141:[function(require,module,exports){
+},{"../../components/component":106,"../../player/player":208}],155:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4844,9 +6208,36 @@ class PlayerPanel extends _component2.default {
 
         this.displayState = false;
         this.forwardableEvents.add("responsePlaySMSSound");
-
+        this.mkr_range = 3 * 2.5;
+        this.mkr_active = false;
+        this.mkr_time = 50;
         mp.events.add('setVoiceType', voiceRange => {
             this.callOnBrowser(`voiceRange=${voiceRange}`);
+            var range = 3;
+            switch (voiceRange) {
+                case 1:
+                    range = 8 * 2.5;break;
+                case 2:
+                    range = 20 * 2.5;break;
+                case 3:
+                    range = 3 * 2.5;break;
+                case 4:
+                    range = 50 * 2.5;break;
+            }
+            this.mkr_range = range * 0.8;
+            this.mkr_active = true;
+            this.mkr_time = 50;
+        });
+
+        mp.events.add('render', () => {
+            if (this.mkr_active) {
+                let pos = mp.players.local.position;
+                mp.game.graphics.drawMarker(1, pos.x, pos.y, pos.z - 2.0, 0, 0, 0, 0, 0, 0, this.mkr_range, this.mkr_range, this.mkr_range, 245, 127, 39, 100, false, false, 0, false, null, null, false);
+                this.mkr_time--;
+                if (this.mkr_time <= 0) {
+                    this.mkr_active = false;
+                }
+            }
         });
     }
 
@@ -4900,6 +6291,10 @@ class PlayerPanel extends _component2.default {
         this.callOnBrowser(`aduty=${aduty}`);
     }
 
+    setEinreiseDuty(einreiseamtduty) {
+        this.callOnBrowser(`einreiseamtduty=${einreiseamtduty}`);
+    }
+
     executeDisplay(state) {
         this.callOnBrowser(`state=${state}`);
     }
@@ -4919,7 +6314,7 @@ class PlayerPanel extends _component2.default {
 
 exports.default = new PlayerPanel();
 
-},{"../../components/component":94,"../../player/player":186}],142:[function(require,module,exports){
+},{"../../components/component":106,"../../player/player":208}],156:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -4957,7 +6352,7 @@ class PlayerInfo extends _component2.default {
 
 exports.default = new PlayerInfo();
 
-},{"../../components/component":94,"../../player/player":186}],143:[function(require,module,exports){
+},{"../../components/component":106,"../../player/player":208}],157:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4989,7 +6384,7 @@ class PlayerNotification extends _component2.default {
 
 exports.default = new PlayerNotification();
 
-},{"../../components/component":94,"../../player/player":186}],144:[function(require,module,exports){
+},{"../../components/component":106,"../../player/player":208}],158:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5025,7 +6420,98 @@ class Progressbar extends _component2.default {
 
 exports.default = new Progressbar();
 
-},{"../../components/component":94,"../../player/player":186}],145:[function(require,module,exports){
+},{"../../components/component":106,"../../player/player":208}],159:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _component = require("../../components/component");
+
+var _component2 = _interopRequireDefault(_component);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class RacingHud extends _component2.default {
+    constructor() {
+        super("RacingHud");
+
+        mp.events.add("setRacingRounds", aktuelleRunde => {
+            this.callOnBrowser(`setRacingRounds('${aktuelleRunde}')`);
+        });
+
+        mp.events.add("setRacingCheckpoint", aktuelleCP => {
+            this.callOnBrowser(`setRacingCheckpoint('${aktuelleCP}')`);
+        });
+
+        mp.events.add("setRacingPosition", currentPos => {
+            this.callOnBrowser(`setRacingPosition('${currentPos}')`);
+        });
+
+        mp.events.add("closeRacingHud", () => {
+            this.callOnBrowser(`closeRacingHud()`);
+        });
+
+        mp.events.add("responseGetRacingHudData", (currentCheckpoint, maxCheckpoint, currentRunde, maxRunde, currentPlace) => {
+            this.callOnBrowser(`responseGetRacingHudData('${currentCheckpoint}', '${maxCheckpoint}', '${currentRunde}','${maxRunde}','${currentPlace}')`);
+        });
+    }
+}
+
+exports.default = new RacingHud();
+
+},{"../../components/component":106}],160:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _component = require("../../components/component");
+
+var _component2 = _interopRequireDefault(_component);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class ZoneWarning extends _component2.default {
+    constructor() {
+        super("ZoneWarning");
+
+        mp.events.add("callZoneWarning", (title, text, duration) => {
+            this.callOnBrowser(`showZoneWindow('${title}','${text}','${duration}')`);
+        });
+    }
+}
+
+exports.default = new ZoneWarning();
+
+},{"../../components/component":106}],161:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _component = require("../../components/component");
+
+var _component2 = _interopRequireDefault(_component);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class ScreenHide extends _component2.default {
+    constructor() {
+        super("ScreenHide");
+
+        mp.events.add('setHideState', state => {
+            this.callOnBrowser(`setHideState(${state})`);
+        });
+    }
+}
+
+exports.default = new ScreenHide();
+
+},{"../../components/component":106}],162:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5094,7 +6580,36 @@ class Smartphone extends _component2.default {
 
 exports.default = new Smartphone();
 
-},{"../../app/apps":3,"../../apps/callManage":12,"../../apps/home":35,"../../apps/phone":53,"../../components/component":94}],146:[function(require,module,exports){
+},{"../../app/apps":12,"../../apps/callManage":21,"../../apps/home":44,"../../apps/phone":62,"../../components/component":106}],163:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _component = require("../../components/component");
+
+var _component2 = _interopRequireDefault(_component);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class TaskHint extends _component2.default {
+    constructor() {
+        super("TaskHint");
+
+        mp.events.add('showTasksHint', (title, description) => {
+            this.callOnBrowser(`showTasksHintMethod('${title}','${description}')`);
+        });
+
+        mp.events.add('hideTaskHint', () => {
+            this.callOnBrowser(`hideTaskHint()`);
+        });
+    }
+}
+
+exports.default = new TaskHint();
+
+},{"../../components/component":106}],164:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5149,6 +6664,7 @@ class VehiclePanel extends _component2.default {
         mp.events.add("setNormalSpeed", (vehicle, speed) => {
 
             if (vehicle == null) return;
+            this.callOnBrowser(`maxspeed=${speed * 1.2}`);
             speed = speed / 3.6;
             if (speed > 0) {
                 vehicle.setMaxSpeed(speed);
@@ -5260,7 +6776,7 @@ class VehiclePanel extends _component2.default {
 
     sendAndReset(veh) {
         if (this.currentDistance > 0.001 && veh != null) {
-            mp.events.callRemote("updateVehicleDistance", veh, Number(this.currentDistance.toFixed(3)), Number(this.currentFuelDistance.toFixed(3)), _player2.default.remoteHashKey);
+            mp.events.callRemote("updateVehicleDistance", veh.remoteId, Number(this.currentDistance.toFixed(3)), Number(this.currentFuelDistance.toFixed(3)), "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
 
             this.currentDistance = 0;
             this.currentFuelDistance = 0;
@@ -5286,7 +6802,7 @@ class VehiclePanel extends _component2.default {
     }
 
     requestNormalSpeed(vehicle) {
-        mp.events.callRemote("requestNormalSpeed", vehicle, _player2.default.remoteHashKey);
+        mp.events.callRemote("requestNormalSpeed", vehicle.remoteId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     }
 
     tempomat() {
@@ -5299,6 +6815,7 @@ class VehiclePanel extends _component2.default {
                 if (lvehicle.getSpeed() > 5) {
                     this.svehicle = lvehicle;
                     lvehicle.setMaxSpeed(lvehicle.getSpeed());
+                    this.callOnBrowser(`maxspeed=${lvehicle.getSpeed()}`);
                     this.showTempomat(true);
                 }
             }
@@ -5315,7 +6832,7 @@ class VehiclePanel extends _component2.default {
 
 exports.default = new VehiclePanel();
 
-},{"../../components/component":94,"../../player/player":186}],147:[function(require,module,exports){
+},{"../../components/component":106,"../../player/player":208}],165:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5390,7 +6907,12 @@ class XMenu extends _component2.default {
                         return;
                     }
 
-                    return _peds2.default.getPlayerMenuItems();
+                    //Zinken on Cayo
+                    if (_player2.default.onCayoIsland) {
+                        return _peds2.default.getPlayerMenuItems();
+                    } else {
+                        return _peds2.default.getPlayerMenuItems().filter(x => x.id != 'REQUEST_PEDS_PLAYER_ZINKEN');
+                    }
                 }
             }
 
@@ -5411,12 +6933,12 @@ class XMenu extends _component2.default {
                     _flatbed2.default.xmenuswitch(args[0].itemId);
                     return;
                 } else if (args[0].arg == "" || args[0].arg == undefined || args[0].arg.length <= 0) {
-                    mp.events.callRemote(args[0].itemId, _player2.default.remoteHashKey);
+                    mp.events.callRemote(args[0].itemId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
                     return;
                 } else if (args[0].itemId == "LOCAL_ACTION") {
                     if (args[0].arg == "RadioOff") mp.game.audio.setRadioToStationName("OFF");
                     return;
-                } else mp.events.callRemote(args[0].itemId, args[0].arg, _player2.default.remoteHashKey);
+                } else mp.events.callRemote(args[0].itemId, args[0].arg, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
             }
             // Not in vehicle
             else {
@@ -5426,8 +6948,8 @@ class XMenu extends _component2.default {
                     if (args[0].id == "donothing") {
                         return;
                     } else if (args[0].arg == "" || args[0].arg == undefined || args[0].arg.length <= 0) {
-                        mp.events.callRemote(args[0].itemId, obj.entity, _player2.default.remoteHashKey);
-                    } else mp.events.callRemote(args[0].itemId, obj.entity, args[0].arg, _player2.default.remoteHashKey);
+                        mp.events.callRemote(args[0].itemId, obj.entity.remoteId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+                    } else mp.events.callRemote(args[0].itemId, obj.entity.remoteId, args[0].arg, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
                 }
         }
     }
@@ -5435,7 +6957,7 @@ class XMenu extends _component2.default {
 
 exports.default = new XMenu();
 
-},{"../../components/component":94,"../../peds/peds":180,"../../player/player":186,"../../raycast/raycast":193,"../../vehicle/flatbed":198,"../../vehicle/vehicle-module":200}],148:[function(require,module,exports){
+},{"../../components/component":106,"../../peds/peds":202,"../../player/player":208,"../../raycast/raycast":224,"../../vehicle/flatbed":229,"../../vehicle/vehicle-module":231}],166:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5511,7 +7033,7 @@ class IdCard extends _component2.default {
 
 exports.default = new IdCard();
 
-},{"../../components/component":94,"../../player/player":186}],149:[function(require,module,exports){
+},{"../../components/component":106,"../../player/player":208}],167:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5552,12 +7074,12 @@ class InputWindow extends _window2.default {
 
 exports.default = new InputWindow();
 
-},{"../../player/player":186,"../../windows/window":203}],150:[function(require,module,exports){
+},{"../../player/player":208,"../../windows/window":234}],168:[function(require,module,exports){
 "use strict";
 
 require("./input-window");
 
-},{"./input-window":149}],151:[function(require,module,exports){
+},{"./input-window":167}],169:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5588,7 +7110,7 @@ class InsuranceWindow extends _window2.default {
 
 exports.default = new InsuranceWindow();
 
-},{"../../windows/window":203}],152:[function(require,module,exports){
+},{"../../windows/window":234}],170:[function(require,module,exports){
 'use strict';
 
 require('./login/login');
@@ -5630,6 +7152,8 @@ require('./buslinien/buslinien');
 require('./petbuy/petbuy');
 
 require('./ejectwindow/ejectwindow');
+
+require('./shopikea/ShopIkeaWindow');
 
 require('./bank/bank');
 
@@ -5675,6 +7199,10 @@ require('./hud/gangwar');
 
 require('./hud/fishing');
 
+require('./hud/buildMenu');
+
+require('./hud/screenHide');
+
 require('./hud/paintball');
 
 require('./hud/infocard');
@@ -5707,7 +7235,21 @@ require('./jobs/jobs');
 
 require('./paymentMethods/paymentMethods-window');
 
-},{"./adminmenu/adminmenu":97,"./animation/animation-wheel-favorites-list-window":98,"./bank/bank":100,"./bann/bann":102,"./barber/barber":103,"./buslinien/buslinien":104,"./cannabislab/cannabislab":106,"./carshop/carshop":108,"./casino/slotmachine":109,"./character-creator/character-creator":110,"./chat/chat":112,"./clothing-shop/clothing-shop":113,"./confirm/confirm":115,"./death/death":117,"./ejectwindow/ejectwindow":118,"./flyer/flyer":120,"./frisk/frisk":122,"./garage/garage":124,"./giveMoney/giveMoney":126,"./heroinlab/heroinlab":128,"./hud/bus":130,"./hud/fishing":131,"./hud/gangwar":132,"./hud/globalnotification":133,"./hud/help-panel":134,"./hud/hud":135,"./hud/infocard":136,"./hud/menu":137,"./hud/n-menu":138,"./hud/nutrition":139,"./hud/paintball":140,"./hud/player-panel":141,"./hud/playernotification":143,"./hud/progressbar":144,"./hud/smartphone":145,"./hud/vehicle-panel":146,"./hud/x-menu":147,"./id-card/id-card":148,"./input/input":150,"./insurance/insurance":151,"./inventory/inventory":154,"./jobs/jobs":155,"./keys/keys":156,"./kick/kick":158,"./licenses/licenses":159,"./login/login":161,"./methlab/methlab":163,"./paymentMethods/paymentMethods-window":164,"./petbuy/petbuy":165,"./register/register":167,"./rims/rims":168,"./shop/shop":169,"./tattoo-license/tattoo-license":170,"./tattoo/tattoo":172,"./tuning/tuning":173,"./vehiclerent/vehiclerent":174,"./wardrobe/wardrobe":175,"./workstation/workstation":176}],153:[function(require,module,exports){
+require('./racing/racing');
+
+require('./racing/racingloading');
+
+require('./hud/racinghud');
+
+require('./paintball/paintballwindow');
+
+require('./heists/heists');
+
+require('./hud/restrictedZone');
+
+require('./hud/taskHint');
+
+},{"./adminmenu/adminmenu":109,"./animation/animation-wheel-favorites-list-window":110,"./bank/bank":112,"./bann/bann":114,"./barber/barber":115,"./buslinien/buslinien":116,"./cannabislab/cannabislab":118,"./carshop/carshop":120,"./casino/slotmachine":121,"./character-creator/character-creator":122,"./chat/chat":124,"./clothing-shop/clothing-shop":125,"./confirm/confirm":127,"./death/death":129,"./ejectwindow/ejectwindow":130,"./flyer/flyer":132,"./frisk/frisk":134,"./garage/garage":136,"./giveMoney/giveMoney":138,"./heists/heists":139,"./heroinlab/heroinlab":141,"./hud/buildMenu":143,"./hud/bus":144,"./hud/fishing":145,"./hud/gangwar":146,"./hud/globalnotification":147,"./hud/help-panel":148,"./hud/hud":149,"./hud/infocard":150,"./hud/menu":151,"./hud/n-menu":152,"./hud/nutrition":153,"./hud/paintball":154,"./hud/player-panel":155,"./hud/playernotification":157,"./hud/progressbar":158,"./hud/racinghud":159,"./hud/restrictedZone":160,"./hud/screenHide":161,"./hud/smartphone":162,"./hud/taskHint":163,"./hud/vehicle-panel":164,"./hud/x-menu":165,"./id-card/id-card":166,"./input/input":168,"./insurance/insurance":169,"./inventory/inventory":172,"./jobs/jobs":173,"./keys/keys":174,"./kick/kick":176,"./licenses/licenses":177,"./login/login":179,"./methlab/methlab":181,"./paintball/paintballwindow":182,"./paymentMethods/paymentMethods-window":183,"./petbuy/petbuy":184,"./racing/racing":185,"./racing/racingloading":186,"./register/register":188,"./rims/rims":189,"./shop/shop":190,"./shopikea/ShopIkeaWindow":191,"./tattoo-license/tattoo-license":192,"./tattoo/tattoo":194,"./tuning/tuning":195,"./vehiclerent/vehiclerent":196,"./wardrobe/wardrobe":197,"./workstation/workstation":198}],171:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5732,12 +7274,12 @@ class InventoryWindow extends _window2.default {
 
 exports.default = new InventoryWindow();
 
-},{"../../windows/window":203}],154:[function(require,module,exports){
+},{"../../windows/window":234}],172:[function(require,module,exports){
 "use strict";
 
 require("./inventory-window");
 
-},{"./inventory-window":153}],155:[function(require,module,exports){
+},{"./inventory-window":171}],173:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -5761,7 +7303,7 @@ class Jobs extends _window2.default {
 
 exports.default = new Jobs();
 
-},{"../../windows/window":203}],156:[function(require,module,exports){
+},{"../../windows/window":234}],174:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5784,7 +7326,7 @@ class Keys extends _window2.default {
 
 exports.default = new Keys();
 
-},{"../../windows/window":203}],157:[function(require,module,exports){
+},{"../../windows/window":234}],175:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5805,12 +7347,12 @@ class KickWindow extends _window2.default {
 
 exports.default = new KickWindow();
 
-},{"../../windows/window":203}],158:[function(require,module,exports){
+},{"../../windows/window":234}],176:[function(require,module,exports){
 "use strict";
 
 require("./kick-window");
 
-},{"./kick-window":157}],159:[function(require,module,exports){
+},{"./kick-window":175}],177:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5835,7 +7377,7 @@ class Licenses extends _component2.default {
 
 exports.default = new Licenses();
 
-},{"../../components/component":94}],160:[function(require,module,exports){
+},{"../../components/component":106}],178:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5884,12 +7426,12 @@ class LoginWindow extends _window2.default {
 
 exports.default = new LoginWindow();
 
-},{"../../player/player":186,"../../windows/window":203}],161:[function(require,module,exports){
+},{"../../player/player":208,"../../windows/window":234}],179:[function(require,module,exports){
 "use strict";
 
 require("./login-window");
 
-},{"./login-window":160}],162:[function(require,module,exports){
+},{"./login-window":178}],180:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5912,12 +7454,36 @@ class MethLaborWindow extends _window2.default {
 
 exports.default = new MethLaborWindow();
 
-},{"../../windows/window":203}],163:[function(require,module,exports){
+},{"../../windows/window":234}],181:[function(require,module,exports){
 "use strict";
 
 require("./methlab-window");
 
-},{"./methlab-window":162}],164:[function(require,module,exports){
+},{"./methlab-window":180}],182:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _window = require('../../windows/window');
+
+var _window2 = _interopRequireDefault(_window);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class PaintballWindow extends _window2.default {
+    constructor() {
+        super('PaintballWindow');
+
+        this.setCurserVisible(true);
+        this.setChatVisible(false);
+    }
+}
+
+exports.default = new PaintballWindow();
+
+},{"../../windows/window":234}],183:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -5940,7 +7506,7 @@ class PaymentMethodsWindow extends _window2.default {
 
 exports.default = new PaymentMethodsWindow();
 
-},{"../../windows/window":203}],165:[function(require,module,exports){
+},{"../../windows/window":234}],184:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5971,7 +7537,59 @@ class PetBuyWindow extends _window2.default {
 
 exports.default = new PetBuyWindow();
 
-},{"../../windows/window":203}],166:[function(require,module,exports){
+},{"../../windows/window":234}],185:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _window = require('../../windows/window');
+
+var _window2 = _interopRequireDefault(_window);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class Racing extends _window2.default {
+    constructor() {
+        super('Racing');
+
+        this.setCurserVisible(true);
+        this.setChatVisible(false);
+
+        this.forwardableEvents.add('responseGetRacingData');
+    }
+
+}
+
+exports.default = new Racing();
+
+},{"../../windows/window":234}],186:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _window = require('../../windows/window');
+
+var _window2 = _interopRequireDefault(_window);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class RacingLoadingScreen extends _window2.default {
+    constructor() {
+        super('RacingLoadingScreen');
+
+        this.setCurserVisible(false);
+        this.setChatVisible(false);
+    }
+
+}
+
+exports.default = new RacingLoadingScreen();
+
+},{"../../windows/window":234}],187:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5992,12 +7610,12 @@ class RegisterWindow extends _window2.default {
 
 exports.default = new RegisterWindow();
 
-},{"../../windows/window":203}],167:[function(require,module,exports){
+},{"../../windows/window":234}],188:[function(require,module,exports){
 "use strict";
 
 require("./register-window");
 
-},{"./register-window":166}],168:[function(require,module,exports){
+},{"./register-window":187}],189:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6024,7 +7642,7 @@ class RimsWindow extends _window2.default {
 
 exports.default = new RimsWindow();
 
-},{"../../windows/window":203}],169:[function(require,module,exports){
+},{"../../windows/window":234}],190:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6055,7 +7673,90 @@ class ShopWindow extends _window2.default {
 
 exports.default = new ShopWindow();
 
-},{"../../windows/window":203}],170:[function(require,module,exports){
+},{"../../windows/window":234}],191:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _window = require('../../windows/window');
+
+var _window2 = _interopRequireDefault(_window);
+
+var _bodyCamera = require('../../utils/bodyCamera');
+
+var _bodyCamera2 = _interopRequireDefault(_bodyCamera);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class ShopIkeaWindow extends _window2.default {
+
+    constructor() {
+        super('ShopIkea');
+
+        this.setCurserVisible(true);
+        this.setChatVisible(false);
+
+        this.currentVisibleItem = null;
+        this.currentInterval = null;
+
+        this.camPos = new mp.Vector3(61.7627, -1764.77, -57.5665);
+    }
+
+    onEvent(name, ...args) {
+        if (name == "ikeaPreview") {
+
+            if (this.currentVisibleItem !== undefined && mp.objects.exists(this.currentVisibleItem)) this.currentVisibleItem.destroy();
+
+            this.currentVisibleItem = mp.objects.new(args[0], new mp.Vector3(62.096, -1758.38, -58.5665), {
+                rotation: new mp.Vector3(0, 0, 177.898),
+                alpha: 255,
+                dimension: mp.players.local.dimension
+            });
+        }
+    }
+
+    /**
+     * Event if the window is loaded.
+     */
+    onReady() {
+        this.createCam();
+        if (this.currentVisibleItem !== undefined && mp.objects.exists(this.currentVisibleItem)) this.currentVisibleItem.destroy();
+
+        this.currentInterval = setInterval(() => {
+            if (this.currentVisibleItem !== undefined && mp.objects.exists(this.currentVisibleItem)) {
+                let currentRotation = this.currentVisibleItem.getRotation(2);
+                let zcoord = currentRotation.z;
+
+                zcoord = zcoord + 1.0;
+
+                this.currentVisibleItem.setRotation(0, 0, zcoord, 2, true);
+            }
+        }, 10);
+    }
+
+    /**
+     * Event if the window has been closed.
+     */
+    onClose() {
+        clearInterval(this.currentInterval);
+        _bodyCamera2.default.resetBodyCamera();
+    }
+
+    /**
+     * Initial position if the player pressed E.
+     *
+     * @param create If true, a new cam will be created.
+     */
+    createCam() {
+        _bodyCamera2.default.createBodyCamera2(this.camPos, new mp.Vector3(0, 0, -5.55727));
+    }
+}
+
+exports.default = new ShopIkeaWindow();
+
+},{"../../utils/bodyCamera":225,"../../windows/window":234}],192:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6081,7 +7782,7 @@ class TattooLicenseShopWindow extends _window2.default {
 
 exports.default = new TattooLicenseShopWindow();
 
-},{"../../windows/window":203}],171:[function(require,module,exports){
+},{"../../windows/window":234}],193:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6268,12 +7969,12 @@ class TattooWindow extends _window2.default {
 
 exports.default = new TattooWindow();
 
-},{"../../utils/bodyCamera":194,"../../windows/window":203}],172:[function(require,module,exports){
+},{"../../utils/bodyCamera":225,"../../windows/window":234}],194:[function(require,module,exports){
 "use strict";
 
 require("./tattoo-window");
 
-},{"./tattoo-window":171}],173:[function(require,module,exports){
+},{"./tattoo-window":193}],195:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6321,7 +8022,7 @@ class TuningWindow extends _window2.default {
 
 exports.default = new TuningWindow();
 
-},{"../../peds/peds":180,"../../windows/window":203}],174:[function(require,module,exports){
+},{"../../peds/peds":202,"../../windows/window":234}],196:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6352,7 +8053,7 @@ class VehicleRentWindow extends _window2.default {
 
 exports.default = new VehicleRentWindow();
 
-},{"../../windows/window":203}],175:[function(require,module,exports){
+},{"../../windows/window":234}],197:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6376,7 +8077,7 @@ class WardrobeWindow extends _window2.default {
         this.setCurserVisible(true);
         this.setChatVisible(false);
 
-        this.forwardableEvents.add('responseWardrobeCategories');
+        this.forwardableEvents.add('responseWardrobeClothesCategories');
         this.forwardableEvents.add('responseWardrobeClothes');
     }
 
@@ -6559,7 +8260,7 @@ class WardrobeWindow extends _window2.default {
 
 exports.default = new WardrobeWindow();
 
-},{"../../utils/bodyCamera":194,"../../windows/window":203}],176:[function(require,module,exports){
+},{"../../utils/bodyCamera":225,"../../windows/window":234}],198:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6590,7 +8291,7 @@ class WorkstationWindow extends _window2.default {
 
 exports.default = new WorkstationWindow();
 
-},{"../../windows/window":203}],177:[function(require,module,exports){
+},{"../../windows/window":234}],199:[function(require,module,exports){
 "use strict";
 
 var _apps = require("../app/apps");
@@ -6641,6 +8342,10 @@ var _rappel = require("../vehicle/rappel");
 
 var _rappel2 = _interopRequireDefault(_rappel);
 
+var _objects = require("../rage11/objects");
+
+var _objects2 = _interopRequireDefault(_objects);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 mp.events.add("VisibleWindowBug", () => {
@@ -6666,30 +8371,37 @@ mp.keys.bind(0x45, false, () => {
 
     if (garbagevehicle !== null) {
         if (vehicleEnter.calcDist(mp.players.local.position, garbagevehicle.getWorldPositionOfBone(garbagevehicle.getBoneIndexByName('seat_dside_r1'))) < 2 || vehicleEnter.calcDist(mp.players.local.position, garbagevehicle.getWorldPositionOfBone(garbagevehicle.getBoneIndexByName('seat_pside_r1'))) < 2) {
-            mp.events.callRemote("Pressed_E_Garbage_Vehicle", garbagevehicle, _player2.default.remoteHashKey);
+            mp.events.callRemote("Pressed_E_Garbage_Vehicle", garbagevehicle.remoteId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         }
     }
     let forPressVehicle = vehicleEnter.getClosestSingleVehicleInRange(10);
 
     if (forPressVehicle !== null) {
         if (vehicleEnter.calcDist(mp.players.local.position, forPressVehicle.getWorldPositionOfBone(forPressVehicle.getBoneIndexByName('door_dside_r'))) < 2 || vehicleEnter.calcDist(mp.players.local.position, forPressVehicle.getWorldPositionOfBone(forPressVehicle.getBoneIndexByName('door_pside_r'))) < 2) {
-            mp.events.callRemote("Pressed_E_Vehicle_Trunk", forPressVehicle, _player2.default.remoteHashKey);
+            mp.events.callRemote("Pressed_E_Vehicle_Trunk", forPressVehicle.remoteId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         } else if (vehicleEnter.calcDist(mp.players.local.position, forPressVehicle.getWorldPositionOfBone(forPressVehicle.getBoneIndexByName('exhaust'))) < 2 || vehicleEnter.calcDist(mp.players.local.position, forPressVehicle.getWorldPositionOfBone(forPressVehicle.getBoneIndexByName('exhaust_2'))) < 2) {
-            mp.events.callRemote("Pressed_E_Vehicle_Trunk", forPressVehicle, _player2.default.remoteHashKey);
+            mp.events.callRemote("Pressed_E_Vehicle_Trunk", forPressVehicle.remoteId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         }
     }
 
-    mp.events.callRemoteUnreliable("Pressed_E", _player2.default.remoteHashKey);
+    // getobjects.getBin()
+    mp.events.callRemoteUnreliable("Pressed_E", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     mp.gui.chat.push("Pressed_E");
-    //player.lastInteractE = new Date()
     checkInterval();
 });
 
 // Pressed L
 mp.keys.bind(0x4c, false, () => {
     if (_windows2.default.visibleWindow != null || _player2.default.chatFlag || _apps2.default.componentVisibleApp["Smartphone"] || _apps2.default.componentVisibleApp["Computer"] || _apps2.default.componentVisibleApp["Ipad"] || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemoteUnreliable("Pressed_L", _player2.default.remoteHashKey);
-    mp.gui.chat.push("Pressed_L");
+
+    // ALT + L
+    if (mp.keys.isDown(18) === true) {
+        mp.events.callRemoteUnreliable("Pressed_ALT_L", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.gui.chat.push("Pressed_ALT_L");
+    } else {
+        mp.events.callRemoteUnreliable("Pressed_L", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.gui.chat.push("Pressed_L");
+    }
     checkInterval();
 });
 
@@ -6704,19 +8416,20 @@ mp.keys.bind(0x71, false, () => {
     }
 
     if (_apps2.default.componentVisibleApp["Smartphone"] != null) {
-        mp.events.callRemoteUnreliable("Keks", false, _player2.default.remoteHashKey);
+        mp.events.callRemoteUnreliable("Keks", false, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     } else {
-        mp.events.callRemoteUnreliable("Keks", true, _player2.default.remoteHashKey);
+        mp.events.callRemoteUnreliable("Keks", true, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     }
+
     if (arrowDown) {
         arrowDown = false;
         _playerPanel2.default.setVoiceRadioActiveType(1);
-        mp.events.callRemote("changeSettings", 1, _player2.default.remoteHashKey);
+        mp.events.callRemote("changeSettings", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         clearAFK();
     }
     if (airArrowDown) {
         airArrowDown = false;
-        mp.events.callRemote("changeAirFunk", 1, _player2.default.remoteHashKey);
+        mp.events.callRemote("changeAirFunk", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         clearAFK();
     }
     checkInterval();
@@ -6733,19 +8446,19 @@ mp.keys.bind(0x72, false, () => {
     }
 
     if (_apps2.default.componentVisibleApp["Computer"] === "ComputerMainScreen") {
-        mp.events.callRemoteUnreliable("closeComputer", 1, _player2.default.remoteHashKey);
+        mp.events.callRemoteUnreliable("closeComputer", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     } else {
-        mp.events.callRemoteUnreliable("computerCheck", 1, _player2.default.remoteHashKey);
+        mp.events.callRemoteUnreliable("computerCheck", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     }
     if (arrowDown) {
         arrowDown = false;
         _playerPanel2.default.setVoiceRadioActiveType(1);
-        mp.events.callRemote("changeSettings", 1, _player2.default.remoteHashKey);
+        mp.events.callRemote("changeSettings", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         clearAFK();
     }
     if (airArrowDown) {
         airArrowDown = false;
-        mp.events.callRemote("changeAirFunk", 1, _player2.default.remoteHashKey);
+        mp.events.callRemote("changeAirFunk", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         clearAFK();
     }
     checkInterval();
@@ -6755,24 +8468,24 @@ mp.keys.bind(0x72, false, () => {
 mp.keys.bind(0x74, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null || _player2.default.injured || _player2.default.tied || _player2.default.cuffed || _player2.default.isCarrying || _player2.default.HasRagdall) return;
 
-    mp.events.callRemoteUnreliable("openAnimationMenu", _player2.default.remoteHashKey);
+    mp.events.callRemoteUnreliable("openAnimationMenu", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     checkInterval();
 
     if (arrowDown) {
         arrowDown = false;
         _playerPanel2.default.setVoiceRadioActiveType(1);
-        mp.events.callRemote("changeSettings", 1, _player2.default.remoteHashKey);
+        mp.events.callRemote("changeSettings", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         clearAFK();
     }
     if (airArrowDown) {
         airArrowDown = false;
-        mp.events.callRemote("changeAirFunk", 1, _player2.default.remoteHashKey);
+        mp.events.callRemote("changeAirFunk", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         clearAFK();
     }
 });
 // F6
 mp.keys.bind(0x75, false, () => {
-    mp.events.callRemote("showNutrition", _player2.default.remoteHashKey);
+    mp.events.callRemote("showNutrition", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     _playerPanel2.default.displayChange();
 });
 
@@ -6781,19 +8494,19 @@ mp.keys.bind(0x78, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null || !_player2.default.allowHandy) return;
 
     if (_apps2.default.componentVisibleApp["Ipad"] === "IpadMainScreen") {
-        mp.events.callRemote("closeComputer", 2, _player2.default.remoteHashKey);
+        mp.events.callRemote("closeComputer", 2, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     } else {
-        mp.events.callRemote("computerCheck", 2, _player2.default.remoteHashKey);
+        mp.events.callRemote("computerCheck", 2, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     }
     if (arrowDown) {
         arrowDown = false;
         _playerPanel2.default.setVoiceRadioActiveType(1);
-        mp.events.callRemote("changeSettings", 1, _player2.default.remoteHashKey);
+        mp.events.callRemote("changeSettings", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         clearAFK();
     }
     if (airArrowDown) {
         airArrowDown = false;
-        mp.events.callRemote("changeAirFunk", 1, _player2.default.remoteHashKey);
+        mp.events.callRemote("changeAirFunk", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         clearAFK();
     }
     checkInterval();
@@ -6804,9 +8517,9 @@ mp.keys.bind(0x7B, false, () => {
     if (_player2.default.chatFlag) return;
 
     if (_windows2.default.visibleWindow == "AdminMenu") {
-        mp.events.callRemoteUnreliable("closeAdminMenu", _player2.default.remoteHashKey);
+        mp.events.callRemoteUnreliable("closeAdminMenu", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     } else {
-        mp.events.callRemoteUnreliable("openAdminMenu", _player2.default.remoteHashKey);
+        mp.events.callRemoteUnreliable("openAdminMenu", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     }
 
     checkInterval();
@@ -6830,18 +8543,18 @@ mp.keys.bind(0x76, false, () => {
 // I Inventory show
 mp.keys.bind(0x49, false, () => {
     if (_windows2.default.visibleWindow != null || _apps2.default.componentVisibleApp["Smartphone"] || _player2.default.chatFlag || _player2.default.injured || _player2.default.tied || _player2.default.cuffed || _apps2.default.componentVisibleApp["Computer"] || _apps2.default.componentVisibleApp["Ipad"]) return;
-    mp.events.callRemoteUnreliable("requestInventory", _player2.default.remoteHashKey);
+    mp.events.callRemoteUnreliable("requestInventory", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     checkInterval();
 
     if (arrowDown) {
         arrowDown = false;
         _playerPanel2.default.setVoiceRadioActiveType(1);
-        mp.events.callRemote("changeSettings", 1, _player2.default.remoteHashKey);
+        mp.events.callRemote("changeSettings", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         clearAFK();
     }
     if (airArrowDown) {
         airArrowDown = false;
-        mp.events.callRemote("changeAirFunk", 1, _player2.default.remoteHashKey);
+        mp.events.callRemote("changeAirFunk", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         clearAFK();
     }
 });
@@ -6849,7 +8562,7 @@ mp.keys.bind(0x49, false, () => {
 // Y Key
 mp.keys.bind(0x59, false, () => {
     if (_windows2.default.visibleWindow != null || _apps2.default.componentVisibleApp["Smartphone"] || _player2.default.chatFlag || _player2.default.injured || _apps2.default.componentVisibleApp["Computer"] || _apps2.default.componentVisibleApp["Ipad"]) return;
-    mp.events.callRemote("changeVoiceRange", _player2.default.remoteHashKey);
+    mp.events.callRemote("changeVoiceRange", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     checkInterval();
 });
 
@@ -6863,12 +8576,12 @@ mp.keys.bind(0x54, false, () => {
     if (arrowDown) {
         arrowDown = false;
         _playerPanel2.default.setVoiceRadioActiveType(1);
-        mp.events.callRemote("changeSettings", 1, _player2.default.remoteHashKey);
+        mp.events.callRemote("changeSettings", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         clearAFK();
     }
     if (airArrowDown) {
         airArrowDown = false;
-        mp.events.callRemote("changeAirFunk", 1, _player2.default.remoteHashKey);
+        mp.events.callRemote("changeAirFunk", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         clearAFK();
     }
 });
@@ -6888,12 +8601,12 @@ mp.keys.bind(0x58, true, () => {
     if (arrowDown) {
         arrowDown = false;
         _playerPanel2.default.setVoiceRadioActiveType(1);
-        mp.events.callRemote("changeSettings", 1, _player2.default.remoteHashKey);
+        mp.events.callRemote("changeSettings", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         clearAFK();
     }
     if (airArrowDown) {
         airArrowDown = false;
-        mp.events.callRemote("changeAirFunk", 1, _player2.default.remoteHashKey);
+        mp.events.callRemote("changeAirFunk", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         clearAFK();
     }
 });
@@ -6908,11 +8621,11 @@ mp.keys.bind(0x58, false, () => {
 // Pfeil Rechts/Links
 mp.keys.bind(0x27, false, () => {
     if (_windows2.default.visibleWindow != null || _apps2.default.componentVisibleApp["Smartphone"] || _player2.default.chatFlag || _apps2.default.componentVisibleApp["Computer"] || _apps2.default.componentVisibleApp["Ipad"]) return;
-    mp.events.callRemote("nextInteractionAnim", 1, _player2.default.remoteHashKey);
+    mp.events.callRemote("nextInteractionAnim", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
 });
 mp.keys.bind(0x25, false, () => {
     if (_windows2.default.visibleWindow != null || _apps2.default.componentVisibleApp["Smartphone"] || _player2.default.chatFlag || _apps2.default.componentVisibleApp["Computer"] || _apps2.default.componentVisibleApp["Ipad"]) return;
-    mp.events.callRemote("prevInteractionAnim", 1, _player2.default.remoteHashKey);
+    mp.events.callRemote("prevInteractionAnim", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
 });
 
 // Push to Talk
@@ -6925,7 +8638,7 @@ mp.keys.bind(0x28, true, () => {
         }, 1000);
         _playerPanel2.default.setVoiceRadioActive(true);
         _playerPanel2.default.setVoiceRadioActiveType(2);
-        mp.events.callRemote("changeSettings", 2, _player2.default.remoteHashKey);
+        mp.events.callRemote("changeSettings", 2, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     }
     checkInterval();
 });
@@ -6934,7 +8647,7 @@ mp.keys.bind(0x28, false, () => {
     if (_windows2.default.visibleWindow != null || _menu2.default.visible == true || _apps2.default.componentVisibleApp["Smartphone"] || _player2.default.injured || _apps2.default.componentVisibleApp["Ipad"] || _apps2.default.componentVisibleApp["Computer"] || !arrowDown) return;
     arrowDown = false;
     _playerPanel2.default.setVoiceRadioActiveType(1);
-    mp.events.callRemote("changeSettings", 1, _player2.default.remoteHashKey);
+    mp.events.callRemote("changeSettings", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     clearAFK();
 });
 
@@ -6943,7 +8656,7 @@ mp.keys.bind(0x26, true, () => {
     if (_windows2.default.visibleWindow != null || _menu2.default.visible == true || _apps2.default.componentVisibleApp["Smartphone"] || _player2.default.injured || _apps2.default.componentVisibleApp["Ipad"] || _apps2.default.componentVisibleApp["Computer"]) return;
     if (!airArrowDown) {
         airArrowDown = true;
-        mp.events.callRemote("changeAirFunk", 2, _player2.default.remoteHashKey);
+        mp.events.callRemote("changeAirFunk", 2, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     }
     checkInterval();
 });
@@ -6951,7 +8664,7 @@ mp.keys.bind(0x26, true, () => {
 mp.keys.bind(0x26, false, () => {
     if (_windows2.default.visibleWindow != null || _menu2.default.visible == true || _apps2.default.componentVisibleApp["Smartphone"] || _player2.default.injured || _apps2.default.componentVisibleApp["Ipad"] || _apps2.default.componentVisibleApp["Computer"] || !airArrowDown) return;
     airArrowDown = false;
-    mp.events.callRemote("changeAirFunk", 1, _player2.default.remoteHashKey);
+    mp.events.callRemote("changeAirFunk", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     clearAFK();
 });
 
@@ -7090,7 +8803,7 @@ mp.keys.bind(0x60, true, () => {
 
         _player2.default.buildingobject.obj.destroy();
 
-        mp.events.callRemote("objed_saveobject", _player2.default.buildingobject.hash, _player2.default.buildingobject.pos.x, _player2.default.buildingobject.pos.y, _player2.default.buildingobject.pos.z, _player2.default.buildingobject.rot.x, _player2.default.buildingobject.rot.y, _player2.default.buildingobject.rot.z, _player2.default.remoteHashKey);
+        mp.events.callRemote("objed_saveobject", _player2.default.buildingobject.hash, _player2.default.buildingobject.pos.x, _player2.default.buildingobject.pos.y, _player2.default.buildingobject.pos.z, _player2.default.buildingobject.rot.x, _player2.default.buildingobject.rot.y, _player2.default.buildingobject.rot.z, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     }
 });
 
@@ -7100,7 +8813,7 @@ mp.keys.bind(0x2E, true, () => {
 
         _player2.default.buildingobject.obj.destroy();
 
-        mp.events.callRemote("objed_close", _player2.default.remoteHashKey);
+        mp.events.callRemote("objed_close", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     }
 });
 
@@ -7123,7 +8836,7 @@ mp.keys.bind(0x6B, true, () => {
 // Pressed K
 mp.keys.bind(0x4b, false, () => {
     if (_windows2.default.visibleWindow != null || _player2.default.chatFlag || _apps2.default.componentVisibleApp["Smartphone"] || _apps2.default.componentVisibleApp["Computer"] || _apps2.default.componentVisibleApp["Ipad"] || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemote("Pressed_K", _player2.default.remoteHashKey);
+    mp.events.callRemote("Pressed_K", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     mp.gui.chat.push("Pressed_K");
     checkInterval();
 });
@@ -7204,7 +8917,7 @@ mp.keys.bind(0x46, true, () => {
 // H handsup
 mp.keys.bind(0x48, false, () => {
     if (_apps2.default.componentVisibleApp["Smartphone"] || _player2.default.injured || _player2.default.cuffed || _player2.default.chatFlag || _apps2.default.componentVisibleApp["Ipad"] || _apps2.default.componentVisibleApp["Computer"] || _windows2.default.visibleWindow != null || _player2.default.isInAir() || _player2.default.isCarrying || _player2.default.HasRagdall) return;
-    mp.events.callRemoteUnreliable("Pressed_H", _player2.default.remoteHashKey);
+    mp.events.callRemoteUnreliable("Pressed_H", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     checkInterval();
 });
 
@@ -7212,17 +8925,15 @@ mp.keys.bind(0x48, false, () => {
 mp.keys.bind(0x4A, false, () => {
     if (_apps2.default.componentVisibleApp["Smartphone"] || _player2.default.injured || _player2.default.cuffed || _player2.default.chatFlag || _apps2.default.componentVisibleApp["Ipad"] || _apps2.default.componentVisibleApp["Computer"] || _windows2.default.visibleWindow != null || _player2.default.isInAir() || _player2.default.isCarrying || _player2.default.HasRagdall) return;
     if (mp.players.local.vehicle != null && mp.players.local.isInAnyVehicle(false) && mp.players.local.vehicle.isSirenOn()) {
-        mp.events.callRemoteUnreliable("Silent_Sirene", mp.players.local.vehicle, _player2.default.remoteHashKey);
+        mp.events.callRemoteUnreliable("Silent_Sirene", mp.players.local.vehicle.remoteId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     } else {
-        mp.events.callRemoteUnreliable("Pressed_J", _player2.default.remoteHashKey);
+        mp.events.callRemoteUnreliable("Pressed_J", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     }
 
     checkInterval();
 });
 
 //B key
-let fingerDown = false;
-
 mp.keys.bind(0x42, true, () => {
     if (_windows2.default.visibleWindow != null || _player2.default.chatFlag || _apps2.default.componentVisibleApp["Smartphone"] || _player2.default.injured || _apps2.default.componentVisibleApp["Ipad"] || _apps2.default.componentVisibleApp["Computer"] || _windows2.default.visibleWindow != null || _player2.default.injured || _player2.default.tied || _player2.default.cuffed || _player2.default.isInAir() || _player2.default.isCarrying) return;
 
@@ -7230,20 +8941,16 @@ mp.keys.bind(0x42, true, () => {
         let obj = _raycast2.default.createRaycast();
         if (obj != null) {
             if (obj != null && obj.entity.isAPed()) {
-                mp.events.callRemoteUnreliable("Pessed_B_Aiming", obj.entity, _player2.default.remoteHashKey);
+                mp.events.callRemoteUnreliable("Pessed_B_Aiming", obj.entity.remoteId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
             }
         }
-    } else if (!fingerDown) {
-        fingerDown = true;
-        fingerPointing.start();
     }
+
     checkInterval();
 });
 
 mp.keys.bind(0x42, false, () => {
     if (_windows2.default.visibleWindow != null || _player2.default.chatFlag || _apps2.default.componentVisibleApp["Smartphone"] || _player2.default.injured || _apps2.default.componentVisibleApp["Ipad"] || _apps2.default.componentVisibleApp["Computer"] || _windows2.default.visibleWindow != null || _player2.default.injured || _player2.default.tied || _player2.default.cuffed || _player2.default.isInAir() || _player2.default.isCarrying) return;
-    fingerDown = false;
-    fingerPointing.stop();
     clearAFK();
 });
 
@@ -7251,82 +8958,82 @@ mp.keys.bind(0x42, false, () => {
 mp.keys.bind(0x75, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null) return;
     _player2.default.openVoiceSettings = true;
-    mp.events.callRemote("openVoiceSettings", _player2.default.remoteHashKey);
+    mp.events.callRemote("openVoiceSettings", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
 });
 
 mp.keys.bind(0x2D, false, () => {
     if (!checkShortCut(2000)) return;
-    mp.events.callRemoteUnreliable("aains", _player2.default.remoteHashKey);
+    mp.events.callRemoteUnreliable("aains", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     _player2.default.shortCutBeingUsed = Date.now();
 });
 
 // Num 0
 mp.keys.bind(0x60, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemoteUnreliable("Pressed_Num_0", _player2.default.remoteHashKey);
+    mp.events.callRemoteUnreliable("Pressed_Num_0", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     checkInterval();
 });
 
 // Num 1
 mp.keys.bind(0x61, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemoteUnreliable("Pressed_Num_1", _player2.default.remoteHashKey);
+    mp.events.callRemoteUnreliable("Pressed_Num_1", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     checkInterval();
 });
 
 // Num 2
 mp.keys.bind(0x62, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemoteUnreliable("Pressed_Num_2", _player2.default.remoteHashKey);
+    mp.events.callRemoteUnreliable("Pressed_Num_2", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     checkInterval();
 });
 
 // Num 3
 mp.keys.bind(0x63, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemoteUnreliable("Pressed_Num_3", _player2.default.remoteHashKey);
+    mp.events.callRemoteUnreliable("Pressed_Num_3", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     checkInterval();
 });
 
 // Num 4
 mp.keys.bind(0x64, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemoteUnreliable("Pressed_Num_4", _player2.default.remoteHashKey);
+    mp.events.callRemoteUnreliable("Pressed_Num_4", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     checkInterval();
 });
 
 // Num 6
 mp.keys.bind(0x66, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemoteUnreliable("Pressed_Num_6", _player2.default.remoteHashKey);
+    mp.events.callRemoteUnreliable("Pressed_Num_6", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     checkInterval();
 });
 
 // Num 7
 mp.keys.bind(0x67, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemoteUnreliable("Pressed_Num_7", _player2.default.remoteHashKey);
+    mp.events.callRemoteUnreliable("Pressed_Num_7", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     checkInterval();
 });
 
 // Num 8
 mp.keys.bind(0x68, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemoteUnreliable("Pressed_Num_8", _player2.default.remoteHashKey);
+    mp.events.callRemoteUnreliable("Pressed_Num_8", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     checkInterval();
 });
 
 // Num 9
 mp.keys.bind(0x69, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemoteUnreliable("Pressed_Num_9", _player2.default.remoteHashKey);
+    mp.events.callRemoteUnreliable("Pressed_Num_9", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     checkInterval();
 });
 
 //M key
 mp.keys.bind(0x4D, false, () => {
     if (_windows2.default.visibleWindow != null || _apps2.default.componentVisibleApp["Smartphone"] || _apps2.default.componentVisibleApp["Computer"] || _apps2.default.componentVisibleApp["Ipad"] || _player2.default.chatFlag || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemoteUnreliable("Pressed_M", _player2.default.remoteHashKey);
+    mp.events.callRemoteUnreliable("Pressed_M", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     mp.gui.chat.push("Pressed_M");
     checkInterval();
 });
@@ -7504,7 +9211,7 @@ function addInterval() {
 mp.keys.bind(0xBC, false, () => {
     if (_windows2.default.visibleWindow != null || _apps2.default.componentVisibleApp["Smartphone"] || _apps2.default.componentVisibleApp["Computer"] || _apps2.default.componentVisibleApp["Ipad"] || _player2.default.chatFlag || _player2.default.injured || _player2.default.tied || _player2.default.cuffed || _player2.default.isInAir()) return;
     if (!checkShortCut()) return;
-    mp.events.callRemote("Pressed_KOMMA", _player2.default.remoteHashKey);
+    mp.events.callRemote("Pressed_KOMMA", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     _player2.default.shortCutBeingUsed = Date.now();
 });
 
@@ -7512,7 +9219,7 @@ mp.keys.bind(0xBC, false, () => {
 mp.keys.bind(0xBE, false, () => {
     if (_windows2.default.visibleWindow != null || _apps2.default.componentVisibleApp["Smartphone"] || _apps2.default.componentVisibleApp["Computer"] || _apps2.default.componentVisibleApp["Ipad"] || _player2.default.chatFlag || _player2.default.injured || _player2.default.tied || _player2.default.cuffed || _player2.default.isInAir()) return;
     if (!checkShortCut()) return;
-    mp.events.callRemote("Pressed_PUNKT", _player2.default.remoteHashKey);
+    mp.events.callRemote("Pressed_PUNKT", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     _player2.default.shortCutBeingUsed = Date.now();
 });
 
@@ -7531,7 +9238,7 @@ function checkShortCut(time = 4000) {
     return true;
 }
 
-},{"../app/apps":3,"../interfaces/hud/antiafk":129,"../interfaces/hud/menu":137,"../interfaces/hud/n-menu":138,"../interfaces/hud/player-panel":141,"../interfaces/hud/vehicle-panel":146,"../interfaces/hud/x-menu":147,"../player/player":186,"../raycast/raycast":193,"../vehicle/VehicleEnter":196,"../vehicle/rappel":199,"../windows/windows":204}],178:[function(require,module,exports){
+},{"../app/apps":12,"../interfaces/hud/antiafk":142,"../interfaces/hud/menu":151,"../interfaces/hud/n-menu":152,"../interfaces/hud/player-panel":155,"../interfaces/hud/vehicle-panel":164,"../interfaces/hud/x-menu":165,"../player/player":208,"../rage11/objects":221,"../raycast/raycast":224,"../vehicle/VehicleEnter":227,"../vehicle/rappel":230,"../windows/windows":235}],200:[function(require,module,exports){
 'use strict';
 
 require('./key-events/key-events');
@@ -7568,7 +9275,28 @@ require('./player/welcomescene');
 
 require('./player/bigDataReceiver');
 
-},{"./apps/apps":4,"./doors/doors":96,"./interfaces/interfaces":152,"./key-events/key-events":177,"./peds/animalapi":179,"./peds/vehiclesync":181,"./player/bigDataReceiver":182,"./player/crouching":185,"./player/player":186,"./player/weaponcomponent":189,"./player/welcomescene":190,"./rage11/noclip":191,"./rage11/rage11":192,"./utils/bodyCamera":194,"./vehicle/rappel":199,"./vehicle/vehicle":201,"./voice/voice":202}],179:[function(require,module,exports){
+require('./player/spectate.js');
+
+require('./rage11/firework');
+
+require('./building/building');
+
+require('./rage11/finger');
+
+require('./rage11/casino');
+
+require('./rage11/drone');
+
+require('./rage11/sperrzonen');
+
+require('./rage11/fxeffects');
+
+require('./rage11/einreiseamt');
+
+// Include all static modules here (modules that doesnt require an import to be useful)
+require('./CircuitBreaker/CircuitBreaker.events.js');
+
+},{"./CircuitBreaker/CircuitBreaker.events.js":7,"./apps/apps":13,"./building/building":105,"./doors/doors":108,"./interfaces/interfaces":170,"./key-events/key-events":199,"./peds/animalapi":201,"./peds/vehiclesync":203,"./player/bigDataReceiver":204,"./player/crouching":207,"./player/player":208,"./player/spectate.js":209,"./player/weaponcomponent":212,"./player/welcomescene":213,"./rage11/casino":214,"./rage11/drone":215,"./rage11/einreiseamt":216,"./rage11/finger":217,"./rage11/firework":218,"./rage11/fxeffects":219,"./rage11/noclip":220,"./rage11/rage11":222,"./rage11/sperrzonen":223,"./utils/bodyCamera":225,"./vehicle/rappel":230,"./vehicle/vehicle":232,"./voice/voice":233}],201:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -7583,13 +9311,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 class AnimalApi {
     constructor() {
-        mp.events.add('entityStreamIn', entity => {
-            if (entity != null && entity.type == 'ped') {
-                if (!mp.peds.exists(entity)) return;
-
-                mp.events.callRemote("requestPedSync", entity, _player2.default.remoteHashKey);
-            }
-        });
+        /*mp.events.add('entityStreamIn', (entity) => {
+            if(entity != null && entity.type == 'ped') {
+                if (!mp.peds.exists(entity))
+                    return;
+                  mp.events.callRemote("requestPedSync", entity, player.remoteHashKey);
+            }
+        })*/
 
         mp.events.add('pedStreamInSync', (entity, arg) => {
             if (entity == null) return;
@@ -7753,7 +9481,7 @@ class AnimalApi {
 
         mp.events.add("animal_checkDeath", (testPed, returnEvent) => {
             if (testPed != null && mp.peds.exists(testPed)) {
-                mp.events.callRemote(returnEvent, testPed.isDeadOrDying(true), _player2.default.remoteHashKey);
+                mp.events.callRemote(returnEvent, testPed.isDeadOrDying(true), testPed.remoteId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
             }
         });
 
@@ -7830,7 +9558,7 @@ class AnimalApi {
 
 exports.default = new AnimalApi();
 
-},{"../player/player":186}],180:[function(require,module,exports){
+},{"../player/player":208}],202:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -7850,7 +9578,7 @@ class Peds {
         this.disabledAll = false;
 
         this.menuItemsPedsCduty = [{ label: 'Exit', description: 'Schließt das Menü', icon: 'img/icons/exit.png', id: 'donothing', arg: "" }, { label: 'Geld geben', description: 'Dieser Person Geld geben.', icon: 'img/icons/player/wallet.png', id: 'REQUEST_PEDS_PLAYER_GIVEMONEY_DIALOG', arg: "" }, { label: 'Handschellen', description: 'Dieser Person Handschellen anlegen/abnehmen.', icon: 'img/icons/cop/cuff.png', id: 'REQUEST_PEDS_PLAYER_CUFF', arg: "" }, { label: 'Person nehmen/loslassen', description: 'Diese Person mitschleifen/loslassen.', icon: 'img/icons/cop/takeperson.png', id: 'REQUEST_PEDS_PLAYER_TAKEPERSON', arg: "" }, { label: 'Personalausweis nehmen', description: 'Den Personalausweis des Spielers nehmen.', icon: 'img/icons/player/perso.png', id: 'REQUEST_PEDS_PLAYER_GETPERSO', arg: "" }, { label: 'Person durchsuchen', description: 'Diese Person durchsuchen.', icon: 'img/icons/player/search.png', id: 'REQUEST_PEDS_PLAYER_FRISK', arg: "" }, { label: 'Lizenzen nehmen', description: 'Die Lizensen des Spielers nehmen.', icon: 'img/icons/player/lic.png', id: 'REQUEST_PEDS_PLAYER_TAKE_LIC', arg: "" }, { label: 'Personalausweis', description: 'Dieser Person deinen Personalausweis zeigen.', icon: 'img/icons/player/perso.png', id: 'REQUEST_PEDS_PLAYER_SHOW_PERSO', arg: "" }, { label: 'Stabilisieren', description: 'Diese Person stabilisieren.', icon: 'img/icons/medic/stabilize.png', id: 'REQUEST_PEDS_PLAYER_STABALIZE', arg: "" }, { label: 'Item geben', description: 'Dieser Person ein Item geben.', icon: 'img/icons/player/item.png', id: 'REQUEST_PEDS_PLAYER_GIVEITEM', arg: "" }, { label: 'Casino Einlass', description: 'Dieser Person Einlass gewähren / entziehen.', icon: 'img/icons/player/diamond.png', id: 'REQUEST_PEDS_PLAYER_CASINO', arg: "" }];
-        this.menuItemsPedsPlayer = [{ label: 'Exit', description: 'Schließt das Menü', icon: 'img/icons/exit.png', id: 'donothing', arg: "" }, { label: 'Geld geben', description: 'Dieser Person Geld geben.', icon: 'img/icons/player/wallet.png', id: 'REQUEST_PEDS_PLAYER_GIVEMONEY_DIALOG', arg: "" }, { label: 'Fesseln', description: 'Dieser Person fesseln.', icon: 'img/icons/player/rope.png', id: 'REQUEST_PEDS_PLAYER_TIE', arg: "" }, { label: 'Person nehmen/loslassen', description: 'Diese Person mitschleifen/loslassen.', icon: 'img/icons/cop/takeperson.png', id: 'REQUEST_PEDS_PLAYER_TAKEPERSON', arg: "" }, { label: 'Lizenzen', description: 'Dieser Person deine Lizenzen zeigen.', icon: 'img/icons/player/lic.png', id: 'REQUEST_PEDS_PLAYER_SHOW_LIC', arg: "" }, { label: 'Personalausweis', description: 'Dieser Person deinen Personalausweis zeigen.', icon: 'img/icons/player/perso.png', id: 'REQUEST_PEDS_PLAYER_SHOW_PERSO', arg: "" }, { label: 'Personalausweis nehmen', description: 'Den Personalausweis des Spielers nehmen.', icon: 'img/icons/player/perso.png', id: 'REQUEST_PEDS_PLAYER_GETPERSO', arg: "" }, { label: 'Person durchsuchen', description: 'Diese Person durchsuchen.', icon: 'img/icons/player/search.png', id: 'REQUEST_PEDS_PLAYER_FRISK', arg: "" }, { label: 'Stabilisieren', description: 'Diese Person stabilisieren.', icon: 'img/icons/medic/stabilize.png', id: 'REQUEST_PEDS_PLAYER_STABALIZE', arg: "" }, { label: 'Schlüssel geben', description: 'Dieser Person einen Schlüssel geben.', icon: 'img/icons/inventory/key.png', id: 'REQUEST_PEDS_PLAYER_GIVEKEY', arg: "" }, { label: 'Item geben', description: 'Dieser Person ein Item geben.', icon: 'img/icons/player/item.png', id: 'REQUEST_PEDS_PLAYER_GIVEITEM', arg: "" }];
+        this.menuItemsPedsPlayer = [{ label: 'Exit', description: 'Schließt das Menü', icon: 'img/icons/exit.png', id: 'donothing', arg: "" }, { label: 'Geld geben', description: 'Dieser Person Geld geben.', icon: 'img/icons/player/wallet.png', id: 'REQUEST_PEDS_PLAYER_GIVEMONEY_DIALOG', arg: "" }, { label: 'Fesseln', description: 'Dieser Person fesseln.', icon: 'img/icons/player/rope.png', id: 'REQUEST_PEDS_PLAYER_TIE', arg: "" }, { label: 'Person nehmen/loslassen', description: 'Diese Person mitschleifen/loslassen.', icon: 'img/icons/cop/takeperson.png', id: 'REQUEST_PEDS_PLAYER_TAKEPERSON', arg: "" }, { label: 'Lizenzen', description: 'Dieser Person deine Lizenzen zeigen.', icon: 'img/icons/player/lic.png', id: 'REQUEST_PEDS_PLAYER_SHOW_LIC', arg: "" }, { label: 'Personalausweis', description: 'Dieser Person deinen Personalausweis zeigen.', icon: 'img/icons/player/perso.png', id: 'REQUEST_PEDS_PLAYER_SHOW_PERSO', arg: "" }, { label: 'Personalausweis nehmen', description: 'Den Personalausweis des Spielers nehmen.', icon: 'img/icons/player/perso.png', id: 'REQUEST_PEDS_PLAYER_GETPERSO', arg: "" }, { label: 'Person durchsuchen', description: 'Diese Person durchsuchen.', icon: 'img/icons/player/search.png', id: 'REQUEST_PEDS_PLAYER_FRISK', arg: "" }, { label: 'Stabilisieren', description: 'Diese Person stabilisieren.', icon: 'img/icons/medic/stabilize.png', id: 'REQUEST_PEDS_PLAYER_STABALIZE', arg: "" }, { label: 'Schlüssel geben', description: 'Dieser Person einen Schlüssel geben.', icon: 'img/icons/inventory/key.png', id: 'REQUEST_PEDS_PLAYER_GIVEKEY', arg: "" }, { label: 'Item geben', description: 'Dieser Person ein Item geben.', icon: 'img/icons/player/item.png', id: 'REQUEST_PEDS_PLAYER_GIVEITEM', arg: "" }, { label: 'Zinken', description: 'Gefesselte Person Zinken', icon: 'img/icons/player/zinken.png', id: 'REQUEST_PEDS_PLAYER_ZINKEN', arg: "" }];
         this.menuItemsPedsMedic = [{ label: 'Exit', description: 'Schließt das Menü', icon: 'img/icons/exit.png', id: 'donothing', arg: "" }, { label: 'Geld geben', description: 'Dieser Person Geld geben.', icon: 'img/icons/player/wallet.png', id: 'REQUEST_PEDS_PLAYER_GIVEMONEY_DIALOG', arg: "" }, { label: 'Handschellen', description: 'Dieser Person Handschellen anlegen/abnehmen.', icon: 'img/icons/cop/cuff.png', id: 'REQUEST_PEDS_PLAYER_CUFF', arg: "" }, { label: 'Person nehmen/loslassen', description: 'Diese Person mitschleifen/loslassen.', icon: 'img/icons/cop/takeperson.png', id: 'REQUEST_PEDS_PLAYER_TAKEPERSON', arg: "" }, { label: 'Lizenzen', description: 'Dieser Person deine Lizenzen zeigen.', icon: 'img/icons/player/lic.png', id: 'REQUEST_PEDS_PLAYER_SHOW_LIC', arg: "" }, { label: 'Personalausweis', description: 'Dieser Person deinen Personalausweis zeigen.', icon: 'img/icons/player/perso.png', id: 'REQUEST_PEDS_PLAYER_SHOW_PERSO', arg: "" }, { label: 'Personalausweis nehmen', description: 'Den Personalausweis des Spielers nehmen.', icon: 'img/icons/player/perso.png', id: 'REQUEST_PEDS_PLAYER_GETPERSO', arg: "" }, { label: 'Person durchsuchen', description: 'Diese Person durchsuchen.', icon: 'img/icons/player/search.png', id: 'REQUEST_PEDS_PLAYER_FRISK', arg: "" }, { label: 'Behandeln', description: 'Diese Person stabilisieren.', icon: 'img/icons/medic/medicate.png', id: 'REQUEST_PEDS_PLAYER_STABALIZE', arg: "" }, { label: 'Schlüssel geben', description: 'Dieser Person einen Schlüssel geben.', icon: 'img/icons/inventory/key.png', id: 'REQUEST_PEDS_PLAYER_GIVEKEY', arg: "" }, { label: 'Item geben', description: 'Dieser Person ein Item geben.', icon: 'img/icons/player/item.png', id: 'REQUEST_PEDS_PLAYER_GIVEITEM', arg: "" }];
         this.menuItemsPedsCop = [{ label: 'Exit', description: 'Schließt das Menü', icon: 'img/icons/exit.png', id: 'donothing', arg: "" }, { label: 'Geld geben', description: 'Dieser Person Geld geben.', icon: 'img/icons/player/wallet.png', id: 'REQUEST_PEDS_PLAYER_GIVEMONEY_DIALOG', arg: "" }, { label: 'Handschellen', description: 'Dieser Person Handschellen anlegen/abnehmen.', icon: 'img/icons/cop/cuff.png', id: 'REQUEST_PEDS_PLAYER_CUFF', arg: "" }, { label: 'Person nehmen/loslassen', description: 'Diese Person mitschleifen/loslassen.', icon: 'img/icons/cop/takeperson.png', id: 'REQUEST_PEDS_PLAYER_TAKEPERSON', arg: "" }, { label: 'Personalausweis nehmen', description: 'Den Personalausweis des Spielers nehmen.', icon: 'img/icons/player/perso.png', id: 'REQUEST_PEDS_PLAYER_GETPERSO', arg: "" }, { label: 'Person durchsuchen', description: 'Diese Person durchsuchen.', icon: 'img/icons/player/search.png', id: 'REQUEST_PEDS_PLAYER_FRISK', arg: "" }, { label: 'Lizenzen', description: 'Dieser Person deine Lizenzen zeigen.', icon: 'img/icons/player/lic.png', id: 'REQUEST_PEDS_PLAYER_SHOW_LIC', arg: "" }, { label: 'Lizenzen nehmen', description: 'Die Lizensen des Spielers nehmen.', icon: 'img/icons/player/lic.png', id: 'REQUEST_PEDS_PLAYER_TAKE_LIC', arg: "" }, { label: 'Personalausweis', description: 'Dieser Person deinen Personalausweis zeigen.', icon: 'img/icons/player/perso.png', id: 'REQUEST_PEDS_PLAYER_SHOW_PERSO', arg: "" }, { label: 'Stabilisieren', description: 'Diese Person stabilisieren.', icon: 'img/icons/medic/stabilize.png', id: 'REQUEST_PEDS_PLAYER_STABALIZE', arg: "" }, { label: 'Schlüssel geben', description: 'Dieser Person einen Schlüssel geben.', icon: 'img/icons/inventory/key.png', id: 'REQUEST_PEDS_PLAYER_GIVEKEY', arg: "" }, { label: 'Item geben', description: 'Dieser Person ein Item geben.', icon: 'img/icons/player/item.png', id: 'REQUEST_PEDS_PLAYER_GIVEITEM', arg: "" }];
         this.menuItemsPedsPlayerInjured = [{ label: 'Exit', description: 'Schließt das Menü', icon: 'img/icons/exit.png', id: 'donothing', arg: "" }];
@@ -7901,7 +9629,8 @@ class Peds {
         });
 
         mp.events.add("playerDeath", () => {
-            setTimeout(() => this.disabled = true, 5000);
+            //Wieso? Disabled 4 Paintball
+            //setTimeout(() => this.disabled = true, 5000)
         });
 
         mp.events.add("playerEnterVehicle", (pl, vehicle, seat) => {
@@ -7918,6 +9647,17 @@ class Peds {
             }, dimension);
             */
             mp.peds.new(ped, new mp.Vector3(x, y, z), heading, dimension);
+        });
+
+        mp.events.add("loadNpcs", data => {
+            let npcsdata = JSON.parse(data);
+
+            if (npcsdata !== undefined && npcsdata.length > 0) {
+                npcsdata.forEach(npcdata => {
+
+                    mp.peds.new(npcdata.PedHash, new mp.Vector3(npcdata.Position.x, npcdata.Position.y, npcdata.Position.z), npcdata.Heading, npcdata.Dimension);
+                });
+            }
         });
     }
 
@@ -7939,7 +9679,7 @@ class Peds {
                     // Check if the player is a cop, fib, army, gov, swat
                     if (_player2.default.cduty == true) {
                         return this.menuItemsPedsCduty;
-                    } else if (_player2.default.team == 1 || _player2.default.team == 5 || _player2.default.team == 13 || _player2.default.team == 14 || _player2.default.team == 21 || _player2.default.team == 23) {
+                    } else if (_player2.default.team == 1 || _player2.default.team == 5 || _player2.default.team == 13 || _player2.default.team == 14 || _player2.default.team == 20 || _player2.default.team == 21 || _player2.default.team == 23) {
                         return this.menuItemsPedsCop;
                     }
                     // Check if the player is a medic
@@ -7972,7 +9712,7 @@ class Peds {
 
 exports.default = new Peds();
 
-},{"../player/player":186}],181:[function(require,module,exports){
+},{"../player/player":208}],203:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8026,7 +9766,7 @@ class VehicleSync {
 
 exports.default = new VehicleSync();
 
-},{"../player/player":186}],182:[function(require,module,exports){
+},{"../player/player":208}],204:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -8052,7 +9792,7 @@ class BigDataReceiver {
                 bucket: []
             };
 
-            mp.events.callRemote('sDataSender-initSuccess', id, _player2.default.remoteHashKey);
+            mp.events.callRemote('sDataSender-initSuccess', id, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         });
 
         mp.events.add('cDataReceiverComponent-init', (id, eventName, componentName, size) => {
@@ -8067,7 +9807,7 @@ class BigDataReceiver {
                 bucket: []
             };
 
-            mp.events.callRemote('sDataSender-initSuccess', id, _player2.default.remoteHashKey);
+            mp.events.callRemote('sDataSender-initSuccess', id, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         });
 
         mp.events.add('cDataReceiver-receive', (id, data, end, idx) => {
@@ -8085,7 +9825,7 @@ class BigDataReceiver {
             if (bigBucket.bucket.length !== bigBucket.chunkSize) return;
 
             this.createDataStructure(bigBucket.bucket).then(stringData => {
-                mp.events.callRemote('sDataSender-end', id, _player2.default.remoteHashKey);
+                mp.events.callRemote('sDataSender-end', id, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
 
                 if (bigBucket.isComponent) {
                     mp.events.call('componentServerEvent', ...[bigBucket.componentName, bigBucket.eventName, ...stringData]);
@@ -8095,7 +9835,7 @@ class BigDataReceiver {
 
                 mp.events.call(bigBucket.eventName, ...stringData);
             }).catch(() => {
-                mp.events.callRemote('sDataSender-failed', id, _player2.default.remoteHashKey);
+                mp.events.callRemote('sDataSender-failed', id, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
             });
         });
     }
@@ -8159,7 +9899,7 @@ class BigDataReceiver {
 
 exports.default = new BigDataReceiver();
 
-},{"./player":186}],183:[function(require,module,exports){
+},{"./player":208}],205:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8174,7 +9914,7 @@ class Contact {
 
 exports.default = Contact;
 
-},{}],184:[function(require,module,exports){
+},{}],206:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -8215,7 +9955,7 @@ class Contacts {
     request(callback) {
         this.callback = callback;
 
-        mp.events.callRemote('requestPhoneContacts', _player2.default.remoteHashKey);
+        mp.events.callRemote('requestPhoneContacts', "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     }
 
     parseContacts(serverResponse) {
@@ -8241,8 +9981,8 @@ class Contacts {
             this.contacts.set(oldNumber, new _contact2.default(name, oldNumber));
         }
 
-        mp.events.callRemote('updatePhoneContact', oldNumber, newNumber, name, _player2.default.remoteHashKey);
-        mp.events.callRemote('requestPhoneContacts', _player2.default.remoteHashKey);
+        mp.events.callRemote('updatePhoneContact', oldNumber, newNumber, name, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote('requestPhoneContacts', "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     }
 
     addContact(number, name) {
@@ -8252,15 +9992,15 @@ class Contacts {
         if (this.contacts.has(number)) return;
         this.contacts.set(number, new _contact2.default(name, number));
 
-        mp.events.callRemote('addPhoneContact', name, number, _player2.default.remoteHashKey);
-        mp.events.callRemote('requestPhoneContacts', _player2.default.remoteHashKey);
+        mp.events.callRemote('addPhoneContact', name, number, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote('requestPhoneContacts', "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     }
 
     removeContact(number) {
         this.contacts.delete(number);
 
-        mp.events.callRemote('delPhoneContact', number, _player2.default.remoteHashKey);
-        mp.events.callRemote('requestPhoneContacts', _player2.default.remoteHashKey);
+        mp.events.callRemote('delPhoneContact', number, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote('requestPhoneContacts', "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
     }
 
     getContact(number) {
@@ -8281,7 +10021,7 @@ class Contacts {
 
 exports.default = Contacts;
 
-},{"../../player/player":186,"./contact":183}],185:[function(require,module,exports){
+},{"../../player/player":208,"./contact":205}],207:[function(require,module,exports){
 "use strict";
 
 var _apps = require("../app/apps");
@@ -8329,10 +10069,10 @@ mp.events.add("loadCrouchClipsets", async () => {
 // CTRL key to toggle crouching
 mp.keys.bind(0x11, false, () => {
     if (_windows2.default.visibleWindow != null || _apps2.default.componentVisibleApp["Smartphone"] || _apps2.default.componentVisibleApp["Computer"] || _apps2.default.componentVisibleApp["Ipad"] || _player2.default.chatFlag || _player2.default.injured) return;
-    mp.events.callRemote("toggleCrouch", _player2.default.remoteHashKey);
+    mp.events.callRemote("toggleCrouch", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
 });
 
-},{"../app/apps":3,"../player/player":186,"../windows/windows":204}],186:[function(require,module,exports){
+},{"../app/apps":12,"../player/player":208,"../windows/windows":235}],208:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -8396,6 +10136,7 @@ class Player {
         this.cuffed = undefined;
         this.tied = undefined;
         this.aduty = undefined;
+        this.einreiseduty = undefined;
         this.inventory = undefined;
         this.lastMusicEvent = undefined;
         this.weaponDmg = 0;
@@ -8426,6 +10167,7 @@ class Player {
         };
         this.animations = [];
         this.marker = null;
+        this.markers = [];
         //this.lastInteractE = new Date()
         this.playerSync = true;
         this.vehicleSync = true;
@@ -8440,13 +10182,18 @@ class Player {
         this.collided = {};
         this.HasCollided = false;
         this.HasRagdall = false;
+        this.hasDamageFX = '';
         this.isOpeningDoor = false;
         this.isInWater = false;
+        this.onCayoIsland = false;
         this.acMark1 = undefined;
         this.acMark2 = undefined;
         this.custommarkers = [];
         this.customObjects = [];
+        this.customBlipsForRadius = [];
         this.weaponSwitchAmmo = [];
+        this.weaponSwitchAmmoEmpty = [];
+        this.weaponSwitchActualWeapon = undefined;
         this.currentCheckpoint = null;
         this.buildingmode = false;
         this.buildingspeed = 0.1;
@@ -8456,6 +10203,13 @@ class Player {
         this.remoteHashKey = "";
         const props = ['Set_Pent_Tint_Shell', 'Set_Pent_Pattern_01', 'Set_Pent_Spa_Bar_Open', 'Set_Pent_Media_Bar_Open', 'Set_Pent_Dealer', 'Set_Pent_Arcade_Modern', 'Set_Pent_Bar_Clutter', 'Set_Pent_Clutter_01', 'set_pent_bar_light_01', 'set_pent_bar_party_0', 'hei_dlc_windows_casino', 'vw_dlc_casino_door', 'hei_dlc_casino_door'];
         this.bigDataChunkBucket = {};
+
+        let autopilotActive = false;
+        var autopilotPoint = null;
+        var autopilotInterval = null;
+        var autoPilotSpeed = 50;
+
+        this.placementObject = undefined;
 
         setInterval(function () {
             if (mp.game.gameplay.getProfileSetting(0) == 0) {
@@ -8469,11 +10223,11 @@ class Player {
         }, 25000);
 
         setInterval(() => {
-            if (this.remoteHashKey == "") return;
+            if ("0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7" == "") return;
             let res = mp.game.graphics.getScreenAspectRatio(true);
 
             if (res < 1.5) {
-                mp.events.callRemote('wrongScreenScale', res, this.remoteHashKey);
+                mp.events.callRemote('wrongScreenScale', res, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
             }
         }, 20000);
 
@@ -8670,6 +10424,11 @@ class Player {
             _playerPanel2.default.setAduty(aduty);
         });
 
+        mp.events.add('updateEinreiseDuty', einreiseduty => {
+            this.einreiseduty = einreiseduty;
+            _playerPanel2.default.setEinreiseDuty(einreiseduty);
+        });
+
         mp.events.add('setActiveRingtone', id => {
             this.activeRingtone = id;
         });
@@ -8700,7 +10459,7 @@ class Player {
                 alpha: 255,
                 dimension: mp.players.local.dimension
             });
-            mp.game.graphics.notify("object created.");
+            //mp.game.graphics.notify("object created.");
         });
 
         mp.events.add('closeObjectEditor', object => {
@@ -8713,11 +10472,32 @@ class Player {
             _playerPanel2.default.responsePPTSound(bool);
         });
 
+        mp.events.add('driveToWayPoint', () => {
+            if (mp.players.local == null || mp.players.local.vehicle == null || mp.players.local.vehicle.handle == null) return;
+
+            const waypoint = mp.game.ui.getFirstBlipInfoId(8);
+            if (!mp.game.ui.doesBlipExist(waypoint)) return;
+
+            const waypointPos = mp.game.ui.getBlipInfoIdCoord(waypoint);
+            if (!waypointPos) return;
+
+            let zCoord = mp.game.gameplay.getGroundZFor3DCoord(waypointPos.x, waypointPos.y, waypointPos.z, false, false);
+            if (!zCoord) {
+                for (let i = 1000; i >= 0; i -= 25) {
+                    mp.game.streaming.requestCollisionAtCoord(waypointPos.x, waypointPos.y, i);
+                    mp.game.wait(0);
+                }
+                zCoord = mp.game.gameplay.getGroundZFor3DCoord(waypointPos.x, waypointPos.y, 1000, false, false);
+                if (!zCoord) return;
+            }
+            mp.players.local.taskVehicleDriveToCoord(mp.players.local.vehicle.handle, waypointPos.x, waypointPos.y, waypointPos.z, 100, 1, 2046537925, 8388614, 30, true);
+        });
+
         mp.events.add('isPlayerSwimming', () => {
             if (mp.players.local.isSwimmingUnderWater() || mp.players.local.isSwimming()) {
-                mp.events.callRemote('swimmingOrDivingResponse', true, this.remoteHashKey);
+                mp.events.callRemote('swimmingOrDivingResponse', true, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
             } else {
-                mp.events.callRemote('swimmingOrDivingResponse', false, this.remoteHashKey);
+                mp.events.callRemote('swimmingOrDivingResponse', false, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
             }
         });
 
@@ -8731,6 +10511,87 @@ class Player {
             _playerPanel2.default.setMoney(money);
         });
 
+        mp.events.add("playerEnterVehicle", (vehicle, seat) => {
+            mp.players.local.setConfigFlag(35, false); // helm anziehen beim aufsteigen von motorrad
+        });
+
+        mp.events.add('screenFadeAnim', duration => {
+            setTimeout(() => {
+                mp.game.cam.doScreenFadeOut(100);
+            }, 100);
+
+            setTimeout(() => {
+                mp.game.cam.doScreenFadeIn(100);
+            }, duration);
+        });
+
+        mp.events.add('screenFadeOut', () => {
+            mp.game.cam.doScreenFadeOut(100);
+        });
+
+        mp.events.add('screenFadeIn', () => {
+            mp.game.cam.doScreenFadeIn(100);
+        });
+
+        mp.keys.bind(0x27, true, function () {
+            // Pfeiltaste rechts (Speed hoch)
+            if (!mp.players.local.vehicle || mp.players.local.vehicle.getPedInSeat(-1) !== mp.players.local.handle || !autopilotActive || autopilotPoint == null || autoPilotSpeed >= 300) return;
+            autoPilotSpeed = autoPilotSpeed + 5;
+            mp.players.local.taskVehicleDriveToCoord(mp.players.local.vehicle.handle, autopilotPoint.x, autopilotPoint.y, autopilotPoint.z, autoPilotSpeed, 1, 1, 8388614, 30, 1);
+            mp.game.graphics.notify("new Speed: " + autoPilotSpeed);
+        });
+
+        mp.keys.bind(0x25, true, function () {
+            // Pfeiltaste links (Speed runter)
+            if (!mp.players.local.vehicle || mp.players.local.vehicle.getPedInSeat(-1) !== mp.players.local.handle || !autopilotActive || autopilotPoint == null || autoPilotSpeed <= 10) return;
+            autoPilotSpeed = autoPilotSpeed - 5;
+            mp.players.local.taskVehicleDriveToCoord(mp.players.local.vehicle.handle, autopilotPoint.x, autopilotPoint.y, autopilotPoint.z, autoPilotSpeed, 1, 1, 8388614, 30, 1);
+            mp.game.graphics.notify("new Speed: " + autoPilotSpeed);
+        });
+
+        mp.events.add("stopdrive", () => {
+            if (mp.players.local == null || !autopilotActive) return;
+            mp.players.local.clearTasks();
+            autopilotPoint = null;
+            autopilotActive = false;
+            if (autopilotInterval) clearInterval(autopilotInterval);
+            autopilotInterval = null;
+
+            if (mp.players.local.vehicle) {
+                mp.players.local.taskVehicleTempAction(mp.players.local.vehicle.handle, 27, 1e4);
+            }
+        });
+
+        mp.events.add("driveToWayPoint", () => {
+            if (!mp.players.local.vehicle || mp.players.local.vehicle.getPedInSeat(-1) !== mp.players.local.handle) return;
+
+            let waypoint = mp.game.invoke("0x1BEDE233E6CD2A1F", 8);
+
+            if (mp.game.invoke("0xA6DB27D19ECBB7DA", waypoint)) {
+                autopilotPoint = mp.game.ui.getBlipInfoIdCoord(waypoint);
+            }
+
+            if (autopilotPoint == null) return;
+
+            autoPilotSpeed = 100;
+            mp.players.local.taskVehicleDriveToCoord(mp.players.local.vehicle.handle, autopilotPoint.x, autopilotPoint.y, autopilotPoint.z, autoPilotSpeed, 1, 1, 8388614, 30, 1);
+            autopilotActive = true;
+            if (autopilotInterval != null) {
+                clearInterval(autopilotInterval);
+                autopilotInterval = null;
+            }
+
+            autopilotInterval = setInterval(function () {
+                if (mp.game.system.vdist(mp.players.local.position.x, mp.players.local.position.y, mp.players.local.position.z, autopilotPoint.x, autopilotPoint.y, autopilotPoint.z) < 15) {
+                    mp.players.local.clearTasks();
+                    mp.players.local.taskVehicleTempAction(mp.players.local.vehicle.handle, 27, 1e4);
+                    autopilotPoint = null;
+                    autopilotActive = false;
+                    clearInterval(autopilotInterval);
+                    autopilotInterval = null;
+                }
+            }, 300);
+        });
         mp.events.add('updateAirRadio', state => {
             _playerPanel2.default.setAirRadio(state);
         });
@@ -8768,6 +10629,7 @@ class Player {
         mp.events.add('loadisland', status => {
             mp.game.invoke("0x9A9D1BA639675CF1", "HeistIsland", status);
             mp.game.invoke("0x5E1460624D194A38", status);
+            this.onCayoIsland = status;
         });
 
         mp.events.add('updateGvmpTeamRank', gvmpTeamRank => {
@@ -8782,7 +10644,7 @@ class Player {
             this.duty = duty;
         });
 
-        mp.events.add('setcustommarks', (key, shtrange, data) => {
+        mp.events.add('setcustommarks', (key, shtrange, data, dimension = 0) => {
 
             if (this.custommarkers[key] == null) {
                 this.custommarkers[key] = [];
@@ -8800,7 +10662,8 @@ class Player {
                     customMarker.mark = mp.blips.new(customMarker.id, customMarker.pos, {
                         name: customMarker.name,
                         color: customMarker.color,
-                        shortRange: shtrange
+                        shortRange: shtrange,
+                        dimension: dimension
                     });
                 });
             }
@@ -8818,6 +10681,46 @@ class Player {
                 });
             }
             this.custommarkers[key] = [];
+        });
+
+        mp.events.add('setmarker', (key, data) => {
+
+            if (this.markers[key] == null) {
+                this.markers[key] = [];
+            }
+
+            if (this.markers[key].length > 0) {
+                this.markers[key].forEach(customMarker => {
+                    customMarker.mark.destroy();
+                });
+            }
+            this.markers[key] = JSON.parse(data);
+
+            if (this.markers[key].length > 0) {
+                this.markers[key].forEach(customMarker => {
+                    customMarker.mark = mp.markers.new(customMarker.type, customMarker.position, customMarker.scale, {
+                        direction: customMarker.direction,
+                        rotation: customMarker.rotation,
+                        color: customMarker.color,
+                        visible: customMarker.visible,
+                        dimension: customMarker.dimension
+                    });
+                });
+            }
+        });
+
+        mp.events.add('clearmarker', key => {
+
+            if (this.markers[key] == null) {
+                this.markers[key] = [];
+                return;
+            }
+            if (this.markers[key].length > 0) {
+                this.markers[key].forEach(customMarker => {
+                    customMarker.mark.destroy();
+                });
+            }
+            this.markers[key] = [];
         });
 
         mp.events.add('setCheckpoint', (x, y, z) => {
@@ -8845,15 +10748,15 @@ class Player {
             }
         });
 
-        mp.events.add('createCustomObjects', (key, data) => {
+        mp.events.add('createCustomObjects', (key, data, dimension = 0) => {
 
             if (this.customObjects[key] == null) {
                 this.customObjects[key] = [];
             }
 
-            if (this.customObjects[key].length > 0) {
+            if (this.customObjects[key] != undefined && this.customObjects[key].length > 0) {
                 this.customObjects[key].forEach(customObj => {
-                    customObj.destroy();
+                    if (customObj !== undefined && mp.objects.exists(customObj)) customObj.destroy();
                 });
             }
             let objectsData = JSON.parse(data);
@@ -8864,7 +10767,7 @@ class Player {
                     objects.push(mp.objects.new(objData.objectid, objData.pos, {
                         rotation: objData.rot,
                         alpha: 255,
-                        dimension: 0
+                        dimension: dimension
                     }));
                 });
 
@@ -8880,7 +10783,7 @@ class Player {
             }
             if (this.customObjects[key].length > 0) {
                 this.customObjects[key].forEach(customObj => {
-                    customObj.destroy();
+                    if (customObj !== undefined && mp.objects.exists(customObj)) customObj.destroy();
                 });
             }
             this.customObjects[key] = [];
@@ -8939,7 +10842,7 @@ class Player {
         });
 
         mp.events.add('getWeaponAmmo', () => {
-            mp.events.callRemote('getWeaponAmmoAnswer', JSON.stringify(this.weaponAmmo), this.remoteHashKey);
+            mp.events.callRemote('getWeaponAmmoAnswer', JSON.stringify(this.weaponAmmo), "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         });
 
         mp.events.add('fillWeaponAmmo', (id, ammo) => {
@@ -9019,6 +10922,7 @@ class Player {
 
             this.ready = true;
             render();
+            weaponSwitch();
         });
 
         mp.events.add('loadClientIpl', ipl => {
@@ -9041,6 +10945,38 @@ class Player {
             mp.game.gameplay.setWeatherTypeOverTime(weatherString, transitionTime);
         });
 
+        mp.events.add("setVehicleSlipStream", state => {
+            mp.game.invoke("0xE6C0C80B8C867537", state);
+        });
+
+        mp.events.add("switchToWeapon", weapon => {
+            mp.players.local.setCanSwitchWeapon(true);
+            mp.players.local.weapon = weapon;
+        });
+
+        const weaponSwitch = async () => {
+            while (true) {
+
+                mp.players.local.setCanSwitchWeapon(true);
+
+                // set current weapon
+                if (!this.weaponSwitchActualWeapon || this.weaponSwitchActualWeapon == undefined) {
+                    this.weaponSwitchActualWeapon = mp.players.local.weapon;
+                } else {
+                    var newGun = mp.players.local.weapon;
+                    if (this.weaponSwitchActualWeapon != newGun) {
+                        this.weaponSwitchActualWeapon = newGun;
+
+                        // nur außerhalb des Fahrzeugs
+                        if (!this.getPlayer().isInAnyVehicle(true)) {
+                            mp.players.local.setCanSwitchWeapon(false);
+                            await mp.game.waitAsync(1000);
+                        }
+                    }
+                }
+                await mp.game.waitAsync(50);
+            }
+        };
         const render = async () => {
             while (true) {
                 if (this.ready === false) {
@@ -9059,11 +10995,11 @@ class Player {
 
                 if (mp.players.local.isInWater() && this.isInWater === false) {
                     this.isInWater = true;
-                    mp.events.callRemote('UpdatePlayerWaterState', true, this.remoteHashKey);
+                    mp.events.callRemote('UpdatePlayerWaterState', true, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
                 } else {
                     if (mp.players.local.isInWater() === false && this.isInWater === true) {
                         this.isInWater = false;
-                        mp.events.callRemote('UpdatePlayerWaterState', true, this.remoteHashKey);
+                        mp.events.callRemote('UpdatePlayerWaterState', true, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
                     }
                 }
 
@@ -9087,6 +11023,25 @@ class Player {
                         }, 2000);
                     }
                 }
+                if (!this.injured) {
+
+                    if (this.hasDamageFX == "" && mp.players.local.getHealth() <= 10) {
+                        mp.events.call('startScreenEffect', 'DeathFailNeutralIn', 0, true);
+                        this.hasDamageFX = "DeathFailNeutralIn";
+                    } else if (this.hasDamageFX == "DeathFailNeutralIn" && mp.players.local.getHealth() > 10) {
+                        mp.events.call('stopScreenEffect', this.hasDamageFX);
+                        this.hasDamageFX = '';
+                    }
+                }
+
+                // resync weapondmg
+                if (mp.players.local.weapon == mp.game.joaat("weapon_heavysniper")) {
+                    mp.game.player.setWeaponDamageModifier(0.445);
+                } else {
+                    mp.game.player.setWeaponDamageModifier(this.weaponDmg);
+                }
+
+                mp.gui.chat.show(false);
 
                 await mp.game.waitAsync(50);
             }
@@ -9095,6 +11050,27 @@ class Player {
         mp.events.add('setPlayerDamageMultiplier', weaponDmg => {
             this.weaponDmg = weaponDmg;
             mp.game.player.setWeaponDamageModifier(weaponDmg);
+        });
+
+        mp.events.add('requestWaypointPosition', returnEvent => {
+
+            const waypoint = mp.game.ui.getFirstBlipInfoId(8);
+            if (!mp.game.ui.doesBlipExist(waypoint)) return;
+
+            const waypointPos = mp.game.ui.getBlipInfoIdCoord(waypoint);
+            if (!waypointPos) return;
+
+            let zCoord = mp.game.gameplay.getGroundZFor3DCoord(waypointPos.x, waypointPos.y, waypointPos.z, false, false);
+            if (!zCoord) {
+                for (let i = 1000; i >= 0; i -= 25) {
+                    mp.game.streaming.requestCollisionAtCoord(waypointPos.x, waypointPos.y, i);
+                    mp.game.wait(0);
+                }
+                zCoord = mp.game.gameplay.getGroundZFor3DCoord(waypointPos.x, waypointPos.y, 1000, false, false);
+                if (!zCoord) return;
+            }
+
+            mp.events.callRemote(returnEvent, waypointPos.x, waypointPos.y, waypointPos.z, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         });
 
         mp.events.add('setPlayerMeleeDamageMultiplier', weaponDmg => {
@@ -9213,6 +11189,16 @@ class Player {
 
         mp.events.add("updatesuperjump", sj => {
             this.superjump = sj;
+        });
+
+        mp.events.add("setScuba", active => {
+            if (active) {
+                //mp.game.invoke("0xF99F62004024D506", mp.players.local.handle, true);
+                mp.players.local.setMaxTimeUnderwater(1500.0);
+            } else {
+                //mp.game.invoke("0xF99F62004024D506", mp.players.local.handle, false);
+                mp.players.local.setMaxTimeUnderwater(100.0);
+            }
         });
 
         mp.events.add('loadplanningroom', (grundraum, spiegel, einrichtungsstyle, inneneinrichtung, spielautomaten, rewards, keller, mechanic, hacker, weapons, wardrobe, casinoplan, casinodoor) => {
@@ -9482,12 +11468,11 @@ class Player {
         mp.events.add('entityStreamIn', entity => {
             if (entity != null && entity.type == "player") {
                 if (!mp.players.exists(entity)) return;
-
-                mp.events.callRemote("requestPlayerSyncData", entity, this.remoteHashKey);
+                mp.events.callRemote("requestPlayerSyncData", entity.remoteId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
             }
         });
 
-        mp.events.add('responsePlayerSyncData', async (player, isDrunk, animationData, crouchState, props, clothes) => {
+        mp.events.add('responsePlayerSyncData', async (player, isDrunk, animationData, crouchState, props, clothes, isSpectacting) => {
             try {
                 props = JSON.parse(props);
                 if (props !== null) {
@@ -9515,6 +11500,13 @@ class Player {
                 if (crouchState) {
                     player.setMovementClipset("move_ped_crouched", 0.25);
                     player.setStrafeClipset("move_ped_crouched_strafing");
+                }
+
+                if (isSpectacting) {
+                    player.freezePosition(isSpectacting);
+                    player.setCollision(!isSpectacting, !isSpectacting);
+                    mp.players.local.setNoCollision(player.handle, true);
+                    player.setCanBeTargetted(false);
                 }
             } catch (e) {
                 // Ignore
@@ -9641,11 +11633,82 @@ class Player {
     isInAir() {
         return this.getPlayer().isInAir();
     }
+
+    /*
+    async setAmmoInClip(weapon, ammo) {
+          var ammoFull = mp.players.local.getWeaponAmmo(weapon);
+        await mp.game.waitAsync(100);
+        mp.game.graphics.notify("fullammo:" + ammoFull);
+        if(ammoFull == undefined) return;
+          if(ammo <= 0 && ammoFull > 0)  {
+            ammoFull = ammoFull-1;
+            ammo = 1;
+        }
+        else if(ammo <= 0 && ammoFull <= 0) return;
+        
+        mp.game.graphics.notify("weapon " + weapon);
+        mp.game.graphics.notify("Setclip:" + ammo);
+        mp.players.local.setWeaponAmmo(weapon, ammo);
+        await mp.game.waitAsync(300)
+        mp.game.graphics.notify("setfull:" + ammoFull);
+        mp.players.local.setWeaponAmmo(weapon, ammoFull);
+        
+        this.weaponSwitchAmmo[weapon] = -1;
+    }*/
+
 }
 
 exports.default = new Player();
 
-},{"../attachments/attachments":92,"../interfaces/hud/hud":135,"../interfaces/hud/player-panel":141,"../interfaces/hud/playerinfo":142,"../interfaces/hud/playernotification":143,"../utils/utils":195,"./contacts/contacts":184,"./telefonHistory/historys":188}],187:[function(require,module,exports){
+},{"../attachments/attachments":103,"../interfaces/hud/hud":149,"../interfaces/hud/player-panel":155,"../interfaces/hud/playerinfo":156,"../interfaces/hud/playernotification":157,"../utils/utils":226,"./contacts/contacts":206,"./telefonHistory/historys":211}],209:[function(require,module,exports){
+"use strict";
+
+var _player = require("../player/player");
+
+var _player2 = _interopRequireDefault(_player);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+let spectatePlayer = null;
+
+mp.events.add("changeSpectatingState", (entity, value) => {
+    if (entity != null && entity.type === "player") {
+        if (value) {
+            entity.freezePosition(value);
+            entity.setCollision(!value, !value);
+            mp.players.local.setNoCollision(entity.handle, true);
+            entity.setCanBeTargetted(false);
+        } else {
+            entity.freezePosition(false);
+            entity.setCollision(true, true);
+            mp.players.local.setNoCollision(entity.handle, false);
+            entity.setCanBeTargetted(true);
+        }
+    }
+});
+
+mp.events.add("startSpectate", specplayer => {
+    if (specplayer == null) return;
+    spectatePlayer = specplayer;
+    setTimeout(() => {
+        let interval = setInterval(() => {
+            if (spectatePlayer != null && mp.players.exists(spectatePlayer.id) && spectatePlayer.position.x != 0 && spectatePlayer.position.y != 0 && spectatePlayer.position.z != 0) {
+                var pos = spectatePlayer.position;
+                pos.z += 1;
+                mp.players.local.position = pos;
+            } else {
+                clearInterval(interval);
+                if (spectatePlayer != null) mp.events.callRemote("stopSpectate", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");else spectatePlayer = null;
+            }
+        }, 5);
+    }, 1500);
+});
+
+mp.events.add("stopSpectate", () => {
+    spectatePlayer = null;
+});
+
+},{"../player/player":208}],210:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9663,7 +11726,7 @@ class History {
 
 exports.default = History;
 
-},{}],188:[function(require,module,exports){
+},{}],211:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9696,7 +11759,7 @@ class Historys {
 
 exports.default = Historys;
 
-},{"./history":187}],189:[function(require,module,exports){
+},{"./history":210}],212:[function(require,module,exports){
 "use strict";
 
 const Natives = {
@@ -9805,7 +11868,7 @@ mp.events.addDataHandler("currentWeaponComponents", (entity, value) => {
     }
 });
 
-},{}],190:[function(require,module,exports){
+},{}],213:[function(require,module,exports){
 "use strict";
 
 var _player = require("../player/player");
@@ -9840,7 +11903,7 @@ mp.events.add("doneCutscene", () => {
     }, 2000);
 
     player.setInvincible(false);
-    mp.events.callRemote("cutsceneEnded", _player2.default.remoteHashKey);
+    mp.events.callRemote("cutsceneEnded", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
 });
 
 mp.events.add("startWelcomeCutscene", async (gender = 0, name = null) => {
@@ -9920,7 +11983,400 @@ mp.events.add("render", () => {
     }
 });
 
-},{"../player/player":186}],191:[function(require,module,exports){
+},{"../player/player":208}],214:[function(require,module,exports){
+'use strict';
+
+const casinoUnloadVaultData = {
+    interiorID: 276993,
+    props: ['Set_Vault_Door_Broken', 'Set_Vault_Door_Closed', 'Set_Vault_Door', 'Set_vault_dressing', 'Set_vault_cash_02', 'Set_vault_gold_01', 'Set_vault_gold_02', 'Set_vault_art_01', 'set_vault_diamonds_02', 'set_spawn_group1', 'set_spawn_group2']
+};
+
+mp.events.add('loadCasinoVaultProps', props => {
+    props = JSON.parse(props);
+    props.forEach(prop => {
+        mp.game.interior.enableInteriorProp(casinoUnloadVaultData.interiorID, prop);
+        mp.game.invoke('0xC1F1920BAF281317', casinoUnloadVaultData.interiorID, prop, 2);
+    });
+    mp.game.interior.refreshInterior(casinoUnloadVaultData.interiorID);
+});
+
+mp.events.add('unloadCasinoVaultProps', () => {
+    casinoUnloadVaultData.props.forEach(prop => {
+        mp.game.interior.disableInteriorProp(casinoUnloadVaultData.interiorID, prop);
+    });
+    mp.game.interior.refreshInterior(casinoUnloadVaultData.interiorID);
+});
+
+mp.events.add("jewellerySmashCase", (pos, oldModel, newModel) => {
+    mp.game.audio.playSoundFromCoord(-1, "Glass_Smash", pos.x, pos.y, pos.z, "", false, 0, false);
+    mp.game.entity.createModelSwap(pos.x, pos.y, pos.z, 0.1, mp.game.joaat(oldModel), mp.game.joaat(newModel), false);
+});
+
+mp.events.add("jewellerySetCasesState", caseJson => {
+    caseJson = JSON.parse(caseJson);
+
+    setTimeout(() => {
+        caseJson.forEach(caseObj => {
+            mp.game.entity.removeModelSwap(caseObj.pos.x, caseObj.pos.y, caseObj.pos.z, 0.1, mp.game.joaat(caseObj.prop2), mp.game.joaat(caseObj.prop), false);
+
+            if (caseObj.isBroken == true) {
+                mp.game.entity.createModelSwap(caseObj.pos.x, caseObj.pos.y, caseObj.pos.z, 0.1, mp.game.joaat(caseObj.prop2), mp.game.joaat(caseObj.prop), false);
+            }
+        });
+    }, 1000);
+});
+
+},{}],215:[function(require,module,exports){
+"use strict";
+
+var currentVision = 0,
+    isInDrone = false;
+
+mp.events.add("updateDroneState", isInsideDrone => {
+    isInDrone = isInsideDrone;
+
+    if (isInDrone) return;
+    mp.game.graphics.setNightvision(false);
+    mp.game.graphics.setSeethrough(false);
+    currentVision = 0;
+});
+
+/*
+mp.keys.bind(0x4E, true, function () {
+    if (!isInDrone) return;
+
+    if (currentVision == 0) {
+        mp.game.graphics.setNightvision(true);
+        currentVision = 1;
+    }
+    else if (currentVision == 1) {
+        mp.game.graphics.setNightvision(false);
+        mp.game.graphics.setSeethrough(true);
+        currentVision = 2;
+    }
+    else {
+        mp.game.graphics.setNightvision(false);
+        mp.game.graphics.setSeethrough(false);
+        currentVision = 0;
+    }
+
+    mp.game.audio.playSoundFrontEnd(-1, "SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET", false);
+});*/
+
+},{}],216:[function(require,module,exports){
+'use strict';
+
+let einreisetor = null;
+
+mp.events.add('floatObject', (object, toX, toY, toZ, speedX, speedY, speedZ, collision) => {
+    if (object == null) return;
+
+    let interval = setInterval(() => {
+        if (!object.slide(toX, toY, toZ, speedX, speedY, speedZ, collision)) {
+            object.slide(toX, toY, toZ, speedX, speedY, speedZ, collision);
+        } else {
+            if (object != null) {
+                object.destroy();
+                object = null;
+            }
+            clearInterval(interval);
+        }
+    }, 1);
+});
+
+mp.events.add('createEinreiseDoor', () => {
+    einreisetor = mp.objects.new("hei_prop_ss1_mpint_garage2", new mp.Vector3(-1082.378, -2827.082, 28.76645), {
+        rotation: new mp.Vector3(0, 0, -30),
+        alpha: 255,
+        dimension: 0
+    });
+});
+
+mp.events.add('openEinreiseamtDoor', () => {
+    mp.events.call('floatObject', einreisetor, -1082.378, -2827.082, 33.76645, 0, 0, 0.0006, true);
+});
+
+},{}],217:[function(require,module,exports){
+"use strict";
+
+var _apps = require("../app/apps");
+
+var _apps2 = _interopRequireDefault(_apps);
+
+var _player = require("../player/player");
+
+var _player2 = _interopRequireDefault(_player);
+
+var _windows = require("../windows/windows");
+
+var _windows2 = _interopRequireDefault(_windows);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const pointing = {
+    active: false,
+    interval: null,
+    lastSent: 0,
+
+    start: async function () {
+        if (!this.active) {
+            this.active = true;
+
+            await pointing.awaitDict("anim@mp_point");
+
+            mp.game.invoke("0x0725a4ccfded9a70", mp.players.local.handle, 0, 1, 1, 1);
+            mp.players.local.setConfigFlag(36, true);
+            mp.players.local.taskMoveNetwork("task_mp_pointing", 0.5, false, "anim@mp_point", 24);
+            mp.game.streaming.removeAnimDict("anim@mp_point");
+
+            this.interval = setInterval(this.process.bind(this), 0);
+        }
+    },
+
+    stop: function () {
+        if (this.active) {
+            clearInterval(this.interval);
+            this.interval = null;
+            this.active = false;
+
+            mp.game.invoke("0xd01015c7316ae176", mp.players.local.handle, "Stop");
+            if (!mp.players.local.isInjured()) {
+                mp.players.local.clearTasks();
+            }
+
+            if (!mp.players.local.isInAnyVehicle(true)) {
+                mp.game.invoke("0x0725a4ccfded9a70", mp.players.local.handle, 1, 1, 1, 1);
+            }
+
+            mp.players.local.setConfigFlag(36, false);
+            mp.players.local.clearTasks();
+        }
+    },
+
+    gameplayCam: mp.cameras.new("gameplay"),
+    lastSync: 0,
+
+    getRelativePitch: function () {
+        const camRot = this.gameplayCam.getRot(2);
+
+        return camRot.x - mp.players.local.getPitch();
+    },
+
+    awaitDict: async function (animation) {
+        mp.game.streaming.requestAnimDict(animation);
+
+        while (!mp.game.streaming.hasAnimDictLoaded(animation)) {
+            await mp.game.waitAsync(0);
+        }
+    },
+
+    process: function () {
+        if (this.active) {
+            mp.game.invoke("0x921ce12c489c4c41", mp.players.local.handle);
+
+            let camPitch = this.getRelativePitch();
+            if (camPitch < -70.0) {
+                camPitch = -70.0;
+            } else if (camPitch > 42.0) {
+                camPitch = 42.0;
+            }
+
+            camPitch = (camPitch + 70.0) / 112.0;
+
+            let camHeading = mp.game.cam.getGameplayCamRelativeHeading();
+            let cosCamHeading = mp.game.system.cos(camHeading);
+            let sinCamHeading = mp.game.system.sin(camHeading);
+
+            if (camHeading < -180.0) {
+                camHeading = -180.0;
+            } else if (camHeading > 180.0) {
+                camHeading = 180.0;
+            }
+
+            camHeading = (camHeading + 180.0) / 360.0;
+
+            let coords = mp.players.local.getOffsetFromGivenWorldCoords(cosCamHeading * -0.2 - sinCamHeading * (0.4 * camHeading + 0.3), sinCamHeading * -0.2 + cosCamHeading * (0.4 * camHeading + 0.3), 0.6);
+            let blocked = typeof mp.raycasting.testPointToPoint(new mp.Vector3(coords.x, coords.y, coords.z - 0.2), new mp.Vector3(coords.x, coords.y, coords.z + 0.2), mp.players.local.handle, 7) !== 'undefined';
+
+            mp.game.invoke('0xd5bb4025ae449a4e', mp.players.local.handle, "Pitch", camPitch);
+            mp.game.invoke('0xd5bb4025ae449a4e', mp.players.local.handle, "Heading", camHeading * -1.0 + 1.0);
+            mp.game.invoke('0xb0a6cfd2c69c1088', mp.players.local.handle, "isBlocked", blocked);
+            mp.game.invoke('0xb0a6cfd2c69c1088', mp.players.local.handle, "isFirstPerson", mp.game.invoke('0xee778f8c7e1142e2', mp.game.invoke('0x19cafa3c87f7c2ff')) == 4);
+
+            if (Date.now() - this.lastSent > 60) {
+                this.lastSent = Date.now();
+                mp.events.callRemoteUnreliable("fpsync.update", camPitch, camHeading);
+            }
+        }
+    }
+};
+
+mp.events.add("fpsync.update", (playerH, camPitch, camHeading) => {
+    const netPlayer = getPlayerByHandle(parseInt(playerH.handle));
+    if (netPlayer != null) {
+        if (netPlayer != mp.players.local) {
+            netPlayer.lastReceivedPointing = Date.now();
+
+            if (!netPlayer.pointingInterval) {
+                netPlayer.pointingInterval = setInterval(function () {
+                    if (Date.now() - netPlayer.lastReceivedPointing > 1000) {
+                        clearInterval(netPlayer.pointingInterval);
+
+                        netPlayer.lastReceivedPointing = undefined;
+                        netPlayer.pointingInterval = undefined;
+
+                        mp.game.invoke("0xd01015c7316ae176", netPlayer.handle, "Stop");
+
+                        if (!netPlayer.isInAnyVehicle(true)) {
+                            mp.game.invoke("0x0725a4ccfded9a70", netPlayer.handle, 1, 1, 1, 1);
+                        }
+                        netPlayer.setConfigFlag(36, false);
+                    }
+                }.bind(netPlayer), 500);
+
+                pointing.awaitDict("anim@mp_point");
+
+                mp.game.invoke("0x0725a4ccfded9a70", netPlayer.handle, 0, 1, 1, 1);
+                netPlayer.setConfigFlag(36, true);
+                netPlayer.taskMoveNetwork("task_mp_pointing", 0.5, false, "anim@mp_point", 24);
+                mp.game.streaming.removeAnimDict("anim@mp_point");
+            }
+            mp.game.invoke('0xd5bb4025ae449a4e', netPlayer.handle, "Pitch", camPitch);
+            mp.game.invoke('0xd5bb4025ae449a4e', netPlayer.handle, "Heading", camHeading * -1.0 + 1.0);
+            mp.game.invoke('0xb0a6cfd2c69c1088', netPlayer.handle, "isBlocked", 0);
+            mp.game.invoke('0xb0a6cfd2c69c1088', netPlayer.handle, "isFirstPerson", 0);
+        }
+    }
+});
+
+mp.keys.bind(0x42, true, () => {
+    if (_windows2.default.visibleWindow != null || _apps2.default.componentVisibleApp["Smartphone"] || _player2.default.chatFlag || _player2.default.injured || _player2.default.tied || _player2.default.cuffed || _apps2.default.componentVisibleApp["Computer"] || _apps2.default.componentVisibleApp["Ipad"]) return;
+
+    //pointing.start();
+});
+
+mp.keys.bind(0x42, false, () => {
+    if (_windows2.default.visibleWindow != null || _apps2.default.componentVisibleApp["Smartphone"] || _player2.default.chatFlag || _player2.default.injured || _player2.default.tied || _player2.default.cuffed || _apps2.default.componentVisibleApp["Computer"] || _apps2.default.componentVisibleApp["Ipad"]) return;
+
+    //pointing.stop();
+});
+
+function getPlayerByHandle(handle) {
+    let pla = mp.players.atHandle(handle);
+    if (pla == undefined || pla == null) {
+        return null;
+    }
+    return pla;
+}
+
+},{"../app/apps":12,"../player/player":208,"../windows/windows":235}],218:[function(require,module,exports){
+"use strict";
+
+mp.events.add("startFirework", fireworkJson => {
+    startFirework(fireworkJson);
+});
+
+async function startFirework(fireworkJson) {
+    fireworkJson = JSON.parse(fireworkJson);
+    mp.game.streaming.requestNamedPtfxAsset("scr_indep_fireworks");
+
+    while (!mp.game.streaming.hasNamedPtfxAssetLoaded("scr_indep_fireworks")) await mp.game.waitAsync(100);
+
+    for (var fireworkEntry in fireworkJson) {
+        let offset = new mp.Vector3(fireworkJson[fireworkEntry].prop.Position.x, fireworkJson[fireworkEntry].prop.Position.y + 0.05, fireworkJson[fireworkEntry].prop.Position.z - 1.02);
+
+        switch (fireworkJson[fireworkEntry].type) {
+            case "rocket":
+                startRocket(offset);
+                break;
+            case "box":
+                startBox(offset);
+                break;
+            case "cone":
+                startCone(offset);
+                break;
+            case "cylinder":
+                startCylinder(offset);
+                break;
+        }
+    }
+}
+
+async function startCylinder(offset) {
+    for (var i = 1; i <= 5; i++) {
+        await mp.game.waitAsync(1500);
+        mp.game.graphics.setPtfxAssetNextCall("scr_indep_fireworks");
+        mp.game.graphics.setParticleFxNonLoopedColour(Math.random() * 1, Math.random() * 1, Math.random() * 1);
+        mp.game.graphics.startParticleFxNonLoopedAtCoord("scr_indep_firework_shotburst", offset.x, offset.y, offset.z, 0.0, 0.0, 0.0, Math.random() * 0.5 + 0.8, false, false, false);
+    }
+
+    for (var i = 1; i <= 3; i++) {
+        await mp.game.waitAsync(2500);
+        mp.game.graphics.setPtfxAssetNextCall("scr_indep_fireworks");
+        mp.game.graphics.setParticleFxNonLoopedColour(Math.random() * 1, Math.random() * 1, Math.random() * 1);
+        mp.game.graphics.startParticleFxNonLoopedAtCoord("scr_indep_firework_shotburst", offset.x, offset.y, offset.z, 0.0, 0.0, 0.0, Math.random() * 1.5 + 1.8, false, false, false);
+    }
+}
+
+async function startCone(offset) {
+    for (var i = 1; i <= 5; i++) {
+        await mp.game.waitAsync(1500);
+        mp.game.graphics.setPtfxAssetNextCall("scr_indep_fireworks");
+        mp.game.graphics.setParticleFxNonLoopedColour(Math.random() * 1, Math.random() * 1, Math.random() * 1);
+        mp.game.graphics.startParticleFxNonLoopedAtCoord("scr_indep_firework_fountain", offset.x, offset.y, offset.z, 0.0, 0.0, 0.0, Math.random() * 0.5 + 0.8, false, false, false);
+    }
+
+    await mp.game.waitAsync(2500);
+    mp.game.graphics.setPtfxAssetNextCall("scr_indep_fireworks");
+    mp.game.graphics.setParticleFxNonLoopedColour(Math.random() * 1, Math.random() * 1, Math.random() * 1);
+    mp.game.graphics.startParticleFxNonLoopedAtCoord("scr_indep_firework_fountain", offset.x, offset.y, offset.z, 0.0, 0.0, 0.0, Math.random() * 1.5 + 1.8, false, false, false);
+}
+
+async function startRocket(offset) {
+    await mp.game.waitAsync(1500);
+    mp.game.graphics.setPtfxAssetNextCall("scr_indep_fireworks");
+    mp.game.graphics.setParticleFxNonLoopedColour(Math.random() * 1, Math.random() * 1, Math.random() * 1);
+    mp.game.graphics.startParticleFxNonLoopedAtCoord("scr_indep_firework_starburst", offset.x, offset.y, offset.z, 0.0, 0.0, 0.0, 2.5, false, false, false);
+}
+
+async function startBox(offset) {
+    for (var i = 1; i <= 8; i++) {
+        await mp.game.waitAsync(1500);
+        mp.game.graphics.setPtfxAssetNextCall("scr_indep_fireworks");
+        mp.game.graphics.setParticleFxNonLoopedColour(Math.random() * 1, Math.random() * 1, Math.random() * 1);
+        mp.game.graphics.startParticleFxNonLoopedAtCoord("scr_indep_firework_trailburst", offset.x, offset.y, offset.z, 0.0, 0.0, 0.0, Math.random() * 1.2 + 1.5, false, false, false);
+    }
+
+    await mp.game.waitAsync(4000);
+    mp.game.graphics.setPtfxAssetNextCall("scr_indep_fireworks");
+    mp.game.graphics.setParticleFxNonLoopedColour(Math.random() * 1, Math.random() * 1, Math.random() * 1);
+    mp.game.graphics.startParticleFxNonLoopedAtCoord("scr_indep_firework_trailburst", offset.x, offset.y, offset.z, 0.0, 0.0, 0.0, Math.random() * 1.2 + 1.8, false, false, false);
+}
+
+},{}],219:[function(require,module,exports){
+"use strict";
+
+mp.events.add("spawnFX", async (effectCat, effectName, pos, rot, duration = null) => {
+    if (pos == null) return;
+
+    mp.game.streaming.requestNamedPtfxAsset(effectCat);
+    while (!mp.game.streaming.hasNamedPtfxAssetLoaded(effectCat)) {
+        await mp.game.waitAsync(100);
+    }
+
+    if (duration != null) {
+        for (var i = 1; i <= duration / 1000; i++) {
+            await mp.game.waitAsync(1000);
+            mp.game.graphics.setPtfxAssetNextCall(effectCat);
+            mp.game.graphics.startParticleFxNonLoopedAtCoord(effectName, pos.x, pos.y, pos.z, rot.x, rot.y, rot.z, 2, false, false, false);
+        }
+    } else {
+        mp.game.graphics.setPtfxAssetNextCall(effectCat);
+        mp.game.graphics.startParticleFxNonLoopedAtCoord(effectName, pos.x, pos.y, pos.z, rot.x, rot.y, rot.z, 2, false, false, false);
+    }
+});
+
+},{}],220:[function(require,module,exports){
 'use strict';
 
 var _player = require('../player/player');
@@ -10048,7 +12504,37 @@ mp.events.add('render', () => {
     noClipCamera.setRot(rot.x + rightAxisY * -5.0, 0.0, rot.z + rightAxisX * -5.0, 2);
 });
 
-},{"../player/player":186}],192:[function(require,module,exports){
+},{"../player/player":208}],221:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+let bins = mp.game.joaat(["prop_snow_bin_01", "prop_snow_dumpster_01", "prop_snow_bin_02", "prop_dumpster_4a", "prop_bin_05a", "prop_bin_01a", "prop_dumpster_02b", "prop_bin_12a", "prop_bin_08a", "prop_bin_06a", "prop_bin_02a", "prop_dumpster_01a", "prop_dumpster_02a", "prop_cs_bin_02", "prop_bin_07b", "prop_bin_07c", "prop_bin_07a", "prop_bin_03a", "prop_bin_08open", "prop_bin_delpiero_b", "prop_bin_delpiero", "prop_bin_04a", "prop_bin_09a", "prop_dumpster_3a", "prop_dumpster_4b", "sc1_07_clinical_bin", "prop_gas_binunit01", "prop_bin_14a", "prop_cs_dumpster_01a", "v_serv_waste_bin1", "prop_bin_11b", "prop_bin_10a", "prop_bin_beach_01a", "prop_bin_11a", "prop_bin_13a", "prop_bin_beach_01d", "prop_bin_10b", "prop_bin_14b", "prop_cs_bin_01", "prop_cs_bin_03", "v_ret_gc_bin", "v_ret_csr_bin", "v_med_bin", "mp_b_kit_bin_01", "hei_heist_kit_bin_01", "ch_prop_casino_bin_01a", "vw_prop_vw_casino_bin_01a", "prop_recyclebin_01a", "prop_recyclebin_04_a", "prop_recyclebin_04_b", "prop_recyclebin_05_a", "prop_recyclebin_02b", "prop_recyclebin_02a", "prop_recyclebin_02_d", "prop_recyclebin_02_c"]);
+
+class GetObjects {
+    constructor() {}
+
+    getBin() {
+        for (let i = 0; i < bins.length; i++) {
+            var check = mp.game.object.getClosestObjectOfType(mp.players.local.position.x, mp.players.local.position.y, mp.players.local.position.z, 1, bins[i], false, true, true);
+            if (check) {
+                return "bin";
+            }
+        }
+
+        return "";
+    }
+
+    test() {
+        return "TEST";
+    }
+
+}
+
+exports.default = new GetObjects();
+
+},{}],222:[function(require,module,exports){
 "use strict";
 
 var _peds = require("../peds/peds");
@@ -10061,16 +12547,30 @@ var _player2 = _interopRequireDefault(_player);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+let soundInterval = null;
 //FadeOutDeath cuz of new Handling
 mp.game.gameplay.setFadeOutAfterDeath(false);
 
 //Prevent
-mp.events.add('projectile', () => {
-    return true;
+/*mp.events.add('projectile', () => {
+    return true;
+});
+
+mp.events.add('explosion', () => {
+    return true;
+});*/
+
+//Explosion-Types: https://wiki.rage.mp/index.php?title=Explosions
+mp.events.add("addExplosion", (pos, explosionType, damageScale, isAudible, isInvisible, cameraShake) => {
+    mp.game.fire.addExplosion(pos.x, pos.y, pos.z, explosionType, damageScale, isAudible, isInvisible, cameraShake);
 });
 
-mp.events.add('explosion', () => {
-    return true;
+//Explosion-Types: https://wiki.rage.mp/index.php?title=Explosions
+mp.events.add("addExplosionOnGround", (pos, explosionType, damageScale, isAudible, isInvisible, cameraShake) => {
+
+    pos.z = mp.game.gameplay.getGroundZFor3DCoord(pos.x, pos.y, pos.z + 200, false, false);
+
+    mp.game.fire.addExplosion(pos.x, pos.y, pos.z, explosionType, damageScale, isAudible, isInvisible, cameraShake);
 });
 
 mp.events.add("playerSpawn", client => {
@@ -10092,11 +12592,18 @@ mp.events.add('toggleHeadshot', state => {
     mp.players.local.setSuffersCriticalHits(state);
 });
 
-mp.events.add('triggerRagdoll', () => {
-    mp.players.local.setToRagdoll(100, 100, 2, false, false, false);
+mp.events.add('triggerRagdoll', time => {
+    _player2.default.injured = true;
+    mp.players.local.setToRagdoll(time, time, 0, true, true, true);
+
+    setTimeout(function () {
+        _player2.default.injured = false;
+    }, time);
 });
 
 mp.events.add('render', () => {
+    mp.game.vehicle.setExperimentalAttachmentSyncEnabled(true);
+
     //HIDE STREET NAME BOTTOM RIGHT
     mp.game.ui.hideHudComponentThisFrame(9);
     mp.game.ui.hideHudComponentThisFrame(7);
@@ -10153,7 +12660,7 @@ mp.events.add('render', () => {
 mp.events.add('outgoingDamage', (sourceEntity, targetEntity, sourcePlayer, weapon, boneIndex, damage) => {
 
     if (targetEntity.type === 'player' && sourceEntity.type === 'player' && _player2.default.dmglg) {
-        mp.events.callRemoteUnreliable("aads", targetEntity, Math.floor(sourceEntity.position.subtract(targetEntity.position).length()), boneIndex === 20 ? Math.floor(damage / 18) : damage, boneIndex, weapon.toString());
+        mp.events.callRemoteUnreliable("aads", targetEntity.remoteId, Math.floor(sourceEntity.position.subtract(targetEntity.position).length()), boneIndex === 20 ? Math.floor(damage / 18) : damage, boneIndex, weapon.toString());
     }
 });
 
@@ -10168,7 +12675,74 @@ mp.events.add('incomingDamage', (sourceEntity, sourcePlayer, targetEntity, weapo
     }
 });
 
-},{"../peds/peds":180,"../player/player":186}],193:[function(require,module,exports){
+mp.events.add("playSoundFromCoordLooped", (soundId, audioName, audioRef, pos, timeout) => {
+    if (soundInterval != null) clearInterval(soundInterval);
+    soundInterval = null;
+
+    soundInterval = setInterval(() => {
+        mp.game.audio.playSoundFromCoord(soundId, audioName, pos.x, pos.y, pos.z, audioRef, false, 0, false);
+    }, timeout);
+});
+
+mp.events.add("stopSoundFromCoordLooped", () => {
+    if (soundInterval == null) return;
+    clearInterval(soundInterval);
+    soundInterval = null;
+});
+
+},{"../peds/peds":202,"../player/player":208}],223:[function(require,module,exports){
+'use strict';
+
+var _player = require('../player/player');
+
+var _player2 = _interopRequireDefault(_player);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+//--------------GetWaypointVector3---------------//
+mp.events.addProc('13371337', () => {
+    if (mp.players.local == null) return new mp.Vector3(0, 0, 0);
+    const waypoint = mp.game.ui.getFirstBlipInfoId(8);
+    if (!mp.game.ui.doesBlipExist(waypoint)) return new mp.Vector3(0, 0, 0);
+
+    const waypointPos = mp.game.ui.getBlipInfoIdCoord(waypoint);
+    if (!waypointPos) return new mp.Vector3(0, 0, 0);
+
+    return waypointPos;
+});
+
+mp.events.add('addBlipsForRadius', data => {
+
+    let BlipsData = JSON.parse(data);
+
+    if (BlipsData !== undefined && BlipsData.length > 0) {
+        BlipsData.forEach(blpData => {
+            var doesBlipExist = _player2.default.customBlipsForRadius.find(x => x.Id == blpData.Id);
+            if (!doesBlipExist) {
+                let turfBlip = mp.game.ui.addBlipForRadius(blpData.Position.x, blpData.Position.y, 1, blpData.Radius);
+                mp.game.invoke("0xDF735600A4696DAF", turfBlip, blpData.Sprite); // SET_BLIP_SPRITE
+                mp.game.invoke("0x45FF974EEE1C8734", turfBlip, blpData.Alpha); // SET_BLIP_ALPHA
+                mp.game.invoke("0x03D7FB09E75D6B7E", turfBlip, blpData.Color); // SET_BLIP_COLOUR
+                mp.game.invoke("0xF87683CDF73C3F6E", turfBlip, blpData.Rotation); // SET_BLIP_ROTATION
+                mp.game.invoke("0xB14552383D39CE3E", turfBlip, blpData.Flashing); // SET_BLIP_FLASHES
+                _player2.default.customBlipsForRadius.push({ 'id': blpData.Id, 'blip': turfBlip });
+            }
+        });
+    }
+});
+
+mp.events.add('removeBlipForRadius', id => {
+    _player2.default.customBlipsForRadius.forEach(item => {
+        if (item.id == id) {
+            if (mp.game.invoke("0xA6DB27D19ECBB7DA", item.blip)) {
+                mp.game.ui.removeBlip(item.blip);
+            }
+            _player2.default.customBlipsForRadius.splice(_player2.default.customBlipsForRadius.indexOf(item), 1);
+        }
+    });
+});
+
+},{"../player/player":208}],224:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10212,7 +12786,7 @@ class Raycast {
 
 exports.default = new Raycast();
 
-},{}],194:[function(require,module,exports){
+},{}],225:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -10232,6 +12806,19 @@ class BodyCameraSingleton {
         if (this.camera) return;
 
         this.camera = mp.cameras.new('default', position, new mp.Vector3(0, 0, 0), 40); // name, position, rotation, fov (field of view)
+        this.camera.setActive(true);
+        mp.game.cam.renderScriptCams(true, false, 500, true, false);
+    }
+
+    /**
+     * Create a new camera at given position.
+     *
+     * @param {{x: number, y: number, z: number}} position
+     */
+    createBodyCamera2(position, rotation) {
+        if (this.camera) return;
+
+        this.camera = mp.cameras.new('default', position, rotation, 40); // name, position, rotation, fov (field of view)
         this.camera.setActive(true);
         mp.game.cam.renderScriptCams(true, false, 500, true, false);
     }
@@ -10361,7 +12948,7 @@ class BodyCameraSingleton {
 
 exports.default = new BodyCameraSingleton();
 
-},{}],195:[function(require,module,exports){
+},{}],226:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10412,7 +12999,7 @@ class Utils {
 
 exports.default = new Utils();
 
-},{}],196:[function(require,module,exports){
+},{}],227:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -10872,7 +13459,7 @@ class VehicleEnter {
 
 exports.default = VehicleEnter;
 
-},{}],197:[function(require,module,exports){
+},{}],228:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10894,7 +13481,7 @@ class BoatModule {
 
 exports.default = new BoatModule();
 
-},{}],198:[function(require,module,exports){
+},{}],229:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -10919,10 +13506,10 @@ class Flatbed {
         if (cmd == "REQUEST_VEHICLE_FlATBED_LOAD_TOGGLE") {
             if (isDrivingFlatbed() && !flatbed.bed.moving && flatbed.bed.rope == null) {
                 if (flatbed.bed.state == 0) {
-                    mp.events.callRemote('fbSetState', flatbed, 1, _player2.default.remoteHashKey);
+                    mp.events.callRemote('fbSetState', flatbed, 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
                     extendBed(flatbed);
                 } else if (flatbed.bed.state == 1) {
-                    mp.events.callRemote('fbSetState', flatbed, 0, _player2.default.remoteHashKey);
+                    mp.events.callRemote('fbSetState', flatbed, 0, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
                     retractBed(flatbed);
                 }
             }
@@ -10977,7 +13564,7 @@ class Flatbed {
                     if (attachToBed(flatbed, targetVeh)) {
                         mp.players.forEachInStreamRange((toplayer, id) => {
                             if (toplayer.handle != player.handle) {
-                                mp.events.callRemote('fbAttachVehicle', toplayer, flatbed, targetVeh, true, _player2.default.remoteHashKey);
+                                mp.events.callRemote('fbAttachVehicle', toplayer, flatbed, targetVeh, true, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
                             }
                         });
                         startSyncIntervalForVeh(targetVeh);
@@ -10989,7 +13576,7 @@ class Flatbed {
 
                 mp.players.forEachInStreamRange((toplayer, id) => {
                     if (toplayer.handle != player.handle) {
-                        mp.events.callRemote('fbAttachVehicle', toplayer, flatbed, flatbed, false, _player2.default.remoteHashKey);
+                        mp.events.callRemote('fbAttachVehicle', toplayer, flatbed, flatbed, false, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
                     }
                 });
 
@@ -11023,7 +13610,7 @@ function startSyncIntervalForVeh(veh) {
 
     syncInterval = setInterval(() => {
         if (isDrivingFlatbed() && player.vehicle.getVariable('fbAttachVehicle') == veh.remoteId) {
-            mp.events.callRemote('fbSyncPosition', veh, JSON.stringify(veh.position), JSON.stringify(veh.getRotation(2)), _player2.default.remoteHashKey);
+            mp.events.callRemote('fbSyncPosition', veh, JSON.stringify(veh.position), JSON.stringify(veh.getRotation(2)), "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
         } else {
             clearInterval(syncInterval);
             syncInterval = null;
@@ -11384,7 +13971,7 @@ function waitFor(e) {
 
 exports.default = new Flatbed();
 
-},{"../player/player":186}],199:[function(require,module,exports){
+},{"../player/player":208}],230:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11440,7 +14027,7 @@ class Rappel {
 
 exports.default = new Rappel();
 
-},{}],200:[function(require,module,exports){
+},{}],231:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -11465,8 +14052,8 @@ class VehicleModule {
         // Menu items for dpos outside of the car
         this.menuItemsOutOfCarDpos = [{ label: 'Exit', description: 'Schließt das Menü', icon: 'img/icons/exit.png', id: 'donothing', arg: "" }, { label: 'Schlüssel', description: 'Fahrzeug auf/abschließen', icon: 'img/icons/vehicle/key.png', id: 'REQUEST_VEHICLE_TOGGLE_LOCK_OUTSIDE', arg: "" }, { label: 'Kofferraum', description: 'Öffnet/Schließt den Kofferraum', icon: 'img/icons/vehicle/trunk.png', id: 'REQUEST_VEHICLE_TOGGLE_DOOR_OUTSIDE', arg: "5" }, { label: 'Tankstelle', description: 'Betanken Sie das Fahrzeug', icon: 'img/icons/vehicle/gasstation.png', id: 'REQUEST_VEHICLE_FILL_FUEL', arg: "" }, { label: 'Information', description: 'Informationen zum Fahrzeug', icon: 'img/icons/vehicle/information.png', id: 'REQUEST_VEHICLE_INFORMATION', arg: "" }, { label: 'Reparieren', description: 'Reparieren Sie das Fahrzeug', icon: 'img/icons/vehicle/repair.png', id: 'REQUEST_VEHICLE_REPAIR', arg: "" }];
         // Menu items for basic players inside a car
-        this.menuItemsInCar = [{ label: 'Exit', description: 'Schließt das Menü', icon: 'img/icons/exit.png', id: 'donothing', arg: "" }, { label: 'Schlüssel', description: 'Fahrzeug auf/abschließen', icon: 'img/icons/vehicle/key.png', id: 'REQUEST_VEHICLE_TOGGLE_LOCK', arg: "" }, { label: 'Rauswerfen', description: 'Wirft jemanden aus dem Fahrzeug', icon: 'img/icons/vehicle/eject.png', id: 'REQUEST_VEHICLE_EJECT', arg: "" }, { label: 'Kofferraum', description: 'Öffnet/Schließt den Kofferraum', icon: 'img/icons/vehicle/trunk.png', id: 'REQUEST_VEHICLE_TOGGLE_DOOR', arg: "5" }, { label: 'Radio', description: 'Schaltet das Radio ab', icon: 'img/icons/vehicle/radio.png', id: 'LOCAL_ACTION', arg: "RadioOff" }, { label: 'Motor', description: 'Startet/Stopt den Motor', icon: 'img/icons/vehicle/engine.png', id: 'REQUEST_VEHICLE_TOGGLE_ENGINE', arg: "" }];
-        this.menuItemsInCarCops = [{ label: 'Exit', description: 'Schließt das Menü', icon: 'img/icons/exit.png', id: 'donothing', arg: "" }, { label: 'Schlüssel', description: 'Fahrzeug auf/abschließen', icon: 'img/icons/vehicle/key.png', id: 'REQUEST_VEHICLE_TOGGLE_LOCK', arg: "" }, { label: 'Rauswerfen', description: 'Wirft jemanden aus dem Fahrzeug', icon: 'img/icons/vehicle/eject.png', id: 'REQUEST_VEHICLE_EJECT', arg: "" }, { label: 'Kofferraum', description: 'Öffnet/Schließt den Kofferraum', icon: 'img/icons/vehicle/trunk.png', id: 'REQUEST_VEHICLE_TOGGLE_DOOR', arg: "5" }, { label: 'Radio', description: 'Schaltet das Radio ab', icon: 'img/icons/vehicle/radio.png', id: 'LOCAL_ACTION', arg: "RadioOff" }, { label: 'Motor', description: 'Startet/Stopt den Motor', icon: 'img/icons/vehicle/engine.png', id: 'REQUEST_VEHICLE_TOGGLE_ENGINE', arg: "" }];
+        this.menuItemsInCar = [{ label: 'Exit', description: 'Schließt das Menü', icon: 'img/icons/exit.png', id: 'donothing', arg: "" }, { label: 'Schlüssel', description: 'Fahrzeug auf/abschließen', icon: 'img/icons/vehicle/key.png', id: 'REQUEST_VEHICLE_TOGGLE_LOCK', arg: "" }, { label: 'Rauswerfen', description: 'Wirft jemanden aus dem Fahrzeug', icon: 'img/icons/vehicle/eject.png', id: 'REQUEST_VEHICLE_EJECT', arg: "" }, { label: 'Kofferraum', description: 'Öffnet/Schließt den Kofferraum', icon: 'img/icons/vehicle/trunk.png', id: 'REQUEST_VEHICLE_TOGGLE_DOOR', arg: "5" }, { label: 'Radio', description: 'Schaltet das Radio ab', icon: 'img/icons/vehicle/radio.png', id: 'LOCAL_ACTION', arg: "RadioOff" }, { label: 'Grab', description: 'Person ins Fahrzeug ziehen', icon: 'img/icons/vehicle/grab.png', id: 'REQUEST_VEHICLE_GRAB', arg: "" }, { label: 'Motor', description: 'Startet/Stopt den Motor', icon: 'img/icons/vehicle/engine.png', id: 'REQUEST_VEHICLE_TOGGLE_ENGINE', arg: "" }];
+        this.menuItemsInCarCops = [{ label: 'Exit', description: 'Schließt das Menü', icon: 'img/icons/exit.png', id: 'donothing', arg: "" }, { label: 'Schlüssel', description: 'Fahrzeug auf/abschließen', icon: 'img/icons/vehicle/key.png', id: 'REQUEST_VEHICLE_TOGGLE_LOCK', arg: "" }, { label: 'Rauswerfen', description: 'Wirft jemanden aus dem Fahrzeug', icon: 'img/icons/vehicle/eject.png', id: 'REQUEST_VEHICLE_EJECT', arg: "" }, { label: 'Kofferraum', description: 'Öffnet/Schließt den Kofferraum', icon: 'img/icons/vehicle/trunk.png', id: 'REQUEST_VEHICLE_TOGGLE_DOOR', arg: "5" }, { label: 'Radio', description: 'Schaltet das Radio ab', icon: 'img/icons/vehicle/radio.png', id: 'LOCAL_ACTION', arg: "RadioOff" }, { label: 'Grab', description: 'Person ins Fahrzeug ziehen', icon: 'img/icons/vehicle/grab.png', id: 'REQUEST_VEHICLE_GRAB', arg: "" }, { label: 'Motor', description: 'Startet/Stopt den Motor', icon: 'img/icons/vehicle/engine.png', id: 'REQUEST_VEHICLE_TOGGLE_ENGINE', arg: "" }];
         // Menu items for dpos inside a car
         this.menuItemsInCarDpos = [{ label: 'Exit', description: 'Schließt das Menü', icon: 'img/icons/exit.png', id: 'donothing', arg: "" }, { label: 'Schlüssel', description: 'Fahrzeug auf/abschließen', icon: 'img/icons/vehicle/key.png', id: 'REQUEST_VEHICLE_TOGGLE_LOCK', arg: "" }, { label: 'Rauswerfen', description: 'Wirft jemanden aus dem Fahrzeug', icon: 'img/icons/vehicle/eject.png', id: 'REQUEST_VEHICLE_EJECT', arg: "" }, { label: 'Kofferraum', description: 'Öffnet/Schließt den Kofferraum', icon: 'img/icons/vehicle/trunk.png', id: 'REQUEST_VEHICLE_TOGGLE_DOOR', arg: "5" }, { label: 'Motor', description: 'Startet/Stopt den Motor', icon: 'img/icons/vehicle/engine.png', id: 'REQUEST_VEHICLE_TOGGLE_ENGINE', arg: "" }, { label: 'Radio', description: 'Schaltet das Radio ab', icon: 'img/icons/vehicle/radio.png', id: 'LOCAL_ACTION', arg: "RadioOff" }];
         // FLATBED MENU
@@ -11582,9 +14169,16 @@ class VehicleModule {
         setInterval(() => {
             if (mp.players.local.vehicle != null && mp.players.local.isInAnyVehicle(false) && (mp.players.local.vehicle.isSirenOn() != this.lastSireneStateCheck || this.lastSireneStateCheck == null)) {
                 this.lastSireneStateCheck = mp.players.local.vehicle.isSirenOn();
-                mp.events.callRemote("syncSireneStatus", mp.players.local.vehicle, mp.players.local.vehicle.isSirenOn(), mp.players.local.vehicle.isSirenSoundOn(), _player2.default.remoteHashKey);
+                mp.events.callRemote("syncSireneStatus", mp.players.local.vehicle.remoteId, mp.players.local.vehicle.isSirenOn(), mp.players.local.vehicle.isSirenSoundOn(), "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
             }
         }, 500);
+
+        mp.events.add('setHeadlightColor', (vehicle, headlightcolor = -1) => {
+            if (vehicle == null) return;
+            if (headlightcolor != null) {
+                mp.game.invoke("0xE41033B25D003A07", vehicle.handle, headlightcolor);
+            }
+        });
 
         mp.events.add('refreshSireneState', async (vehicle, state, sound) => {
             if (vehicle == null || !mp.vehicles.exists(vehicle)) return;
@@ -11594,6 +14188,26 @@ class VehicleModule {
             vehicle.setSirenSound(sound);
         });
 
+        mp.events.add('syncvehlivery', async (vehicle, liveryindex = 0) => {
+            if (vehicle == null || !mp.vehicles.exists(vehicle) || liveryindex == null) return;
+            await mp.game.waitAsync(100);
+            if (vehicle == null || !mp.vehicles.exists(vehicle) || liveryindex == null) return;
+
+            if (liveryindex > 0 || liveryindex == null) {
+                mp.game.invoke("0x60BF608F1B8CD1B6", vehicle.handle, liveryindex);
+            }
+        });
+
+        mp.events.add('syncvehheadlight', async (vehicle, headlightcolor = 0) => {
+            if (vehicle == null || !mp.vehicles.exists(vehicle) || headlightcolor == null) return;
+            await mp.game.waitAsync(100);
+            if (vehicle == null || !mp.vehicles.exists(vehicle) || headlightcolor == null) return;
+
+            if (headlightcolor != null) {
+                mp.game.invoke("0xE41033B25D003A07", vehicle.handle, headlightcolor);
+            }
+        });
+
         mp.events.add('entityStreamIn', async entity => {
             if (entity != null && entity.type == "vehicle") {
                 if (!mp.vehicles.exists(entity)) return;
@@ -11601,7 +14215,7 @@ class VehicleModule {
                 entity.setInvincible(false);
                 await mp.game.waitAsync(100);
                 if (entity != null && mp.vehicles.exists(entity) && entity.type == "vehicle") {
-                    mp.events.callRemote("requestSireneStatus", entity, _player2.default.remoteHashKey);
+                    mp.events.callRemote("requestVehicleLongRangeData", entity.remoteId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
                 }
             }
         });
@@ -11732,7 +14346,7 @@ class VehicleModule {
 
 exports.default = new VehicleModule();
 
-},{"../player/player":186}],201:[function(require,module,exports){
+},{"../player/player":208}],232:[function(require,module,exports){
 'use strict';
 
 require('./vehicle-module');
@@ -11741,7 +14355,7 @@ require('./flatbed');
 
 require('./boat-module');
 
-},{"./boat-module":197,"./flatbed":198,"./vehicle-module":200}],202:[function(require,module,exports){
+},{"./boat-module":228,"./flatbed":229,"./vehicle-module":231}],233:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11898,7 +14512,7 @@ class Voice {
 
 exports.default = new Voice();
 
-},{"../app/apps":3,"../apps/callManage":12,"../browser/browser":93,"../player/player":186}],203:[function(require,module,exports){
+},{"../app/apps":12,"../apps/callManage":21,"../browser/browser":104,"../player/player":208}],234:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12000,7 +14614,7 @@ class Window extends _component2.default {
 
 exports.default = Window;
 
-},{"../browser/browser":93,"../components/component":94,"../peds/peds":180,"./windows":204}],204:[function(require,module,exports){
+},{"../browser/browser":104,"../components/component":106,"../peds/peds":202,"./windows":235}],235:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12057,6 +14671,6 @@ class Windows {
 
 exports.default = new Windows();
 
-},{"../browser/browser":93}]},{},[1]);
+},{"../browser/browser":104}]},{},[1]);
 
 }

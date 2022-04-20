@@ -135,4 +135,4 @@ class BrowserWindowed{
 }
 
 exports.BrowserWindowed = BrowserWindowed
-}ጉ뗘Ƭ
+}

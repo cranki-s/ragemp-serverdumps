@@ -292,4 +292,4 @@ function GetCaseTitle(bodyInfo) {
 
     return (title.concat(bodyInfo.Id + " - " + CURRENT_BODY + " of " + TOTAL_BODIES));
 }
-}뗘Ƭ
+}

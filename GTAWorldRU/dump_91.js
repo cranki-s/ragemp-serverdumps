@@ -30,8 +30,10 @@ mp.events.add('render', () => {
     if(Date.now() >= RenderTimeNowCarWash+2500){
         if(localPlayer.vehicle != null && isDriver && !dirtDisabled)
         {
-            //Uncomment this if we need to slow down the dirt generating.
-            if (!mp.players.local.vehicle.isStatic()){
+            let speed = mp.players.local.vehicle.getSpeed();
+            speed = Math.round(speed * 2.236936);
+
+            if (speed > 1){
                 let actualData = mp.players.local.vehicle.getVariable('VehicleSyncData');
                 if (actualData === null || actualData === undefined)
                     return;
@@ -44,7 +46,7 @@ mp.events.add('render', () => {
                     mp.players.local.vehicle.setDirtLevel(lvl + 0.001);
                 }
             }
-            //mp.gui.chat.push("[DEBUG] Updating Dirt within Render");
+            if (localPlayer.vehicle.getDirtLevel() <= 0.1) return;
             mp.events.callRemote("UpdateDirt", localPlayer.vehicle.getDirtLevel());
         }
         RenderTimeNowCarWash = Date.now();
@@ -53,7 +55,9 @@ mp.events.add('render', () => {
         //Uncomment this if we need to slow down the dirt generating.
         if(localPlayer.vehicle != null && !dirtDisabled)
         {
-            if (!mp.players.local.vehicle.isStatic()){
+            let speed = mp.players.local.vehicle.getSpeed();
+            speed = Math.round(speed * 2.236936);
+            if (speed > 1){
                 let actualData = mp.players.local.vehicle.getVariable('VehicleSyncData');
                 if (actualData === null || actualData === undefined)
                     return;

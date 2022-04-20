@@ -35,4 +35,4 @@ mp.keys.bind(0x73, false, function () { // F4 Key
             }
 });
 
-}೑ȶ
+}䏡턐ɹ

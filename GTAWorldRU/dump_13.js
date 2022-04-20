@@ -65,6 +65,9 @@ mp.events.add(
 	
 class WeaponSelection{
 	constructor(){
+
+		this.m_WeaponAnimation = __WeaponAnimation(this)
+
 		this.m_AntiSpam = { m_Warns : 0, m_Last : Date.now()}
 		this.m_Active = true
 		this.m_SelectionMode = false
@@ -89,7 +92,6 @@ class WeaponSelection{
 		mp.events.add("WeaponSelection::NotifyEquip", this.Event_OnEquip.bind(this))
 		mp.events.add("playerEnterVehicle", this.Event_OnVehicleEnter.bind(this))
 		mp.events.add("playerLeaveVehicle", this.Event_OnVehicleExit.bind(this))
-
 		
 		mp.events.add("render", this.Event_OnRender.bind(this))
 
@@ -108,216 +110,270 @@ class WeaponSelection{
 	}
 
 	Setup(){
-		if (!this.m_Active){
-			mp.game.controls.disableControlAction(24, 157, false)
-			mp.game.controls.disableControlAction(24, 37, false)
+		try{
+			if (!this.m_Active){
+				mp.game.controls.disableControlAction(24, 157, false)
+				mp.game.controls.disableControlAction(24, 37, false)
+			}
+		} catch(exception){
+			this.Error(exception, "Setup")
 		}
 	}
 
+
+	Ensure(){
+		try{
+			if (!this.m_LastWeapon) return 
+			if (!mp.players.local.weapon) return 
+			if (!mp.players.local.weapon.toString(16)) return
+			let weapon = "0x" + mp.players.local.weapon.toString(16).toUpperCase() 
+			if (weapon == this.m_LastWeapon) return 
+			if (this.m_WeaponAnimation.m_InAnimation) return 
+			setWeapon(this.m_LastWeapon)
+
+		} catch(exception){
+			this.Error(exception, "Ensure")
+		}
+	}
+
+
 	Event_OnRender(){	
-		if (!this.m_Active) return
+		try{
+			
+			if (!this.m_Active) return
 
-		mp.game.ui.hideHudComponentThisFrame(19)
-		mp.game.ui.hideHudComponentThisFrame(20)
+			this.Ensure()
 
-		for (var i = 157; i < 164; i++)
-			mp.game.controls.disableControlAction(24, i, true)
-		
+			mp.game.ui.hideHudComponentThisFrame(19)
+			mp.game.ui.hideHudComponentThisFrame(20)
 
-		if (mp.players.local.vehicle){
-			if (typeof mp.players.local.isInFlyingVehicle == "function"){
-				if (mp.players.local.isInFlyingVehicle()){
-					if (this.m_WeaponMenuPress)
-						return this.Event_OnEndWeaponSelect.call(this)
-					return
+			for (var i = 157; i < 164; i++)
+				mp.game.controls.disableControlAction(24, i, true)
+			
+
+			if (mp.players.local.vehicle){
+				if (typeof mp.players.local.isInFlyingVehicle == "function"){
+					if (mp.players.local.isInFlyingVehicle()){
+						if (this.m_WeaponMenuPress)
+							return this.Event_OnEndWeaponSelect.call(this)
+						return
+					}
 				}
 			}
-		}
 
-	
-		if (mp.game.controls.isDisabledControlPressed(24, 37)){
-			if (!this.m_Blocked && !mp.gui.cursor.visible) {
-				if (!this.m_WeaponMenuPress)
-					this.Event_OnStartWeaponSelect.call(this)
-				this.m_WeaponMenuPress = true
-			}
-		}
-		else{
-			if (this.m_WeaponMenuPress)
-				this.Event_OnEndWeaponSelect.call(this)
-			this.m_WeaponMenuPress = false 
-		}
-
-		if (!mp.system.isFocused){
-			if (this.m_WeaponMenuPress)
-				this.Event_OnEndWeaponSelect.call(this)
-			this.m_WeaponMenuPress = false 
-		}
-	
-		if (!this.m_SelectionMode && this.m_WeaponMenuPress && this.m_BlockGravityHover == null)
-			this.Event_OnMouse()
-
-		if (mp.game.controls.isDisabledControlJustPressed(24, 157)){
-			this.Event_OnQuickKey.left.call(this)
-		}
-		else if (mp.game.controls.isDisabledControlJustPressed(24, 158)){
-			this.Event_OnQuickKey.top.call(this)
-		}
-		else if (mp.game.controls.isDisabledControlJustPressed(24, 160)){
-			this.Event_OnQuickKey.bottom.call(this)
-		}
-		else if (mp.game.controls.isDisabledControlJustPressed(24, 164)){
-			this.Event_OnQuickKey.right.call(this)
-		}
-		else if (mp.game.controls.isDisabledControlJustPressed(24, 165)){
-			this.Event_OnQuickKey.center.call(this)
-		}
-
-		if (this.m_WeaponMenuPress){
-			mp.game.player.disableFiring(true)
-			mp.game.controls.disableControlAction(1, 1, true)
-			mp.game.controls.disableControlAction(1, 2, true)
-			mp.game.controls.disableControlAction(0, 24, true); 
-            mp.game.controls.disableControlAction(0, 25, true); 
-			mp.game.controls.disableControlAction(0, 140, true)
-			mp.game.controls.disableControlAction(0, 141, true)
-			mp.game.controls.disableControlAction(0, 142, true)
-			mp.game.controls.disableControlAction(0, 24, true)
-		}
-
-
-		if (this.m_BlockGravityHover != null && (Date.now() - this.m_BlockGravityHover > 1400)) this.m_BlockGravityHover = null
-
-		if (this.m_BlockForFrame != null && (Date.now() - this.m_BlockForFrame < 1400)){
-			mp.players.local.blockWheelFrame = true
-			mp.game.player.disableFiring(true)
-			mp.game.controls.disableControlAction(0, 24, true); 
-            mp.game.controls.disableControlAction(0, 25, true); 
-			mp.game.controls.disableControlAction(0, 140, true)
-			mp.game.controls.disableControlAction(0, 141, true)
-			mp.game.controls.disableControlAction(0, 142, true)
 		
-		} else {
-			if (this.m_BlockForFrame != null && (Date.now() - this.m_BlockForFrame > 1400)){
-				this.m_BlockForFrame = null
-				mp.players.local.blockWheelFrame = false	
+			if (mp.game.controls.isDisabledControlPressed(24, 37)){
+				if (!this.m_Blocked && !mp.gui.cursor.visible) {
+					if (!this.m_WeaponMenuPress)
+						this.Event_OnStartWeaponSelect.call(this)
+					this.m_WeaponMenuPress = true
+				}
 			}
-		}
+			else{
+				if (this.m_WeaponMenuPress)
+					this.Event_OnEndWeaponSelect.call(this)
+				this.m_WeaponMenuPress = false 
+			}
 
-		mp.game.controls.disableControlAction(27, 99, true)
-		mp.game.controls.disableControlAction(27, 100, true)
-
-		let current = Date.now()
-		if (current - this.m_AntiSpam.m_Last > 1000){
-			this.m_AntiSpam.m_Warns = this.m_AntiSpam.m_Warns - 1 
-			this.m_AntiSpam.m_Last = Date.now()
-			this.m_AntiSpam.m_Warns = this.m_AntiSpam.m_Warns < 0 ? 0 : this.m_AntiSpam.m_Warns
-		}
+			if (!mp.system.isFocused){
+				if (this.m_WeaponMenuPress)
+					this.Event_OnEndWeaponSelect.call(this)
+				this.m_WeaponMenuPress = false 
+			}
 		
+			if (!this.m_SelectionMode && this.m_WeaponMenuPress && this.m_BlockGravityHover == null)
+				this.Event_OnMouse()
+
+			if (mp.game.controls.isDisabledControlJustPressed(24, 157)){
+				this.Event_OnQuickKey.left.call(this)
+			}
+			else if (mp.game.controls.isDisabledControlJustPressed(24, 158)){
+				this.Event_OnQuickKey.top.call(this)
+			}
+			else if (mp.game.controls.isDisabledControlJustPressed(24, 160)){
+				this.Event_OnQuickKey.bottom.call(this)
+			}
+			else if (mp.game.controls.isDisabledControlJustPressed(24, 164)){
+				this.Event_OnQuickKey.right.call(this)
+			}
+			else if (mp.game.controls.isDisabledControlJustPressed(24, 165)){
+				this.Event_OnQuickKey.center.call(this)
+			}
+
+			if (this.m_WeaponMenuPress){
+				mp.game.player.disableFiring(true)
+				mp.game.controls.disableControlAction(1, 1, true)
+				mp.game.controls.disableControlAction(1, 2, true)
+				mp.game.controls.disableControlAction(0, 24, true); 
+				mp.game.controls.disableControlAction(0, 25, true); 
+				mp.game.controls.disableControlAction(0, 140, true)
+				mp.game.controls.disableControlAction(0, 141, true)
+				mp.game.controls.disableControlAction(0, 142, true)
+				mp.game.controls.disableControlAction(0, 24, true)
+			}
+
+
+			if (this.m_BlockGravityHover != null && (Date.now() - this.m_BlockGravityHover > 1400)) this.m_BlockGravityHover = null
+
+			if (this.m_BlockForFrame != null && (Date.now() - this.m_BlockForFrame < 1400)){
+				mp.players.local.blockWheelFrame = true
+				mp.game.player.disableFiring(true)
+				mp.game.controls.disableControlAction(0, 24, true); 
+				mp.game.controls.disableControlAction(0, 25, true); 
+				mp.game.controls.disableControlAction(0, 140, true)
+				mp.game.controls.disableControlAction(0, 141, true)
+				mp.game.controls.disableControlAction(0, 142, true)
+			
+			} else {
+				if (this.m_BlockForFrame != null && (Date.now() - this.m_BlockForFrame > 1400)){
+					this.m_BlockForFrame = null
+					mp.players.local.blockWheelFrame = false	
+				}
+			}
+
+			mp.game.controls.disableControlAction(27, 99, true)
+			mp.game.controls.disableControlAction(27, 100, true)
+
+			let current = Date.now()
+			if (current - this.m_AntiSpam.m_Last > 1000){
+				this.m_AntiSpam.m_Warns = this.m_AntiSpam.m_Warns - 1 
+				this.m_AntiSpam.m_Last = Date.now()
+				this.m_AntiSpam.m_Warns = this.m_AntiSpam.m_Warns < 0 ? 0 : this.m_AntiSpam.m_Warns
+			}
+		} catch(exception){
+			this.Error(exception, "Event_onRender")
+		}
 	}
 
 	Event_OnMouse(){
-		let x = mp.game.controls.getDisabledControlNormal(7, 1)
-        let y = mp.game.controls.getDisabledControlNormal(7, 2)
+		try{
+			let x = mp.game.controls.getDisabledControlNormal(7, 1)
+			let y = mp.game.controls.getDisabledControlNormal(7, 2)
 
-		this.m_AxisX = this.m_AxisX + x 
-		this.m_AxisY = this.m_AxisY + y
+			this.m_AxisX = this.m_AxisX + x 
+			this.m_AxisY = this.m_AxisY + y
 
-		let horizontal = Math.abs(this.m_AxisX) > Math.abs(this.m_AxisY)
+			let horizontal = Math.abs(this.m_AxisX) > Math.abs(this.m_AxisY)
 
-		mp.game.graphics.setDrawOrigin(0, 0, 0, 0);
-		if (horizontal){
-			if (this.m_AxisX > 1.5){
-				this.m_CEF.execute(`Singleton.getReception().Event_OnGravityHover('right')`)
+			mp.game.graphics.setDrawOrigin(0, 0, 0, 0);
+			if (horizontal){
+				if (this.m_AxisX > 1.5){
+					this.m_CEF.execute(`Singleton.getReception().Event_OnGravityHover('right')`)
+				}
+				else if (this.m_AxisX < -1.5){
+					this.m_CEF.execute(`Singleton.getReception().Event_OnGravityHover('left')`)
+				}
+				else {
+					this.m_CEF.execute(`Singleton.getReception().Event_OnGravityHover('center')`)
+				}
+			} else {
+				if (this.m_AxisY > 1.5){
+					this.m_CEF.execute(`Singleton.getReception().Event_OnGravityHover('bottom')`)
+				}
+				else if (this.m_AxisY < -1.5){
+					this.m_CEF.execute(`Singleton.getReception().Event_OnGravityHover('top')`)
+				}
+				else {
+					this.m_CEF.execute(`Singleton.getReception().Event_OnGravityHover('center')`)
+				}
 			}
-			else if (this.m_AxisX < -1.5){
-				this.m_CEF.execute(`Singleton.getReception().Event_OnGravityHover('left')`)
-			}
-			else {
-				this.m_CEF.execute(`Singleton.getReception().Event_OnGravityHover('center')`)
-			}
-		} else {
-			if (this.m_AxisY > 1.5){
-				this.m_CEF.execute(`Singleton.getReception().Event_OnGravityHover('bottom')`)
-			}
-			else if (this.m_AxisY < -1.5){
-				this.m_CEF.execute(`Singleton.getReception().Event_OnGravityHover('top')`)
-			}
-			else {
-				this.m_CEF.execute(`Singleton.getReception().Event_OnGravityHover('center')`)
-			}
+			mp.game.invoke('0xFF0B610F6BE0D7AF')
+		} catch(exception){
+			this.Error(exception, "Event_OnMouse")
 		}
-		mp.game.invoke('0xFF0B610F6BE0D7AF')
 	}
 
 	Event_OnStartWeaponSelect(){
-		if (!this.m_Active || this.m_Blocked || mp.gui.cursor.visible) return
-		this.m_AxisX = 0 
-		this.m_AxisY = 0
-		this.Update()
-		if (mp.browsers.exists(this.m_CEF)){
-			this.m_BlockForFrame = Date.now()
-			mp.players.local.isWheelActive = true
-			this.m_WeaponMenuPress = true
-			mp.game.invoke("0xFC695459D4D0E219", 0.5, 0.5)
-			mp.gui.cursor.show(false, true)
-   			this.m_CEF.execute(`Singleton.getReception().Event_OnShow('${getWeaponString()}')`)
+		try{
+			if (!this.m_Active || this.m_Blocked || mp.gui.cursor.visible) return
+			this.m_AxisX = 0 
+			this.m_AxisY = 0
+			this.Update()
+			if (mp.browsers.exists(this.m_CEF)){
+				this.m_BlockForFrame = Date.now()
+				mp.players.local.isWheelActive = true
+				this.m_WeaponMenuPress = true
+				mp.game.invoke("0xFC695459D4D0E219", 0.5, 0.5)
+				mp.gui.cursor.show(false, true)
+				this.m_CEF.execute(`Singleton.getReception().Event_OnShow('${getWeaponString()}')`)
+			}
+		} catch(exception){
+			this.Error(exception, "Event_OnStartWeaponSelect")
 		}
 	}
 
 	Event_OnEndWeaponSelect(){
-		this.m_AxisX = 0 
-		this.m_AxisY = 0
+		try{
+			this.m_AxisX = 0 
+			this.m_AxisY = 0
 
-		if (!this.m_WeaponMenuPress) return
-		if (mp.browsers.exists(this.m_CEF)){
-			this.m_BlockForFrame = Date.now()
-			mp.players.local.isWheelActive = false
-			this.m_WeaponMenuPress = false
-			mp.gui.cursor.show(false, false)
-   			this.m_CEF.execute("Singleton.getReception().Event_OnHide()")
+			if (!this.m_WeaponMenuPress) return
+			if (mp.browsers.exists(this.m_CEF)){
+				this.m_BlockForFrame = Date.now()
+				mp.players.local.isWheelActive = false
+				this.m_WeaponMenuPress = false
+				mp.gui.cursor.show(false, false)
+				this.m_CEF.execute("Singleton.getReception().Event_OnHide()")
+			}
+		} catch(exception){
+			this.Error(exception, "Event_OnEndWeaponSelect")
 		}
 	}
 
 	Event_OnWeaponSelect(hash){
-		if (typeof hash === "undefined") return
-		if (!this.m_Active) return
-		if (!mp.browsers.exists(this.m_CEF)) return 
+		try{
+			if (typeof hash === "undefined") return
+			if (!this.m_Active) return
+			if (!mp.browsers.exists(this.m_CEF)) return 
 
 
-		if (this.m_LastWeapon != hash){
-			this.m_AntiSpam.m_Warns++ 
-			if (this.m_AntiSpam.m_Warns > 20) return mp.gui.chat.push("!{#FF0000}ОШИБКА:!{#FFFFFF} Вы отправляете слишком много запросов!")
+			if (this.m_LastWeapon != hash){
+				this.m_AntiSpam.m_Warns++ 
+				if (this.m_AntiSpam.m_Warns > 20) return mp.gui.chat.push("!{#FF0000}ERROR:!{#FFFFFF} You are sending too many actions!")
 
-			let isMelee = hash == "0xA2719263"
+				let isMelee = hash == "0xA2719263"
 
-			if (typeof mp.players.local.hitByRubberBullet != "undefined" &&  (Date.now() - mp.players.local.hitByRubberBullet) < 5000) return; 
+				if (typeof mp.players.local.hitByRubberBullet != "undefined" &&  (Date.now() - mp.players.local.hitByRubberBullet) < 5000) return; 
 
-			if (mp.players.local.vehicle)
-				setWeapon(hash)
-			else
-				mp.events.callRemote("Weapon::OnWeaponWheelSwitch", this.m_LastWeapon.toString(36), hash.toString(36), parseInt(hash).toString(), isMelee)
-			
+				if (mp.players.local.vehicle)
+					setWeapon(hash)
+				else
+					mp.events.callRemote("Weapon::OnWeaponWheelSwitch", this.m_LastWeapon.toString(36), hash.toString(36), parseInt(hash).toString(), parseInt(this.m_LastWeapon, 16).toString(), isMelee)
+			}
+
+			this.m_LastWeapon = hash
+		} catch(exception){
+			this.Error(exception, "Event_OnWeaponSelect")
 		}
-
-		this.m_LastWeapon = hash
 	}
 
 	Event_OnEquip(weapon){
-		weapon = "0x" + parseInt(weapon, 36).toString(16).toUpperCase()
-		if (mp.players.local.vehicle)
-			setWeapon(weapon)
-		else
-			mp.events.callRemote("Weapon::OnWeaponWheelSwitch", ("0xA2719263").toString(36), weapon.toString(36), parseInt(weapon).toString(), false)
+		try{
+			weapon = "0x" + parseInt(weapon, 36).toString(16).toUpperCase()
+			if (mp.players.local.vehicle)
+				setWeapon(weapon)
+			else
+				mp.events.callRemote("Weapon::OnWeaponWheelSwitch", ("0xA2719263").toString(36), weapon.toString(36), parseInt(weapon).toString(), parseInt("0xA2719263", 16).toString(), false)
+		} catch(exception){
+			this.Error(exception, "Event_OnEquip")
+		}
 	}
 
 	Event_OnVehicleEnter(){
-		setTimeout(function(){setWeapon(this.m_LastWeapon ? this.m_LastWeapon : "0xA2719263")}.bind(this), 1000)
-		setTimeout(function(){setWeapon(this.m_LastWeapon ? this.m_LastWeapon : "0xA2719263")}.bind(this), 2000)
+		try{
+			setTimeout(function(){setWeapon(this.m_LastWeapon ? this.m_LastWeapon : "0xA2719263")}.bind(this), 1000)
+			setTimeout(function(){setWeapon(this.m_LastWeapon ? this.m_LastWeapon : "0xA2719263")}.bind(this), 2000)
+		} catch(exception){
+			this.Error(exception, "Event_OnVehicleEnter")
+		}
 	}
 
 	Event_OnVehicleExit(){
-		setWeapon(this.m_LastWeapon ? this.m_LastWeapon : "0xA2719263")
+		try{
+			setWeapon(this.m_LastWeapon ? this.m_LastWeapon : "0xA2719263")
+		} catch(exception){
+			this.Error(exception, "Event_OnVehicleExit")
+		}
 	}
 
 
@@ -366,92 +422,123 @@ class WeaponSelection{
 	}
 
 	Event_OnRemoteToggleActive(disable){
-		this.m_Active = !disable 
-		this.Setup()
+		try{
+			this.m_Active = !disable 
+			this.Setup()
+		} catch(exception){
+			this.Error(exception, "Event_OnRemoteToggleActive")
+		}
 	}
 
 	Event_OnRemoteToggleMode(enable){
-		this.m_SelectionMode = enable
+		try{
+			this.m_SelectionMode = enable
+		} catch(exception){
+			this.Error(exception, "Event_OnRemoteToggleMode")
+		}
 	}
 
-	Event_OnRemoteWeaponAdd(weaponHash){	
-		if (!weaponHash) return
-	
-		let weapon = "0x" + parseInt(weaponHash, 36).toString(16).toUpperCase()
+	Event_OnRemoteWeaponAdd(weaponHash){
+		try{	
+			if (!weaponHash) return
 		
-		if (!weapon) return 
-		mp.events.call("onClientWeaponGive", weapon)
+			let weapon = "0x" + parseInt(weaponHash, 36).toString(16).toUpperCase()
+			
+			if (!weapon) return 
+			mp.events.call("onClientWeaponGive", weapon)
 
-		this.m_Weapons.add(weapon)
+			this.m_Weapons.add(weapon)
 
-		let data = {
-			weapon : weapon,
-			ammo : {clip : getAmmoInClip(weapon), total : getAmmoCount(weapon)},
-			component : getComponents(parseInt(weaponHash, 36)),
+			let data = {
+				weapon : weapon,
+				ammo : {clip : getAmmoInClip(weapon), total : getAmmoCount(weapon)},
+				component : getComponents(parseInt(weaponHash, 36)),
+			}
+
+			if (mp.browsers.exists(this.m_CEF))
+				this.m_CEF.execute(`Singleton.getReception().Event_AddWeapon('${JSON.stringify(data)}')`)
+
+			this.m_LastWeapon = weapon
+			setWeapon(this.m_LastWeapon)
+		} catch(exception){
+			this.Error(exception, "Event_OnRemoteWeaponAdd")
 		}
-
-		if (mp.browsers.exists(this.m_CEF))
-   			this.m_CEF.execute(`Singleton.getReception().Event_AddWeapon('${JSON.stringify(data)}')`)
-
-		this.m_LastWeapon = weaponHash
-		setWeapon(this.m_LastWeapon)
 	}
 
 	Event_OnRemoteWeaponRemove(weaponHash){
-		if (!weaponHash) return
+		try{
+			if (!weaponHash) return
 
-		let weapon = "0x" + parseInt(weaponHash, 36).toString(16).toUpperCase()
-		
-		if (!weapon) return 
-
-		mp.events.call("onClientWeaponTake", weapon)
-
-		this.m_Weapons.delete(weapon)
-
-		if (mp.browsers.exists(this.m_CEF))
-   			this.m_CEF.execute(`Singleton.getReception().Event_RemoveWeapon('${weapon}')`)
+			let weapon = "0x" + parseInt(weaponHash, 36).toString(16).toUpperCase()
 			
-		this.m_LastWeapon = "0xA2719263"
-		setWeapon(this.m_LastWeapon)
+			if (!weapon) return 
+
+			mp.events.call("onClientWeaponTake", weapon)
+
+			this.m_Weapons.delete(weapon)
+
+			if (mp.browsers.exists(this.m_CEF))
+				this.m_CEF.execute(`Singleton.getReception().Event_RemoveWeapon('${weapon}')`)
+				
+			this.m_LastWeapon = "0xA2719263"
+			setWeapon(this.m_LastWeapon)
+		} catch(exception){
+			this.Error(exception, "Event_OnRemoteWeaponRemove")
+		}
 	}
 
 	Event_OnRemoteWeaponRemoveAll(){
-		mp.events.call("onClientWeaponTakeAll")
-		this.m_Weapons = new Set()
-		if (mp.browsers.exists(this.m_CEF))
-   			this.m_CEF.execute("Singleton.getReception().Event_ClearAll()")
+		try{
+			mp.events.call("onClientWeaponTakeAll")
+			this.m_Weapons = new Set()
+			if (mp.browsers.exists(this.m_CEF))
+				this.m_CEF.execute("Singleton.getReception().Event_ClearAll()")
 
-		this.m_LastWeapon = "0xA2719263"
-		setWeapon(this.m_LastWeapon)
+			this.m_LastWeapon = "0xA2719263"
+			setWeapon(this.m_LastWeapon)
 
-	
-
+		} catch(exception){
+			this.Error(exception, "Event_OnRemoteWeaponRemoveAll")
+		}
 	}
 
 	Update(hash){
-		let data = []
-		if (!hash){
-			this.m_Weapons.forEach(weapon =>{
-				data.push({
-					weapon : weapon,
-					ammo : {clip : getAmmoInClip(weapon), total : getAmmoCount(weapon)},
-					component : getComponents(parseInt(weapon)),
-				})
-			})
-		}
-		else{
-			if (this.m_Weapons[hash]){
-				data.push({
-					weapon : hash,
-					ammo : {clip : getAmmoInClip(hash), total : getAmmoCount(hash)},
-					component : getComponents(parseInt(hash)),
+		try{
+			let data = []
+			if (!hash){
+				this.m_Weapons.forEach(weapon =>{
+					data.push({
+						weapon : weapon,
+						ammo : {clip : getAmmoInClip(weapon), total : getAmmoCount(weapon)},
+						component : getComponents(parseInt(weapon)),
+					})
 				})
 			}
-		}
+			else{
+				if (this.m_Weapons[hash]){
+					data.push({
+						weapon : hash,
+						ammo : {clip : getAmmoInClip(hash), total : getAmmoCount(hash)},
+						component : getComponents(parseInt(hash)),
+					})
+				}
+			}
 
-		if (mp.browsers.exists(this.m_CEF))
-   			this.m_CEF.execute(`Singleton.getReception().Event_OnUpdate('${JSON.stringify(data)}')`)
+			if (mp.browsers.exists(this.m_CEF))
+				this.m_CEF.execute(`Singleton.getReception().Event_OnUpdate('${JSON.stringify(data)}')`)
+		} catch(exception){
+			this.Error(exception, "Update")
+		}
 	}
+
+	Error(exception, where="General") {
+        try{
+            mp.console.logError("Exception@ ->" + where  +  " -> " + exception.message, false, true)
+        } catch {
+            mp.console.logError("WeaponSelection@Exception: Print-Error", false, true)
+        }
+    }
+
 
 }
 
@@ -467,5 +554,4 @@ function getLocalPlayerWeapons(){
 function getSelection(){
 	return __WeaponSelection
 }
-
-}篞͟
+}

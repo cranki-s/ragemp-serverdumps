@@ -1,480 +1,331 @@
 {
-/*
-mp.markers.new(28, new mp.Vector3(471.7285,-1886.5043,26.0981), 10, // DEBUG
-{
-	direction: new mp.Vector3(0, 0, 0),
-	rotation: new mp.Vector3(0, 180, 0),
-	color: [0, 0, 200, 50],
-	visible: true,
-	dimension: 0
-});
-*/
-var chipsInStream = [];
+var atmBrowser = null;
+var atmInStream = {};
+var afBank = false;
+var activeATMoperation = false;
 
-var chip1shape = mp.colshapes.newSphere(471.7285,-1886.5043,26.0981, 15, 0);
-var chip2shape = mp.colshapes.newSphere(545.5057,-181.9909,54.4777, 15, 0);
-var chip3shape = mp.colshapes.newSphere(1144.9686,-782.0062,57.5987, 15, 0);
-var chip4shape = mp.colshapes.newSphere(-1285.8651,-1364.4087,4.322, 15, 0);
-var chip5shape = mp.colshapes.newSphere(-213.1524,6235.4424,31.5094, 15, 0);
-var chip6shape = mp.colshapes.newSphere(641.551,250.8256,103.1587, 15, 0);
-var chip7shape = mp.colshapes.newSphere(29.1332,-1323.8102,29.5218, 15, 0);
-var chip8shape = mp.colshapes.newSphere(1767.3389,3327.5876,41.4386, 15, 0);
-var chipImInZone = false;
-
-mp.events.add('playerEnterColshape', (shape) => {
-	if(typeof(shape.data) == 'undefined' && typeof(shape.id) != "undefined") {
-		if(typeof(shape.getVariable('col.type')) != "undefined") {
-			let colType = shape.getVariable('col.type');
-			if(colType == 'chip_render') {
-				let chipData = shape.getVariable('col.data');
-				
-				let chipArray = {'pos': [parseFloat(chipData[0]), parseFloat(chipData[1]), parseFloat(chipData[2])], 'alpha': 0};
-				chipsInStream.push(chipArray);
-				
-				return null;
-			}
-		}
-	}
-	if(typeof(shape) != "undefined") {
-		if(shape == chip1shape || shape == chip2shape || shape == chip3shape || shape == chip4shape || shape == chip5shape || shape == chip6shape || shape == chip7shape || shape == chip8shape) {
-			chipImInZone = true;
-		}
-	}
-});
-
-mp.events.add('playerExitColshape', (shape) => {
-	if(typeof(shape.data) == 'undefined' && typeof(shape.id) != "undefined") {
-		if(typeof(shape.getVariable('col.type')) != "undefined") {
-			let colType = shape.getVariable('col.type');
-			if(colType == 'chip_render') {
-				let chipRenderData = shape.getVariable('col.data');
-				for(var i in chipsInStream) {
-					let tempData = chipsInStream[i];
-					let posData = tempData['pos'];
-					if (posData[0] == chipRenderData[0] && posData[1] == chipRenderData[1] && posData[2] == chipRenderData[2]) {
-						if(chipsInStream[i] || chipsInStream[i] !== undefined) delete chipsInStream[i];
-					}
-					tempData = null;
-				}
-				chipsInStream = chipsInStream.filter(function (el) { return el != null; });
-				
-				chipRenderData = null;
-				return null;
-			}
-		}
-	}
-	if(typeof(shape.id) != "undefined") {
-		if(shape == chip1shape || shape == chip2shape || shape == chip3shape || shape == chip4shape || shape == chip5shape || shape == chip6shape || shape == chip7shape || shape == chip8shape) {
-			chipImInZone = false;
-			if(hud_browser) {
-				if(tuningPanel) {
-					hud_browser.execute('toggleTuningPanel(false);');
-					mp.gui.cursor.visible = false;
-					tuningPanel = false;
-					
-					restoreBinds();
-				}
-			}
-		}
-	}
-});
-
-mp.events.add({
-	"playerEnterVehicle": (vehicle, seat) => {
-		if(tuningPanel) {
-			if(hud_browser) {
-				hud_browser.execute('toggleTuningPanel(false);');
-				mp.gui.cursor.visible = false;
-				tuningPanel = false;
-				
-				restoreBinds();
-			}
-		}
-
-		if(typeof(vehicle.getVariable("veh.handling")) !== "undefined" && typeof(vehicle.getVariable("veh.hash")) !== "undefined" && typeof(vehicle.getVariable("veh.job")) === "undefined") {
-			let vehHash = vehicle.getVariable("veh.hash");
-			
-			let getHandling = require('./game_tuning/handlings.js');
-			if(typeof(getHandling) !== "undefined") {
-				if(typeof(getHandling.main[0][vehHash]) !== "undefined") {
-					let handlingTable = JSON.parse(vehicle.getVariable("veh.handling"));
-					
-					let stockChip = getHandling.main[0][vehHash].HandlingData.Item;
-					
-					for(var k in handlingTable) {
-						let isSet = false;
-						if(k.toUpperCase() == "fInitialDriveMaxFlatVel".toUpperCase()) {
-							handlingTable[k] = parseFloat(handlingTable[k]) / 3.6;
-							isSet = true;
-						}else if(k.toUpperCase() == "fSuspensionRaise".toUpperCase()) {
-							if(parseFloat(handlingTable[k]) < -0.05 || parseFloat(handlingTable[k]) > 0.3) handlingTable[k] = parseFloat(stockChip.fSuspensionRaise);
-							handlingTable[k] = parseFloat(handlingTable[k]);
-							isSet = true;
-						}else if(k.toUpperCase() == "fSuspensionLowerLimit".toUpperCase()) {
-							if(parseFloat(handlingTable[k]) < -0.5 || parseFloat(handlingTable[k]) > 0.5) handlingTable[k] = parseFloat(stockChip.fSuspensionLowerLimit);
-							handlingTable[k] = parseFloat(handlingTable[k]);
-							isSet = true;
-						}else if(k.toUpperCase() == "fSuspensionUpperLimit".toUpperCase()) {
-							if(parseFloat(handlingTable[k]) < -0.5 || parseFloat(handlingTable[k]) > 0.5) handlingTable[k] = parseFloat(stockChip.fSuspensionUpperLimit);
-							handlingTable[k] = parseFloat(handlingTable[k]);
-							isSet = true;
-						}else if(k.toUpperCase() == "fSuspensionForce".toUpperCase()) {
-							if(parseFloat(handlingTable[k]) < 1 || parseFloat(handlingTable[k]) > 4) handlingTable[k] = parseFloat(stockChip.fSuspensionForce);
-							handlingTable[k] = parseFloat(handlingTable[k]);
-							isSet = true;
-						}else if(k.toUpperCase() == "fLowSpeedTractionLossMult".toUpperCase()) {
-							if(parseFloat(handlingTable[k]) < 0 || parseFloat(handlingTable[k]) > 1.5) handlingTable[k] = parseFloat(stockChip.fLowSpeedTractionLossMult);
-							handlingTable[k] = parseFloat(handlingTable[k]);
-							isSet = true;
-						}else if(k.toUpperCase() == "fTractionSpringDeltaMax".toUpperCase()) {
-							if(parseFloat(handlingTable[k]) < 0.1 || parseFloat(handlingTable[k]) > 0.5) handlingTable[k] = parseFloat(stockChip.fTractionSpringDeltaMax);
-							handlingTable[k] = parseFloat(handlingTable[k]);
-							isSet = true;
-						}else if(k.toUpperCase() == "fTractionCurveMin".toUpperCase()) {
-							if(parseFloat(handlingTable[k]) < 0.5 || parseFloat(handlingTable[k]) > 3.5) handlingTable[k] = parseFloat(stockChip.fTractionCurveMin);
-							handlingTable[k] = parseFloat(handlingTable[k]);
-							isSet = true;
-						}else if(k.toUpperCase() == "fTractionCurveMax".toUpperCase()) {
-							if(parseFloat(handlingTable[k]) < 1 || parseFloat(handlingTable[k]) > 4) handlingTable[k] = parseFloat(stockChip.fTractionCurveMax);
-							handlingTable[k] = parseFloat(handlingTable[k]);
-							isSet = true;
-						}else if(k.toUpperCase() == "fHandBrakeForce".toUpperCase()) {
-							if(parseFloat(handlingTable[k]) < 0.01 || parseFloat(handlingTable[k]) > 2) handlingTable[k] = parseFloat(stockChip.fHandBrakeForce);
-							handlingTable[k] = parseFloat(handlingTable[k]);
-							isSet = true;
-						}else if(k.toUpperCase() == "fBrakeForce".toUpperCase()) {
-							if(parseFloat(handlingTable[k]) < 0.01 || parseFloat(handlingTable[k]) > 2) handlingTable[k] = parseFloat(stockChip.fBrakeForce);
-							handlingTable[k] = parseFloat(handlingTable[k]);
-							isSet = true;
-						}else if(k.toUpperCase() == "fDriveBiasFront".toUpperCase()) {
-							if(parseFloat(handlingTable[k]) < 0 || parseFloat(handlingTable[k]) > 1) handlingTable[k] = parseFloat(stockChip.fDriveBiasFront);
-							handlingTable[k] = parseFloat(handlingTable[k]);
-							isSet = true;
-						}else if(k.toUpperCase() == "fBrakeBiasFront".toUpperCase()) {
-							if(parseFloat(handlingTable[k]) < 0 || parseFloat(handlingTable[k]) > 1) handlingTable[k] = parseFloat(stockChip.fBrakeBiasFront);
-							handlingTable[k] = parseFloat(handlingTable[k]) * 2;
-							isSet = true;
-						}else if(k.toUpperCase() == "fSteeringLock".toUpperCase()) {
-							if(parseFloat(handlingTable[k]) < 30 || parseFloat(handlingTable[k]) > 80) handlingTable[k] = parseFloat(stockChip.fSteeringLock);
-							handlingTable[k] = parseFloat(handlingTable[k]) * 0.017453292;
-							isSet = true;
-						}else if(k.toUpperCase() == "fTractionCurveLateral".toUpperCase()) {
-							if(parseFloat(handlingTable[k]) < 1 || parseFloat(handlingTable[k]) > 27) handlingTable[k] = parseFloat(stockChip.fTractionCurveLateral);
-							handlingTable[k] = parseFloat(handlingTable[k]) * 0.017453292;
-							isSet = true;
-						}else if(k.toUpperCase() == "fTractionBiasFront".toUpperCase()) {
-							if(parseFloat(handlingTable[k]) < 0.2 || parseFloat(handlingTable[k]) > 0.5) handlingTable[k] = parseFloat(stockChip.fTractionBiasFront);
-							handlingTable[k] = parseFloat(handlingTable[k]) * 2;
-							isSet = true;
-						}else if(k.toUpperCase() == "fSuspensionCompDamp".toUpperCase()) {
-							if(parseFloat(handlingTable[k]) < 0.5 || parseFloat(handlingTable[k]) > 2.5) handlingTable[k] = parseFloat(stockChip.fSuspensionCompDamp);
-							handlingTable[k] = parseFloat(handlingTable[k]) / 10;
-							isSet = true;
-						}else if(k.toUpperCase() == "fSuspensionReboundDamp".toUpperCase()) {
-							if(parseFloat(handlingTable[k]) < 0.5 || parseFloat(handlingTable[k]) > 2.5) handlingTable[k] = parseFloat(stockChip.fSuspensionReboundDamp);
-							handlingTable[k] = parseFloat(handlingTable[k]) / 10;
-							isSet = true;
-						}else if(k.toUpperCase() == "fSuspensionBiasFront".toUpperCase()) {
-							handlingTable[k] = parseFloat(handlingTable[k]) * 2;
-							isSet = true;
-						}else if(k.toUpperCase() == "fAntiRollBarBiasFront".toUpperCase()) {
-							handlingTable[k] = parseFloat(handlingTable[k]) * 2;
-							isSet = true;
-						}
-						//chatAPI.sysPush("<span style=\"color:#FF6146;\"> * "+k+": "+handlingTable[k]+"</span>");
-						if(isSet) vehicle.setHandling(k.toString(), handlingTable[k], true);
-					}
-				}
-			}
-			getHandling = null;
-		}
-	},
-	"playerLeaveVehicle": (vehicle, seat) => {
-		if(tuningPanel) {
-			if(hud_browser) {
-				hud_browser.execute('toggleTuningPanel(false);');
-				mp.gui.cursor.visible = false;
-				tuningPanel = false;
-				
-				restoreBinds();
-			}
-		}
-	}
-});
-
-var tuningPanel = false;
-
-mp.keys.bind(0x42, true, function() { // B Меню (Handling Editor)
-	if(!allowBinds || !Array.isArray(allowBinds)) return false;
-	if(!allowBinds.includes(0x42)) return false;
-	
-	if(hud_browser) {
-		if(tuningPanel) {
-			hud_browser.execute('toggleTuningPanel(false);');
-			mp.gui.cursor.visible = false;
-			tuningPanel = false;
-			
-			restoreBinds();
-		}else{
-			if(afTuningPanel) return false;
-			afTuningPanel = true;
-			setTimeout(function() { afTuningPanel = false }, 500);
-			
-			if(!chipImInZone) return chatAPI.sysPush("<span style=\"color:#FF6146;\"> * Вы должны находится в боксе чип-тюнинг станции..</span>");
-			if(vehSeat != -1) return chatAPI.sysPush("<span style=\"color:#FF6146;\"> * Вы должны быть за рулём.</span>");
-			
-			let vehicle = localPlayer.vehicle;
-			if(vehicle) {
-				if(typeof(vehicle.getVariable("veh.job")) !== "undefined" || typeof(vehicle.getVariable("veh.id")) === "undefined" || typeof(vehicle.getVariable("veh.tuning")) === "undefined" || typeof(vehicle.getVariable("veh.hash")) === "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146;\"> * Транспорт не подготовлен для чип-тюнинга..</span>");
-				
-				let vehHash = vehicle.getVariable("veh.hash");
-				let getHandling = require('./game_tuning/handlings.js');
-				if(typeof(getHandling.main[0][vehHash].HandlingData.Item) === "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146;\"> * Транспорт не подготовлен для чип-тюнинга..</span>");
-				
-				if(vehicle.getVariable("veh.id")) {
-					hud_browser.execute('toggleTuningPanel(true);');
-					reloadChipTuningData();
-					mp.gui.cursor.visible = true;
-					tuningPanel = true;
-					
-					allowBinds = [0x42];
-				}else{
-					return chatAPI.sysPush("<span style=\"color:#FF6146;\"> * Транспорт не подготовлен для чип-тюнинга..</span>");
-				}
-			}
-		}
-	}
-});
-
-function reloadChipTuningData() {
-	let vehicle = localPlayer.vehicle;
-	if(vehicle && vehicle.getVariable("veh.id") && vehicle.getVariable("veh.tuning")) {
-		let vehTuning = JSON.parse(vehicle.getVariable("veh.tuning"));
-		vehTuning = {
-			"engineStage": parseInt(vehTuning["11"] !== undefined ? vehTuning["11"] : -1),
-			"gearboxStage": parseInt(vehTuning["13"] !== undefined ? vehTuning["13"] : -1),
-			"brakeStage": parseInt(vehTuning["12"] !== undefined ? vehTuning["12"] : -1),
-			"turboStage": parseInt(vehTuning["18"] !== undefined ? vehTuning["18"] : -1),
-			"suspStage": parseInt(vehTuning["15"] !== undefined ? vehTuning["15"] : -1)
-		}
-		vehTuning = JSON.stringify(vehTuning);
-		//chatAPI.sysPush("CHECKING");
-		
-		let vehName = "Транспорт";
-		let stockChip = false;
-		if(vehicle.getVariable("veh.hash")) {
-			let vehHash = vehicle.getVariable("veh.hash");
-			
-			let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-			decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
-			
-			if(typeof(decVehStats[0][vehHash]) != "undefined") vehName = decVehStats[0][vehHash].name;
-			else vehName = vehHash;
-			
-			let getHandling = require('./game_tuning/handlings.js');
-			stockChip = JSON.stringify(getHandling.main[0][vehHash].HandlingData.Item);
-			//chatAPI.sysPush(" * : "+stockChip);
-			getHandling = null;
-		}
-		
-		let vehID = vehicle.getVariable("veh.id");
-		let handlingTable = {};
-		if(typeof(vehicle.getVariable("veh.handling")) !== "undefined") {
-			handlingTable = JSON.parse(vehicle.getVariable("veh.handling"));
-		
-			/*
-			for(var k in handlingTable) {
-				if(k.toUpperCase() == "fInitialDriveMaxFlatVel".toUpperCase()) { handlingTable[k] = parseFloat(handlingTable[k]) * 3.6; }
-				else if(k.toUpperCase() == "fBrakeBiasFront".toUpperCase()) { handlingTable[k] = parseFloat(handlingTable[k]) / 2; }
-				else if(k.toUpperCase() == "fSteeringLock".toUpperCase()) {
-					let tmpVal = parseFloat(handlingTable[k]);
-					handlingTable[k] = tmpVal / 0.017453292; 
-					handlingTable[k] = (tmpVal / handlingTable[k]) * handlingTable[k]; }
-				else if(k.toUpperCase() == "fTractionCurveLateral".toUpperCase()) {
-					let tmpVal = parseFloat(handlingTable[k]);
-					handlingTable[k] = tmpVal / 0.017453292; 
-					handlingTable[k] = (tmpVal / handlingTable[k]) * handlingTable[k]; }
-				else if(k.toUpperCase() == "fTractionBiasFront".toUpperCase()) { handlingTable[k] = parseFloat(handlingTable[k]) / 2; }
-				else if(k.toUpperCase() == "fSuspensionCompDamp".toUpperCase()) { handlingTable[k] = parseFloat(handlingTable[k]) * 10; }
-				else if(k.toUpperCase() == "fSuspensionReboundDamp".toUpperCase()) { handlingTable[k] = parseFloat(handlingTable[k]) * 10; }
-				else if(k.toUpperCase() == "fSuspensionBiasFront".toUpperCase()) { handlingTable[k] = parseFloat(handlingTable[k]) / 2; }
-				else if(k.toUpperCase() == "fAntiRollBarBiasFront".toUpperCase()) { handlingTable[k] = parseFloat(handlingTable[k]) / 2; }
-			}
-			*/
-		}
-		
-		let savedChips = JSON.stringify(mp.storage.data.chips);
-		if(!savedChips) savedChips = false;
-		
-		//chatAPI.sysPush("GETTED: "+savedChips.toString());
-		
-		let sendTuningData = '[{"vehName":"'+vehName+'","vehID":"'+vehID+'","handling":'+JSON.stringify(handlingTable)+',"tuning":'+vehTuning+',"stchip":'+stockChip+',"saved":'+savedChips+'}]';
-		//chatAPI.sysPush(sendTuningData);
-		hud_browser.execute('sendTuningData(\''+sendTuningData+'\');');
-	}else{
-		hud_browser.execute('toggleTuningPanel(false);');
-		mp.gui.cursor.visible = false;
-		tuningPanel = false;
+function exitAtm() {
+	if(atmBrowser) {
 		restoreBinds();
-	}
-}
-
-function closeChipTuning() {
-	if(tuningPanel && hud_browser) {
-		hud_browser.execute('toggleTuningPanel(false);');
+		atmBrowser.destroy();
+		atmBrowser = null;
 		mp.gui.cursor.visible = false;
-		tuningPanel = false;
-		restoreBinds();
+		localPlayer.freezePosition(false);
 	}
 }
-mp.events.add("closeChipTuning", closeChipTuning);
+mp.events.add("exitAtm", exitAtm);
 
-function applyChipTuning(handlingTable) {
-	if(typeof(handlingTable) !== "undefined") {
-		let vehicle = localPlayer.vehicle;
-		//chatAPI.sysPush("<span style=\"color:#FF6146;\"> * NEW: "+handlingTable+"</span>");
-		if(vehicle) {
-			if(typeof(vehicle.getVariable("veh.job")) === "undefined") {
-				let handlingTableToSave = handlingTable;
-				handlingTable = JSON.parse(handlingTable);
-				
-				let stockChip = false;
-				if(vehicle.getVariable("veh.hash")) {
-					let vehHash = vehicle.getVariable("veh.hash");
-					
-					let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-					decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
-					
-					if(typeof(decVehStats[0][vehHash]) != "undefined") vehName = decVehStats[0][vehHash].name;
-					else vehName = vehHash;
-					
-					let getHandling = require('./game_tuning/handlings.js');
-					stockChip = JSON.stringify(getHandling.main[0][vehHash].HandlingData.Item);
-					//chatAPI.sysPush(" * : "+stockChip);
-					getHandling = null;
-				}
-				
-				for(var k in handlingTable) {
-					let isSet = false;
-					if(k.toUpperCase() == "fInitialDriveMaxFlatVel".toUpperCase()) {
-						handlingTable[k] = parseFloat(handlingTable[k]) / 3.6;
-						isSet = true;
-					}else if(k.toUpperCase() == "fSuspensionRaise".toUpperCase()) {
-						if(parseFloat(handlingTable[k]) < -0.05 || parseFloat(handlingTable[k]) > 0.3) handlingTable[k] = parseFloat(stockChip.fSuspensionRaise);
-						handlingTable[k] = parseFloat(handlingTable[k]);
-						isSet = true;
-					}else if(k.toUpperCase() == "fSuspensionLowerLimit".toUpperCase()) {
-						if(parseFloat(handlingTable[k]) < -0.5 || parseFloat(handlingTable[k]) > 0.5) handlingTable[k] = parseFloat(stockChip.fSuspensionLowerLimit);
-						handlingTable[k] = parseFloat(handlingTable[k]);
-						isSet = true;
-					}else if(k.toUpperCase() == "fSuspensionUpperLimit".toUpperCase()) {
-						if(parseFloat(handlingTable[k]) < -0.5 || parseFloat(handlingTable[k]) > 0.5) handlingTable[k] = parseFloat(stockChip.fSuspensionUpperLimit);
-						handlingTable[k] = parseFloat(handlingTable[k]);
-						isSet = true;
-					}else if(k.toUpperCase() == "fSuspensionForce".toUpperCase()) {
-						if(parseFloat(handlingTable[k]) < 1 || parseFloat(handlingTable[k]) > 4) handlingTable[k] = parseFloat(stockChip.fSuspensionForce);
-						handlingTable[k] = parseFloat(handlingTable[k]);
-						isSet = true;
-					}else if(k.toUpperCase() == "fLowSpeedTractionLossMult".toUpperCase()) {
-						if(parseFloat(handlingTable[k]) < 0 || parseFloat(handlingTable[k]) > 1.5) handlingTable[k] = parseFloat(stockChip.fLowSpeedTractionLossMult);
-						handlingTable[k] = parseFloat(handlingTable[k]);
-						isSet = true;
-					}else if(k.toUpperCase() == "fTractionSpringDeltaMax".toUpperCase()) {
-						if(parseFloat(handlingTable[k]) < 0.1 || parseFloat(handlingTable[k]) > 0.5) handlingTable[k] = parseFloat(stockChip.fTractionSpringDeltaMax);
-						handlingTable[k] = parseFloat(handlingTable[k]);
-						isSet = true;
-					}else if(k.toUpperCase() == "fTractionCurveMin".toUpperCase()) {
-						if(parseFloat(handlingTable[k]) < 0.5 || parseFloat(handlingTable[k]) > 3.5) handlingTable[k] = parseFloat(stockChip.fTractionCurveMin);
-						handlingTable[k] = parseFloat(handlingTable[k]);
-						isSet = true;
-					}else if(k.toUpperCase() == "fTractionCurveMax".toUpperCase()) {
-						if(parseFloat(handlingTable[k]) < 1 || parseFloat(handlingTable[k]) > 4) handlingTable[k] = parseFloat(stockChip.fTractionCurveMax);
-						handlingTable[k] = parseFloat(handlingTable[k]);
-						isSet = true;
-					}else if(k.toUpperCase() == "fHandBrakeForce".toUpperCase()) {
-						if(parseFloat(handlingTable[k]) < 0.01 || parseFloat(handlingTable[k]) > 2) handlingTable[k] = parseFloat(stockChip.fHandBrakeForce);
-						handlingTable[k] = parseFloat(handlingTable[k]);
-						isSet = true;
-					}else if(k.toUpperCase() == "fBrakeForce".toUpperCase()) {
-						if(parseFloat(handlingTable[k]) < 0.01 || parseFloat(handlingTable[k]) > 2) handlingTable[k] = parseFloat(stockChip.fBrakeForce);
-						handlingTable[k] = parseFloat(handlingTable[k]);
-						isSet = true;
-					}else if(k.toUpperCase() == "fDriveBiasFront".toUpperCase()) {
-						if(parseFloat(handlingTable[k]) < 0 || parseFloat(handlingTable[k]) > 1) handlingTable[k] = parseFloat(stockChip.fDriveBiasFront);
-						handlingTable[k] = parseFloat(handlingTable[k]);
-						isSet = true;
-					}else if(k.toUpperCase() == "fBrakeBiasFront".toUpperCase()) {
-						if(parseFloat(handlingTable[k]) < 0 || parseFloat(handlingTable[k]) > 1) handlingTable[k] = parseFloat(stockChip.fBrakeBiasFront);
-						handlingTable[k] = parseFloat(handlingTable[k]) * 2;
-						isSet = true;
-					}else if(k.toUpperCase() == "fSteeringLock".toUpperCase()) {
-						if(parseFloat(handlingTable[k]) < 30 || parseFloat(handlingTable[k]) > 80) handlingTable[k] = parseFloat(stockChip.fSteeringLock);
-						handlingTable[k] = parseFloat(handlingTable[k]) * 0.017453292;
-						isSet = true;
-					}else if(k.toUpperCase() == "fTractionCurveLateral".toUpperCase()) {
-						if(parseFloat(handlingTable[k]) < 1 || parseFloat(handlingTable[k]) > 27) handlingTable[k] = parseFloat(stockChip.fTractionCurveLateral);
-						handlingTable[k] = parseFloat(handlingTable[k]) * 0.017453292;
-						isSet = true;
-					}else if(k.toUpperCase() == "fTractionBiasFront".toUpperCase()) {
-						if(parseFloat(handlingTable[k]) < 0.2 || parseFloat(handlingTable[k]) > 0.5) handlingTable[k] = parseFloat(stockChip.fTractionBiasFront);
-						handlingTable[k] = parseFloat(handlingTable[k]) * 2;
-						isSet = true;
-					}else if(k.toUpperCase() == "fSuspensionCompDamp".toUpperCase()) {
-						if(parseFloat(handlingTable[k]) < 0.5 || parseFloat(handlingTable[k]) > 2.5) handlingTable[k] = parseFloat(stockChip.fSuspensionCompDamp);
-						handlingTable[k] = parseFloat(handlingTable[k]) / 10;
-						isSet = true;
-					}else if(k.toUpperCase() == "fSuspensionReboundDamp".toUpperCase()) {
-						if(parseFloat(handlingTable[k]) < 0.5 || parseFloat(handlingTable[k]) > 2.5) handlingTable[k] = parseFloat(stockChip.fSuspensionReboundDamp);
-						handlingTable[k] = parseFloat(handlingTable[k]) / 10;
-						isSet = true;
-					}else if(k.toUpperCase() == "fSuspensionBiasFront".toUpperCase()) {
-						handlingTable[k] = parseFloat(handlingTable[k]) * 2;
-						isSet = true;
-					}else if(k.toUpperCase() == "fAntiRollBarBiasFront".toUpperCase()) {
-						handlingTable[k] = parseFloat(handlingTable[k]) * 2;
-						isSet = true;
-					}
-					//chatAPI.sysPush("<span style=\"color:#FF6146;\"> * "+k+": "+handlingTable[k]+"</span>");
-					if(isSet) vehicle.setHandling(k.toString(), handlingTable[k], true);
-				}
-				handlingTable[k] = roundNumber(handlingTable[k], 5);
-				//vehForApplyChip = {"id": vehicle.getVariable("veh.id"), "heading": vehicle.getHeading()};
-				mp.events.callRemote('setVehHandling', vehicle, handlingTableToSave);
-				//if(hud_browser) hud_browser.execute("hiddenAction('Загружаем настройки чип-тюнинга..');");
-			}
-		}
+function getPlayersForBankCEF() {
+	if (atmBrowser) {
+		mp.events.callRemote('getPlayersForBankCEF');
 	}
 }
-mp.events.add("applyChipTuning", applyChipTuning);
+mp.events.add("getPlayersForBankCEF", getPlayersForBankCEF);
 
-function saveChipTuning(handlingTable, theVehName, chipName) {
-	if(handlingTable && theVehName && chipName) {
-		let vehicle = localPlayer.vehicle;
-		if(vehicle) {
-			handlingTable = JSON.parse(handlingTable);
-			if(!mp.storage.data.chips) {
-				mp.storage.data.chips = {};
-				mp.storage.data.chips[chipName] = {theVehName, handlingTable};
+function donateConvert(convertVal) {
+	if(atmBrowser) {
+		if(activeATMoperation) return atmBrowser.execute("msg_error('У Вас есть не завершённые операции, подождите..');");
+		if(afBank) return atmBrowser.execute("msg_error('Слишком частые операции, подождите 5 секунд.');");
+		if(typeof(convertVal) != "undefined") {
+			convertVal = parseInt(convertVal);
+			let playerDonate = parseInt(localPlayer.getVariable('player.donate'));
+			let playerBank = parseInt(localPlayer.getVariable('player.bank'));
+			if(playerDonate < convertVal) {
+				return atmBrowser.execute("msg_error('Недостаточно донат едениц для конвертации');");
 			}else{
-				mp.storage.data.chips[chipName] = {theVehName, handlingTable};
+				if(convertVal < 10) return atmBrowser.execute("msg_error('Конвертировать можно от <b>10</b> донат ед.');");
+				if(convertVal > 99999) return atmBrowser.execute("msg_error('Конвертировать можно до <b>99 999</b> донат ед. за раз');");
+				afBank = true;
+				setTimeout(function() { afBank = false }, 5000);
+				activeATMoperation = true;
+				mp.events.callRemote('donateConvert', roundNumber(convertVal, 0));
 			}
-			mp.events.callRemote('updateStorage', JSON.stringify(mp.storage.data));
 		}
-		reloadChipTuningData();
 	}
 }
-mp.events.add("saveChipTuning", saveChipTuning);
+mp.events.add("donateConvert", donateConvert);
 
-function deleteChipTuning(chipName) {
-	if(chipName) {
-		if(mp.storage.data.chips) {
-			let chips = mp.storage.data.chips;
-			for(var k in chips) {
-				if(k == chipName) delete mp.storage.data.chips[chipName];
+function donateConvertUpdated(minusDonate, plusBank, newDonate, newBank) {
+	if(typeof(minusDonate) !== "undefined" && typeof(plusBank) !== "undefined" && typeof(newDonate) !== "undefined" && typeof(newBank) !== "undefined") {
+		if(atmBrowser) mp.events.call("exitAtm");
+		chatAPI.notifyPush(" * Вы конвертировали <span style=\"color:#FEBC00\"><b>"+minusDonate.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> донат ед. в <span style=\"color:#FEBC00\"><b>"+plusBank.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб.");
+		chatAPI.notifyPush(" * Донат-счёт: <span style=\"color:#FEBC00\"><b>"+newDonate.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> донат ед., банковский счёт: <span style=\"color:#FEBC00\"><b>"+newBank.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб.");
+		mp.game.ui.messages.showMidsizedShard("~w~Вы конвертировали ~y~донат ~w~еденицы", "~s~Вы получили"+plusBank.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.~n~На банковский счёт, с уважением банк Los-Santos.", 5, false, true, 8000);
+	}
+	activeATMoperation = false;
+}
+mp.events.add("donateConvertUpdated", donateConvertUpdated);
+
+function depositBank(depositVal) {
+	if(atmBrowser) {
+		if(activeATMoperation) return atmBrowser.execute("msg_error('У Вас есть не завершённые операции, подождите..');");
+		if(afBank) return atmBrowser.execute("msg_error('Слишком частые операции, подождите 5 секунд.');");
+		if(typeof(depositVal) != "undefined") {
+			depositVal = parseInt(depositVal);
+			let playerMoney = parseInt(localPlayer.getVariable('player.money'));
+			let playerBank = parseInt(localPlayer.getVariable('player.bank'));
+			if(playerMoney < depositVal) {
+				return atmBrowser.execute("msg_error('Недостаточно средств для пополнения');");
+			}else{
+				if(depositVal < 1000) return atmBrowser.execute("msg_error('Пополнить можно от <b>1 000</b> руб.');");
+				if(depositVal > 100000000) return atmBrowser.execute("msg_error('Пополнить можно до <b>100 000 000</b> руб. за раз');");
+				afBank = true;
+				setTimeout(function() { afBank = false }, 5000);
+				activeATMoperation = true;
+				mp.events.callRemote('bankDeposit', roundNumber(depositVal, 0));
 			}
-			mp.events.callRemote('updateStorage', JSON.stringify(mp.storage.data));
 		}
 	}
 }
-mp.events.add("deleteChipTuning", deleteChipTuning);
-}̦
+mp.events.add("depositBank", depositBank);
+
+function bankUpdated(newMoney, newBank) {
+	if(atmBrowser && typeof(newMoney) !== "undefined" && typeof(newBank) !== "undefined") {
+		atmBrowser.execute("bankUpdated('"+newMoney+"', '"+newBank+"');");
+	}
+	activeATMoperation = false;
+}
+mp.events.add("bankUpdated", bankUpdated);
+
+function withdrawBank(withdrawVal) {
+	if(atmBrowser) {
+		if(activeATMoperation) return atmBrowser.execute("msg_error('У Вас есть не завершённые операции, подождите..');");
+		if(afBank) return atmBrowser.execute("msg_error('Слишком частые операции, подождите 5 секунд.');");
+		if(typeof(withdrawVal) != "undefined") {
+			withdrawVal = parseInt(withdrawVal);
+			let playerMoney = parseInt(localPlayer.getVariable('player.money'));
+			let playerBank = parseInt(localPlayer.getVariable('player.bank'));
+			if(playerBank < withdrawVal) {
+				return atmBrowser.execute("msg_error('Недостаточно средств для снятия');");
+			}else{
+				if(withdrawVal < 1000) return atmBrowser.execute("msg_error('Снять можно от <b>1 000</b> руб.');");
+				if(withdrawVal > 100000000) return atmBrowser.execute("msg_error('Снять можно до <b>100 000 000</b> руб. за раз');");
+				afBank = true;
+				setTimeout(function() { afBank = false }, 5000);
+				activeATMoperation = true;
+				mp.events.callRemote('bankWithdraw', roundNumber(withdrawVal, 0));
+			}
+		}
+	}
+}
+mp.events.add("withdrawBank", withdrawBank);
+
+function makeTicketsPay(ticketsVal) {
+	if(atmBrowser) {
+		if(activeATMoperation) return atmBrowser.execute("msg_error('У Вас есть не завершённые операции, подождите..');");
+		if(afBank) return atmBrowser.execute("msg_error('Слишком частые операции, подождите 5 секунд.');");
+		if(typeof(ticketsVal) !== "undefined") {
+			if(!ticketsVal || ticketsVal == "0" || ticketsVal == "" || ticketsVal == " ") return atmBrowser.execute("msg_error('Вы не ввели сумму');");
+			ticketsVal = parseInt(ticketsVal);
+			let playerTickets = parseInt(localPlayer.getVariable('player.tickets'));
+			let playerBank = parseInt(localPlayer.getVariable('player.bank'));
+			if(playerBank < ticketsVal) {
+				return atmBrowser.execute("msg_error('Недостаточно средств для оплаты');");
+			}else{
+				if(ticketsVal < 1000) return atmBrowser.execute("msg_error('Оплатить можно от <b>1 000</b> руб.');");
+				if(ticketsVal > 9999999) return atmBrowser.execute("msg_error('Оплатить можно до <b>9 999 999</b> руб. за раз');");
+				if(!playerTickets || playerTickets == 0) return atmBrowser.execute("msg_error('У Вас нет не оплаченных штрафов');");
+				if(playerTickets < ticketsVal) return atmBrowser.execute("msg_error('У Вас нет столько штрафов');");
+				afBank = true;
+				setTimeout(function() { afBank = false }, 5000);
+				activeATMoperation = true;
+				mp.events.callRemote('makeTicketsPay', roundNumber(ticketsVal, 0));
+			}
+		}
+	}
+}
+mp.events.add("makeTicketsPay", makeTicketsPay);
+
+function makeTicketsPayed(ticketsVal) {
+	if(atmBrowser) {
+		if(typeof(ticketsVal) !== "undefined") {
+			if(atmBrowser) mp.events.call("exitAtm");
+			activeATMoperation = false;
+			chatAPI.notifyPush(" * Вы оплатили штрафы на сумму <span style=\"color:#FEBC00\"><b>"+ticketsVal.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб.");
+			mp.game.ui.messages.showMidsizedShard("~y~Успешная ~w~оплата штрафов", "~s~Вы оплатили"+ticketsVal.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.~n~С банковского счёта, с уважением банк Los-Santos.", 5, false, true, 8000);
+		}
+	}
+}
+mp.events.add("makeTicketsPayed", makeTicketsPayed);
+
+function getOnlinePlayers() {
+	if(atmBrowser) {
+		let onlinePlayers = {};
+		onlinePlayers["players"] = [];
+		mp.players.forEach(
+			(player, id) => {
+				if(player != localPlayer) {
+					if(typeof(player.getVariable("player.id")) !== "undefined" && typeof(player.getVariable("player.nick")) !== "undefined") {
+						onlinePlayers.players.push({"id":player.getVariable('player.id'),"nick":player.getVariable('player.nick')});
+					}
+				}
+			}
+		);
+		/*let i = 0;
+		while (i < 50) {
+			onlinePlayers.players.push({"id":999999,"nick":"Player"+i});
+			i++;
+		}*/
+		atmBrowser.execute("gettedOnlinePlayers('"+JSON.stringify(onlinePlayers)+"');");
+	}
+}
+mp.events.add("getOnlinePlayers", getOnlinePlayers);
+
+function transferBank(transferID, transferVal) {
+	if(atmBrowser) {
+		if(activeATMoperation) return atmBrowser.execute("msg_error('У Вас есть не завершённые операции, подождите..');");
+		if(afBank) return atmBrowser.execute("msg_error('Слишком частые операции, подождите 5 секунд.');");
+		if(!localPlayer.getVariable("player.blocks")) return atmBrowser.execute("msg_error('Перевод денег сейчас недоступен..');");
+		
+		let blocksData = localPlayer.getVariable("player.blocks");
+		if(typeof(blocksData.mins) === "undefined") return atmBrowser.execute("msg_error('Для активации переводов, необходимо иметь стаж: минимум 3 часа на сервере.');");
+		if(parseInt(blocksData.mins) < 180) return atmBrowser.execute("msg_error('Для активации переводов, необходимо иметь стаж: минимум 3 часа на сервере.');");
+		
+		if(typeof(transferID) != "undefined" && typeof(transferVal) != "undefined") {
+			transferID = parseInt(transferID);
+			transferVal = parseInt(transferVal);
+			let playerBank = parseInt(localPlayer.getVariable('player.bank'));
+			if(playerBank < transferVal) {
+				return atmBrowser.execute("msg_error('Недостаточно средств для перевода');");
+			}else{
+				if(transferVal < 1000) return atmBrowser.execute("msg_error('Перевести можно от <b>1 000</b> руб.');");
+				if(transferVal > 100000000) return atmBrowser.execute("msg_error('Перевести можно до <b>100 000 000</b> руб. за раз');");
+				
+				if(typeof(localPlayer.getVariable("player.tickets")) === "undefined") return atmBrowser.execute("msg_error('У Вас более 50 000 руб. штрафов');");
+				if(parseInt(localPlayer.getVariable("player.tickets")) > 50000) return atmBrowser.execute("msg_error('У Вас более 50 000 руб. штрафов');");
+				
+				let isFinded = false;
+				mp.players.forEach(
+					(player, id) => {
+						if(typeof(player.getVariable("player.id")) !== "undefined") {
+							if(parseInt(player.getVariable("player.id")) == transferID) isFinded = player;
+						}
+					}
+				);
+				
+				if(!isFinded) return atmBrowser.execute("msg_error('Для этого игрока недоступен сейчас перевод');");
+				
+				afBank = true;
+				setTimeout(function() { afBank = false }, 5000);
+				activeATMoperation = true;
+				mp.events.callRemote('bankTransfer', isFinded, roundNumber(transferVal, 0));
+			}
+		}
+	}
+}
+mp.events.add("transferBank", transferBank);
+
+function bankTransfered(toMe, actionPlayer, summa, isError) {
+	if(actionPlayer && summa) {
+		if(isError) return notyAPI.error("Перевод не удался, повторите попытку.", 3000, true);
+		
+		if(atmBrowser) mp.events.call("exitAtm");
+		let nick = "Инкогнито"
+		let id = 0;
+		
+		setTimeout(function() {
+			let myBank = 0;
+			if(typeof(localPlayer.getVariable("player.bank")) !== "undefined") myBank = localPlayer.getVariable("player.bank").toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
+			mp.game.ui.notifications.showWithPicture("Менеджер SMOTRAbank", "Новый баланс", "~w~Состояние:~o~"+myBank+" ~w~руб.", "CHAR_BANK_BOL", 1, false, 1, 2);
+		}, 3000);
+		
+		if(toMe) {
+			if(typeof(actionPlayer.getVariable("player.id")) != "undefined") id = actionPlayer.getVariable("player.id");
+			if(typeof(actionPlayer.getVariable("player.nick")) != "undefined") nick = actionPlayer.getVariable("player.nick");
+			chatAPI.notifyPush(" * <span style=\"color:#FEBC00\"><b>"+nick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+id+"</b></span>) перевёл Вам<span style=\"color:#FEBC00\"><b>"+summa.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб.");
+			mp.game.ui.messages.showMidsizedShard("~y~Перевод от ~w~"+nick+" ~y~(~w~"+id+"~y~)", "~s~Вы получили"+summa.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.~n~Банковским переводом, с уважением банк Los-Santos.", 5, false, true, 8000);
+		}else{
+			if(typeof(actionPlayer.getVariable("player.id")) != "undefined") id = actionPlayer.getVariable("player.id");
+			if(typeof(actionPlayer.getVariable("player.nick")) != "undefined") nick = actionPlayer.getVariable("player.nick");
+			chatAPI.notifyPush(" * Вы перевели <span style=\"color:#FEBC00\"><b>"+summa.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб. <span style=\"color:#FEBC00\"><b>"+nick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+id+"</b></span>).");
+			mp.game.ui.messages.showMidsizedShard("~y~Перевод для ~w~"+nick+" ~y~(~w~"+id+"~y~)", "~s~Вы отправили"+summa.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.~n~Банковским переводом, с уважением банк Los-Santos.", 5, false, true, 8000);
+			activeATMoperation = false;
+		}
+	}
+}
+mp.events.add("bankTransfered", bankTransfered);
+
+function bankOperationFailed() {
+	if(atmBrowser) mp.events.call("exitAtm");
+	activeATMoperation = false;
+	return notyAPI.error("Служба безопасности банка отменила транзакцию.", 3000, true);
+}
+mp.events.add("bankOperationFailed", bankOperationFailed);
+
+mp.events.add("playerEnterCheckpoint", (checkpoint) => {
+	if(mp.checkpoints.exists(checkpoint)) {
+		if(typeof(checkpoint.atmData) !== "undefined") {
+			if(typeof(localPlayer.getVariable('player.id')) != "undefined" && !localPlayer.vehicle && hud_browser) {
+				if(typeof(localPlayer.getVariable('player.money')) != "undefined" && typeof(localPlayer.getVariable('player.bank')) != "undefined" && typeof(localPlayer.getVariable('player.donate')) != "undefined" && typeof(localPlayer.getVariable('player.tickets')) != "undefined") {
+					if (!atmBrowser) {
+						if(allowBinds != stockBinds) return false;
+						if(activeATMoperation) return false;
+						//return chatAPI.notifyPush(" * Донат баланс <span style=\"color:#FEBC00\"><b>"+localPlayer.getVariable('player.donate')+"</b></span>.");
+						localPlayer.freezePosition(true);
+						atmBrowser = mp.browsers.new("package://CEF/atm/index.html");
+						setTimeout(function() {
+							if(atmBrowser) {
+								allowBinds = [];
+								atmBrowser.execute("initATMData("+localPlayer.getVariable('player.id')+", '"+localPlayer.getVariable('player.nick')+"', "+localPlayer.getVariable('player.money')+", "+localPlayer.getVariable('player.bank')+", "+localPlayer.getVariable('player.donate')+", "+localPlayer.getVariable('player.tickets')+");");
+								mp.gui.cursor.visible = true;
+							}
+						}, 100);
+					}
+				}
+				return false;
+			}
+		}
+		if(typeof(checkpoint.getVariable("checkpoint.type")) !== "undefined") {
+			let checkPointType = checkpoint.getVariable("checkpoint.type");
+			if(checkPointType == "atm_render") {
+				let atmData = checkpoint.getVariable('checkpoint.data');
+				
+				let atmMarker = mp.markers.new(1, new mp.Vector3(parseFloat(atmData[0]), parseFloat(atmData[1]), parseFloat(atmData[2])), 1.4,
+				{
+					direction: new mp.Vector3(0, 0, 0),
+					rotation: new mp.Vector3(0, 0, 0),
+					color: [146, 208, 170, 185],
+					visible: true,
+					dimension: 0
+				});
+				
+				let atmCheck = mp.checkpoints.new(40, new mp.Vector3(parseFloat(atmData[0]), parseFloat(atmData[1]), parseFloat(atmData[2])+1.2), 0.8,
+				{
+					color: [255, 255, 255, 0],
+					visible: true,
+					dimension: localPlayer.dimension
+				});
+				atmCheck.atmData = atmData;
+				
+				atmInStream[checkpoint.remoteId.toString()] = {'marker':atmMarker.id.toString(),'check':atmCheck.id.toString(),'pos':[parseFloat(atmData[0]),parseFloat(atmData[1]),parseFloat(atmData[2])],'alpha':0};
+			}
+		}
+	}
+});
+
+mp.events.add("playerExitCheckpoint", (checkpoint) => {
+	if(mp.checkpoints.exists(checkpoint)) {
+		if(typeof(checkpoint.atmData) !== "undefined") {
+			return mp.events.call("exitAtm");
+		}
+		if(typeof(checkpoint.getVariable("checkpoint.type")) !== "undefined") {
+			let checkPointType = checkpoint.getVariable("checkpoint.type");
+			if(checkPointType == "atm_render") {
+				let atmData = checkpoint.getVariable('checkpoint.data');
+				
+				if(typeof(atmData) !== "undefined") {
+					if(typeof(atmInStream[checkpoint.remoteId.toString()]) !== "undefined") {
+						let tempData = atmInStream[checkpoint.remoteId.toString()];
+						let tempMarker = mp.markers.at(parseInt(tempData['marker']));
+						if(mp.markers.exists(tempMarker)) tempMarker.destroy();
+						let tempCheck = mp.checkpoints.at(parseInt(tempData['check']));
+						if(mp.markers.exists(tempCheck)) tempCheck.destroy();
+						atmInStream[checkpoint.remoteId.toString()] = undefined;
+						atmInStream = JSON.parse(JSON.stringify(atmInStream));
+					}
+				}
+			}
+		}
+	}
+});
+}ƀ

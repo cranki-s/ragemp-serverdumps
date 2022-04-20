@@ -44,4 +44,4 @@
 }
 
 let __Ragdoll = new Ragdoll() // No static usage due to Win7
-}
+}Ì

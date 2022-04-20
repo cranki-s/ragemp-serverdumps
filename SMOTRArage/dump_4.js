@@ -4,25 +4,26 @@ global.chatActive = false;
 
 var afAuthZone = false;
 
-var afTabPanel = false;
-var afChat = false;
-var afActMenuPanel = false;
+var afTabPanel = Date.now();
+var afChat = Date.now();
+var afActMenuPanel = Date.now();
 
-var afTPvehAndDestroy = false;
-var afFix = false;
-var afFlip = false;
-var afLight = false;
-var afEngine = false;
-var afDoors = false;
-var afSeatbelt = false;
-var afNeon = false;
-var afVehPanel = false;
-var afToggleHelpButtons = false;
-var afToggleMVehButton = false;
-var afTurnLeft = false, afTurnRight = false;
+var afTPvehAndDestroy = Date.now();
+var afFix = Date.now();
+var afFlip = Date.now();
+var afLight = Date.now();
+var afEngine = Date.now();
+var afDoors = Date.now();
+var afSeatbelt = Date.now();
+var afNeon = Date.now();
+var afVehPanel = Date.now();
+var afToggleHelpButtons = Date.now();
+var afTurnLeft = Date.now(), afTurnRight = Date.now();
 
-var afCamhack = false;
-var afCrouch = false;
+var afCruise = Date.now(), afAutopilot = Date.now();
+
+var afCamhack = Date.now();
+var afCrouch = Date.now();
 
 var vehSeat = false, vehLeaveRecently = false;
 
@@ -102,7 +103,7 @@ function playerAuthzone() {
 		if(login && pass) auth_browser.execute("autoLogin('"+login+"', '"+pass+"');");
 		
 		localPlayer.freezePosition(true);
-		mp.events.callRemote('playerCustomize');
+		//mp.events.callRemote('playerCustomize');
 		
 		mp.gui.cursor.visible = true;
 	}else{
@@ -425,13 +426,11 @@ function spawnSelected(thePos) {
 		setDefaultCam();
 		mp.events.call('moveSkyCamera', localPlayer, 'up', 1, false);
 		
-		mp.events.call("sleepAntiCheat");
-		localPlayer.freezePosition(true);
-		localPlayer.position = new mp.Vector3(getRandomInt(0,1000),getRandomInt(0,1000),getRandomInt(1500,2000));
-		
 		auth_browser.destroy();
 		auth_browser = null;
 		mp.gui.cursor.visible = false;
+		
+		localPlayer.freezePosition(true);
 		
 		setTimeout(() => {
 			mp.events.call("sleepAntiCheat");
@@ -448,9 +447,10 @@ function spawnSelected(thePos) {
 mp.events.add("spawnSelected", spawnSelected);
 
 mp.events.add('authorizedSpawnSelected', () => {
-	if(typeof(localPlayer.getVariable("player.nick")) !== "undefined") {
+	if(typeof(localPlayer.getVariable("player.nick")) !== "undefined" && typeof(localPlayer.getVariable("player.id")) !== "undefined") {
 		let nickName = localPlayer.getVariable("player.nick").toString();
-		mp.game.ui.messages.showMidsizedShard("~b~SMOTRA~w~rage", "~s~С возвращением на наш сервер~n~Вы вошли, как ~h~"+nickName, 5, false, true, 5000);
+		let myID = localPlayer.getVariable("player.id").toString();
+		mp.game.ui.messages.showMidsizedShard("~b~SMOTRA~w~rage", "~s~С возвращением на наш сервер!~n~Вы вошли, как ~h~"+nickName+" ("+myID+")", 5, false, true, 5000);
 	}else{
 		return mp.events.callRemote('playerSystemKick', false, 'Пожалуйста, перезайдите на сервер');
 	}
@@ -490,7 +490,7 @@ mp.events.add('authorizedSpawnSelected', () => {
 			hideHud = false;
 		}
 		mp.game.ui.messages.showMidsized("~w~Игровая ~g~помощь", "~w~Не знаешь как играть? ~s~Нажми ~r~F10~w~.");
-		mp.game.ui.notifications.showWithPicture("Администрация", "Вперёд продавать и покупать!", "У тебя теперь есть планшет с объявлениями!", "CHAR_DEFAULT", 1, false, 1, 2);
+		mp.game.ui.notifications.showWithPicture("Мото-салон?!", "Новые мотоциклы", "На сервер завезли новые мотики, сгоняй зацени!", "CHAR_DEFAULT", 1, false, 1, 2);
 		mp.players.forEach(
 			(player, id) => {
 				if(player.remoteId.toString() != localPlayer.remoteId.toString()) {
@@ -509,25 +509,34 @@ mp.events.add('authorizedSpawnSelected', () => {
 		
 		localPlayer.setConfigFlag(429, true); // Не пытается завести авто
 		localPlayer.setConfigFlag(18, false); // Не пиздить прикладом
-		localPlayer.setDriverAbility(1.0); // Способность водителя макс.
-		localPlayer.setDriverAggressiveness(1.0); // Агрессивность вождения
-		localPlayer.setAccuracy(100); // Макс. аккуратность типо
-		localPlayer.setCombatAbility(0); // Способность стрелять
 		mp.game.invoke("0x476AE72C1D19D1A8", localPlayer.handle, 0); // weapon drop off
 		mp.game1.weapon.unequipEmptyWeapons = false;
 		mp.game.audio.setRadioToStationName("OFF");
 		
-		mp.game.stats.statSetInt(mp.game.joaat("SP0_STAMINA"), 50, false);
-		//mp.game.stats.statSetInt(mp.game.joaat("SP0_STRENGTH"), 50, false);
-		mp.game.stats.statSetInt(mp.game.joaat("SP0_LUNG_CAPACITY"), 50, false);
-		mp.game.stats.statSetInt(mp.game.joaat("SP0_WHEELIE_ABILITY"), 100, false);
-		mp.game.stats.statSetInt(mp.game.joaat("SP0_FLYING_ABILITY"), 50, false);
-		//mp.game.stats.statSetInt(mp.game.joaat("SP0_SHOOTING_ABILITY"), 50, false);
-		mp.game.stats.statSetInt(mp.game.joaat("SP0_STEALTH_ABILITY"), 100, false);
+		let myBlocks = {};
+		if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") myBlocks = localPlayer.getVariable("player.blocks");
+		if(typeof(myBlocks.skills) === "undefined") myBlocks["skills"] = {"str":1,"sta":1,"weap":1};
+		
+		if(typeof(myBlocks) !== "undefined") {
+			if(typeof(myBlocks.skills) !== "undefined") {
+				if(typeof(myBlocks.skills.sta) !== "undefined") mp.game.stats.statSetInt(mp.game.joaat("SP0_STAMINA"), myBlocks.skills.sta, false); // Выносливость
+				if(typeof(myBlocks.skills.str) !== "undefined") mp.game.stats.statSetInt(mp.game.joaat("SP0_STRENGTH"), myBlocks.skills.str, false); // Сила
+				if(typeof(myBlocks.skills.weap) !== "undefined") mp.game.stats.statSetInt(mp.game.joaat("SP0_SHOOTING_ABILITY"), myBlocks.skills.weap, false); // Стрельба
+			}
+		}
+		mp.game.stats.statSetInt(mp.game.joaat("SP0_LUNG_CAPACITY"), 1, false); // Объём лёгких
+		mp.game.stats.statSetInt(mp.game.joaat("SP0_WHEELIE_ABILITY"), 100, false); // На заднем колесе
+		mp.game.stats.statSetInt(mp.game.joaat("SP0_FLYING_ABILITY"), 100, false); // Полёты
+		mp.game.stats.statSetInt(mp.game.joaat("SP0_STEALTH_ABILITY"), 1, false); // Скрытность
 		
 		localPlayer.setMinGroundTimeForStungun(30000); // TAZER TIME
 		
+		localPlayer.setConfigFlag(149, true); // Что бы кепка не слетала
+		
 		mp.game.audio.startAudioScene("CHARACTER_CHANGE_IN_SKY_SCENE"); // Отключаем звуки окружения
+		
+		localPlayer.setHelmet(false); // не надевать шлем автоматически
+		localPlayer.setCanBeKnockedOffVehicle(1); // Не падать с мото
 		
 		mp.game.ped.setPedDensityMultiplierThisFrame(0); // Убираем сток трафик
 		mp.game.streaming.setPedPopulationBudget(0); // Убираем сток трафик
@@ -535,7 +544,13 @@ mp.events.add('authorizedSpawnSelected', () => {
 	}, 7000);
 	
 	setTimeout(() => {
+		let isPremium = false;
+		if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") {
+			let myBlocks = localPlayer.getVariable("player.blocks");
+			if(typeof(myBlocks.premium) !== "undefined") isPremium = true;
+		}
 		mp.game.ui.notifications.showWithPicture("Твой бро", "Тебе помочь?", "Нажми F10 и получи полное описание игры на проекте.", "CHAR_JIMMY", 1, false, 1, 2);
+		if(isPremium) mp.game.ui.notifications.showWithPicture("Твой бро", "Премиум-доступ", "У тебя премиум, ты красава!", "CHAR_JIMMY", 1, false, 1, 2);
 		if(hud_browser) hud_browser.execute('playSound("help", "0.15");');
 	}, 12000);
 	
@@ -689,25 +704,33 @@ function updateDateTime(data) {
 		
 		localPlayer.setConfigFlag(429, true); // Не пытается завести авто
 		localPlayer.setConfigFlag(18, false); // Не пиздить прикладом
-		localPlayer.setDriverAbility(1.0); // Способность водителя макс.
-		localPlayer.setDriverAggressiveness(1.0); // Агрессивность вождения
-		localPlayer.setAccuracy(100); // Макс. аккуратность типо
-		localPlayer.setCombatAbility(0); // Способность стрелять
 		mp.game.invoke("0x476AE72C1D19D1A8", localPlayer.handle, 0); // weapon drop off
 		mp.game1.weapon.unequipEmptyWeapons = false;
 		mp.game.audio.setRadioToStationName("OFF");
 		
-		mp.game.stats.statSetInt(mp.game.joaat("SP0_STAMINA"), 50, false);
-		//mp.game.stats.statSetInt(mp.game.joaat("SP0_STRENGTH"), 50, false);
-		mp.game.stats.statSetInt(mp.game.joaat("SP0_LUNG_CAPACITY"), 50, false);
-		mp.game.stats.statSetInt(mp.game.joaat("SP0_WHEELIE_ABILITY"), 100, false);
-		mp.game.stats.statSetInt(mp.game.joaat("SP0_FLYING_ABILITY"), 50, false);
-		//mp.game.stats.statSetInt(mp.game.joaat("SP0_SHOOTING_ABILITY"), 50, false);
-		mp.game.stats.statSetInt(mp.game.joaat("SP0_STEALTH_ABILITY"), 100, false);
+		let myBlocks = {};
+		if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") myBlocks = localPlayer.getVariable("player.blocks");
+		if(typeof(myBlocks.skills) === "undefined") myBlocks["skills"] = {"str":1,"sta":1,"weap":1};
+		
+		if(typeof(myBlocks) !== "undefined") {
+			if(typeof(myBlocks.skills) !== "undefined") {
+				if(typeof(myBlocks.skills.sta) !== "undefined") mp.game.stats.statSetInt(mp.game.joaat("SP0_STAMINA"), myBlocks.skills.sta, false); // Выносливость
+				if(typeof(myBlocks.skills.str) !== "undefined") mp.game.stats.statSetInt(mp.game.joaat("SP0_STRENGTH"), myBlocks.skills.str, false); // Сила
+				if(typeof(myBlocks.skills.weap) !== "undefined") mp.game.stats.statSetInt(mp.game.joaat("SP0_SHOOTING_ABILITY"), myBlocks.skills.weap, false); // Стрельба
+			}
+		}
+		mp.game.stats.statSetInt(mp.game.joaat("SP0_LUNG_CAPACITY"), 1, false); // Объём лёгких
+		mp.game.stats.statSetInt(mp.game.joaat("SP0_WHEELIE_ABILITY"), 100, false); // На заднем колесе
+		mp.game.stats.statSetInt(mp.game.joaat("SP0_FLYING_ABILITY"), 100, false); // Полёты
+		mp.game.stats.statSetInt(mp.game.joaat("SP0_STEALTH_ABILITY"), 1, false); // Скрытность
 		
 		localPlayer.setMinGroundTimeForStungun(30000); // TAZER TIME
 		
+		localPlayer.setConfigFlag(149, true); // Что бы кепка не слетала
+		
 		mp.game.audio.startAudioScene("CHARACTER_CHANGE_IN_SKY_SCENE"); // Отключаем звуки окружения
+		
+		localPlayer.setHelmet(false); // не надевать шлем автоматически
 		
 		mp.game.ped.setPedDensityMultiplierThisFrame(0); // Убираем сток трафик
 		mp.game.streaming.setPedPopulationBudget(0); // Убираем сток трафик
@@ -723,23 +746,11 @@ function updateDateTime(data) {
 		
 		let warningNotify = false;
 		
-		/*if(localPlayer.vehicle && vehSeat == -1) {
-			let theVeh = localPlayer.vehicle;
-			if(typeof(theVeh.getVariable("veh.fuel")) !== "undefined") {
-				let fuelVehData = JSON.parse(theVeh.getVariable("veh.fuel"));
-				if(typeof(fuelVehData.engoil) !== "undefined") {
-					if(typeof(fuelVehData.engoil.exp) !== "undefined") {
-						if(fuelVehData.engoil.exp <= 0) warningNotify = {"who":"Знакомый механик","title":"Поменяй масло","msgtext":"Срочно поменяй моторное масло, потенциал ТС уменьшен вдвое","img":"CHAR_MECHANIC"};
-					}
-				}
-			}
-		}*/
-		
 		if(!warningNotify) {
-			let randNotify = getRandomInt(0, 22);
+			let randNotify = getRandomInt(0, 43);
 			if(randNotify == 0) {
 				if(hp < 50) mp.game.ui.notifications.showWithPicture("Частный доктор", "Проблемы со здоровьем", "Я вижу у Вас проблемы со здоровьем. Посетите больницу.", "CHAR_ANDREAS", 1, false, 1, 2);
-			}else if(randNotify == 1) {
+			}else if(randNotify == 2) {
 				if(typeof(localPlayer.getVariable("player.houses")) !== "undefined") {
 					let myHouses = localPlayer.getVariable("player.houses");
 					for (var k in myHouses.houses) {
@@ -749,7 +760,14 @@ function updateDateTime(data) {
 						}
 					}
 				}
-			}else if(randNotify == 4) {
+			}else if(randNotify == 6) {
+				let isPremium = false;
+				if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") {
+					let myBlocks = localPlayer.getVariable("player.blocks");
+					if(typeof(myBlocks.premium) !== "undefined") isPremium = true;
+				}
+				if(!isPremium) mp.game.ui.notifications.showWithPicture("Твой бро", "Хочешь премиум?", "Зайди на наш сайт, что бы узнать все тонкости премиума.", "CHAR_JIMMY", 1, false, 1, 2);
+			}else if(randNotify == 12) {
 				if(typeof(localPlayer.getVariable("player.businesses")) !== "undefined") {
 					let myBusinesses = localPlayer.getVariable("player.businesses");
 					for (var k in myBusinesses.businesses) {
@@ -759,27 +777,27 @@ function updateDateTime(data) {
 						}
 					}
 				}
-			}else if(randNotify == 8) {
+			}else if(randNotify == 18) {
 				if(typeof(mp.storage.data.settings) !== "undefined") {
 					if(typeof(mp.storage.data.settings.airMode) !== "undefined") {
 						if(mp.storage.data.settings.airMode && typeof(localPlayer.getVariable("player.id")) !== "undefined") mp.game.ui.notifications.showWithPicture("Твой бро", "Подписывайся", "~w~ВКонтакте: ~o~vk.com/smotrarage~n~~w~Сайт: ~o~smotrarage.ru", "CHAR_JIMMY", 1, false, 1, 2);
 					}
 				}
-			}else if(randNotify == 12) {
+			}else if(randNotify == 24) {
 				if(typeof(mp.storage.data.settings) !== "undefined") {
 					if(typeof(mp.storage.data.settings.airMode) !== "undefined") {
 						if(mp.storage.data.settings.airMode && typeof(localPlayer.getVariable("player.id")) !== "undefined") mp.game.ui.notifications.showWithPicture("Твой бро", "Ты знал о Discord?", "~w~Наш Discord: ~o~discord.gg/smotra", "CHAR_JIMMY", 1, false, 1, 2);
 					}
 				}
-			}else if(randNotify == 16) {
+			}else if(randNotify == 30) {
 				if(typeof(localPlayer.getVariable("player.id")) !== "undefined") mp.game.ui.notifications.showWithPicture("Твой бро", "Официальный донат", "~w~Донат: ~o~smotrarage.ru/donate", "CHAR_JIMMY", 1, false, 1, 2);
-			}else if(randNotify == 18) {
+			}else if(randNotify == 36) {
 				if(typeof(mp.storage.data.settings) !== "undefined") {
 					if(typeof(mp.storage.data.settings.airMode) !== "undefined") {
 						if(mp.storage.data.settings.airMode && typeof(localPlayer.getVariable("player.id")) !== "undefined") mp.game.ui.notifications.showWithPicture("Твой бро", "Надоели СМС?", "~w~Включи ~o~авиарежим ~w~в телефоне", "CHAR_JIMMY", 1, false, 1, 2);
 					}
 				}
-			}else if(randNotify == 20) {
+			}else if(randNotify == 42) {
 				if(typeof(mp.storage.data.settings) !== "undefined") {
 					if(typeof(mp.storage.data.settings.airMode) !== "undefined") {
 						if(mp.storage.data.settings.airMode && typeof(localPlayer.getVariable("player.id")) !== "undefined") mp.game.ui.notifications.showWithPicture("Твой бро", "Ищешь что-то?", "~w~Купи через ~o~объявления ~w~в планшете", "CHAR_JIMMY", 1, false, 1, 2);
@@ -860,7 +878,8 @@ mp.events.add('ageAccept', function (state) {
 });
 
 mp.events.add('changeChatState', function (state) {
-	afChat = setTimeout(() => { afChat = false; }, 500);
+	//if(Date.now() - afChat < 500) return false;
+	afChat = Date.now();
     chatActive = state;
 	if(!chatActive) restoreBinds();
 });
@@ -893,20 +912,16 @@ function sendChatMessage(thePlayer, chatType, data) {
 					chatAPI.sysPush(msg);
 				}
 			}else{
-				if(msg == "мут") chatAPI.sysPush("<span style=\"color:#FF6146;\"> * Вы не можете писать в чат, у Вас заглушка.</span>");
-				else chatAPI.sysPush("<span style=\"color:#FF6146;\"> * "+data.clearMsg+".</span>");
+				if(msg == "мут") notyAPI.error("Вы не можете писать в чат, у Вас заглушка.", 3000, true);
+				else notyAPI.error(data.clearMsg, 3000, true);
 			}
 		}
 	}
 }
 mp.events.add("sendChatMessage", sendChatMessage);
 
-//let lolMessages = ["А вы знали, что я в детстве был геем?", "Я что-то учуял во вкусе той козявки!", "Я люблю ковыряться в жопе", "У меня большой член и маленькие яйца", "Вот это поворот, я купил смазку, сегодня меня будут жарить!", "Я юзаю читы, потому что гей", "Всё плохо у меня братишка, я пассивный"]
 function tryChatMessage(chatType, msg) {
-	if(chatType && msg) {
-		//if(imGodeFuckingMode) msg = lolMessages[getRandomInt(0, Object.keys(lolMessages).length)];
-		mp.events.callRemote("checkChatMessage", chatType, msg);
-	}
+	if(chatType && msg) mp.events.callRemote("checkChatMessage", localPlayer, chatType, msg);
 }
 mp.events.add("tryChatMessage", tryChatMessage);
 
@@ -931,6 +946,24 @@ var chatAPI = {
 	}
 }
 
+var notyAPI = {
+    error: (text, timeout, sound) => {
+		if(hud_browser) hud_browser.execute('notyAPI.error(\''+text+'\', '+timeout+', '+sound+');');
+	},
+	alert: (text, timeout, sound) => {
+		if(hud_browser) hud_browser.execute('notyAPI.alert(\''+text+'\', '+timeout+', '+sound+');');
+	},
+	warning: (text, timeout, sound) => {
+		if(hud_browser) hud_browser.execute('notyAPI.warning(\''+text+'\', '+timeout+', '+sound+');');
+	},
+	info: (text, timeout, sound) => {
+		if(hud_browser) hud_browser.execute('notyAPI.info(\''+text+'\', '+timeout+', '+sound+');');
+	},
+	success: (text, timeout, sound) => {
+		if(hud_browser) hud_browser.execute('notyAPI.success(\''+text+'\', '+timeout+', '+sound+');');
+	}
+}
+
 var isAlreadyDead = false;
 function playerDeath(killer, deathReason) {
 	let isDriveBy = false;
@@ -939,6 +972,7 @@ function playerDeath(killer, deathReason) {
 	}
 	
 	if(fishingMode) fishingStop(true);
+	if(tuningVehicle) tuningVehicle = false;
 	
 	if(isDriveBy) {
 		let oldHP = 200;
@@ -1047,25 +1081,34 @@ function playerRestored(deathReason) {
 	
 	localPlayer.setConfigFlag(429, true); // Не пытается завести авто
 	localPlayer.setConfigFlag(18, false); // Не пиздить прикладом
-	localPlayer.setDriverAbility(1.0); // Способность водителя макс.
-	localPlayer.setDriverAggressiveness(1.0); // Агрессивность вождения
-	localPlayer.setAccuracy(100); // Макс. аккуратность типо
-	localPlayer.setCombatAbility(0); // Способность стрелять
 	mp.game.invoke("0x476AE72C1D19D1A8", localPlayer.handle, 0); // weapon drop off
 	mp.game1.weapon.unequipEmptyWeapons = false;
 	mp.game.audio.setRadioToStationName("OFF");
 	
-	mp.game.stats.statSetInt(mp.game.joaat("SP0_STAMINA"), 50, false);
-	//mp.game.stats.statSetInt(mp.game.joaat("SP0_STRENGTH"), 50, false);
-	mp.game.stats.statSetInt(mp.game.joaat("SP0_LUNG_CAPACITY"), 50, false);
-	mp.game.stats.statSetInt(mp.game.joaat("SP0_WHEELIE_ABILITY"), 100, false);
-	mp.game.stats.statSetInt(mp.game.joaat("SP0_FLYING_ABILITY"), 50, false);
-	//mp.game.stats.statSetInt(mp.game.joaat("SP0_SHOOTING_ABILITY"), 50, false);
-	mp.game.stats.statSetInt(mp.game.joaat("SP0_STEALTH_ABILITY"), 100, false);
+	let myBlocks = {};
+	if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") myBlocks = localPlayer.getVariable("player.blocks");
+	if(typeof(myBlocks.skills) === "undefined") myBlocks["skills"] = {"str":1,"sta":1,"weap":1};
+	
+	if(typeof(myBlocks) !== "undefined") {
+		if(typeof(myBlocks.skills) !== "undefined") {
+			if(typeof(myBlocks.skills.sta) !== "undefined") mp.game.stats.statSetInt(mp.game.joaat("SP0_STAMINA"), myBlocks.skills.sta, false); // Выносливость
+			if(typeof(myBlocks.skills.str) !== "undefined") mp.game.stats.statSetInt(mp.game.joaat("SP0_STRENGTH"), myBlocks.skills.str, false); // Сила
+			if(typeof(myBlocks.skills.weap) !== "undefined") mp.game.stats.statSetInt(mp.game.joaat("SP0_SHOOTING_ABILITY"), myBlocks.skills.weap, false); // Стрельба
+		}
+	}
+	mp.game.stats.statSetInt(mp.game.joaat("SP0_LUNG_CAPACITY"), 1, false); // Объём лёгких
+	mp.game.stats.statSetInt(mp.game.joaat("SP0_WHEELIE_ABILITY"), 100, false); // На заднем колесе
+	mp.game.stats.statSetInt(mp.game.joaat("SP0_FLYING_ABILITY"), 100, false); // Полёты
+	mp.game.stats.statSetInt(mp.game.joaat("SP0_STEALTH_ABILITY"), 1, false); // Скрытность
 	
 	localPlayer.setMinGroundTimeForStungun(30000); // TAZER TIME
 	
+	localPlayer.setConfigFlag(149, true); // Что бы кепка не слетала
+	
 	mp.game.audio.startAudioScene("CHARACTER_CHANGE_IN_SKY_SCENE"); // Отключаем звуки окружения
+	
+	localPlayer.setHelmet(false); // не надевать шлем автоматически
+	localPlayer.setCanBeKnockedOffVehicle(1); // Не падать с мото
 	
 	mp.game.ped.setPedDensityMultiplierThisFrame(0); // Убираем сток трафик
 	mp.game.streaming.setPedPopulationBudget(0); // Убираем сток трафик
@@ -1077,8 +1120,7 @@ mp.keys.bind(0x54, true, function() { // T Key (CHAT)
 	if(!allowBinds.includes(0x54)) return false;
 	
 	if(hud_browser) {
-		if(afChat) return false;
-		
+		if(Date.now() - afChat < 800) return false;
 		hud_browser.execute('activateChatInput(\'forall\');');
 		allowBinds = [];
 	}
@@ -1089,7 +1131,7 @@ mp.keys.bind(0x59, true, function() { // Y Key (Clan-CHAT)
 	if(!allowBinds.includes(0x59)) return false;
 	
 	if(hud_browser) {
-		if(afChat) return false;
+		if(Date.now() - afChat < 800) return false;
 		hud_browser.execute('activateChatInput(\'fraction\');');
 		allowBinds = [];
 	}
@@ -1105,6 +1147,11 @@ mp.keys.bind(0x48, true, function() { // H Key
 			hud_browser.execute('newcfg(0,0); newcfg(1,0); newcfg(2,0); newcfg(3,1);');
 			restoreBinds();
 		}*/
+		if(cruiseControl) {
+			cruiseControl = false;
+			mp.game.ui.notifications.show("~w~Круиз контроль ~r~выключен", false, 18, 2);
+		}
+		
 		if(!camHack) mp.game.ui.displayRadar(true);
 		else mp.game.ui.displayRadar(false);
 		hideHud = false;
@@ -1122,9 +1169,8 @@ mp.keys.bind(0x78, true, function() { // F9 CamHack
 	if(!allowBinds || !Array.isArray(allowBinds)) return false;
 	if(!allowBinds.includes(0x78)) return false;
 	
-	if(afCamhack) return false;
-	
-	afCamhack = setTimeout(() => { afCamhack = false; }, 1500);
+	if(Date.now() - afCamhack < 1500) return false;
+	afCamhack = Date.now();
 	
 	if(typeof(localPlayer.getVariable("player.status")) === "undefined") return false;
 	
@@ -1136,12 +1182,12 @@ mp.keys.bind(0x78, true, function() { // F9 CamHack
 			for (var i in clanZones) {
 				let tempZone = clanZones[i];
 				if(typeof(tempZone.war.id) !== "undefined") {
-					if(tempZone.own.id == myFraction.id || tempZone.war.id == myFraction.id) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Кам-хак недоступен во время капта</span>");
+					if(tempZone.own.id == myFraction.id || tempZone.war.id == myFraction.id) return notyAPI.error("Кам-хак недоступен во время капта.", 3000, true);
 				}
 			}
 		}
 		
-		if(inCasino) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Кам-хак недоступен в казино</span>");
+		if(inCasino) return notyAPI.error("Кам-хак недоступен в казино.", 3000, true);
 		
 		if(localPlayer.vehicle) {
 			let theVeh = localPlayer.vehicle;
@@ -1159,9 +1205,8 @@ mp.keys.bind(0x78, true, function() { // F9 CamHack
 				let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
 				decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
 				
-				let vehMaxSpeed = 300;
+				let vehMaxSpeed = 400;
 				if(typeof(decVehStats[0][vehHash]) !== "undefined") vehMaxSpeed = parseInt(decVehStats[0][vehHash].maxSpeed);
-				//if(engOil <= 0) vehMaxSpeed = vehMaxSpeed/2;
 				if(imInZZ) {
 					if(imInZZ == "ekxZZ") primarySpeedLimit = 70;
 				}else{
@@ -1218,15 +1263,16 @@ mp.events.add("waitVehActionsRemove", waitVehActionsRemove);
 mp.keys.bind(0x31, true, function() { // Починка транспорта
 	if(!allowBinds || !Array.isArray(allowBinds)) return false;
 	if(!allowBinds.includes(0x31)) return false;
+	if(localPlayer.isDead()) return false;
 	
 	let theVeh = localPlayer.vehicle;
 	if(theVeh) {
-		if(afFix) return false;
+		if(Date.now() - afFix < 1000) return false;
 		
 		if(vehSeat != -1) return false;
 		if(theVeh.getSpeed() > 60) return mp.game.ui.notifications.showWithPicture("Знакомый механик", "Воу, по-медленее", "Починить транспорт на такой скорости? Ты в своём уме?", "CHAR_MECHANIC", 1, false, 1, 2);
 		
-		afFix = setTimeout(() => { afFix = false; }, 1000);
+		afFix = Date.now();
 		
 		theVeh.setDirtLevel(0);
 		if(theVeh.getHealth() <= 975) {
@@ -1252,7 +1298,7 @@ mp.keys.bind(0x31, true, function() { // Починка транспорта
 				if(typeof(playerInv.instrument) === "undefined") {
 					if(fastUseSlotsTiming <= 0 && !inventorySaving) invUse("f1", JSON.stringify(playerInv.f1), false, JSON.stringify(playerInv));
 				}else{
-					chatAPI.sysPush("<span style=\"color:#FF6146\"> * Уберите инструмент что бы использовать быстрый доступ</span>");
+					notyAPI.error("Уберите инструмент что бы использовать быстрый доступ.", 3000, true);
 				}
 			}
 		}
@@ -1262,13 +1308,14 @@ mp.keys.bind(0x31, true, function() { // Починка транспорта
 mp.keys.bind(0x32, true, function() { // Флип транспорта
 	if(!allowBinds || !Array.isArray(allowBinds)) return false;
 	if(!allowBinds.includes(0x32)) return false;
+	if(localPlayer.isDead()) return false;
 	
 	let theVeh = localPlayer.vehicle;
 	if(theVeh) {
 		if(vehSeat != -1) return false;
-		if(afFlip) return false;
+		if(Date.now() - afFlip < 1000) return false;
 		if(theVeh.getSpeed() > 5) return mp.game.ui.notifications.showWithPicture("Знакомый механик", "Воу, по-медленее", "Флипнуть транспорт на такой скорости? Невозможно.", "CHAR_MECHANIC", 1, false, 1, 2);
-		afFlip = setTimeout(() => { afFlip = false; }, 1000);
+		afFlip = Date.now();
 		//if(!waitVehActions.flip) {
 			//waitVehActions.flip = true;
 			mp.events.callRemote('keypress:2');
@@ -1280,7 +1327,7 @@ mp.keys.bind(0x32, true, function() { // Флип транспорта
 				if(typeof(playerInv.instrument) === "undefined") {
 					if(fastUseSlotsTiming <= 0 && !inventorySaving) invUse("f2", JSON.stringify(playerInv.f2), false, JSON.stringify(playerInv));
 				}else{
-					chatAPI.sysPush("<span style=\"color:#FF6146\"> * Уберите инструмент что бы использовать быстрый доступ</span>");
+					notyAPI.error("Уберите инструмент что бы использовать быстрый доступ.", 3000, true);
 				}
 			}
 		}
@@ -1290,37 +1337,46 @@ mp.keys.bind(0x32, true, function() { // Флип транспорта
 mp.keys.bind(0x33, true, function() { // Оптика транспорта
 	if(!allowBinds || !Array.isArray(allowBinds)) return false;
 	if(!allowBinds.includes(0x33)) return false;
+	if(localPlayer.isDead()) return false;
 	
-	if(afLight) return false;
+	if(Date.now() - afLight < 1000) return false;
 	
 	let theVeh = localPlayer.vehicle;
 	if(theVeh) {
 		if(vehSeat != -1) return false;
-		if(typeof(theVeh.getVariable("veh.hash") !== "undefined")) {
-			if(theVeh.getVariable("veh.hash") == "faggio") {
+		if(theVeh.getVariable("veh.hash")) {
+			if(theVeh.getVariable("veh.hash") != "faggio") {
 				if(typeof(localPlayer.getVariable('player.lics')) !== "undefined") {
 					let myLics = {};
 					if(IsJsonString(JSON.stringify(localPlayer.getVariable('player.lics')))) myLics = localPlayer.getVariable('player.lics');
+					let myLicsAsked = false;
 					if(theVeh.getClass() == 15) {
 						if(myLics["heliCat"] === undefined) return false;
-					}else{
-						if(myLics["bCat"] === undefined) return false;
+						myLicsAsked = true;
+					}else if(theVeh.getClass() == 8 || theVeh.getClass() == 13) {
+						if(myLics["aCat"] === undefined) return false;
+						myLicsAsked = true;
 					}
+					if(myLics["bCat"] === undefined && !myLicsAsked) return false;
 				}
 			}
 		}else{
 			if(typeof(localPlayer.getVariable('player.lics')) !== "undefined") {
 				let myLics = {};
 				if(IsJsonString(JSON.stringify(localPlayer.getVariable('player.lics')))) myLics = localPlayer.getVariable('player.lics');
+				let myLicsAsked = false;
 				if(theVeh.getClass() == 15) {
 					if(myLics["heliCat"] === undefined) return false;
-				}else{
-					if(myLics["bCat"] === undefined) return false;
+					myLicsAsked = true;
+				}else if(theVeh.getClass() == 8 || theVeh.getClass() == 13) {
+					if(myLics["aCat"] === undefined) return false;
+					myLicsAsked = true;
 				}
+				if(myLics["bCat"] === undefined && !myLicsAsked) return false;
 			}
 		}
 		
-		afLight = setTimeout(() => { afLight = false; }, 200);
+		afLight = Date.now();
 		
 		if(hud_browser) hud_browser.execute('playSound("lights", "0.05");');
 		//if(!waitVehActions.lights) {
@@ -1334,7 +1390,7 @@ mp.keys.bind(0x33, true, function() { // Оптика транспорта
 				if(typeof(playerInv.instrument) === "undefined") {
 					if(fastUseSlotsTiming <= 0 && !inventorySaving) invUse("f3", JSON.stringify(playerInv.f3), false, JSON.stringify(playerInv));
 				}else{
-					chatAPI.sysPush("<span style=\"color:#FF6146\"> * Уберите инструмент что бы использовать быстрый доступ</span>");
+					notyAPI.error("Уберите инструмент что бы использовать быстрый доступ.", 3000, true);
 				}
 			}
 		}
@@ -1344,8 +1400,9 @@ mp.keys.bind(0x33, true, function() { // Оптика транспорта
 mp.keys.bind(0x34, true, function() { // Двигатель транспорта
 	if(!allowBinds || !Array.isArray(allowBinds)) return false;
 	if(!allowBinds.includes(0x34)) return false;
+	if(localPlayer.isDead()) return false;
 	
-	if(afEngine) return false;
+	if(Date.now() - afEngine < 1000) return false;
 	
 	mp.game.audio.setRadioToStationName("OFF");
 	mp.game.invoke("0xF7F26C6E9CC9EBB8", false); // SET_FRONTEND_RADIO_ACTIVE
@@ -1353,7 +1410,7 @@ mp.keys.bind(0x34, true, function() { // Двигатель транспорта
 	let theVeh = localPlayer.vehicle;
 	if(theVeh) {
 		if(vehSeat != -1) return false;
-		afEngine = setTimeout(() => { afEngine = false; }, 1000);
+		afEngine = Date.now();
 		
 		if(typeof(theVeh.getVariable("vehicle.engine") !== "undefined")) {
 			if(typeof(theVeh.getVariable("veh.grabTruck")) !== "undefined") {
@@ -1361,7 +1418,7 @@ mp.keys.bind(0x34, true, function() { // Двигатель транспорта
 					if(typeof(localPlayer.getVariable("player.fraction")) !== "undefined") {
 						if(localPlayer.getVariable("player.fraction")) {
 							myFraction = localPlayer.getVariable("player.fraction");
-							if(typeof(myFraction.name) === "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Угнать этот грузовик можно только находясь в клане..</span>");;
+							if(typeof(myFraction.name) === "undefined") return notyAPI.error("Угнать этот грузовик можно только находясь в клане.", 3000, true);
 						}
 					}
 				}
@@ -1369,34 +1426,37 @@ mp.keys.bind(0x34, true, function() { // Двигатель транспорта
 			if(typeof(theVeh.getVariable("veh.hash") !== "undefined")) {
 				if(theVeh.getVariable("veh.hash") == "faggio") return false;
 			}
-			if(theVeh.getClass() != 13) {
-				if(typeof(theVeh.getVariable('veh.school')) === "undefined") {
-					if(typeof(localPlayer.getVariable('player.lics')) === "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Технические неполадки системы лицензий..</span>");
-					let myLics = {};
-					if(IsJsonString(JSON.stringify(localPlayer.getVariable('player.lics')))) myLics = localPlayer.getVariable('player.lics');
-					if(theVeh.getClass() == 15) {
-						if(myLics["heliCat"] === undefined) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * У Вас отсутствует право управление техникой класса «Вертолёт».</span>");
-					}else{
-						if(myLics["bCat"] === undefined) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * У Вас отсутствуют водительские права категории «B».</span>");
-					}
-					if(typeof(theVeh.getVariable("veh.fuel")) !== "undefined") {
-						if(!theVeh.getVariable("vehicle.engine")) {
-							let fuelData = JSON.parse(theVeh.getVariable("veh.fuel"));
-							if(parseInt(fuelData.value) <= 0) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * В баке нет топлива, двигатель не завёлся.</span>");
-						}
-					}
-					//if(!waitVehActions.engine) {
-						//waitVehActions.engine = true;
-						if(theVeh.getIsEngineRunning()) mp.events.callRemote('keypress:4', false);
-						else mp.events.callRemote('keypress:4', true);
-					//}
-				}else{
-					//if(!waitVehActions.engine) {
-						//waitVehActions.engine = true;
-						if(theVeh.getIsEngineRunning()) mp.events.callRemote('keypress:4', false);
-						else mp.events.callRemote('keypress:4', true);
-					//}
+			
+			if(typeof(theVeh.getVariable('veh.school')) === "undefined") {
+				if(typeof(localPlayer.getVariable('player.lics')) === "undefined") return notyAPI.error("Технические неполадки системы лицензий.", 3000, true);
+				let myLics = {};
+				if(IsJsonString(JSON.stringify(localPlayer.getVariable('player.lics')))) myLics = localPlayer.getVariable('player.lics');
+				let myLicsAsked = false;
+				if(theVeh.getClass() == 15) {
+					if(myLics["heliCat"] === undefined) return notyAPI.error("У Вас отсутствует право управление техникой класса «Вертолёт».", 3000, true);
+					myLicsAsked = true;
+				}else if(theVeh.getClass() == 8 || theVeh.getClass() == 13) {
+					if(myLics["aCat"] === undefined) return notyAPI.error("У Вас отсутствуют водительские права категории «A».", 3000, true);
+					myLicsAsked = true;
 				}
+				if(myLics["bCat"] === undefined && !myLicsAsked) return notyAPI.error("У Вас отсутствуют водительские права категории «B».", 3000, true);
+				if(typeof(theVeh.getVariable("veh.fuel")) !== "undefined") {
+					if(!theVeh.getVariable("vehicle.engine")) {
+						let fuelData = JSON.parse(theVeh.getVariable("veh.fuel"));
+						if(parseInt(fuelData.value) <= 0) return notyAPI.error("В баке нет топлива, двигатель не завёлся.", 3000, true);
+					}
+				}
+				//if(!waitVehActions.engine) {
+					//waitVehActions.engine = true;
+					if(theVeh.getIsEngineRunning()) mp.events.callRemote('keypress:4', false);
+					else mp.events.callRemote('keypress:4', true);
+				//}
+			}else{
+				//if(!waitVehActions.engine) {
+					//waitVehActions.engine = true;
+					if(theVeh.getIsEngineRunning()) mp.events.callRemote('keypress:4', false);
+					else mp.events.callRemote('keypress:4', true);
+				//}
 			}
 		}
 	}else{
@@ -1406,7 +1466,7 @@ mp.keys.bind(0x34, true, function() { // Двигатель транспорта
 				if(typeof(playerInv.instrument) === "undefined") {
 					if(fastUseSlotsTiming <= 0 && !inventorySaving) invUse("f4", JSON.stringify(playerInv.f4), false, JSON.stringify(playerInv));
 				}else{
-					chatAPI.sysPush("<span style=\"color:#FF6146\"> * Уберите инструмент что бы использовать быстрый доступ</span>");
+					notyAPI.error("Уберите инструмент что бы использовать быстрый доступ.", 3000, true);
 				}
 			}
 		}
@@ -1416,9 +1476,10 @@ mp.keys.bind(0x34, true, function() { // Двигатель транспорта
 mp.keys.bind(0x35, true, function() { // Двери транспорта
 	if(!allowBinds || !Array.isArray(allowBinds)) return false;
 	if(!allowBinds.includes(0x35)) return false;
+	if(localPlayer.isDead()) return false;
 	
-	if(afDoors) return false;
-	afDoors = setTimeout(() => { afDoors = false; }, 2000);
+	if(Date.now() - afDoors < 2000) return false;
+	afDoors = Date.now();
 	
 	if(localPlayer.vehicle) {
 		let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
@@ -1488,7 +1549,7 @@ mp.keys.bind(0x35, true, function() { // Двери транспорта
 					if(typeof(playerInv.instrument) === "undefined") {
 						if(fastUseSlotsTiming <= 0 && !inventorySaving) invUse("f5", JSON.stringify(playerInv.f5), false, JSON.stringify(playerInv));
 					}else{
-						chatAPI.sysPush("<span style=\"color:#FF6146\"> * Уберите инструмент что бы использовать быстрый доступ</span>");
+						notyAPI.error("Уберите инструмент что бы использовать быстрый доступ.", 3000, true);
 					}
 				}
 			}
@@ -1496,23 +1557,41 @@ mp.keys.bind(0x35, true, function() { // Двери транспорта
 	}
 });
 
+var canBeKnockedOffVehicle = false;
 mp.keys.bind(0x36, true, function() { // Ремень безопасности
 	if(!allowBinds || !Array.isArray(allowBinds)) return false;
 	if(!allowBinds.includes(0x36)) return false;
+	if(localPlayer.isDead()) return false;
 	
-	if(afSeatbelt) return false;
-	afSeatbelt = setTimeout(() => { afSeatbelt = false; }, 1000);
+	if(Date.now() - afSeatbelt < 1000) return false;
+	afSeatbelt = Date.now();
 	
 	let theVeh = localPlayer.vehicle;
 	if(theVeh) {
-		if(localPlayer.getConfigFlag(32, true)) {
-			localPlayer.setConfigFlag(32, false);
-			mp.game.ui.notifications.show("~w~Вы ~h~~g~пристегнули ремень безопасности", false, 18, 2);
-			if(hud_browser) hud_browser.execute('playSound("seatbelt_on");');
+		if(theVeh.getClass() == 8 || theVeh.getClass() == 13) {
+			if(!canBeKnockedOffVehicle) {
+				mp.game.ui.notifications.show("~w~Вы ~h~~g~не будете падать с мото/вело", false, 18, 2);
+				localPlayer.setConfigFlag(32, false);
+				localPlayer.setCanBeKnockedOffVehicle(1); // Не падать с мото
+				canBeKnockedOffVehicle = true;
+				if(hud_browser) hud_browser.execute('playSound("seatbelt_on");');
+			}else{
+				mp.game.ui.notifications.show("~w~Вы ~h~~r~будете падать с мото/вело", false, 18, 2);
+				localPlayer.setConfigFlag(32, true);
+				localPlayer.setCanBeKnockedOffVehicle(0); // Падать с мото
+				canBeKnockedOffVehicle = false;
+				if(hud_browser) hud_browser.execute('playSound("seatbelt_off");');
+			}
 		}else{
-			localPlayer.setConfigFlag(32, true);
-			mp.game.ui.notifications.show("~w~Вы ~h~~r~отстегнули ремень безопасности", false, 18, 2);
-			if(hud_browser) hud_browser.execute('playSound("seatbelt_off");');
+			if(localPlayer.getConfigFlag(32, true)) {
+				localPlayer.setConfigFlag(32, false);
+				mp.game.ui.notifications.show("~w~Вы ~h~~g~пристегнули ремень безопасности", false, 18, 2);
+				if(hud_browser) hud_browser.execute('playSound("seatbelt_on");');
+			}else{
+				localPlayer.setConfigFlag(32, true);
+				mp.game.ui.notifications.show("~w~Вы ~h~~r~отстегнули ремень безопасности", false, 18, 2);
+				if(hud_browser) hud_browser.execute('playSound("seatbelt_off");');
+			}
 		}
 	}else{
 		if(typeof(localPlayer.getVariable("player.inv")) !== "undefined") {
@@ -1521,7 +1600,7 @@ mp.keys.bind(0x36, true, function() { // Ремень безопасности
 				if(typeof(playerInv.instrument) === "undefined") {
 					if(fastUseSlotsTiming <= 0 && !inventorySaving) invUse("f6", JSON.stringify(playerInv.f6), false, JSON.stringify(playerInv));
 				}else{
-					chatAPI.sysPush("<span style=\"color:#FF6146\"> * Уберите инструмент что бы использовать быстрый доступ</span>");
+					notyAPI.error("Уберите инструмент что бы использовать быстрый доступ.", 3000, true);
 				}
 			}
 		}
@@ -1531,9 +1610,10 @@ mp.keys.bind(0x36, true, function() { // Ремень безопасности
 mp.keys.bind(0x37, true, function() { // Неоновая подсветка
 	if(!allowBinds || !Array.isArray(allowBinds)) return false;
 	if(!allowBinds.includes(0x37)) return false;
+	if(localPlayer.isDead()) return false;
 	
-	if(afNeon) return false;
-	afNeon = setTimeout(() => { afNeon = false; }, 1000);
+	if(Date.now() - afNeon < 1000) return false;
+	afNeon = Date.now();
 	
 	let theVeh = localPlayer.vehicle;
 	if(!theVeh) return false;
@@ -1557,7 +1637,7 @@ mp.keys.bind(0x37, true, function() { // Неоновая подсветка
 				//}
 			}
 		}else{
-			chatAPI.sysPush("<span style=\"color:#FF6146\"> * Неоновая подсветка отсутствует, установите в Los Santos Customs.</span>");
+			notyAPI.error("Неоновая подсветка отсутствует, установите в Los Santos Customs.", 3000, true);
 		}
 	}
 });
@@ -1565,59 +1645,55 @@ mp.keys.bind(0x37, true, function() { // Неоновая подсветка
 mp.keys.bind(0x4B, true, function() { // Круиз-контроль
 	if(!allowBinds || !Array.isArray(allowBinds)) return false;
 	if(!allowBinds.includes(0x4B)) return false;
+	if(localPlayer.isDead() || hideHud) return false;
 	
 	if(vehSeat != -1) return false;
 	if(!localPlayer.vehicle) return false;
+	
+	if(Date.now() - afCruise < 800) return false;
+	afCruise = Date.now();
 	
 	let theVeh = localPlayer.vehicle;
 	let vehClass = theVeh.getClass().toString();
 	if(vehClass == "0" || parseInt(vehClass) <= 12 && parseInt(vehClass) != 8 && parseInt(vehClass) != 9 || (parseInt(vehClass) >= 17 && parseInt(vehClass) <= 20)) {
 		if(theVeh) {
 			if(!cruiseControl) {
-				if(theVeh.steeringAngle < -1 || theVeh.steeringAngle > 1) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Круиз можно активировать только на прямых колёсах.</span>");
+				if(theVeh.steeringAngle < -1 || theVeh.steeringAngle > 1) return notyAPI.error("Круиз можно активировать только на прямых колёсах.", 3000, true);
 				cruiseControl = theVeh.getSpeed()*0.277;
 			}else{
 				cruiseControl = false;
 			}
 		}
 	}else{
-		chatAPI.sysPush("<span style=\"color:#FF6146\"> * На данном виде транспорта круиз недоступен.</span>");
+		notyAPI.error("На данном виде транспорта круиз недоступен.", 3000, true);
 	}
 });
 
 var autoPilot = {};
+var afAnchor = Date.now();
 
 mp.keys.bind(0x4A, true, function() { // Автопилот
 	if(!allowBinds || !Array.isArray(allowBinds)) return false;
 	if(!allowBinds.includes(0x4A)) return false;
+	if(localPlayer.isDead()) return false;
 	
 	if(vehSeat != -1) return false;
 	if(!localPlayer.vehicle) return false;
 	
-	if(typeof(curCourierTask) !== "undefined") {
-		if(typeof(curCourierTask.workTimer) !== "undefined") {
-			if(typeof(autoPilot.speed) !== "undefined") {
-				localPlayer.clearTasks();
-				if(typeof(autoPilot.interval) !== "undefined") clearInterval(autoPilot.interval);
-				if(theVeh.handle != 0) localPlayer.taskVehicleTempAction(theVeh.handle, 27, 1e4);
-				autoPilot = {};
-			}
-			return false;
-		}
-	}
-	
 	let theVeh = localPlayer.vehicle;
-	let vehClass = theVeh.getClass().toString();
-	if(vehClass == "0" || parseInt(vehClass) <= 12 && parseInt(vehClass) != 8 && parseInt(vehClass) != 9 || (parseInt(vehClass) >= 17 && parseInt(vehClass) <= 20)) {
-		if(theVeh) {
+	if(theVeh) {
+		let vehClass = theVeh.getClass().toString();
+		if(vehClass == "0" || parseInt(vehClass) <= 12 && parseInt(vehClass) != 8 && parseInt(vehClass) != 9 || (parseInt(vehClass) >= 17 && parseInt(vehClass) <= 20)) {
+			if(Date.now() - afAutopilot < 800) return false;
+			afAutopilot = Date.now();
 			if(typeof(autoPilot.speed) === "undefined") {
-				if(typeof(theVeh.getVariable("veh.fuel")) === "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Автопилот недоступен для данного транспорта.</span>");
+				if(typeof(theVeh.getVariable("veh.fuel")) === "undefined") return notyAPI.error("Автопилот недоступен для данного транспорта.", 3000, true);
 				let vehFuel = JSON.parse(theVeh.getVariable("veh.fuel"));
-				if(typeof(vehFuel["type"]) === "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Автопилот недоступен для данного транспорта.</span>");
-				if(vehFuel["type"] != "electro") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Автопилот доступен только для электро-транспорта.</span>");
+				if(typeof(vehFuel["type"]) === "undefined") return notyAPI.error("Автопилот недоступен для данного транспорта.", 3000, true);
+				if(vehFuel["type"] != "electro") return notyAPI.error("Автопилот доступен только для электро-транспорта.", 3000, true);
 				
 				//cruiseControl = theVeh.getSpeed()*0.277;
-				if(theVeh.steeringAngle < -1 || theVeh.steeringAngle > 1) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Автопилот можно активировать только на прямых колёсах.</span>");
+				if(theVeh.steeringAngle < -1 || theVeh.steeringAngle > 1) return notyAPI.error("Автопилот можно активировать только на прямых колёсах.", 3000, true);
 				if(!theVeh.getIsEngineRunning()) return false; // проверка двигателя
 				
 				if(mp.game.invoke('0x1DD1F58F493F1DA5')) {
@@ -1670,8 +1746,8 @@ mp.keys.bind(0x4A, true, function() { // Автопилот
 					}
 				}else{
 					if(hud_browser) hud_browser.execute('playSound("autoPilotWayPoint", "0.15");');
-					chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы не указали конечную точку для автопилота.</span>");
-					return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Установите Waypoint на глобальной карте через ESC.</span>");
+					notyAPI.error("Вы не указали конечную точку для автопилота.", 3000, true);
+					return notyAPI.error("Установите Waypoint на глобальной карте через ESC.", 3000, true);
 				}
 			}else{
 				mp.game.graphics.notify("~r~Автопилот деактивирован");
@@ -1680,9 +1756,25 @@ mp.keys.bind(0x4A, true, function() { // Автопилот
 				if(theVeh.handle != 0) localPlayer.taskVehicleTempAction(theVeh.handle, 27, 1e4);
 				autoPilot = {};
 			}
+		}else{
+			if(parseInt(vehClass) == 14) {
+				if(Date.now() - afAutopilot < 2000) return false;
+				afAutopilot = Date.now();
+				if(!theVeh.getVariable("veh.anchor")) {
+					if(!theVeh.isInWater()) return notyAPI.error("Водный транспорт должен быть на воде, что бы <b>бросить якорь</b>.", 3000, true);
+					if(theVeh.getSpeed() > 3) return notyAPI.error("Водный транспорт должен быть остановлен, что бы <b>бросить якорь</b>.", 3000, true);
+					mp.events.callRemote('toggleVehAnchor', true);
+					notyAPI.success("Вы успешно <b>бросили якорь</b> в данном месте, навигация остановлена.", 3000, true);
+					if(hud_browser) hud_browser.execute('playSound("anchorDrop", "0.25");');
+				}else{
+					mp.events.callRemote('toggleVehAnchor', false);
+					notyAPI.success("Вы успешно <b>достали якорь</b>, продолжайте навигацию.", 3000, true);
+					if(hud_browser) hud_browser.execute('playSound("anchorUp", "0.25");');
+				}
+			}else{
+				notyAPI.error("На данном виде транспорта авто-пилот недоступен.", 3000, true);
+			}
 		}
-	}else{
-		chatAPI.sysPush("<span style=\"color:#FF6146\"> * На данном виде транспорта круиз недоступен.</span>");
 	}
 });
 
@@ -1690,13 +1782,14 @@ var tabPanel = false;
 mp.keys.bind(0x09, true, function() { // TAB Панель
 	if(!allowBinds || !Array.isArray(allowBinds)) return false;
 	if(!allowBinds.includes(0x09)) return false;
+	if(localPlayer.isDead()) return false;
 	
 	if(hud_browser) {
 		if(tabPanel) {
 			closeTabPanel();
 		}else{
-			if(afTabPanel) return false;
-			afTabPanel = setTimeout(() => { afTabPanel = false; }, 2500);
+			if(Date.now() - afTabPanel < 2500) return false;
+			afTabPanel = Date.now();
 			
 			if(localPlayer.getVariable("player.id")) {
 				hud_browser.execute('toggleTabPanel(true);');
@@ -1727,19 +1820,6 @@ mp.keys.bind(0x09, true, function() { // TAB Панель
 				if(localPlayer.getVariable('player.businesses')) businessesJSON = localPlayer.getVariable('player.businesses');
 				if(!businessesJSON.count) businessesJSON["count"] = 0;*/
 				
-				resArray["myData"] = {
-					"id":localPlayer.getVariable("player.id"),
-					"nick":localPlayer.getVariable("player.nick"),
-					"money":localPlayer.getVariable("player.money"),
-					"bank":localPlayer.getVariable("player.bank"),
-					"lvl":localPlayer.getVariable("player.blocks"),
-					"drift":localPlayer.getVariable("player.drift") ? localPlayer.getVariable("player.drift") : "0"
-					//"vehs":vehsJSON.count,
-					//"houses":housesJSON.count,
-					//"businesses":businessesJSON.count
-				};
-				if(localPlayer.getVariable("player.job")) resArray["myData"]["job"] = localPlayer.getVariable("player.job");
-				
 				// Фраки
 				
 				let counter = 0;
@@ -1749,33 +1829,91 @@ mp.keys.bind(0x09, true, function() { // TAB Панель
 				if(typeof(mp.world.data.fractions) !== "undefined") resArray["fractions"] = mp.world.data.fractions;
 				//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+JSON.stringify(resArray["fractions"])+"</span>");
 				
+				let myFractionName = "Не состоит", myFractionRank = "Не состоит";
+				if(typeof(localPlayer.getVariable("player.fraction")) !== "undefined") {
+					let playerFraction = localPlayer.getVariable("player.fraction");
+					if(typeof(playerFraction.id) !== "undefined" && typeof(playerFraction.name) !== "undefined" && typeof(playerFraction.rank) !== "undefined") {
+						myFractionName = playerFraction.name;
+						let mRank = playerFraction.rank;
+						if(typeof(resArray["fractions"][playerFraction.id]) !== "undefined") {
+							let fracData = resArray["fractions"][playerFraction.id];
+							if(typeof(fracData.settings[mRank.toString()]) !== "undefined") {
+								if(typeof(fracData.settings[mRank.toString()].name) !== "undefined") myFractionRank = fracData.settings[mRank.toString()].name;
+							}
+						}
+					}
+				}
+				
+				resArray["myData"] = {
+					"id":localPlayer.getVariable("player.id"),
+					"nick":localPlayer.getVariable("player.nick"),
+					"money":localPlayer.getVariable("player.money"),
+					"bank":localPlayer.getVariable("player.bank"),
+					"fracName":myFractionName.toLowerCase(),
+					"fracRank":myFractionRank.toLowerCase(),
+					"lvl":localPlayer.getVariable("player.blocks"),
+					"drift":localPlayer.getVariable("player.drift") ? localPlayer.getVariable("player.drift") : "0"
+					//"vehs":vehsJSON.count,
+					//"houses":housesJSON.count,
+					//"businesses":businessesJSON.count
+				};
+				if(localPlayer.getVariable("player.job")) resArray["myData"]["job"] = localPlayer.getVariable("player.job");
+				
 				// Игроки
 				
 				mp.players.forEach(
 					(player, id) => {
 						if(typeof(player.getVariable("player.id")) !== "undefined" && typeof(player.getVariable("player.nick")) !== "undefined" && typeof(player.getVariable("player.status")) !== "undefined" && typeof(player.getVariable("player.blocks")) !== "undefined") {
+							let playerFractionName = "Не состоит", playerFractionRank = "Не состоит";
+							
 							if(typeof(player.getVariable("player.fraction")) !== "undefined") {
 								let playerFraction = player.getVariable("player.fraction");
-								if(typeof(playerFraction.id) !== "undefined") {
-									if(typeof(resArray["fractions"][playerFraction.id].members) !== "undefined") {
-										let fractionMembers = resArray["fractions"][playerFraction.id].members;
-										for (var i in fractionMembers) {
-											if(i.toString() == player.getVariable("player.id").toString()) fractionMembers[i.toString()]["online"] = true;
+								if(typeof(playerFraction.name) !== "undefined") {
+									playerFractionName = playerFraction.name;
+									let mRank = playerFraction.rank;
+									if(typeof(playerFraction.id) !== "undefined" && typeof(playerFraction.name) !== "undefined" && typeof(playerFraction.rank) !== "undefined") {
+										if(typeof(resArray["fractions"][playerFraction.id]) !== "undefined") {
+											let fracData = resArray["fractions"][playerFraction.id];
+											if(typeof(fracData.settings) !== "undefined") {
+												if(typeof(fracData.settings[mRank.toString()]) !== "undefined") {
+													if(typeof(fracData.settings[mRank.toString()].name) !== "undefined") playerFractionRank = fracData.settings[mRank.toString()].name;
+												}
+											}
+											if(typeof(fracData.members) !== "undefined") {
+												let fractionMembers = fracData.members;
+												for (var i in fractionMembers) {
+													if(i.toString() == player.getVariable("player.id").toString()) fractionMembers[i.toString()]["online"] = true;
+												}
+											}
 										}
 									}
 								}
 							}
+							
 							let tempArray = {};
-							let hours = player.getVariable("player.blocks");
-							hours = hours.mins;
+							
+							let blocks = player.getVariable("player.blocks");
 							tempArray["id"] = parseInt(player.getVariable("player.id"));
 							tempArray["nick"] = player.getVariable("player.nick").toString();
 							if(player.getVariable("player.job")) tempArray["job"] = player.getVariable("player.job");
 							tempArray["money"] = player.getVariable("player.money").toString();
 							tempArray["bank"] = player.getVariable("player.bank").toString();
-							tempArray["lvl"] = player.getVariable("player.blocks");
-							tempArray["hours"] = hours;
+							tempArray["fracName"] = playerFractionName.toLowerCase();
+							tempArray["fracRank"] = playerFractionRank.toLowerCase();
+							tempArray["lvl"] = blocks;
+							tempArray["level"] = blocks.lvl;
+							tempArray["hours"] = blocks.mins;
 							tempArray["drift"] = player.getVariable("player.drift") ? player.getVariable("player.drift") : "0";
+							
+							tempArray["status"] = 0;
+							if(typeof(player.getVariable("player.status")) !== "undefined") {
+								let tempPlayerStatus = player.getVariable("player.status");
+								if(tempPlayerStatus == "genadm") tempArray["status"] = 5;
+								else if(tempPlayerStatus == "admin") tempArray["status"] = 4;
+								else if(tempPlayerStatus == "moder") tempArray["status"] = 3;
+								else if(tempPlayerStatus == "helper") tempArray["status"] = 2;
+								else if(typeof(blocks.premium) !== "undefined") tempArray["status"] = 1;
+							}
 							
 							/*let vehsJSONsel = {};
 							vehsJSONsel["count"] = 0;
@@ -1870,6 +2008,7 @@ var helpWindow = false;
 mp.keys.bind(0x79, true, function() { // F10 Меню (Окно помощи)
 	if(!allowBinds || !Array.isArray(allowBinds)) return false;
 	if(!allowBinds.includes(0x79)) return false;
+	if(localPlayer.isDead()) return false;
 	
 	if(hud_browser) {
 		if(helpWindow) {
@@ -1903,8 +2042,9 @@ var isAnimActive = false;
 mp.keys.bind(0x5A, true, function() { // Z Меню (Меню анимаций и взаимодействий)
 	if(!allowBinds || !Array.isArray(allowBinds)) return false;
 	if(!allowBinds.includes(0x5A)) return false;
+	if(localPlayer.isDead()) return false;
 	
-	if(inCasino) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * В казино панель анимаций недоступна..</span>");
+	if(inCasino) return notyAPI.error("В казино панель анимаций недоступна.", 3000, true);
 	
 	let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
 	decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
@@ -1914,21 +2054,21 @@ mp.keys.bind(0x5A, true, function() { // Z Меню (Меню анимаций �
 			closeActMenu();
 		}else{
 			if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
-				if(localPlayer.getVariable("active.deal")) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * У Вас есть активная сделка, анимации и заимодействия недоступны..</span>");
+				if(localPlayer.getVariable("active.deal")) return notyAPI.error("У Вас есть активная сделка, анимации и заимодействия недоступны.", 3000, true);
 			}
 			if(typeof(localPlayer.getVariable("player.blocks")) != "undefined") {
 				let playerBlocks = localPlayer.getVariable("player.blocks");
-				if(typeof(playerBlocks.jail) !== "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Панель анимаций и заимодействий в тюрьме не доступна..</span>");
+				if(typeof(playerBlocks.jail) !== "undefined") return notyAPI.error("Панель анимаций и заимодействий в тюрьме не доступна.", 3000, true);
 			}
-			if(localPlayer.isBeingStunned(0)) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Панель анимаций и заимодействий сейчас недоступна..</span>");
+			if(localPlayer.isBeingStunned(0)) return notyAPI.error("Панель анимаций и заимодействий сейчас недоступна.", 3000, true);
 			
-			if(afActMenuPanel) return false;
-			afActMenuPanel = setTimeout(() => { afActMenuPanel = false; }, 500);
+			if(Date.now() - afActMenuPanel < 500) return false;
+			afActMenuPanel = Date.now();
 			
 			if(imInZone) {
 				if(typeof(mp.world.data.zones[imInZone]) !== "undefined") {
 					let tempZone = mp.world.data.zones[imInZone];
-					if(typeof(tempZone.war.id) !== "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Во время капта анимации не доступны на территории..</span>");
+					if(typeof(tempZone.war.id) !== "undefined") return notyAPI.error("Во время капта анимации не доступны на территории.", 3000, true);
 				}
 			}
 			
@@ -1961,6 +2101,13 @@ mp.keys.bind(0x5A, true, function() { // Z Меню (Меню анимаций �
 						vehData.number = "Без номера";
 					}
 					
+					vehData.frac = false;
+					if(typeof(theVeh.getVariable("veh.frac")) !== "undefined" && typeof(localPlayer.getVariable("player.fraction")) !== "undefined") {
+						vehData.frac = theVeh.getVariable("veh.frac");
+						let myFraction = localPlayer.getVariable("player.fraction");
+						if(myFraction.name == vehData.frac) vehData.number = vehData.frac;
+					}
+					
 					hud_browser.execute('setMenuTab(\'vehicle\', \''+JSON.stringify(vehData)+'\');');
 				}else{
 					hud_browser.execute('setMenuTab(\'vehicle\', \''+JSON.stringify(vehData)+'\');');
@@ -1980,6 +2127,63 @@ mp.keys.bind(0x5A, true, function() { // Z Меню (Меню анимаций �
 		}
 	}
 });
+
+var afVehFracToGarage = Date.now();
+function vehFracToGarage() {
+	if(actMenu && hud_browser) {
+		closeActMenu();
+		
+		if(localPlayer.isDead()) return false;
+		if(Date.now() - afActMenuPanel < 3500) return false;
+		
+		let theVeh = localPlayer.vehicle;
+		
+		if(!theVeh) return notyAPI.error("Вы должны быть в транспорте организации.", 3000, true);
+		if(typeof(theVeh.getVariable("veh.frac")) === "undefined" || typeof(theVeh.getVariable("veh.hash")) === "undefined") return notyAPI.error("Вы должны быть в транспорте организации.", 3000, true);
+		
+		if(typeof(localPlayer.getVariable("player.fraction")) === "undefined") return notyAPI.error("Вы не состоите в данной организации.", 3000, true);
+		let myFraction = localPlayer.getVariable("player.fraction");
+		if(typeof(myFraction.name) === "undefined") return notyAPI.error("Вы не состоите в данной организации.", 3000, true);
+		if(myFraction.name != theVeh.getVariable("veh.frac")) return notyAPI.error("Вы не состоите в данной организации.", 3000, true);
+		
+		if(inventoryPanel || inventorySaving || invCEFUpdating || dealerPanel || sellingInvSlot) return notyAPI.error("Сейчас есть активные операции с Вашим аккаунтом.", 3000, true);
+		
+		afVehFracToGarage = Date.now();
+		mp.events.callRemote('vehFracToGarage', theVeh.remoteId.toString(), theVeh.getVariable("veh.frac"), theVeh.getVariable("veh.hash"));
+		return notyAPI.info("Возвращаем данный транспорт в гараж организации.", 3000, true);
+	}
+}
+mp.events.add("vehFracToGarage", vehFracToGarage);
+
+function vehFracToGarageResult(result, reason) {
+	if(hud_browser && typeof(result) !== "undefined" && typeof(reason) !== "undefined") {
+		if(!result) notyAPI.error(reason, 3000, true);
+		else notyAPI.success("Вы успешно убрали этот транспорт организации в гараж.", 3000, true);
+	}
+}
+mp.events.add("vehFracToGarageResult", vehFracToGarageResult);
+
+function delFracGars() {
+	if(hud_browser) {
+		if(fracgarPanel) closeFracgar();
+		
+		if(typeof(localPlayer.getVariable("player.fraction")) === "undefined") return notyAPI.error("Вы не состоите в организации.", 3000, true);
+		let myFraction = localPlayer.getVariable("player.fraction");
+		if(typeof(myFraction.name) === "undefined") return notyAPI.error("Вы не состоите в организации.", 3000, true);
+		
+		mp.events.callRemote('delFracGars');
+		return notyAPI.info("Возвращаем все транспортные средства в гараж организации.", 3000, true);
+	}
+}
+mp.events.add("delFracGars", delFracGars);
+
+function delFracGarsResult(result, reason) {
+	if(hud_browser && typeof(result) !== "undefined" && typeof(reason) !== "undefined") {
+		if(!result) notyAPI.error(reason, 3000, true);
+		else notyAPI.success("Вы успешно убрали весь транспорт организации в гараж.", 3000, true);
+	}
+}
+mp.events.add("delFracGarsResult", delFracGarsResult);
 
 /*
 mp.game.streaming.requestAnimDict("random@robbery");
@@ -2023,9 +2227,10 @@ function vehEjectAll() {
 	if(actMenu && hud_browser) {
 		closeActMenu();
 		
+		if(localPlayer.isDead()) return false;
 		if(afVehEjectAll) return false;
-		if(!localPlayer.vehicle) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы должны быть в транспорте..</span>");
-		if(vehSeat != -1) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы должны быть за рулём..</span>");
+		if(!localPlayer.vehicle) return notyAPI.error("Вы должны быть в транспорте.", 3000, true);
+		if(vehSeat != -1) return notyAPI.error("Вы должны быть за рулём.", 3000, true);
 		
 		let theVeh = localPlayer.vehicle;
 		
@@ -2036,152 +2241,23 @@ function vehEjectAll() {
 		if(theVeh.getVariable("veh.hash")) {
 			let vehHash = theVeh.getVariable("veh.hash");
 			if(typeof(decVehStats[0][vehHash]) != "undefined") vehName = decVehStats[0][vehHash].name;
-			else vehData.name = vehHash;
+			else vehName = vehHash;
 		}
 		
 		afVehEjectAll = true;
 		setTimeout(() => { afVehEjectAll = false; }, 1000);
 		
-		chatAPI.notifyPush("Вы высадили всех из <span style=\"color:#FEBC00\"><b>"+vehName+"</b></span>");
+		notyAPI.success("Вы высадили всех из <b>"+vehName+"</b>.", 3000, true);
 		mp.events.callRemote('vehEjectAll');
 	}
 }
 mp.events.add("vehEjectAll", vehEjectAll);
 
-function vehAddOrOil(whatAdd) {
-	if(actMenu && hud_browser) {
-		closeActMenu();
-		
-		if(!chipImInZone) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы должны быть в станции чип-тюнинга, что бы заменить жидкости..</span>");
-		if(inventoryPanel || inventorySaving || invCEFUpdating || dealerPanel || sellingInvSlot)  return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Сейчас есть активные операции по инвентарю или открыт инвентарь..</span>");
-		
-		if(typeof(whatAdd) !== "undefined") {
-			if(typeof(localPlayer.getVariable("player.inv")) === "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Ваш инвентарь не инициализирован..</span>");
-			
-			if(!localPlayer.vehicle) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы должны быть в транспорте..</span>");
-			if(vehSeat != -1) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы должны быть за рулём..</span>");
-			
-			let addictionName = false;
-			let addictionText = false;
-			switch (whatAdd) {
-				case "stecoil":
-					addictionName = "моторного масла SUPROTEC";
-					addictionText = "заменив <span style=\"color:#FEBC00\"><b>моторное масло</b></span> на <span style=\"color:#FEBC00\"><b>SUPROTEC</b></span>";
-					break;
-				case "roweoil":
-					addictionName = "моторного масла ROWE";
-					addictionText = "заменив <span style=\"color:#FEBC00\"><b>моторное масло</b></span> на <span style=\"color:#FEBC00\"><b>ROWE</b></span>";
-					break;
-				case "shelloil":
-					addictionName = "моторного масла SHELL";
-					addictionText = "заменив <span style=\"color:#FEBC00\"><b>моторное масло</b></span> на <span style=\"color:#FEBC00\"><b>SHELL</b></span>";
-					break;
-				case "lukoiloil":
-					addictionName = "моторного масла LUKOIL";
-					addictionText = "заменив <span style=\"color:#FEBC00\"><b>моторное масло</b></span> на <span style=\"color:#FEBC00\"><b>LUKOIL</b></span>";
-					break;
-				case "stecgasprem":
-					addictionName = "присадки SUPROTEC Актив Премиум";
-					addictionText = "добавив <span style=\"color:#FEBC00\"><b>присадку</b></span> в масло <span style=\"color:#FEBC00\"><b>SUPROTEC Актив Премиум</b></span>";
-					break;
-				case "stecgasplus":
-					addictionName = "присадки SUPROTEC Актив Плюс";
-					addictionText = "добавив <span style=\"color:#FEBC00\"><b>присадку</b></span> в масло <span style=\"color:#FEBC00\"><b>SUPROTEC Актив Плюс</b></span>";
-					break;
-				case "stecgassga":
-					addictionName = "присадки SUPROTEC SGA";
-					addictionText = "добавив топливную <span style=\"color:#FEBC00\"><b>присадку</b></span> <span style=\"color:#FEBC00\"><b>SUPROTEC SGA</b></span>";
-					break;
-			}
-			
-			let theVeh = localPlayer.vehicle;
-			
-			if(typeof(theVeh.getVariable('veh.params')) !== "undefined") {
-				let vehParams = JSON.parse(theVeh.getVariable("veh.params"));
-				if(typeof(vehParams.rent) !== "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Замена жидкостей на арендованном транспорте недоступна</span>");
-			}
-
-			if(typeof(theVeh.getVariable('veh.own')) !== "undefined") {
-				if(mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.own')))) {
-					let vehOwn = mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.own')));
-					if(vehOwn.remoteId.toString() != localPlayer.remoteId.toString()) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Замена жидкостей доступна только на личном ТС</span>");
-				}else{
-					return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Замена жидкостей доступна только на личном ТС</span>");
-				}
-			}else{
-				return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Замена жидкостей доступна только на личном ТС</span>");
-			}
-			
-			let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-			decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
-			
-			let vehName = "транспорта";
-			if(theVeh.getVariable("veh.hash")) {
-				let vehHash = theVeh.getVariable("veh.hash");
-				if(typeof(decVehStats[0][vehHash]) != "undefined") vehName = decVehStats[0][vehHash].name;
-				else vehData.name = vehHash;
-			}
-			
-			if(addictionName && addictionText) {
-				let isFinded = false;
-				let isFindedOilFilter = false;
-				let isFindedAirFilter = false;
-				let myInv = localPlayer.getVariable("player.inv");
-				for(let slot in myInv) {
-					if(myInv[slot].hash == whatAdd) isFinded = true;
-					if(whatAdd == "stecoil" || whatAdd == "roweoil" || whatAdd == "shelloil" || whatAdd == "lukoiloil") {
-						if(myInv[slot].hash == "oilfilter") isFindedOilFilter = true;
-						if(myInv[slot].hash == "airfilter") isFindedAirFilter = true;
-					}
-				}
-				
-				if(!isFinded) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * У Вас в инвентаре нет "+addictionName+", приобрести можно в магазине 24/7..</span>");
-				if(whatAdd == "stecoil" || whatAdd == "roweoil" || whatAdd == "shelloil" || whatAdd == "lukoiloil") {
-					if(!isFindedOilFilter && !isFindedAirFilter) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * У Вас в инвентаре нет масляного и воздушного фильтра, приобрести можно в магазине 24/7..</span>");
-					else if(!isFindedOilFilter) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * У Вас в инвентаре нет масляного фильтра, приобрести можно в магазине 24/7..</span>");
-					else if(!isFindedAirFilter) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * У Вас в инвентаре нет воздушного фильтра, приобрести можно в магазине 24/7..</span>");
-				}
-				
-				chatAPI.notifyPush("Вы обслужили <span style=\"color:#FEBC00\"><b>"+vehName+"</b></span>, "+addictionText);
-				inventorySaving = true;
-				mp.events.callRemote('vehAddOrOil', whatAdd);
-			}else{
-				return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Что-то пошло не так, попробуйте позже..</span>");
-			}
-		}
-	}
-}
-mp.events.add("vehAddOrOil", vehAddOrOil);
-
-/*
-var mVehPanel = false;
-mp.keys.bind(0x4D, true, function() { // M - Скрыть / Показать обслуживание
-	if(!allowBinds || !Array.isArray(allowBinds)) return false;
-	if(!allowBinds.includes(0x4D)) return false;
-	
-	if(!localPlayer.vehicle) return false;
-	if(vehSeat != -1) return false;
-	
-	if(afToggleMVehButton) return false;
-	afToggleMVehButton = true;
-	setTimeout(() => { afToggleMVehButton = false; }, 500);
-	if(hud_browser) {
-		if(!mVehPanel) {
-			hud_browser.execute("toggleMVehPanel(true);");
-			mVehPanel = true;
-		}else{
-			hud_browser.execute("toggleMVehPanel(false);");
-			mVehPanel = false;
-		}
-	}
-});
-*/
-
 function activateAnim(animData, isStop) {
 	if(actMenu && hud_browser) {
 		closeActMenu();
 		if(typeof(animData) !== "undefined" && typeof(isStop) !== "undefined") {
-			if(localPlayer.vehicle) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Анимации в транспорте недоступны..</span>");
+			if(localPlayer.vehicle) return notyAPI.error("Анимации в транспорте недоступны.", 3000, true);
 			if(isStop) {
 				//localPlayer.clearTasksImmediately();
 				mp.events.callRemote('playTheAnim', false, false, false, false, true);
@@ -2205,13 +2281,14 @@ function activateWalkStyle(walkStyle, walkName) {
 			if(walkStyle != "stock") {
 				if(!mp.game.streaming.hasClipSetLoaded(walkStyle)) {
 					mp.game.streaming.requestClipSet(walkStyle);
-					while(!mp.game.streaming.hasClipSetLoaded(walkStyle)) mp.game.wait(0);
+					setTimeout(() => { localPlayer.setMovementClipset(walkStyle, 0.25); }, 1500);
+					//while(!mp.game.streaming.hasClipSetLoaded(walkStyle)) localPlayer.setMovementClipset(walkStyle, 0.25);
 				}
 				localPlayer.setMovementClipset(walkStyle, 0.25);
-				chatAPI.notifyPush("Вы сменили стиль походки на <span style=\"color:#FEBC00\"><b>"+walkName+"</b></span>");
+				notyAPI.success("Вы сменили стиль походки на <b>"+walkName+"</b>.", 3000, true);
 			}else{
 				localPlayer.resetMovementClipset(0.25);
-				chatAPI.notifyPush("Вы сменили стиль походки на <span style=\"color:#FEBC00\"><b>стандартный для Вашего персонажа</b></span>");
+				notyAPI.success("Вы сменили стиль походки на <b>стандартный для Вашего персонажа</b>.", 3000, true);
 			}
 			mp.storage.data.settings.walkStyle = walkStyle;
 		}
@@ -2274,10 +2351,11 @@ var vehPanel = false, myVehSaving = false;
 mp.keys.bind(0x72, true, function() { // F3 Меню (Личный транспорт)
 	if(!allowBinds || !Array.isArray(allowBinds)) return false;
 	if(!allowBinds.includes(0x72)) return false;
-	if(inCasino) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * В казино панель F3 недоступна..</span>");
-	if(inventorySaving || invCEFUpdating) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Ваш персонаж сохраняется, F3 временно недоступен, подождите..</span>");
-	if(invCEFUpdatingVeh) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Ваш транспорт сохраняется, F3 временно недоступен, подождите..</span>");
-	if(tuningVehicle) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы в тюнинге, F3 недоступен..</span>");
+	if(localPlayer.isDead()) return false;
+	if(inCasino) return notyAPI.error("В казино панель [ <b>F3</b> ] недоступна.", 3000, true);
+	if(inventorySaving || invCEFUpdating) return notyAPI.error("Ваш персонаж сохраняется, [ <b>F3</b> ] временно недоступен, подождите.", 3000, true);
+	if(invCEFUpdatingVeh) return notyAPI.error("Ваш транспорт сохраняется, [ <b>F3</b> ] временно недоступен, подождите.", 3000, true);
+	if(tuningVehicle) return notyAPI.error("Вы в тюнинге, [ <b>F3</b> ] недоступен.", 3000, true);
 	
 	let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
 	decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
@@ -2287,30 +2365,31 @@ mp.keys.bind(0x72, true, function() { // F3 Меню (Личный трансп�
 			closeVehMenu();
 		}else{
 			if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
-				if(localPlayer.getVariable("active.deal")) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * У Вас есть активная сделка, F3 недоступен..</span>");
+				if(localPlayer.getVariable("active.deal")) return notyAPI.error("У Вас есть активная сделка, [ <b>F3</b> ] недоступен.", 3000, true);
 			}
 			if(typeof(localPlayer.getVariable("player.blocks")) != "undefined") {
 				let playerBlocks = localPlayer.getVariable("player.blocks");
-				if(typeof(playerBlocks.jail) !== "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Панель транспорта (F3) в тюрьме не доступна..</span>");
+				if(typeof(playerBlocks.jail) !== "undefined") return notyAPI.error("Панель транспорта [ <b>F3</b> ] в тюрьме не доступна.", 3000, true);
 			}
-			if(invCEFUpdatingVeh) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Автомобиль сохраняется, временно недоступно..</span>");
-			if(afVehPanel) return false;
-			afVehPanel = setTimeout(() => { afVehPanel = false; }, 500);
+			if(invCEFUpdatingVeh) return notyAPI.error("Автомобиль сохраняется, временно недоступно.", 3000, true);
 			
-			if((!curDay && curDay.toString() != "0") || (!curMonth && curMonth.toString() != "0") || (!curYear && curYear.toString() != "0") || (!curHours && curHours.toString() != "0") || (!curMinutes && curMinutes.toString() != "0") || (!curSeconds && curSeconds.toString() != "0")) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Дождитесь полной инициализации аккаунта..</span>");
+			if(Date.now() - afVehPanel < 500) return false;
+			afVehPanel = Date.now();
+			
+			if((!curDay && curDay.toString() != "0") || (!curMonth && curMonth.toString() != "0") || (!curYear && curYear.toString() != "0") || (!curHours && curHours.toString() != "0") || (!curMinutes && curMinutes.toString() != "0") || (!curSeconds && curSeconds.toString() != "0")) return notyAPI.error("Дождитесь полной инициализации аккаунта.", 3000, true);
 			
 			let curDateTime = JSON.stringify({"day":curDay,"month":curMonth,"year":curYear,"hours":curHours,"minutes":curMinutes,"seconds":curSeconds});
 			
 			if(imInZone) {
 				if(typeof(mp.world.data.zones[imInZone]) !== "undefined") {
 					let tempZone = mp.world.data.zones[imInZone];
-					if(typeof(tempZone.war.id) !== "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Во время капта личный транспорт не доступен на территории..</span>");
+					if(typeof(tempZone.war.id) !== "undefined") return notyAPI.error("Во время капта личный транспорт не доступен на территории.", 3000, true);
 				}
 			}
 			
 			if(typeof(localPlayer.getVariable('player.vehs')) !== "undefined") {
 				var tempJSon = localPlayer.getVariable('player.vehs');
-				if(!tempJSon) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Ваш транспорт сохраняется, пожалуйста подождите..</span>");
+				if(!tempJSon) return notyAPI.error("Ваш транспорт сохраняется, пожалуйста подождите.", 3000, true);
 				
 				for(var k in tempJSon.vehicles) {
 					let vehHash = tempJSon.vehicles[k].hash;
@@ -2325,8 +2404,8 @@ mp.keys.bind(0x72, true, function() { // F3 Меню (Личный трансп�
 					
 					//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+vehType+": "+tempJSon.vehicles[k].number+"</span>");
 				}
-				
 				if(typeof(localPlayer.getVariable('player.houses')) !== "undefined" && typeof(localPlayer.getVariable('player.nums')) !== "undefined") {
+					//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+JSON.stringify(tempJSon)+"</span>");
 					hud_browser.execute("refreshVehPanel('"+JSON.stringify(tempJSon)+"', '"+JSON.stringify(localPlayer.getVariable('player.houses'))+"', '"+JSON.stringify(localPlayer.getVariable('player.nums'))+"', '"+curDateTime+"');");
 					hud_browser.execute('toggleVehiclesPanel(true);');
 					mp.gui.cursor.visible = true;
@@ -2336,16 +2415,17 @@ mp.keys.bind(0x72, true, function() { // F3 Меню (Личный трансп�
 					
 					mp.game.graphics.startScreenEffect("MenuMGHeistTint", 0, true);
 				}else{
-					chatAPI.sysPush("<span style=\"color:#FF6146\"> * Часть данных не инициализированы, повторите ещё раз..</span>");
+					notyAPI.error("Часть данных не инициализированы, повторите ещё раз.", 3000, true);
 				}
 			}else{
-				chatAPI.sysPush("<span style=\"color:#FF6146\"> * Ваш транспорт не инициализирован, повторите ещё раз..</span>");
+				notyAPI.error("Ваш транспорт не инициализирован, повторите ещё раз.", 3000, true);
 			}
 		}
 	}
 });
 
 mp.keys.bind(0xC0, true, function() { // Режим рэгдолл (Ragdoll)
+	if(localPlayer.isDead()) return false;
 	if(!allowBinds || !Array.isArray(allowBinds)) return false;
 	if(!allowBinds.includes(0xC0)) return false;
 	if(!localPlayer.isDead() && !isAnimActive && !localPlayer.isGoingIntoCover()) localPlayer.setToRagdoll(1500, 1500, 0, true, true, true);
@@ -2395,9 +2475,9 @@ mp.keys.bind(0x7A, false, function() { // CONSOLE HOOK
 	}
 });
 
-function installNumFromBag(theNum) {
+function installNumFromBag(numType, numVal) {
 	if(vehPanel && hud_browser) {
-		if(typeof(theNum) !== "undefined") {
+		if(typeof(numType) !== "undefined" && typeof(numVal) !== "undefined") {
 			if(localPlayer.vehicle) {
 				let theVeh = localPlayer.vehicle;
 				if(typeof(theVeh.getVariable("veh.own")) === "undefined" || typeof(theVeh.getVariable("veh.num")) === "undefined") return hud_browser.execute('errorNumBag(\'Вы должны находится в личном транспорте #1\');');
@@ -2409,10 +2489,15 @@ function installNumFromBag(theNum) {
 					return hud_browser.execute('errorNumBag(\'Вы должны находится в личном транспорте #2\');');
 				}
 				
-				if(theVeh.getVariable("veh.num") == "theMoto") return hud_browser.execute('errorNumBag(\'Вы не можете установить номер на этот транспорт\');');
-				afVehPanel = setTimeout(() => { afVehPanel = false; }, 2500);
+				if(!theVeh.getVariable("veh.num")) return hud_browser.execute('errorNumBag(\'Вы не можете установить номер на этот транспорт\');');
+				let vehNumData = JSON.parse(theVeh.getVariable("veh.num"));
+				if(typeof(vehNumData.type) === "undefined") return hud_browser.execute('errorNumBag(\'Вы не можете установить этот номер на этот транспорт\');');
+				if(numType != vehNumData.type) return hud_browser.execute('errorNumBag(\'Вы не можете установить этот номер на этот транспорт\');');
+				
+				afVehPanel = Date.now();
+				
 				closeVehMenu();
-				mp.events.callRemote('installNumFromBag', theNum);
+				mp.events.callRemote('installNumFromBag', numType, numVal);
 			}else{
 				return hud_browser.execute('errorNumBag(\'Вы должны находится в транспорте\');');
 			}
@@ -2426,13 +2511,17 @@ mp.events.add("installNumFromBag", installNumFromBag);
 function numFromBagInstalled(installResult, vehHash, theNum) {
 	if(hud_browser) {
 		if(typeof(installResult) !== "undefined" && typeof(vehHash) !== "undefined" && typeof(theNum) !== "undefined") {
-			let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-			decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
-			let vehName = vehHash;
-			if(typeof(decVehStats[0][vehHash]) != "undefined") vehName = decVehStats[0][vehHash].name;
-			mp.game.ui.messages.showMidsizedShard("~y~Номер ~w~"+theNum, "~s~Установлен из хранилища~n~На "+vehName+"", 5, false, true, 8000);
+			if(installResult) {
+				let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
+				decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
+				let vehName = vehHash;
+				if(typeof(decVehStats[0][vehHash]) != "undefined") vehName = decVehStats[0][vehHash].name;
+				mp.game.ui.messages.showMidsizedShard("~y~Номер ~w~"+theNum, "~s~Установлен из хранилища~n~На "+vehName+"", 5, false, true, 8000);
+			}else{
+				return notyAPI.error("Во время установки номера, что-то пошло не так.", 3000, true);
+			}
 		}else{
-			return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Во время установки номера, что-то пошло не так..</span>");
+			return notyAPI.error("Во время установки номера, что-то пошло не так.", 3000, true);
 		}
 	}
 }
@@ -2465,11 +2554,12 @@ function tpVeh(data) {
 	//chatAPI.warningPush("vInfo: "+data);
 	//chatAPI.sysPush("<span style=\"color:#FF6146\"> * afTPvehAndDestroy: "+afTPvehAndDestroy.toString()+"</span>");
 	
-	if(localPlayer.vehicle) return false;
-	if(inCasino) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * В казино телепорт транспорта запрещён..</span>");
+	if(localPlayer.isDead()) return false;
+	if(localPlayer.vehicle || localPlayer.getVariable("player.train")) return false;
+	if(inCasino) return notyAPI.error("В казино телепорт транспорта запрещён.", 3000, true);
 	
-	if(afTPvehAndDestroy) return false;
-	afTPvehAndDestroy = setTimeout(() => { afTPvehAndDestroy = false; }, 1500);
+	if(Date.now() - afTPvehAndDestroy < 1500) return false;
+	afTPvehAndDestroy = Date.now();
 	
 	let dataJSON = JSON.parse(data);
 	dataJSON = dataJSON[0];
@@ -2477,7 +2567,7 @@ function tpVeh(data) {
 	closeVehMenu();
 	
 	if(dataJSON) {
-		if(typeof(dataJSON.id) === "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Транспорт не инициализирован, перезайдите..</span>");
+		if(typeof(dataJSON.id) === "undefined") return notyAPI.error("Транспорт не инициализирован, перезайдите.", 3000, true);
 		if(typeof(dataJSON.name) !== "undefined") {
 			mp.game.ui.messages.showMidsized(dataJSON.name.toString(), "~s~Транспорт ~g~успешно ~s~доставлен к Вам.");
 			mp.events.callRemote('tpVeh', dataJSON.id);
@@ -2487,9 +2577,10 @@ function tpVeh(data) {
 mp.events.add("tpVeh", tpVeh);
 
 function destroyVeh(data) {
-	if(afTPvehAndDestroy) return false;
-	afTPvehAndDestroy = setTimeout(() => { afTPvehAndDestroy = false; }, 1500);
+	if(Date.now() - afTPvehAndDestroy < 1500) return false;
+	afTPvehAndDestroy = Date.now();
 	
+	if(localPlayer.isDead()) return false;
 	if(invCEFUpdatingVeh) return false;
 	
 	myVehSaving = true;
@@ -2499,8 +2590,11 @@ function destroyVeh(data) {
 mp.events.add("destroyVeh", destroyVeh);
 
 function doorsVeh(data) {
-	if(afDoors) return false;
-	afDoors = setTimeout(() => { afDoors = false; }, 2000);
+	if(localPlayer.isDead()) return false;
+	
+	if(Date.now() - afDoors < 2000) return false;
+	afDoors = Date.now();
+	
 	if(hud_browser) hud_browser.execute('playSound("lock", "0.1");');
 	mp.events.callRemote('doorsVeh', data);
 	//chatAPI.warningPush(data);
@@ -2515,8 +2609,9 @@ mp.events.add("chipVeh", chipVeh);
 */
 
 function destroyAllVehs() {
-	if(afTPvehAndDestroy) return false;
-	afTPvehAndDestroy = setTimeout(() => { afTPvehAndDestroy = false; }, 2000);
+	if(localPlayer.isDead()) return false;
+	if(Date.now() - afTPvehAndDestroy < 1500) return false;
+	afTPvehAndDestroy = Date.now();
 	
 	if(invCEFUpdatingVeh) return false;
 	
@@ -2530,10 +2625,12 @@ mp.events.add("destroyAllVehs", destroyAllVehs);
 mp.keys.bind(0xBC, true, function() { // Лево <
 	if(!allowBinds || !Array.isArray(allowBinds)) return false;
 	if(!allowBinds.includes(0xBC)) return false;
+	if(localPlayer.isDead()) return false;
 	
 	if(vehSeat != -1) return false;
-	if(afTurnLeft) return false;
-	afTurnLeft = setTimeout(() => { afTurnLeft = false; }, 800);
+	
+	if(Date.now() - afTurnLeft < 800) return false;
+	afTurnLeft = Date.now();
 	
 	//if(!waitVehActions.flashers) {
 		//waitVehActions.flashers = true;
@@ -2545,9 +2642,12 @@ mp.keys.bind(0xBE, true, function() { // Право >
 	//localPlayer.taskAimGunScripted(mp.game.joaat("SCRIPTED_GUN_TASK_PLANE_WING"), true, true);
 	if(!allowBinds || !Array.isArray(allowBinds)) return false;
 	if(!allowBinds.includes(0xBE)) return false;
+	if(localPlayer.isDead()) return false;
+	
 	if(vehSeat != -1) return false;
-	if(afTurnRight) return false;
-	afTurnRight = setTimeout(() => { afTurnRight = false; }, 800);
+	
+	if(Date.now() - afTurnRight < 800) return false;
+	afTurnRight = Date.now();
 	
 	//if(!waitVehActions.flashers) {
 		//waitVehActions.flashers = true;
@@ -2559,9 +2659,11 @@ var helpButtons = false;
 mp.keys.bind(0x30, true, function() { // 0 - Скрыть / Показать подсказки
 	if(!allowBinds || !Array.isArray(allowBinds)) return false;
 	if(!allowBinds.includes(0x30)) return false;
+	if(localPlayer.isDead()) return false;
 	
-	if(afToggleHelpButtons) return false;
-	afToggleHelpButtons = setTimeout(() => { afToggleHelpButtons = false; }, 500);
+	if(Date.now() - afToggleHelpButtons < 500) return false;
+	afToggleHelpButtons = Date.now();
+	
 	if(hud_browser) {
 		if(!helpButtons) {
 			hud_browser.execute("toggleHelpButtons(true);");
@@ -2576,9 +2678,11 @@ mp.keys.bind(0x30, true, function() { // 0 - Скрыть / Показать п�
 mp.keys.bind(0x4F, true, function() { // O(буква) - Скрыть / Показать подсказки
 	if(!allowBinds || !Array.isArray(allowBinds)) return false;
 	if(!allowBinds.includes(0x4F)) return false;
+	if(localPlayer.isDead()) return false;
 	
-	if(afToggleHelpButtons) return false;
-	afToggleHelpButtons = setTimeout(() => { afToggleHelpButtons = false; }, 500);
+	if(Date.now() - afToggleHelpButtons < 500) return false;
+	afToggleHelpButtons = Date.now();
+	
 	if(hud_browser) {
 		if(!helpButtons) {
 			hud_browser.execute("toggleHelpButtons(true);");
@@ -2594,8 +2698,9 @@ var tryingSeatToVehTimer = false, theftVeh = false, activateDBTimer = false;
 mp.keys.bind(0x46, true, function() { // F (попытка сесть в авто)
 	if(!allowBinds || !Array.isArray(allowBinds)) return false;
 	if(!allowBinds.includes(0x46)) return false;
+	if(localPlayer.isDead()) return false;
 	
-	if(typeof(localPlayer.getVariable("player.id")) !== "undefined") {
+	if(hud_browser) {
 		if(!localPlayer.vehicle) {
 			if(typeof(activateDBTimer) === "undefined" || typeof(tryingSeatToVehTimer) === "undefined") return false;
 			if(activateDBTimer || tryingSeatToVehTimer) return false;
@@ -2603,7 +2708,7 @@ mp.keys.bind(0x46, true, function() { // F (попытка сесть в авт�
 				if(mp.game.invoke('0x6F4C85ACD641BCD2', localPlayer.handle) != -1) {
 					if(typeof(localPlayer.getVariable("player.fraction") !== "undefined")) {
 						let myFraction = localPlayer.getVariable("player.fraction");
-						if(typeof(myFraction.id) !== "undefined") mp.game.player.setCanDoDriveBy(true);
+						if(myFraction.hasOwnProperty("id") !== null)  mp.game.player.setCanDoDriveBy(true);
 						else mp.game.player.setCanDoDriveBy(false);
 					}
 				}else{
@@ -2682,6 +2787,9 @@ mp.events.add({
 		localPlayer.setConfigFlag(18, false); // Не пиздить прикладом
 		if(vehicle.getClass() == 13) vehicle.setEngineOn(true, true, true);
 		else if(vehicle.getClass() == 15) checkCourierTaskAndStop();
+		
+		localPlayer.setCanBeKnockedOffVehicle(0); // Падать с мотика, пока не пристегнули
+		canBeKnockedOffVehicle = false;
 			
 		if(typeof(vehicle.d3Veh) !== "undefined") return antiCheatDetected('Читы, сел в D3 авто');
 		
@@ -2704,8 +2812,15 @@ mp.events.add({
 					if(vehFuel["type"] == "electro") mp.game.ui.notifications.showWithPicture("Твой бро", "Автопилот", "В этой бричке есть автопилот, нажми J для активации", "CHAR_JIMMY", 1, false, 1, 2);
 				}
 			}
-				
+			
+			//chatAPI.warningPush("imInGasStation: "+imInGasStation.toString());
 			if(imInGasStation) {
+				if(vehPanel) return false;
+				if(myVehSaving) return false;
+				if(inventorySaving || invCEFUpdating || invCEFUpdatingVeh) return false;
+				if(inventoryPanel) return false;
+				if(imRefuiling) return false;
+				
 				if(imInGasStation == "gas") openGasPanel(); // Если на заправке, то открыть окно заправки
 				else if(imInGasStation == "electro") openElectroPanel(); // Если на заправке, то открыть окно зарядки
 			}
@@ -2831,8 +2946,10 @@ function grabTruckDelivered() {
 		if(typeof(theVeh.getVariable("veh.grabTruck")) !== "undefined") {
 			if(theVeh.getVariable("veh.grabTruck")) {
 				mp.game.ui.notifications.showWithPicture("Тот самый кто-то", "Стафф на базе!", "~w~Забирай ~o~добычу~w~, ты красавчик!", "CHAR_GANGAPP", 1, false, 1, 2);
-				chatAPI.notifyPush(" * Вы доставили <span style=\"color:#FEBC00\"><b>грузовик с грузом</b></span> в отстойник.");
-				chatAPI.notifyPush(" * Скорее лутайте содержимое, и покиньте место проишествия!");
+				
+				notyAPI.success("Вы доставили <b>грузовик с грузом</b> в отстойник.", 3000, true);
+				notyAPI.info("Скорее лутайте содержимое, и покиньте место проишествия!", 4500, false);
+				
 				mp.game.ui.messages.showMidsizedShard("~y~Хороший ~w~улов", "~s~Скорее лутайте содержимое, и покиньте место проишествия!", 5, false, true, 8000);
 				
 				mp.events.call("sleepAntiCheat");
@@ -2892,8 +3009,9 @@ mp.events.add("playerEnterCheckpoint", (checkpoint) => {
 								
 								mp.game.ui.notifications.showWithPicture("Тот самый кто-то", "Отличная работа!", "~w~Годная бричка ~o~"+vehName, "CHAR_GANGAPP", 1, false, 1, 2);
 								
-								chatAPI.notifyPush(" * Вы доставили угнанный автомобиль <span style=\"color:#FEBC00\"><b>"+vehName+"</b></span> в отстойник.");
-								chatAPI.notifyPush(" * Картель только что перевел на Ваш банковский счёт<span style=\"color:#FEBC00\"><b>"+vehCost+"</b></span> руб.");
+								notyAPI.success("Вы доставили угнанный автомобиль <b>"+vehName+"</b> в отстойник.", 3000, true);
+								notyAPI.info("Картель только что перевел на Ваш банковский счёт<b>"+vehCost+"</b> руб.", 4500, true);
+								
 								mp.game.ui.messages.showMidsizedShard("~y~Успешный угон ~w~"+vehName, "~s~Получено от картеля"+vehCost+" руб.", 5, false, true, 8000);
 								
 								mp.events.call("sleepAntiCheat");
@@ -3018,16 +3136,16 @@ mp.events.addDataHandler('player.blocks', function (entity, value, oldValue) {
 			}
 			if(typeof(oldValue.jail) != "undefined" && typeof(value.jail) == "undefined") {
 				jailBreakAttemptions = 0;
-				chatAPI.notifyPush(" * Вы были освобождены из <span style=\"color:#FEBC00\"><b>Федеральной тюрьмы</b></span> Лос-Сантоса.");
+				notyAPI.success("Вы были освобождены из <b>Федеральной тюрьмы</b> Лос-Сантоса.", 3000, true);
 				mp.game.ui.messages.showMidsizedShard("~y~Вы успешно отсидели ~w~свой срок", "~s~Вы освобождены из Федеральной тюрьмы Лос-Сантоса.", 5, false, true, 8000);
 				mp.events.callRemote('freeJail');
 			}
 			if(typeof(oldValue.mute) != "undefined" && typeof(value.mute) == "undefined") {
-				chatAPI.notifyPush(" * Запрет сообщений и голосового чата <span style=\"color:#FEBC00\"><b>снят</b></span>.");
+				notyAPI.success("Запрет сообщений и голосового чата <b>снят</b>.", 3000, true);
 				mp.events.callRemote('freeMute');
 			}
 			if(typeof(oldValue.dick) != "undefined" && typeof(value.dick) == "undefined") {
-				chatAPI.notifyPush(" * Хуй со лба <span style=\"color:#FEBC00\"><b>снят</b></span> по истечению срока годности.");
+				notyAPI.success("Хуй со лба <b>снят</b> по истечению срока годности.", 3000, true);
 				mp.events.callRemote('freeDick');
 			}
 		}
@@ -3041,10 +3159,52 @@ mp.events.add('donateUpdated', function (theData) {
 		theData.summa = theData.summa.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
 		theData.newdonate = theData.newdonate.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
 		mp.game.ui.messages.showMidsizedShard("~y~Донат ~w~получен", "~s~В размере~g~~h~"+theData.summa+" ~s~донат ед.~n~Новый донат баланс~g~~h~"+theData.newdonate+" ~s~донат ед.", 5, false, true, 5000);
-		if(hud_browser) hud_browser.execute('playSound("donate", 0.3);');
-		return mp.game.ui.notifications.showWithPicture("Донат получен", "+"+theData.summa+" донат ед.", "Новый баланс"+theData.newdonate+" донат ед.", "CHAR_DEVIN", 1, false, 1, 2);
+		if(hud_browser) hud_browser.execute('playSound("donate", 0.2);');
+		mp.game.ui.notifications.showWithPicture("Донат получен", "+"+theData.summa+" донат ед.", "Новый баланс"+theData.newdonate+" донат ед.", "CHAR_DEVIN", 1, false, 1, 2);
 	}
 });
+
+mp.events.add('premiumUpdated', function (theData) {
+	if(theData) {
+		theData = JSON.parse(theData);
+		theData.summa = theData.summa.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
+		
+		if(hud_browser) hud_browser.execute('playSound("premium", 0.2);');
+		
+		setTimeout(() => {
+			if(theData.add) {
+				mp.game.ui.messages.showMidsizedShard("~p~Премиум ~w~продлён", "~s~Вы оплатили премиум-доступ ещё на ~g~~h~"+theData.interval+" ~s~дней~n~Стоимость:~g~~h~"+theData.summa+" ~s~руб.", 5, false, true, 5000);
+				mp.game.ui.notifications.showWithPicture("Премиум продлён", "Продлили на "+theData.interval+" дней", "Стоимость:"+theData.summa+" руб.", "CHAR_DEVIN", 1, false, 1, 2);
+			}else{
+				mp.game.ui.messages.showMidsizedShard("~p~Премиум ~w~подключен", "~s~Вы оплатили премиум-доступ на ~g~~h~"+theData.interval+" ~s~дней~n~Итоговая стоимость:~g~~h~"+theData.summa+" ~s~руб.", 5, false, true, 5000);
+				mp.game.ui.notifications.showWithPicture("Премиум подключен", "Включили на "+theData.interval+" дней", "Стоимость:"+theData.summa+" руб.", "CHAR_DEVIN", 1, false, 1, 2);
+			}
+		}, 10000);
+	}
+});
+
+mp.events.add('premiumUpdatedAdm', function (isAdd) {
+	if(typeof(isAdd) !== "undefined") {
+		if(hud_browser) hud_browser.execute('playSound("premium", 0.2);');
+		setTimeout(() => {
+			if(isAdd) {
+				mp.game.ui.messages.showMidsizedShard("~p~Премиум ~w~продлён", "~s~Вы получили премиум-доступ от администрации ещё на ~g~~h~1 ~s~день~n~Стоимость: ~g~~h~0 ~s~руб.", 5, false, true, 5000);
+				mp.game.ui.notifications.showWithPicture("Премиум продлён", "Продлили на 1 день", "Стоимость: 0 руб.", "CHAR_DEVIN", 1, false, 1, 2);
+			}else{
+				mp.game.ui.messages.showMidsizedShard("~p~Премиум ~w~подключен", "~s~Вы получили премиум-доступ от администрации на ~g~~h~1 ~s~день~n~Итоговая стоимость: ~g~~h~0 ~s~руб.", 5, false, true, 5000);
+				mp.game.ui.notifications.showWithPicture("Премиум подключен", "Включили на 1 день", "Стоимость: 0 руб.", "CHAR_DEVIN", 1, false, 1, 2);
+			}
+		}, 10000);
+	}
+});
+
+mp.events.add('premiumExpired', function () {
+	setTimeout(() => {
+		mp.game.ui.messages.showMidsizedShard("~p~Премиум ~w~закончился", "~s~Действие премиум-доступа ~r~~h~закончилось ~n~Купить вновь можно на сайте ~g~~h~SMOTRARage.ru", 5, false, true, 5000);
+		mp.game.ui.notifications.showWithPicture("Премиум закончился", "Премиум-доступ всё :(", "К сожалению, премиум-доступ закончился.", "CHAR_DEVIN", 1, false, 1, 2);
+	}, 10000);
+});
+
 
 mp.events.add("onServerSendKill", (player, playerColor, reason, killer, killerColor) => {
 	if(player && playerColor && reason && killer && killerColor && hud_browser) {
@@ -3114,19 +3274,23 @@ mp.keys.bind(0x11, false, () => { // Crouch (приседания)
 	if(localPlayer.vehicle) return false;
 	if(!allowBinds || !Array.isArray(allowBinds)) return false;
 	if(!allowBinds.includes(0x11)) return false;
-	if(afCrouch) return false;
+	if(Date.now() - afCrouch < 200) return false;
 	if(inCasino) return false;
 	if(localPlayer.getIsTaskActive(287)) return false;
 	if(typeof(localPlayer.getVariable("player.nick")) === "undefined") return false;
+	if(localPlayer.isDead()) return false;
 	
-	afCrouch = setTimeout(() => { afCrouch = false; }, 500);
+	afCrouch = Date.now();
 	
-	if(!imCrouch) imCrouch = 1;
+	/*if(!imCrouch) imCrouch = 1;
 	else if(imCrouch == 1) imCrouch = 2;
 	else if(imCrouch == 2) imCrouch = 3;
-	else if(imCrouch == 3) imCrouch = false;
+	else if(imCrouch == 2) imCrouch = false;*/
 	
-	if(typeof(localPlayer.getVariable("player.fraction")) !== "undefined") {
+	if(!imCrouch) imCrouch = true;
+	else imCrouch = false;
+	
+	/*if(typeof(localPlayer.getVariable("player.fraction")) !== "undefined") {
 		let myFraction = localPlayer.getVariable("player.fraction");
 		for (var i in clanZones) {
 			let tempZone = clanZones[i];
@@ -3134,9 +3298,36 @@ mp.keys.bind(0x11, false, () => { // Crouch (приседания)
 				if(tempZone.own.id == myFraction.id || tempZone.war.id == myFraction.id) imCrouch = false;
 			}
 		}
+	}*/
+	
+	if(!imCrouch) {
+		localPlayer.setMovementClipset("move_ped_crouched", 0.25);
+		localPlayer.setStrafeClipset("move_ped_crouched_strafing");
+	}else{
+		if(typeof(mp.storage.data.settings) !== "undefined") {
+			if(typeof(mp.storage.data.settings.walkStyle) !== "undefined") {
+				if(mp.storage.data.settings.walkStyle != "stock") {
+					if(!mp.game.streaming.hasClipSetLoaded(mp.storage.data.settings.walkStyle)) {
+						mp.game.streaming.requestClipSet(mp.storage.data.settings.walkStyle);
+						//while(!mp.game.streaming.hasClipSetLoaded(mp.storage.data.settings.walkStyle)) localPlayer.setMovementClipset(mp.storage.data.settings.walkStyle, 0.25);
+						setTimeout(() => { localPlayer.setMovementClipset(mp.storage.data.settings.walkStyle, 0.25); }, 1500);
+					}
+					localPlayer.setMovementClipset(mp.storage.data.settings.walkStyle, 0.25);
+				}else{
+					localPlayer.resetMovementClipset(0.25);
+					localPlayer.resetStrafeClipset();
+				}
+			}else{
+				localPlayer.resetMovementClipset(0.25);
+				localPlayer.resetStrafeClipset();
+			}
+		}else{
+			localPlayer.resetMovementClipset(0.25);
+			localPlayer.resetStrafeClipset();
+		}
 	}
 	
-    if(imCrouch) {
+    /*if(imCrouch) {
 		if(imCrouch == 1) {
 			if(crawlInterval) {
 				clearInterval(crawlInterval);
@@ -3160,7 +3351,7 @@ mp.keys.bind(0x11, false, () => { // Crouch (приседания)
 					false,
 					false
 				);
-		}else if(imCrouch == 3) {
+		}else if(imCrouch == 2) {
 			if(crawlInterval) {
 				clearInterval(crawlInterval);
 				crawlInterval = false;
@@ -3190,9 +3381,10 @@ mp.keys.bind(0x11, false, () => { // Crouch (приседания)
 			localPlayer.resetMovementClipset(0.25);
 			localPlayer.resetStrafeClipset();
 		}
-    }
+    }*/
 });
 
+/*
 let animCrawl;
 let timeoutAnimCrawl;
 
@@ -3227,5 +3419,6 @@ function crawlHandleControls() {
             timeoutAnimCrawl = undefined;
         }, (timer - 0.1) * 1000);
     }
-}
+}
+*/
 }

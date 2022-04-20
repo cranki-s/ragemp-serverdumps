@@ -41,4 +41,4 @@ mp.events.add('loadInteriorProps', (toSpawn, toDespawn, x, y, z, colors) => {
 	mp.game.interior.refreshInterior(interiorid);
 });
 
-}ﲱẖˮ
+}ጉ얜˥

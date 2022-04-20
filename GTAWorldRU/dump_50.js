@@ -212,4 +212,4 @@ function endGame() {
     //removeLoadingMessage();
 }
 
-}筘ĸ
+}⪦G

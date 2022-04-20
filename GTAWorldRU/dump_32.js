@@ -44,4 +44,4 @@ mp.events.add('ClientEvent_MakeFuelFriendly', () => {
     currentOrderManager.execute(`$("#change-stock").text('litres of fuel');`);
     currentOrderManager.execute(`$("#change-desc").text('litres of fuel');`);
 });
-}Ÿ眓镢ȋ
+}

@@ -1,259 +1,738 @@
 {
-var afToggleTablet = false;
-var myTablet = false;
+var obmensInStream = [];
+var obmenData = false;
 
-mp.keys.bind(0x28, true, function() { // стрелка вниз, планшет
-	if(!allowBinds || !Array.isArray(allowBinds)) return false;
-	if(!allowBinds.includes(0x28)) return false;
-	
-	if(afToggleTablet) return false;
-	afToggleTablet = true;
-	setTimeout(function() { afToggleTablet = false }, 500);
+function closeObmenPanel() {
 	if(hud_browser) {
-		if(!myTablet) {
-			myTablet = true;
-			hud_browser.execute('togglePlayerTablet(\'{"name":"tabletMainActivity"}\');');
-			mp.gui.cursor.visible = true;
-			allowBinds = [0x28];
-		}else{
-			hud_browser.execute("togglePlayerTablet();");
-			mp.gui.cursor.visible = false;
-			restoreBinds();
-			myTablet = false;
+		mp.game.graphics.stopScreenEffect("MenuMGHeistTint");
+		hud_browser.execute("toggleObmenPanel();");
+		mp.gui.cursor.visible = false;
+		restoreBinds();
+	}
+}
+mp.events.add("closeObmenPanel", closeObmenPanel);
+
+mp.events.add('playerEnterColshape', (shape) => {
+	if(typeof(shape) != 'undefined' && typeof(shape.data) == 'undefined') {
+		if(mp.colshapes.exists(shape)) {
+			if(typeof(shape.getVariable('col.type')) != "undefined") {
+				let colType = shape.getVariable('col.type');
+				if(colType == 'obmen') {
+					if(!localPlayer.vehicle && hud_browser) {
+						if(allowBinds != stockBinds) return false;
+						if(localPlayer.getVariable('player.id') && localPlayer.getVariable('player.money')) {
+							if(typeof(localPlayer.getVariable('player.vehs')) == "undefined") return notyAPI.error("Обменник для Вас недоступен, попробуйте позже.", 3000, true);
+							if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
+								if(localPlayer.getVariable("active.deal")) return notyAPI.error("У Вас есть активная сделка, завершите её..", 3000, true);
+							}
+							
+							if(typeof(localPlayer.getVariable("player.tickets")) === "undefined") return notyAPI.error("У Вас более <b>50 000</b> руб. не оплаченных штрафов.", 3000, true);
+							if(parseInt(localPlayer.getVariable("player.tickets")) > 50000) return notyAPI.error("У Вас более <b>50 000</b> руб. не оплаченных штрафов.", 3000, true);
+							
+							allowBinds = [];
+							obmenData = false;
+							
+							let tempPlayers = [];
+							let myPos = localPlayer.position;
+							let counter = 0;
+							mp.players.forEachInStreamRange(
+								(player, id) => {
+									if(player != localPlayer) {
+										let plPos = player.position;
+										if(mp.game.gameplay.getDistanceBetweenCoords(myPos.x, myPos.y, myPos.z, plPos.x, plPos.y, plPos.z, true) <= 10) {
+											if(!player.vehicle && player.getVariable("player.id") && player.getVariable("player.nick")) {
+												tempPlayers.push({"nick":player.getVariable("player.nick").toString(),"id":parseInt(player.getVariable("player.id"))});
+												counter++;
+											}
+										}
+									}
+								}
+							);
+							
+							if(vehPanel) closeVehMenu();
+							
+							hud_browser.execute('toggleObmenPanelStuffCreation(\''+JSON.stringify(tempPlayers)+'\');');
+							mp.gui.cursor.visible = true;
+							mp.game.graphics.startScreenEffect("MenuMGHeistTint", 0, true);
+							return false;
+						}
+					}
+				}
+				if(colType == 'obmen_render') {
+					let obmenColData = shape.getVariable('col.data');
+					
+					let obmenMarker = mp.markers.new(1, new mp.Vector3(obmenColData[0], obmenColData[1], obmenColData[2]), 2.0,
+					{
+						direction: new mp.Vector3(0, 0, 0),
+						rotation: new mp.Vector3(0, 0, 0),
+						color: [91, 184, 232, 200],
+						visible: true,
+						dimension: 0
+					});
+					
+					let obmenArray = {'marker': obmenMarker, 'pos': [obmenColData[0], obmenColData[1], obmenColData[2]], 'alpha': 0};
+					obmensInStream.push(obmenArray);
+					return null;
+				}
+			}
 		}
 	}
 });
 
-function myTabletOff() {
-	if(hud_browser) {
-		if(myTablet) {
-			hud_browser.execute("togglePlayerTablet();");
-			mp.gui.cursor.visible = false;
-			restoreBinds();
-			myTablet = false;
-		}
-	}
+function closeAllObmenWindows() {
+	if(hud_browser) hud_browser.execute('toggleObmenPanel();');
+	mp.gui.cursor.visible = false;
+	restoreBinds();
+	mp.game.graphics.stopScreenEffect("MenuMGHeistTint");
 }
 
-// Ads App
+mp.events.add('playerExitColshape', (shape) => {
+	if(typeof(shape) != 'undefined') {
+		if(mp.colshapes.exists(shape)) {
+			if(typeof(shape.getVariable('col.type')) != "undefined") {
+				let colType = shape.getVariable('col.type');
+				if(colType == 'obmen') {
+					obmenData = false;
+					return closeAllObmenWindows();
+				}
+				if(colType == 'obmen_render') {
+					let obmenColData = shape.getVariable('col.data');
+					for(var i in obmensInStream) {
+						let tempData = obmensInStream[i];
+						let posData = tempData['pos'];
+						if (posData[0] == obmenColData[0] && posData[1] == obmenColData[1] && posData[2] == obmenColData[2]) {
+							if(tempData['marker']) {
+								tempData['marker'].destroy();
+								delete tempData['marker'];
+							}
+							if(obmensInStream[i] || obmensInStream[i] !== undefined) delete obmensInStream[i];
+						}
+					}
+					obmensInStream = obmensInStream.filter(function (el) { return el != null; });
+					return false;
+				}
+			}
+		}
+	}
+});
 
-mp.events.add("openCreatingAd", () => {
-	if(hud_browser && typeof(localPlayer.getVariable('player.id')) !== "undefined") {
-		if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") {
-			let playerBlocks = localPlayer.getVariable("player.blocks");
-			if(typeof(playerBlocks.jail) !== "undefined") return hud_browser.execute('togglePlayerTablet(\'{"name":"tabletAdsActivity"}\');myTabletError("#adsAppAddBut","Вы в тюрьме");');
-			if(typeof(playerBlocks.mute) !== "undefined") return hud_browser.execute('togglePlayerTablet(\'{"name":"tabletAdsActivity"}\');myTabletError("#adsAppAddBut","У Вас заглушка");');
-			if(typeof(playerBlocks.mins) === "undefined") return hud_browser.execute('togglePlayerTablet(\'{"name":"tabletAdsActivity"}\');myTabletError("#adsAppAddBut","У Вас менее 10 часов игры");');
-			if(parseInt(playerBlocks.mins) < 600) return hud_browser.execute('togglePlayerTablet(\'{"name":"tabletAdsActivity"}\');myTabletError("#adsAppAddBut","У Вас менее 10 часов игры");');
+mp.events.add('refreshObmenPlayers', () => {
+	if(hud_browser) {
+		let tempPlayers = [];
+		let myPos = localPlayer.position;
+		let counter = 0;
+		mp.players.forEachInStreamRange(
+			(player, id) => {
+				if(player != localPlayer) {
+					let plPos = player.position;
+					if(mp.game.gameplay.getDistanceBetweenCoords(myPos.x, myPos.y, myPos.z, plPos.x, plPos.y, plPos.z, true) <= 10) {
+						if(!player.vehicle && player.getVariable("player.id") && player.getVariable("player.nick")) {
+							tempPlayers.push({"nick":player.getVariable("player.nick").toString(),"id":parseInt(player.getVariable("player.id"))});
+							counter++;
+						}
+					}
+				}
+			}
+		);
+		hud_browser.execute('toggleObmenPanelStuffCreation(\''+JSON.stringify(tempPlayers)+'\');');
+	}
+});
+
+mp.events.add('obmenPanelStuffCreationClose', () => {
+	if(hud_browser) {
+		if(obmenData) {
+			if(typeof(obmenData.obmenNick) != "undefined" && typeof(obmenData.obmenID) != "undefined" && typeof(obmenData.initiator) != "undefined") {
+				let thePlayer = false;
+				mp.players.forEach(
+					(player) => {
+						if(typeof(player.getVariable("player.id")) != "undefined") {
+							if(player.getVariable("player.id") == obmenData.obmenID) thePlayer = player;
+						}
+					}
+				);
+				notyAPI.error("Вы отменили сеанс обмена с <b>"+obmenData.obmenNick+"</b> (<b>"+obmenData.obmenID+"</b>)", 3000, true);
+				if(thePlayer) mp.events.callRemote('cancelObmen', thePlayer, obmenData.initiator);
+				else mp.events.callRemote('cancelObmen');
+			}
+		}else{
+			mp.events.callRemote('cancelObmen');
+		}
+		if(vehPanel) closeVehMenu();
+		obmenData = false;
+		return closeAllObmenWindows();
+	}
+});
+
+mp.events.add('sendObmenOffer', (theNick, theID) => {
+	if(hud_browser && theNick && theID) {
+		theNick = theNick.toString();
+		theID = parseInt(theID);
+		let thePlayer = false;
+		
+		let myPos = localPlayer.position;
+		mp.players.forEachInStreamRange(
+			(player) => {
+				if(player != localPlayer) {
+					let plPos = player.position;
+					if(mp.game.gameplay.getDistanceBetweenCoords(myPos.x, myPos.y, myPos.z, plPos.x, plPos.y, plPos.z, true) <= 10) {
+						if(typeof(player.getVariable("player.id")) != "undefined") {
+							if(theID == player.getVariable("player.id")) thePlayer = player;
+						}
+					}
+				}
+			}
+		);
+		
+		if(thePlayer) {
+			if(thePlayer.getVariable("active.deal")) return hud_browser.execute('errorObmenPanelStuffCreation("У Игрока '+theNick+' есть активный обмен.");');
+			obmenData = {"initiator":true,"com":0,"fromVehs":[],"fromStuff":[],"toStuff":[],"obmenNick":theNick,"obmenID":theID,"fromReady":false,"fromGo":false,"toReady":false,"toGo":false};
+			hud_browser.execute('toggleObmenPanelStuffOffer(true,"'+theNick+'","'+theID+'");');
+			mp.events.callRemote('offerObmen', thePlayer, obmenData.initiator);
+		}else{
+			hud_browser.execute('errorObmenPanelStuffCreation("Игрока '+theNick+' нет рядом.");');
 		}
 		
-		let vehJSON = [];
-		if(typeof(localPlayer.getVariable('player.vehs')) !== "undefined") {
-			vehJSON = localPlayer.getVariable('player.vehs');
+		if(vehPanel) closeVehMenu();
+	}else{
+		if(vehPanel) closeVehMenu();
+		mp.events.callRemote('cancelObmen');
+		obmenData = false;
+		return closeAllObmenWindows();
+	}
+});
 
-			for(let k in vehJSON.vehicles) {
-				let vehHash = vehJSON.vehicles[k].hash;
-				let vehName = vehHash;
-				let vehType = "vehicle";
+mp.events.add('obmenOffered', (theNick, theID, isInitiator) => {
+	if(typeof(theNick) != "undefined" && typeof(theID) != "undefined" && typeof(isInitiator) != "undefined") {
+		obmenData = {"initiator":false,"com":0,"fromVehs":[],"fromStuff":[],"toStuff":[],"obmenNick":theNick,"obmenID":theID,"fromReady":false,"fromGo":false,"toReady":false,"toGo":false};
+		if(hud_browser) hud_browser.execute('toggleObmenPanelStuffOffer(false,"'+theNick+'","'+theID+'");');
+		mp.gui.cursor.visible = true;
+		allowBinds = [];
+		mp.game.graphics.startScreenEffect("MenuMGHeistTint", 0, true);
+		if(vehPanel) closeVehMenu();
+		if(numchPanel) numchPanelClose();
+	}
+});
+
+mp.events.add('obmenCanceled', (theNick, theID, isInitiator) => {
+	if(typeof(theNick) != "undefined" && typeof(theID) != "undefined" && typeof(isInitiator) != "undefined") {
+		if(obmenData && theNick && theID) notyAPI.error("<b>"+theNick+"</b> (<b>"+theID+"</b>) отменил сеанс обмена.", 3000, true);
+		if(hud_browser) hud_browser.execute('toggleObmenPanel();');
+		obmenData = false;
+		mp.gui.cursor.visible = false;
+		restoreBinds();
+		mp.game.graphics.stopScreenEffect("MenuMGHeistTint");
+		if(vehPanel) closeVehMenu();
+		if(numchPanel) numchPanelClose();
+	}
+});
+
+mp.events.add('acceptObmen', () => {
+	if(hud_browser) {
+		if(obmenData) {
+			if(vehPanel) closeVehMenu();
+			if(numchPanel) numchPanelClose();
+			
+			if(typeof(localPlayer.getVariable("player.tickets")) === "undefined") return hud_browser.execute('errorObmenPanelStuffOffer("У Вас более 50 000 руб. не оплаченных штрафов");');
+			if(parseInt(localPlayer.getVariable("player.tickets")) > 50000) return hud_browser.execute('errorObmenPanelStuffOffer("У Вас более 50 000 руб. не оплаченных штрафов");');
+			
+			let thePlayer = false;
+			
+			let myPos = localPlayer.position;
+			mp.players.forEach(
+				(player) => {
+					let plPos = player.position;
+					if(mp.game.gameplay.getDistanceBetweenCoords(myPos.x, myPos.y, myPos.z, plPos.x, plPos.y, plPos.z, true) <= 10) {
+						if(typeof(player.getVariable("player.id")) != "undefined") {
+							if(player.getVariable("player.id") == obmenData.obmenID) thePlayer = player;
+						}
+					}
+				}
+			);
+			
+			let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
+			decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
+			
+			if(thePlayer) {
+				obmenData.fromVehs = [];
+				var tempJSon = localPlayer.getVariable('player.vehs');
+				for(var k in tempJSon.vehicles) {
+					let vehID = tempJSon.vehicles[k].id;
+					let vehHash = tempJSon.vehicles[k].hash;
+					let vehName = vehHash;
+					let vehType = "vehicle";
+					let vehOwners = 1;
+					if(typeof(tempJSon.vehicles[k].owners) != "undefined") vehOwners = tempJSon.vehicles[k].owners;
+					
+					if(typeof(decVehStats[0][vehHash]) != "undefined") {
+						vehName = decVehStats[0][vehHash].name;
+						vehType = decVehStats[0][vehHash].type;
+					}
+					tempJSon.vehicles[k].name = vehName;
+					let vehNum = tempJSon.vehicles[k].number;
+					
+					if(tempJSon.vehicles[k]) {
+						if(tempJSon.vehicles[k].hasOwnProperty("params") !== null) {
+							if(typeof(tempJSon.vehicles[k].params) !== "undefined") {
+								let vehParams = tempJSon.vehicles[k].params;
+								if(typeof(vehParams.rent) !== "undefined") tempJSon.vehicles[k] = null;
+							}else{
+								tempJSon.vehicles[k] = null;
+							}
+						}else{
+							tempJSon.vehicles[k] = null;
+						}
+					}else{
+						tempJSon.vehicles[k] = null;
+					}
+					
+					if(tempJSon.vehicles[k]) obmenData.fromVehs.push({"id":parseInt(vehID),"hash":vehHash.toString(),"name":vehName.toString(),"vehtype":vehType.toString(),"num":vehNum,"owners":vehOwners.toString()});
+				}
+				
+				notyAPI.success("Вы приняли предложение обмена от <b>"+obmenData.obmenNick+"</b> (<b>"+obmenData.obmenID+"</b>).", 3000, true);
+				hud_browser.execute('toggleObmenPanel(\''+JSON.stringify(obmenData)+'\');');
+				myVehSaving = true;
+				mp.events.callRemote('acceptObmen', thePlayer, obmenData.initiator);
+			}else{
+				hud_browser.execute('errorObmenPanelStuffOffer("Игрока '+obmenData.obmenNick+' нет рядом.");');
+			}
+		}else{
+			if(vehPanel) closeVehMenu();
+			if(numchPanel) numchPanelClose();
+			mp.events.callRemote('cancelObmen');
+			obmenData = false;
+			return closeAllObmenWindows();
+		}
+	}else{
+		if(vehPanel) closeVehMenu();
+		if(numchPanel) numchPanelClose();
+		
+		mp.events.callRemote('cancelObmen');
+		obmenData = false;
+		return closeAllObmenWindows();
+	}
+});
+
+mp.events.add('obmenAccepted', (theNick, theID) => {
+	if(hud_browser && theNick && theID && obmenData) {
+		if(vehPanel) closeVehMenu();
+		if(numchPanel) numchPanelClose();
+		
+		obmenData.fromVehs = [];
+		var tempJSon = localPlayer.getVariable('player.vehs');
+		
+		let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
+		decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
+		
+		for(var k in tempJSon.vehicles) {
+			let vehID = tempJSon.vehicles[k].id;
+			let vehHash = tempJSon.vehicles[k].hash;
+			let vehName = vehHash;
+			let vehType = "vehicle";
+			let vehOwners = 1;
+			if(typeof(tempJSon.vehicles[k].owners) != "undefined") vehOwners = tempJSon.vehicles[k].owners;
+			
+			if(typeof(decVehStats[0][vehHash]) != "undefined") {
+				vehName = decVehStats[0][vehHash].name;
+				vehType = decVehStats[0][vehHash].type;
+			}
+			tempJSon.vehicles[k].name = vehName;
+			let vehNum = tempJSon.vehicles[k].number;
+			
+			if(tempJSon.vehicles[k]) {
+				if(tempJSon.vehicles[k].hasOwnProperty("params") !== null) {
+					if(typeof(tempJSon.vehicles[k].params) !== "undefined") {
+						let vehParams = tempJSon.vehicles[k].params;
+						if(typeof(vehParams.rent) !== "undefined") tempJSon.vehicles[k] = null;
+					}else{
+						tempJSon.vehicles[k] = null;
+					}
+				}else{
+					tempJSon.vehicles[k] = null;
+				}
+			}else{
+				tempJSon.vehicles[k] = null;
+			}
+			
+			if(tempJSon.vehicles[k]) obmenData.fromVehs.push({"id":parseInt(vehID),"hash":vehHash.toString(),"name":vehName.toString(),"vehtype":vehType.toString(),"num":vehNum,"owners":vehOwners.toString()});
+		}
+		
+		myVehSaving = true;
+		notyAPI.success("<b>"+obmenData.obmenNick+"</b> (<b>"+obmenData.obmenID+"</b>) принял Ваше предложение обмена.", 3000, true);
+		hud_browser.execute('toggleObmenPanel(\''+JSON.stringify(obmenData)+'\');');
+	}else{
+		if(vehPanel) closeVehMenu();
+		if(numchPanel) numchPanelClose();
+		
+		mp.events.callRemote('cancelObmen');
+		obmenData = false;
+		return closeAllObmenWindows();
+	}
+});
+
+mp.events.add('obmenStuffAdd', (stuffData) => {
+	if(hud_browser && obmenData && stuffData) {
+		if(vehPanel) closeVehMenu();
+		if(numchPanel) numchPanelClose();
+		
+		stuffData = JSON.parse(stuffData);
+		
+		let thePlayer = false;
+		mp.players.forEach(
+			(player) => {
+				if(typeof(player.getVariable("player.id")) != "undefined") {
+					if(player.getVariable("player.id") == obmenData.obmenID) thePlayer = player;
+				}
+			}
+		);
+		
+		if(thePlayer) {
+			if(stuffData.type == "veh" || stuffData.type == "num") {
+				//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+JSON.stringify(stuffData)+"</span>");
+				obmenData.fromStuff.push({"type":stuffData.type,"id":stuffData.id,"hash":stuffData.hash,"name":stuffData.name,"vehtype":stuffData.vehtype,"num":stuffData.num,"owners":stuffData.owners});
+				if(stuffData.type == "veh") {
+					let vehCost = 0;
+					
+					let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
+					decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
+					
+					if(typeof(decVehStats[0][stuffData.hash]) != "undefined" && typeof(decVehStats[0][stuffData.hash].cost) != "undefined") obmenData.com += roundNumber(parseInt(decVehStats[0][stuffData.hash].cost)*0.01, 0);
+				}else if(stuffData.type == "num") {
+					obmenData.com += 1350000;
+				}
+			}else if(stuffData.type == "money") {
+				obmenData.com = roundNumber(parseInt(obmenData.com) + (parseInt(stuffData.value) * 0.015), 0);
+				obmenData.fromStuff.push({"type":stuffData.type,"value":stuffData.value});
+			}
+			
+			if(obmenData.com <= 0) obmenData.com = 0;
+			hud_browser.execute('toggleObmenPanel(\''+JSON.stringify(obmenData)+'\');');
+			mp.events.callRemote('addObmenStuff', thePlayer, JSON.stringify(stuffData));
+		}else{
+			mp.events.callRemote('cancelObmen');
+			obmenData = false;
+			return closeAllObmenWindows();
+		}
+	}else{
+		if(vehPanel) closeVehMenu();
+		if(numchPanel) numchPanelClose();
+		
+		mp.events.callRemote('cancelObmen');
+		obmenData = false;
+		return closeAllObmenWindows();
+	}
+});
+
+mp.events.add('obmenStuffAdded', (stuffData) => {
+	if(hud_browser && obmenData && stuffData) {
+		if(vehPanel) closeVehMenu();
+		if(numchPanel) numchPanelClose();
+		
+		stuffData = JSON.parse(stuffData);
+
+		if(stuffData.type == "veh" || stuffData.type == "num") {
+			obmenData.toStuff.push({"type":stuffData.type,"id":stuffData.id,"hash":stuffData.hash,"name":stuffData.name,"vehtype":stuffData.vehtype,"num":stuffData.num,"owners":stuffData.owners});
+			if(stuffData.type == "veh") {
+				let vehCost = 0;
 				
 				let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
 				decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
 				
-				if(typeof(decVehStats[0][vehHash]) != "undefined") {
-					vehName = decVehStats[0][vehHash].name;
-					vehType = decVehStats[0][vehHash].type;
-				}
-				vehJSON.vehicles[k].name = vehName;
-				vehJSON.vehicles[k].type = vehType;
-				vehJSON.vehicles[k].inv = {};
+				if(typeof(decVehStats[0][stuffData.hash]) != "undefined" && typeof(decVehStats[0][stuffData.hash].cost) != "undefined") obmenData.com += roundNumber(parseInt(decVehStats[0][stuffData.hash].cost)*0.01, 0);
+			}else if(stuffData.type == "num") {
+				obmenData.com += 1350000;
 			}
+		}else if(stuffData.type == "money") {
+			obmenData.toStuff.push({"type":stuffData.type,"value":stuffData.value});
+			obmenData.com = roundNumber(parseInt(obmenData.com) + (parseInt(stuffData.value) * 0.015), 0);
+			obmenData.com = roundNumber(obmenData.com, 0);
 		}
-		let housesJSON = [];
-		if(typeof(localPlayer.getVariable("player.houses")) !== "undefined") {
-			if(typeof(localPlayer.getVariable("player.houses").houses) !== "undefined") {
-				housesJSON = localPlayer.getVariable("player.houses").houses;
-				for(let k in housesJSON) {
-					if(typeof(housesJSON[k].pos) !== "undefined") {
-						let getStreet = mp.game.pathfind.getStreetNameAtCoord(parseFloat(housesJSON[k].pos.x), parseFloat(housesJSON[k].pos.y), parseFloat(housesJSON[k].pos.z), 0, 0);
-						let zoneName = mp.game.zone.getNameOfZone(parseFloat(housesJSON[k].pos.x), parseFloat(housesJSON[k].pos.y), parseFloat(housesJSON[k].pos.z));
+		
+		if(obmenData.com <= 0) obmenData.com = 0;
+		hud_browser.execute('toggleObmenPanel(\''+JSON.stringify(obmenData)+'\');');
+	}else{
+		if(vehPanel) closeVehMenu();
+		if(numchPanel) numchPanelClose();
+		
+		mp.events.callRemote('cancelObmen');
+		obmenData = false;
+		return closeAllObmenWindows();
+	}
+});
 
-						let realZoneName = "San Andreas";
-						if(zoneNamesShort.includes(zoneName)) {
-							let zoneID = zoneNamesShort.indexOf(zoneName);
-							realZoneName = zoneNames[zoneID];
-						}
-						let street = mp.game.ui.getStreetNameFromHashKey(getStreet.streetName);
-						
-						housesJSON[k]["address"] = realZoneName+", "+street+", "+housesJSON[k].id;
-					}
+mp.events.add('obmenStuffDelete', (stuffData) => {
+	if(hud_browser && obmenData && stuffData) {
+		if(vehPanel) closeVehMenu();
+		if(numchPanel) numchPanelClose();
+		
+		stuffData = JSON.parse(stuffData);
+		
+		let thePlayer = false;
+		mp.players.forEach(
+			(player) => {
+				if(typeof(player.getVariable("player.id")) != "undefined") {
+					if(player.getVariable("player.id") == obmenData.obmenID) thePlayer = player;
 				}
 			}
-		};
-		let businessesJSON = [];
-		if(typeof(localPlayer.getVariable("player.businesses")) !== "undefined") {
-			if(typeof(localPlayer.getVariable("player.businesses").businesses) !== "undefined") {
-				businessesJSON = localPlayer.getVariable("player.businesses").businesses;
-				for(let k in businessesJSON) {
-					if(typeof(businessesJSON[k].pos) !== "undefined") {
-						let getStreet = mp.game.pathfind.getStreetNameAtCoord(parseFloat(businessesJSON[k].pos.x), parseFloat(businessesJSON[k].pos.y), parseFloat(businessesJSON[k].pos.z), 0, 0);
-						let zoneName = mp.game.zone.getNameOfZone(parseFloat(businessesJSON[k].pos.x), parseFloat(businessesJSON[k].pos.y), parseFloat(businessesJSON[k].pos.z));
-
-						let realZoneName = "San Andreas";
-						if(zoneNamesShort.includes(zoneName)) {
-							let zoneID = zoneNamesShort.indexOf(zoneName);
-							realZoneName = zoneNames[zoneID];
-						}
-						let street = mp.game.ui.getStreetNameFromHashKey(getStreet.streetName);
-						
-						businessesJSON[k]["address"] = realZoneName+", "+street+", "+businessesJSON[k].id;
-					}
-				}
-			}
-		};
-		let invJSON = [];
-		if(typeof(localPlayer.getVariable("player.inv")) !== "undefined") {
-			invJSON = localPlayer.getVariable("player.inv");
-			
-			for(let k in invJSON) {
-				let dropData = invJSON[k];
-				invJSON[k]["name"] = false;
-				invJSON[k]["desc"] = "Нет описания предмета";
-				invJSON[k]["img"] = "none";
-
-				if(typeof(dropData.sex) !== "undefined") {
-					if(typeof(allStuff[dropData.sex]) !== "undefined") {
-						if(typeof(allStuff[dropData.sex][dropData.type]) !== "undefined") {
-							let tempData = allStuff[dropData.sex][dropData.type];
-							if(typeof(tempData[dropData.hash]) !== "undefined") {
-								tempData = tempData[dropData.hash];
-								if(typeof(tempData.name) !== "undefined") invJSON[k]["name"] = tempData.name;
-								if(typeof(tempData.desc) !== "undefined") invJSON[k]["desc"] = tempData.desc;
-								if(invJSON[k].type == "mask") {
-									invJSON[k]["img"] = "mask";
-								}else{
-									if(dropData.sex == "male") {
-										if(dropData.type == "head") invJSON[k]["img"] = "headMale";
-										else if(dropData.type == "glasses") invJSON[k]["img"] = "glassesMale";
-										else if(dropData.type == "tors") invJSON[k]["img"] = "torsMale";
-										else if(dropData.type == "watch") invJSON[k]["img"] = "watchMale";
-										else if(dropData.type == "bracelet") invJSON[k]["img"] = "braceletMale";
-										else if(dropData.type == "pants") invJSON[k]["img"] = "pantsMale";
-										else if(dropData.type == "shoes") invJSON[k]["img"] = "shoesMale";
-									}else{
-										if(dropData.type == "head") invJSON[k]["img"] = "headFemale";
-										else if(dropData.type == "glasses") invJSON[k]["img"] = "glassesFemale";
-										else if(dropData.type == "tors") invJSON[k]["img"] = "torsFemale";
-										else if(dropData.type == "watch") invJSON[k]["img"] = "watchFemale";
-										else if(dropData.type == "bracelet") invJSON[k]["img"] = "braceletFemale";
-										else if(dropData.type == "pants") invJSON[k]["img"] = "pantsFemale";
-										else if(dropData.type == "shoes") invJSON[k]["img"] = "shoesFemale";
-									}
-								}
+		);
+		
+		let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
+		decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
+		
+		if(thePlayer) {
+			if(stuffData.type == "veh" || stuffData.type == "num") {
+				for(var i in obmenData.fromStuff) {
+					if(obmenData.fromStuff[i] || obmenData.fromStuff[i] !== undefined) {
+						let tempData = obmenData.fromStuff[i];
+						if(tempData.type == stuffData.type && tempData.id == stuffData.id) {
+							if(stuffData.type == "veh") {
+								let vehCost = 0;
+								if(typeof(decVehStats[0][stuffData.hash]) != "undefined" && typeof(decVehStats[0][stuffData.hash].cost) != "undefined") obmenData.com -= roundNumber(parseInt(decVehStats[0][stuffData.hash].cost)*0.01, 0);
+							}else if(stuffData.type == "num") {
+								obmenData.com -= 1350000;
 							}
-						}
-					}
-				}else{
-					if(typeof(allStuff[dropData.type]) !== "undefined") {
-						if(typeof(allStuff[dropData.type][dropData.hash]) !== "undefined") {
-							let tempData = allStuff[dropData.type][dropData.hash];
-							if(typeof(tempData.name) !== "undefined") invJSON[k]["name"] = tempData.name;
-							if(typeof(tempData.desc) !== "undefined") invJSON[k]["desc"] = tempData.desc;
-							if(dropData.type == "mask") invJSON[k]["img"] = "mask";
-							else invJSON[k]["img"] = dropData.hash;
+							
+							if(obmenData.com < 0) obmenData.com = 0;
+							delete obmenData.fromStuff[i];
+							break;
 						}
 					}
 				}
-				
-				if(!invJSON[k]["name"]) invJSON[k] = undefined;
+				obmenData.fromStuff = obmenData.fromStuff.filter(function (el) { return el != null; });
+			}else if(stuffData.type == "money") {
+				for(var i in obmenData.fromStuff) {
+					if(obmenData.fromStuff[i] || obmenData.fromStuff[i] !== undefined) {
+						let tempData = obmenData.fromStuff[i];
+						if(tempData.type == "money" && tempData.value == stuffData.value) {
+							obmenData.com = roundNumber(parseInt(obmenData.com) - (parseInt(stuffData.value) * 0.015), 0);
+							delete obmenData.fromStuff[i];
+							break;
+						}
+					}
+				}
+				obmenData.fromStuff = obmenData.fromStuff.filter(function (el) { return el != null; });
 			}
 			
-			invJSON = JSON.parse(JSON.stringify(invJSON));
+			if(obmenData.com <= 0) obmenData.com = 0;
+			hud_browser.execute('toggleObmenPanel(\''+JSON.stringify(obmenData)+'\');');
+			mp.events.callRemote('deleteObmenStuff', thePlayer, JSON.stringify(stuffData));
+		}else{
+			mp.events.callRemote('cancelObmen');
+			obmenData = false;
+			return closeAllObmenWindows();
+		}
+	}else{
+		if(vehPanel) closeVehMenu();
+		if(numchPanel) numchPanelClose();
+		
+		mp.events.callRemote('cancelObmen');
+		obmenData = false;
+		return closeAllObmenWindows();
+	}
+});
+
+mp.events.add('obmenStuffDeleted', (stuffData) => {
+	if(hud_browser && obmenData && stuffData) {
+		if(vehPanel) closeVehMenu();
+		if(numchPanel) numchPanelClose();
+		
+		stuffData = JSON.parse(stuffData);
+
+		let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
+		decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
+
+		if(stuffData.type == "veh" || stuffData.type == "num") {
+			for(var i in obmenData.toStuff) {
+				if(obmenData.toStuff[i] || obmenData.toStuff[i] !== undefined) {
+					let tempData = obmenData.toStuff[i];
+					if(tempData.type == stuffData.type && tempData.id == stuffData.id) {
+						if(stuffData.type == "veh") {
+							let vehCost = 0;
+							
+							if(typeof(decVehStats[0][stuffData.hash]) != "undefined" && typeof(decVehStats[0][stuffData.hash].cost) != "undefined") obmenData.com -= roundNumber(parseInt(decVehStats[0][stuffData.hash].cost)*0.01, 0);
+						}else if(stuffData.type == "num") {
+							obmenData.com -= 1350000;
+						}
+						if(obmenData.com < 0) obmenData.com = 0;
+						delete obmenData.toStuff[i];
+						break;
+					}
+				}
+			}
+			obmenData.toStuff = obmenData.toStuff.filter(function (el) { return el != null; });
+		}else if(stuffData.type == "money") {
+			for(var i in obmenData.toStuff) {
+				if(obmenData.toStuff[i] || obmenData.toStuff[i] !== undefined) {
+					let tempData = obmenData.toStuff[i];
+					if(tempData.type == "money" && tempData.value == stuffData.value) {
+						obmenData.com = roundNumber(parseInt(obmenData.com) - (parseInt(stuffData.value) * 0.015), 0);
+						delete obmenData.toStuff[i];
+						break;
+					}
+				}
+			}
+			obmenData.toStuff = obmenData.toStuff.filter(function (el) { return el != null; });
 		}
 		
-		//chatAPI.sysPush('Test');
-		//chatAPI.sysPush(JSON.stringify(housesJSON));
-		//chatAPI.sysPush('Test');
-		//chatAPI.sysPush(JSON.stringify(businessesJSON));
-		//chatAPI.sysPush(JSON.stringify(invJSON));
-		let myID = localPlayer.getVariable('player.id');
-		hud_browser.execute('togglePlayerTablet(\'{"name":"tabletAdCreateActivity","content":{"myID":"'+myID+'","vehs":'+JSON.stringify(vehJSON.vehicles)+',"houses":'+JSON.stringify(housesJSON)+',"businesses":'+JSON.stringify(businessesJSON)+',"inv":'+JSON.stringify(invJSON)+',"photos":'+JSON.stringify(phoneImageGallery)+'}}\')');
-	}
-});
-
-mp.events.add("adsAd", (data, cost) => {
-	if(hud_browser && typeof(data) !== "undefined" && typeof(cost) !== "undefined") {
-		data = JSON.parse(data);
-		if(typeof(data.adID) === "undefined") return hud_browser.execute('togglePlayerTablet(\'{"name":"tabletAdCreateActivity"}\');myTabletError("#adsAdAppBut","Ошибка инициализации, попробуйте позже");');
-		mp.events.callRemote('adsAd', JSON.stringify(data), cost.toString());
-	}
-});
-
-mp.events.add("addingAdResult", (result, reason) => {
-	if(hud_browser && typeof(result) !== "undefined") {
-		if(result) hud_browser.execute('togglePlayerTablet(\'{"name":"tabletAdAddedActivity","result":'+result+'}\');');
-		else if(typeof(reason) !== "undefined") hud_browser.execute('togglePlayerTablet(\'{"name":"tabletAdCreateActivity"}\');myTabletError("#adsAdAppBut","'+reason+'");');
-	}
-});
-
-mp.events.add("deleteAd", (adCAT, adID) => {
-	if(hud_browser && typeof(adCAT) !== "undefined" && typeof(adID) !== "undefined") mp.events.callRemote('deleteAd', adCAT.toString(), adID.toString());
-});
-
-mp.events.add("deleteAdResult", (result) => {
-	if(hud_browser && typeof(result) !== "undefined") hud_browser.execute('togglePlayerTablet(\'{"name":"tabletAdDeletedActivity","result":"'+result+'"}\');');
-});
-
-let adsBrowsePage = 1;
-mp.events.add("openAdsCat", (category, subcat, page) => {
-	if(hud_browser && typeof(category) !== "undefined" && typeof(subcat) !== "undefined" && typeof(page) !== "undefined") {
-		if(category == "transport" || category == "property" || category == "stuff" || category == "other") {
-			mp.events.callRemote('loadAds', category, subcat, page);
-		}else if(category == "myAds") {
-			mp.events.callRemote('loadAds', category, subcat, page);
-		}
-	}
-});
-
-mp.events.add("adsLoaded", (category, subcat, countAds, ads, page) => {
-	if(hud_browser && typeof(category) !== "undefined" && typeof(countAds) !== "undefined" && typeof(ads) !== "undefined" && typeof(page) !== "undefined") {
-		if(typeof(subcat) === "undefined") subcat = false;
-		hud_browser.execute('togglePlayerTablet(\'{"name":"tabletAdBrowseActivity","cat":"'+category+'","subcat":"'+subcat+'","content":'+ads+',"countads":'+countAds+',"page":'+page+'}\')');
-	}
-});
-
-// Кейсы
-
-mp.events.add("openCasesCat", (category) => {
-	if(hud_browser && typeof(category) !== "undefined") {
-		//if(category == "bomj" || category == "normal" || category == "premium" || category == "elite") mp.events.callRemote('loadCases', category);
-		let content = {};
+		hud_browser.execute('toggleObmenPanel(\''+JSON.stringify(obmenData)+'\');');
+	}else{
+		if(vehPanel) closeVehMenu();
+		if(numchPanel) numchPanelClose();
 		
-		chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+category+"</span>");
-		hud_browser.execute('togglePlayerTablet(\'{"name":"tabletCaseBrowseActivity","cat":"'+category+'","content":'+JSON.stringify(content)+'}\')');
+		mp.events.callRemote('cancelObmen');
+		obmenData = false;
+		return closeAllObmenWindows();
 	}
 });
 
-// Gallery App
-/*
-var phoneImageGallery = [];
+mp.events.add('obmenReady', (theStatus) => {
+	if(hud_browser && obmenData && typeof(theStatus) != "undefined") {
+		if(vehPanel) closeVehMenu();
+		if(numchPanel) numchPanelClose();
+		
+		let thePlayer = false;
+		mp.players.forEach(
+			(player) => {
+				if(typeof(player.getVariable("player.id")) != "undefined") {
+					if(player.getVariable("player.id") == obmenData.obmenID) thePlayer = player;
+				}
+			}
+		);
+		
+		if(thePlayer) {
+			obmenData.fromReady = theStatus;
+			if(!theStatus) {
+				obmenData.fromGo = false;
+				obmenData.toGo = false;
+			}
+			hud_browser.execute('toggleObmenPanel(\''+JSON.stringify(obmenData)+'\');');
+			mp.events.callRemote('obmenReady', thePlayer, theStatus);
+		}else{
+			mp.events.callRemote('cancelObmen');
+			obmenData = false;
+			return closeAllObmenWindows();
+		}
+	}else{
+		if(vehPanel) closeVehMenu();
+		if(numchPanel) numchPanelClose();
+		
+		mp.events.callRemote('cancelObmen');
+		obmenData = false;
+		return closeAllObmenWindows();
+	}
+});
 
-mp.events.add("initPhoneGallery", (data) => {
-	if(hud_browser && typeof(data) !== "undefined") {
-		//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+data+"</span>");
-		phoneImageGallery = JSON.parse(data);
-		if(typeof(mp.storage.data.phonegallery) !== "undefined") {
-			phoneImageGallery = phoneImageGallery.sort((b, a) => parseFloat(a.key) - parseFloat(b.key));
-			if(typeof(mp.storage.data.phonegallery.cur) === "undefined") {
-				if(Object.keys(phoneImageGallery).length > 0) mp.storage.data.phonegallery = {"cur":Object.keys(phoneImageGallery).length};
-				else mp.storage.data.phonegallery = {"cur":1};
+mp.events.add('obmenReadyChanged', (theStatus) => {
+	if(hud_browser && obmenData && typeof(theStatus) != "undefined") {
+		if(vehPanel) closeVehMenu();
+		if(numchPanel) numchPanelClose();
+		
+		obmenData.toReady = theStatus;
+		if(!theStatus) {
+			obmenData.fromGo = false;
+			obmenData.toGo = false;
+		}
+		hud_browser.execute('toggleObmenPanel(\''+JSON.stringify(obmenData)+'\');');
+	}else{
+		if(vehPanel) closeVehMenu();
+		if(numchPanel) numchPanelClose();
+		
+		mp.events.callRemote('cancelObmen');
+		obmenData = false;
+		return closeAllObmenWindows();
+	}
+});
+
+mp.events.add('obmenGo', (theStatus) => {
+	if(hud_browser && obmenData && typeof(theStatus) != "undefined") {
+		if(vehPanel) closeVehMenu();
+		if(numchPanel) numchPanelClose();
+		
+		let thePlayer = false;
+		mp.players.forEach(
+			(player) => {
+				if(typeof(player.getVariable("player.id")) != "undefined") {
+					if(player.getVariable("player.id") == obmenData.obmenID) thePlayer = player;
+				}
+			}
+		);
+		
+		if(thePlayer) {
+			obmenData.fromGo = theStatus;
+			if(obmenData.fromGo && obmenData.toGo) {
+				mp.events.callRemote('obmenGo', thePlayer, obmenData.fromGo, obmenData.toGo, JSON.stringify(obmenData));
+				return closeAllObmenWindows();
+			}else{
+				hud_browser.execute('toggleObmenPanel(\''+JSON.stringify(obmenData)+'\');');
+				mp.events.callRemote('obmenGo', thePlayer, obmenData.fromGo, obmenData.toGo, JSON.stringify(obmenData));
 			}
 		}else{
-			phoneImageGallery = phoneImageGallery.sort((b, a) => parseFloat(a.key) - parseFloat(b.key));
-			if(Object.keys(phoneImageGallery).length > 0) mp.storage.data.phonegallery = {"cur":Object.keys(phoneImageGallery).length};
-			else mp.storage.data.phonegallery = {"cur":1};
+			mp.events.callRemote('cancelObmen');
+			obmenData = false;
+			return closeAllObmenWindows();
 		}
-		//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+JSON.stringify(phoneImageGallery)+"</span>");
+	}else{
+		if(vehPanel) closeVehMenu();
+		if(numchPanel) numchPanelClose();
+		
+		mp.events.callRemote('cancelObmen');
+		obmenData = false;
+		return closeAllObmenWindows();
 	}
 });
-*/
+
+mp.events.add('obmenGoChanged', (fromGoStatus, toGoStatus, resultat, theMoneyAdded, theMoneyRecived, theNumAdded, theNumRecived) => {
+	if(hud_browser && obmenData && typeof(fromGoStatus) != "undefined" && typeof(toGoStatus) != "undefined" && typeof(resultat) != "undefined" && typeof(theMoneyAdded) != "undefined" && typeof(theMoneyRecived) != "undefined" && typeof(theNumAdded) != "undefined" && typeof(theNumRecived) != "undefined") {
+		if(vehPanel) closeVehMenu();
+		if(numchPanel) numchPanelClose();
+		
+		obmenData.toGo = fromGoStatus;
+		//chatAPI.notifyPush(fromGoStatus.toString()+" | "+toGoStatus.toString()+" | "+resultat.toString());
+		if(fromGoStatus && toGoStatus) {
+			if(hud_browser) hud_browser.execute('unsetSelVehData();');
+			theMoneyAdded = parseInt(theMoneyAdded);
+			theMoneyRecived = parseInt(theMoneyRecived);
+			if(resultat) {
+				if(resultat == "ok") {
+					chatAPI.notifyPush(" * Вы успешно произвели обмен с <span style=\"color:#FEBC00\"><b>"+obmenData.obmenNick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+obmenData.obmenID+"</b></span>).");
+					if(obmenData.initiator) chatAPI.notifyPush(" * Комиссия оплачена в размере<span style=\"color:#FEBC00\"><b>"+obmenData.com.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб.");
+					
+					if(theNumAdded) chatAPI.notifyPush(" * Вы получили номерной знак <span style=\"color:#FEBC00\"><b>"+theNumAdded+"</b></span> в ходе обмена.");
+					if(theNumRecived) chatAPI.notifyPush(" * Вы отдали номерной знак <span style=\"color:#FEBC00\"><b>"+theNumRecived+"</b></span> в ходе обмена.");
+				
+					if(theMoneyRecived > 0) chatAPI.notifyPush(" * Отправлена доплата в размере<span style=\"color:#FEBC00\"><b>"+theMoneyRecived.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб.");
+					if(theMoneyAdded > 0) chatAPI.notifyPush(" * Получена доплата в размере<span style=\"color:#FEBC00\"><b>"+theMoneyAdded.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб.");
+					
+					mp.game.ui.messages.showMidsizedShard("~y~Успешный обмен с ~w~"+obmenData.obmenNick+" ~y~(~w~"+obmenData.obmenID+"~y~)", "~s~Статистика сделки находится в чате.~n~Благодарим Вас за использование пункта обмена.", 5, false, true, 8000);
+				}else if(resultat == "comMoney") {
+					if(obmenData.initiator) notyAPI.error("У Вас не хватило средств на оплату сделки.", 3000, true);
+					else notyAPI.error("У <b>"+obmenData.obmenNick+"</b> (<b>"+obmenData.obmenID+"</b>) не хватило средств на сделку.", 3000, true);
+				}else if(resultat == "noFreeParks") {
+					notyAPI.error("У одного из Вас не хватает мест для совершения обмена.", 3000, true);
+				}else if(resultat == "more36Vehs") {
+					notyAPI.error("У одного из Вас будет больше 36 машин, а это лимит.", 3000, true);
+				}else if(resultat == "error") {
+					notyAPI.error("Во время обмена произошла неизвестная ошибка.", 3000, true);
+				}else if(resultat == "owners") {
+					notyAPI.error("Во время обмена произошла ошибка при сверке владельцев.", 3000, true);
+				}else if(resultat == "no_json") {
+					notyAPI.error("Во время обмена произошла ошибка при проверке JSON.", 3000, true);
+				}
+			}else{
+				notyAPI.error("Во время обмена произошла неизвестная ошибка.", 3000, true);
+			}
+			obmenData = false;
+			return closeAllObmenWindows();
+		}else{
+			hud_browser.execute('toggleObmenPanel(\''+JSON.stringify(obmenData)+'\');');
+		}
+	}else{
+		if(vehPanel) closeVehMenu();
+		if(numchPanel) numchPanelClose();
+		
+		mp.events.callRemote('cancelObmen');
+		obmenData = false;
+		return closeAllObmenWindows();
+	}
+});
+
 }

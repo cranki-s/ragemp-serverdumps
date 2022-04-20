@@ -182,4 +182,4 @@ mp.events.add('render', () => {
     mp.game.controls.disableControlAction(1, 264, true); // INPUT_MELEE_ATTACK2
 });
 
-}뗘Ƭ
+}셖ï

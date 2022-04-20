@@ -1,428 +1,206 @@
 {
-var rVehInStream = [];
-var activeRenting = false;
+var pedsInStream = [];
 
-mp.events.add('playerEnterColshape', (shape) => {
-	if(typeof(shape) != "undefined") {
-		if(mp.colshapes.exists(shape)) {
-			if(typeof(shape.data) == "undefined") {
-				if(shape.getVariable('col.type')) {
-					let colType = shape.getVariable('col.type');
-					if(colType == 'rentVeh_render') {
-						let rVehData = shape.getVariable('col.data');
-						
-						let rVehMarker = mp.markers.new(1, new mp.Vector3(rVehData[0], rVehData[1], rVehData[2]), 1.5,
-						{
-							direction: new mp.Vector3(0, 0, 0),
-							rotation: new mp.Vector3(0, 0, 0),
-							color: [22, 111, 158, 200],
-							visible: true,
-							dimension: 0
-						});
-						
-						let rVehCheck = mp.checkpoints.new(40, new mp.Vector3(rVehData[0], rVehData[1], rVehData[2]+1), 0.5,
-						{
-							color: [255, 255, 255, 0],
-							visible: true,
-							dimension: localPlayer.dimension
-						});
-						rVehCheck.rVehData = rVehData;
-						
-						let rVehArray = {'marker': rVehMarker, 'check': rVehCheck, 'pos': [rVehData[0], rVehData[1], rVehData[2]], 'class': rVehData[3], 'name': rVehData[4].toString(), 'class': rVehData[3], 'alpha': 0};
-						rVehInStream.push(rVehArray);
-					}
-				}
-			}
-		}
-	}
-});
+mp.game.streaming.requestAnimDict("special_ped@jessie@monologue_7@monologue_7b");
+mp.game.streaming.requestAnimDict("special_ped@jessie@monologue_7@monologue_7c");
+mp.game.streaming.requestAnimDict("special_ped@mani@monologue_8@monologue_8g");
+mp.game.streaming.requestAnimDict("special_ped@mime@monologue_3@monologue_3a");
+mp.game.streaming.requestAnimDict("special_ped@baygor@monologue_6@monologue_6i");
+mp.game.streaming.requestAnimDict("special_ped@bill@base");
+mp.game.streaming.requestAnimDict("special_ped@impotent_rage@base");
 
-mp.events.add("playerEnterCheckpoint", (checkpoint) => {
-	if(mp.checkpoints.exists(checkpoint)) {
-		if(typeof(checkpoint.rVehData) !== "undefined") {
-			let rVehData = checkpoint.rVehData;
-			if(!localPlayer.vehicle && hud_browser && !activeRenting) {
-				if(typeof(localPlayer.getVariable('player.id')) !== "undefined") {
-					if(typeof(localPlayer.getVariable('player.money')) === "undefined") return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Аренда транспорта для Вас недоступна, попробуйте позже..</span>");
-					allowBinds = [];
-					
-					if(rVehData[3].toString() == "d3vehs") hud_browser.execute('premiumToggleRentPanel(\''+rVehData[3].toString()+'\');');
-					else hud_browser.execute('toggleRentPanel(\''+rVehData[3].toString()+'\');');
-					
-					mp.gui.cursor.visible = true;
-					mp.game.graphics.startScreenEffect("MenuMGHeistTint", 0, true);
-				}
-			}
-		}
-	}
-});
+/*
+mp.events.add("youAreControlledTraffic", pedID => {
+	if(typeof(pedID) !== "undefined") {
+		let thePed = mp.peds.atRemoteId(pedID);
+		if(mp.peds.exists(thePed)) {
+			let thePedData = thePed.getVariable("ped.data");
+			let theVeh = mp.vehicles.atRemoteId(parseInt(thePedData.veh));
+			if(mp.vehicles.exists(theVeh)) {
+				chatAPI.sysPush("<span style=\"color:#FF6146\">�* "+thePedData.veh+"</span>");
+				setTimeout(function() {
+					thePed.taskWarpIntoVehicle(theVeh.handle, -1);
+				}, 1500);
 
-mp.events.add('rentVeh', (rentClassVeh, sVehRentHash, sVehRentCost) => {
-	if(rentClassVeh && sVehRentHash && sVehRentCost && hud_browser) {
-		if(typeof(localPlayer.getVariable("player.money")) === "undefined") return hud_browser.execute("errorRentVehPanel('Аренда сейчас недоступна');");;
-		let myMoney = parseInt(localPlayer.getVariable("player.money"));
-		if(myMoney < parseInt(sVehRentCost)) return hud_browser.execute("errorRentVehPanel('Недостаточно средств');");
-		rentVehClose();
-		mp.events.callRemote('rentVeh', rentClassVeh, sVehRentHash, sVehRentCost);
-		
-		let vehName = "Транспорт";
-		
-		let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-		decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
-		
-		if(typeof(decVehStats[0][sVehRentHash]) != "undefined") vehName = decVehStats[0][sVehRentHash].name;
-		else vehName = sVehRentHash;
-		
-		let costText = sVehRentCost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
-		
-		return mp.game.ui.messages.showMidsizedShard("~y~Вы арендовали ~w~"+vehName, "~s~Оплачено~g~~h~"+costText+" ~s~руб.", 5, false, true, 8000);
-	}
-});
-
-mp.events.add('rentPremiumVeh', (premiumRentClassVeh, sVehRentHash, sVehRentCost, sVehRentSalon, sVehRentHours) => {
-	if(premiumRentClassVeh && sVehRentHash && sVehRentCost && sVehRentSalon && sVehRentHours && hud_browser) {
-		if(typeof(localPlayer.getVariable("player.money")) === "undefined") return hud_browser.execute("premiumErrorRentVehPanel('Аренда сейчас недоступна');");;
-		let myMoney = parseInt(localPlayer.getVariable("player.money"));
-		if(myMoney < parseInt(sVehRentCost)) return hud_browser.execute("premiumErrorRentVehPanel('Недостаточно средств');");
-		rentVehClose();
-		activeRenting = true;
-		return mp.events.callRemote('rentPremiumVeh', premiumRentClassVeh, sVehRentHash, sVehRentCost, sVehRentSalon, sVehRentHours);
-	}
-});
-
-function rentVehClose() {
-	if(hud_browser) {
-		mp.game.graphics.stopScreenEffect("MenuMGHeistTint");
-		hud_browser.execute("toggleRentPanel();");
-		hud_browser.execute("premiumToggleRentPanel();");
-		mp.gui.cursor.visible = false;
-		restoreBinds();
-	}
-}
-mp.events.add('rentVehClose', rentVehClose);
-
-mp.events.add('premiumRentResult', (result, hash, cost, hours) => {
-	if(result) {
-		if(typeof(hash) !== "undefined" && typeof(cost) !== "undefined" && typeof(hours) !== "undefined") {
-			let vehName = "Транспорт";
-			
-			let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-			decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
-			
-			if(typeof(decVehStats[0][hash]) != "undefined") vehName = decVehStats[0][hash].name;
-			else vehName = hash;
-			
-			let costText = cost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
-			
-			mp.game.ui.messages.showMidsizedShard("~y~Вы арендовали ~w~"+vehName, "~s~Оплачено~g~~h~"+costText+" ~s~руб.", 5, false, true, 8000);
-		}
-	}else{
-		chatAPI.sysPush("<span style=\"color:#FF6146\"> * По техническим причинам, не удалось взять транспорт в аренду..</span>");
-	}
-	activeRenting = false;
-});
-
-function myRentVehChecker() {
-	if(typeof(localPlayer.getVariable("player.vehs")) !== "undefined") {
-		let myVehs = localPlayer.getVariable("player.vehs");
-		for(var k in myVehs.vehicles) {
-			if(typeof(myVehs.vehicles[k].params.rent) !== "undefined") {
-				if(myVehs.count > 0) myVehs.count = myVehs.count - 1;
-				if(typeof(myVehs.vehicles[k].params.rent.endDate) !== "undefined") {
-					if(new Date() >= new Date(myVehs.vehicles[k].params.rent.endDate)) {
-						//chatAPI.sysPush("<span style=\"color:#FF6146\"> * Арендованная тачка бб</span>");
-						return mp.events.callRemote('getPlayerVehicles');
-						break;
-					}
-				}
-			}
-		}
-	}
-}
-
-mp.events.add('playerExitColshape', (shape) => {
-	if(typeof(shape) != "undefined") {
-		if(mp.colshapes.exists(shape)) {
-			if(typeof(shape.getVariable('col.type')) != "undefined") {
-				let colType = shape.getVariable('col.type');
-				if(colType == 'rentVeh_render') {
-					let rVehData = shape.getVariable('col.data');
-					for(var i in rVehInStream) {
-						let tempData = rVehInStream[i];
-						let posData = tempData['pos'];
-						if (posData[0] == rVehData[0] && posData[1] == rVehData[1] && posData[2] == rVehData[2]) {
-							if(tempData['marker']) {
-								tempData['marker'].destroy();
-								delete tempData['marker'];
-							}
-							if(rVehInStream[i] || rVehInStream[i] !== undefined) delete rVehInStream[i];
-						}
-						tempData = null;
-					}
-					rVehInStream = rVehInStream.filter(function (el) { return el != null; });
-				}
-			}
-		}
-	}
-});
-
-mp.events.add("playerExitCheckpoint", (checkpoint) => {
-	if(mp.checkpoints.exists(checkpoint)) {
-		if(typeof(checkpoint.rVehData) !== "undefined") {
-			return rentVehClose();
-		}
-	}
-});
-}notifications.showWithPicture("Босс", "Я несу убытки", "Ты никого не возил за смену. Предупреждение.", "CHAR_ORTEGA", 1, false, 1, 2);
-				}
+				//player.taskVehicleDriveToCoord(vehicle, x, y, z, speed, p6, vehicleModel, drivingMode, stopRange, p10);
 				
-				
-				mp.events.callRemote('stopJobWork');
+				setTimeout(function() {
+					thePed.taskVehicleDriveToCoord(theVeh.handle, 2173.0334, 2691.8123, 48.2732, 40, 1, mp.game.joaat("m5f90new"), 1, 1.0, true);
+				}, 10500);
+			}
+		}
+	}
+});
+*/
+
+function pedTrafficResume(thePed) {
+	if(typeof(thePed.trafficVeh) !== "undefined") {
+		if(mp.vehicles.exists(thePed.trafficVeh)) {
+			if(typeof(thePed.trafficVeh.getVariable("veh.traffic")) !== "undefined") {
+				let vehTraffic = thePed.trafficVeh.getVariable("veh.traffic");
+				thePed.taskWarpIntoVehicle(thePed.trafficVeh.handle, -1);
+				setTimeout(function() {
+					if(mp.peds.exists(thePed) && mp.vehicles.exists(thePed.trafficVeh)) {
+						//let vehRot = thePed.trafficVeh.getRotation();
+						//thePed.trafficVeh.setRotation(pitch, roll, yaw, rotationOrder, p5);
+						//thePed.trafficVeh.setOnGroundProperly();
+						
+						thePed.taskVehicleDriveToCoord(thePed.trafficVeh.handle, parseFloat(vehTraffic.end.x), parseFloat(vehTraffic.end.y), parseFloat(vehTraffic.end.z), 85, 1, mp.game.joaat(vehTraffic.hash), 1, 1.0, true);
+						thePed.trafficVeh.setForwardSpeed(vehTraffic.syncSpeed);
+					}
+				}, 550);
 			}
 		}
 	}
 }
-mp.events.add("taxiStartStop", taxiStartStop);
 
-function taxiForceStop() {
-	if(mp.peds.exists(taxiPed)) taxiPed.destroy();
-	taxiPed = false;
-	if(mp.markers.exists(taxiMarker)) taxiMarker.destroy();
-	taxiMarker = false;
-	if(mp.blips.exists(taxiBlip)) taxiBlip.destroy();
-	taxiBlip = false;
-	if(mp.checkpoints.exists(taxiCheckpoint)) taxiCheckpoint.destroy();
-	taxiCheckpoint = false;
+function createPedTraffic(entity) {
+	if(typeof(entity.trafficPed) !== "undefined") {
+		if(mp.peds.exists(entity.trafficPed)) entity.trafficPed.destroy();
+	}
 	
-	if(jobVehBackTimer) clearTimeout(jobVehBackTimer);
+	let thePed = mp.peds.new(mp.game.joaat("u_m_y_babyd"), new mp.Vector3(parseFloat(entity.position.x), parseFloat(entity.position.y), parseFloat(entity.position.z)), { dynamic: true });
+	thePed.contoller = localPlayer;
+	
+	thePed.freezePosition(false);
+	thePed.setCanBeDamaged(true);
+	thePed.setInvincible(false);
+	thePed.CanRagdoll = true;
+	thePed.setOnlyDamagedByPlayer(true);
+	thePed.setCanRagdollFromPlayerImpact(true);
+	thePed.setSweat(100);
+	thePed.setRagdollOnCollision(true);
+
+	thePed.setProofs(false, false, false, false, false, false, false, false); 
+
+	thePed.trafficVeh = entity;
+	entity.trafficPed = thePed;
+	
+	pedTrafficResume(thePed);
 }
 
-mp.events.add("playerEnterCheckpoint", (checkpoint) => {
-	if(typeof(checkpoint) !== "undefined") {
-		if(mp.checkpoints.exists(checkpoint)) {
-			if(typeof(checkpoint.id) !== "undefined") {
-				if(checkpoint == taxiCheckpoint) {
-					let checkpointPos = false;
-					if(typeof(checkpoint) !== 'undefined' && mp.checkpoints.exists(checkpoint)) checkpointPos = checkpoint.position;
-					
-					if(typeof(taxiCheckpoint.data) !== "undefined") {
-						if(taxiCheckpoint.data.type == "taxiEndPoint") {
-							if(!localPlayer.hasCollisionLoadedAround()) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Подождите полную прогрузку окружения..</span>");
-							let theVeh = localPlayer.vehicle;
-							if(theVeh) {
-								if(!theVeh.getVariable("veh.job")) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы должны быть на рабочем транспорте</span>");
-								if(mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.job')))) {
-									let vehJob = mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.job')));
-									if(vehJob.remoteId.toString() != localPlayer.remoteId.toString()) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы должны быть на личном рабочем транспорте</span>");
-								}else{
-									return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы должны быть на личном рабочем транспорте</span>");
-								}
-								if(theVeh.getSpeed() > 15) {
-									chatAPI.sysPush("<span style=\"color:#FF6146\"> * Остановите полностью транспортное средство для высадки клиента</span>");
-									return mp.game.ui.notifications.showWithPicture("Босс", "Чё типа, быстрый?", "По-медленнее, дай человеку выйти! Ты в своём уме?", "CHAR_ORTEGA", 1, false, 1, 2);
-								}
-							}else{
-								return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы должны быть на рабочем транспорте</span>");
+function trafficSyncChecker() {
+	mp.vehicles.forEachInStreamRange(
+		(entity, id) => {
+			if(typeof(entity.getVariable("veh.type")) !== "undefined" && typeof(entity.getVariable("veh.traffic")) !== "undefined") {
+				if(entity.getVariable("veh.type") == "traffic") {
+						let trafficData = entity.getVariable("veh.traffic");
+						if(calculateDistance(new mp.Vector3(trafficData.end.x,trafficData.end.y,trafficData.end.z), entity.position) <= 50) {
+							mp.events.callRemoteUnreliable('destroyTraffic', entity.remoteId.toString());
+						}else if((calculateDistance(new mp.Vector3(trafficData.x,trafficData.y,trafficData.z), new mp.Vector3(trafficData.end.x,trafficData.end.y,trafficData.end.z)) - calculateDistance(new mp.Vector3(trafficData.end.x,trafficData.end.y,trafficData.end.z), entity.position)) < -50) {
+							mp.events.callRemoteUnreliable('destroyTraffic', entity.remoteId.toString());
+						}
+					if(entity.controller == localPlayer) {
+						//chatAPI.sysPush(`${entity.type}(ClientID: ${entity.id}) you re controlled`);
+						if(typeof(entity.trafficPed) === "undefined") {
+							let vehTraffic = entity.getVariable("veh.traffic");
+							if(typeof(vehTraffic.hash) !== "undefined") {
+								if(vehTraffic.type == "taskVehicleDriveToCoord") createPedTraffic(entity);
 							}
-							let resTaxiMoney = 0;
-							let tempCallData = curCallData.callData;
-							
-							if(typeof(localPlayer.getVariable("player.job")) != "undefined") {
-								let jobData = localPlayer.getVariable("player.job");
-								if(tempCallData[4] == "ped") resTaxiMoney = roundNumber(parseInt(jobData.workActCost) * curCallData.distToPoint, 0);
-								
-								mp.game.ui.messages.showMidsized("~g~Клиент доставлен ~s~к месту назначения", "~s~вы заработали "+resTaxiMoney+" руб.");
-								mp.game.ui.notifications.showWithPicture("Босс", "Красава-на!", "Так держать, проверь планшет на новые заказы (F5)", "CHAR_ORTEGA", 1, false, 1, 2);
-							}
-							
-							if(mp.peds.exists(taxiPed)) taxiPed.destroy();
-							taxiPed = false;
-							if(mp.markers.exists(taxiMarker)) taxiMarker.destroy();
-							taxiMarker = false;
-							if(mp.blips.exists(taxiBlip)) taxiBlip.destroy();
-							taxiBlip = false;
-							if(mp.checkpoints.exists(taxiCheckpoint)) taxiCheckpoint.destroy();
-							taxiCheckpoint = false;
-							
-							mp.events.callRemote('actionMakedTaxiJob', tempCallData[5].toString(), resTaxiMoney);
-							
-							curCallData = [];
-						}else if(taxiCheckpoint.data.type == "taxiClientPoint") {
-							if(!localPlayer.hasCollisionLoadedAround()) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Подождите полную прогрузку окружения..</span>");
-							let myJobData = localPlayer.getVariable("player.job");
-							if(typeof(myJobData.name) != 'undefined') {
-								if(myJobData.name == "taxi" && typeof(myJobData.work) != 'undefined') {
-									let checkData = taxiCheckpoint.data.callData;
-									let theVeh = localPlayer.vehicle;
-									if(theVeh) {
-										if(!theVeh.getVariable("veh.job")) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы должны быть на рабочем транспорте</span>");
-										if(mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.job')))) {
-											let vehJob = mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.job')));
-											if(vehJob.remoteId.toString() != localPlayer.remoteId.toString()) return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы должны быть на личном рабочем транспорте</span>");
-										}else{
-											return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы должны быть на личном рабочем транспорте</span>");
-										}
-										if(theVeh.getSpeed() > 13) {
-											chatAPI.sysPush("<span style=\"color:#FF6146\"> * Остановите полностью транспортное средство для посадки клиента в машину</span>");
-											return mp.game.ui.notifications.showWithPicture("Босс", "Чё типа, быстрый?", "По-медленнее, клиент тебя не заметил! Ты в своём уме?", "CHAR_ORTEGA", 1, false, 1, 2);
-										}
-										if(typeof(checkData[5]) !== "undefined" && checkData[6].toString() != "false") {
-											if(parseInt(checkData[6]) == parseInt(localPlayer.getVariable("player.id"))) {
-												if(checkData[4] == "ped") {
-													if(taxiPed) {
-														localPlayer.freezePosition(true);
-														localPlayer.vehicle.freezePosition(true);
-														setTimeout(function() {
-															if(checkpointPos) {
-																let cheatDist = mp.game.system.vdist(localPlayer.position.x, localPlayer.position.y, localPlayer.position.z, checkpointPos.x, checkpointPos.y, checkpointPos.z);
-																if(cheatDist > 20) mp.events.callRemote('kickAct', localPlayer, "читы на телепорт на работе");
-															}
-															localPlayer.freezePosition(false);
-															if(localPlayer.vehicle) localPlayer.vehicle.freezePosition(false);
-														}, 4000);
-														
-														taxiPed.freezePosition(false);
-														taxiPed.taskEnterVehicle(theVeh.handle, 10000, 2, 1, 1, 0);
-														
-														setTimeout(() => {
-															if(taxiPed && theVeh) {
-																if(mp.peds.exists(taxiPed)) {
-																	if(taxiPed.isInVehicle(theVeh.handle, false) && hud_browser) hud_browser.execute('playSound("taxiDriveStart", "0.1");');
-																}
-															}
-														}, 10500);
-														
-														if(mp.markers.exists(taxiMarker)) taxiMarker.destroy();
-														taxiMarker = false;
-														if(mp.blips.exists(taxiBlip)) taxiBlip.destroy();
-														taxiBlip = false;
-														if(mp.checkpoints.exists(taxiCheckpoint)) taxiCheckpoint.destroy();
-														taxiCheckpoint = false;
-														
-														mp.game.ui.messages.showMidsized("~g~Прибытие к ~s~клиенту", "~s~дождитесь посадки клиента в такси и отвезите его");
-														mp.game.ui.notifications.showWithPicture("Босс", "Клиент на месте?", "Если его нет, отменяй вызов :(", "CHAR_ORTEGA", 1, false, 1, 2);
-														
-														taxiMarker = mp.markers.new(1, new mp.Vector3(parseFloat(checkData[7]), parseFloat(checkData[8]), parseFloat(checkData[9])-2.3), 4.3,
-														{
-															direction: new mp.Vector3(0, 0, 0),
-															rotation: new mp.Vector3(0, 0, 0),
-															color: [255, 0, 0, 200],
-															visible: true,
-															dimension: 0
-														});
-														taxiBlip = mp.blips.new(626, new mp.Vector3(parseFloat(checkData[7]), parseFloat(checkData[8]), parseFloat(checkData[9])), {
-															name: "Точка маршрута от клиента",
-															scale: 0.8,
-															color: 5,
-															shortRange: false,
-															dimension: 0
-														});
-														taxiBlip.setRoute(true);
-														taxiBlip.setRouteColour(5);
-														
-														taxiCheckpoint = mp.checkpoints.new(0, new mp.Vector3(parseFloat(checkData[7]), parseFloat(checkData[8]), parseFloat(checkData[9])), 9,
-														{
-															color: [255, 255, 255, 0],
-															visible: true,
-															dimension: 0
-														});
-														
-														taxiCheckpoint.data = {"type":"taxiEndPoint"};
-													}else{
-														chatAPI.sysPush("<span style=\"color:#FF6146\"> * Бот не хочет ехать с Вами, отмените и возьмите другой заказ.</span>");
-														chatAPI.sysPush("<span style=\"color:#FF6146\"> * По всей видимости, он не в адекватном состоянии..</span>");
-														mp.game.ui.notifications.showWithPicture("Босс", "Клиент странный", "Не пускай этого алкаша в машину", "CHAR_ORTEGA", 1, false, 1, 2);
-													}
-												}else if(checkData[4] == "player") {
-													localPlayer.freezePosition(true);
-													localPlayer.vehicle.freezePosition(true);
-													setTimeout(function() {
-														if(checkpointPos) {
-															let cheatDist = mp.game.system.vdist(localPlayer.position.x, localPlayer.position.y, localPlayer.position.z, checkpointPos.x, checkpointPos.y, checkpointPos.z);
-															if(cheatDist > 20) mp.events.callRemote('kickAct', localPlayer, "читы на телепорт на работе");
-														}
-														localPlayer.freezePosition(false);
-														if(localPlayer.vehicle) localPlayer.vehicle.freezePosition(false);
-													}, 4000);
-													
-													if(mp.peds.exists(taxiPed)) taxiPed.destroy();
-													taxiPed = false;
-													if(mp.markers.exists(taxiMarker)) taxiMarker.destroy();
-													taxiMarker = false;
-													if(mp.blips.exists(taxiBlip)) taxiBlip.destroy();
-													taxiBlip = false;
-													if(mp.checkpoints.exists(taxiCheckpoint)) taxiCheckpoint.destroy();
-													taxiCheckpoint = false;
-													
-													mp.game.ui.messages.showMidsized("~g~Прибытие к ~s~клиенту", "~s~дождитесь посадки клиента в такси и отвезите его");
-													mp.game.ui.notifications.showWithPicture("Босс", "Клиент на месте?", "Если его нет, отменяй вызов :(", "CHAR_ORTEGA", 1, false, 1, 2);
-													
-													taxiBlip = mp.blips.new(626, new mp.Vector3(parseFloat(checkData[7]), parseFloat(checkData[8]), parseFloat(checkData[9])), {
-														name: "Точка маршрута от клиента",
-														scale: 0.8,
-														color: 5,
-														shortRange: false,
-														dimension: 0
-													});
-													taxiBlip.setRoute(true);
-													taxiBlip.setRouteColour(5);
-												}
-											}else{
-												chatAPI.sysPush("<span style=\"color:#FF6146\"> * Это не Ваш клиент ("+checkData[6]+" | "+localPlayer.getVariable("player.id")+")</span>");
-											}
-										}else{
-											chatAPI.sysPush("<span style=\"color:#FF6146\"> * Это не Ваш клиент "+checkData[5].toString()+" | "+checkData[6].toString()+"</span>");
-										}
-									}
-								}
-							}
+						}else{
+							if(!mp.peds.exists(entity.trafficPed)) mp.events.callRemoteUnreliable('destroyTraffic', entity.remoteId.toString());
+							else if(entity.trafficPed.getScriptTaskStatus(0x93a5526e) == 7) mp.events.callRemoteUnreliable('destroyTraffic', entity.remoteId.toString());
 						}
 					}
+					if(!entity.controller) {
+						if(calculateDistance(entity.position, localPlayer.position) < 600) mp.events.callRemoteUnreliable('makeMeATrafficController', entity.remoteId);
+					}
+					/*}else if(!entity.controller) {
+						//chatAPI.sysPush("<span style=\"color:#FF6146\">�* makeMeATrafficController: "+entity.remoteId+"</span>");
+						if(calculateDistance(entity.position, localPlayer.position) < 255) mp.events.callRemoteUnreliable('makeMeATrafficController', entity.remoteId);
+					}else if(entity.controller.handle == 0) {
+						if(calculateDistance(entity.position, localPlayer.position) < 255) mp.events.callRemoteUnreliable('makeMeATrafficController', entity.remoteId);
+					}else if(entity.controller.handle != 0) {
+						if(calculateDistance(entity.position, entity.controller.position) > 255) mp.events.callRemoteUnreliable('makeMeATrafficController', entity.remoteId);
+					}*/
 				}
 			}
 		}
+	);
+}
+//setInterval(trafficSyncChecker, 1500);
+
+mp.events.addDataHandler('veh.traffic', function (entity, value, oldValue) {
+	if(entity.handle != 0) {
+		if(entity.controller == localPlayer) {
+			//chatAPI.sysPush(`${entity.type}(ClientID: ${entity.id}) you re controlled`);
+			let vehTraffic = entity.getVariable("veh.traffic");
+			if(typeof(vehTraffic.hash) !== "undefined") {
+				if(vehTraffic.type == "taskVehicleDriveToCoord") {
+					createPedTraffic(entity);
+				}
+			}
+		}//else if(!entity.controller) {
+			//chatAPI.sysPush("<span style=\"color:#FF6146\">�* makeMeATrafficController: "+entity.remoteId+"</span>");
+			//if(calculateDistance(entity.position, localPlayer.position) < 255) mp.events.callRemoteUnreliable('makeMeATrafficController', entity.remoteId.toString());
+		//}
 	}
 });
 
-mp.events.add('taxiRouteStarted', () => {
-	if(hud_browser) hud_browser.execute('playSound("taxiDriveStart", "0.1");');
-});
+mp.events.add("entityStreamIn", entity => {
+   if(entity.type == "ped") {
+	    pedTrafficResume(entity);
+		if(typeof(entity.getVariable("ped.type")) !== "undefined") {
+			let pedType = entity.getVariable("ped.type");
+			if(pedType == "static") {
+				if(entity.getVariable("ped.data")) {
+					let pedData = entity.getVariable("ped.data");
+					if(pedData.animDict && mp.game.streaming.hasAnimDictLoaded(pedData.animDict)) entity.taskPlayAnim(pedData.animDict, pedData.anim, 8.0, 1.0, -1, 1, 1.0, false, false, false);
+				}
+			}/*else if(pedType == "traffic") {
+				chatAPI.sysPush("<span style=\"color:#FF6146\">�* "+JSON.stringify(entity)+"</span>");
+				if(typeof(entity.getVariable("ped.data")) !== "undefined") {
+					chatAPI.sysPush("<span style=\"color:#FF6146\">�* "+entity.controller+"</span>");
+					entity.controller = localPlayer;
+					
+					let thePedData = entity.getVariable("ped.data");
+					let theVeh = mp.vehicles.atRemoteId(parseInt(thePedData.veh));
+					
+					if(mp.vehicles.exists(theVeh)) {
+						setTimeout(function() {
+							entity.taskWarpIntoVehicle(theVeh.handle, -1);
+						}, 1500);
 
-mp.events.add('taxiRouteEnded', (resCost) => {
-	if(resCost) {
-		let tempCallData = curCallData.callData;
-		
-		if(typeof(localPlayer.getVariable("player.job")) != "undefined") {
-			let jobData = localPlayer.getVariable("player.job");
-			
-			mp.game.ui.messages.showMidsized("~g~Клиент доставлен ~s~к месту назначения", "~s~вы заработали"+resCost.replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.");
-			mp.game.ui.notifications.showWithPicture("Босс", "Красава-на!", "Так держать, проверь планшет на новые заказы (F5)", "CHAR_ORTEGA", 1, false, 1, 2);
+						//player.taskVehicleDriveToCoord(vehicle, x, y, z, speed, p6, vehicleModel, drivingMode, stopRange, p10);
+						
+						setTimeout(function() {
+							entity.taskVehicleDriveToCoord(theVeh.handle, 0.52, 0.38, 72.1, 70, 1, mp.game.joaat("m5f90new"), 1, 1.0, true);
+						}, 2500);
+						//mp.events.callRemote('makeMeATrafficController', entity.remoteId);
+					}
+				}
+			}*/
 		}
-		
-		if(mp.peds.exists(taxiPed)) taxiPed.destroy();
-		taxiPed = false;
-		if(mp.markers.exists(taxiMarker)) taxiMarker.destroy();
-		taxiMarker = false;
-		if(mp.blips.exists(taxiBlip)) taxiBlip.destroy();
-		taxiBlip = false;
-		if(mp.checkpoints.exists(taxiCheckpoint)) taxiCheckpoint.destroy();
-		taxiCheckpoint = false;
-		
-		mp.events.callRemote('actionMakedTaxiJob', false, parseInt(resCost));
-		
-		curCallData = [];
-	}
+   }else if(entity.type == "vehicle") {
+		if(typeof(entity.getVariable("veh.type")) !== "undefined" && typeof(entity.getVariable("veh.traffic")) !== "undefined") {
+			if(entity.getVariable("veh.type") == "traffic") {
+				if(entity.controller == localPlayer) {
+					//chatAPI.sysPush(`${entity.type}(ClientID: ${entity.id}) you re controlled`);
+					let vehTraffic = entity.getVariable("veh.traffic");
+					if(typeof(vehTraffic.hash) !== "undefined") {
+						if(vehTraffic.type == "taskVehicleDriveToCoord") createPedTraffic(entity);
+					}
+				}else if(!entity.controller) {
+					//chatAPI.sysPush("<span style=\"color:#FF6146\">�* makeMeATrafficController: "+entity.remoteId+"</span>");
+					//if(calculateDistance(entity.position, localPlayer.position) < 255) mp.events.callRemoteUnreliable('makeMeATrafficController', entity.remoteId);
+				}
+			}
+		}
+   }
 });
 
-mp.events.add('playerEnterColshape', (shape) => {
-	if(typeof(shape) != "undefined") {
-		if(shape == taxiWorkZone) taxiImInWorkZone = true;
-	}
-});
-
-mp.events.add('playerExitColshape', (shape) => {
-	if(typeof(shape.id) != "undefined") {
-		if(shape == taxiWorkZone) taxiImInWorkZone = false;
+mp.events.add('entityStreamOut', (entity) => {
+	if(entity) {
+		switch(entity.type) {
+			case 'vehicle':
+				if(typeof(entity.trafficPed) !== 'undefined') {
+					if(typeof(entity.trafficPed) !== "undefined") {
+						if(mp.peds.exists(entity.trafficPed)) entity.trafficPed.destroy();
+						entity.trafficPed = false;
+					}
+				}
+				break;
+		}
 	}
 });
 }
