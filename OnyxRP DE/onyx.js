@@ -1106,7 +1106,7 @@ module.exports = {
   "admin15": "Действует до {0}",
   "admin16": "Вы изменили ранг семьи игроку {0} на {1}",
   "admin17": "Не забанен",
-  "admin18": "До",
+  "admin18": "",
   "admin19": "Аналог BlackList",
   "admin2": "Был установлен тестовый пароль 12345678 на аккаунт {0}",
   "admin3": "Список администраторов в сети: {0}",
@@ -1197,6 +1197,7 @@ module.exports = {
   "carry1": "Вы предложили {0} {1}",
   "carry2": "{0} хочет вас {1}",
   "carry3": "{0} отказался",
+  "carshar1": "",
   "chat1": "Чат фракции {0}",
   "chat10": "{0}Создан новый тикет {1}[{2} #{3}]. {4} {5}: {6}",
   "chat11": "Создан новый вопрос [{0} #{1}]",
@@ -1470,6 +1471,10 @@ module.exports = {
   "inv9": "Хранилище {0} #{1}",
   "invent1": "{0}. Организатор: {1}. {2}",
   "invlicn": " на {0} {1)",
+  "islandBattle1": "{0} захватили точку {1}",
+  "islandBattle2": "{0} начали захват точки {1}",
+  "islandBattle3": "Захват точки - {0}",
+  "islandbattle1": "До начала битвы осталось {0}, поторопись!",
   "jail1": "Причина: {0}",
   "jail2": "Адвокат {0} принял вызов",
   "jail3": "Розыск (Ур. {0}), выданный по причине [{1}] был снят",
@@ -1796,6 +1801,7 @@ module.exports = {
   "~g~Имеется": "~g~Имеется",
   "~g~Купить": "~g~Купить",
   "~g~Открыт": "~g~Открыт",
+  "~g~Открыто": "~g~Открыто",
   "~g~Оформить": "~g~Оформить",
   "~g~Перейти к оформлению": "~g~Перейти к оформлению",
   "~g~Создать": "~g~Создать",
@@ -1809,6 +1815,7 @@ module.exports = {
   "~r~$0 - необходимо указать": "~r~$0 - необходимо указать",
   "~r~Вернуть зоны каптов в исходное состояние": "~r~Вернуть зоны каптов в исходное состояние",
   "~r~Закрыт": "~r~Закрыт",
+  "~r~Закрыто": "~r~Закрыто",
   "~r~Красная команда": "~r~Красная команда",
   "~r~Меню перезагрузки сервера": "",
   "~r~Не указано": "~r~Не указано",
@@ -1859,6 +1866,7 @@ module.exports = {
   "Армейское стрельбище": "Армейское стрельбище",
   "Артефакт": "Артефакт",
   "База данных FIB": "База данных FIB",
+  "Балкон": "Балкон",
   "Банан": "Банан",
   "Бананка halloween красная": "Бананка halloween красная",
   "Бананка halloween оранжевая ": "Бананка halloween оранжевая ",
@@ -1892,6 +1900,7 @@ module.exports = {
   "Бирюзовая сумка": "Бирюзовая сумка",
   "Бирюзово салатовая сумка": "Бирюзово салатовая сумка",
   "Бита": "Бита",
+  "Битва за остров": "Битва за остров",
   "Бластер": "Бластер",
   "Блок питания PowerPC Hard": "Блок питания PowerPC Hard",
   "Блок питания PowerPC Light": "Блок питания PowerPC Light",
@@ -1924,6 +1933,7 @@ module.exports = {
   "Ваш оппонент вышел из игры. Ваш бой теперь в конце очереди": "Ваш оппонент вышел из игры. Ваш бой теперь в конце очереди",
   "Ваш рабочий транспорт": "Ваш рабочий транспорт",
   "Ваш склад": "Ваш склад",
+  "Вейп": "Вейп",
   "Верёвка": "Верёвка",
   "Весь транспорт находящийся в гараже дома будет отправлен на штрафстоянку": " Весь транспорт находящийся в гараже дома будет отправлен на штрафстоянку",
   "Взаимодействие с": "Взаимодействие с",
@@ -1957,10 +1967,18 @@ module.exports = {
   "Возврат ставки на костях": "Возврат ставки на костях",
   "Возврат части средств за аренду транспорта": "Возврат части средств за аренду транспорта",
   "Воздушный транспорт": "Воздушный транспорт",
+  "Война за снабжение": "Война за снабжение",
   "Вор со стажем": "Вор со стажем",
+  "Ворота EMS": "Ворота EMS",
   "Восстановление пароля от учётной записи": "Восстановление пароля от учётной записи",
   "Все спокойно": "Все спокойно",
+  "Вторая допросная": "Вторая допросная",
   "Второе место в ДМ": "Второе место в ДМ",
+  "Второй этаж": "Второй этаж",
+  "Вход": "Вход",
+  "Вход 2": "Вход 2",
+  "Вход 8": "Вход 8",
+  "Вход к камерам": "Вход к камерам",
   "Вы восстановили документы на имя ": "Вы восстановили документы на имя ",
   "Вы надели ": "Вы надели ",
   "Вы не можете делать больше одной ставки на бой": "Вы не можете делать больше одной ставки на бой",
@@ -1974,6 +1992,7 @@ module.exports = {
   "Вы сняли ": "Вы сняли ",
   "Вы удалили семью": "Вы удалили семью",
   "Вывод с майнинг фермы": "Вывод с майнинг фермы",
+  "Выгрузка мусора": "Выгрузка мусора",
   "Выдача валюты через панель тестера": "Выдача валюты через панель тестера",
   "Выдача огнетушительной смеси": "Выдача огнетушительной смеси",
   "Выиграл ставку в БК": "Выиграл ставку в БК",
@@ -1983,10 +2002,16 @@ module.exports = {
   "Выполнение задания": "Выполнение задания",
   "Высококачественная удочка": "Высококачественная удочка",
   "Выход": "Выход",
+  "Выход на балкон": "Выход на балкон",
   "Ганджубас": "Ганджубас",
   "Гараж Тони": "Гараж Тони",
   "Гаражи": "Гаражи",
   "Гардероб": "Гардероб",
+  "Гардеробная": "Гардеробная",
+  "Гардеробная задняя": "Гардеробная задняя",
+  "Гардеробная передняя": "Гардеробная передняя",
+  "Главный вход": "Главный вход",
+  "Главный вход в левый корпус": "Главный вход в левый корпус",
   "Глушитель Крупный": "Глушитель Крупный",
   "Глушитель Маленький": "Глушитель Маленький",
   "Глушитель Тяжёлый": "Глушитель Тяжёлый",
@@ -2009,8 +2034,14 @@ module.exports = {
   "ДТ Разъемный": "ДТ Разъемный",
   "ДТ Тактический": "ДТ Тактический",
   "ДТ Устойчивый": "ДТ Устойчивый",
+  "Данная справка выдана гражданину @name (ID Карта @social) сотрудником LSPD @nameCreator (ID Карта @socialCreator) и подтверждает, что вышеупомянутый гражданин обладает достаточными теоретическими знаниями чтобы быть допущеным к практической части экзамена на получение лицензии на ношение и хранение оружия.@n @n Дата выдачи справки: @date.@n @n Уникальный код справки в базе данных: @code": "",
+  "Данная справка выдана гражданину @name (ID Карта @social) сотрудником медицинской службы @nameCreator (ID Карта @socialCreator) и подтверждает, что вышеупомянутый гражданин прошёл психиатрическое освидетельствование и признан вменяемым с некоторыми ограничениями.@n @n Дата выдачи справки: @date.@n @n Уникальный код справки в базе данных: @code": "",
+  "Данная справка выдана гражданину @name (ID Карта @social) сотрудником медицинской службы @nameCreator (ID Карта @socialCreator) и подтверждает, что вышеупомянутый гражданин прошёл психиатрическое освидетельствование и признан вменяемым.@n @n Дата выдачи справки: @date.@n @n Уникальный код справки в базе данных: @code": "",
+  "Данная справка выдана гражданину @name (ID Карта @social) сотрудником медицинской службы @nameCreator (ID Карта @socialCreator) и подтверждает, что вышеупомянутый гражданин прошёл психиатрическое освидетельствование и признан недееспособным.@n @n Дата выдачи справки: @date.@n @n Уникальный код справки в базе данных: @code": "",
+  "Данная справка выдана гражданину @name (ID Карта @social) сотрудником медицинской службы @nameCreator (ID Карта @socialCreator) и подтверждает, что вышеупомянутый гражданин прошёл физическое освидетельствование и признан дееспособным.@n @n Дата выдачи справки: @date.@n @n Уникальный код справки в базе данных: @code": "",
   "Данный ключ хранит информацию о вашем криптокошельке. Без него невозможны операции Offline": "Данный ключ хранит информацию о вашем криптокошельке. Без него невозможны операции Offline",
   "Дверь из дуба": "Дверь из дуба",
+  "Двор": "Двор",
   "Деморган": "Деморган",
   "Денежный сейф": "Денежный сейф",
   "Деньги": "Деньги",
@@ -2027,6 +2058,7 @@ module.exports = {
   "Дом": "Дом",
   "Дом мафиози": "Дом мафиози",
   "Донат вещи": "Донат вещи",
+  "Допросная": "Допросная",
   "Дорогой корм": "Дорогой корм",
   "Дорогостоящие часы": "Дорогостоящие часы",
   "Досрочный выход": "Досрочный выход",
@@ -2049,6 +2081,8 @@ module.exports = {
   "Забрать подарок": "Забрать подарок",
   "Загрузка товара для семей": "Загрузка товара для семей",
   "Задание на ограбление": "Задание на ограбление",
+  "Задний вход": "Задний вход",
+  "Задний выход": "Задний выход",
   "Задняя пластина бронежилета": "Задняя пластина бронежилета",
   "Заказ продукции": "Заказ продукции",
   "Заказ товаров": "Заказ товаров",
@@ -2056,6 +2090,7 @@ module.exports = {
   "Закрыл": "Закрыл",
   "Закрыл банковский счёт": "Закрыл банковский счёт",
   "Закрыт": "Закрыт",
+  "Зал собраний": "Зал собраний",
   "Залог для выполнения заказа": "Залог для выполнения заказа",
   "Записка Майкла": "Записка Майкла",
   "Заправка": "Заправка",
@@ -2066,6 +2101,7 @@ module.exports = {
   "Зарплата": "Зарплата",
   "Заспавнил ТС": "Заспавнил ТС",
   "Затвор": "Затвор",
+  "Захват точки": "Захват точки",
   "Зашёл на сервер": "Зашёл на сервер",
   "Зеленая Guffy сумка": "Зеленая Guffy сумка",
   "Зеленая бананка": "Зеленая бананка",
@@ -2109,12 +2145,25 @@ module.exports = {
   "Используйте бумбокс в инвентаре (ПКМ - Использовать). Теперь вы можете слушать свою музыку и включать ее окружающим. Для того чтобы убрать проигрыватель, в интерфейсе имеется кнопка 'забрать плеер'": "Benutze die Boombox in deinem Inventar (PCM - Benutzen). Sie können jetzt Ihre Musik hören und sie an Ihre Mitmenschen weitergeben. Um den Player zu entfernen, gibt es in der Benutzeroberfläche eine Schaltfläche 'Player entfernen'.",
   "Итальянская пыль": "Итальянская пыль",
   "Итальянское посольство": "Итальянское посольство",
+  "КПЗ и склад": "КПЗ и склад",
+  "КПП №1": "КПП №1",
+  "КПП №2": "КПП №2",
   "Кабан": "Кабан",
+  "Кабинет губернатора": "Кабинет губернатора",
+  "Кабинет директора": "Кабинет директора",
+  "Кабинеты": "Кабинеты",
   "Кавролин дьявола": "Кавролин дьявола",
+  "Казарма": "Казарма",
   "Казино": "Казино",
   "Камбала": "Камбала",
   "Каменая порода": "Каменая порода",
   "Каменный топор": "Каменный топор",
+  "Камера 1": "Камера 1",
+  "Камера 2": "Камера 2",
+  "Камера 3": "Камера 3",
+  "Камера 4": "Камера 4",
+  "Камера 5": "Камера 5",
+  "Камера 6": "Камера 6",
   "Канистра с бензином": "Канистра с бензином",
   "Карбоновая сумка": "Карбоновая сумка",
   "Карбоновое напыление": "Карбоновое напыление",
@@ -2124,6 +2173,7 @@ module.exports = {
   "Карта сокровищ": "Карта сокровищ",
   "Картофель": "Картофель",
   "Картошка фри": "Картошка фри",
+  "Каршеринг": "Каршеринг",
   "Касса": "Касса",
   "Кастет": "Кастет",
   "Квартира": "Квартира",
@@ -2139,6 +2189,10 @@ module.exports = {
   "Классический земляной камуфляж": "Классический земляной камуфляж",
   "Классический коричневый камуфляж": "Классический коричневый камуфляж",
   "Классический серый камуфляж": "Классический серый камуфляж",
+  "Клетка": "Клетка",
+  "Клетка 1": "Клетка 1",
+  "Клетка 2": "Клетка 2",
+  "Клетка 3": "Клетка 3",
   "Клининговая компания": "Клининговая компания",
   "Клуб": "Клуб",
   "Клубника": "Клубника",
@@ -2158,12 +2212,14 @@ module.exports = {
   "Колекционный кубок": "Колекционный кубок",
   "Коллекционер": "Коллекционер",
   "Комиссия крупье в кости": "Комиссия крупье в кости",
+  "Комната ожидания": "Комната ожидания",
   "Компенсатор": "Компенсатор",
   "Комплект автозвука": "Комплект автозвука",
   "Компоненты майнинга": "Компоненты майнинга",
   "Конверт с лицензией": "Конверт с лицензией",
   "Контейнер": "",
   "Контрольная точка": "Контрольная точка",
+  "Конференц зал": "Конференц зал",
   "Коньяк": "Коньяк",
   "Корзинка для сладостей": "Корзинка для сладостей",
   "Коричневая бананка": "Коричневая бананка",
@@ -2220,10 +2276,28 @@ module.exports = {
   "Кусок пиратской карты 4": "Кусок пиратской карты 4",
   "Кусок пиратской карты 5": "Кусок пиратской карты 5",
   "Кусок пиратской карты 6": "Кусок пиратской карты 6",
+  "Кухня": "Кухня",
+  "Лаборатория": "Лаборатория",
+  "Лаборатория 1": "Лаборатория 1",
+  "Лаборатория 2": "Лаборатория 2",
+  "Лаборатория 3": "Лаборатория 3",
   "Ламар": "Ламар",
   "Лаундж зона": "Лаундж зона",
+  "Левая входная дверь": "Левая входная дверь",
+  "Левый вход": "Левый вход",
   "Легкий бронежилет": "Легкий бронежилет",
+  "Лекционная": "Лекционная",
   "Леопардовая сумка конверт": "Леопардовая сумка конверт",
+  "Лестница": "Лестница",
+  "Лестничная площадка": "Лестничная площадка",
+  "Лестничная площадка 1": "Лестничная площадка 1",
+  "Лестничная площадка 2": "Лестничная площадка 2",
+  "Лестничная площадка 3": "Лестничная площадка 3",
+  "Лестничная площадка 4": "Лестничная площадка 4",
+  "Лестничная площадка 5": "Лестничная площадка 5",
+  "Лестничная площадка 6": "Лестничная площадка 6",
+  "Лестничная площадка задняя": "Лестничная площадка задняя",
+  "Лестничная площадка передняя": "Лестничная площадка передняя",
   "Лечение": "Лечение",
   "Листва": "Листва",
   "Лифт": "Лифт",
@@ -2255,6 +2329,7 @@ module.exports = {
   "Малина": "Малина",
   "Маска": "Маска",
   "Массовые беспорядки": "Массовые беспорядки",
+  "Мастерская": "Мастерская",
   "Материалы": "Материалы",
   "Мачете": "Мачете",
   "Медикаменты": "Медикаменты",
@@ -2282,6 +2357,9 @@ module.exports = {
   "Минимальная сумма доната 1 евро": "Минимальная сумма доната 1 евро",
   "Мишень": "Мишень",
   "Многоквартирный дом": "Многоквартирный дом",
+  "Многоквартирный дом 1": "",
+  "Многоквартирный дом 2": "",
+  "Многоквартирный дом 3": "",
   "Модификации оружия": "Модификации оружия",
   "Молоко матери": "Молоко матери",
   "Мопс": "Мопс",
@@ -2290,6 +2368,7 @@ module.exports = {
   "Мотосалон": "Мотосалон",
   "Музыкальный плеер": "Музыкальный плеер",
   "Музыкальный центр": "Музыкальный центр",
+  "Мусорный бак": "Мусорный бак",
   "Мясо Кабана": "Мясо Кабана",
   "Мясо Койота": "Мясо Койота",
   "Мясо Кролика": "Мясо Кролика",
@@ -2321,6 +2400,7 @@ module.exports = {
   "Найденная сумка": "Найденная сумка",
   "Наказание": "Наказание {0}",
   "Наказание отбудет": "Наказание {0}. Игрок его отбудет при следующем заходе на сервер",
+  "Нападение на гос. служащего": "Нападение на гос. служащего",
   "Напитки": "Напитки",
   "Наркотики": "Наркотики",
   "Наручники": "Наручники",
@@ -2369,6 +2449,7 @@ module.exports = {
   "Оплата аренды транспорта": "Оплата аренды транспорта",
   "Оплата восскрешения": "Оплата восскрешения",
   "Оплата доставки": "Оплата доставки",
+  "Оплата заказа продукции": "Оплата заказа продукции",
   "Оплата лечения": "Оплата лечения",
   "Оплата лечения в больнице": "Оплата лечения в больнице",
   "Оплата парковки": "Оплата парковки",
@@ -2388,9 +2469,13 @@ module.exports = {
   "Оранжевый камуфляж": "Оранжевый камуфляж",
   "Оранжевый контрастный камуфляж": "Оранжевый контрастный камуфляж",
   "Оранжевый рюкзак": "Оранжевый рюкзак",
+  "Оружейная комната": "Оружейная комната",
+  "Оружейная комната задняя": "Оружейная комната задняя",
+  "Оружейная комната передняя": "Оружейная комната передняя",
   "Оружейный Лицензионный центр": "Оружейный Лицензионный центр",
   "Оружейный магазин": "Оружейный магазин",
   "Оружие": "Оружие",
+  "Основной вход": "Основной вход",
   "Оставшиеся средства на счету семьи при удалении": "Оставшиеся средства на счету семьи при удалении",
   "Остановка": "Остановка",
   "Осётр": "Осётр",
@@ -2401,11 +2486,15 @@ module.exports = {
   "Отмена ставки": "Отмена ставки",
   "Отмена ставки в костях": "Отмена ставки в костях",
   "Отмычка": "Отмычка",
+  "Офис 1": "Офис 1",
+  "Офис 2": "Офис 2",
+  "Офис капитана": "Офис капитана",
   "Офицер в бедственном положении (По офицерам открыт огонь)": "Офицер в бедственном положении (По офицерам открыт огонь)",
   "Офицер убит или ранен": "Офицер убит или ранен",
   "Охота": "Охота",
   "Охотник за удачей": "Охотник за удачей",
   "Охотничий нож": "Охотничий нож",
+  "Охрана": "Охрана",
   "Очистить": "Очистить",
   "Очистка персонажа": "Очистка персонажа",
   "Очистка розыска": "Очистка розыска",
@@ -2421,6 +2510,7 @@ module.exports = {
   "Пасмурно": "Пасмурно",
   "Патронник": "Патронник",
   "Пачка отмычек": "Пачка отмычек",
+  "Первая допросная": "Первая допросная",
   "Первое место в ДМ": "Первое место в ДМ",
   "Перевыпустил документы": "Перевыпустил документы",
   "Перевыпустить документы": "Перевыпустить документы",
@@ -2459,9 +2549,11 @@ module.exports = {
   "Победа вашей команды в ДМ": "Победа вашей команды в ДМ",
   "Повышение уровня семьи": "Повышение уровня семьи",
   "Повёл за собой": "Повёл за собой",
+  "Погреб": "Погреб",
   "Погрузочная зона": "Погрузочная зона",
   "Подарил battle pass": "Подарил battle pass",
   "Подача рекламного объявления": "Подача рекламного объявления",
+  "Подвал": "Подвал",
   "Подготовка к Высадке груза": "Подготовка к Высадке груза",
   "Подмена данных оружия": "Подмена данных оружия",
   "Подмена срока возрождения": "Подмена срока возрождения",
@@ -2503,7 +2595,10 @@ module.exports = {
   "Порода содежащяя серебро": "Порода содежащяя серебро",
   "Поступил новый вызов": "Поступил новый вызов",
   "Поцелуй": "Поцелуй",
+  "Правая входная дверь": "Правая входная дверь",
   "Правительство": "Правительство",
+  "Правый вход": "Правый вход",
+  "Правый выход": "Правый выход",
   "Премия за максимальный уровень работы": "Премия за максимальный уровень работы",
   "Прибыть на место без сирен и стробоскобов": "Прибыть на место без сирен и стробоскобов",
   "Приобрести их вы можете у продавца около гаража Тони": "Приобрести их вы можете у продавца около гаража Тони",
@@ -2542,6 +2637,8 @@ module.exports = {
   "Работа водолаза": "Работа водолаза",
   "Работа для Посольств": "Работа для Посольств",
   "Работа для семей": "Работа для семей",
+  "Работа мусоровоза": "Работа мусоровоза",
+  "Работа сортировщика": "Работа сортировщика",
   "Развёлся": "Развёлся",
   "Разгрузка семейного груза": "Разгрузка семейного груза",
   "Раздевалка": "Раздевалка",
@@ -2565,6 +2662,7 @@ module.exports = {
   "Ремонт и обслуживание ТС": "Ремонт и обслуживание ТС",
   "Ремонт квартир": "Ремонт квартир",
   "Ремонт квартиры": "Ремонт квартиры",
+  "Ресепшн": "Ресепшн",
   "Риелторское агентство": "Риелторское агентство",
   "Роберт": "Роберт",
   "Розетки из Франции": "Розетки из Франции",
@@ -2624,6 +2722,7 @@ module.exports = {
   "Сальвадор Дали": "Сальвадор Дали",
   "Самодельная взрывчатка": "Самодельная взрывчатка",
   "Сбалансированный корм": "Сбалансированный корм",
+  "Свалка": "Свалка",
   "Сварка": "Сварка",
   "Сверление дырок": "Сверление дырок",
   "Свинья": "Свинья",
@@ -2651,6 +2750,7 @@ module.exports = {
   "Серая бананка": "Серая бананка",
   "Серая сумка": "Серая сумка",
   "Серая травянистая сумка": "Серая травянистая сумка",
+  "Серверная": "Серверная",
   "Серебрянная монета": "Серебрянная монета",
   "Серебрянная статуэтка": "Серебрянная статуэтка",
   "Серебрянное колье": "Серебрянное колье",
@@ -2669,6 +2769,7 @@ module.exports = {
   "Скупщик мяса Gordon": "Скупщик мяса Gordon",
   "Скупщик руды Djordan": "Скупщик руды Djordan",
   "Служба доставки": "Служба доставки",
+  "Служебное помещение": "Служебное помещение",
   "Смена номерного знака на ТС": "Смена номерного знака на ТС",
   "Сменил внешность": "Сменил внешность",
   "Сменил возраст": "Сменил возраст",
@@ -2684,14 +2785,17 @@ module.exports = {
   "Снятие наличных средств": "Снятие наличных средств",
   "Снятие средств в отделении банка": "Снятие средств в отделении банка",
   "Снятие средств владельцем": "Снятие средств владельцем",
+  "Собрать мусор": "Собрать мусор",
   "Собрать урожай": "Собрать урожай",
   "Создание организации": "Создание организации",
   "Создание семьи": "Создание семьи",
   "Сорян, но сейчас мне ничего не требуется. Подходи попозже как нибудь": "Сорян, но сейчас мне ничего не требуется. Подходи попозже как нибудь",
   "Спец. пластид": "Спец. пластид",
   "Справка о допуске к экзамену на лицензию на оружие": "Справка о допуске к экзамену на лицензию на оружие",
+  "Справка о прохождении теоретического экзамена на получение лицензии на оружие": "Справка о прохождении теоретического экзамена на получение лицензии на оружие",
   "Справка о результатах психического обследования (Положительная)": "Справка о результатах психического обследования (Положительная)",
   "Справка о результатах психического обследования (Средняя)": "Справка о результатах психического обследования (Средняя)",
+  "Справка о результатах физического здоровья": "Справка о результатах физического здоровья",
   "Справка о результатах физического здоровья (Удовлетворительно)": "Справка о результатах физического здоровья (Удовлетворительно)",
   "Средний контейнер": "Средний контейнер",
   "Срочная реанимация": "Срочная реанимация",
@@ -2709,6 +2813,10 @@ module.exports = {
   "Стрельба в ЗЗ без доступа": "Стрельба в ЗЗ без доступа",
   "Строительный молоток": "Строительный молоток",
   "Стройка": "Стройка",
+  "Студия": "Студия",
+  "Студия 2": "Студия 2",
+  "Студия 3": "Студия 3",
+  "Студия 5": "Студия 5",
   "Стул": "Стул",
   "Стэнли": "Стэнли",
   "Стэнли Уильямс": "Стэнли Уильямс",
@@ -2755,6 +2863,7 @@ module.exports = {
   "Трава": "Трава",
   "Травянистая сумка": "Травянистая сумка",
   "Транспорт": "Транспорт",
+  "Тренажерный зал": "Тренажерный зал",
   "Третье место в ДМ": "Третье место в ДМ",
   "Тротил": "Тротил",
   "Трубный ключ": "Трубный ключ",
@@ -2798,6 +2907,7 @@ module.exports = {
   "Фуга": "Фуга",
   "Хаски": "Хаски",
   "Хирургия": "Хирургия",
+  "Хол": "Хол",
   "Хорошая удочка": "Хорошая удочка",
   "Хранилище": "Хранилище",
   "Хэллоуин рюкзак": "Хэллоуин рюкзак",
@@ -2818,6 +2928,7 @@ module.exports = {
   "Черно-желтый камуфляж": "Черно-желтый камуфляж",
   "Черно-зеленый камуфляж": "Черно-зеленый камуфляж",
   "Черно-красный камуфляж": "Черно-красный камуфляж",
+  "Черный вход": "Черный вход",
   "Черный рюкзак": "Черный рюкзак",
   "Чизбургер": "Чизбургер",
   "Чинить проводку": "Чинить проводку",
@@ -2872,6 +2983,7 @@ module.exports = {
   "заряжен": "заряжен",
   "к вам": "к вам",
   "к себе": "к себе",
+  "конференц-зал": "конференц-зал",
   "муж и жена": "муж и жена",
   "на точку парковки": "на точку парковки",
   "наценку": "наценку",
@@ -2903,11 +3015,12 @@ module.exports = {
   "ID указан не верно": "Die ID ist nicht korrekt",
   "IKEA Family": "IKEA Family",
   "VehicleDrop1": "Um {0} zu bekommen, müssen Sie eine aktive Lizenz für {1} haben.",
-  "VehicleDrop2": "Sie können maximal {0} Fahrzeug haben.\n             Zusätzliche Steckplätze können in Ihrem persönlichen Schrank erworben werden",
+  "VehicleDrop2": "Sie können maximal {0} Fahrzeug haben.\n             Zusätzliche Steckplätze können im Shop erworben werden.",
   "VehicleDrop3": "Sie haben {0} aus dem Spendenroulette erhalten. Sie können Ihr Fahrzeug kostenlos bei der nächstgelegenen Abschleppstelle abholen",
   "[TAXI] Забрать пассажира": "[TAXI] Fahrgast abholen",
   "[Глобально] ": "[Global]",
   "admin1": "Spieler {0}",
+  "sanitation1": "Sitzungskennwort: {0}",
   "admin10": "Stummschaltung bis zum {0}. Grund {1}",
   "admin11": "Sie haben eine Voice-Chat-Sperre um {0} erhalten. Grund: {1}",
   "admin12": "{0} Stummschalten",
@@ -2938,7 +3051,7 @@ module.exports = {
   "autosalon2": "Fahrzeugvermietung {0}",
   "autosalon3": "Miete {0} durch Benutzer {1}{2}",
   "autosalon4": "Um {0} zu kaufen, müssen Sie eine aktive Lizenz für {1} haben.",
-  "autosalon5": "Sie können maximal {0} Fahrzeug haben. Zusätzliche Steckplätze können in Ihrem persönlichen Schrank erworben werden",
+  "autosalon5": "Sie können maximal {0} Fahrzeug haben. Zusätzliche Steckplätze können im Shop erworben werden.",
   "autosalon6": "Erwerb von Transportmitteln {0}",
   "autosalon7": "Business #{0}",
   "bank1": "Änderung des Kartentarifs {0}",
@@ -2962,7 +3075,7 @@ module.exports = {
   "battlepass5": "Erhaltener Preis - {0}",
   "battlepass6": "Sie haben einen Preis gewonnen - {0}",
   "battlepass7": "Um {0} zu bekommen, müssen Sie eine aktive Lizenz für {1} haben.",
-  "battlepass8": "Sie können maximal {0} Fahrzeug haben.\n             Zusätzliche Steckplätze können in Ihrem persönlichen Schrank erworben werden",
+  "battlepass8": "Sie können maximal {0} Fahrzeug haben.\n             Zusätzliche Steckplätze können im Shop erworben werden.",
   "battlepass9": "{0} Stunden/Bedienstete",
   "battleroyale1": "Verbündeter {0}",
   "battleroyale10": "~b~Start in {0}",
@@ -3007,6 +3120,7 @@ module.exports = {
   "carry1": "Sie haben {0} vorgeschlagen {1}",
   "carry2": "{0} will dich {1}",
   "carry3": "{0} abgelehnt",
+  "carshar1": "Mietpreis pro Stunde (max. {0})",
   "chat1": "Fraktions-Chat {0}",
   "chat10": "{0}Neues Ticket erstellt {1}[{2} #{3}]. {4} {5}: {6}",
   "chat11": "Neue Frage erstellt [{0} #{1}",
@@ -3257,9 +3371,9 @@ module.exports = {
   "inv10": "Lagerhaus #{0}",
   "inv11": "Container: {0}",
   "inv12": "Lagerhaus {0} #{1}",
-  "inv13": "Boot {0}",
+  "inv13": "Kofferraum {0}",
   "inv14": "Um {0} zu bekommen, müssen Sie eine aktive Lizenz für {1} haben.",
-  "inv15": "Sie können maximal {0} Fahrzeug haben. Zusätzliche Steckplätze können in Ihrem persönlichen Schrank erworben werden",
+  "inv15": "Sie können maximal {0} Fahrzeug haben. Zusätzliche Steckplätze können im Shop erworben werden.",
   "inv16": "Sie haben {0} durch den Umtausch des Gutscheins erhalten. Sie können Ihr Fahrzeug kostenlos bei einer nahe gelegenen Abschleppstelle abholen",
   "inv17": "Sie haben Spieler {0} einen Tausch angeboten",
   "inv18": "{0} hat Ihnen einen Tausch angeboten",
@@ -3280,6 +3394,10 @@ module.exports = {
   "inv9": "Lagerhaus {0} #{1}",
   "invent1": "{0}. Veranstalter: {1}. {2}",
   "invlicn": " auf {0} {1)",
+  "islandBattle1": "{0} haben den Punkt {1} erfasst",
+  "islandBattle2": "{0} haben begonnen, den Punkt {1}zu übernehmen",
+  "islandBattle3": "Punkteerfassung - {0}",
+  "islandbattle1": "Es sind nur noch {0}übrig, bevor der Kampf beginnt. Beeilen Sie sich!",
   "jail1": "Grund: {0}",
   "jail2": "Rechtsanwalt {0} nahm die Herausforderung an",
   "jail3": "Die Fahndungsliste (Ur.{0}), die für [{1}] ausgestellt wurde, wurde zurückgezogen",
@@ -3288,7 +3406,7 @@ module.exports = {
   "landFarmItemQuestStep1": "Pflanze auf dem Bauernhof {0}",
   "lic1": "Diese Lizenz wird für {0}erteilt. Am Ende der Gültigkeitsdauer muss sie bei dieser Stelle erneuert werden. Am Ende der Prüfung wird eine Gebühr erhoben. Stellen Sie also sicher, dass Sie genug Geld für die Lizenz haben.",
   "lic12": "Um {0} zu bekommen, müssen Sie eine aktive Lizenz für {1} haben.",
-  "lic13": "Sie können maximal {0} Fahrzeug haben. Zusätzliche Steckplätze können in Ihrem persönlichen Schrank erworben werden",
+  "lic13": "Sie können maximal {0} Fahrzeug haben. Zusätzliche Steckplätze können im Shop erworben werden.",
   "lic2": "Um einen Führerschein zu erhalten, müssen Sie ein Dokument ({0}) auf Ihren Namen ausstellen lassen und mit sich führen",
   "lic3": "Um einen Führerschein zu erhalten, müssen Sie ein Dokument ({0}) auf Ihren Namen ausstellen lassen und mit sich führen",
   "lic4": "Diese Lizenz wird um {0}verlängert. Nach Ablauf der Gültigkeitsdauer muss sie beim Zentrum erneuert werden.",
@@ -3422,7 +3540,7 @@ module.exports = {
   "phone7": "Zahlung der Lagersteuer #{0}",
   "phone8": "Zahlung der Haussteuer #{0}",
   "presentindex1": "Sie {0} sammeln Geschenke",
-  "presentindex2": "Du hast Lollipops in Höhe von - {0}verdient",
+  "presentindex2": "Du hast Lollipops in Höhe von - {0} verdient",
   "presentindex3": "Holte ein Geschenk ab und bekam Lutscher in Größe - {0}",
   "presentindex4": "Ein Geschenk mit admin mod {0} abgeholt",
   "promocdesindex1": "Promocode {0} aktiviert",
@@ -3497,7 +3615,7 @@ module.exports = {
   "tatoo3": "Business #{0}",
   "tax1": "Beschlagnahmung von Unternehmen #{0} wegen unbezahlter Steuern",
   "tax2": "Beschlagnahme von Unternehmen {0} wegen unbezahlter Steuern",
-  "tax3": "Den Unternehmen wurden Steuern in Höhe von ${0}",
+  "tax3": "Den Unternehmen wurden Steuern in Höhe von ${0} erhoben.",
   "taxi1": "Anmietung von Firmenfahrzeugen {0}",
   "taxi2": "Neue Bestellung erhalten ${0} / {1}km",
   "taxi3": "Bezahlen für ein Taxi Bestellung {0} von {1} bis {2}",
@@ -3507,7 +3625,7 @@ module.exports = {
   "ticket3": "Ihr Ticket befindet sich in der Warteschlange {0}, Überprüfung steht noch aus",
   "ticket4": "Sie können ein Ticket nur über {0} erstellen.",
   "tradeItemPlayerQuestStep1": "Verwenden Sie die Funktion exchange zur Übergabe von {0}",
-  "trucklogs": "Boot {0} #{1}",
+  "trucklogs": "Kofferraum {0} #{1}",
   "user1": "Passagier #{0} schlägt eine Route vor. Sind Sie einverstanden?",
   "user10": "Beitritt zur Organisation {0}",
   "user11": "Hat die Organisation verlassen {0}",
@@ -3530,9 +3648,9 @@ module.exports = {
   "user28": "Sie haben {0} ausgegeben",
   "user29": "Sie haben ${0} verdient",
   "user3": "Nicht genug Platz im Inventar für {0}",
-  "user30": "Eine Überweisung auf Ihr Konto in Höhe von ${0}wurde vorgenommen",
+  "user30": "Eine Überweisung auf Ihr Konto in Höhe von ${0} wurde vorgenommen",
   "user31": "Die Zahlung wurde abgelehnt. Unzureichendes Guthaben auf der Karte für die Zahlung ${0}",
-  "user32": "Es wurde eine Zahlung von Ihrem Konto in Höhe von ${0}",
+  "user32": "Es wurde eine Zahlung von Ihrem Konto in Höhe von ${0} abgebucht.",
   "user33": "Sie haben bei der Arbeit eine neue Stufe ({0}) erreicht {1}",
   "user34": "Sie erhalten einen Preis von ${0}für die beste Leistung.",
   "user35": "verlässt den Server: !{2196F3}in Handschellen",
@@ -3564,7 +3682,7 @@ module.exports = {
   "vehicles.sell1": "{0} Münzen",
   "vehicles.sell2": "Sind Sie sicher, dass Sie {0} an den Staat für {1}verkaufen wollen?",
   "vehicles.sell3": "Verkaufsstelle #{0}",
-  "vehicles.sell4": "Sie können maximal {0} Fahrzeug haben. Zusätzliche Steckplätze können in Ihrem persönlichen Schrank erworben werden",
+  "vehicles.sell4": "Sie können maximal {0} Fahrzeug haben. Zusätzliche Steckplätze können im Shop erworben werden.",
   "vehicles1": "Sie möchten die Lieferung der CU {0} bestellen. Kosten ${1}",
   "vehicles10": "Warnung! Ihr gemietetes Fahrzeug wird nach {0} Minuten verloren gehen, wenn Sie es nicht weiter benutzen",
   "vehicles2": "Sie haben kürzlich eine TC-Lieferung bestellt. Sie können in {0} Sekunden erneut bestellen",
@@ -3606,6 +3724,7 @@ module.exports = {
   "~g~Имеется": "~g~vorhanden",
   "~g~Купить": "~g~Kaufen",
   "~g~Открыт": "~g~Öffnen",
+  "~g~Открыто": "~g~Offen",
   "~g~Оформить": "~g~Formalisieren",
   "~g~Перейти к оформлению": "~g~Go to design",
   "~g~Создать": "~g~Erstellen",
@@ -3619,6 +3738,7 @@ module.exports = {
   "~r~$0 - необходимо указать": "~r~$0 - muss angegeben werden",
   "~r~Вернуть зоны каптов в исходное состояние": "~r~ Zurücksetzen der Abwurfzonen in ihren ursprünglichen Zustand",
   "~r~Закрыт": "~r~ Geschlossen",
+  "~r~Закрыто": "~r~Verschlossen",
   "~r~Красная команда": "~r~Red Team",
   "~r~Меню перезагрузки сервера": "~r~Server-Neustart-Menü",
   "~r~Не указано": "~r~ Nicht angegeben",
@@ -3669,6 +3789,7 @@ module.exports = {
   "Армейское стрельбище": "Schießplatz der Armee",
   "Артефакт": "Artefakt",
   "База данных FIB": "FIB-Datenbank",
+  "Балкон": "Balkon",
   "Банан": "Banane",
   "Бананка halloween красная": "Halloween Bananenrot",
   "Бананка halloween оранжевая ": "Halloween-Banane Orange",
@@ -3702,6 +3823,7 @@ module.exports = {
   "Бирюзовая сумка": "Türkisfarbene Tasche",
   "Бирюзово салатовая сумка": "Türkisfarbene hellgraue Tasche",
   "Бита": "Die Fledermaus",
+  "Битва за остров": "Schlacht auf der Insel",
   "Бластер": "Blaster",
   "Блок питания PowerPC Hard": "PowerPC-Hardware-Netzteil",
   "Блок питания PowerPC Light": "PowerPC Light-Stromversorgung",
@@ -3734,6 +3856,7 @@ module.exports = {
   "Ваш оппонент вышел из игры. Ваш бой теперь в конце очереди": "Ihr Gegner hat sich aus dem Spiel zurückgezogen. Ihr Kampf befindet sich jetzt am Ende der Warteschlange",
   "Ваш рабочий транспорт": "Ihr Arbeitsfahrzeug",
   "Ваш склад": "Ihr Lagerhaus",
+  "Вейп": "Vape",
   "Верёвка": "Seil",
   "Весь транспорт находящийся в гараже дома будет отправлен на штрафстоянку": " Alle Fahrzeuge, die zu Hause in der Garage stehen, werden auf einen Abschlepphof gebracht.",
   "Взаимодействие с": "Interaktion mit",
@@ -3767,10 +3890,18 @@ module.exports = {
   "Возврат ставки на костях": "Rückgabe einer Wette beim Würfeln",
   "Возврат части средств за аренду транспорта": "Rückerstattung eines Teils der Fahrzeugmiete",
   "Воздушный транспорт": "Luftverkehr",
+  "Война за снабжение": "Der Krieg der Versorgung",
   "Вор со стажем": "Ein erfahrener Dieb",
+  "Ворота EMS": "EMS-Tor",
   "Восстановление пароля от учётной записи": "Konto-Passwort-Wiederherstellung",
   "Все спокойно": "Alles ist ruhig.",
+  "Вторая допросная": "Zweiter Vernehmungsraum",
   "Второе место в ДМ": "Zweiter Platz bei der DM",
+  "Второй этаж": "Erster Stock",
+  "Вход": "Einloggen",
+  "Вход 2": "Eintrag 2",
+  "Вход 8": "Eingabe 8",
+  "Вход к камерам": "Zugang zu den Kameras",
   "Вы восстановили документы на имя ": "Sie haben die Dokumente auf Ihren Namen wiedererlangt",
   "Вы надели ": "Sie haben sich angezogen",
   "Вы не можете делать больше одной ставки на бой": "Sie können nicht mehr als eine Wette pro Kampf platzieren.",
@@ -3784,6 +3915,7 @@ module.exports = {
   "Вы сняли ": "Sie haben sich zurückgezogen",
   "Вы удалили семью": "Sie haben die Familie entfernt",
   "Вывод с майнинг фермы": "Rückzug aus einem Bergbaubetrieb",
+  "Выгрузка мусора": "Abladen von Müll",
   "Выдача валюты через панель тестера": "Ausgabe von Bargeld über das Prüfpult",
   "Выдача огнетушительной смеси": "Abgabe von Feuerlöschmittel",
   "Выиграл ставку в БК": "Eine Wette in einem Wettbüro gewonnen",
@@ -3793,10 +3925,16 @@ module.exports = {
   "Выполнение задания": "Durchführen der Aufgabe",
   "Высококачественная удочка": "Eine hochwertige Angelrute",
   "Выход": "Ausgang",
+  "Выход на балкон": "Ausgang zum Balkon",
   "Ганджубас": "Ganjubas",
   "Гараж Тони": "Tonys Garage",
   "Гаражи": "Garagen",
   "Гардероб": "Garderobe",
+  "Гардеробная": "Garderobe",
+  "Гардеробная задняя": "Garderobe hinten",
+  "Гардеробная передняя": "Garderobe vorne",
+  "Главный вход": "Haupteingang",
+  "Главный вход в левый корпус": "Haupteingang zum linken Gehege",
   "Глушитель Крупный": "Schalldämpfer groß",
   "Глушитель Маленький": "Schalldämpfer klein",
   "Глушитель Тяжёлый": "Schalldämpfer Schwer",
@@ -3819,8 +3957,14 @@ module.exports = {
   "ДТ Разъемный": "DT-Split",
   "ДТ Тактический": "DT Taktisch",
   "ДТ Устойчивый": "DT Nachhaltig",
+  "Данная справка выдана гражданину @name (ID Карта @social) сотрудником LSPD @nameCreator (ID Карта @socialCreator) и подтверждает, что вышеупомянутый гражданин обладает достаточными теоретическими знаниями чтобы быть допущеным к практической части экзамена на получение лицензии на ношение и хранение оружия.@n @n Дата выдачи справки: @date.@n @n Уникальный код справки в базе данных: @code": "Diese Bescheinigung wurde dem Bürger @name (Ausweis @sozial) vom LSPD-Beamten @nameErsteller (Ausweis @sozialErsteller) ausgestellt und bestätigt, dass der oben genannte Bürger über ausreichende theoretische Kenntnisse verfügt, um für den praktischen Teil des Führerscheins zum Führen und Besitzen von Waffen in Frage zu kommen.@n @n Datum der Ausstellung der Bescheinigung: @date.@n @n Eindeutiger Code des Zertifikats in der Datenbank: @code",
+  "Данная справка выдана гражданину @name (ID Карта @social) сотрудником медицинской службы @nameCreator (ID Карта @socialCreator) и подтверждает, что вышеупомянутый гражданин прошёл психиатрическое освидетельствование и признан вменяемым с некоторыми ограничениями.@n @n Дата выдачи справки: @date.@n @n Уникальный код справки в базе данных: @code": "Diese Bescheinigung wurde für Bürger @name (ID-Karte @social) von @nameErsteller (ID-Karte @socialErsteller) ausgestellt und bestätigt, dass der oben genannte Bürger sich einer psychiatrischen Untersuchung unterzogen hat und mit bestimmten Einschränkungen für gesund befunden wurde. @n @n Datum der Ausstellung der Bescheinigung: @date.@n @n Eindeutiger Code des Zertifikats in der Datenbank: @code",
+  "Данная справка выдана гражданину @name (ID Карта @social) сотрудником медицинской службы @nameCreator (ID Карта @socialCreator) и подтверждает, что вышеупомянутый гражданин прошёл психиатрическое освидетельствование и признан вменяемым.@n @n Дата выдачи справки: @date.@n @n Уникальный код справки в базе данных: @code": "Diese Bescheinigung wurde für Bürger @name (Ausweis @social) von @nameErsteller (Ausweis @socialErsteller) ausgestellt und bestätigt, dass der oben genannte Bürger sich einer psychiatrischen Untersuchung unterzogen hat und für gesund befunden wurde.@n @n Datum der Ausstellung der Bescheinigung: @date.@n @n Eindeutiger Code des Zertifikats in der Datenbank: @code",
+  "Данная справка выдана гражданину @name (ID Карта @social) сотрудником медицинской службы @nameCreator (ID Карта @socialCreator) и подтверждает, что вышеупомянутый гражданин прошёл психиатрическое освидетельствование и признан недееспособным.@n @n Дата выдачи справки: @date.@n @n Уникальный код справки в базе данных: @code": "Diese Bescheinigung wurde für Bürger @Name (ID-Karte @sozial) von @NameErsteller (ID-Karte @sozialErsteller) Amtsarzt ausgestellt und bestätigt, dass der oben genannte Bürger sich einer psychiatrischen Untersuchung unterzogen hat und für geschäftsunfähig erklärt wurde.@n @n Datum der Ausstellung der Bescheinigung: @date.@n @n Eindeutiger Code des Zertifikats in der Datenbank: @code",
+  "Данная справка выдана гражданину @name (ID Карта @social) сотрудником медицинской службы @nameCreator (ID Карта @socialCreator) и подтверждает, что вышеупомянутый гражданин прошёл физическое освидетельствование и признан дееспособным.@n @n Дата выдачи справки: @date.@n @n Уникальный код справки в базе данных: @code": "Diese Bescheinigung wurde dem Bürger @name (Ausweis @social) vom Amtsarzt @nameErsteller (Ausweis @socialErsteller) ausgestellt und bestätigt, dass der oben genannte Bürger sich einer ärztlichen Untersuchung unterzogen hat und für geschäftsfähig erklärt wurde.@n @n Datum der Ausstellung der Bescheinigung: @date.@n @n Eindeutiger Code des Zertifikats in der Datenbank: @code",
   "Данный ключ хранит информацию о вашем криптокошельке. Без него невозможны операции Offline": "Dieser Schlüssel speichert Informationen über Ihre Krypto-Brieftasche. Ohne sie sind Offline-Transaktionen nicht möglich.",
   "Дверь из дуба": "Eichenholztür",
+  "Двор": "yard",
   "Деморган": "Demorgan",
   "Денежный сейф": "Bargeldtresor",
   "Деньги": "Geld",
@@ -3837,6 +3981,7 @@ module.exports = {
   "Дом": "Haus",
   "Дом мафиози": "Mafia-Haus",
   "Донат вещи": "Sachen spenden",
+  "Допросная": "Verhör",
   "Дорогой корм": "Teure Lebensmittel",
   "Дорогостоящие часы": "Teure Uhren",
   "Досрочный выход": "Vorzeitiges Ausscheiden",
@@ -3859,6 +4004,8 @@ module.exports = {
   "Забрать подарок": "Ein Geschenk abholen",
   "Загрузка товара для семей": "Verladung von Gütern für Familien",
   "Задание на ограбление": "Auftrag Raubüberfall",
+  "Задний вход": "Hinterer Eingang",
+  "Задний выход": "Hinterer Ausgang",
   "Задняя пластина бронежилета": "Hintere Westenplatte",
   "Заказ продукции": "Produkte bestellen",
   "Заказ товаров": "Bestellung von Waren",
@@ -3866,6 +4013,7 @@ module.exports = {
   "Закрыл": "Geschlossen",
   "Закрыл банковский счёт": "Ein Bankkonto geschlossen",
   "Закрыт": "Geschlossen",
+  "Зал собраний": "Sitzungssaal",
   "Залог для выполнения заказа": "Eine Anzahlung zur Erfüllung des Auftrags",
   "Записка Майкла": "Michaels Notiz",
   "Заправка": "Tankstelle",
@@ -3876,6 +4024,7 @@ module.exports = {
   "Зарплата": "Gehalt",
   "Заспавнил ТС": "Spaulding die CU",
   "Затвор": "Fensterläden",
+  "Захват точки": "Erfassen Sie den Punkt",
   "Зашёл на сервер": "Auf dem Server eingeloggt",
   "Зеленая Guffy сумка": "Grüne Guffy-Tasche",
   "Зеленая бананка": "Grüne Banane",
@@ -3919,12 +4068,25 @@ module.exports = {
   "Используйте бумбокс в инвентаре (ПКМ - Использовать). Теперь вы можете слушать свою музыку и включать ее окружающим. Для того чтобы убрать проигрыватель, в интерфейсе имеется кнопка 'забрать плеер'": "Benutze die Boombox in deinem Inventar (PCM - Benutzen). Sie können jetzt Ihre Musik hören und sie an Ihre Mitmenschen weitergeben. Um den Player zu entfernen, gibt es in der Benutzeroberfläche eine Schaltfläche 'Player entfernen'.",
   "Итальянская пыль": "Italienischer Staub",
   "Итальянское посольство": "Italienische Botschaft",
+  "КПЗ и склад": "CPS und Lager",
+  "КПП №1": "KONTROLLPUNKT NR. 1",
+  "КПП №2": "KONTROLLPUNKT NR. 2",
   "Кабан": "Wildschwein",
+  "Кабинет губернатора": "Büro des Gouverneurs",
+  "Кабинет директора": "Büro des Direktors",
+  "Кабинеты": "Ämter",
   "Кавролин дьявола": "Teufelskavrolin",
+  "Казарма": "Kaserne",
   "Казино": "Casino",
   "Камбала": "Flunder",
   "Каменая порода": "Felsen",
   "Каменный топор": "Steinbeil",
+  "Камера 1": "Kamera 1",
+  "Камера 2": "Kamera 2",
+  "Камера 3": "Kamera 3",
+  "Камера 4": "Kamera 4",
+  "Камера 5": "Kamera 5",
+  "Камера 6": "Kamera 6",
   "Канистра с бензином": "Benzinkanister",
   "Карбоновая сумка": "Kohlefaserbeutel",
   "Карбоновое напыление": "Sprühen von Kohlenstoff",
@@ -3934,6 +4096,7 @@ module.exports = {
   "Карта сокровищ": "Schatzkarte",
   "Картофель": "Kartoffeln",
   "Картошка фри": "Fritten",
+  "Каршеринг": "Carsharing",
   "Касса": "Registrierkasse",
   "Кастет": "Schlagring",
   "Квартира": "Wohnung",
@@ -3949,6 +4112,10 @@ module.exports = {
   "Классический земляной камуфляж": "Klassische Erdtarnung",
   "Классический коричневый камуфляж": "Klassisches braunes Tarnmuster",
   "Классический серый камуфляж": "Klassisches graues Tarnmuster",
+  "Клетка": "Käfig",
+  "Клетка 1": "Käfig 1",
+  "Клетка 2": "Käfig 2",
+  "Клетка 3": "Käfig 3",
   "Клининговая компания": "Reinigungsunternehmen",
   "Клуб": "Club",
   "Клубника": "Erdbeeren",
@@ -3968,12 +4135,14 @@ module.exports = {
   "Колекционный кубок": "Kombi-Tasse",
   "Коллекционер": "Sammler",
   "Комиссия крупье в кости": "Würfel Croupier Kommission",
+  "Комната ожидания": "Warteraum",
   "Компенсатор": "Kompensator",
   "Комплект автозвука": "Auto-Audio-Kit",
   "Компоненты майнинга": "Komponenten für den Bergbau",
   "Конверт с лицензией": "Umschlag der Lizenz",
   "Контейнер": "",
   "Контрольная точка": "Kontrollpunkt",
+  "Конференц зал": "Konferenzraum",
   "Коньяк": "Cognac",
   "Корзинка для сладостей": "Korb für Süßigkeiten",
   "Коричневая бананка": "Braune Banane",
@@ -4030,10 +4199,28 @@ module.exports = {
   "Кусок пиратской карты 4": "Piratenkarte Stück 4",
   "Кусок пиратской карты 5": "Piratenkarte Stück 5",
   "Кусок пиратской карты 6": "Piratenkarte Stück 6",
+  "Кухня": "Küche",
+  "Лаборатория": "Labor",
+  "Лаборатория 1": "Laboratorium 1",
+  "Лаборатория 2": "Laboratorium 2",
+  "Лаборатория 3": "Labor 3",
   "Ламар": "Lamar",
   "Лаундж зона": "Lounge-Bereich",
+  "Левая входная дверь": "Linke Vordertür",
+  "Левый вход": "Linker Eingang",
   "Легкий бронежилет": "Leichte Körperpanzerung",
+  "Лекционная": "Vortrag",
   "Леопардовая сумка конверт": "Leoparden-Umschlagtasche",
+  "Лестница": "Treppe",
+  "Лестничная площадка": "Treppenabsatz",
+  "Лестничная площадка 1": "Treppenhaus 1",
+  "Лестничная площадка 2": "Treppenhaus 2",
+  "Лестничная площадка 3": "Treppe 3",
+  "Лестничная площадка 4": "Treppenabsatz 4",
+  "Лестничная площадка 5": "Treppenhaus 5",
+  "Лестничная площадка 6": "Treppenabsatz 6",
+  "Лестничная площадка задняя": "Treppenabsatz hinten",
+  "Лестничная площадка передняя": "Treppenabsatz vorne",
   "Лечение": "Behandlung",
   "Листва": "Blätter",
   "Лифт": "Aufzug",
@@ -4065,6 +4252,7 @@ module.exports = {
   "Малина": "Himbeere",
   "Маска": "Maske",
   "Массовые беспорядки": "Massenunruhen",
+  "Мастерская": "Workshop",
   "Материалы": "Materialien",
   "Мачете": "Machete",
   "Медикаменты": "Medikation",
@@ -4092,6 +4280,9 @@ module.exports = {
   "Минимальная сумма доната 1 евро": "Mindestspendenbetrag 1 €",
   "Мишень": "Ziel",
   "Многоквартирный дом": "Mehrfamilienhaus",
+  "Многоквартирный дом 1": "Mehrfamilienhaus 1",
+  "Многоквартирный дом 2": "Mehrfamilienhaus 2",
+  "Многоквартирный дом 3": "Mehrfamilienhaus 3",
   "Модификации оружия": "Waffenmodifikationen",
   "Молоко матери": "Muttermilch",
   "Мопс": "Mops",
@@ -4100,6 +4291,7 @@ module.exports = {
   "Мотосалон": "Motorrad-Ausstellungsraum",
   "Музыкальный плеер": "Musikspieler",
   "Музыкальный центр": "Musikzentrum",
+  "Мусорный бак": "Mülleimer",
   "Мясо Кабана": "Wildschweinfleisch",
   "Мясо Койота": "Kojotenfleisch",
   "Мясо Кролика": "Kaninchenfleisch",
@@ -4131,6 +4323,7 @@ module.exports = {
   "Найденная сумка": "Die Tasche, die wir gefunden haben",
   "Наказание": "Bestrafung {0}",
   "Наказание отбудет": "Bestrafung {0}. Der Spieler wird es erhalten, wenn er sich das nächste Mal am Server anmeldet.",
+  "Нападение на гос. служащего": "Angriff auf einen Staatsbediensteten",
   "Напитки": "Getränke",
   "Наркотики": "Drogen",
   "Наручники": "Handschellen",
@@ -4142,8 +4335,8 @@ module.exports = {
   "Нежно розовая сумка": "Zartrosa Tasche",
   "Незнакомец": "Fremde",
   "Незнакомцем": "Fremde",
-  "Нести за спиной": "Tragen Sie es hinter Ihrem Rücken",
-  "Нести на руках": "Tragen Sie in Ihren Armen",
+  "Нести за спиной": "auf ihren Rücken zu nehmen",
+  "Нести на руках": "in die Arme zu nehmen",
   "Нет в наличии": "Nicht verfügbar",
   "Нет номера": "Keine Nummer",
   "Низкосортный корм": "Geringwertige Futtermittel",
@@ -4179,6 +4372,7 @@ module.exports = {
   "Оплата аренды транспорта": "Kosten für den Transport",
   "Оплата восскрешения": "Bezahlen für einen Aufstieg",
   "Оплата доставки": "Bezahlung der Lieferung",
+  "Оплата заказа продукции": "Bezahlung der Produktbestellung",
   "Оплата лечения": "Bezahlung der Behandlung",
   "Оплата лечения в больнице": "Bezahlung der Krankenhausbehandlung",
   "Оплата парковки": "Für das Parken bezahlen",
@@ -4198,9 +4392,13 @@ module.exports = {
   "Оранжевый камуфляж": "Orangefarbene Tarnung",
   "Оранжевый контрастный камуфляж": "Orange Kontrasttarnung",
   "Оранжевый рюкзак": "Orange Rucksack",
+  "Оружейная комната": "Waffenkammer",
+  "Оружейная комната задняя": "Zeughaus hinten",
+  "Оружейная комната передняя": "Vorraum des Zeughauses",
   "Оружейный Лицензионный центр": "Zentrum für Waffenlizenzen (Arms Licensing Centre)",
   "Оружейный магазин": "Waffenladen",
   "Оружие": "Waffen",
+  "Основной вход": "Haupteingang",
   "Оставшиеся средства на счету семьи при удалении": "Verbleibendes Guthaben auf dem Familienkonto bei Abhebung",
   "Остановка": "Stopp",
   "Осётр": "Stör",
@@ -4211,11 +4409,15 @@ module.exports = {
   "Отмена ставки": "Stornierung des Tarifs",
   "Отмена ставки в костях": "Annullierung des Einsatzes beim Würfeln",
   "Отмычка": "Rücklaufsperre",
+  "Офис 1": "Büro 1",
+  "Офис 2": "Büro 2",
+  "Офис капитана": "Büro des Kapitäns",
   "Офицер в бедственном положении (По офицерам открыт огонь)": "Offizier in Not (Offiziere unter Beschuss)",
   "Офицер убит или ранен": "Getöteter oder verletzter Beamter",
   "Охота": "Jagdgebiet",
   "Охотник за удачей": "Glücksjäger",
   "Охотничий нож": "Jagdmesser",
+  "Охрана": "Sicherheit",
   "Очистить": "Löschen",
   "Очистка персонажа": "ID änderung",
   "Очистка розыска": "Löschung der Suche",
@@ -4231,6 +4433,7 @@ module.exports = {
   "Пасмурно": "Bedeckt",
   "Патронник": "Patronenhülse",
   "Пачка отмычек": "Packung mit Dietrichen",
+  "Первая допросная": "Der erste Vernehmungsraum",
   "Первое место в ДМ": "Erster Platz bei der DM",
   "Перевыпустил документы": "Die Dokumente neu ausgestellt",
   "Перевыпустить документы": "Dokumente neu ausstellen",
@@ -4269,9 +4472,11 @@ module.exports = {
   "Победа вашей команды в ДМ": "Sieg für Ihr Team bei der DM",
   "Повышение уровня семьи": "Anhebung des Niveaus der Familie",
   "Повёл за собой": "Den Weg vorgeben",
+  "Погреб": "Keller",
   "Погрузочная зона": "Ladefläche",
   "Подарил battle pass": "Vorgestellter Kampfpass",
   "Подача рекламного объявления": "Eine Anzeige aufgeben",
+  "Подвал": "Untergeschoss",
   "Подготовка к Высадке груза": "Vorbereitungen für das Abladen der Fracht",
   "Подмена данных оружия": "Manipulation von Waffendaten",
   "Подмена срока возрождения": "Ersetzung einer Wiedergeburtsfrist",
@@ -4313,7 +4518,10 @@ module.exports = {
   "Порода содежащяя серебро": "Silberhaltiges Gestein",
   "Поступил новый вызов": "Eine neue Herausforderung ist da",
   "Поцелуй": "Kuss",
+  "Правая входная дверь": "Vordertür rechts",
   "Правительство": "Regierung",
+  "Правый вход": "Rechter Eingang",
+  "Правый выход": "Ausgang rechts",
   "Премия за максимальный уровень работы": "Maximale Leistungsprämie",
   "Прибыть на место без сирен и стробоскобов": "Eintreffen am Einsatzort ohne Sirenen oder Blitzlichter",
   "Приобрести их вы можете у продавца около гаража Тони": "Sie können sie von einem Verkäufer vor Tonys Garage kaufen",
@@ -4352,6 +4560,8 @@ module.exports = {
   "Работа водолаза": "Arbeit des Tauchers",
   "Работа для Посольств": "Arbeit für Botschaften",
   "Работа для семей": "Arbeitsplätze für Familien",
+  "Работа мусоровоза": "Die Arbeit eines Müllwagens",
+  "Работа сортировщика": "Arbeit als Sortierer",
   "Развёлся": "Geschieden",
   "Разгрузка семейного груза": "Entladen von Familienfracht",
   "Раздевалка": "Umkleidekabine",
@@ -4375,6 +4585,7 @@ module.exports = {
   "Ремонт и обслуживание ТС": "Reparaturen und Wartung von Fahrzeugen",
   "Ремонт квартир": "Renovierung einer Wohnung",
   "Ремонт квартиры": "Renovierung einer Wohnung",
+  "Ресепшн": "Rezeption",
   "Риелторское агентство": "Maklerbüro",
   "Роберт": "Robert",
   "Розетки из Франции": "Verkaufsstellen aus Frankreich",
@@ -4434,6 +4645,7 @@ module.exports = {
   "Сальвадор Дали": "Salvador Dali",
   "Самодельная взрывчатка": "Improvisierter Sprengstoff",
   "Сбалансированный корм": "Ausgewogenes Futter",
+  "Свалка": "Schrottplatz",
   "Сварка": "Schweißen",
   "Сверление дырок": "Löcher bohren",
   "Свинья": "Schwein",
@@ -4461,6 +4673,7 @@ module.exports = {
   "Серая бананка": "Graue Banane",
   "Серая сумка": "Graue Tasche",
   "Серая травянистая сумка": "Grauer Grasbeutel",
+  "Серверная": "Serverraum",
   "Серебрянная монета": "Silbermünze",
   "Серебрянная статуэтка": "Silberne Statue",
   "Серебрянное колье": "Silberne Halskette",
@@ -4479,6 +4692,7 @@ module.exports = {
   "Скупщик мяса Gordon": "Gordon's Fleischzaun",
   "Скупщик руды Djordan": "Djordanischer Erzzaun",
   "Служба доставки": "Zustelldienst",
+  "Служебное помещение": "Büroräume",
   "Смена номерного знака на ТС": "Änderung des Nummernschilds an einem Fahrzeug",
   "Сменил внешность": "Veränderte sein Aussehen",
   "Сменил возраст": "Geändertes Alter",
@@ -4494,14 +4708,17 @@ module.exports = {
   "Снятие наличных средств": "Abhebung von Bargeld",
   "Снятие средств в отделении банка": "Abhebung in einer Bankfiliale",
   "Снятие средств владельцем": "Rücktritt des Eigentümers",
+  "Собрать мусор": "Müll sammeln",
   "Собрать урожай": "Die Ernte einbringen",
   "Создание организации": "Aufbau einer Organisation",
   "Создание семьи": "Eine Familie gründen",
   "Сорян, но сейчас мне ничего не требуется. Подходи попозже как нибудь": "Es tut mir leid, aber ich brauche im Moment nichts. Kommen Sie ein anderes Mal wieder.",
   "Спец. пластид": "Spezial-Plastid",
   "Справка о допуске к экзамену на лицензию на оружие": "Bescheinigung über die Berechtigung zur Teilnahme an der Prüfung des Waffenscheins",
+  "Справка о прохождении теоретического экзамена на получение лицензии на оружие": "Bescheinigung über das Bestehen der theoretischen Prüfung für einen Waffenschein",
   "Справка о результатах психического обследования (Положительная)": "Bescheinigung über die Untersuchung der psychischen Gesundheit (positiv)",
   "Справка о результатах психического обследования (Средняя)": "Bescheinigung über die Untersuchung der psychischen Gesundheit (mittel)",
+  "Справка о результатах физического здоровья": "Erklärung zu den Ergebnissen der körperlichen Gesundheit",
   "Справка о результатах физического здоровья (Удовлетворительно)": "Bescheinigung über die Ergebnisse der körperlichen Gesundheit (befriedigend)",
   "Средний контейнер": "Mittlerer Behälter",
   "Срочная реанимация": "Notfall-Wiederbelebung",
@@ -4519,6 +4736,10 @@ module.exports = {
   "Стрельба в ЗЗ без доступа": "Dreharbeiten in ZZ ohne Zugang",
   "Строительный молоток": "Bauhammer",
   "Стройка": "Baustelle",
+  "Студия": "Studio",
+  "Студия 2": "Studio 2",
+  "Студия 3": "Studio 3",
+  "Студия 5": "Studio 5",
   "Стул": "Stuhl",
   "Стэнли": "Stanley",
   "Стэнли Уильямс": "Stanley Williams",
@@ -4565,6 +4786,7 @@ module.exports = {
   "Трава": "Gras",
   "Травянистая сумка": "Gras-Beutel",
   "Транспорт": "Transport",
+  "Тренажерный зал": "Fitnessstudio",
   "Третье место в ДМ": "Dritter Platz bei der DM",
   "Тротил": "TNT",
   "Трубный ключ": "Rohrzange",
@@ -4608,6 +4830,7 @@ module.exports = {
   "Фуга": "Fuge",
   "Хаски": "Husky",
   "Хирургия": "Chirurgie",
+  "Хол": "Hol",
   "Хорошая удочка": "Eine gute Angelrute",
   "Хранилище": "Lagerhaus",
   "Хэллоуин рюкзак": "Halloween-Rucksack",
@@ -4628,6 +4851,7 @@ module.exports = {
   "Черно-желтый камуфляж": "Schwarz-gelber Tarnanstrich",
   "Черно-зеленый камуфляж": "Schwarz und grün getarnt",
   "Черно-красный камуфляж": "Schwarz und rot getarnt",
+  "Черный вход": "Schwarzer Eingang",
   "Черный рюкзак": "Schwarzer Rucksack",
   "Чизбургер": "Cheeseburger",
   "Чинить проводку": "Reparieren Sie die Verkabelung",
@@ -4682,6 +4906,7 @@ module.exports = {
   "заряжен": "geladen",
   "к вам": "Ihnen gegenüber",
   "к себе": "für sich selbst",
+  "конференц-зал": "Konferenzraum",
   "муж и жена": "Ehemann und Ehefrau",
   "на точку парковки": "zum Parkplatz",
   "наценку": "Aufschlag",
@@ -12208,7 +12433,7 @@ exports.GPSPointType = GPSPointType;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.StaticVehicle = exports.StaticVehicleStreamRange = exports.npcBusiness = exports.DAYLY_ADD_MONEY = exports.BUSINESS_SUBTYPE_NAMES = exports.BUSINESS_TYPE_CATEGORIES = exports.BUSINESS_TYPE_NAMES = exports.BUSINESS_TYPE = exports.getFuelCost = exports.FUEL_COST = exports.BUSINESS_BUY_LEVEL = void 0;
+exports.StaticVehicle = exports.StaticVehicleStreamRange = exports.npcBusiness = exports.DAYLY_ADD_MONEY = exports.BUSINESS_SUBTYPE_NAMES = exports.BUSINESS_TYPE_CATEGORIES = exports.BUSINESS_TYPE_NAMES = exports.BUSINESS_TYPE = exports.getFuelCost = exports.FUEL_COST = exports.BUSINESS_BUY_LEVEL = exports.BUSINESS_GOV_PERCENT = void 0;
 
 var _cloth = require("./cloth");
 
@@ -12216,6 +12441,8 @@ var _vehicles = require("./vehicles");
 
 var _locationCategories = require("./phone/locationCategories.enum");
 
+const BUSINESS_GOV_PERCENT = 2;
+exports.BUSINESS_GOV_PERCENT = BUSINESS_GOV_PERCENT;
 const BUSINESS_BUY_LEVEL = 0;
 exports.BUSINESS_BUY_LEVEL = BUSINESS_BUY_LEVEL;
 var FUEL_COST;
@@ -12256,12 +12483,12 @@ const BUSINESS_TYPE_NAMES = ["Банки", "Продажа/Прокат тран
 exports.BUSINESS_TYPE_NAMES = BUSINESS_TYPE_NAMES;
 const BUSINESS_TYPE_CATEGORIES = [_locationCategories.LocationCategoryEnum.Banks, _locationCategories.LocationCategoryEnum.Car_Showroom, _locationCategories.LocationCategoryEnum.Shop_24_7, _locationCategories.LocationCategoryEnum.Refueling, _locationCategories.LocationCategoryEnum.Clothing_Store, _locationCategories.LocationCategoryEnum.Clothing_Store, _locationCategories.LocationCategoryEnum.Los_Santos_Customs, _locationCategories.LocationCategoryEnum.Clubs, _locationCategories.LocationCategoryEnum.Parking, _locationCategories.LocationCategoryEnum.Clothing_Store, _locationCategories.LocationCategoryEnum.Car_Wash];
 exports.BUSINESS_TYPE_CATEGORIES = BUSINESS_TYPE_CATEGORIES;
-const BUSINESS_SUBTYPE_NAMES = [["Pacific Standart Bank", "Maze Bank", "Fleeca Bank", "Blane Bank"], ["Прокат транспорта", "Автосалон", "Автосалон", "Автосалон", "Мотосалон", "Лодочная станция", "Воздушный транспорт", "Автосалон", "Редкий транспорт"], ["Магазин 24/7", "Магазин электроники", "Оружейный магазин", "Аптека", "Магазин сумок и рюкзаков", "Фермерский магазин", "Магазин питомцев"], ["Заправка", "Заправка"], _cloth.clothShopNames, ["Тату салон", "Тату салон", "Тату салон", "Тату салон", "Тату салон"], ["Автомастерская", "Чип-тюнинг"], ["Клуб", "Клуб"], ["Парковка", "Парковка"], ["Барбершоп", "Барбершоп", "Барбершоп", "Барбершоп"], ["Автомойка"]];
+const BUSINESS_SUBTYPE_NAMES = [["Pacific Standart Bank", "Maze Bank", "Fleeca Bank", "Blane Bank"], ["Прокат транспорта", "Автосалон", "Автосалон", "Автосалон", "Мотосалон", "Лодочная станция", "Воздушный транспорт", "Автосалон", "Редкий транспорт"], ["Магазин 24/7", "Магазин электроники", "Оружейный магазин", "Аптека", "Магазин сумок и рюкзаков", "Фермерский магазин", "Магазин питомцев", "Табачный магазин"], ["Заправка", "Заправка"], _cloth.clothShopNames, ["Тату салон", "Тату салон", "Тату салон", "Тату салон", "Тату салон"], ["Автомастерская", "Чип-тюнинг"], ["Клуб", "Клуб"], ["Парковка", "Парковка"], ["Барбершоп", "Барбершоп", "Барбершоп", "Барбершоп"], ["Автомойка"]];
 exports.BUSINESS_SUBTYPE_NAMES = BUSINESS_SUBTYPE_NAMES;
 const DAYLY_ADD_MONEY = 2;
 exports.DAYLY_ADD_MONEY = DAYLY_ADD_MONEY;
 const npcBusiness = {
-  ITEM: [['s_m_y_busboy_01', 's_m_m_linecook', 'ig_manuel', 'cs_marnie', 's_f_y_migrant_01', 's_m_m_migrant_01', 'ig_russiandrunk', 'a_m_m_salton_02', 'g_m_y_salvagoon_02', 'mp_m_shopkeep_01', 'a_f_m_soucent_02', 'a_f_y_soucent_02', 's_m_m_strvend_01', 's_f_m_sweatshop_01', 's_f_y_sweatshop_01', 'mp_f_counterfeit_01', 'mp_f_weed_01', 'u_m_y_burgerdrug_01', 'a_m_m_farmer_01', 'a_m_o_genstreet_01', 'cs_jimmyboston', 'ig_oneil'], ['a_m_y_stlat_01', 'u_m_y_baygor', 's_m_y_strvend_01', 'a_m_y_stwhi_02', 'cs_taocheng', 'a_m_y_vinewood_03', 'mp_f_execpa_01', 'ig_andreas', 'a_m_y_bevhills_01', 'a_m_y_bevhills_02', 'mp_f_boatstaff_01', 'u_m_y_burgerdrug_01', 'a_m_y_busicas_01', 'a_f_y_business_02', 'a_m_y_business_02', 'a_f_y_business_04', 'u_m_y_chip', 'csb_imran', 'g_m_y_pologoon_01', 'ig_popov'], ['u_m_y_baygor', 'u_m_y_baygor', 'u_m_o_taphillbilly', 'ig_terry', 'mp_m_weapexp_01', 's_m_y_ammucity_01', 'a_m_m_bevhills_02', 'a_f_y_business_04', 's_m_o_busker_01', 'ig_car3guy1', 'ig_car3guy2', 'csb_chin_goon', 'ig_cletus', 's_m_m_cntrybar_01', 'mp_m_exarmy_01', 'u_m_m_filmdirector', 'ig_josef', 'a_m_o_ktown_01', 'ig_popov', 'ig_russiandrunk'], ['u_m_y_baygor', 'a_m_y_beachvesp_01', 'a_m_y_beachvesp_02', 'a_m_m_bevhills_01', 'a_m_m_bevhills_02', 'a_m_y_bevhills_02', 'mp_f_boatstaff_01', 'a_f_y_business_04', 'a_m_o_genstreet_01', 'ig_jay_norris', 'a_f_o_ktown_01', 'a_f_m_tourist_01', 'mp_f_execpa_01'], ['u_m_y_baygor', 'u_m_y_baygor', 'u_m_o_taphillbilly', 'ig_terry', 'mp_m_weapexp_01', 's_m_y_ammucity_01', 'a_m_m_bevhills_02', 'a_f_y_business_04', 's_m_o_busker_01', 'ig_car3guy1', 'ig_car3guy2', 'csb_chin_goon', 'ig_cletus', 's_m_m_cntrybar_01', 'mp_m_exarmy_01', 'u_m_m_filmdirector', 'ig_josef', 'a_m_o_ktown_01', 'ig_popov', 'ig_russiandrunk'], ['u_m_y_baygor', 'u_m_y_baygor', 'u_m_o_taphillbilly', 'ig_terry', 'mp_m_weapexp_01', 's_m_y_ammucity_01', 'a_m_m_bevhills_02', 'a_f_y_business_04', 's_m_o_busker_01', 'ig_car3guy1', 'ig_car3guy2', 'csb_chin_goon', 'ig_cletus', 's_m_m_cntrybar_01', 'mp_m_exarmy_01', 'u_m_m_filmdirector', 'ig_josef', 'a_m_o_ktown_01', 'ig_popov', 'ig_russiandrunk'], ['u_m_y_baygor', 'u_m_y_baygor', 'u_m_o_taphillbilly', 'ig_terry', 'mp_m_weapexp_01', 's_m_y_ammucity_01', 'a_m_m_bevhills_02', 'a_f_y_business_04', 's_m_o_busker_01', 'ig_car3guy1', 'ig_car3guy2', 'csb_chin_goon', 'ig_cletus', 's_m_m_cntrybar_01', 'mp_m_exarmy_01', 'u_m_m_filmdirector', 'ig_josef', 'a_m_o_ktown_01', 'ig_popov', 'ig_russiandrunk']],
+  ITEM: [['s_m_y_busboy_01', 's_m_m_linecook', 'ig_manuel', 'cs_marnie', 's_f_y_migrant_01', 's_m_m_migrant_01', 'ig_russiandrunk', 'a_m_m_salton_02', 'g_m_y_salvagoon_02', 'mp_m_shopkeep_01', 'a_f_m_soucent_02', 'a_f_y_soucent_02', 's_m_m_strvend_01', 's_f_m_sweatshop_01', 's_f_y_sweatshop_01', 'mp_f_counterfeit_01', 'mp_f_weed_01', 'u_m_y_burgerdrug_01', 'a_m_m_farmer_01', 'a_m_o_genstreet_01', 'cs_jimmyboston', 'ig_oneil'], ['a_m_y_stlat_01', 'u_m_y_baygor', 's_m_y_strvend_01', 'a_m_y_stwhi_02', 'cs_taocheng', 'a_m_y_vinewood_03', 'mp_f_execpa_01', 'ig_andreas', 'a_m_y_bevhills_01', 'a_m_y_bevhills_02', 'mp_f_boatstaff_01', 'u_m_y_burgerdrug_01', 'a_m_y_busicas_01', 'a_f_y_business_02', 'a_m_y_business_02', 'a_f_y_business_04', 'u_m_y_chip', 'csb_imran', 'g_m_y_pologoon_01', 'ig_popov'], ['u_m_y_baygor', 'u_m_y_baygor', 'u_m_o_taphillbilly', 'ig_terry', 'mp_m_weapexp_01', 's_m_y_ammucity_01', 'a_m_m_bevhills_02', 'a_f_y_business_04', 's_m_o_busker_01', 'ig_car3guy1', 'ig_car3guy2', 'csb_chin_goon', 'ig_cletus', 's_m_m_cntrybar_01', 'mp_m_exarmy_01', 'u_m_m_filmdirector', 'ig_josef', 'a_m_o_ktown_01', 'ig_popov', 'ig_russiandrunk'], ['u_m_y_baygor', 'a_m_y_beachvesp_01', 'a_m_y_beachvesp_02', 'a_m_m_bevhills_01', 'a_m_m_bevhills_02', 'a_m_y_bevhills_02', 'mp_f_boatstaff_01', 'a_f_y_business_04', 'a_m_o_genstreet_01', 'ig_jay_norris', 'a_f_o_ktown_01', 'a_f_m_tourist_01', 'mp_f_execpa_01'], ['u_m_y_baygor', 'u_m_y_baygor', 'u_m_o_taphillbilly', 'ig_terry', 'mp_m_weapexp_01', 's_m_y_ammucity_01', 'a_m_m_bevhills_02', 'a_f_y_business_04', 's_m_o_busker_01', 'ig_car3guy1', 'ig_car3guy2', 'csb_chin_goon', 'ig_cletus', 's_m_m_cntrybar_01', 'mp_m_exarmy_01', 'u_m_m_filmdirector', 'ig_josef', 'a_m_o_ktown_01', 'ig_popov', 'ig_russiandrunk'], ['u_m_y_baygor', 'u_m_y_baygor', 'u_m_o_taphillbilly', 'ig_terry', 'mp_m_weapexp_01', 's_m_y_ammucity_01', 'a_m_m_bevhills_02', 'a_f_y_business_04', 's_m_o_busker_01', 'ig_car3guy1', 'ig_car3guy2', 'csb_chin_goon', 'ig_cletus', 's_m_m_cntrybar_01', 'mp_m_exarmy_01', 'u_m_m_filmdirector', 'ig_josef', 'a_m_o_ktown_01', 'ig_popov', 'ig_russiandrunk'], ['u_m_y_baygor', 'u_m_y_baygor', 'u_m_o_taphillbilly', 'ig_terry', 'mp_m_weapexp_01', 's_m_y_ammucity_01', 'a_m_m_bevhills_02', 'a_f_y_business_04', 's_m_o_busker_01', 'ig_car3guy1', 'ig_car3guy2', 'csb_chin_goon', 'ig_cletus', 's_m_m_cntrybar_01', 'mp_m_exarmy_01', 'u_m_m_filmdirector', 'ig_josef', 'a_m_o_ktown_01', 'ig_popov', 'ig_russiandrunk'], ['u_m_y_baygor', 'u_m_y_baygor', 'u_m_o_taphillbilly', 'ig_terry', 'mp_m_weapexp_01', 's_m_y_ammucity_01', 'a_m_m_bevhills_02', 'a_f_y_business_04', 's_m_o_busker_01', 'ig_car3guy1', 'ig_car3guy2', 'csb_chin_goon', 'ig_cletus', 's_m_m_cntrybar_01', 'mp_m_exarmy_01', 'u_m_m_filmdirector', 'ig_josef', 'a_m_o_ktown_01', 'ig_popov', 'ig_russiandrunk']],
   DRESS: [['a_f_m_bevhills_01', 'a_m_y_bevhills_01', 'ig_bride', 'a_f_y_business_01', 'csb_customer', 'ig_denise', 'a_m_y_cyclist_01', 'a_f_y_eastsa_01', 'a_f_y_eastsa_03', 'a_f_y_epsilon_01', 'a_m_y_eastsa_02', 'g_m_y_famfor_01', 'cs_jewelass', 'a_m_y_indian_01', 'ig_lamardavis', 'u_f_y_mistress', 'cs_movpremf_01'], ['a_m_y_mexthug_01', 'csb_oscar', 'g_m_y_pologoon_01', 'a_f_o_soucent_01', 'a_m_m_soucent_01', 'g_m_y_strpunk_01', 's_m_y_strvend_01', 'a_m_y_sunbathe_01', 's_f_y_sweatshop_01', 'a_f_y_vinewood_01', 'a_f_y_vinewood_02', 'a_m_y_vinewood_03', 'a_f_y_vinewood_04'], ['g_m_y_ballaeast_01', 'g_m_y_ballaorig_01', 'g_f_y_ballas_01', 'g_m_y_ballasout_01', 'g_m_m_chigoon_02', 'ig_claypain', 'g_m_y_famdnf_01', 'g_f_y_families_01', 'a_f_y_fitness_01', 'ig_g', 's_m_y_grip_01'], ['s_f_y_airhostess_01', 'ig_barry', 'mp_f_boatstaff_01', 'mp_m_boatstaff_01', 'u_f_y_comjane', 'ig_dale', 'u_f_y_jewelass_01', 'u_m_m_jewelthief', 'ig_josh', 'ig_milton', 'cs_movpremmale', 'u_f_y_princess', 'csb_reporter', 'a_f_y_femaleagent'], ['s_f_y_airhostess_01', 'ig_barry', 'mp_f_boatstaff_01', 'mp_m_boatstaff_01', 'u_f_y_comjane', 'ig_dale', 'u_f_y_jewelass_01', 'u_m_m_jewelthief', 'ig_josh', 'ig_milton', 'cs_movpremmale', 'u_f_y_princess', 'csb_reporter', 'a_f_y_femaleagent']],
   TATTOO: [['u_m_y_baygor', 'a_f_y_juggalo_01', 'g_f_y_lost_01', 's_m_y_robber_01', 'ig_benny', 'ig_hao'], ['u_m_y_baygor', 'u_f_y_bikerchic', 'g_m_y_lost_01', 'ig_g', 'a_m_y_gay_01', 'u_m_y_tattoo_01'], ['u_m_y_baygor', 'u_m_y_guido_01', 'ig_ortega', 'cs_jimmyboston', 'a_m_m_soucent_04', 'ig_terry'], ['u_m_y_baygor', 'u_m_y_sbike', 'csb_porndudes', 'ig_stretch', 'g_m_y_strpunk_01'], ['u_m_y_baygor', 'g_f_y_vagos_01', 'a_f_y_vinewood_02', 's_m_y_xmech_02', 'g_m_y_strpunk_02', 's_m_y_strvend_01', 'a_m_m_soucent_04']],
   BAR: [['csb_anita', 's_m_y_barman_01', 'a_m_y_beachvesp_02', 'ig_benny', 'u_f_y_bikerchic', 'mp_f_boatstaff_01', 'a_f_y_business_04', 'ig_car3guy1', 'ig_car3guy2', 'u_m_y_chip', 'ig_dale', 'ig_g', 'u_m_y_gunvend_01', 'csb_imran', 'ig_jewelass', 'u_m_m_jewelthief', 'ig_taocheng', 'mp_f_execpa_01'], ['u_m_m_aldinapoli', 'a_m_y_beachvesp_01', 'ig_benny', 'a_m_m_bevhills_02', 'a_f_y_bevhills_04', 'u_f_y_bikerchic', 'ig_car3guy1', 'ig_car3guy2', 'ig_clay', 'ig_cletus', 's_m_m_cntrybar_01', 'a_m_y_eastsa_02', 'a_m_y_genstreet_01', 'a_m_y_hipster_02', 'csb_hugh', 'ig_jay_norris', 'g_m_y_lost_01', 'u_f_y_mistress', 'g_m_y_pologoon_01', 's_m_y_strvend_01', 'u_m_o_taphillbilly', 'u_m_y_tattoo_01', 'g_f_y_vagos_01', 'a_f_y_vinewood_02', 's_m_y_xmech_02_mp']],
@@ -12372,7 +12599,7 @@ var _business = require("./business");
 
 var _parking = require("./parking");
 
-const COINS_FOR_ONE_EURO = 200;
+const COINS_FOR_ONE_EURO = 100;
 exports.COINS_FOR_ONE_EURO = COINS_FOR_ONE_EURO;
 const JOB_MONEY_PER_HOUR_MULTIPLE = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 exports.JOB_MONEY_PER_HOUR_MULTIPLE = JOB_MONEY_PER_HOUR_MULTIPLE;
@@ -12711,7 +12938,7 @@ const fractionList = [{
   government: true,
   ranks: ["Trainee", "Junior Secretary", "Junior Officer of the USSS", "Secretary", "Lawyer", "USSS Officer", "Assiastant Secretary", "Senior Lawyer", "USSS Agent", "EVENT Manager", "HR Manager", "USSS Secret Agent", "Dep.Head of the Department", "Head of the Department", "Attorney", "Judge", "Mayor", "Chief of Staff", "Dep.Dir. of the USSS", "Director of the USSS", "Chief Justice", "Dep. Minister", "Minister", "Attorney General", "Counsel to the Governor", "Vice Governor", "Governor"],
   moneybase: 0,
-  salaries: [2000, 2300, 2300, 2300, 3800, 3300, 3300, 3300, 4300, 3800, 3800, 3800, 4800, 5000, 3800, 4000, 3800, 4200, 5200, 5400, 5600, 5800, 6000, 6400, 6000, 6400, 6800],
+  salaries: [3500, 4000, 5200, 5400, 5600, 5800, 6000, 6200, 6400, 6600, 6800, 7000, 7100, 7200, 7300, 7400, 7500, 8000, 8500, 9000, 9500, 10000, 10500, 11000, 12000, 13000, 19000],
   spawn: {
     x: -549.89,
     y: -184.01,
@@ -12738,7 +12965,7 @@ const fractionList = [{
   gang: false,
   ranks: ["Cadet PA", "Police Officier I", "Police Officier II", "Police Officier III", "Police Officier III+1", "Sergeant I", "Sergeant II", "Lieutenant I", "Lieutenant II", "Captain I", "Captain II", "Commander", "Assistant Chief of Police", "Chief of Police"],
   moneybase: 0,
-  salaries: [1300, 1600, 1900, 2300, 2700, 3100, 3500, 3800, 4100, 4500, 4800, 5500, 5800, 6400],
+  salaries: [4500, 5000, 6500, 7000, 7500, 8000, 8500, 9000, 10000, 11000, 13000, 14000, 15000, 17000],
   spawn: {
     x: 479.24,
     y: -997.16,
@@ -12765,7 +12992,7 @@ const fractionList = [{
   gang: false,
   ranks: ["Trainee FIB", "Junior Agent", "Agent", "Special Agent", "Secret Agent", "Senior Agent", "Free Agent", "Deputy of Department", "Head of Department", "Inspector FIB", "Assistant Director", "Deputy Director", "Director FIB"],
   moneybase: 0,
-  salaries: [1500, 2100, 2700, 3300, 3900, 4400, 4900, 5500, 6100, 6700, 6800, 6800, 6900],
+  salaries: [6000, 8000, 8500, 9000, 9500, 10000, 11000, 12000, 12500, 15000, 16000, 17000, 18000],
   spawn: {
     x: 2487.22,
     y: -415.19,
@@ -12792,7 +13019,7 @@ const fractionList = [{
   gang: false,
   ranks: ["Private", "Private Second Class", "Private First Class", "Specialist", "Corporal", "Sergeant", "Staff Sergeant", "Master Sergeant", "Sergeant Major", "Warrant Officer", "Chief Warrant Officer", "Lieutenant", "Lieutenant Colonel", "Colonel"],
   moneybase: 0,
-  salaries: [1300, 1600, 1900, 2200, 2500, 2900, 3300, 3700, 4100, 4500, 5000, 5500, 6000, 6600],
+  salaries: [4000, 5500, 6000, 7500, 8500, 9000, 10000, 10500, 11000, 11500, 12750, 15000, 17000, 17500],
   spawn: {
     x: -2342.48,
     y: 3224.74,
@@ -12818,7 +13045,7 @@ const fractionList = [{
   gang: false,
   ranks: ["Promoter", "Trainee", "Editor", "Radio Host", "Event Manager", "Operator", "Journalist", "Chief Editor", "Manager", "Dep.Head of the Department", "Head of the Department", "Dep.Director", "Director"],
   moneybase: 0,
-  salaries: [1300, 1700, 2100, 2600, 3100, 3600, 4100, 4600, 5100, 5600, 5400, 5700, 6000],
+  salaries: [3500, 4250, 5000, 6500, 7000, 7500, 8000, 8500, 8850, 9000, 11250, 12500, 13500],
   spawn: {
     x: -578.08,
     y: -937.52,
@@ -12836,7 +13063,7 @@ const fractionList = [{
   gang: false,
   ranks: ["Deputy Sheriff Treinee", "Deputy Sheriff", "Corporal", "Sergeant", "Lieutenant", "Senior-Lieutenant", "Captain", "Commander", "Division Chief", "Assistant Sheriff", "Undersheriff", "Sheriff"],
   moneybase: 0,
-  salaries: [1300, 1600, 1900, 2200, 2500, 2900, 3400, 3700, 4100, 4600, 5000, 6000],
+  salaries: [2500, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 11500, 12000],
   spawn: {
     x: -436.02,
     y: 6008.00,
@@ -12862,7 +13089,7 @@ const fractionList = [{
   gang: false,
   ranks: ["Trainee", "Intern", "Ordinator", "Paramedic", "Jr.Specialist", "Senior Specialist", "Chief Specialist", "Doctors Assistant", "Doctor", "Senior Doctor", "Dep.Head of Department", "Head of the Department", "Dep.Chief Physician", "Chief Physician"],
   moneybase: 0,
-  salaries: [1200, 1600, 2000, 2400, 2800, 3200, 3600, 4000, 4400, 4800, 5200, 5600, 6000, 6200],
+  salaries: [6000, 6500, 7000, 7500, 8000, 8500, 8750, 9000, 9250, 9500, 9750, 10500, 11500, 12500],
   spawn: {
     x: 306.11,
     y: -598.19,
@@ -12879,7 +13106,7 @@ const fractionList = [{
   gang: true,
   ranks: ["Blade", "Buster", "Сracker", "gunBrogh", "upBrogh", "Gangster", "Federal block", "Foulkes", "Rich Nig", "Big Gangster"],
   moneybase: 0,
-  salaries: [400, 400, 400, 400, 400, 400, 400, 400, 400, 400],
+  salaries: [600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500],
   color: "#CD42FF",
   blipgangcolor: 7,
   spawn: {
@@ -12907,7 +13134,7 @@ const fractionList = [{
   gang: true,
   ranks: ["Beginner", "Youngsta", "Killa", "Wang G", "Shooter", "Big Brother", "High", "The King", "Deputy Boss", "Mad Dog"],
   moneybase: 0,
-  salaries: [400, 400, 400, 400, 400, 400, 400, 400, 400, 400],
+  salaries: [600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500],
   color: "#41AB5D",
   blipgangcolor: 25,
   spawn: {
@@ -12935,7 +13162,7 @@ const fractionList = [{
   gang: true,
   ranks: ["Novato", "Experimentado", "Maton", "El asesino", "Viendo", "Trusted", "Cerrar", "Mano izquierda", "Mano derecha", "Capitulo"],
   moneybase: 0,
-  salaries: [400, 400, 400, 400, 400, 400, 400, 400, 400, 400],
+  salaries: [600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500],
   color: "#49A2E6",
   blipgangcolor: 3,
   spawn: {
@@ -12963,7 +13190,7 @@ const fractionList = [{
   gang: true,
   ranks: ["Boy Blood.", "Young Blood", "Mature Blood", "Gangster Blood", "Killa Blood", "Old Blood", "Boss Gangster Blood", "Looker Blood", "Big Boss Blood", "King of Blood"],
   moneybase: 0,
-  salaries: [400, 400, 400, 400, 400, 400, 400, 400, 400, 400],
+  salaries: [600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500],
   color: "#FF0000",
   blipgangcolor: 59,
   spawn: {
@@ -12991,7 +13218,7 @@ const fractionList = [{
   gang: true,
   ranks: ["Novito", "Ordinario", "Configuracion regional", "Verifikado", "Bandito", "V. E. G", "Assessino", "Lider V. E. G.", "Padrino", "Padre"],
   moneybase: 0,
-  salaries: [400, 400, 400, 400, 400, 400, 400, 400, 400, 400],
+  salaries: [600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500],
   color: "#FFFF00",
   blipgangcolor: 5,
   spawn: {
@@ -13019,7 +13246,7 @@ const fractionList = [{
   gang: false,
   ranks: ["Iangy-Rodo", "Iangy-Rodo Sha", "Shatei", "Kie Dai", "Siatei Gasira", "Singin", "Kaikei", "Vaka Gasira", "Saiko Komon", "Oyabun"],
   moneybase: 0,
-  salaries: [400, 400, 400, 400, 400, 400, 400, 400, 400, 400],
+  salaries: [700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600],
   color: "#41AB5D",
   blipgangcolor: 25,
   spawn: {
@@ -13047,7 +13274,7 @@ const fractionList = [{
   gang: false,
   ranks: ["Шнырь", "Хулиган", "Фраер", "Жулик", "Барыга", "Блатной", "Авторитет", "Смотрящий", "Положенец", "Вор в Законе"],
   moneybase: 0,
-  salaries: [400, 400, 400, 400, 400, 400, 400, 400, 400, 400],
+  salaries: [700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600],
   color: "#41AB5D",
   blipgangcolor: 25,
   spawn: {
@@ -13075,7 +13302,7 @@ const fractionList = [{
   gang: false,
   ranks: ["Novizio", "Testato", "Associato", "Combattente", "Soldato", "Confidente", "Capo", "Strada Boss", "Сonsigliere", "Don"],
   moneybase: 0,
-  salaries: [400, 400, 400, 400, 400, 400, 400, 400, 400, 400],
+  salaries: [700, 800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600],
   color: "#41AB5D",
   blipgangcolor: 25,
   spawn: {
@@ -13456,6 +13683,18 @@ exports.OWNER_TYPES = OWNER_TYPES;
   OWNER_TYPES[OWNER_TYPES["BAG_137"] = 20034] = "BAG_137";
   OWNER_TYPES[OWNER_TYPES["BAG_138"] = 20035] = "BAG_138";
   OWNER_TYPES[OWNER_TYPES["BAG_139"] = 20036] = "BAG_139";
+  OWNER_TYPES[OWNER_TYPES["BAG_140"] = 20038] = "BAG_140";
+  OWNER_TYPES[OWNER_TYPES["BAG_141"] = 20039] = "BAG_141";
+  OWNER_TYPES[OWNER_TYPES["BAG_142"] = 20040] = "BAG_142";
+  OWNER_TYPES[OWNER_TYPES["BAG_143"] = 20041] = "BAG_143";
+  OWNER_TYPES[OWNER_TYPES["BAG_144"] = 20042] = "BAG_144";
+  OWNER_TYPES[OWNER_TYPES["BAG_145"] = 20043] = "BAG_145";
+  OWNER_TYPES[OWNER_TYPES["BAG_146"] = 20044] = "BAG_146";
+  OWNER_TYPES[OWNER_TYPES["BAG_147"] = 20045] = "BAG_147";
+  OWNER_TYPES[OWNER_TYPES["BAG_148"] = 20046] = "BAG_148";
+  OWNER_TYPES[OWNER_TYPES["BAG_149"] = 20047] = "BAG_149";
+  OWNER_TYPES[OWNER_TYPES["BAG_150"] = 20048] = "BAG_150";
+  OWNER_TYPES[OWNER_TYPES["BAG_151"] = 20049] = "BAG_151";
 })(OWNER_TYPES || (exports.OWNER_TYPES = OWNER_TYPES = {}));
 
 const getContainerByOwnerType = owner_type => {
@@ -13501,6 +13740,7 @@ exports.ITEM_TYPE = ITEM_TYPE;
   ITEM_TYPE[ITEM_TYPE["MINING"] = 14] = "MINING";
   ITEM_TYPE[ITEM_TYPE["POTION"] = 15] = "POTION";
   ITEM_TYPE[ITEM_TYPE["ANIMAL"] = 16] = "ANIMAL";
+  ITEM_TYPE[ITEM_TYPE["SMOKING"] = 17] = "SMOKING";
 })(ITEM_TYPE || (exports.ITEM_TYPE = ITEM_TYPE = {}));
 
 const ITEM_TYPE_ARRAY = ["Напитки", "Еда", "Оружие", "Коробка патронов", "Оружейный магазин", "Наркотики", "Системные", "Медикаменты", "Донат вещи", "Одежда", "Алкоголь", "Прочее", "Модификации оружия", "Сумки и рюкзаки", "Компоненты майнинга", "Зелья", "Животные"];
@@ -18304,6 +18544,149 @@ const itemsList = [{
   protect: true,
   defaultCost: 50000
 }, {
+  item_id: 2131,
+  name: "Рюкзак спортивный белый",
+  type: ITEM_TYPE.BAGS,
+  weight: 0,
+  base_weight: 3000,
+  prop: "prop_cs_heist_bag_01",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 50000
+}, {
+  item_id: 2132,
+  name: "Рюкзак спортивный черный",
+  type: ITEM_TYPE.BAGS,
+  weight: 0,
+  base_weight: 3000,
+  prop: "prop_cs_heist_bag_01",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 50000
+}, {
+  item_id: 2133,
+  name: "Рюкзак спортивный синий",
+  type: ITEM_TYPE.BAGS,
+  weight: 0,
+  base_weight: 3000,
+  prop: "prop_cs_heist_bag_01",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 50000
+}, {
+  item_id: 2134,
+  name: "Рюкзак спортивный голубой",
+  type: ITEM_TYPE.BAGS,
+  weight: 0,
+  base_weight: 3000,
+  prop: "prop_cs_heist_bag_01",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 50000
+}, {
+  item_id: 2135,
+  name: "Рюкзак спортивный бирюзовый",
+  type: ITEM_TYPE.BAGS,
+  weight: 0,
+  base_weight: 3000,
+  prop: "prop_cs_heist_bag_01",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 50000
+}, {
+  item_id: 2136,
+  name: "Рюкзак спортивный оранжевый",
+  type: ITEM_TYPE.BAGS,
+  weight: 0,
+  base_weight: 3000,
+  prop: "prop_cs_heist_bag_01",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 50000
+}, {
+  item_id: 2137,
+  name: "Рюкзак спортивный красный",
+  type: ITEM_TYPE.BAGS,
+  weight: 0,
+  base_weight: 3000,
+  prop: "prop_cs_heist_bag_01",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 50000
+}, {
+  item_id: 2138,
+  name: "Рюкзак спортивный оранжевый",
+  type: ITEM_TYPE.BAGS,
+  weight: 0,
+  base_weight: 3000,
+  prop: "prop_cs_heist_bag_01",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 50000
+}, {
+  item_id: 2139,
+  name: "Рюкзак спортивный зеленый",
+  type: ITEM_TYPE.BAGS,
+  weight: 0,
+  base_weight: 3000,
+  prop: "prop_cs_heist_bag_01",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 50000
+}, {
+  item_id: 2140,
+  name: "Рюкзак спортивный розовый",
+  type: ITEM_TYPE.BAGS,
+  weight: 0,
+  base_weight: 3000,
+  prop: "prop_cs_heist_bag_01",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 50000
+}, {
+  item_id: 2141,
+  name: "Рюкзак спортивный салатовый",
+  type: ITEM_TYPE.BAGS,
+  weight: 0,
+  base_weight: 3000,
+  prop: "prop_cs_heist_bag_01",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 50000
+}, {
+  item_id: 2142,
+  name: "Сумочка Gucci",
+  type: ITEM_TYPE.BAGS,
+  weight: 0,
+  base_weight: 3000,
+  prop: "prop_cs_heist_bag_01",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 50000
+}, {
+  item_id: 2143,
+  name: "Рюкзак Versace",
+  type: ITEM_TYPE.BAGS,
+  weight: 0,
+  base_weight: 3000,
+  prop: "prop_cs_heist_bag_01",
+  default_count: 1,
+  use: true,
+  protect: true,
+  defaultCost: 50000
+}, {
   item_id: 3000,
   name: "Криптоключ",
   desc: 'Данный ключ хранит информацию о вашем криптокошельке. Без него невозможны операции Offline',
@@ -19622,6 +20005,246 @@ const itemsList = [{
   prop: "xm_prop_x17_bag_01d",
   default_count: 1,
   blockMove: true,
+  protect: true,
+  use: true
+}, {
+  item_id: 20000,
+  name: "Кальян",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 5,
+  prop: "kalian",
+  default_count: 1,
+  use: true
+}, {
+  item_id: 20001,
+  name: "Вейп",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 5,
+  prop: "vape",
+  default_count: 1,
+  protect: true,
+  use: true
+}, {
+  item_id: 20002,
+  name: "Бонг",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 150,
+  prop: "prop_bong_01",
+  default_count: 1,
+  protect: true,
+  use: true
+}, {
+  item_id: 20010,
+  name: "Жижа для вейпа вкус малины",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 150,
+  prop: "ng_proc_paintcan01a_sh",
+  default_count: 1,
+  protect: true,
+  use: true
+}, {
+  item_id: 20011,
+  name: "Жижа для вейпа вкус черники",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 150,
+  prop: "ng_proc_paintcan01a_sh",
+  default_count: 1,
+  protect: true,
+  use: true
+}, {
+  item_id: 20012,
+  name: "Жижа для вейпа вкус вишни",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 150,
+  prop: "ng_proc_paintcan01a_sh",
+  default_count: 1,
+  protect: true,
+  use: true
+}, {
+  item_id: 20013,
+  name: "Жижа для вейпа вкус дыни",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 150,
+  prop: "ng_proc_paintcan01a_sh",
+  default_count: 1,
+  protect: true,
+  use: true
+}, {
+  item_id: 20014,
+  name: "Жижа для вейпа вкус клубника арбуз",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 150,
+  prop: "ng_proc_paintcan01a_sh",
+  default_count: 1,
+  protect: true,
+  use: true
+}, {
+  item_id: 20015,
+  name: "Жижа для вейпа вкус Mexican",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 150,
+  prop: "ng_proc_paintcan01a_sh",
+  default_count: 1,
+  protect: true,
+  use: true
+}, {
+  item_id: 20016,
+  name: "Жижа для вейпа вкус маракуя",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 150,
+  prop: "ng_proc_paintcan01a_sh",
+  default_count: 1,
+  protect: true,
+  use: true
+}, {
+  item_id: 20017,
+  name: "Жижа для вейпа вкус манго",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 150,
+  prop: "ng_proc_paintcan01a_sh",
+  default_count: 1,
+  protect: true,
+  use: true
+}, {
+  item_id: 20018,
+  name: "Жижа для вейпа вкус грейпфрут",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 150,
+  prop: "ng_proc_paintcan01a_sh",
+  default_count: 1,
+  protect: true,
+  use: true
+}, {
+  item_id: 20019,
+  name: "Жижа для вейпа вкус яблоко",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 150,
+  prop: "ng_proc_paintcan01a_sh",
+  default_count: 1,
+  protect: true,
+  use: true
+}, {
+  item_id: 20020,
+  name: "Табак для кальяна Darkside Cosmo Flower",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 100,
+  prop: "ng_proc_paintcan01a_sh",
+  default_count: 1,
+  protect: true,
+  use: true
+}, {
+  item_id: 20021,
+  name: "Уголь для кальяна",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 100,
+  prop: "ng_proc_paintcan01a_sh",
+  default_count: 1,
+  protect: true,
+  use: true
+}, {
+  item_id: 20030,
+  name: "Травка для бонга",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 150,
+  prop: "ng_proc_paintcan01a_sh",
+  default_count: 1,
+  protect: true,
+  use: true,
+  needgroup: true
+}, {
+  item_id: 20050,
+  name: "Табак для кальяна Darkside Coca Cola",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 100,
+  prop: "ng_proc_paintcan01a_sh",
+  default_count: 1,
+  protect: true,
+  use: true
+}, {
+  item_id: 20051,
+  name: "Табак для кальяна Darkside Grapfruit",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 100,
+  prop: "ng_proc_paintcan01a_sh",
+  default_count: 1,
+  protect: true,
+  use: true
+}, {
+  item_id: 20052,
+  name: "Табак для кальяна Darkside Mango Lassi",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 100,
+  prop: "ng_proc_paintcan01a_sh",
+  default_count: 1,
+  protect: true,
+  use: true
+}, {
+  item_id: 20053,
+  name: "Табак для кальяна Darkside Blueberry Blast",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 100,
+  prop: "ng_proc_paintcan01a_sh",
+  default_count: 1,
+  protect: true,
+  use: true
+}, {
+  item_id: 20054,
+  name: "Табак для кальяна Darkside Tropic Ray",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 100,
+  prop: "ng_proc_paintcan01a_sh",
+  default_count: 1,
+  protect: true,
+  use: true
+}, {
+  item_id: 20055,
+  name: "Табак для кальяна BlackBurn Green tea",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 100,
+  prop: "ng_proc_paintcan01a_sh",
+  default_count: 1,
+  protect: true,
+  use: true
+}, {
+  item_id: 20056,
+  name: "Табак для кальяна BlackBurn Shock Pineapple",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 100,
+  prop: "ng_proc_paintcan01a_sh",
+  default_count: 1,
+  protect: true,
+  use: true
+}, {
+  item_id: 20057,
+  name: "Табак для кальяна BlackBurn Cane Mint",
+  type: ITEM_TYPE.SMOKING,
+  weight: 0,
+  base_weight: 100,
+  prop: "ng_proc_paintcan01a_sh",
+  default_count: 1,
   protect: true,
   use: true
 }];
@@ -24401,6 +25024,123 @@ const CONTAINERS_DATA = [{
     t: 0,
     p: 2
   }
+}, {
+  item_id: 2131,
+  owner_type: OWNER_TYPES.BAG_139,
+  max_size: 30000,
+  bag_sync: {
+    d: 117,
+    t: 0,
+    p: 2
+  }
+}, {
+  item_id: 2132,
+  owner_type: OWNER_TYPES.BAG_140,
+  max_size: 30000,
+  bag_sync: {
+    d: 117,
+    t: 1,
+    p: 2
+  }
+}, {
+  item_id: 2133,
+  owner_type: OWNER_TYPES.BAG_141,
+  max_size: 30000,
+  bag_sync: {
+    d: 117,
+    t: 2,
+    p: 2
+  }
+}, {
+  item_id: 2134,
+  owner_type: OWNER_TYPES.BAG_142,
+  max_size: 30000,
+  bag_sync: {
+    d: 117,
+    t: 3,
+    p: 2
+  }
+}, {
+  item_id: 2135,
+  owner_type: OWNER_TYPES.BAG_143,
+  max_size: 30000,
+  bag_sync: {
+    d: 117,
+    t: 5,
+    p: 2
+  }
+}, {
+  item_id: 2136,
+  owner_type: OWNER_TYPES.BAG_144,
+  max_size: 30000,
+  bag_sync: {
+    d: 117,
+    t: 6,
+    p: 2
+  }
+}, {
+  item_id: 2137,
+  owner_type: OWNER_TYPES.BAG_145,
+  max_size: 30000,
+  bag_sync: {
+    d: 117,
+    t: 7,
+    p: 2
+  }
+}, {
+  item_id: 2138,
+  owner_type: OWNER_TYPES.BAG_146,
+  max_size: 30000,
+  bag_sync: {
+    d: 117,
+    t: 8,
+    p: 2
+  }
+}, {
+  item_id: 2139,
+  owner_type: OWNER_TYPES.BAG_147,
+  max_size: 30000,
+  bag_sync: {
+    d: 117,
+    t: 9,
+    p: 2
+  }
+}, {
+  item_id: 2140,
+  owner_type: OWNER_TYPES.BAG_148,
+  max_size: 30000,
+  bag_sync: {
+    d: 117,
+    t: 10,
+    p: 2
+  }
+}, {
+  item_id: 2141,
+  owner_type: OWNER_TYPES.BAG_149,
+  max_size: 30000,
+  bag_sync: {
+    d: 117,
+    t: 11,
+    p: 2
+  }
+}, {
+  item_id: 2142,
+  owner_type: OWNER_TYPES.BAG_150,
+  max_size: 30000,
+  bag_sync: {
+    d: 118,
+    t: 0,
+    p: 2
+  }
+}, {
+  item_id: 2143,
+  owner_type: OWNER_TYPES.BAG_151,
+  max_size: 30000,
+  bag_sync: {
+    d: 119,
+    t: 0,
+    p: 2
+  }
 }, ...weapon_list.filter(q => q.addons).map(q => {
   let access = [];
 
@@ -24680,7 +25420,7 @@ const safeZones = [{
   x: 19.46,
   y: -1302.21,
   z: 29.07,
-  r: 80
+  r: 120
 }, {
   x: -710.38,
   y: -1301.52,
@@ -29779,6 +30519,9 @@ AttachSystem.registerPosition("char_creator_1", "prop_beggers_sign_04", 28422, n
 AttachSystem.registerPosition("handcuff", "p_cs_cuffs_02_s", 28422, new mp.Vector3(-0.01, 0.06, -0.02), new mp.Vector3(62.0, -6.0, 66.0));
 AttachSystem.registerPosition("phone", "prop_npc_phone_02", 28422, new mp.Vector3(0, 0, 0), new mp.Vector3(0, 0, 0));
 AttachSystem.registerPosition("tablet", "hei_prop_dlc_tablet", 28422, new mp.Vector3(-0.09, -0.025, 0), new mp.Vector3(0, 90, 15));
+AttachSystem.registerPosition("bong", "prop_bong_01", 26611, new mp.Vector3(0.020, -0.105, -0.285), new mp.Vector3(347, 360, 345));
+AttachSystem.registerPosition("vape", "vape", 26612, new mp.Vector3(0.060, -0.025, -0.030), new mp.Vector3(360, 350, 360));
+AttachSystem.registerPosition("trash_bag", "p_rub_binbag_test", 26612, new mp.Vector3(0.245, 0.255, -0.045), new mp.Vector3(229, 237, 11));
 
 _inventory.inventoryShared.itemsAttachBody.map(item => _attach.WEAPON_ATTACH_LIST[item.attachBody].map((q, i) => AttachSystem.registerPosition(`${item.attachBody}_${item.item_id}_${i}`, item.prop, q[0], new mp.Vector3(q[1], q[2], q[3]), new mp.Vector3(q[4], q[5], q[6]))));
 },{"../../shared/inventory":"vpPR","./user":"ggMw","./gui":"bk91","./custom.event":"py8h","../../shared/attach.system":"TxUd","./system":"pi2J"}],"KnNo":[function(require,module,exports) {
@@ -30272,38 +31015,87 @@ mp.events.add('entityStreamIn', async player => {
 
   await applyWalkingStyle(player);
 });
+let duckWalk = false;
+setInterval(() => {
+  mp.players.forEachInStreamRange(player => {
+    const style = player.getVariable('walkingStyle');
+    if (!style || style !== 100) return;
+    player.setMovementClipset("move_ped_crouched", 0.25);
+    player.setStrafeClipset("move_ped_crouched_strafing");
+  });
+}, 150);
 
 async function applyWalkingStyle(player) {
-  var _WALKING_STYLES$style;
-
   const styleIndex = player.getVariable('walkingStyle');
 
   if (styleIndex == null) {
     return;
   }
 
-  const style = (_WALKING_STYLES$style = _anim.WALKING_STYLES[styleIndex]) === null || _WALKING_STYLES$style === void 0 ? void 0 : _WALKING_STYLES$style.animSet;
-
-  if (!style) {
+  if (duckWalk) {
     player.resetMovementClipset(0.0);
-    return;
+    player.resetStrafeClipset();
+    duckWalk = false;
   }
 
-  if (!mp.game.streaming.hasClipSetLoaded(style)) {
-    mp.game.invoke("0x3ACA4F727AC4606E", style);
-    let i = 0;
+  if (styleIndex !== 100) {
+    var _WALKING_STYLES$style;
 
-    while (i < 500) {
-      if (!mp.game.streaming.hasClipSetLoaded(style)) {
-        i++;
-        await mp.game.waitAsync(10);
-      } else {
-        break;
+    const style = (_WALKING_STYLES$style = _anim.WALKING_STYLES[styleIndex]) === null || _WALKING_STYLES$style === void 0 ? void 0 : _WALKING_STYLES$style.animSet;
+
+    if (!style) {
+      player.resetMovementClipset(0.0);
+      return;
+    }
+
+    if (!mp.game.streaming.hasClipSetLoaded(style)) {
+      mp.game.invoke("0x3ACA4F727AC4606E", style);
+      let i = 0;
+
+      while (i < 500) {
+        if (!mp.game.streaming.hasClipSetLoaded(style)) {
+          i++;
+          await mp.game.waitAsync(10);
+        } else {
+          break;
+        }
       }
     }
-  }
 
-  player.setMovementClipset(style, 1.0);
+    player.setMovementClipset(style, 1.0);
+  } else {
+    if (!mp.game.streaming.hasClipSetLoaded("move_ped_crouched")) {
+      mp.game.invoke("0x3ACA4F727AC4606E", "move_ped_crouched");
+      let i = 0;
+
+      while (i < 500) {
+        if (!mp.game.streaming.hasClipSetLoaded("move_ped_crouched")) {
+          i++;
+          await mp.game.waitAsync(10);
+        } else {
+          break;
+        }
+      }
+    }
+
+    if (!mp.game.streaming.hasClipSetLoaded("move_ped_crouched_strafing")) {
+      mp.game.invoke("0x3ACA4F727AC4606E", "move_ped_crouched_strafing");
+      let i = 0;
+
+      while (i < 500) {
+        if (!mp.game.streaming.hasClipSetLoaded("move_ped_crouched_strafing")) {
+          i++;
+          await mp.game.waitAsync(10);
+        } else {
+          break;
+        }
+      }
+    }
+
+    player.setMovementClipset("move_ped_crouched", 0.25);
+    player.setStrafeClipset("move_ped_crouched_strafing");
+    duckWalk = true;
+  }
 }
 
 const inspeed = 5.0001;
@@ -30904,6 +31696,8 @@ var _extinguishing = require("./jobs/firefighter/extinguishing");
 
 var _fightClub = require("./fightClub");
 
+var _autosalon = require("./businesses/autosalon");
+
 let inSaveZone = false;
 exports.inSaveZone = inSaveZone;
 let inRedZone = false;
@@ -30942,7 +31736,7 @@ setInterval(() => {
   if (inZone && zone && !zone.disableLockSpeed) {
     mp.players.local.vehicle.setMaxSpeed(11);
   } else {
-    mp.players.local.vehicle.setMaxSpeed(maxSpeed);
+    if (!_autosalon.testDriveMode) mp.players.local.vehicle.setMaxSpeed(maxSpeed);
   }
 }, 300);
 setInterval(() => {
@@ -30981,7 +31775,7 @@ _custom.CustomEvent.registerServer('safezone:init', disabledZones => {
     _savezone.safeZones[zone].disabled = true;
   });
 });
-},{"../../shared/savezone":"WVCz","./system":"pi2J","./custom.event":"py8h","./user":"ggMw","./controls":"yuOK","./construction":"Q1Tk","../../shared/casino/main":"FJpA","./jobs/firefighter/extinguishing":"ae5U","./fightClub":"A4vU"}],"Qh13":[function(require,module,exports) {
+},{"../../shared/savezone":"WVCz","./system":"pi2J","./custom.event":"py8h","./user":"ggMw","./controls":"yuOK","./construction":"Q1Tk","../../shared/casino/main":"FJpA","./jobs/firefighter/extinguishing":"ae5U","./fightClub":"A4vU","./businesses/autosalon":"eXav"}],"Qh13":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -31306,6 +32100,7 @@ mp.events.add('client:autosalon:changeCar', id => {
   currentSelectedCar = id;
   respawnVehicle();
 });
+let maxSpeed = 999;
 mp.events.add('client:autosalon:testDrive', () => {
   respawnVehicle(true);
   player.freezePosition(false);
@@ -31315,7 +32110,7 @@ mp.events.add('client:autosalon:testDrive', () => {
     player.setIntoVehicle(currentVeh.handle, -1);
     player.setAlpha(255);
     const cfg = getCurrentCar();
-    const maxSpeed = await _custom.CustomEvent.callServer('vehicle:getMaxSpeed', cfg.model);
+    maxSpeed = await _custom.CustomEvent.callServer('vehicle:getMaxSpeed', cfg.model);
     currentVeh.setMaxSpeed(maxSpeed / 3.6);
   }, 100);
   setTimeout(() => {
@@ -31327,6 +32122,7 @@ mp.events.add('client:autosalon:testDrive', () => {
     let timer = 600;
     let int = setInterval(() => {
       timer--;
+      if (mp.players.local.vehicle) mp.players.local.vehicle.setMaxSpeed(maxSpeed / 3.6);
 
       if (timer <= 0 || !player.isInAnyVehicle(false)) {
         player.setInvincible(false);
@@ -37368,7 +38164,7 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.LOAD_INTERIORS = exports.INTERIORS_FOR_FURNITURE = void 0;
-const INTERIORS_FOR_FURNITURE = [24, 25, 26, 27, 28, 29, 30, 31, 32];
+const INTERIORS_FOR_FURNITURE = [24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38];
 exports.INTERIORS_FOR_FURNITURE = INTERIORS_FOR_FURNITURE;
 const LOAD_INTERIORS = [{
   interiorId: 24,
@@ -37406,6 +38202,30 @@ const LOAD_INTERIORS = [{
   interiorId: 32,
   position: new mp.Vector3(-827.6473, -723.2551, 103.7422),
   prop: 'apparthighv3'
+}, {
+  interiorId: 33,
+  position: new mp.Vector3(-827.6473, -722.9208, 90.67331),
+  prop: 'custappart2v1'
+}, {
+  interiorId: 34,
+  position: new mp.Vector3(-827.6473, -722.9208, 90.67331),
+  prop: 'custappart2v2'
+}, {
+  interiorId: 35,
+  position: new mp.Vector3(-827.6473, -722.9208, 90.67331),
+  prop: 'custappart2v3'
+}, {
+  interiorId: 36,
+  position: new mp.Vector3(-822.8305, -721.5496, 83.67345),
+  prop: 'custappart1v1'
+}, {
+  interiorId: 37,
+  position: new mp.Vector3(-822.8305, -721.5496, 83.67345),
+  prop: 'custappart1v2'
+}, {
+  interiorId: 38,
+  position: new mp.Vector3(-822.8305, -721.5496, 83.67345),
+  prop: 'custappart1v3'
 }];
 exports.LOAD_INTERIORS = LOAD_INTERIORS;
 },{}],"O0M1":[function(require,module,exports) {
@@ -37427,6 +38247,14 @@ const layoutsData = [{
   id: 2,
   name: 'Дорогой',
   img: ['layout2-1', 'layout2-2']
+}, {
+  id: 3,
+  name: "Двухэтажный",
+  img: ['layout3-1', 'layout3-2']
+}, {
+  id: 4,
+  name: "Элитная",
+  img: 'layout4'
 }];
 exports.layoutsData = layoutsData;
 const interiorsData = [{
@@ -37501,6 +38329,54 @@ const interiorsData = [{
   isDonate: true,
   img: 'interior32',
   layoutId: 2
+}, {
+  id: 9,
+  interiorId: 33,
+  name: 'Пользовательская №10',
+  cost: 30000,
+  isDonate: true,
+  img: 'interior34',
+  layoutId: 3
+}, {
+  id: 10,
+  interiorId: 34,
+  name: 'Пользовательская №11',
+  cost: 30000,
+  isDonate: true,
+  img: 'interior33',
+  layoutId: 3
+}, {
+  id: 11,
+  interiorId: 35,
+  name: 'Пользовательская №12',
+  cost: 30000,
+  isDonate: true,
+  img: 'interior35',
+  layoutId: 3
+}, {
+  id: 12,
+  interiorId: 36,
+  name: 'Пользовательская №13',
+  cost: 12000,
+  isDonate: true,
+  img: 'interior36',
+  layoutId: 4
+}, {
+  id: 13,
+  interiorId: 37,
+  name: 'Пользовательская №14',
+  cost: 12000,
+  isDonate: true,
+  img: 'interior37',
+  layoutId: 4
+}, {
+  id: 14,
+  interiorId: 38,
+  name: 'Пользовательская №15',
+  cost: 12000,
+  isDonate: true,
+  img: 'interior38',
+  layoutId: 4
 }];
 exports.interiorsData = interiorsData;
 },{}],"lp8x":[function(require,module,exports) {
@@ -38099,7 +38975,7 @@ let bigmap = {
 };
 bigmap.status = 0;
 bigmap.timer = null;
-const canBeClosed = ['boombox', 'casino', 'editorqweqweqwe', 'unitpay', 'workselect', 'fuel', 'inventory', 'shop', 'idcard', 'mainmenu', 'autosalon', 'clothshop', 'tattooshop', 'tablet', 'barber', 'atm', 'vehiclesell', "adminchat", "admincheat", "greeting", 'minigame', 'family', 'flat', 'flatres', 'lsc', 'buycar', 'mining', 'jobSessions', 'buyers', 'interact', 'numberplate', 'animations', 'rent', 'bank', 'orderofgoods', 'casinoenter', 'finishinitquests', 'marriage', 'gungame', 'market', 'farm', 'potions', 'candyShop', 'lollipopsExchanger', 'newYearsGift', 'battlePass'];
+const canBeClosed = ['boombox', 'casino', 'editorqweqweqwe', 'unitpay', 'workselect', 'fuel', 'inventory', 'shop', 'idcard', 'mainmenu', 'autosalon', 'clothshop', 'tattooshop', 'tablet', 'barber', 'atm', 'vehiclesell', "adminchat", "admincheat", "greeting", 'minigame', 'family', 'flat', 'flatres', 'lsc', 'buycar', 'mining', 'jobSessions', 'buyers', 'interact', 'numberplate', 'animations', 'rent', 'bank', 'orderofgoods', 'casinoenter', 'finishinitquests', 'marriage', 'gungame', 'market', 'farm', 'potions', 'candyShop', 'lollipopsExchanger', 'newYearsGift', 'battlePass', 'carSharing'];
 mp.events.add("render", () => {
   if (inputOnFocus || gui.currentGui && _furniturePlace.furniturePlace.lockControls) _controls.disableControlGroup.allControls();
   mp.game.ui.hideHudComponentThisFrame(1);
@@ -38628,7 +39504,7 @@ const permissions = {
     admin_level: 6
   },
   "admin:vehicle:configs": {
-    admin_level: 7
+    admin_level: 6
   },
   "admin:vehicle:unlock": {
     admin_level: 4
@@ -38742,7 +39618,7 @@ exports.MINIGAME_TYPE = MINIGAME_TYPE;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.TAXI_CONF = void 0;
+exports.BANNED_TAXI_MODELS = exports.TAXI_CONF = void 0;
 const TAXI_CONF = {
   blipNpcOrder: {
     blipStart: 280,
@@ -39037,6 +39913,8 @@ const TAXI_CONF = {
   }
 };
 exports.TAXI_CONF = TAXI_CONF;
+const BANNED_TAXI_MODELS = ['bmx', 'cruiser', 'fixter', 'scorcher', 'tribike', 'tribike2', 'tribike3', 'akuma', 'avarus', 'bagger', 'bati', 'bati2', 'bf400', 'carbonrs', 'chimera', 'cliffhanger', 'daemon', 'daemon2', 'defiler', 'deathbike', 'deathbike2', 'diablous', 'diablous2', 'double', 'enduro', 'esskey', 'faggio', 'faggio2', 'faggio3', 'fcr', 'fcr2', 'gargoyle', 'hakuchou', 'hakuchou2', 'hexer', 'innovation', 'lectro', 'manchez', 'nemesis', 'nightblade', 'pcj', 'ratbike', 'ruffian', 'rrocket', 'sanchez', 'sanchez2', 'sanctus', 'shotaro', 'sovereign', 'stryder', 'thrust', 'vader', 'vindicator', 'vortex', 'wolfsbane', 'zombiea', 'zombieb', 'manchez2', 'buzzard2', 'havok', 'supervolito', 'supervolito2', 'swift', 'swift2', 'volatus', 'seasparrow2', 'seasparrow3'];
+exports.BANNED_TAXI_MODELS = BANNED_TAXI_MODELS;
 },{}],"Bxla":[function(require,module,exports) {
 "use strict";
 
@@ -39208,7 +40086,7 @@ const jobsList = [{
     name: "Забивать гвозди",
     level: 2,
     desc: "Берите в руки в молоток, поднимайтесь на крышу и забивайте гвозди туда, куда укажут",
-    money: 100,
+    money: 200,
     type: 0,
     points: [{
       time: 1,
@@ -39279,7 +40157,7 @@ const jobsList = [{
   }, {
     name: "Упаковка коробок",
     desc: "Упакуйте коробку и заклейте ее скотчем.",
-    money: 60,
+    money: 120,
     type: 0,
     points: [{
       time: 1,
@@ -39319,7 +40197,7 @@ const jobsList = [{
     name: "Сверление дырок",
     level: 1,
     desc: "Сверлите дырки",
-    money: 80,
+    money: 160,
     type: 0,
     points: [{
       time: 1,
@@ -39374,7 +40252,7 @@ const jobsList = [{
   }, {
     name: "Сварка",
     desc: "Сварите 2 металлических листа",
-    money: 70,
+    money: 140,
     type: 0,
     points: [{
       time: 1,
@@ -39414,7 +40292,7 @@ const jobsList = [{
     name: "Чинить проводку",
     level: 3,
     desc: "Чините проводку в разных зданиях",
-    money: 100,
+    money: 200,
     type: 0,
     points: [{
       time: 1,
@@ -39476,7 +40354,7 @@ const jobsList = [{
   tasks: [{
     name: "Сбор апельсинов",
     desc: "Идите куда укажут метки и срывайте апельсины",
-    money: 55,
+    money: 100,
     type: 0,
     points: [{
       time: 1,
@@ -39596,7 +40474,7 @@ const jobsList = [{
     name: "Обрезать листья",
     level: 1,
     desc: "Идите куда укажут метки и обрезайте листья на кустах",
-    money: 65,
+    money: 130,
     type: 0,
     points: [{
       time: 1,
@@ -39716,7 +40594,7 @@ const jobsList = [{
     name: "Поливать дерево",
     level: 1,
     desc: "Идите куда укажут метки и поливайте деревья",
-    money: 60,
+    money: 120,
     type: 0,
     points: [{
       time: 1,
@@ -39850,7 +40728,7 @@ const jobsList = [{
   tasks: [{
     name: "Мойка окон",
     desc: "Подойдите к окну и начните мыть его.",
-    money: 100,
+    money: 400,
     type: 0,
     points: [{
       time: 1,
@@ -39989,7 +40867,7 @@ const jobsList = [{
       h: 32,
       minigame: _minigame.MINIGAME_TYPE.WINDOW
     }],
-    exp: 1
+    exp: 2
   }]
 }, {
   icon: 140,
@@ -40008,7 +40886,7 @@ const jobsList = [{
   tasks: [{
     name: "Обработка марихуаны",
     desc: "Обработайте кустарники марихуаны",
-    money: 50,
+    money: 100,
     type: 0,
     points: [{
       time: 1,
@@ -40088,7 +40966,7 @@ const jobsList = [{
     name: "Сбор марихуаны",
     level: 1,
     desc: "Соберите марихуаны с кустов и отнесите",
-    money: 60,
+    money: 130,
     type: 0,
     points: [{
       time: 1,
@@ -40167,7 +41045,7 @@ const jobsList = [{
   }, {
     name: "Упаковка марихуаны",
     desc: "Упаковывайте марихуаны",
-    money: 45,
+    money: 90,
     type: 0,
     points: [{
       time: 1,
@@ -49206,14 +50084,30 @@ mp.events.addDataHandler("engine", (entity, value) => {
   if (!value) entity.setEngineOn(false, true, false);else entity.setEngineOn(true, true, false);
   entity.setUndriveable(value ? false : true);
 });
+let vehicleDirt = {
+  time: _system.system.timestamp,
+  remoteId: -1
+};
 setInterval(() => {
   if (!_user.user.login) return;
   if (!_user.user.isDriver) return;
   const veh = player.vehicle;
   if (!veh) return;
-  const dval = veh.getVariable('dirt') || 0;
+  const dirtyValue = veh.getVariable('dirt') || 0;
   const current = veh.getDirtLevel();
-  if (dval !== current) _custom.CustomEvent.triggerServer('vehicle:syncDirt', current);
+
+  if (veh.remoteId !== vehicleDirt.remoteId) {
+    vehicleDirt.time = _system.system.timestamp;
+    vehicleDirt.remoteId = veh.remoteId;
+
+    _custom.CustomEvent.triggerServer('vehicle:syncDirt', dirtyValue);
+  } else {
+    if (dirtyValue !== current && _system.system.timestamp - vehicleDirt.time > 360) {
+      _custom.CustomEvent.triggerServer('vehicle:syncDirt', current + 0.01);
+
+      vehicleDirt.time = _system.system.timestamp;
+    }
+  }
 }, 60000);
 mp.events.addDataHandler("dirt", (entity, value) => {
   if (entity.type !== "vehicle") return;
@@ -58467,7 +59361,7 @@ exports.HousesTeleportsList = exports.HOUSES_TELEPORT_SEPARATOR = void 0;
 const HOUSES_TELEPORT_SEPARATOR = 1000;
 exports.HOUSES_TELEPORT_SEPARATOR = HOUSES_TELEPORT_SEPARATOR;
 const HousesTeleportsList = [{
-  name: "Многоквартирный дом",
+  name: "Многоквартирный дом 1",
   pos: new mp.Vector3(-772.91, 312.45, 84.70),
   posH: 174,
   carExit: new mp.Vector3(-796.12, 320.12, 84.69),
@@ -58476,7 +59370,7 @@ const HousesTeleportsList = [{
   insideH: 350,
   rooms: [[-792.27, 339.63, 45.56, 90], [-795.48, 339.52, 45.56, 265], [-792.47, 347.13, 45.56, 84], [-795.66, 347.00, 45.56, 271], [-800.60, 350.70, 45.56, 280], [-799.09, 351.87, 45.56, 180], [-794.16, 352.16, 45.56, 179], [-789.26, 352.21, 45.56, 175], [-787.46, 351.12, 45.56, 84]]
 }, {
-  name: "Многоквартирный дом",
+  name: "Многоквартирный дом 2",
   pos: new mp.Vector3(-1447.48, -537.72, 33.74),
   posH: 210,
   carExit: new mp.Vector3(-1449.22, -513.89, 30.58),
@@ -58485,7 +59379,7 @@ const HousesTeleportsList = [{
   insideH: 350,
   rooms: [[-792.27, 339.63, 45.56, 90], [-795.48, 339.52, 45.56, 265], [-792.47, 347.13, 45.56, 84], [-795.66, 347.00, 45.56, 271], [-800.60, 350.70, 45.56, 280], [-799.09, 351.87, 45.56, 180], [-794.16, 352.16, 45.56, 179], [-789.26, 352.21, 45.56, 175], [-787.46, 351.12, 45.56, 84]]
 }, {
-  name: "Многоквартирный дом",
+  name: "Многоквартирный дом 3",
   pos: new mp.Vector3(-595.91, 37.10, 42.61),
   posH: 174,
   carExit: new mp.Vector3(-623.55, 56.63, 42.73),
@@ -58957,6 +59851,11 @@ const BUSINESS_BLIPS = [{
   blip: 463,
   color: 64
 }, {
+  type: _business.BUSINESS_TYPE.ITEM_SHOP,
+  subtype: 7,
+  blip: 403,
+  color: 48
+}, {
   type: _business.BUSINESS_TYPE.BAR,
   subtype: 0,
   blip: 136,
@@ -59306,6 +60205,11 @@ const BLIPS_DATA = [{
   color: 0,
   position: new mp.Vector3(599.14, -435.99, 24.74),
   name: "Бойцовский клуб"
+}, {
+  type: 523,
+  color: 3,
+  position: new mp.Vector3(-1160.78, -1733.07, 3.11),
+  name: "Каршеринг"
 }];
 exports.BLIPS_DATA = BLIPS_DATA;
 },{"./business":"ZFkC","./wedding":"IzQA","./houses":"HJlI","./construction":"dSZZ","./drift":"ogyk","./mining":"CM8x"}],"vw4c":[function(require,module,exports) {
@@ -59539,7 +60443,8 @@ const defaultHotkeys = {
   autopilot: 79,
   snowball: 113,
   petControl: 89,
-  battlePass: 115
+  battlePass: 115,
+  duckWalk: 18
 };
 exports.defaultHotkeys = defaultHotkeys;
 const hotkeysTasks = {
@@ -59576,7 +60481,8 @@ const hotkeysTasks = {
   autopilot: ["Включить/выключить автопилот"],
   snowball: ["Слепить снежок"],
   petControl: ["Управление питомцем"],
-  battlePass: ["Battle pass"]
+  battlePass: ["Battle pass"],
+  duckWalk: ["Встать/присесть"]
 };
 exports.hotkeysTasks = hotkeysTasks;
 
@@ -60597,7 +61503,7 @@ const CASH_GRAB_BIZ_DIST = 10;
 exports.CASH_GRAB_BIZ_DIST = CASH_GRAB_BIZ_DIST;
 const CASH_MACHINE_GRAB_SECOND = 5 * 60;
 exports.CASH_MACHINE_GRAB_SECOND = CASH_MACHINE_GRAB_SECOND;
-const CASH_GRAB_MIN_ONLINE = 150;
+const CASH_GRAB_MIN_ONLINE = 85;
 exports.CASH_GRAB_MIN_ONLINE = CASH_GRAB_MIN_ONLINE;
 const CASH_SUM_REVARD = [7500, 10000];
 exports.CASH_SUM_REVARD = CASH_SUM_REVARD;
@@ -60608,7 +61514,1986 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.DOORS_LIST = void 0;
-const DOORS_LIST = [];
+const DOORS_LIST = [{
+  text: "Кабинет губернатора",
+  fraction: 1,
+  doors: [{
+    hash: 736699661,
+    x: -557.67,
+    y: -205.05,
+    z: 38.55
+  }, {
+    hash: 736699661,
+    x: -556.38,
+    y: -207.31,
+    z: 38.54
+  }],
+  pos: {
+    x: -556.85,
+    y: -206.02,
+    z: 38.38
+  },
+  defaultOpened: true
+}, {
+  text: "Зал заседаний",
+  fraction: 1,
+  doors: [{
+    hash: 736699661,
+    x: -560.68,
+    y: -199.83,
+    z: 38.54
+  }, {
+    hash: 736699661,
+    x: -559.39,
+    y: -202.08,
+    z: 38.54
+  }],
+  pos: {
+    x: -559.87,
+    y: -200.81,
+    z: 38.38
+  },
+  defaultOpened: true
+}, {
+  text: "Комната охраны",
+  fraction: 1,
+  doors: [{
+    hash: 1219957182,
+    x: -563.42,
+    y: -195.08,
+    z: 37.38
+  }, {
+    hash: -1225363909,
+    x: -562.68,
+    y: -196.37,
+    z: 37.38
+  }],
+  pos: {
+    x: -562.94,
+    y: -195.65,
+    z: 38.38
+  },
+  defaultOpened: true
+}, {
+  text: "Зал собраний",
+  fraction: 1,
+  doors: [{
+    hash: 736699661,
+    x: -543.11,
+    y: -185.10,
+    z: 38.39
+  }, {
+    hash: 736699661,
+    x: -541.80,
+    y: -187.35,
+    z: 38.38
+  }],
+  pos: {
+    x: -542.63,
+    y: -186.33,
+    z: 38.23
+  },
+  defaultOpened: true
+}, {
+  text: "Зал собраний",
+  fraction: 1,
+  doors: [{
+    hash: 736699661,
+    x: -540.68,
+    y: -189.37,
+    z: 38.38
+  }, {
+    hash: 736699661,
+    x: -539.39,
+    y: -191.63,
+    z: 38.38
+  }],
+  pos: {
+    x: -540.09,
+    y: -190.57,
+    z: 38.23
+  },
+  defaultOpened: true
+}, {
+  text: "Офис капитана",
+  fraction: 7,
+  doors: [{
+    hash: -2023754432,
+    x: 1857.25,
+    y: 3690.30,
+    z: 34.42
+  }],
+  pos: {
+    x: 1856.68,
+    y: 3689.86,
+    z: 34.27
+  },
+  defaultOpened: true
+}, {
+  text: "Лестничная площадка",
+  fraction: 7,
+  doors: [{
+    hash: -2023754432,
+    x: 1849.98,
+    y: 3684.11,
+    z: 34.42
+  }, {
+    hash: -2023754432,
+    x: 1851.29,
+    y: 3681.87,
+    z: 34.42
+  }],
+  pos: {
+    x: 1850.59,
+    y: 3683.01,
+    z: 34.27
+  },
+  defaultOpened: true
+}, {
+  text: "Оружейная комната",
+  fraction: 7,
+  doors: [{
+    hash: -2023754432,
+    x: 1849.40,
+    y: 3691.21,
+    z: 34.42
+  }, {
+    hash: -2023754432,
+    x: 1847.13,
+    y: 3689.95,
+    z: 34.42
+  }],
+  pos: {
+    x: 1848.34,
+    y: 3690.48,
+    z: 34.27
+  },
+  defaultOpened: true
+}, {
+  text: "Клетка 1",
+  fraction: 7,
+  doors: [{
+    hash: 2367212570,
+    x: 1862.763,
+    y: 3688.412,
+    z: 30.40947
+  }],
+  pos: {
+    x: 1862.18,
+    y: 3689.24,
+    z: 30.26
+  },
+  defaultOpened: true
+}, {
+  text: "Клетка 2",
+  fraction: 7,
+  doors: [{
+    hash: 2367212570,
+    x: 1860.897,
+    y: 3691.643,
+    z: 30.40947
+  }],
+  pos: {
+    x: 1860.68,
+    y: 3692.40,
+    z: 30.26
+  },
+  defaultOpened: true
+}, {
+  text: "Клетка 3",
+  fraction: 7,
+  doors: [{
+    hash: 2367212570,
+    x: 1858.996,
+    y: 3694.936,
+    z: 30.40947
+  }],
+  pos: {
+    x: 1858.60,
+    y: 3695.67,
+    z: 30.26
+  },
+  defaultOpened: true
+}, {
+  text: "Допросная",
+  fraction: 7,
+  doors: [{
+    hash: 749848321,
+    x: 1852.92,
+    y: 3686.41,
+    z: 30.41
+  }],
+  pos: {
+    x: 1852.39,
+    y: 3686.11,
+    z: 30.26
+  },
+  defaultOpened: true
+}, {
+  text: "Гардеробная передняя",
+  fraction: 7,
+  doors: [{
+    hash: -2023754432,
+    x: -450.71,
+    y: 6016.37,
+    z: 31.87
+  }],
+  pos: {
+    x: -450.12,
+    y: 6016.14,
+    z: 31.72
+  },
+  defaultOpened: true
+}, {
+  text: "Гардеробная задняя",
+  fraction: 7,
+  doors: [{
+    hash: -2023754432,
+    x: -454.04,
+    y: 6010.24,
+    z: 31.86
+  }],
+  pos: {
+    x: -453.46,
+    y: 6010.71,
+    z: 31.72
+  },
+  defaultOpened: true
+}, {
+  text: "Комната ожидания",
+  fraction: 7,
+  doors: [{
+    hash: -2023754432,
+    x: -442.86,
+    y: 6010.96,
+    z: 31.87
+  }, {
+    hash: -2023754432,
+    x: -441.02,
+    y: 6012.79,
+    z: 31.87
+  }],
+  pos: {
+    x: -441.82,
+    y: 6011.81,
+    z: 31.72
+  },
+  defaultOpened: true
+}, {
+  text: "Лестничная площадка передняя",
+  fraction: 7,
+  doors: [{
+    hash: -2023754432,
+    x: -442.66,
+    y: 6009.30,
+    z: 31.87
+  }, {
+    hash: -2023754432,
+    x: -440.82,
+    y: 6007.46,
+    z: 31.87
+  }],
+  pos: {
+    x: -441.63,
+    y: 6008.32,
+    z: 31.72
+  },
+  defaultOpened: true
+}, {
+  text: "Лестничная площадка задняя",
+  fraction: 7,
+  doors: [{
+    hash: 749848321,
+    x: -447.77,
+    y: 6005.19,
+    z: 31.87
+  }],
+  pos: {
+    x: -447.16,
+    y: 6004.93,
+    z: 31.72
+  },
+  defaultOpened: true
+}, {
+  text: "Оружейная комната передняя",
+  fraction: 7,
+  doors: [{
+    hash: 749848321,
+    x: -437.04,
+    y: 6003.70,
+    z: 31.87
+  }],
+  pos: {
+    x: -436.45,
+    y: 6003.40,
+    z: 31.72
+  },
+  defaultOpened: true
+}, {
+  text: "Оружейная комната задняя",
+  fraction: 7,
+  doors: [{
+    hash: 749848321,
+    x: -440.42,
+    y: 5998.60,
+    z: 31.87
+  }],
+  pos: {
+    x: -440.93,
+    y: 5999.20,
+    z: 31.72
+  },
+  defaultOpened: true
+}, {
+  text: "Хол",
+  fraction: 7,
+  doors: [{
+    hash: -2023754432,
+    x: -449.57,
+    y: 6008.54,
+    z: 31.87
+  }, {
+    hash: -2023754432,
+    x: -447.73,
+    y: 6006.70,
+    z: 31.87
+  }],
+  pos: {
+    x: -448.67,
+    y: 6007.65,
+    z: 31.72
+  },
+  defaultOpened: true
+}, {
+  text: "Клетка",
+  fraction: 7,
+  doors: [{
+    hash: 2367212570,
+    x: -444.3676,
+    y: 6012.223,
+    z: 28.13549
+  }],
+  pos: {
+    x: -444.54,
+    y: 6011.47,
+    z: 27.99
+  },
+  defaultOpened: true
+}, {
+  text: "Допросная",
+  fraction: 7,
+  doors: [{
+    hash: 749848321,
+    x: -436.63,
+    y: 6002.55,
+    z: 28.14
+  }],
+  pos: {
+    x: -437.05,
+    y: 6002.04,
+    z: 27.99
+  },
+  defaultOpened: true
+}, {
+  text: "КПП №1",
+  fraction: 4,
+  doors: [{
+    hash: 741314661,
+    x: -2285.816,
+    y: 3383.601,
+    z: 30.20029
+  }, {
+    hash: 741314661,
+    x: -2295.075,
+    y: 3372.195,
+    z: 30.22026
+  }],
+  pos: {
+    x: -2294.97,
+    y: 3372.43,
+    z: 31.24
+  },
+  defaultOpened: true
+}, {
+  text: "КПП №2",
+  fraction: 4,
+  doors: [{
+    hash: 741314661,
+    x: -1612.003,
+    y: 2809.321,
+    z: 16.47038
+  }, {
+    hash: 741314661,
+    x: -1612.003,
+    y: 2809.321,
+    z: 16.47038
+  }],
+  pos: {
+    x: -1611.77,
+    y: 2809.47,
+    z: 17.59
+  },
+  defaultOpened: true
+}, {
+  text: "Казарма",
+  fraction: 4,
+  doors: [{
+    hash: 1248599813,
+    x: -2346.53,
+    y: 3231.97,
+    z: 35.09
+  }],
+  pos: {
+    x: -2346.15,
+    y: 3231.20,
+    z: 34.97
+  },
+  defaultOpened: true
+}, {
+  text: "Ворота EMS",
+  fraction: 16,
+  doors: [{
+    hash: 741314661,
+    x: 399.8277,
+    y: -551.1396,
+    z: 27.56778
+  }],
+  pos: {
+    x: 402.78,
+    y: -546.71,
+    z: 28.58
+  },
+  defaultOpened: true
+}, {
+  text: "Серверная",
+  fraction: 3,
+  doors: [{
+    hash: -2051651622,
+    x: 2504.32,
+    y: -411.30,
+    z: 94.27
+  }],
+  pos: {
+    x: 2504.83,
+    y: -411.69,
+    z: 94.11
+  },
+  defaultOpened: true
+}, {
+  text: "Лестничная площадка",
+  fraction: 3,
+  doors: [{
+    hash: -1033001619,
+    x: 2490.97,
+    y: -405.18,
+    z: 94.26
+  }],
+  pos: {
+    x: 2490.41,
+    y: -404.62,
+    z: 94.11
+  },
+  defaultOpened: true
+}, {
+  text: "КПЗ и склад",
+  fraction: 3,
+  doors: [{
+    hash: -1033001619,
+    x: 2491.09,
+    y: -405.05,
+    z: 90.27
+  }],
+  pos: {
+    x: 2490.59,
+    y: -404.52,
+    z: 90.11
+  },
+  defaultOpened: true
+}, {
+  text: "Склад",
+  fraction: 3,
+  doors: [{
+    hash: -1033001619,
+    x: 2496.61,
+    y: -403.95,
+    z: 90.26
+  }],
+  pos: {
+    x: 2495.97,
+    y: -403.42,
+    z: 90.10
+  },
+  defaultOpened: true
+}, {
+  text: "Первая допросная",
+  fraction: 3,
+  doors: [{
+    hash: -1033001619,
+    x: 2502.89,
+    y: -416.84,
+    z: 90.25
+  }],
+  pos: {
+    x: 2502.35,
+    y: -416.28,
+    z: 90.10
+  },
+  defaultOpened: true
+}, {
+  text: "Вторая допросная",
+  fraction: 3,
+  doors: [{
+    hash: -1033001619,
+    x: 2506.97,
+    y: -420.91,
+    z: 90.25
+  }],
+  pos: {
+    x: 2506.44,
+    y: -420.39,
+    z: 90.10
+  },
+  defaultOpened: true
+}, {
+  text: "Второй этаж",
+  fraction: 3,
+  doors: [{
+    hash: -1033001619,
+    x: 2490.97,
+    y: -405.18,
+    z: 100.52
+  }],
+  pos: {
+    x: 2490.47,
+    y: -404.61,
+    z: 100.36
+  },
+  defaultOpened: true
+}, {
+  text: "Кабинет директора",
+  fraction: 3,
+  doors: [{
+    hash: -2051651622,
+    x: 2517.29,
+    y: -443.74,
+    z: 100.50
+  }],
+  pos: {
+    x: 2516.75,
+    y: -444.27,
+    z: 100.37
+  },
+  defaultOpened: true
+}, {
+  text: "Лекционная",
+  fraction: 3,
+  doors: [{
+    hash: -2051651622,
+    x: 2523.45,
+    y: -437.57,
+    z: 100.51
+  }],
+  pos: {
+    x: 2522.92,
+    y: -438.07,
+    z: 100.37
+  },
+  defaultOpened: true
+}, {
+  text: "Лаборатория",
+  fraction: 3,
+  doors: [{
+    hash: -2051651622,
+    x: 2507.83,
+    y: -425.85,
+    z: 100.51
+  }],
+  pos: {
+    x: 2507.30,
+    y: -425.28,
+    z: 100.36
+  },
+  defaultOpened: true
+}, {
+  text: "Гардеробная ",
+  fraction: 3,
+  doors: [{
+    hash: -2051651622,
+    x: 2507.83,
+    y: -425.85,
+    z: 100.51
+  }],
+  pos: {
+    x: 2507.30,
+    y: -425.28,
+    z: 100.36
+  }
+}, {
+  text: "Главный вход в левый корпус",
+  fraction: 3,
+  doors: [{
+    hash: 3691419444,
+    x: 2521.943,
+    y: -417.3813,
+    z: 93.09399
+  }, {
+    hash: 1122723068,
+    x: 2520.103,
+    y: -415.5412,
+    z: 93.09382
+  }],
+  pos: {
+    x: 2520.85,
+    y: -416.45,
+    z: 94.12
+  },
+  defaultOpened: true
+}, {
+  text: "Подвал",
+  fraction: 3,
+  doors: [{
+    hash: 1055151324,
+    x: 2511.095,
+    y: -416.0965,
+    z: 99.27245
+  }],
+  pos: {
+    x: 2510.34,
+    y: -415.76,
+    z: 99.11
+  }
+}, {
+  text: "Конференц зал",
+  fraction: 3,
+  doors: [{
+    hash: 1055151324,
+    x: 2510.824,
+    y: -435.6792,
+    z: 99.27245
+  }, {
+    hash: 1055151324,
+    x: 2512.664,
+    y: -433.8399,
+    z: 99.27245
+  }],
+  pos: {
+    x: 2511.55,
+    y: -434.44,
+    z: 99.11
+  }
+}, {
+  text: "Кабинеты",
+  fraction: 3,
+  doors: [{
+    hash: 1055151324,
+    x: 2499.76,
+    y: -424.20,
+    z: 99.11
+  }, {
+    hash: 1055151324,
+    x: 2501.43,
+    y: -422.52,
+    z: 99.11
+  }],
+  pos: {
+    x: 2500.37,
+    y: -423.30,
+    z: 99.11
+  }
+}, {
+  text: "Главный вход",
+  fraction: 3,
+  doors: [{
+    hash: 4180086300,
+    x: 2515.791,
+    y: -355.7704,
+    z: 93.08971
+  }, {
+    hash: 2249271310,
+    x: 2513.928,
+    y: -357.5838,
+    z: 93.08971
+  }],
+  pos: {
+    x: 2514.82,
+    y: -356.55,
+    z: 94.09
+  }
+}, {
+  text: "Лестница",
+  fraction: 3,
+  doors: [{
+    hash: 823867722,
+    x: 2497.481,
+    y: -353.3639,
+    z: 94.25793
+  }],
+  pos: {
+    x: 2498.03,
+    y: -353.91,
+    z: 94.09
+  }
+}, {
+  text: "Тренажерный зал",
+  fraction: 3,
+  doors: [{
+    hash: 823867722,
+    x: 2506.72,
+    y: -361.99,
+    z: 94.09
+  }, {
+    hash: 823867722,
+    x: 2504.99,
+    y: -360.32,
+    z: 94.09
+  }],
+  pos: {
+    x: 2505.76,
+    y: -361.36,
+    z: 94.09
+  }
+}, {
+  text: "Охрана",
+  fraction: 3,
+  doors: [{
+    hash: 823867722,
+    x: 2506.371,
+    y: -357.1198,
+    z: 94.2556
+  }],
+  pos: {
+    x: 2505.78,
+    y: -356.82,
+    z: 94.09
+  }
+}, {
+  text: "Гардероб",
+  fraction: 3,
+  doors: [{
+    hash: 823867722,
+    x: 2520.449,
+    y: -336.174,
+    z: 94.25628
+  }, {
+    hash: 823867722,
+    x: 2522.29,
+    y: -338.0148,
+    z: 94.25628
+  }],
+  pos: {
+    x: 2521.16,
+    y: -337.32,
+    z: 94.09
+  }
+}, {
+  text: "Задний вход",
+  fraction: 5,
+  doors: [{
+    hash: 1104171198,
+    x: -1045.118,
+    y: -232.0034,
+    z: 39.44269
+  }, {
+    hash: 1104171198,
+    x: -1046.52,
+    y: -229.3665,
+    z: 39.44269
+  }],
+  pos: {
+    x: -1045.79,
+    y: -230.70,
+    z: 39.01
+  },
+  defaultOpened: true
+}, {
+  text: "Главный вход",
+  fraction: 5,
+  doors: [{
+    hash: -1679881977,
+    x: -1083.62,
+    y: -260.42,
+    z: 38.19
+  }, {
+    hash: -1045015371,
+    x: -1080.97,
+    y: -259.02,
+    z: 38.19
+  }],
+  pos: {
+    x: -1082.22,
+    y: -259.66,
+    z: 37.79
+  },
+  defaultOpened: true
+}, {
+  text: "конференц-зал",
+  fraction: 5,
+  doors: [{
+    hash: 2473190209,
+    x: -1048.281,
+    y: -236.8198,
+    z: 44.17329
+  }, {
+    hash: 2473190209,
+    x: -1047.086,
+    y: -239.1204,
+    z: 44.17329
+  }],
+  pos: {
+    x: -1048.38,
+    y: -238.24,
+    z: 44.02
+  },
+  defaultOpened: true
+}, {
+  text: "Гардеробная",
+  fraction: 5,
+  doors: [{
+    hash: -495720969,
+    x: -1055.96,
+    y: -236.43,
+    z: 44.17
+  }],
+  pos: {
+    x: -1055.29,
+    y: -236.18,
+    z: 44.02
+  },
+  defaultOpened: true
+}, {
+  text: "Черный вход",
+  fraction: 5,
+  doors: [{
+    hash: 738456037,
+    x: -576.44,
+    y: -939.58,
+    z: 23.99
+  }, {
+    hash: 738456037,
+    x: -573.84,
+    y: -939.58,
+    z: 23.99
+  }],
+  pos: {
+    x: -575.15,
+    y: -939.24,
+    z: 23.86
+  }
+}, {
+  text: "Студия",
+  fraction: 5,
+  doors: [{
+    hash: 1901183774,
+    x: -580.05,
+    y: -918.18,
+    z: 28.34
+  }],
+  pos: {
+    x: -580.24,
+    y: -917.49,
+    z: 28.18
+  }
+}, {
+  text: "Студия 2",
+  fraction: 5,
+  doors: [{
+    hash: 1901183774,
+    x: -579.25,
+    y: -928.54,
+    z: 28.34
+  }],
+  pos: {
+    x: -579.24,
+    y: -929.38,
+    z: 28.19
+  }
+}, {
+  text: "Студия 3",
+  fraction: 5,
+  doors: [{
+    hash: 1901183774,
+    x: -574.97,
+    y: -938.39,
+    z: 28.34
+  }, {
+    hash: 1901183774,
+    x: -574.98,
+    y: -935.82,
+    z: 28.34
+  }],
+  pos: {
+    x: -575.16,
+    y: -937.19,
+    z: 28.18
+  }
+}, {
+  text: "Серверная",
+  fraction: 5,
+  doors: [{
+    hash: 1901183774,
+    x: -594.12,
+    y: -931.85,
+    z: 32.69
+  }],
+  pos: {
+    x: -594.75,
+    y: -931.96,
+    z: 32.52
+  }
+}, {
+  text: "Студия 5",
+  fraction: 5,
+  doors: [{
+    hash: 1901183774,
+    x: -574.58,
+    y: -935.11,
+    z: 32.69
+  }],
+  pos: {
+    x: -574.59,
+    y: -935.85,
+    z: 32.52
+  }
+}, {
+  text: "Гардеробная",
+  fraction: 5,
+  doors: [{
+    hash: 1901183774,
+    x: -575.70,
+    y: -926.10,
+    z: 32.69
+  }],
+  pos: {
+    x: -576.65,
+    y: -926.26,
+    z: 32.52
+  }
+}, {
+  text: "Главный вход",
+  fraction: 24,
+  doors: [{
+    hash: 1033441082,
+    x: -1515.80,
+    y: 850.72,
+    z: 181.72
+  }, {
+    hash: 1033441082,
+    x: -1518.03,
+    y: 851.55,
+    z: 181.72
+  }],
+  pos: {
+    x: -1516.90,
+    y: 851.30,
+    z: 181.59
+  },
+  defaultOpened: true
+}, {
+  text: "Правая входная дверь",
+  fraction: 24,
+  doors: [{
+    hash: 1033441082,
+    x: -1520.77,
+    y: 848.33,
+    z: 181.72
+  }],
+  pos: {
+    x: -1520.14,
+    y: 848.61,
+    z: 181.60
+  },
+  defaultOpened: true
+}, {
+  text: "Левая входная дверь",
+  fraction: 24,
+  doors: [{
+    hash: 1033441082,
+    x: -1500.63,
+    y: 856.68,
+    z: 181.72
+  }],
+  pos: {
+    x: -1501.27,
+    y: 856.46,
+    z: 181.60
+  },
+  defaultOpened: true
+}, {
+  text: "Задний вход",
+  fraction: 24,
+  doors: [{
+    hash: 1033441082,
+    x: -1490.46,
+    y: 851.03,
+    z: 181.72
+  }, {
+    hash: 1033441082,
+    x: -1491.46,
+    y: 853.18,
+    z: 181.72
+  }],
+  pos: {
+    x: -1491.04,
+    y: 852.21,
+    z: 181.60
+  },
+  defaultOpened: true
+}, {
+  text: "Служебное помещение",
+  fraction: 24,
+  doors: [{
+    hash: -1785293089,
+    x: -1511.60,
+    y: 844.05,
+    z: 181.70
+  }, {
+    hash: -1785293089,
+    x: -1510.60,
+    y: 841.90,
+    z: 181.70
+  }],
+  pos: {
+    x: -1511.13,
+    y: 843.00,
+    z: 181.60
+  },
+  defaultOpened: true
+}, {
+  text: "Кабинет директора",
+  fraction: 24,
+  doors: [{
+    hash: -1785293089,
+    x: -1520.32,
+    y: 833.40,
+    z: 186.28
+  }],
+  pos: {
+    x: -1520.03,
+    y: 832.70,
+    z: 186.15
+  },
+  defaultOpened: true
+}, {
+  text: "Выход на балкон",
+  fraction: 24,
+  doors: [{
+    hash: 1033441082,
+    x: -1522.39,
+    y: 843.54,
+    z: 186.28
+  }],
+  pos: {
+    x: -1521.79,
+    y: 843.83,
+    z: 186.15
+  },
+  defaultOpened: true
+}, {
+  text: "Двор",
+  fraction: 8,
+  doors: [{
+    hash: -462653789,
+    x: -1346.44,
+    y: 57.45,
+    z: 55.69
+  }, {
+    hash: -462653789,
+    x: -1346.61,
+    y: 59.33,
+    z: 55.69
+  }],
+  pos: {
+    x: -1346.34,
+    y: 58.40,
+    z: 55.25
+  },
+  defaultOpened: true
+}, {
+  text: "Основной вход",
+  fraction: 8,
+  doors: [{
+    hash: -462653789,
+    x: -1365.66,
+    y: 57.70,
+    z: 54.44
+  }, {
+    hash: -462653789,
+    x: -1365.49,
+    y: 55.82,
+    z: 54.44
+  }],
+  pos: {
+    x: -1365.49,
+    y: 56.75,
+    z: 54.13
+  },
+  defaultOpened: true
+}, {
+  text: "Подвал",
+  fraction: 8,
+  doors: [{
+    hash: -1687047623,
+    x: -1358.03,
+    y: 90.57,
+    z: 55.40
+  }],
+  pos: {
+    x: -1358.76,
+    y: 90.47,
+    z: 55.25
+  },
+  defaultOpened: true
+}, {
+  text: "Кабинет директора",
+  fraction: 8,
+  doors: [{
+    hash: -1687047623,
+    x: -1349.91,
+    y: 59.18,
+    z: 60.52
+  }],
+  pos: {
+    x: -1350.16,
+    y: 59.90,
+    z: 60.41
+  },
+  defaultOpened: true
+}, {
+  text: "Гардеробная",
+  fraction: 8,
+  doors: [{
+    hash: -1687047623,
+    x: -1351.09,
+    y: 61.97,
+    z: 60.52
+  }],
+  pos: {
+    x: -1351.79,
+    y: 61.67,
+    z: 60.41
+  },
+  defaultOpened: true
+}, {
+  text: "Оружейная",
+  fraction: 8,
+  doors: [{
+    hash: -1687047623,
+    x: -1359.27,
+    y: 61.23,
+    z: 60.53
+  }],
+  pos: {
+    x: -1359.79,
+    y: 60.90,
+    z: 60.41
+  },
+  defaultOpened: true
+}, {
+  text: "Погреб",
+  fraction: 9,
+  doors: [{
+    hash: 1033441082,
+    x: -1929.55,
+    y: 2059.38,
+    z: 140.97
+  }],
+  pos: {
+    x: -1928.90,
+    y: 2059.12,
+    z: 140.84
+  },
+  defaultOpened: true
+}, {
+  text: "Левый вход",
+  fraction: 9,
+  doors: [{
+    hash: 1662086909,
+    x: -1890.26,
+    y: 2052.15,
+    z: 141.29
+  }, {
+    hash: 1662086909,
+    x: -1887.94,
+    y: 2051.30,
+    z: 141.29
+  }],
+  pos: {
+    x: -1888.98,
+    y: 2051.75,
+    z: 141.02
+  },
+  defaultOpened: true
+}, {
+  text: "Правый вход",
+  fraction: 9,
+  doors: [{
+    hash: 1662086909,
+    x: -1887.56,
+    y: 2051.16,
+    z: 141.29
+  }, {
+    hash: 1662086909,
+    x: -1885.24,
+    y: 2050.31,
+    z: 141.29
+  }],
+  pos: {
+    x: -1886.49,
+    y: 2050.75,
+    z: 141.01
+  },
+  defaultOpened: true
+}, {
+  text: "Задний выход",
+  fraction: 9,
+  doors: [{
+    hash: -245429350,
+    x: -1879.33,
+    y: 2071.39,
+    z: 141.28
+  }, {
+    hash: -245429350,
+    x: -1879.33,
+    y: 2071.39,
+    z: 141.28
+  }],
+  pos: {
+    x: -1880.32,
+    y: 2071.58,
+    z: 141.00
+  },
+  defaultOpened: true
+}, {
+  text: "Правый выход",
+  fraction: 9,
+  doors: [{
+    hash: 1662086909,
+    x: -1861.76,
+    y: 2054.07,
+    z: 141.29
+  }, {
+    hash: 1662086909,
+    x: -1859.29,
+    y: 2054.07,
+    z: 141.29
+  }],
+  pos: {
+    x: -1860.61,
+    y: 2054.00,
+    z: 141.01
+  },
+  defaultOpened: true
+}, {
+  text: "Кухня",
+  fraction: 9,
+  doors: [{
+    hash: -1687047623,
+    x: -1876.10,
+    y: 2057.71,
+    z: 141.11
+  }],
+  pos: {
+    x: -1875.88,
+    y: 2058.39,
+    z: 140.99
+  },
+  defaultOpened: true
+}, {
+  text: "Балкон",
+  fraction: 9,
+  doors: [{
+    hash: -1687047623,
+    x: -1890.48,
+    y: 2068.24,
+    z: 145.66
+  }],
+  pos: {
+    x: -1890.77,
+    y: 2067.60,
+    z: 145.51
+  },
+  defaultOpened: true
+}, {
+  text: "Кабинет директора",
+  fraction: 9,
+  doors: [{
+    hash: -1687047623,
+    x: -1883.43,
+    y: 2055.98,
+    z: 145.66
+  }],
+  pos: {
+    x: -1884.12,
+    y: 2056.17,
+    z: 145.51
+  },
+  defaultOpened: true
+}, {
+  text: "Гардеробная",
+  fraction: 9,
+  doors: [{
+    hash: -1687047623,
+    x: -1882.05,
+    y: 2057.23,
+    z: 145.57
+  }],
+  pos: {
+    x: -1882.28,
+    y: 2056.56,
+    z: 145.51
+  },
+  defaultOpened: true
+}, {
+  text: "Оружейная",
+  fraction: 9,
+  doors: [{
+    hash: 747539127,
+    x: -1881.00,
+    y: 2060.67,
+    z: 144.51
+  }],
+  pos: {
+    x: -1881.13,
+    y: 2060.27,
+    z: 145.51
+  },
+  defaultOpened: true
+}, {
+  text: "Главный вход",
+  fraction: 23,
+  doors: [{
+    hash: 1039647283,
+    x: -336.10,
+    y: 206.45,
+    z: 89.45
+  }, {
+    hash: 1039647283,
+    x: -338.51,
+    y: 207.43,
+    z: 89.45
+  }],
+  pos: {
+    x: -337.41,
+    y: 206.96,
+    z: 88.58
+  },
+  defaultOpened: true
+}, {
+  text: "Задний выход",
+  fraction: 23,
+  doors: [{
+    hash: 866758039,
+    x: -349.39,
+    y: 179.50,
+    z: 88.10
+  }, {
+    hash: 866758039,
+    x: -347.24,
+    y: 179.50,
+    z: 88.10
+  }],
+  pos: {
+    x: -348.29,
+    y: 179.52,
+    z: 87.94
+  },
+  defaultOpened: true
+}, {
+  text: "Вход в подвал",
+  fraction: 23,
+  doors: [{
+    hash: -1687047623,
+    x: -335.20,
+    y: 188.34,
+    z: 88.71
+  }],
+  pos: {
+    x: -335.94,
+    y: 188.30,
+    z: 88.57
+  },
+  defaultOpened: true
+}, {
+  text: "Кухня",
+  fraction: 23,
+  doors: [{
+    hash: -121180812,
+    x: -348.75,
+    y: 194.10,
+    z: 88.72
+  }],
+  pos: {
+    x: -348.71,
+    y: 193.56,
+    z: 88.57
+  },
+  defaultOpened: true
+}, {
+  text: "Кабинет директора",
+  fraction: 23,
+  doors: [{
+    hash: -121180812,
+    x: -344.98,
+    y: 190.35,
+    z: 95.34
+  }],
+  pos: {
+    x: -344.89,
+    y: 190.99,
+    z: 95.19
+  },
+  defaultOpened: true
+}, {
+  text: "Оружейная",
+  fraction: 23,
+  doors: [{
+    hash: -121180812,
+    x: -351.94,
+    y: 191.08,
+    z: 95.34
+  }],
+  pos: {
+    x: -351.98,
+    y: 190.52,
+    z: 95.19
+  },
+  defaultOpened: true
+}, {
+  text: "Служебный вход",
+  fraction: 23,
+  doors: [{
+    hash: -121180812,
+    x: -347.58,
+    y: 195.83,
+    z: 95.34
+  }],
+  pos: {
+    x: -348.14,
+    y: 195.81,
+    z: 95.19
+  },
+  defaultOpened: true
+}, {
+  text: "Вход",
+  fraction: 21,
+  doors: [{
+    hash: -35610440,
+    x: -470.44,
+    y: -1722.93,
+    z: 18.91
+  }],
+  pos: {
+    x: -470.56,
+    y: -1722.24,
+    z: 18.77
+  },
+  defaultOpened: true
+}, {
+  text: "Вход 2",
+  fraction: 21,
+  doors: [{
+    hash: -35610440,
+    x: -484.22,
+    y: -1729.65,
+    z: 19.82
+  }],
+  pos: {
+    x: -485.08,
+    y: -1729.69,
+    z: 19.67
+  },
+  defaultOpened: true
+}, {
+  text: "Мастерская",
+  fraction: 21,
+  doors: [{
+    hash: -35610440,
+    x: -483.51,
+    y: -1728.13,
+    z: 19.68
+  }],
+  pos: {
+    x: -483.93,
+    y: -1727.58,
+    z: 19.51
+  },
+  defaultOpened: true
+}, {
+  text: "Склад",
+  fraction: 21,
+  doors: [{
+    hash: -35610440,
+    x: -485.73,
+    y: -1719.85,
+    z: 19.72
+  }],
+  pos: {
+    x: -485.43,
+    y: -1720.60,
+    z: 19.57
+  },
+  defaultOpened: true
+}, {
+  text: "Вход",
+  fraction: 21,
+  doors: [{
+    hash: 1093926891,
+    x: -1387.088,
+    y: -586.5935,
+    z: 30.45739
+  }, {
+    hash: 1093926891,
+    x: -1389.197,
+    y: -587.9832,
+    z: 30.45739
+  }],
+  pos: {
+    x: -1388.32,
+    y: -587.02,
+    z: 30.22
+  },
+  defaultOpened: true
+}, {
+  text: "Вход",
+  fraction: 18,
+  doors: [{
+    hash: 4259356856,
+    x: 893.1168,
+    y: -2171.419,
+    z: 32.54395
+  }],
+  pos: {
+    x: 892.44,
+    y: -2171.44,
+    z: 32.39
+  },
+  defaultOpened: true
+}, {
+  text: "Склад",
+  fraction: 18,
+  doors: [{
+    hash: 4259356856,
+    x: 884.3304,
+    y: -2163.563,
+    z: 32.4353
+  }],
+  pos: {
+    x: 884.35,
+    y: -2162.83,
+    z: 32.28
+  },
+  defaultOpened: true
+}, {
+  text: "Склад",
+  fraction: 20,
+  doors: [{
+    hash: 1173348778,
+    x: 452.0893,
+    y: -1305.413,
+    z: 30.35599
+  }],
+  pos: {
+    x: 452.88,
+    y: -1305.54,
+    z: 30.12
+  },
+  defaultOpened: true
+}, {
+  text: "Вход 1",
+  fraction: 22,
+  doors: [{
+    hash: 2374820049,
+    x: 500.0611,
+    y: -1962.585,
+    z: 25.16408
+  }],
+  pos: {
+    x: 500.88,
+    y: -1962.96,
+    z: 25.06
+  },
+  defaultOpened: true
+}, {
+  text: "Вход 2",
+  fraction: 22,
+  doors: [{
+    hash: 2374820049,
+    x: 502.4556,
+    y: -1966.44,
+    z: 25.16417
+  }],
+  pos: {
+    x: 502.17,
+    y: -1965.70,
+    z: 25.06
+  },
+  defaultOpened: true
+}, {
+  text: "Лестничная площадка 1",
+  fraction: 2,
+  doors: [{
+    hash: 2974090917,
+    x: 471.3868,
+    y: -986.3861,
+    z: 28.23847
+  }, {
+    hash: 2974090917,
+    x: 468.783,
+    y: -986.3882,
+    z: 28.23847
+  }],
+  pos: {
+    x: 470.08,
+    y: -985.97,
+    z: 28.09
+  },
+  defaultOpened: true
+}, {
+  text: "Лестничная площадка 2",
+  fraction: 2,
+  doors: [{
+    hash: 4163671155,
+    x: 468.7839,
+    y: -993.9683,
+    z: 28.23798
+  }, {
+    hash: 4163671155,
+    x: 471.3859,
+    y: -993.9683,
+    z: 28.23798
+  }],
+  pos: {
+    x: 469.98,
+    y: -994.12,
+    z: 28.09
+  },
+  defaultOpened: true
+}, {
+  text: "Офис 1",
+  fraction: 2,
+  doors: [{
+    hash: 2372686273,
+    x: 452.8327,
+    y: -988.2734,
+    z: 35.95989
+  }, {
+    hash: 2372686273,
+    x: 452.8327,
+    y: -990.3912,
+    z: 35.95989
+  }],
+  pos: {
+    x: 452.73,
+    y: -989.31,
+    z: 35.68
+  },
+  defaultOpened: true
+}, {
+  text: "Офис 2",
+  fraction: 2,
+  doors: [{
+    hash: 2974090917,
+    x: 459.9573,
+    y: -991.5281,
+    z: 35.83414
+  }, {
+    hash: 2974090917,
+    x: 459.9565,
+    y: -988.9236,
+    z: 35.83414
+  }],
+  pos: {
+    x: 459.95,
+    y: -990.31,
+    z: 35.68
+  },
+  defaultOpened: true
+}, {
+  text: "Лестничная площадка 3",
+  fraction: 2,
+  doors: [{
+    hash: 2974090917,
+    x: 459.9573,
+    y: -991.5283,
+    z: 30.83918
+  }, {
+    hash: 2974090917,
+    x: 459.9573,
+    y: -988.9244,
+    z: 30.83918
+  }],
+  pos: {
+    x: 460.03,
+    y: -990.11,
+    z: 30.69
+  },
+  defaultOpened: true
+}, {
+  text: "Лестничная площадка 4",
+  fraction: 2,
+  doors: [{
+    hash: 4163671155,
+    x: 462.2406,
+    y: -988.9244,
+    z: 25.86339
+  }, {
+    hash: 4163671155,
+    x: 462.2434,
+    y: -991.5268,
+    z: 25.86339
+  }],
+  pos: {
+    x: 462.09,
+    y: -990.23,
+    z: 25.71
+  },
+  defaultOpened: true
+}, {
+  text: "Лестничная площадка 5",
+  fraction: 2,
+  doors: [{
+    hash: 4163671155,
+    x: 468.7828,
+    y: -986.3874,
+    z: 23.46275
+  }, {
+    hash: 4163671155,
+    x: 471.3876,
+    y: -986.3874,
+    z: 23.46275
+  }],
+  pos: {
+    x: 470.33,
+    y: -986.36,
+    z: 23.31
+  },
+  defaultOpened: true
+}, {
+  text: "Лестничная площадка 6",
+  fraction: 2,
+  doors: [{
+    hash: 4163671155,
+    x: 471.3864,
+    y: -993.9685,
+    z: 23.46061
+  }, {
+    hash: 4163671155,
+    x: 468.7833,
+    y: -993.9685,
+    z: 23.46061
+  }],
+  pos: {
+    x: 470.03,
+    y: -993.29,
+    z: 23.31
+  },
+  defaultOpened: true
+}, {
+  text: "Вход к камерам",
+  fraction: 2,
+  doors: [{
+    hash: 2233064549,
+    x: 470.7346,
+    y: -977.412,
+    z: 23.4634
+  }],
+  pos: {
+    x: 469.99,
+    y: -977.68,
+    z: 23.31
+  },
+  defaultOpened: true
+}, {
+  text: "Камера 1",
+  fraction: 2,
+  doors: [{
+    hash: 2233064549,
+    x: 473.623,
+    y: -972.9127,
+    z: 23.4634
+  }],
+  pos: {
+    x: 473.12,
+    y: -972.38,
+    z: 23.31
+  },
+  defaultOpened: true
+}, {
+  text: "Камера 2",
+  fraction: 2,
+  doors: [{
+    hash: 2233064549,
+    x: 473.6221,
+    y: -966.6074,
+    z: 23.4634
+  }],
+  pos: {
+    x: 472.95,
+    y: -966.00,
+    z: 23.31
+  },
+  defaultOpened: true
+}, {
+  text: "Камера 3",
+  fraction: 2,
+  doors: [{
+    hash: 2233064549,
+    x: 473.621,
+    y: -960.3025,
+    z: 23.4634
+  }],
+  pos: {
+    x: 472.99,
+    y: -959.90,
+    z: 23.31
+  },
+  defaultOpened: true
+}, {
+  text: "Камера 4",
+  fraction: 2,
+  doors: [{
+    hash: 2233064549,
+    x: 467.468,
+    y: -959.3839,
+    z: 23.4634
+  }],
+  pos: {
+    x: 467.35,
+    y: -959.97,
+    z: 23.31
+  },
+  defaultOpened: true
+}, {
+  text: "Камера 5",
+  fraction: 2,
+  doors: [{
+    hash: 2233064549,
+    x: 467.4684,
+    y: -965.69,
+    z: 23.4634
+  }],
+  pos: {
+    x: 467.30,
+    y: -966.31,
+    z: 23.31
+  },
+  defaultOpened: true
+}, {
+  text: "Камера 6",
+  fraction: 2,
+  doors: [{
+    hash: 2233064549,
+    x: 467.4698,
+    y: -971.9943,
+    z: 23.4634
+  }],
+  pos: {
+    x: 467.37,
+    y: -972.56,
+    z: 23.31
+  },
+  defaultOpened: true
+}, {
+  text: "Лаборатория 1",
+  fraction: 16,
+  doors: [{
+    hash: 1415151278,
+    x: 298.2036,
+    y: -592.9224,
+    z: 43.40875
+  }],
+  pos: {
+    x: 298.74,
+    y: -593.34,
+    z: 43.26
+  },
+  defaultOpened: true
+}, {
+  text: "Лаборатория 2",
+  fraction: 16,
+  doors: [{
+    hash: 1415151278,
+    x: 298.2036,
+    y: -592.9224,
+    z: 43.40875
+  }],
+  pos: {
+    x: 305.23,
+    y: -595.27,
+    z: 43.26
+  },
+  defaultOpened: true
+}, {
+  text: "Лаборатория 3",
+  fraction: 16,
+  doors: [{
+    hash: 1415151278,
+    x: 304.5355,
+    y: -595.2271,
+    z: 43.40875
+  }],
+  pos: {
+    x: 311.80,
+    y: -597.61,
+    z: 43.26
+  },
+  defaultOpened: true
+}, {
+  text: "Ресепшн",
+  fraction: 16,
+  doors: [{
+    hash: 1415151278,
+    x: 313.0905,
+    y: -588.9059,
+    z: 43.40875
+  }, {
+    hash: 1415151278,
+    x: 313.9705,
+    y: -586.4881,
+    z: 43.40875
+  }],
+  pos: {
+    x: 313.61,
+    y: -587.66,
+    z: 43.26
+  },
+  defaultOpened: true
+}, {
+  text: "Вход 8",
+  fraction: 25,
+  doors: [{
+    hash: 3262795659,
+    x: 1390.488,
+    y: 1161.237,
+    z: 114.4817
+  }, {
+    hash: 3262795659,
+    x: 1390.488,
+    y: 1163.438,
+    z: 114.4817
+  }],
+  pos: {
+    x: 1390.18,
+    y: 1162.36,
+    z: 114.33
+  },
+  defaultOpened: true
+}, {
+  text: "Подвал",
+  fraction: 25,
+  doors: [{
+    hash: 736699661,
+    x: 1407.688,
+    y: 1128.333,
+    z: 114.4977
+  }],
+  pos: {
+    x: 1406.82,
+    y: 1127.87,
+    z: 114.33
+  },
+  defaultOpened: true
+}];
 exports.DOORS_LIST = DOORS_LIST;
 },{}],"H2nx":[function(require,module,exports) {
 "use strict";
@@ -60628,7 +63513,7 @@ var _system = require("./system");
 
 var _user = require("./user");
 
-var _system2 = require("../../shared/system");
+var _localization = require("../../shared/localization/localization");
 
 const player = mp.players.local;
 let doorsStatus = new Map();
@@ -60660,55 +63545,13 @@ setInterval(async () => {
     }
 
     item.doors.map(async (data, idx) => {
-      var _mp$game$object$getCl;
-
-      const doorId = `DOOR_${id}_${idx}`;
-      const obj = (_mp$game$object$getCl = mp.game.object.getClosestObjectOfType(data.x, data.y, data.z, 3, data.hash, true, true, true)) !== null && _mp$game$object$getCl !== void 0 ? _mp$game$object$getCl : mp.game.object.getClosestObjectOfType(data.x, data.y, data.z, 3, data.hash, false, true, true);
-      if (!obj) return;
-      const doorRotation = mp.game.invokeVector3(_system.system.natives.GET_ENTITY_ROTATION, obj, 2);
-      const doorPosition = mp.game.invokeVector3(_system.system.natives.GET_ENTITY_COORDS, obj, true);
-      const doorHash = mp.game.joaat(doorId);
-
-      if (!doorsRechange.has(doorId)) {
-        const door = mp.objects.new(data.hash, _system2.systemUtil.getVector3Mp(doorPosition), {
-          alpha: 255,
-          dimension: 0,
-          rotation: _system2.systemUtil.getVector3Mp(doorRotation)
-        });
-
-        while (!door.handle) {
-          await mp.game.waitAsync(10);
-        }
-
-        mp.game.invoke(_system.system.natives.FREEZE_ENTITY_POSITION, door.handle, false);
-        mp.game.invoke(_system.system.natives.SET_ENTITY_DYNAMIC, door.handle, true);
-        doorsRechange.set(doorId, {
-          sourceObj: obj,
-          createdObj: door.handle
-        });
-        mp.game.invoke(_system.system.natives.SET_ENTITY_ALPHA, obj, 0, true);
-        mp.game.invoke(_system.system.natives.SET_ENTITY_VISIBLE, obj, false, false);
-      } else {
-        const door = doorsRechange.get(doorId);
-        mp.game.invoke(_system.system.natives.FREEZE_ENTITY_POSITION, door.createdObj, false);
-        mp.game.invoke(_system.system.natives.SET_ENTITY_DYNAMIC, door.createdObj, true);
-      }
-
-      if (!mp.game.object.doesDoorExist(doorHash)) {
-        _custom.CustomEvent.triggerServer('srv:log', `add door to door system ${doorHash}`);
-
-        mp.game.object.addDoorToSystem(doorHash, data.hash, doorPosition.x, doorPosition.y, doorPosition.z, false, false, false);
-      }
-
-      _custom.CustomEvent.triggerServer('srv:log', `check door ${data.hash} ${obj}`);
-
       const locked = getDoorStatus(id);
-      mp.game.object.doorControl(data.hash, doorPosition.x, doorPosition.y, doorPosition.z, locked, 0.0, 0.0, 0.0);
+      mp.game.object.doorControl(data.hash, data.x, data.y, data.z, locked, 0.0, 0.0, 0.0);
     });
   });
 }, 1000);
 mp.events.add('render', () => {
-  drawText.map(item => _gui.gui.drawText3D(`${item.text} (${item.locked ? '~r~Закрыто' : '~g~Открыто'})`, item.x, item.y, item.z, null, true));
+  drawText.map(item => _gui.gui.drawText3D(`${(0, _localization.t)(item.text)} (${(0, _localization.t)(item.locked ? '~r~Закрыто' : '~g~Открыто')})`, item.x, item.y, item.z, null, true));
 });
 
 const getDoorStatus = id => {
@@ -60770,7 +63613,7 @@ const clickDoor = async id => {
     setDoorStatus(id, !getDoorStatus(id));
   });
 };
-},{"../../shared/doors":"g7OS","./custom.event":"py8h","./gui":"bk91","./system":"pi2J","./user":"ggMw","../../shared/system":"SNxO"}],"H3J5":[function(require,module,exports) {
+},{"../../shared/doors":"g7OS","./custom.event":"py8h","./gui":"bk91","./system":"pi2J","./user":"ggMw","../../shared/localization/localization":"FUGy"}],"H3J5":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -63413,7 +66256,242 @@ const interriors = [{
     x: -836.65,
     y: -721.51,
     z: 100.58
-  }]
+  }],
+  cryptoWithdrawalTax: 0.15
+}, {
+  id: 33,
+  name: "Пользовательская №10",
+  enter: {
+    x: -835.76,
+    y: -715.60,
+    z: 86.77,
+    h: 183
+  },
+  type: "house",
+  stock: {
+    x: -820.64,
+    y: -719.71,
+    z: 91.05
+  },
+  mining: {
+    x: -824.97,
+    y: -723.67,
+    z: 92.05,
+    h: 7
+  },
+  robberyPoints: [{
+    x: -824.08,
+    y: -728.32,
+    z: 86.97
+  }, {
+    x: -831.05,
+    y: -720.38,
+    z: 86.97
+  }, {
+    x: -823.20,
+    y: -719.57,
+    z: 91.05
+  }, {
+    x: -823.20,
+    y: -719.57,
+    z: 91.05
+  }],
+  cryptoWithdrawalTax: 0.15
+}, {
+  id: 34,
+  name: "Пользовательская №11",
+  enter: {
+    x: -835.76,
+    y: -715.60,
+    z: 86.77,
+    h: 183
+  },
+  type: "house",
+  stock: {
+    x: -820.64,
+    y: -719.71,
+    z: 91.05
+  },
+  mining: {
+    x: -824.97,
+    y: -723.67,
+    z: 92.05,
+    h: 7
+  },
+  robberyPoints: [{
+    x: -824.08,
+    y: -728.32,
+    z: 86.97
+  }, {
+    x: -831.05,
+    y: -720.38,
+    z: 86.97
+  }, {
+    x: -823.20,
+    y: -719.57,
+    z: 91.05
+  }, {
+    x: -823.20,
+    y: -719.57,
+    z: 91.05
+  }],
+  cryptoWithdrawalTax: 0.15
+}, {
+  id: 35,
+  name: "Пользовательская №12",
+  enter: {
+    x: -835.76,
+    y: -715.60,
+    z: 86.77,
+    h: 183
+  },
+  type: "house",
+  stock: {
+    x: -820.64,
+    y: -719.71,
+    z: 91.05
+  },
+  mining: {
+    x: -824.97,
+    y: -723.67,
+    z: 92.05,
+    h: 7
+  },
+  robberyPoints: [{
+    x: -824.08,
+    y: -728.32,
+    z: 86.97
+  }, {
+    x: -831.05,
+    y: -720.38,
+    z: 86.97
+  }, {
+    x: -823.20,
+    y: -719.57,
+    z: 91.05
+  }, {
+    x: -823.20,
+    y: -719.57,
+    z: 91.05
+  }],
+  cryptoWithdrawalTax: 0.15
+}, {
+  id: 36,
+  name: "Пользовательская №13",
+  enter: {
+    x: -830.71,
+    y: -728.84,
+    z: 81.80,
+    h: 183
+  },
+  type: "house",
+  stock: {
+    x: -825.16,
+    y: -724.55,
+    z: 81.76
+  },
+  mining: {
+    x: -824.77,
+    y: -715.71,
+    z: 82.76,
+    h: 267
+  },
+  robberyPoints: [{
+    x: -813.60,
+    y: -716.47,
+    z: 81.76
+  }, {
+    x: -825.45,
+    y: -718.12,
+    z: 81.76
+  }, {
+    x: -831.67,
+    y: -719.26,
+    z: 81.76
+  }, {
+    x: -828.59,
+    y: -724.31,
+    z: 81.76
+  }],
+  cryptoWithdrawalTax: 0.15
+}, {
+  id: 37,
+  name: "Пользовательская №14",
+  enter: {
+    x: -830.71,
+    y: -728.84,
+    z: 81.80,
+    h: 183
+  },
+  type: "house",
+  stock: {
+    x: -825.16,
+    y: -724.55,
+    z: 81.76
+  },
+  mining: {
+    x: -824.77,
+    y: -715.71,
+    z: 82.76,
+    h: 267
+  },
+  robberyPoints: [{
+    x: -813.60,
+    y: -716.47,
+    z: 81.76
+  }, {
+    x: -825.45,
+    y: -718.12,
+    z: 81.76
+  }, {
+    x: -831.67,
+    y: -719.26,
+    z: 81.76
+  }, {
+    x: -828.59,
+    y: -724.31,
+    z: 81.76
+  }],
+  cryptoWithdrawalTax: 0.15
+}, {
+  id: 38,
+  name: "Пользовательская №15",
+  enter: {
+    x: -830.71,
+    y: -728.84,
+    z: 81.80,
+    h: 183
+  },
+  type: "house",
+  stock: {
+    x: -825.16,
+    y: -724.55,
+    z: 81.76
+  },
+  mining: {
+    x: -824.77,
+    y: -715.71,
+    z: 82.76,
+    h: 267
+  },
+  robberyPoints: [{
+    x: -813.60,
+    y: -716.47,
+    z: 81.76
+  }, {
+    x: -825.45,
+    y: -718.12,
+    z: 81.76
+  }, {
+    x: -831.67,
+    y: -719.26,
+    z: 81.76
+  }, {
+    x: -828.59,
+    y: -724.31,
+    z: 81.76
+  }],
+  cryptoWithdrawalTax: 0.15
 }];
 exports.interriors = interriors;
 const DEFAULT_FAMILY_HOUSE_GARAGE = 17;
@@ -68950,7 +72028,7 @@ const NPC_CUSTOMERS_LIST = [{
   dimension: 0,
   radius: 2,
   allowSellFromVehicle: true,
-  forFamily: true,
+  factions: [23, 24, 25],
   partToFraction: 20,
   background: 'sellman'
 }, {
@@ -70355,9 +73433,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.getFamilyUpgradeLevelPrice = exports.FamilyUpgrade = exports.LevelInfo = exports.FamilyTasks = exports.FamilyContracts = exports.CONTRACT_NUM_FOR_FAMILY = exports.FAMILY_CONTRACT_UPD_TIME = exports.FamilyContractList = exports.FamilyExtraTaskTypes = exports.FamilyTasksLoading = exports.FamilyPermissions = exports.FamilyRankPermission = exports.FAMILY_REQUEST_CARGO_PRICE = exports.FAMILY_REQUEST_CARGO_AMOUNT = exports.FAMILY_TIMEOUT_AFTER_CARGO_REQUEST = exports.FAMILY_CREATE_POS_CRIME = exports.FAMILY_CREATE_POS_GOS = exports.FAMILY_CREATE_COINS = exports.FAMILY_CREATE_MONEY = exports.family_max_users = exports.family_max_cargo = exports.family_max_cars = exports.family_max_rank = exports.FamilyContractWinTypes = exports.Timetable = exports.getRankRuleName = exports.newRankRules = exports.familyMemberActions = exports.FamilyReputationType = exports.getFamilyFractionName = exports.FAMILY_TO_ORGANIZATION_MIN_LEVEL = void 0;
-
-var _system = require("./system");
-
 const FAMILY_TO_ORGANIZATION_MIN_LEVEL = 4;
 exports.FAMILY_TO_ORGANIZATION_MIN_LEVEL = FAMILY_TO_ORGANIZATION_MIN_LEVEL;
 
@@ -70607,7 +73682,7 @@ const FamilyContracts = [{
   id: 1,
   type: FamilyContractList.delivers,
   name: "Доставщики",
-  desc: `Всей семьёй отвезите ${_system.systemUtil.numberFormat(100)} грузов на работе дальнобойщика`,
+  desc: `Всей семьёй отвезите 100 грузов на работе дальнобойщика`,
   needScore: 100,
   win: [{
     type: FamilyContractWinTypes.FAMILY_POINTS,
@@ -70617,7 +73692,7 @@ const FamilyContracts = [{
   id: 2,
   type: FamilyContractList.taxists,
   name: "Таксопарк",
-  desc: `Всей семьёй выполните ${_system.systemUtil.numberFormat(100)} заказов работая таксистом`,
+  desc: `Всей семьёй выполните 100 заказов работая таксистом`,
   needScore: 100,
   win: [{
     type: FamilyContractWinTypes.FAMILY_POINTS,
@@ -70637,7 +73712,7 @@ const FamilyContracts = [{
   id: 4,
   type: FamilyContractList.garders,
   name: "Садовники",
-  desc: `Всей семьёй заработать в саду $${_system.systemUtil.numberFormat(50000)}`,
+  desc: `Всей семьёй заработать в саду $50 000`,
   needScore: 50000,
   win: [{
     type: FamilyContractWinTypes.FAMILY_POINTS,
@@ -70647,7 +73722,7 @@ const FamilyContracts = [{
   id: 5,
   type: FamilyContractList.helpers,
   name: "Помощники",
-  desc: `Всей семьёй заработать $${_system.systemUtil.numberFormat(50000)} помогая в гараже Тони`,
+  desc: `Всей семьёй заработать $50 000 помогая в гараже Тони`,
   needScore: 50000,
   win: [{
     type: FamilyContractWinTypes.FAMILY_POINTS,
@@ -70657,7 +73732,7 @@ const FamilyContracts = [{
   id: 6,
   type: FamilyContractList.cleaners,
   name: "Чистильщики",
-  desc: `Всей семьёй заработать $${_system.systemUtil.numberFormat(50000)} на мойке окон`,
+  desc: `Всей семьёй заработать $50 000 на мойке окон`,
   needScore: 50000,
   win: [{
     type: FamilyContractWinTypes.FAMILY_POINTS,
@@ -70667,7 +73742,7 @@ const FamilyContracts = [{
   id: 7,
   type: FamilyContractList.moneytransfers,
   name: "Развозчик денег",
-  desc: `Всей семьёй заработать $${_system.systemUtil.numberFormat(100000)} работая инкассатором`,
+  desc: `Всей семьёй заработать $100 000 работая инкассатором`,
   needScore: 100000,
   win: [{
     type: FamilyContractWinTypes.FAMILY_POINTS,
@@ -70677,7 +73752,7 @@ const FamilyContracts = [{
   id: 8,
   type: FamilyContractList.onliners,
   name: "Усидчивые",
-  desc: `Пробыть в сумме всей семьёй в онлайне ${_system.systemUtil.numberFormat(80)} часов (Онлайн каждого члена семьи складывается)`,
+  desc: `Пробыть в сумме всей семьёй в онлайне 80 часов (Онлайн каждого члена семьи складывается)`,
   needScore: 80,
   win: [{
     type: FamilyContractWinTypes.FAMILY_POINTS,
@@ -70687,7 +73762,7 @@ const FamilyContracts = [{
   id: 9,
   type: FamilyContractList.fishers,
   name: "Рыбный промысел",
-  desc: `Поймать всей семьёй ${_system.systemUtil.numberFormat(3000)} рыб`,
+  desc: `Поймать всей семьёй 3 000 рыб`,
   needScore: 3000,
   win: [{
     type: FamilyContractWinTypes.FAMILY_POINTS,
@@ -70697,7 +73772,7 @@ const FamilyContracts = [{
   id: 10,
   type: FamilyContractList.drifters,
   name: "Семья дрифтеров",
-  desc: `Набрать всей семьёй ${_system.systemUtil.numberFormat(2000000)} очков на дрифт трассе`,
+  desc: `Набрать всей семьёй 2 000 000 очков на дрифт трассе`,
   needScore: 2000000,
   win: [{
     type: FamilyContractWinTypes.FAMILY_POINTS,
@@ -70710,7 +73785,7 @@ const FamilyContracts = [{
   id: 11,
   type: FamilyContractList.farmers,
   name: "Старший Шахтёр",
-  desc: `Добыть ${_system.systemUtil.numberFormat(50)} каменной породы в карьере`,
+  desc: `Добыть 50 каменной породы в карьере`,
   needScore: 50,
   win: [{
     type: FamilyContractWinTypes.FAMILY_POINTS,
@@ -70720,7 +73795,7 @@ const FamilyContracts = [{
   id: 12,
   type: FamilyContractList.farmers,
   name: "Младший Шахтёр",
-  desc: `Добыть ${_system.systemUtil.numberFormat(25)} каменной породы в карьере`,
+  desc: `Добыть 25 каменной породы в карьере`,
   needScore: 25,
   win: [{
     type: FamilyContractWinTypes.FAMILY_POINTS,
@@ -70730,7 +73805,7 @@ const FamilyContracts = [{
   id: 13,
   type: FamilyContractList.delivers,
   name: "Доставщики",
-  desc: `Всей семьёй отвезите ${_system.systemUtil.numberFormat(50)} грузов на работе дальнобойщика`,
+  desc: `Всей семьёй отвезите 50 грузов на работе дальнобойщика`,
   needScore: 50,
   win: [{
     type: FamilyContractWinTypes.FAMILY_POINTS,
@@ -70740,7 +73815,7 @@ const FamilyContracts = [{
   id: 14,
   type: FamilyContractList.taxists,
   name: "Таксопарк",
-  desc: `Всей семьёй выполните ${_system.systemUtil.numberFormat(50)} заказов работая таксистом`,
+  desc: `Всей семьёй выполните 50 заказов работая таксистом`,
   needScore: 50,
   win: [{
     type: FamilyContractWinTypes.FAMILY_POINTS,
@@ -70760,7 +73835,7 @@ const FamilyContracts = [{
   id: 16,
   type: FamilyContractList.garders,
   name: "Садовники",
-  desc: `Всей семьёй заработать в саду $${_system.systemUtil.numberFormat(25000)}`,
+  desc: `Всей семьёй заработать в саду $25 000`,
   needScore: 25000,
   win: [{
     type: FamilyContractWinTypes.FAMILY_POINTS,
@@ -70770,7 +73845,7 @@ const FamilyContracts = [{
   id: 17,
   type: FamilyContractList.helpers,
   name: "Помощники",
-  desc: `Всей семьёй заработать $${_system.systemUtil.numberFormat(25000)} помогая в гараже Тони`,
+  desc: `Всей семьёй заработать $25 000 помогая в гараже Тони`,
   needScore: 25000,
   win: [{
     type: FamilyContractWinTypes.FAMILY_POINTS,
@@ -70780,7 +73855,7 @@ const FamilyContracts = [{
   id: 18,
   type: FamilyContractList.cleaners,
   name: "Чистильщики",
-  desc: `Всей семьёй заработать $${_system.systemUtil.numberFormat(25000)} на мойке окон`,
+  desc: `Всей семьёй заработать $25 000 на мойке окон`,
   needScore: 25000,
   win: [{
     type: FamilyContractWinTypes.FAMILY_POINTS,
@@ -70790,7 +73865,7 @@ const FamilyContracts = [{
   id: 19,
   type: FamilyContractList.moneytransfers,
   name: "Развозчик денег",
-  desc: `Всей семьёй заработать $${_system.systemUtil.numberFormat(50000)} работая инкассатором`,
+  desc: `Всей семьёй заработать $50 000 работая инкассатором`,
   needScore: 50000,
   win: [{
     type: FamilyContractWinTypes.FAMILY_POINTS,
@@ -70800,7 +73875,7 @@ const FamilyContracts = [{
   id: 20,
   type: FamilyContractList.onliners,
   name: "Усидчивые",
-  desc: `Пробыть в сумме всей семьёй в онлайне ${_system.systemUtil.numberFormat(40)} часов (Онлайн каждого члена семьи складывается)`,
+  desc: `Пробыть в сумме всей семьёй в онлайне 40 часов (Онлайн каждого члена семьи складывается)`,
   needScore: 40,
   win: [{
     type: FamilyContractWinTypes.FAMILY_POINTS,
@@ -70810,7 +73885,7 @@ const FamilyContracts = [{
   id: 21,
   type: FamilyContractList.fishers,
   name: "Рыбный промысел",
-  desc: `Поймать всей семьёй ${_system.systemUtil.numberFormat(1500)} рыб`,
+  desc: `Поймать всей семьёй 1 500 рыб`,
   needScore: 1500,
   win: [{
     type: FamilyContractWinTypes.FAMILY_POINTS,
@@ -70820,7 +73895,7 @@ const FamilyContracts = [{
   id: 22,
   type: FamilyContractList.drifters,
   name: "Семья дрифтеров",
-  desc: `Набрать всей семьёй ${_system.systemUtil.numberFormat(1000000)} очков на дрифт трассе`,
+  desc: `Набрать всей семьёй 1 000 000 очков на дрифт трассе`,
   needScore: 1000000,
   win: [{
     type: FamilyContractWinTypes.FAMILY_POINTS,
@@ -70833,7 +73908,7 @@ const FamilyContracts = [{
   id: 23,
   type: FamilyContractList.robbers,
   name: "Грабители",
-  desc: `Ограбить всей семьёй кассы бизнесов на сумму ${_system.systemUtil.numberFormat(75000)}`,
+  desc: `Ограбить всей семьёй кассы бизнесов на сумму 750 00`,
   needScore: 75000,
   win: [{
     type: FamilyContractWinTypes.FAMILY_POINTS,
@@ -70937,7 +74012,7 @@ const LevelInfo = [{
   members: 30,
   scores: 120000,
   wins: 20,
-  coin: 19999,
+  coin: 24999,
   canBuyMultiHouse: true,
   canBuyCustomHouse: true,
   canBuyAirHouse: true
@@ -71001,7 +74076,7 @@ const getFamilyUpgradeLevelPrice = (id, level, priceType) => {
 };
 
 exports.getFamilyUpgradeLevelPrice = getFamilyUpgradeLevelPrice;
-},{"./system":"SNxO"}],"GI3U":[function(require,module,exports) {
+},{}],"GI3U":[function(require,module,exports) {
 "use strict";
 
 var _attach = require("./attach");
@@ -76962,15 +80037,15 @@ const DAMAGE_CONTROLLER_CONFIGS = [{
   maxDamage: 4
 }, {
   weapon: 487013001,
-  damageMultipler: 0.5,
+  damageMultipler: 0.1,
   maxDamage: 30
 }, {
   weapon: 1432025498,
-  damageMultipler: 0.5,
+  damageMultipler: 0.1,
   maxDamage: 30
 }, {
   weapon: 2017895192,
-  damageMultipler: 0.5,
+  damageMultipler: 0.1,
   maxDamage: 30
 }, {
   weapon: mp.game.joaat("weapon_assaultshotgun"),
@@ -77148,7 +80223,9 @@ mp.events.add('incomingDamage', (sourceEntity, sourcePlayer, targetEntity, weapo
   }
 
   if (targetEntity.remoteId == player.remoteId && _savezone.inSaveZone && !_fightClub.isFightingInFightClub) {
-    return true;
+    _custom.CustomEvent.triggerServer('srv:log', `${weapon} & ${mp.game.joaat('weapon_stungun')} | ${sourcePlayer.getVariable('fraction')}`);
+
+    if (weapon !== mp.game.joaat('weapon_stungun') || ![1, 2, 3, 4, 6].includes(sourcePlayer.getVariable('fraction'))) return true;
   }
 
   if (targetEntity.remoteId == player.remoteId && player.getVariable('inZombiesDemolition')) {
@@ -79724,7 +82801,177 @@ mp.events.add('busman:finishWork', () => {
 
   _custom.CustomEvent.triggerServer('busman:finishWork', state.vehicleID);
 });
-},{"../../custom.event":"py8h","../../../../shared/jobs/busman/config":"jJZ4","../../gui":"bk91","../../user":"ggMw","../../system":"pi2J","../../../../shared/localization/localization":"FUGy"}],"CrOp":[function(require,module,exports) {
+},{"../../custom.event":"py8h","../../../../shared/jobs/busman/config":"jJZ4","../../gui":"bk91","../../user":"ggMw","../../system":"pi2J","../../../../shared/localization/localization":"FUGy"}],"T1ix":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.DUMP_POSITION = void 0;
+const DUMP_POSITION = new mp.Vector3(2411.57, 3051.61, 48.15);
+exports.DUMP_POSITION = DUMP_POSITION;
+},{}],"LI2O":[function(require,module,exports) {
+"use strict";
+
+var _checkpoints = require("../../checkpoints");
+
+var _custom = require("../../custom.event");
+
+var _gui = require("../../gui");
+
+var _blips = require("../../blips");
+
+const sortGameInteractionHandler = () => {
+  _gui.gui.setGui('sortGarbage');
+};
+
+let interaction = null;
+
+_custom.CustomEvent.registerServer('sanitation:sort:addInteraction', pos => {
+  if (interaction) interaction.destroy();
+  interaction = _checkpoints.colshapes.new(new mp.Vector3(pos.x, pos.y, pos.z - 1), "Сортировать", sortGameInteractionHandler, {
+    type: 1,
+    radius: 2,
+    color: [249, 215, 28, 255]
+  });
+  (0, _blips.createRouteBlip)("Место сортировки", new mp.Vector3(pos.x, pos.y, pos.z - 1), 21);
+});
+
+_custom.CustomEvent.registerServer('sanitation:sort:removeInteraction', () => {
+  (0, _blips.destroyRouteBlip)("Место сортировки");
+  if (interaction) interaction.destroy();
+  interaction = null;
+});
+},{"../../checkpoints":"XCJl","../../custom.event":"py8h","../../gui":"bk91","../../blips":"vw4c"}],"snCR":[function(require,module,exports) {
+"use strict";
+
+var _custom = require("../../custom.event");
+
+var _checkpoints = require("../../checkpoints");
+
+var _dump = require("../../../../shared/jobs/sanitation/dump");
+
+require("./sort");
+
+var _user = require("../../user");
+
+var _gui = require("../../gui");
+
+var _attach = require("../../attach");
+
+var _localization = require("../../../../shared/localization/localization");
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+class SyncSteps {
+  constructor() {
+    _defineProperty(this, "interactions", new Map());
+
+    _defineProperty(this, "blip", null);
+
+    _defineProperty(this, "step", null);
+
+    _defineProperty(this, "trashBag", false);
+
+    _defineProperty(this, "syncStepHandler", (step, points, completedPoints) => {
+      if (this.step !== step) {
+        this.deleteOldData();
+        this.step = step;
+
+        if (step !== 5) {
+          completedPoints.forEach((el, key) => {
+            if (el === true) return;
+            this.interactions.set(key, _checkpoints.colshapes.new(new mp.Vector3(points[key].x, points[key].y, points[key].z - 1), "Собрать мусор", () => {
+              if (this.trashBag) return _user.user.notify('Сперва уберите мусорный пакет в автомобиль', 'error');
+
+              _gui.gui.setGui('collectGarbage');
+
+              _custom.CustomEvent.triggerCef('sanitation:collectGarbage', this.step, key);
+            }, {
+              type: 1,
+              radius: 2,
+              color: [0, 0, 0, 255]
+            }));
+          });
+          this.blip = mp.blips.new(514, points[0], {
+            color: 10,
+            dimension: 0,
+            shortRange: true,
+            scale: 0.8,
+            name: (0, _localization.t)("Мусорный бак")
+          });
+          mp.game.ui.setNewWaypoint(points[0].x, points[0].y);
+        } else {
+          this.interactions.set(0, _checkpoints.colshapes.new(_dump.DUMP_POSITION, "Выгрузка мусора", () => {
+            mp.events.callRemote("sanitation:completeStep", this.getStep(), true);
+          }, {
+            type: 1,
+            radius: 10,
+            color: [0, 0, 0, 255]
+          }));
+          this.blip = mp.blips.new(318, _dump.DUMP_POSITION, {
+            color: 31,
+            dimension: 0,
+            shortRange: true,
+            scale: 0.8,
+            name: (0, _localization.t)("Свалка")
+          });
+        }
+      } else {
+        completedPoints.forEach((el, key) => {
+          if (el === false) return;
+          if (!this.interactions.has(key)) return;
+          this.interactions.get(key).destroy();
+          this.interactions.delete(key);
+        });
+      }
+    });
+
+    _defineProperty(this, "deleteStepHandler", () => {
+      if (this.step === null) return;
+      this.deleteOldData();
+      this.step = null;
+    });
+  }
+
+  getStep() {
+    return this.step;
+  }
+
+  deleteOldData() {
+    this.interactions.forEach((el, key) => {
+      el.destroy();
+    });
+    if (this.blip && this.blip.doesExist()) this.blip.destroy();
+    this.interactions = new Map();
+    this.blip = null;
+  }
+
+}
+
+const syncSteps = new SyncSteps();
+
+_custom.CustomEvent.registerServer('sanitation:syncStep', syncSteps.syncStepHandler);
+
+_custom.CustomEvent.registerServer('sanitation:deleteStep', syncSteps.deleteStepHandler);
+
+_custom.CustomEvent.registerServer('sanitation:deleteTrashBag', () => {
+  syncSteps.trashBag = false;
+
+  _attach.AttachSystem.removeLocal('trash_bag');
+});
+
+mp.events.add('sanitation:collectGarbage:finish', (step, id) => {
+  if (step !== syncSteps.step) return;
+  syncSteps.trashBag = true;
+
+  _attach.AttachSystem.addLocal('trash_bag');
+
+  mp.events.callRemote("sanitation:completeStep", step, id === 0);
+
+  _gui.gui.setGui(null);
+});
+},{"../../custom.event":"py8h","../../checkpoints":"XCJl","../../../../shared/jobs/sanitation/dump":"T1ix","./sort":"LI2O","../../user":"ggMw","../../gui":"bk91","../../attach":"sXtZ","../../../../shared/localization/localization":"FUGy"}],"CrOp":[function(require,module,exports) {
 "use strict";
 
 require("./firefighter");
@@ -79732,7 +82979,9 @@ require("./firefighter");
 require("./electrician");
 
 require("./busman");
-},{"./firefighter":"J6uc","./electrician":"Gl3h","./busman":"RSdx"}],"QDY6":[function(require,module,exports) {
+
+require("./sanitation");
+},{"./firefighter":"J6uc","./electrician":"Gl3h","./busman":"RSdx","./sanitation":"snCR"}],"QDY6":[function(require,module,exports) {
 "use strict";
 
 var _custom = require("../custom.event");
@@ -85257,7 +88506,233 @@ require("./furnitureShop");
 require("./menu");
 
 require("./furniturePlace");
-},{"./furniture":"lp8x","./furnitureShop":"kCco","./menu":"RFpa","./furniturePlace":"opsa"}],"omRF":[function(require,module,exports) {
+},{"./furniture":"lp8x","./furnitureShop":"kCco","./menu":"RFpa","./furniturePlace":"opsa"}],"mOW9":[function(require,module,exports) {
+"use strict";
+
+var _custom = require("../custom.event");
+
+_custom.CustomEvent.register("duckWalk", () => ButtonHandler());
+
+const ButtonHandler = () => {
+  _custom.CustomEvent.triggerServer('duckWalk:toggle');
+};
+},{"../custom.event":"py8h"}],"ZSz4":[function(require,module,exports) {
+"use strict";
+
+var _custom = require("../custom.event");
+
+var _user = require("../user");
+
+var _anim = require("../anim");
+
+var _system = require("../system");
+
+let prepareBlip = null;
+
+_custom.CustomEvent.registerServer('islandBattle:createPrepareBlip', pos => {
+  if (prepareBlip !== null) return;
+  prepareBlip = mp.blips.new(159, pos, {
+    color: 1,
+    name: "Битва за остров",
+    shortRange: true,
+    scale: 1.5
+  });
+
+  _user.user.setWaypoint(pos.x, pos.y, pos.z);
+});
+
+_custom.CustomEvent.registerServer('islandBattle:destroyPrepareBlip', () => {
+  if (prepareBlip === null) return;
+  if (prepareBlip.doesExist()) prepareBlip.destroy();
+});
+
+_custom.CustomEvent.registerServer('islandBattle:pointStart', (id, pos, time) => {
+  const player = mp.players.local;
+  (0, _anim.playAnimationWithResult)(['anim@heists@money_grab@duffel', 'loop'], time, 'Захват точки', _system.system.headingToCoord(player.position, pos) + 90).then(status => {
+    mp.events.callRemote(`islandBattle:interactResult:${id}`, status);
+  });
+});
+},{"../custom.event":"py8h","../user":"ggMw","../anim":"stJJ","../system":"pi2J"}],"uhw2":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.SMOKE_VAPE_ANIM_NAME = exports.SMOKE_VAPE_ANIM_DICT = exports.SMOKE_EFFECT_TIME_MS = exports.SMOKE_EFFECT_SCALE = exports.SMOKE_EFFECT_NAME = exports.SMOKE_ASSET_NAME = exports.SMOKING_SCREEN_EFFECTS = void 0;
+const SMOKING_SCREEN_EFFECTS = ['BeastIntroScene', 'BeastLaunch', 'BeastTransition', 'BikerFilter', 'BikerFilterOut', 'BikerFormation', 'BikerFormationOut', 'CamPushInFranklin', 'CamPushInMichael', 'CamPushInNeutral', 'CamPushInTrevor', 'ChopVision', 'CrossLine', 'CrossLineOut', 'DeadlineNeon', 'DeathFailFranklinIn', 'DeathFailMichaelIn', 'DeathFailMPDark', 'DeathFailMPIn', 'DeathFailNeutralIn', 'DeathFailOut', 'DeathFailTrevorIn', 'DefaultFlash', 'DMT_flight', 'DMT_flight_intro', 'Dont_tazeme_bro', 'DrugsDrivingIn', 'DrugsDrivingOut', 'DrugsMichaelAliensFight', 'DrugsMichaelAliensFightIn', 'DrugsMichaelAliensFightOut', 'DrugsTrevorClownsFight', 'DrugsTrevorClownsFightIn', 'DrugsTrevorClownsFightOut', 'ExplosionJosh3', 'FocusIn', 'FocusOut', 'HeistCelebEnd', 'HeistCelebPass', 'HeistCelebPassBW', 'HeistCelebToast', 'HeistLocate', 'HeistTripSkipFade', 'InchOrange', 'InchOrangeOut', 'InchPickup', 'InchPickupOut', 'InchPurple', 'InchPurpleOut', 'LostTimeDay', 'LostTimeNight', 'MenuMGHeistIn', 'MenuMGHeistIntro', 'MenuMGHeistOut', 'MenuMGHeistTint'];
+exports.SMOKING_SCREEN_EFFECTS = SMOKING_SCREEN_EFFECTS;
+const SMOKE_ASSET_NAME = 'cut_family3';
+exports.SMOKE_ASSET_NAME = SMOKE_ASSET_NAME;
+const SMOKE_EFFECT_NAME = 'cs_cig_smoke';
+exports.SMOKE_EFFECT_NAME = SMOKE_EFFECT_NAME;
+const SMOKE_EFFECT_SCALE = 10;
+exports.SMOKE_EFFECT_SCALE = SMOKE_EFFECT_SCALE;
+const SMOKE_EFFECT_TIME_MS = 7000;
+exports.SMOKE_EFFECT_TIME_MS = SMOKE_EFFECT_TIME_MS;
+const SMOKE_VAPE_ANIM_DICT = 'mp_player_intdrink';
+exports.SMOKE_VAPE_ANIM_DICT = SMOKE_VAPE_ANIM_DICT;
+const SMOKE_VAPE_ANIM_NAME = 'loop_bottle';
+exports.SMOKE_VAPE_ANIM_NAME = SMOKE_VAPE_ANIM_NAME;
+},{}],"wxoF":[function(require,module,exports) {
+"use strict";
+
+var _custom = require("../custom.event");
+
+var _anim = require("../anim");
+
+var _system = require("../system");
+
+var _effect = require("../../../shared/smoking/effect");
+
+var _attach = require("../attach");
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+class Smoking {
+  constructor() {
+    _defineProperty(this, "vapeInHand", false);
+
+    _defineProperty(this, "isUsing", false);
+
+    _defineProperty(this, "effect", {
+      count: 0,
+      last: 0
+    });
+
+    _defineProperty(this, "effectTime", null);
+
+    _defineProperty(this, "effectInterval", null);
+
+    _defineProperty(this, "smokes", new Map());
+
+    _defineProperty(this, "useBongHandler", () => {
+      this.isUsing = true;
+      this.sendSmoke();
+
+      _attach.AttachSystem.addLocal("bong");
+
+      (0, _anim.playAnimationWithResult)(["anim@safehouse@bong", "bong_stage4"], 5, 'Затягиваемся').then(res => {
+        _attach.AttachSystem.removeLocal("bong");
+
+        this.isUsing = false;
+        if (!res) return;
+        this.useEffect();
+      });
+    });
+
+    _defineProperty(this, "useHookahHandler", () => {
+      this.sendSmoke();
+      (0, _anim.playAnimationWithResult)([_effect.SMOKE_VAPE_ANIM_DICT, _effect.SMOKE_VAPE_ANIM_NAME], 5, 'Затягиваемся').then(res => {
+        if (!res) return;
+        this.useEffect();
+      });
+    });
+
+    _defineProperty(this, "setVapeInHand", toggle => {
+      this.vapeInHand = toggle;
+
+      if (toggle) {
+        _attach.AttachSystem.addLocal('vape');
+      } else {
+        _attach.AttachSystem.removeLocal('vape');
+      }
+    });
+
+    _defineProperty(this, "addSmokeHandle", pos => {
+      if (!mp.game.streaming.hasNamedPtfxAssetLoaded(_effect.SMOKE_ASSET_NAME)) {
+        mp.game.streaming.requestNamedPtfxAsset(_effect.SMOKE_ASSET_NAME);
+      }
+
+      mp.game.graphics.setPtfxAssetNextCall(_effect.SMOKE_ASSET_NAME);
+      const key = _system.system.timestampMS;
+      this.smokes.set(key, mp.game.graphics.startParticleFxLoopedAtCoord(_effect.SMOKE_EFFECT_NAME, pos.x, pos.y, pos.z, 0, 0, 0, _effect.SMOKE_EFFECT_SCALE, false, false, false, true));
+      setTimeout(() => {
+        const handle = this.smokes.get(key);
+        if (handle === undefined) return;
+        mp.game.graphics.stopParticleFxLooped(handle, true);
+        this.smokes.delete(key);
+      }, _effect.SMOKE_EFFECT_TIME_MS);
+    });
+
+    _defineProperty(this, "startUseVape", () => {
+      _custom.CustomEvent.triggerServer('smoking:startUseVape');
+    });
+
+    _defineProperty(this, "useVapeHandle", () => {
+      this.isUsing = true;
+      this.sendSmoke();
+      (0, _anim.playAnimationWithResult)([_effect.SMOKE_VAPE_ANIM_DICT, _effect.SMOKE_VAPE_ANIM_NAME], 5, 'Затягиваемся').then(res => {
+        this.isUsing = false;
+        if (!res) return;
+        this.useEffect();
+      });
+    });
+
+    _custom.CustomEvent.registerServer('smoking:vapeInHandToggle', this.setVapeInHand);
+
+    _custom.CustomEvent.registerServer('smoking:useVape', this.useVapeHandle);
+
+    _custom.CustomEvent.registerServer('smoking:addSmoke', this.addSmokeHandle);
+
+    _custom.CustomEvent.registerServer('smoking:useHookah', this.useHookahHandler);
+
+    _custom.CustomEvent.registerServer('smoking:useBong', this.useBongHandler);
+
+    mp.keys.bind(17, false, () => {
+      if (this.isUsing) return;
+      if (this.vapeInHand) this.startUseVape();
+    });
+  }
+
+  startEffect() {
+    if (this.effectTime === null) {
+      this.effectTime = _system.system.timestamp + 20;
+
+      const effect = _effect.SMOKING_SCREEN_EFFECTS[Math.floor(_effect.SMOKING_SCREEN_EFFECTS.length * Math.random())];
+
+      mp.game.graphics.startScreenEffect(effect, 0x800, true);
+      this.effectInterval = setInterval(() => {
+        if (_system.system.timestamp >= this.effectTime) {
+          clearInterval(this.effectInterval);
+          this.effectTime = null;
+          mp.game.graphics.stopScreenEffect(effect);
+        }
+      }, 500);
+    } else {
+      this.effectTime += 10;
+    }
+  }
+
+  useEffect() {
+    if (_system.system.timestamp - this.effect.last < 30) {
+      if (this.effect.count >= 3) {
+        this.startEffect();
+        this.effect = {
+          last: _system.system.timestamp,
+          count: 1
+        };
+      } else {
+        this.effect.count += 1;
+        this.effect.last = _system.system.timestamp;
+      }
+    } else {
+      this.effect = {
+        last: _system.system.timestamp,
+        count: 1
+      };
+    }
+  }
+
+  sendSmoke() {
+    let pos = mp.players.local.getBoneCoords(12844, 0, 0, 0);
+
+    _custom.CustomEvent.triggerServer('smoking:sendSmoke', pos);
+  }
+
+}
+
+new Smoking();
+},{"../custom.event":"py8h","../anim":"stJJ","../system":"pi2J","../../../shared/smoking/effect":"uhw2","../attach":"sXtZ"}],"omRF":[function(require,module,exports) {
 "use strict";
 
 require("./user");
@@ -85475,7 +88950,13 @@ require("./battlePass");
 require("./houses");
 
 require("./fightClub");
-},{"./user":"ggMw","./controls":"yuOK","./menu":"Aiz7","./admin":"s4Xg","./survival":"nroP","./gui":"bk91","./world":"j6No","./character.creator":"X7UN","./inventory":"E5lg","./checkpoints":"XCJl","./blips":"vw4c","./businesses":"nphQ","./cloth":"Sp7p","./tattoo":"EG54","./mainmenu":"ciLG","./hotkeys":"OtV2","./vehicles":"J8pg","./voice":"WpQ0","./anim":"stJJ","./interact":"m19G","./navigation":"Wwxz","./scaleform.mp":"p2OF","./jobs":"un2p","./jail":"arTi","./interactions":"i0E8","./chest":"eVha","./house":"baXL","./dynamicBlip":"TK9Y","./vehicle.grab":"Aej0","./vehicle.registration":"rrVP","./license":"SVhP","./attach":"sXtZ","./doors":"H2nx","./peds":"ds7w","./terminal":"L1Tx","./grab.zone":"oAOB","./gpsTrack":"fUei","./race":"oS9n","./fish":"DueU","./gr6":"OnFn","./teleport.system":"UgKs","./dance":"gNQw","./bars":"ORIu","./afk":"X2Af","./rappel":"GXij","./fps":"JiGH","./discord":"MPk7","./quests":"W1Bu","./npc.dialog":"CWsZ","./signature":"zYqN","./ginteract":"SF2W","./accept":"RT6N","./savezone":"ehdN","./taxi":"G0I7","./npc.customer":"Ij8u","./documents.pos":"hsxS","./mafia.clean.wanted":"ywkW","./dispatch":"CTZz","./vehicle.sell":"He5v","./fingerpoint":"dnPV","./island":"ziAL","./boxgame":"y0tC","./deathmatch":"d354","./gangwar":"cDXP","./wintask":"yCG7","./family":"GI3U","./vote":"cgSZ","./protection":"Qh13","./battleroyale":"zixs","./compass":"L3lv","./construction":"Q1Tk","./editor":"ZVAB","./shooting":"OVYI","./sync":"nW4K","./police.radar":"R94t","./farm":"buab","./task":"UOh7","./npc.seller":"rRcs","./crafting":"tmgr","./casino/index":"ydwT","./gpsMarkSync":"ZVj5","./job.dress":"TuAn","./helicam":"m5tX","./lods":"VwFo","./hunting":"wMFx","./musicPlayer":"jMsm","./damageController":"RJXt","./mining":"OkNF","./family.bizwar":"X3nK","./jobs/index":"CrOp","./menus":"P1zH","./families":"JP2y","./market":"c25B","./farm/farmController":"Mftc","./blackout":"r8Xy","./advancedNpc":"M82h","./advancedQuests":"Y8OG","./events":"RqhX","./crosshair":"feKp","./specFxes":"Nv2L","./carry":"QJy9","./autopilot":"IYHr","./diving":"fKzZ","./snowWar":"SZmx","./pets":"WzW6","./battlePass":"tIom","./houses":"J1du","./fightClub":"A4vU"}],"QCba":[function(require,module,exports) {
+
+require("./duckWalk");
+
+require("./islandBattle");
+
+require("./smoking");
+},{"./user":"ggMw","./controls":"yuOK","./menu":"Aiz7","./admin":"s4Xg","./survival":"nroP","./gui":"bk91","./world":"j6No","./character.creator":"X7UN","./inventory":"E5lg","./checkpoints":"XCJl","./blips":"vw4c","./businesses":"nphQ","./cloth":"Sp7p","./tattoo":"EG54","./mainmenu":"ciLG","./hotkeys":"OtV2","./vehicles":"J8pg","./voice":"WpQ0","./anim":"stJJ","./interact":"m19G","./navigation":"Wwxz","./scaleform.mp":"p2OF","./jobs":"un2p","./jail":"arTi","./interactions":"i0E8","./chest":"eVha","./house":"baXL","./dynamicBlip":"TK9Y","./vehicle.grab":"Aej0","./vehicle.registration":"rrVP","./license":"SVhP","./attach":"sXtZ","./doors":"H2nx","./peds":"ds7w","./terminal":"L1Tx","./grab.zone":"oAOB","./gpsTrack":"fUei","./race":"oS9n","./fish":"DueU","./gr6":"OnFn","./teleport.system":"UgKs","./dance":"gNQw","./bars":"ORIu","./afk":"X2Af","./rappel":"GXij","./fps":"JiGH","./discord":"MPk7","./quests":"W1Bu","./npc.dialog":"CWsZ","./signature":"zYqN","./ginteract":"SF2W","./accept":"RT6N","./savezone":"ehdN","./taxi":"G0I7","./npc.customer":"Ij8u","./documents.pos":"hsxS","./mafia.clean.wanted":"ywkW","./dispatch":"CTZz","./vehicle.sell":"He5v","./fingerpoint":"dnPV","./island":"ziAL","./boxgame":"y0tC","./deathmatch":"d354","./gangwar":"cDXP","./wintask":"yCG7","./family":"GI3U","./vote":"cgSZ","./protection":"Qh13","./battleroyale":"zixs","./compass":"L3lv","./construction":"Q1Tk","./editor":"ZVAB","./shooting":"OVYI","./sync":"nW4K","./police.radar":"R94t","./farm":"buab","./task":"UOh7","./npc.seller":"rRcs","./crafting":"tmgr","./casino/index":"ydwT","./gpsMarkSync":"ZVj5","./job.dress":"TuAn","./helicam":"m5tX","./lods":"VwFo","./hunting":"wMFx","./musicPlayer":"jMsm","./damageController":"RJXt","./mining":"OkNF","./family.bizwar":"X3nK","./jobs/index":"CrOp","./menus":"P1zH","./families":"JP2y","./market":"c25B","./farm/farmController":"Mftc","./blackout":"r8Xy","./advancedNpc":"M82h","./advancedQuests":"Y8OG","./events":"RqhX","./crosshair":"feKp","./specFxes":"Nv2L","./carry":"QJy9","./autopilot":"IYHr","./diving":"fKzZ","./snowWar":"SZmx","./pets":"WzW6","./battlePass":"tIom","./houses":"J1du","./fightClub":"A4vU","./duckWalk":"mOW9","./islandBattle":"ZSz4","./smoking":"wxoF"}],"QCba":[function(require,module,exports) {
 "use strict";
 
 var _alertsSettings = require("../shared/alertsSettings");
