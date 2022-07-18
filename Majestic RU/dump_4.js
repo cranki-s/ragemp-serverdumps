@@ -14432,10 +14432,9 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
                     return l % 10 >= 1 && l % 10 <= 4 && (l % 100 < 10 || l % 100 >= 20) ? l % 10 == 1 ? n[0] : n[1] : n[2];
                 },
                 translate: function(l, e, u, a) {
-                    var i = n.words[u];
-                    if (1 === u.length) return "y" === u && e ? "једна година" : a || e ? i[0] : i[1];
-                    const r = n.correctGrammaticalCase(l, i);
-                    return "yy" === u && e && "годину" === r ? l + " година" : l + " " + r;
+                    var i, r = n.words[u];
+                    return 1 === u.length ? "y" === u && e ? "једна година" : a || e ? r[0] : r[1] : (i = n.correctGrammaticalCase(l, r), 
+                    "yy" === u && e && "годину" === i ? l + " година" : l + " " + i);
                 }
             };
             l.defineLocale("sr-cyrl", {
@@ -14527,10 +14526,9 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
                     return l % 10 >= 1 && l % 10 <= 4 && (l % 100 < 10 || l % 100 >= 20) ? l % 10 == 1 ? n[0] : n[1] : n[2];
                 },
                 translate: function(l, e, u, a) {
-                    var i = n.words[u];
-                    if (1 === u.length) return "y" === u && e ? "jedna godina" : a || e ? i[0] : i[1];
-                    const r = n.correctGrammaticalCase(l, i);
-                    return "yy" === u && e && "godinu" === r ? l + " godina" : l + " " + r;
+                    var i, r = n.words[u];
+                    return 1 === u.length ? "y" === u && e ? "jedna godina" : a || e ? r[0] : r[1] : (i = n.correctGrammaticalCase(l, r), 
+                    "yy" === u && e && "godinu" === i ? l + " godina" : l + " " + i);
                 }
             };
             l.defineLocale("sr", {
@@ -18287,7 +18285,7 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
                 e._d = new Date(1e3 * parseFloat(l));
             })), xl("x", (function(l, n, e) {
                 e._d = new Date(sl(l));
-            })), a.version = "2.29.2", i(Ve), a.fn = oi, a.min = lu, a.max = nu, a.now = eu, 
+            })), a.version = "2.29.3", i(Ve), a.fn = oi, a.min = lu, a.max = nu, a.now = eu, 
             a.utc = p, a.unix = ci, a.months = bi, a.isDate = M, a.locale = _e, a.invalid = A, 
             a.duration = Cu, a.isMoment = T, a.weekdays = Ai, a.parseZone = si, a.localeData = Ae, 
             a.isDuration = du, a.monthsShort = hi, a.weekdaysMin = gi, a.defineLocale = be, 
@@ -18306,7 +18304,8 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
             }, a;
         }();
     },
-    48038: function(l) {
+    48038: function(l, n, e) {
+        var u = e(90573);
         "undefined" != typeof self && self, l.exports = function(l) {
             var n = {};
             function e(u) {
@@ -18352,55 +18351,55 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
             }, e.p = "", e(e.s = 1);
         }([ function(l, n, e) {
             "use strict";
-            var u;
-            function a(l, n) {
-                const e = "client" === r();
+            var a;
+            function i(l, n) {
+                const e = "client" === t();
                 if (l && "object" == typeof l && void 0 !== l.id) {
-                    const a = (n, u, a) => e ? l.type === n && u.at(l.id) === l : l instanceof a;
+                    const i = (n, u, a) => e ? l.type === n && u.at(l.id) === l : l instanceof a;
                     switch (n) {
-                      case u.Blip:
-                        return a("blip", mp.blips, mp.Blip);
+                      case a.Blip:
+                        return i("blip", u.blips, u.Blip);
 
-                      case u.Checkpoint:
-                        return a("checkpoint", mp.checkpoints, mp.Checkpoint);
+                      case a.Checkpoint:
+                        return i("checkpoint", u.checkpoints, u.Checkpoint);
 
-                      case u.Colshape:
-                        return a("colshape", mp.colshapes, mp.Colshape);
+                      case a.Colshape:
+                        return i("colshape", u.colshapes, u.Colshape);
 
-                      case u.Label:
-                        return a("textlabel", mp.labels, mp.TextLabel);
+                      case a.Label:
+                        return i("textlabel", u.labels, u.TextLabel);
 
-                      case u.Marker:
-                        return a("marker", mp.markers, mp.Marker);
+                      case a.Marker:
+                        return i("marker", u.markers, u.Marker);
 
-                      case u.Object:
-                        return a("object", mp.objects, mp.Object);
+                      case a.Object:
+                        return i("object", u.objects, u.Object);
 
-                      case u.Pickup:
-                        return a("pickup", mp.pickups, mp.Pickup);
+                      case a.Pickup:
+                        return i("pickup", u.pickups, u.Pickup);
 
-                      case u.Player:
-                        return a("player", mp.players, mp.Player);
+                      case a.Player:
+                        return i("player", u.players, u.Player);
 
-                      case u.Vehicle:
-                        return a("vehicle", mp.vehicles, mp.Vehicle);
+                      case a.Vehicle:
+                        return i("vehicle", u.vehicles, u.Vehicle);
                     }
                 }
                 return !1;
             }
-            function i() {
+            function r() {
                 const l = 46656 * Math.random() | 0, n = 46656 * Math.random() | 0;
                 return ("000" + l.toString(36)).slice(-3) + ("000" + n.toString(36)).slice(-3);
             }
-            function r() {
-                return mp.joaat ? "server" : mp.game && mp.game.joaat ? "client" : mp.trigger ? "cef" : void 0;
+            function t() {
+                return u.joaat ? "server" : u.game && u.game.joaat ? "client" : u.trigger ? "cef" : void 0;
             }
-            function t(l) {
-                const n = r();
+            function d(l) {
+                const n = t();
                 return JSON.stringify(l, ((l, e) => {
                     if ("client" === n || "server" === n && e && "object" == typeof e) {
                         let l;
-                        if (a(e, u.Blip) ? l = u.Blip : a(e, u.Checkpoint) ? l = u.Checkpoint : a(e, u.Colshape) ? l = u.Colshape : a(e, u.Marker) ? l = u.Marker : a(e, u.Object) ? l = u.Object : a(e, u.Pickup) ? l = u.Pickup : a(e, u.Player) ? l = u.Player : a(e, u.Vehicle) && (l = u.Vehicle), 
+                        if (i(e, a.Blip) ? l = a.Blip : i(e, a.Checkpoint) ? l = a.Checkpoint : i(e, a.Colshape) ? l = a.Colshape : i(e, a.Marker) ? l = a.Marker : i(e, a.Object) ? l = a.Object : i(e, a.Pickup) ? l = a.Pickup : i(e, a.Player) ? l = a.Player : i(e, a.Vehicle) && (l = a.Vehicle), 
                         l) return {
                             __t: l,
                             i: "number" == typeof e.remoteId ? e.remoteId : e.id
@@ -18409,59 +18408,59 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
                     return e;
                 }));
             }
-            function d(l) {
-                const n = r();
+            function o(l) {
+                const n = t();
                 return JSON.parse(l, ((l, e) => {
                     if (("client" === n || "server" === n) && e && "object" == typeof e && "string" == typeof e.__t && "number" == typeof e.i && 2 === Object.keys(e).length) {
                         const l = e.i;
-                        let a;
+                        let i;
                         switch (e.__t) {
-                          case u.Blip:
-                            a = mp.blips;
+                          case a.Blip:
+                            i = u.blips;
                             break;
 
-                          case u.Checkpoint:
-                            a = mp.checkpoints;
+                          case a.Checkpoint:
+                            i = u.checkpoints;
                             break;
 
-                          case u.Colshape:
-                            a = mp.colshapes;
+                          case a.Colshape:
+                            i = u.colshapes;
                             break;
 
-                          case u.Label:
-                            a = mp.labels;
+                          case a.Label:
+                            i = u.labels;
                             break;
 
-                          case u.Marker:
-                            a = mp.markers;
+                          case a.Marker:
+                            i = u.markers;
                             break;
 
-                          case u.Object:
-                            a = mp.objects;
+                          case a.Object:
+                            i = u.objects;
                             break;
 
-                          case u.Pickup:
-                            a = mp.pickups;
+                          case a.Pickup:
+                            i = u.pickups;
                             break;
 
-                          case u.Player:
-                            a = mp.players;
+                          case a.Player:
+                            i = u.players;
                             break;
 
-                          case u.Vehicle:
-                            a = mp.vehicles;
+                          case a.Vehicle:
+                            i = u.vehicles;
                         }
-                        if (a) return a["client" === n ? "atRemoteId" : "at"](l);
+                        if (i) return i["client" === n ? "atRemoteId" : "at"](l);
                     }
                     return e;
                 }));
             }
-            function o(l, n) {
+            function c(l, n) {
                 return "number" == typeof n ? Promise.race([ new Promise(((l, e) => {
                     setTimeout((() => e("TIMEOUT")), n);
                 })), l ]) : l;
             }
-            function c(l) {
+            function s(l) {
                 try {
                     l.url;
                 } catch (l) {
@@ -18470,246 +18469,246 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
                 return !0;
             }
             e.d(n, "f", (function() {
-                return i;
-            })), e.d(n, "a", (function() {
                 return r;
-            })), e.d(n, "e", (function() {
+            })), e.d(n, "a", (function() {
                 return t;
-            })), e.d(n, "c", (function() {
+            })), e.d(n, "e", (function() {
                 return d;
-            })), e.d(n, "d", (function() {
+            })), e.d(n, "c", (function() {
                 return o;
-            })), e.d(n, "b", (function() {
+            })), e.d(n, "d", (function() {
                 return c;
+            })), e.d(n, "b", (function() {
+                return s;
             })), function(l) {
                 l.Blip = "b", l.Checkpoint = "cp", l.Colshape = "c", l.Label = "l", l.Marker = "m", 
                 l.Object = "o", l.Pickup = "p", l.Player = "pl", l.Vehicle = "v";
-            }(u || (u = {}));
+            }(a || (a = {}));
         }, function(l, n, e) {
             "use strict";
             e.r(n), function(l) {
                 e.d(n, "register", (function() {
-                    return p;
-                })), e.d(n, "unregister", (function() {
-                    return _;
-                })), e.d(n, "call", (function() {
-                    return b;
-                })), e.d(n, "callServer", (function() {
                     return A;
-                })), e.d(n, "callClient", (function() {
+                })), e.d(n, "unregister", (function() {
+                    return L;
+                })), e.d(n, "call", (function() {
                     return g;
-                })), e.d(n, "callBrowsers", (function() {
-                    return T;
-                })), e.d(n, "callBrowser", (function() {
+                })), e.d(n, "callServer", (function() {
+                    return z;
+                })), e.d(n, "callClient", (function() {
                     return S;
-                })), e.d(n, "on", (function() {
-                    return v;
-                })), e.d(n, "off", (function() {
+                })), e.d(n, "callBrowsers", (function() {
                     return D;
-                })), e.d(n, "trigger", (function() {
+                })), e.d(n, "callBrowser", (function() {
                     return C;
-                })), e.d(n, "triggerClient", (function() {
-                    return O;
-                })), e.d(n, "triggerServer", (function() {
+                })), e.d(n, "on", (function() {
                     return Y;
-                })), e.d(n, "triggerBrowsers", (function() {
+                })), e.d(n, "off", (function() {
                     return w;
-                })), e.d(n, "triggerBrowser", (function() {
+                })), e.d(n, "trigger", (function() {
                     return N;
+                })), e.d(n, "triggerClient", (function() {
+                    return B;
+                })), e.d(n, "triggerServer", (function() {
+                    return W;
+                })), e.d(n, "triggerBrowsers", (function() {
+                    return q;
+                })), e.d(n, "triggerBrowser", (function() {
+                    return P;
                 }));
-                var u = e(0);
-                const a = u.a();
-                if (!a) throw "Unknown RAGE environment";
-                const i = "PROCEDURE_NOT_FOUND", r = "__rpc:id", t = "__rpc:process", d = "__rpc:browserRegister", o = "__rpc:browserUnregister", c = "__rpc:triggerEvent", s = "__rpc:triggerEventBrowsers", M = "cef" === a ? window : l;
-                if (!M[t]) {
-                    if (M.__rpcListeners = {}, M.__rpcPending = {}, M.__rpcEvListeners = {}, M[t] = (l, n) => {
-                        "server" !== a && (n = l);
-                        const e = u.c(n);
-                        if (e.req) {
-                            const n = {
-                                id: e.id,
-                                environment: e.fenv || e.env
+                var a = e(0);
+                const i = a.a();
+                if (!i) throw "Unknown RAGE environment";
+                const r = "PROCEDURE_NOT_FOUND1", t = "PROCEDURE_NOT_FOUND2", d = "PROCEDURE_NOT_FOUND3", o = "PROCEDURE_NOT_FOUND4", c = "__rpc:id", s = "__rpc:process", M = "__rpc:browserRegister", m = "__rpc:browserUnregister", f = "__rpc:triggerEvent", p = "__rpc:triggerEventBrowsers", _ = "cef" === i ? window : l;
+                if (!_[s]) {
+                    if (_.__rpcListeners = {}, _.__rpcPending = {}, _.__rpcEvListeners = {}, _[s] = (n, e) => {
+                        "server" !== i && (e = n);
+                        const r = a.c(e);
+                        if (r.req) {
+                            const e = {
+                                id: r.id,
+                                environment: r.fenv || r.env
                             };
-                            "server" === a && (n.player = l);
-                            const i = {
+                            "server" === i && (e.player = n);
+                            const t = {
                                 ret: 1,
-                                id: e.id,
-                                env: a
+                                id: r.id,
+                                env: i
                             };
-                            let r;
-                            switch (a) {
+                            let d;
+                            switch (i) {
                               case "server":
-                                r = l => n.player.call(t, [ u.e(l) ]);
+                                d = l => e.player.call(s, [ a.e(l) ]);
                                 break;
 
                               case "client":
-                                if ("server" === e.env) r = l => mp.events.callRemote(t, u.e(l)); else if ("cef" === e.env) {
-                                    const l = e.b && M.__rpcBrowsers[e.b];
-                                    n.browser = l, r = n => l && u.b(l) && m(l, n, !0);
+                                if ("server" === r.env) d = n => l.secureEvents ? u.events.call("__handle_rpc_proc", a.e(n)) : u.events.callRemote(s, a.e(n)); else if ("cef" === r.env) {
+                                    const l = r.b && _.__rpcBrowsers[r.b];
+                                    e.browser = l, d = n => l && a.b(l) && b(l, n, !0);
                                 }
                                 break;
 
                               case "cef":
-                                r = l => mp.trigger(t, u.e(l));
+                                d = l => u.trigger(s, a.e(l));
                             }
-                            if (r) {
-                                const l = f(e.name, e.args, n);
-                                e.noRet || l.then((l => r({
-                                    ...i,
+                            if (d) {
+                                const l = h(r.name, r.args, e);
+                                r.noRet || l.then((l => d({
+                                    ...t,
                                     res: l
-                                }))).catch((l => r({
-                                    ...i,
+                                }))).catch((l => d({
+                                    ...t,
                                     err: l || null
                                 })));
                             }
-                        } else if (e.ret) {
-                            const n = M.__rpcPending[e.id];
-                            if ("server" === a && n.player !== l) return;
-                            n && (n.resolve(e.hasOwnProperty("err") ? Promise.reject(e.err) : Promise.resolve(e.res)), 
-                            delete M.__rpcPending[e.id]);
+                        } else if (r.ret) {
+                            const l = _.__rpcPending[r.id];
+                            if ("server" === i && l.player !== n) return;
+                            l && (l.resolve(r.hasOwnProperty("err") ? Promise.reject(r.err) : Promise.resolve(r.res)), 
+                            delete _.__rpcPending[r.id]);
                         }
-                    }, "cef" !== a) {
-                        if (mp.events.add(t, M[t]), "client" === a) {
-                            p("__rpc:callServer", (([l, n, e], u) => h(l, n, {
+                    }, "cef" !== i) {
+                        if (u.events.add(s, _[s]), "client" === i) {
+                            A("__rpc:callServer", (([l, n, e], u) => y(l, n, {
                                 fenv: u.environment,
                                 noRet: e
-                            }))), p("__rpc:callBrowsers", (([l, n, e], u) => z(null, l, n, {
+                            }))), A("__rpc:callBrowsers", (([l, n, e], u) => v(null, l, n, {
                                 fenv: u.environment,
                                 noRet: e
-                            }))), M.__rpcBrowsers = {};
+                            }))), _.__rpcBrowsers = {};
                             const l = l => {
-                                const n = u.f();
-                                Object.keys(M.__rpcBrowsers).forEach((n => {
-                                    const e = M.__rpcBrowsers[n];
-                                    e && u.b(e) && e !== l || delete M.__rpcBrowsers[n];
-                                })), M.__rpcBrowsers[n] = l, l.execute(`\n                    window.name = '${n}';\n                    if(typeof window['${r}'] === 'undefined'){\n                        window['${r}'] = Promise.resolve(window.name);\n                    }else{\n                        window['${r}:resolve'](window.name);\n                    }\n                `);
+                                const n = a.f();
+                                Object.keys(_.__rpcBrowsers).forEach((n => {
+                                    const e = _.__rpcBrowsers[n];
+                                    e && a.b(e) && e !== l || delete _.__rpcBrowsers[n];
+                                })), _.__rpcBrowsers[n] = l, l.execute(`\n                    window.name = '${n}';\n                    if(typeof window['${c}'] === 'undefined'){\n                        window['${c}'] = Promise.resolve(window.name);\n                    }else{\n                        window['${c}:resolve'](window.name);\n                    }\n                `);
                             };
-                            mp.browsers.forEach(l), mp.events.add("browserCreated", l), M.__rpcBrowserProcedures = {}, 
-                            mp.events.add(d, (l => {
+                            u.browsers.forEach(l), u.events.add("browserCreated", l), _.__rpcBrowserProcedures = {}, 
+                            u.events.add(M, (l => {
                                 const [n, e] = JSON.parse(l);
-                                M.__rpcBrowserProcedures[e] = n;
-                            })), mp.events.add(o, (l => {
+                                _.__rpcBrowserProcedures[e] = n;
+                            })), u.events.add(m, (l => {
                                 const [n, e] = JSON.parse(l);
-                                M.__rpcBrowserProcedures[e] === n && delete M.__rpcBrowserProcedures[e];
-                            })), p(s, (([l, n], e) => {
-                                Object.values(M.__rpcBrowsers).forEach((u => {
-                                    y(u, c, [ l, n ], {
+                                _.__rpcBrowserProcedures[e] === n && delete _.__rpcBrowserProcedures[e];
+                            })), A(p, (([l, n], e) => {
+                                Object.values(_.__rpcBrowsers).forEach((u => {
+                                    k(u, f, [ l, n ], {
                                         fenv: e.environment,
                                         noRet: 1
                                     });
                                 }));
                             }));
                         }
-                    } else void 0 === M[r] && (M[r] = new Promise((l => {
-                        window.name ? l(window.name) : M[r + ":resolve"] = l;
+                    } else void 0 === _[c] && (_[c] = new Promise((l => {
+                        window.name ? l(window.name) : _[c + ":resolve"] = l;
                     })));
-                    p(c, (([l, n], e) => k(l, n, e)));
+                    A(f, (([l, n], e) => O(l, n, e)));
                 }
-                function m(l, n, e) {
-                    const a = u.e(n);
-                    l.execute(`var process = window["${t}"]; if(process){ process(${JSON.stringify(a)}); }else{ ${e ? "" : `mp.trigger("${t}", '{"ret":1,"id":"${n.id}","err":"${i}","env":"cef"}');`} }`);
+                function b(l, n, e) {
+                    const u = a.e(n);
+                    l.execute(`var process = window["${s}"]; if(process){ process(${JSON.stringify(u)}); }else{ ${e ? "" : `mp.trigger("${s}", '{"ret":1,"id":"${n.id}","err":"${r}","env":"cef"}');`} }`);
                 }
-                function f(l, n, e) {
-                    const u = M.__rpcListeners[l];
-                    return u ? Promise.resolve(u(n, e)) : Promise.reject(i);
+                function h(l, n, e) {
+                    const u = _.__rpcListeners[l];
+                    return u ? Promise.resolve(u(n, e)) : Promise.reject(t);
                 }
-                function p(l, n) {
+                function A(l, n) {
                     if (2 !== arguments.length) throw 'register expects 2 arguments: "name" and "cb"';
-                    return "cef" === a && M[r].then((n => mp.trigger(d, JSON.stringify([ n, l ])))), 
-                    M.__rpcListeners[l] = n, () => _(l);
+                    return "cef" === i && _[c].then((n => u.trigger(M, JSON.stringify([ n, l ])))), 
+                    _.__rpcListeners[l] = n, () => L(l);
                 }
-                function _(l) {
+                function L(l) {
                     if (1 !== arguments.length) throw 'unregister expects 1 argument: "name"';
-                    "cef" === a && M[r].then((n => mp.trigger(o, JSON.stringify([ n, l ])))), M.__rpcListeners[l] = void 0;
+                    "cef" === i && _[c].then((n => u.trigger(m, JSON.stringify([ n, l ])))), _.__rpcListeners[l] = void 0;
                 }
-                function b(l, n, e = {}) {
-                    return arguments.length < 1 || arguments.length > 3 ? Promise.reject('call expects 1 to 3 arguments: "name", optional "args", and optional "options"') : u.d(f(l, n, {
-                        environment: a
+                function g(l, n, e = {}) {
+                    return arguments.length < 1 || arguments.length > 3 ? Promise.reject('call expects 1 to 3 arguments: "name", optional "args", and optional "options"') : a.d(h(l, n, {
+                        environment: i
                     }), e.timeout);
                 }
-                function h(l, n, e = {}) {
-                    switch (a) {
+                function y(n, e, r = {}) {
+                    switch (i) {
                       case "server":
-                        return b(l, n);
+                        return g(n, e);
 
                       case "client":
                         {
-                            const i = u.f();
-                            return new Promise((r => {
-                                e.noRet || (M.__rpcPending[i] = {
-                                    resolve: r
-                                });
-                                const d = {
-                                    req: 1,
-                                    id: i,
-                                    name: l,
-                                    env: a,
-                                    args: n,
-                                    ...e
-                                };
-                                mp.events.callRemote(t, u.e(d));
-                            }));
-                        }
-
-                      case "cef":
-                        return g("__rpc:callServer", [ l, n, +e.noRet ]);
-                    }
-                }
-                function A(l, n, e = {}) {
-                    if (arguments.length < 1 || arguments.length > 3) return Promise.reject('callServer expects 1 to 3 arguments: "name", optional "args", and optional "options"');
-                    let a = {};
-                    return e.noRet && (a.noRet = 1), u.d(h(l, n, a), e.timeout);
-                }
-                function L(l, n, e, i = {}) {
-                    switch (a) {
-                      case "client":
-                        return b(n, e);
-
-                      case "server":
-                        {
-                            const r = u.f();
+                            const t = a.f();
                             return new Promise((d => {
-                                i.noRet || (M.__rpcPending[r] = {
-                                    resolve: d,
-                                    player: l
-                                });
-                                const o = {
-                                    req: 1,
-                                    id: r,
-                                    name: n,
-                                    env: a,
-                                    args: e,
-                                    ...i
-                                };
-                                l.call(t, [ u.e(o) ]);
-                            }));
-                        }
-
-                      case "cef":
-                        {
-                            const l = u.f();
-                            return M[r].then((r => new Promise((d => {
-                                i.noRet || (M.__rpcPending[l] = {
+                                r.noRet || (_.__rpcPending[t] = {
                                     resolve: d
                                 });
                                 const o = {
-                                    b: r,
+                                    req: 1,
+                                    id: t,
+                                    name: n,
+                                    env: i,
+                                    args: e,
+                                    ...r
+                                };
+                                l.secureEvents ? u.events.call("__handle_rpc_proc", a.e(o)) : u.events.callRemote(s, a.e(o));
+                            }));
+                        }
+
+                      case "cef":
+                        return S("__rpc:callServer", [ n, e, +r.noRet ]);
+                    }
+                }
+                function z(l, n, e = {}) {
+                    if (arguments.length < 1 || arguments.length > 3) return Promise.reject('callServer expects 1 to 3 arguments: "name", optional "args", and optional "options"');
+                    let u = {};
+                    return e.noRet && (u.noRet = 1), a.d(y(l, n, u), e.timeout);
+                }
+                function T(l, n, e, r = {}) {
+                    switch (i) {
+                      case "client":
+                        return g(n, e);
+
+                      case "server":
+                        {
+                            const u = a.f();
+                            return new Promise((t => {
+                                r.noRet || (_.__rpcPending[u] = {
+                                    resolve: t,
+                                    player: l
+                                });
+                                const d = {
+                                    req: 1,
+                                    id: u,
+                                    name: n,
+                                    env: i,
+                                    args: e,
+                                    ...r
+                                };
+                                l.call(s, [ a.e(d) ]);
+                            }));
+                        }
+
+                      case "cef":
+                        {
+                            const l = a.f();
+                            return _[c].then((t => new Promise((d => {
+                                r.noRet || (_.__rpcPending[l] = {
+                                    resolve: d
+                                });
+                                const o = {
+                                    b: t,
                                     req: 1,
                                     id: l,
                                     name: n,
-                                    env: a,
+                                    env: i,
                                     args: e,
-                                    ...i
+                                    ...r
                                 };
-                                mp.trigger(t, u.e(o));
+                                u.trigger(s, a.e(o));
                             }))));
                         }
                     }
                 }
-                function g(l, n, e, i = {}) {
-                    switch (a) {
+                function S(l, n, e, u = {}) {
+                    switch (i) {
                       case "client":
-                        if (i = e || {}, e = n, n = l, l = null, arguments.length < 1 || arguments.length > 3 || "string" != typeof n) return Promise.reject('callClient from the client expects 1 to 3 arguments: "name", optional "args", and optional "options"');
+                        if (u = e || {}, e = n, n = l, l = null, arguments.length < 1 || arguments.length > 3 || "string" != typeof n) return Promise.reject('callClient from the client expects 1 to 3 arguments: "name", optional "args", and optional "options"');
                         break;
 
                       case "server":
@@ -18717,84 +18716,84 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
                         break;
 
                       case "cef":
-                        if (i = e || {}, e = n, n = l, l = null, arguments.length < 1 || arguments.length > 3 || "string" != typeof n) return Promise.reject('callClient from the browser expects 1 to 3 arguments: "name", optional "args", and optional "options"');
+                        if (u = e || {}, e = n, n = l, l = null, arguments.length < 1 || arguments.length > 3 || "string" != typeof n) return Promise.reject('callClient from the browser expects 1 to 3 arguments: "name", optional "args", and optional "options"');
                     }
                     let r = {};
-                    return i.noRet && (r.noRet = 1), u.d(L(l, n, e, r), i.timeout);
+                    return u.noRet && (r.noRet = 1), a.d(T(l, n, e, r), u.timeout);
                 }
-                function y(l, n, e, i = {}) {
+                function k(l, n, e, u = {}) {
                     return new Promise((r => {
-                        const t = u.f();
-                        i.noRet || (M.__rpcPending[t] = {
+                        const t = a.f();
+                        u.noRet || (_.__rpcPending[t] = {
                             resolve: r
-                        }), m(l, {
+                        }), b(l, {
                             req: 1,
                             id: t,
                             name: n,
-                            env: a,
+                            env: i,
                             args: e,
-                            ...i
+                            ...u
                         }, !1);
                     }));
                 }
-                function z(l, n, e, r = {}) {
-                    switch (a) {
+                function v(l, n, e, u = {}) {
+                    switch (i) {
                       case "client":
-                        const a = M.__rpcBrowserProcedures[n];
-                        if (!a) return Promise.reject(i);
-                        const t = M.__rpcBrowsers[a];
-                        return t && u.b(t) ? y(t, n, e, r) : Promise.reject(i);
+                        const i = _.__rpcBrowserProcedures[n];
+                        if (!i) return Promise.reject(d);
+                        const r = _.__rpcBrowsers[i];
+                        return r && a.b(r) ? k(r, n, e, u) : Promise.reject(o);
 
                       case "server":
-                        return L(l, "__rpc:callBrowsers", [ n, e, +r.noRet ], r);
+                        return T(l, "__rpc:callBrowsers", [ n, e, +u.noRet ], u);
 
                       case "cef":
-                        return L(null, "__rpc:callBrowsers", [ n, e, +r.noRet ], r);
+                        return T(null, "__rpc:callBrowsers", [ n, e, +u.noRet ], u);
                     }
                 }
-                function T(l, n, e, i = {}) {
+                function D(l, n, e, u = {}) {
                     let r, t = {};
-                    switch (a) {
+                    switch (i) {
                       case "client":
                       case "cef":
-                        if (i = e || {}, e = n, n = l, arguments.length < 1 || arguments.length > 3) return Promise.reject('callBrowsers from the client or browser expects 1 to 3 arguments: "name", optional "args", and optional "options"');
-                        i.noRet && (t.noRet = 1), r = z(null, n, e, t);
+                        if (u = e || {}, e = n, n = l, arguments.length < 1 || arguments.length > 3) return Promise.reject('callBrowsers from the client or browser expects 1 to 3 arguments: "name", optional "args", and optional "options"');
+                        u.noRet && (t.noRet = 1), r = v(null, n, e, t);
                         break;
 
                       case "server":
                         if (arguments.length < 2 || arguments.length > 4) return Promise.reject('callBrowsers from the server expects 2 to 4 arguments: "player", "name", optional "args", and optional "options"');
-                        i.noRet && (t.noRet = 1), r = z(l, n, e, t);
+                        u.noRet && (t.noRet = 1), r = v(l, n, e, t);
                     }
-                    if (r) return u.d(r, i.timeout);
+                    if (r) return a.d(r, u.timeout);
                 }
-                function S(l, n, e, i = {}) {
-                    if ("client" !== a) return Promise.reject("callBrowser can only be used in the client environment");
+                function C(l, n, e, u = {}) {
+                    if ("client" !== i) return Promise.reject("callBrowser can only be used in the client environment");
                     if (arguments.length < 2 || arguments.length > 4) return Promise.reject('callBrowser expects 2 to 4 arguments: "browser", "name", optional "args", and optional "options"');
                     let r = {};
-                    return i.noRet && (r.noRet = 1), u.d(y(l, n, e, r), i.timeout);
-                }
-                function k(l, n, e) {
-                    const u = M.__rpcEvListeners[l];
-                    u && u.forEach((l => l(n, e)));
-                }
-                function v(l, n) {
-                    if (2 !== arguments.length) throw 'on expects 2 arguments: "name" and "cb"';
-                    const e = M.__rpcEvListeners[l] || new Set;
-                    return e.add(n), M.__rpcEvListeners[l] = e, () => D(l, n);
-                }
-                function D(l, n) {
-                    if (2 !== arguments.length) throw 'off expects 2 arguments: "name" and "cb"';
-                    const e = M.__rpcEvListeners[l];
-                    e && e.delete(n);
-                }
-                function C(l, n) {
-                    if (arguments.length < 1 || arguments.length > 2) throw 'trigger expects 1 or 2 arguments: "name", and optional "args"';
-                    k(l, n, {
-                        environment: a
-                    });
+                    return u.noRet && (r.noRet = 1), a.d(k(l, n, e, r), u.timeout);
                 }
                 function O(l, n, e) {
-                    switch (a) {
+                    const u = _.__rpcEvListeners[l];
+                    u && u.forEach((l => l(n, e)));
+                }
+                function Y(l, n) {
+                    if (2 !== arguments.length) throw 'on expects 2 arguments: "name" and "cb"';
+                    const e = _.__rpcEvListeners[l] || new Set;
+                    return e.add(n), _.__rpcEvListeners[l] = e, () => w(l, n);
+                }
+                function w(l, n) {
+                    if (2 !== arguments.length) throw 'off expects 2 arguments: "name" and "cb"';
+                    const e = _.__rpcEvListeners[l];
+                    e && e.delete(n);
+                }
+                function N(l, n) {
+                    if (arguments.length < 1 || arguments.length > 2) throw 'trigger expects 1 or 2 arguments: "name", and optional "args"';
+                    O(l, n, {
+                        environment: i
+                    });
+                }
+                function B(l, n, e) {
+                    switch (i) {
                       case "client":
                         if (e = n, n = l, l = null, arguments.length < 1 || arguments.length > 2 || "string" != typeof n) throw 'triggerClient from the client expects 1 or 2 arguments: "name", and optional "args"';
                         break;
@@ -18806,18 +18805,18 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
                       case "cef":
                         if (e = n, n = l, l = null, arguments.length < 1 || arguments.length > 2 || "string" != typeof n) throw 'triggerClient from the browser expects 1 or 2 arguments: "name", and optional "args"';
                     }
-                    L(l, c, [ n, e ], {
+                    T(l, f, [ n, e ], {
                         noRet: 1
                     });
                 }
-                function Y(l, n) {
+                function W(l, n) {
                     if (arguments.length < 1 || arguments.length > 2) throw 'triggerServer expects 1 or 2 arguments: "name", and optional "args"';
-                    h(c, [ l, n ], {
+                    y(f, [ l, n ], {
                         noRet: 1
                     });
                 }
-                function w(l, n, e) {
-                    switch (a) {
+                function q(l, n, e) {
+                    switch (i) {
                       case "client":
                       case "cef":
                         if (e = n, n = l, l = null, arguments.length < 1 || arguments.length > 2) throw 'triggerBrowsers from the client or browser expects 1 or 2 arguments: "name", and optional "args"';
@@ -18826,32 +18825,32 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
                       case "server":
                         if (arguments.length < 2 || arguments.length > 3) throw 'triggerBrowsers from the server expects 2 or 3 arguments: "player", "name", and optional "args"';
                     }
-                    L(l, s, [ n, e ], {
+                    T(l, p, [ n, e ], {
                         noRet: 1
                     });
                 }
-                function N(l, n, e) {
-                    if ("client" !== a) throw "callBrowser can only be used in the client environment";
+                function P(l, n, e) {
+                    if ("client" !== i) throw "callBrowser can only be used in the client environment";
                     if (arguments.length < 2 || arguments.length > 4) throw 'callBrowser expects 2 or 3 arguments: "browser", "name", and optional "args"';
-                    y(l, c, [ n, e ], {
+                    k(l, f, [ n, e ], {
                         noRet: 1
                     });
                 }
                 n.default = {
-                    register: p,
-                    unregister: _,
-                    call: b,
-                    callServer: A,
-                    callClient: g,
-                    callBrowsers: T,
-                    callBrowser: S,
-                    on: v,
-                    off: D,
-                    trigger: C,
-                    triggerServer: Y,
-                    triggerClient: O,
-                    triggerBrowsers: w,
-                    triggerBrowser: N
+                    register: A,
+                    unregister: L,
+                    call: g,
+                    callServer: z,
+                    callClient: S,
+                    callBrowsers: D,
+                    callBrowser: C,
+                    on: Y,
+                    off: w,
+                    trigger: N,
+                    triggerServer: W,
+                    triggerClient: B,
+                    triggerBrowsers: q,
+                    triggerBrowser: P
                 };
             }.call(this, e(2));
         }, function(l, n) {
@@ -19760,7 +19759,7 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
     23528: (l, n, e) => {
         "use strict";
         e.d(n, {
-            Z: () => X
+            Z: () => I
         });
         const u = {
             astral: !1,
@@ -19782,76 +19781,77 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
             }
             return n;
         }
-        const p = f("s"), _ = f("u"), b = f("y"), h = {
+        const p = f("d"), _ = f("s"), b = f("u"), h = f("y"), A = {
+            d: p,
             g: !0,
             i: !0,
             m: !0,
-            s: p,
-            u: _,
-            y: b
-        }, A = p ? /[^gimsuy]+/g : /[^gimuy]+/g;
-        function L(l, n, e, u, a) {
+            s: _,
+            u: b,
+            y: h
+        }, L = _ ? /[^dgimsuy]+/g : /[^dgimuy]+/g;
+        function g(l, n, e, u, a) {
             if (l.xregexp = {
                 captureNames: n
             }, a) return l;
-            if (l.__proto__) l.__proto__ = B.prototype; else for (const n in B.prototype) l[n] = B.prototype[n];
+            if (l.__proto__) l.__proto__ = W.prototype; else for (const n in W.prototype) l[n] = W.prototype[n];
             return l.xregexp.source = e, l.xregexp.flags = u ? u.split("").sort().join("") : u, 
             l;
         }
-        function g(l) {
+        function y(l) {
             return l.replace(/([\s\S])(?=[\s\S]*\1)/g, "");
         }
-        function y(l, n) {
-            if (!B.isRegExp(l)) throw new TypeError("Type RegExp expected");
+        function z(l, n) {
+            if (!W.isRegExp(l)) throw new TypeError("Type RegExp expected");
             const e = l.xregexp || {};
             let u = function(l) {
                 return m ? l.flags : /\/([a-z]*)$/i.exec(RegExp.prototype.toString.call(l))[1];
             }(l), a = "", i = "", r = null, t = null;
             return (n = n || {}).removeG && (i += "g"), n.removeY && (i += "y"), i && (u = u.replace(new RegExp(`[${i}]+`, "g"), "")), 
-            n.addG && (a += "g"), n.addY && (a += "y"), a && (u = g(u + a)), n.isInternalOnly || (void 0 !== e.source && (r = e.source), 
-            null != e.flags && (t = a ? g(e.flags + a) : e.flags)), l = L(new RegExp(n.source || l.source, u), function(l) {
+            n.addG && (a += "g"), n.addY && (a += "y"), a && (u = y(u + a)), n.isInternalOnly || (void 0 !== e.source && (r = e.source), 
+            null != e.flags && (t = a ? y(e.flags + a) : e.flags)), l = g(new RegExp(n.source || l.source, u), function(l) {
                 return !(!l.xregexp || !l.xregexp.captureNames);
             }(l) ? e.captureNames.slice(0) : null, r, t, n.isInternalOnly);
         }
-        function z(l) {
+        function T(l) {
             return parseInt(l, 16);
         }
-        function T(l, n, e) {
+        function S(l, n, e) {
             const u = l.index + l[0].length, a = l.input[l.index - 1], i = l.input[u];
             return /^[()|]$/.test(a) || /^[()|]$/.test(i) || 0 === l.index || u === l.input.length || /\(\?(?:[:=!]|<[=!])$/.test(l.input.substring(l.index - 4, l.index)) || function(l, n, e) {
                 const u = "\\(\\?#[^)]*\\)", a = "#[^#\\n]*", i = "[?*+]|{\\d+(?:,\\d*)?}";
                 return (e.includes("x") ? new RegExp(`^(?:\\s|${a}|${u})*(?:${i})`) : new RegExp(`^(?:${u})*(?:${i})`)).test(l.slice(n));
             }(l.input, u, e) ? "" : "(?:)";
         }
-        function S(l) {
+        function k(l) {
             return parseInt(l, 10).toString(16);
         }
-        function k(l, n) {
+        function v(l, n) {
             return Object.prototype.toString.call(l) === `[object ${n}]`;
         }
-        function v(l) {
+        function D(l) {
             if (null == l) throw new TypeError("Cannot convert null or undefined to object");
             return l;
         }
-        function D(l) {
+        function C(l) {
             for (;l.length < 4; ) l = `0${l}`;
             return l;
         }
-        function C(l) {
+        function O(l) {
             const n = {};
-            return k(l, "String") ? (B.forEach(l, /[^\s,]+/, (l => {
+            return v(l, "String") ? (W.forEach(l, /[^\s,]+/, (l => {
                 n[l] = !0;
             })), n) : l;
         }
-        function O(l) {
+        function Y(l) {
             if (!/^[\w$]$/.test(l)) throw new Error("Flag must be a single character A-Za-z0-9_$");
-            h[l] = !0;
+            A[l] = !0;
         }
-        function Y(l, n, e, u, a) {
+        function w(l, n, e, u, a) {
             let i = t.length;
             const r = l[e];
             let d, o, c = null;
-            for (;i--; ) if (o = t[i], !(o.leadChar && o.leadChar !== r || o.scope !== u && "all" !== o.scope || o.flag && !n.includes(o.flag)) && (d = B.exec(l, o.regex, e, "sticky"), 
+            for (;i--; ) if (o = t[i], !(o.leadChar && o.leadChar !== r || o.scope !== u && "all" !== o.scope || o.flag && !n.includes(o.flag)) && (d = W.exec(l, o.regex, e, "sticky"), 
             d)) {
                 c = {
                     matchLength: d[0].length,
@@ -19862,18 +19862,18 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
             }
             return c;
         }
-        function w(l) {
+        function N(l) {
             u.astral = l;
         }
-        function N(l) {
+        function B(l) {
             u.namespacing = l;
         }
-        function B(l, n) {
-            if (B.isRegExp(l)) {
+        function W(l, n) {
+            if (W.isRegExp(l)) {
                 if (void 0 !== n) throw new TypeError("Cannot supply flags when copying a RegExp");
-                return y(l);
+                return z(l);
             }
-            if (l = void 0 === l ? "" : String(l), n = void 0 === n ? "" : String(n), B.isInstalled("astral") && !n.includes("A") && (n += "A"), 
+            if (l = void 0 === l ? "" : String(l), n = void 0 === n ? "" : String(n), W.isInstalled("astral") && !n.includes("A") && (n += "A"), 
             r[l] || (r[l] = {}), !r[l][n]) {
                 const e = {
                     hasNamedCapture: !1,
@@ -19881,12 +19881,12 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
                 };
                 let u, a = d, i = "", t = 0;
                 const s = function(l, n) {
-                    if (g(n) !== n) throw new SyntaxError(`Invalid duplicate regex flag ${n}`);
+                    if (y(n) !== n) throw new SyntaxError(`Invalid duplicate regex flag ${n}`);
                     l = l.replace(/^\(\?([\w$]+)\)/, ((l, e) => {
-                        if (/[gy]/.test(e)) throw new SyntaxError(`Cannot use flag g or y in mode modifier ${l}`);
-                        return n = g(n + e), "";
+                        if (/[dgy]/.test(e)) throw new SyntaxError(`Cannot use flags dgy in mode modifier ${l}`);
+                        return n = y(n + e), "";
                     }));
-                    for (const l of n) if (!h[l]) throw new SyntaxError(`Unknown regex flag ${l}`);
+                    for (const l of n) if (!A[l]) throw new SyntaxError(`Unknown regex flag ${l}`);
                     return {
                         pattern: l,
                         flags: n
@@ -19896,34 +19896,34 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
                 const m = s.flags;
                 for (;t < M.length; ) {
                     do {
-                        u = Y(M, m, t, a, e), u && u.reparse && (M = M.slice(0, t) + u.output + M.slice(t + u.matchLength));
+                        u = w(M, m, t, a, e), u && u.reparse && (M = M.slice(0, t) + u.output + M.slice(t + u.matchLength));
                     } while (u && u.reparse);
                     if (u) i += u.output, t += u.matchLength || 1; else {
-                        const [l] = B.exec(M, c[a], t, "sticky");
+                        const [l] = W.exec(M, c[a], t, "sticky");
                         i += l, t += l.length, "[" === l && a === d ? a = o : "]" === l && a === o && (a = d);
                     }
                 }
                 r[l][n] = {
                     pattern: i.replace(/(?:\(\?:\))+/g, "(?:)"),
-                    flags: m.replace(A, ""),
+                    flags: m.replace(L, ""),
                     captures: e.hasNamedCapture ? e.captureNames : null
                 };
             }
             const e = r[l][n];
-            return L(new RegExp(e.pattern, e.flags), e.captures, l, n);
+            return g(new RegExp(e.pattern, e.flags), e.captures, l, n);
         }
-        B.prototype = new RegExp, B.version = "5.1.0", B._clipDuplicates = g, B._hasNativeFlag = f, 
-        B._dec = z, B._hex = S, B._pad4 = D, B.addToken = (l, n, e) => {
+        W.prototype = new RegExp, W.version = "5.1.1", W._clipDuplicates = y, W._hasNativeFlag = f, 
+        W._dec = T, W._hex = k, W._pad4 = C, W.addToken = (l, n, e) => {
             e = e || {};
             let {optionalFlags: u} = e;
-            if (e.flag && O(e.flag), u) {
+            if (e.flag && Y(e.flag), u) {
                 u = u.split("");
-                for (const l of u) O(l);
+                for (const l of u) Y(l);
             }
             t.push({
-                regex: y(l, {
+                regex: z(l, {
                     addG: !0,
-                    addY: b,
+                    addY: h,
                     isInternalOnly: !0
                 }),
                 handler: n,
@@ -19931,15 +19931,15 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
                 flag: e.flag,
                 reparse: e.reparse,
                 leadChar: e.leadChar
-            }), B.cache.flush("patterns");
-        }, B.cache = (l, n) => (i[l] || (i[l] = {}), i[l][n] || (i[l][n] = B(l, n))), B.cache.flush = l => {
+            }), W.cache.flush("patterns");
+        }, W.cache = (l, n) => (i[l] || (i[l] = {}), i[l][n] || (i[l][n] = W(l, n))), W.cache.flush = l => {
             "patterns" === l ? r = {} : i = {};
-        }, B.escape = l => String(v(l)).replace(/[\\\[\]{}()*+?.^$|]/g, "\\$&").replace(/[\s#\-,]/g, (l => `\\u${D(S(l.charCodeAt(0)))}`)), 
-        B.exec = (l, n, e, u) => {
+        }, W.escape = l => String(D(l)).replace(/[\\\[\]{}()*+?.^$|]/g, "\\$&").replace(/[\s#\-,]/g, (l => `\\u${C(k(l.charCodeAt(0)))}`)), 
+        W.exec = (l, n, e, u) => {
             let i, r = "g", t = !1, d = !1;
-            t = b && !!(u || n.sticky && !1 !== u), t ? r += "y" : u && (d = !0, r += "FakeY"), 
+            t = h && !!(u || n.sticky && !1 !== u), t ? r += "y" : u && (d = !0, r += "FakeY"), 
             n.xregexp = n.xregexp || {};
-            const o = n.xregexp[r] || (n.xregexp[r] = y(n, {
+            const o = n.xregexp[r] || (n.xregexp[r] = z(n, {
                 addG: !0,
                 addY: t,
                 source: d ? `${n.source}|()` : void 0,
@@ -19948,57 +19948,57 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
             }));
             return e = e || 0, o.lastIndex = e, i = a.exec.call(o, l), d && i && "" === i.pop() && (i = null), 
             n.global && (n.lastIndex = i ? o.lastIndex : 0), i;
-        }, B.forEach = (l, n, e) => {
+        }, W.forEach = (l, n, e) => {
             let u, a = 0, i = -1;
-            for (;u = B.exec(l, n, a); ) e(u, ++i, l, n), a = u.index + (u[0].length || 1);
-        }, B.globalize = l => y(l, {
+            for (;u = W.exec(l, n, a); ) e(u, ++i, l, n), a = u.index + (u[0].length || 1);
+        }, W.globalize = l => z(l, {
             addG: !0
-        }), B.install = l => {
-            l = C(l), !u.astral && l.astral && w(!0), !u.namespacing && l.namespacing && N(!0);
-        }, B.isInstalled = l => !!u[l], B.isRegExp = l => "[object RegExp]" === Object.prototype.toString.call(l), 
-        B.match = (l, n, e) => {
+        }), W.install = l => {
+            l = O(l), !u.astral && l.astral && N(!0), !u.namespacing && l.namespacing && B(!0);
+        }, W.isInstalled = l => !!u[l], W.isRegExp = l => "[object RegExp]" === Object.prototype.toString.call(l), 
+        W.match = (l, n, e) => {
             const u = n.global && "one" !== e || "all" === e, a = (u ? "g" : "") + (n.sticky ? "y" : "") || "noGY";
             n.xregexp = n.xregexp || {};
-            const i = n.xregexp[a] || (n.xregexp[a] = y(n, {
+            const i = n.xregexp[a] || (n.xregexp[a] = z(n, {
                 addG: !!u,
                 removeG: "one" === e,
                 isInternalOnly: !0
-            })), r = String(v(l)).match(i);
+            })), r = String(D(l)).match(i);
             return n.global && (n.lastIndex = "one" === e && r ? r.index + r[0].length : 0), 
             u ? r || [] : r && r[0];
-        }, B.matchChain = (l, n) => function l(e, u) {
+        }, W.matchChain = (l, n) => function l(e, u) {
             const a = n[u].regex ? n[u] : {
                 regex: n[u]
             }, i = [];
             function r(l) {
                 if (a.backref) {
                     const n = `Backreference to undefined group: ${a.backref}`, e = isNaN(a.backref);
-                    if (e && B.isInstalled("namespacing")) {
+                    if (e && W.isInstalled("namespacing")) {
                         if (!l.groups || !(a.backref in l.groups)) throw new ReferenceError(n);
                     } else if (!l.hasOwnProperty(a.backref)) throw new ReferenceError(n);
-                    const u = e && B.isInstalled("namespacing") ? l.groups[a.backref] : l[a.backref];
+                    const u = e && W.isInstalled("namespacing") ? l.groups[a.backref] : l[a.backref];
                     i.push(u || "");
                 } else i.push(l[0]);
             }
-            for (const l of e) B.forEach(l, a.regex, r);
+            for (const l of e) W.forEach(l, a.regex, r);
             return u !== n.length - 1 && i.length ? l(i, u + 1) : i;
-        }([ l ], 0), B.replace = (l, n, e, u) => {
-            const i = B.isRegExp(n), r = n.global && "one" !== u || "all" === u, t = (r ? "g" : "") + (n.sticky ? "y" : "") || "noGY";
+        }([ l ], 0), W.replace = (l, n, e, u) => {
+            const i = W.isRegExp(n), r = n.global && "one" !== u || "all" === u, t = (r ? "g" : "") + (n.sticky ? "y" : "") || "noGY";
             let d = n;
-            i ? (n.xregexp = n.xregexp || {}, d = n.xregexp[t] || (n.xregexp[t] = y(n, {
+            i ? (n.xregexp = n.xregexp || {}, d = n.xregexp[t] || (n.xregexp[t] = z(n, {
                 addG: !!r,
                 removeG: "one" === u,
                 isInternalOnly: !0
-            }))) : r && (d = new RegExp(B.escape(String(n)), "g"));
-            const o = a.replace.call(v(l), d, e);
+            }))) : r && (d = new RegExp(W.escape(String(n)), "g"));
+            const o = a.replace.call(D(l), d, e);
             return i && n.global && (n.lastIndex = 0), o;
-        }, B.replaceEach = (l, n) => {
-            for (const e of n) l = B.replace(l, e[0], e[1], e[2]);
+        }, W.replaceEach = (l, n) => {
+            for (const e of n) l = W.replace(l, e[0], e[1], e[2]);
             return l;
-        }, B.split = (l, n, e) => a.split.call(v(l), n, e), B.test = (l, n, e, u) => !!B.exec(l, n, e, u), 
-        B.uninstall = l => {
-            l = C(l), u.astral && l.astral && w(!1), u.namespacing && l.namespacing && N(!1);
-        }, B.union = (l, n, e) => {
+        }, W.split = (l, n, e) => a.split.call(D(l), n, e), W.test = (l, n, e, u) => !!W.exec(l, n, e, u), 
+        W.uninstall = l => {
+            l = O(l), u.astral && l.astral && N(!1), u.namespacing && l.namespacing && B(!1);
+        }, W.union = (l, n, e) => {
             const u = (e = e || {}).conjunction || "or";
             let a, i, r = 0;
             function t(l, n, e) {
@@ -20008,17 +20008,17 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
                 } else if (e) return `\\${+e + a}`;
                 return l;
             }
-            if (!k(l, "Array") || !l.length) throw new TypeError("Must provide a nonempty array of patterns to merge");
+            if (!v(l, "Array") || !l.length) throw new TypeError("Must provide a nonempty array of patterns to merge");
             const d = /(\()(?!\?)|\\([1-9]\d*)|\\[\s\S]|\[(?:[^\\\]]|\\[\s\S])*\]/g, o = [];
-            for (const n of l) B.isRegExp(n) ? (a = r, i = n.xregexp && n.xregexp.captureNames || [], 
-            o.push(B(n.source).source.replace(d, t))) : o.push(B.escape(n));
+            for (const n of l) W.isRegExp(n) ? (a = r, i = n.xregexp && n.xregexp.captureNames || [], 
+            o.push(W(n.source).source.replace(d, t))) : o.push(W.escape(n));
             const c = "none" === u ? "" : "|";
-            return B(o.join(c), n);
+            return W(o.join(c), n);
         }, a.exec = function(l) {
             const n = this.lastIndex, e = RegExp.prototype.exec.apply(this, arguments);
             if (e) {
                 if (!M && e.length > 1 && e.includes("")) {
-                    const n = y(this, {
+                    const n = z(this, {
                         removeG: !0,
                         isInternalOnly: !0
                     });
@@ -20029,40 +20029,40 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
                 }
                 if (this.xregexp && this.xregexp.captureNames) {
                     let l = e;
-                    B.isInstalled("namespacing") && (e.groups = Object.create(null), l = e.groups);
+                    W.isInstalled("namespacing") && (e.groups = Object.create(null), l = e.groups);
                     for (let n = 1; n < e.length; ++n) {
                         const u = this.xregexp.captureNames[n - 1];
                         u && (l[u] = e[n]);
                     }
-                } else !e.groups && B.isInstalled("namespacing") && (e.groups = void 0);
+                } else !e.groups && W.isInstalled("namespacing") && (e.groups = void 0);
                 this.global && !e[0].length && this.lastIndex > e.index && (this.lastIndex = e.index);
             }
             return this.global || (this.lastIndex = n), e;
         }, a.test = function(l) {
             return !!a.exec.call(this, l);
         }, a.match = function(l) {
-            if (B.isRegExp(l)) {
+            if (W.isRegExp(l)) {
                 if (l.global) {
                     const n = String.prototype.match.apply(this, arguments);
                     return l.lastIndex = 0, n;
                 }
             } else l = new RegExp(l);
-            return a.exec.call(l, v(this));
+            return a.exec.call(l, D(this));
         }, a.replace = function(l, n) {
-            const e = B.isRegExp(l);
+            const e = W.isRegExp(l);
             let u, a, i;
             return e ? (l.xregexp && ({captureNames: a} = l.xregexp), u = l.lastIndex) : l += "", 
-            i = k(n, "Function") ? String(this).replace(l, ((...l) => {
+            i = v(n, "Function") ? String(this).replace(l, ((...l) => {
                 if (a) {
                     let n;
-                    B.isInstalled("namespacing") ? (n = Object.create(null), l.push(n)) : (l[0] = new String(l[0]), 
+                    W.isInstalled("namespacing") ? (n = Object.create(null), l.push(n)) : (l[0] = new String(l[0]), 
                     [n] = l);
                     for (let e = 0; e < a.length; ++e) a[e] && (n[a[e]] = l[e + 1]);
                 }
                 return n(...l);
-            })) : String(v(this)).replace(l, ((...l) => String(n).replace(s, (function(n, e, u, i) {
+            })) : String(D(this)).replace(l, ((...l) => String(n).replace(s, (function(n, e, u, i) {
                 e = e || u;
-                const r = k(l[l.length - 1], "Object") ? 4 : 3, t = l.length - r;
+                const r = v(l[l.length - 1], "Object") ? 4 : 3, t = l.length - r;
                 if (e) {
                     if (/^\d+$/.test(e)) {
                         const n = +e;
@@ -20084,64 +20084,64 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
                 throw new SyntaxError(`Invalid token ${n}`);
             })))), e && (l.global ? l.lastIndex = 0 : l.lastIndex = u), i;
         }, a.split = function(l, n) {
-            if (!B.isRegExp(l)) return String.prototype.split.apply(this, arguments);
+            if (!W.isRegExp(l)) return String.prototype.split.apply(this, arguments);
             const e = String(this), u = [], a = l.lastIndex;
             let i, r = 0;
-            return n = (void 0 === n ? -1 : n) >>> 0, B.forEach(e, l, (l => {
+            return n = (void 0 === n ? -1 : n) >>> 0, W.forEach(e, l, (l => {
                 l.index + l[0].length > r && (u.push(e.slice(r, l.index)), l.length > 1 && l.index < e.length && Array.prototype.push.apply(u, l.slice(1)), 
                 i = l[0].length, r = l.index + i);
             })), r === e.length ? l.test("") && !i || u.push("") : u.push(e.slice(r)), l.lastIndex = a, 
             u.length > n ? u.slice(0, n) : u;
-        }, B.addToken(/\\([ABCE-RTUVXYZaeg-mopqyz]|c(?![A-Za-z])|u(?![\dA-Fa-f]{4}|{[\dA-Fa-f]+})|x(?![\dA-Fa-f]{2}))/, ((l, n) => {
+        }, W.addToken(/\\([ABCE-RTUVXYZaeg-mopqyz]|c(?![A-Za-z])|u(?![\dA-Fa-f]{4}|{[\dA-Fa-f]+})|x(?![\dA-Fa-f]{2}))/, ((l, n) => {
             if ("B" === l[1] && n === d) return l[0];
             throw new SyntaxError(`Invalid escape ${l[0]}`);
         }), {
             scope: "all",
             leadChar: "\\"
-        }), B.addToken(/\\u{([\dA-Fa-f]+)}/, ((l, n, e) => {
-            const u = z(l[1]);
+        }), W.addToken(/\\u{([\dA-Fa-f]+)}/, ((l, n, e) => {
+            const u = T(l[1]);
             if (u > 1114111) throw new SyntaxError(`Invalid Unicode code point ${l[0]}`);
-            if (u <= 65535) return `\\u${D(S(u))}`;
-            if (_ && e.includes("u")) return l[0];
+            if (u <= 65535) return `\\u${C(k(u))}`;
+            if (b && e.includes("u")) return l[0];
             throw new SyntaxError("Cannot use Unicode code point above \\u{FFFF} without flag u");
         }), {
             scope: "all",
             leadChar: "\\"
-        }), B.addToken(/\(\?#[^)]*\)/, T, {
+        }), W.addToken(/\(\?#[^)]*\)/, S, {
             leadChar: "("
-        }), B.addToken(/\s+|#[^\n]*\n?/, T, {
+        }), W.addToken(/\s+|#[^\n]*\n?/, S, {
             flag: "x"
-        }), p || B.addToken(/\./, (() => "[\\s\\S]"), {
+        }), _ || W.addToken(/\./, (() => "[\\s\\S]"), {
             flag: "s",
             leadChar: "."
-        }), B.addToken(/\\k<([^>]+)>/, (function(l) {
+        }), W.addToken(/\\k<([^>]+)>/, (function(l) {
             const n = isNaN(l[1]) ? this.captureNames.indexOf(l[1]) + 1 : +l[1], e = l.index + l[0].length;
             if (!n || n > this.captureNames.length) throw new SyntaxError(`Backreference to undefined group ${l[0]}`);
             return `\\${n}${e === l.input.length || isNaN(l.input[e]) ? "" : "(?:)"}`;
         }), {
             leadChar: "\\"
-        }), B.addToken(/\\(\d+)/, (function(l, n) {
+        }), W.addToken(/\\(\d+)/, (function(l, n) {
             if (!(n === d && /^[1-9]/.test(l[1]) && +l[1] <= this.captureNames.length) && "0" !== l[1]) throw new SyntaxError(`Cannot use octal escape or backreference to undefined group ${l[0]}`);
             return l[0];
         }), {
             scope: "all",
             leadChar: "\\"
-        }), B.addToken(/\(\?P?<([\p{ID_Start}$_][\p{ID_Continue}$_\u200C\u200D]*)>/u, (function(l) {
-            if (!B.isInstalled("namespacing") && ("length" === l[1] || "__proto__" === l[1])) throw new SyntaxError(`Cannot use reserved word as capture name ${l[0]}`);
+        }), W.addToken(/\(\?P?<([\p{ID_Start}$_][\p{ID_Continue}$_\u200C\u200D]*)>/u, (function(l) {
+            if (!W.isInstalled("namespacing") && ("length" === l[1] || "__proto__" === l[1])) throw new SyntaxError(`Cannot use reserved word as capture name ${l[0]}`);
             if (this.captureNames.includes(l[1])) throw new SyntaxError(`Cannot use same name for multiple groups ${l[0]}`);
             return this.captureNames.push(l[1]), this.hasNamedCapture = !0, "(";
         }), {
             leadChar: "("
-        }), B.addToken(/\((?!\?)/, (function(l, n, e) {
+        }), W.addToken(/\((?!\?)/, (function(l, n, e) {
             return e.includes("n") ? "(?:" : (this.captureNames.push(null), "(");
         }), {
             optionalFlags: "n",
             leadChar: "("
         });
-        const W = B;
-        var q = e(24732), P = e.n(q);
-        var E = e(12474), H = e.n(E);
-        var x = e(70772), R = e.n(x);
+        const q = W;
+        var P = e(24732), E = e.n(P);
+        var H = e(12474), x = e.n(H);
+        var R = e(70772), X = e.n(R);
         (l => {
             const n = /(\()(?!\?)|\\([1-9]\d*)|\\[\s\S]|\[(?:[^\\\]]|\\[\s\S])*\]/g, e = l.union([ /\({{([\w$]+)}}\)|{{([\w$]+)}}/, n ], "g", {
                 conjunction: "or"
@@ -20199,7 +20199,7 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
                 }));
                 return l(b, t);
             };
-        })(W), (l => {
+        })(q), (l => {
             function n(l, n, e, u) {
                 return {
                     name: l,
@@ -20251,7 +20251,7 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
                 return t && g.length > 0 && !d && L && L[0] && e.length > A && g.push(n(L[0], e.slice(A), A, e.length)), 
                 g;
             };
-        })(W), (l => {
+        })(q), (l => {
             const n = {}, e = {}, u = l._dec, a = l._hex, i = l._pad4;
             function r(l) {
                 return l.replace(/[- _]+/g, "").toLowerCase();
@@ -20317,21 +20317,21 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
                 const e = r(l);
                 return n[e];
             };
-        })(W), (l => {
+        })(q), (l => {
             if (!l.addUnicodeData) throw new ReferenceError("Unicode Base must be loaded before Unicode Categories");
-            l.addUnicodeData(P());
-        })(W), (l => {
+            l.addUnicodeData(E());
+        })(q), (l => {
             if (!l.addUnicodeData) throw new ReferenceError("Unicode Base must be loaded before Unicode Properties");
-            const n = H();
+            const n = x();
             n.push({
                 name: "Assigned",
                 inverseOf: "Cn"
             }), l.addUnicodeData(n);
-        })(W), (l => {
+        })(q), (l => {
             if (!l.addUnicodeData) throw new ReferenceError("Unicode Base must be loaded before Unicode Scripts");
-            l.addUnicodeData(R(), "Script");
-        })(W);
-        const X = W;
+            l.addUnicodeData(X(), "Script");
+        })(q);
+        const I = q;
     },
     24732: l => {
         l.exports = [ {
@@ -20534,7 +20534,7 @@ exports.id = 88, exports.ids = [ 88 ], exports.modules = {
         }, {
             name: "Lowercase",
             bmp: "a-zªµºß-öø-ÿāăąćĉċčďđēĕėęěĝğġģĥħĩīĭįıĳĵķĸĺļľŀłńņňŉŋōŏőœŕŗřśŝşšţťŧũūŭůűųŵŷźżž-ƀƃƅƈƌƍƒƕƙ-ƛƞơƣƥƨƪƫƭưƴƶƹƺƽ-ƿǆǉǌǎǐǒǔǖǘǚǜǝǟǡǣǥǧǩǫǭǯǰǳǵǹǻǽǿȁȃȅȇȉȋȍȏȑȓȕȗșțȝȟȡȣȥȧȩȫȭȯȱȳ-ȹȼȿɀɂɇɉɋɍɏ-ʓʕ-ʸˀˁˠ-ˤͅͱͳͷͺ-ͽΐά-ώϐϑϕ-ϗϙϛϝϟϡϣϥϧϩϫϭϯ-ϳϵϸϻϼа-џѡѣѥѧѩѫѭѯѱѳѵѷѹѻѽѿҁҋҍҏґғҕҗҙқҝҟҡңҥҧҩҫҭүұҳҵҷҹһҽҿӂӄӆӈӊӌӎӏӑӓӕӗәӛӝӟӡӣӥӧөӫӭӯӱӳӵӷӹӻӽӿԁԃԅԇԉԋԍԏԑԓԕԗԙԛԝԟԡԣԥԧԩԫԭԯՠ-ֈა-ჺჽ-ჿᏸ-ᏽᲀ-ᲈᴀ-ᶿḁḃḅḇḉḋḍḏḑḓḕḗḙḛḝḟḡḣḥḧḩḫḭḯḱḳḵḷḹḻḽḿṁṃṅṇṉṋṍṏṑṓṕṗṙṛṝṟṡṣṥṧṩṫṭṯṱṳṵṷṹṻṽṿẁẃẅẇẉẋẍẏẑẓẕ-ẝẟạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹỻỽỿ-ἇἐ-ἕἠ-ἧἰ-ἷὀ-ὅὐ-ὗὠ-ὧὰ-ώᾀ-ᾇᾐ-ᾗᾠ-ᾧᾰ-ᾴᾶᾷιῂ-ῄῆῇῐ-ΐῖῗῠ-ῧῲ-ῴῶῷⁱⁿₐ-ₜℊℎℏℓℯℴℹℼℽⅆ-ⅉⅎⅰ-ⅿↄⓐ-ⓩⰰ-ⱟⱡⱥⱦⱨⱪⱬⱱⱳⱴⱶ-ⱽⲁⲃⲅⲇⲉⲋⲍⲏⲑⲓⲕⲗⲙⲛⲝⲟⲡⲣⲥⲧⲩⲫⲭⲯⲱⲳⲵⲷⲹⲻⲽⲿⳁⳃⳅⳇⳉⳋⳍⳏⳑⳓⳕⳗⳙⳛⳝⳟⳡⳣⳤⳬⳮⳳⴀ-ⴥⴧⴭꙁꙃꙅꙇꙉꙋꙍꙏꙑꙓꙕꙗꙙꙛꙝꙟꙡꙣꙥꙧꙩꙫꙭꚁꚃꚅꚇꚉꚋꚍꚏꚑꚓꚕꚗꚙꚛ-ꚝꜣꜥꜧꜩꜫꜭꜯ-ꜱꜳꜵꜷꜹꜻꜽꜿꝁꝃꝅꝇꝉꝋꝍꝏꝑꝓꝕꝗꝙꝛꝝꝟꝡꝣꝥꝧꝩꝫꝭꝯ-ꝸꝺꝼꝿꞁꞃꞅꞇꞌꞎꞑꞓ-ꞕꞗꞙꞛꞝꞟꞡꞣꞥꞧꞩꞯꞵꞷꞹꞻꞽꞿꟁꟃꟈꟊꟑꟓꟕꟗꟙꟶꟸ-ꟺꬰ-ꭚꭜ-ꭨꭰ-ꮿﬀ-ﬆﬓ-ﬗａ-ｚ",
-            astral: "\ud801[\udc28-\udc4f\udcd8-\udcfb\udd97-\udda1\udda3-\uddb1\uddb3-\uddb9\uddbb\uddbc]|\ud803[\udcc0-\udcf2]|\ud806[\udcc0-\udcdf]|\ud81b[\ude60-\ude7f]|\ud835[\udc1a-\udc33\udc4e-\udc54\udc56-\udc67\udc82-\udc9b\udcb6-\udcb9\udcbb\udcbd-\udcc3\udcc5-\udccf\udcea-\udd03\udd1e-\udd37\udd52-\udd6b\udd86-\udd9f\uddba-\uddd3\uddee-\ude07\ude22-\ude3b\ude56-\ude6f\ude8a-\udea5\udec2-\udeda\udedc-\udee1\udefc-\udf14\udf16-\udf1b\udf36-\udf4e\udf50-\udf55\udf70-\udf88\udf8a-\udf8f\udfaa-\udfc2\udfc4-\udfc9\udfcb]|\ud837[\udf00-\udf09\udf0b-\udf1e]|\ud83a[\udd22-\udd43]"
+            astral: "\ud801[\udc28-\udc4f\udcd8-\udcfb\udd97-\udda1\udda3-\uddb1\uddb3-\uddb9\uddbb\uddbc\udf80\udf83-\udf85\udf87-\udfb0\udfb2-\udfba]|\ud803[\udcc0-\udcf2]|\ud806[\udcc0-\udcdf]|\ud81b[\ude60-\ude7f]|\ud835[\udc1a-\udc33\udc4e-\udc54\udc56-\udc67\udc82-\udc9b\udcb6-\udcb9\udcbb\udcbd-\udcc3\udcc5-\udccf\udcea-\udd03\udd1e-\udd37\udd52-\udd6b\udd86-\udd9f\uddba-\uddd3\uddee-\ude07\ude22-\ude3b\ude56-\ude6f\ude8a-\udea5\udec2-\udeda\udedc-\udee1\udefc-\udf14\udf16-\udf1b\udf36-\udf4e\udf50-\udf55\udf70-\udf88\udf8a-\udf8f\udfaa-\udfc2\udfc4-\udfc9\udfcb]|\ud837[\udf00-\udf09\udf0b-\udf1e]|\ud83a[\udd22-\udd43]"
         }, {
             name: "Noncharacter_Code_Point",
             bmp: "﷐-﷯￾￿",
