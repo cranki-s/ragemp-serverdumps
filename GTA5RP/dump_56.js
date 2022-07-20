@@ -1,3 +1,435 @@
 {
-const mp=global.mp,localPlayer=mp.players.local;global.startAdminAuth=!1,global.isAdmin=!1,global.adminLevel=0,global.consoleBrowser=global.mainBrowser,global.isConsoleOpen=!1;let cameraInterval=null;const toggleConsole=()=>{global.isAuth&&(global.startAdminAuth||0!==global.adminLevel)&&!global.isChatOpen&&global.consoleBrowser.call("cb:console:toggle")};mp.keys.bind(192,!1,toggleConsole),mp.events.add("client_console_adminAuth",a=>{global.isAdmin=0<a,global.adminLevel=a,global.consoleBrowser.call("cb:console:setLevel",a),null!==cameraInterval&&(clearInterval(cameraInterval),cameraInterval=null),global.isAdmin&&(cameraInterval=setInterval(()=>{mp.game.invoke(`0xF4F2C0D4EE209E20`)},1e4))}),global.debugCoordsFixed=2,global.rpc.register("client_console_getMyCoords",function(){const a=localPlayer.vehicle;if(a){const{x:b,y:c,z:d}=a.position;return{ground:`${b.toFixed(global.debugCoordsFixed)}, ${c.toFixed(global.debugCoordsFixed)}, ${d.toFixed(global.debugCoordsFixed)}`,standart:`${b.toFixed(global.debugCoordsFixed)}, ${c.toFixed(global.debugCoordsFixed)}, ${d.toFixed(global.debugCoordsFixed)}`,rot:a.getHeading().toFixed(2)}}else{const{x:a,y:b,z:c}=localPlayer.position;return{ground:`${a.toFixed(global.debugCoordsFixed)}, ${b.toFixed(global.debugCoordsFixed)}, ${(c-1).toFixed(global.debugCoordsFixed)}`,standart:`${a.toFixed(global.debugCoordsFixed)}, ${b.toFixed(global.debugCoordsFixed)}, ${c.toFixed(global.debugCoordsFixed)}`,rot:localPlayer.getHeading().toFixed(2),gameData:localPlayer.position}}}),mp.api.server.register("client_console_getMyName",()=>mp.api.server.success(localPlayer.getVariable("characterName").replace(" ","_"))),global.rpc.on("client_console_setClothes",function(a){0>=a.component?localPlayer.setPropIndex(-1*a.component,a.id,a.color,!0):localPlayer.setComponentVariation(a.component,a.id,a.color,2)}),mp.events.add("client_console_setLocalModel",a=>{mp.players.local.model=mp.game.joaat(a)});let camera=null;global.rpc.register("client_console_setCameraToPlayer",function(a){var b=localPlayer.position,c={Angle:localPlayer.getRotation(2).z+(1==a?90:-90),Dist:1,Height:.6},d=function(a,b,c){return b*=.0174533,a.y+=c*Math.sin(b),a.x+=c*Math.cos(b),a}(new mp.Vector3(b.x,b.y,b.z+c.Height),c.Angle,c.Dist);return camera&&camera.destroy(),camera=mp.cameras.new("default",d,new mp.Vector3(0,0,0),80),camera.pointAtCoord(b.x,b.y,b.z),camera.setActive(!0),mp.game.cam.renderScriptCams(!0,!0,500,!0,!1),{position:{x:parseFloat(d.x.toFixed(2)),y:parseFloat(d.y.toFixed(2)),z:parseFloat(d.z.toFixed(2))},point:{x:parseFloat(b.x.toFixed(2)),y:parseFloat(b.y.toFixed(2)),z:parseFloat(b.z.toFixed(2))}}}),global.rpc.on("client_console_setCamera",function(a){camera&&(camera.destroy(),camera=mp.cameras.new("default",new mp.Vector3(a.position.x,a.position.y,a.position.z),new mp.Vector3(a.rot.x,a.rot.y,a.rot.z),60),camera.pointAtCoord(a.point.x,a.point.y,a.point.z),camera.setActive(!0),mp.game.cam.renderScriptCams(!0,!0,300,!0,!1))}),global.rpc.on("client_console_resetCamera",function(){mp.game.cam.renderScriptCams(!1,!1,0,!0,!1),camera&&(camera.destroy(),camera=null)}),global.rpc.on("client_console_teleport",function(a){global.isAdmin&&localPlayer.setCoordsNoOffset(a.x,a.y,a.z,!1,!1,!1)}),mp.keys.bind(115,!1,function(){0>=global.adminLevel||mp.events.callRemote("server_adminConsole_command","fly")}),mp.keys.bind(116,!1,function(){if(!(0>=global.adminLevel)){const a=mp.api.player.getWaypointPosition();a&&localPlayer.setCoordsNoOffset(a.x,a.y,a.z+1,!1,!1,!1)}});let specPlayer=null;mp.events.add("client_admin_spec",a=>{mp.events.remove("render",specRenderEvent);-1===a||(specPlayer=mp.players.atRemoteId(a),localPlayer.freezePosition(!0),mp.events.add("render",specRenderEvent))});const specRenderEvent=()=>{if(!mp.players.exists(specPlayer))return global.rpc.triggerClient("clientFunc_notifyError","\u0427\u0435\u043B\u043E\u0432\u0435\u043A \u0432\u044B\u0448\u0435\u043B \u0438\u0437 \u0438\u0433\u0440\u044B"),mp.events.callRemote("server_admin_recon_off"),void mp.events.call("client_admin_spec",-1);if(0===specPlayer.handle)return void(global.actionAntiFlood("server_admin_recon_reset",1500)&&mp.events.callRemote("server_admin_recon_reset",specPlayer.remoteId));const{x:a,y:b,z:c}=specPlayer.position;15e3<a||15e3<b||15e3<c||1>a&&1>b&&5>c&&-1<a&&-1<b&&-5<c||(localPlayer.freezePosition(!0),localPlayer.setCoordsNoOffset(a,b,c-3,!1,!1,!1),mp.game.invoke("0x8BBACBF51DA047A8",specPlayer.handle))};mp.events.add("client_console_startCreateObject",a=>{toggleConsole(),mp.events.call("client_mapEditor_startAddObjectClient","__client_console_endCreateObject",a)}),mp.events.add("__client_console_endCreateObject",(a,b,c,d,e,f)=>void 0===a?toggleConsole():void(global.consoleBrowser.execute(`console_setLastCreatedObjectCoords(${parseFloat(a.toFixed(2))}, ${parseFloat(b.toFixed(2))}, ${parseFloat(c.toFixed(2))}, ${parseFloat(d.toFixed(2))}, ${parseFloat(e.toFixed(2))}, ${parseFloat(f.toFixed(2))});`),toggleConsole())),global.rpc.register("client_console_actionObjectGetCoords",()=>[mp.players.local.position.x,mp.players.local.position.y,mp.players.local.position.z-1,mp.players.local.getHeading()]),mp.events.add("client_console_actionObjectTest",(a,b,c,d,e,f)=>{if(mp.players.local.freezePosition(!0),mp.players.local.setCollision(!0,!0),mp.players.local.setHeading(d),mp.players.local.setCoordsNoOffset(a,b,c,!1,!1,!1),""!==e){if(!mp.game.streaming.hasAnimDictLoaded(e))for(mp.game.streaming.requestAnimDict(e);!mp.game.streaming.hasAnimDictLoaded(e);)mp.game.wait(0);mp.players.local.taskPlayAnim(e,f,1,0,-1,1,1,!1,!1,!1)}}),mp.events.add("client_console_actionObjectReset",()=>{mp.players.local.freezePosition(!1),mp.players.local.setCollision(!0,!1),mp.players.local.clearTasksImmediately()}),mp.events.add("c_admin_report",(a,b,c,d,e)=>{let f="";1===d?f=" !{03FC49}[\u041C\u0415\u0414\u0418\u0410] ":2==d&&(f=" !{03FC49}[\u041B\u0418\u0414\u0415\u0420] "),global.consoleBrowser.execute(`console_reportNewMessage(${b}, '${escape(c)}', '${escape(e)}');`),mp.gui.chat.push(`!{EE2B4C}[Репорт ${a}]${f}!{C9BE3C}${c}[${b}]: !{FFFFFF}${e}`)}),mp.events.add("c_admin_report_a",(a,b,c,d)=>{global.consoleBrowser.execute(`console_reportNewMessage(${a}, '${escape(c)}', '${escape(d)}');`),mp.gui.chat.push(`!{EE2B4C}[Ответ] !{C9BE3C}[A]${c} -> ${b}[${a}]: !{FFFFFF}${d}`)}),mp.events.add("c_admin_notify",(a,b)=>{global.consoleBrowser.execute(`console_notify('${escape(a)}', '${escape(b)}');`)}),mp.events.add("c_admin_chat",a=>{global.consoleBrowser.execute(`console_adminChat('${escape(a)}');`)}),mp.events.add("c_admin_log",a=>{const b=global.getServerTime(),c=a=>10>a?"0"+a:a;global.consoleBrowser.execute(`console_adminLog('${escape(`[${c(b[0])}:${c(b[1])}:${c(b[2])}] ${a}`)}');`)}),mp.events.add("c_admin_clog",(a,b,c,d)=>{mp.events.call("c_admin_log",`${b}[${a}] использует команду ${c} [${d}]`)}),mp.events.add("c_admin_klog",(a,b,c,d,e)=>{const f=global.getServerTime(),g=a=>10>a?"0"+a:a;global.consoleBrowser.execute(`console_adminKillLog('${escape(`[${g(f[0])}:${g(f[1])}:${g(f[2])}] ${a}[${b}] убил ${c}[${d}] - ${{2460120199:"Antique Cavalry Dagger",2508868239:"Baseball Bat",4192643659:"Bottle",2227010557:"Crowbar",2725352035:"Fist",2343591895:"Flashlight",1141786504:"Golf Club",1317494643:"Hammer",4191993645:"Hatchet",3638508604:"Knuckle",2578778090:"Knife",3713923289:"Machete",3756226112:"Switchblade",1737195953:"Nightstick",419712736:"Pipe Wrench",3441901897:"Battle Axe",2484171525:"Pool Cue",940833800:"Stone Hatchet",453432689:"Pistol",3219281620:"Pistol MK2",1593441988:"Combat Pistol",584646201:"AP Pistol",911657153:"Stun Gun",2578377531:"Pistol .50",3218215474:"SNS Pistol",2285322324:"SNS Pistol MK2",3523564046:"Heavy Pistol",137902532:"Vintage Pistol",1198879012:"Flare Gun",3696079510:"Marksman Pistol",3249783761:"Heavy Revolver",3415619887:"Heavy Revolver MK2",2548703416:"Double Action",2939590305:"Up-n-Atomizer",324215364:"Micro SMG",736523883:"SMG",2024373456:"SMG MK2",4024951519:"Assault SMG",171789620:"Combat PDW",3675956304:"Machine Pistol",3173288789:"Mini SMG",1198256469:"Unholy Hellbringer",487013001:"Pump Shotgun",1432025498:"Pump Shotgun MK2",2017895192:"Sawed-Off Shotgun",3800352039:"Assault Shotgun",2640438543:"Bullpup Shotgun",2828843422:"Musket",984333226:"Heavy Shotgun",4019527611:"Double Barrel Shotgun",317205821:"Sweeper Shotgun",3220176749:"Assault Rifle",961495388:"Assault Rifle MK2",2210333304:"Carbine Rifle",4208062921:"Carbine Rifle MK2",2937143193:"Advanced Rifle",3231910285:"Special Carbine",2526821735:"Special Carbine MK2",2132975508:"Bullpup Rifle",2228681469:"Bullpup Rifle MK2",1649403952:"Compact Rifle",2634544996:"MG",2144741730:"Combat MG",3686625920:"Combat MG MK2",1627465347:"Gusenberg Sweeper",100416529:"Sniper Rifle",205991906:"Heavy Sniper",177293209:"Heavy Sniper MK2",3342088282:"Marksman Rifle",1785463520:"Marksman Rifle MK2",2982836145:"RPG",2726580491:"Grenade Launcher",1305664598:"Smoke Grenade Launcher",1119849093:"Minigun",2138347493:"Firework Launcher",1834241177:"Railgun",1672152130:"Homing Launcher",125959754:"Compact Grenade Launcher",3056410471:"Ray Minigun",2481070269:"Grenade",2694266206:"BZ Gas",4256991824:"Smoke Grenade",1233104067:"Flare",615608432:"Molotov",741814745:"Sticky Bomb",2874559379:"Proximity Mine",126349499:"Snowball",3125143736:"Pipe Bomb",600439132:"Baseball",883325847:"Jerry Can",101631238:"Fire Extinguisher",4222310262:"Parachute",2461879995:"Electric Fence",3425972830:"Hit by Water Cannon",133987706:"Rammed by Car",2741846334:"Run Over by Car",3452007600:"Fall",4194021054:"Animal",324506233:"Airstrike Rocket",2339582971:"Bleeding",2294779575:"Briefcase",28811031:"Briefcase 02",148160082:"Cougar",1223143800:"Barbed Wire",4284007675:"Drowning",1936677264:"Drowning In Vehicle",539292904:"Explosion",910830060:"Exhaustion",3750660587:"Fire",341774354:"Heli Crash",3204302209:"Vehicle Rocket",2282558706:"Vehicle Akula Barrage",431576697:"Vehicle Akula Minigun",2092838988:"Vehicle Akula Missile",476907586:"Vehicle Akula Turret Dual",3048454573:"Vehicle Akula Turret Single",328167896:"Vehicle APC Cannon",190244068:"Vehicle APC MG",1151689097:"Vehicle APC Missile",3293463361:"Vehicle Ardent MG",2556895291:"Vehicle Avenger Cannon",2756453005:"Vehicle Barrage Rear GL",1200179045:"Vehicle Barrage Rear MG",525623141:"Vehicle Barrage Rear Minigun",4148791700:"Vehicle Barrage Top MG",1000258817:"Vehicle Barrage Top Minigun",3628350041:"Vehicle Bombushka Cannon",741027160:"Vehicle Bombushka Dual MG",3959029566:"Vehicle Cannon Blazer",1817275304:"Vehicle Caracara MG",1338760315:"Vehicle Caracara Minigun",2722615358:"Vehicle Cherno Missile",3936892403:"Vehicle Comet MG",2600428406:"Vehicle Deluxo MG",3036244276:"Vehicle Deluxo Missile",1595421922:"Vehicle Dogfighter MG",3393648765:"Vehicle Dogfighter Missile",2700898573:"Vehicle Dune Grenade Launcher",3507816399:"Vehicle Dune MG",1416047217:"Vehicle Dune Minigun",1566990507:"Vehicle Enemy Laser",1987049393:"Vehicle Hacker Missile",2011877270:"Vehicle Hacker Missile Homing",1331922171:"Vehicle Halftrack Dual MG",1226518132:"Vehicle Halftrack Quad MG",855547631:"Vehicle Havok Minigun",785467445:"Vehicle Hunter Barrage",704686874:"Vehicle Hunter Cannon",1119518887:"Vehicle Hunter MG",153396725:"Vehicle Hunter Missile",2861067768:"Vehicle Insurgent Minigun",507170720:"Vehicle Khanjali Cannon",2206953837:"Vehicle Khanjali Cannon Heavy",394659298:"Vehicle Khanjali GL",711953949:"Vehicle Khanjali MG",3754621092:"Vehicle Menacer MG",3303022956:"Vehicle Microlight MG",3846072740:"Vehicle Mobileops Cannon",3857952303:"Vehicle Mogul Dual Nose",3123149825:"Vehicle Mogul Dual Turret",4128808778:"Vehicle Mogul Nose",3808236382:"Vehicle Mogul Turret",2220197671:"Vehicle Mule4 MG",1198717003:"Vehicle Mule4 Missile",3708963429:"Vehicle Mule4 Turret GL",2786772340:"Vehicle Nightshark MG",1097917585:"Vehicle Nose Turret Valkyrie",3643944669:"Vehicle Oppressor MG",2344076862:"Vehicle Oppressor Missile",3595383913:"Vehicle Oppressor2 Cannon",3796180438:"Vehicle Oppressor2 MG",1966766321:"Vehicle Oppressor2 Missile",3473446624:"Vehicle Plane Rocket",1186503822:"Vehicle Player Buzzard",3800181289:"Vehicle Player Lazer",1638077257:"Vehicle Player Savage",2456521956:"Vehicle Pounder2 Barrage",2467888918:"Vehicle Pounder2 GL",2263283790:"Vehicle Pounder2 Mini",162065050:"Vehicle Pounder2 Missile",3530961278:"Vehicle Radar",3177079402:"Vehicle Revolter MG",3878337474:"Vehicle Rogue Cannon",158495693:"Vehicle Rogue MG",1820910717:"Vehicle Rogue Missile",50118905:"Vehicle Ruiner Bullet",84788907:"Vehicle Ruiner Rocket",3946965070:"Vehicle Savestra MG",231629074:"Vehicle Scramjet MG",3169388763:"Vehicle Scramjet Missile",1371067624:"Vehicle Seabreeze MG",3450622333:"Vehicle Searchlight",4171469727:"Vehicle Space Rocket",3355244860:"Vehicle Speedo4 MG",3595964737:"Vehicle Speedo4 Turret MG",2667462330:"Vehicle Speedo4 Turret Mini",968648323:"Vehicle Strikeforce Barrage",955522731:"Vehicle Strikeforce Cannon",519052682:"Vehicle Strikeforce Missile",1176362416:"Vehicle Subcar MG",3565779982:"Vehicle Subcar Missile",3884172218:"Vehicle Subcar Torpedo",1744687076:"Vehicle Tampa Dual Minigun",3670375085:"Vehicle Tampa Fixed Minigun",2656583842:"Vehicle Tampa Missile",1015268368:"Vehicle Tampa Mortar",1945616459:"Vehicle Tank",3683206664:"Vehicle Technical Minigun",1697521053:"Vehicle Thruster MG",1177935125:"Vehicle Thruster Missile",2156678476:"Vehicle Trailer Dualaa",341154295:"Vehicle Trailer Missile",1192341548:"Vehicle Trailer Quad MG",2966510603:"Vehicle Tula Dual MG",1217122433:"Vehicle Tula MG",376489128:"Vehicle Tula Minigun",1100844565:"Vehicle Tula Nose MG",3041872152:"Vehicle Turret Boxville",1155224728:"Vehicle Turret Insurgent",729375873:"Vehicle Turret Limo",2144528907:"Vehicle Turret Technical",2756787765:"Vehicle Turret Valkyrie",4094131943:"Vehicle Vigilante MG",1347266149:"Vehicle Vigilante Missile",2275421702:"Vehicle Viseris MG",1150790720:"Vehicle Volatol Dual MG",1741783703:"Vehicle Water Cannon"}[e]}`)}');`)}),mp.events.add("c_admin_alog",(a,b,c,d)=>{const e=global.getServerTime(),f=a=>10>a?"0"+a:a;1===d&&mp.gui.chat.push(`!{EE2B4C}[ВХОД]!{FFFFFF}${b}[${a}] SOCIAL: ${c}`),global.consoleBrowser.execute(`console_playerAuthLog('${escape(`[${f(e[0])}:${f(e[1])}:${f(e[2])}] ${b}[${a}] L: ${d} S: ${c}`)}');`)}),mp.events.add("c_admin_cheatl",(a,b,c,d,e)=>{const f=global.getServerTime(),g=a=>10>a?"0"+a:a;global.consoleBrowser.call("console_antiCheatLog",`${g(f[0])}:${g(f[1])}:${g(f[2])}`,a,b,c,d,e)});
+    const mp = global.mp;
+    let prisonMobileCheckInterval = null;
+    global.ServerPed.registerScript("PED_PRISON_MOBILE_GIVE", () => {
+        let a = 0;
+        null !== prisonMobileCheckInterval && (clearInterval(prisonMobileCheckInterval), prisonMobileCheckInterval = null), prisonMobileCheckInterval = setInterval(() => {
+            ++a > 600 && (mp.events.callRemote("server_prison_ped_mobileTake"), clearInterval(prisonMobileCheckInterval), prisonMobileCheckInterval = null)
+        }, 500)
+    }), global.ServerPed.registerScript("PED_PRISON_MOBILE_TAKE", () => {
+        null !== prisonMobileCheckInterval && (clearInterval(prisonMobileCheckInterval), prisonMobileCheckInterval = null)
+    });
+    const CAMERA_SCREEN_EFFECT = "TinyRacerIntroCam";
+    let isStartCameraMode = !1,
+        cameraModeIndex = 0,
+        cameraModeList = [],
+        camera = null,
+        playerSavePosition = new mp.Vector3(0, 0, 0),
+        isNametagsEnabled = !0;
+    const startCameraMode = () => {
+            isStartCameraMode || (global.disableChatAndKeys(!0), global.hideUI(!0), isNametagsEnabled = global.enableNameTags, isNametagsEnabled && (global.enableNameTags = !1), mp.events.add("render", cameraRenderEvent), mp.game.graphics.startScreenEffect(CAMERA_SCREEN_EFFECT, 99999, !0), isStartCameraMode = !0)
+        },
+        endCameraMode = () => {
+            isStartCameraMode && (global.disableChatAndKeys(!1), global.hideUI(!1), isNametagsEnabled && (global.enableNameTags = !0), mp.events.remove("render", cameraRenderEvent), mp.game.graphics.stopScreenEffect(CAMERA_SCREEN_EFFECT), mp.cameras.exists(camera) && camera.destroy(), mp.game.cam.renderScriptCams(!1, !1, 0, !0, !1), isStartCameraMode = !1)
+        },
+        cameraRenderEvent = () => {
+            if (!mp.cameras.exists(camera)) {
+                const a = cameraModeList[cameraModeIndex];
+                camera = mp.cameras.new("DEFAULT_SCRIPTED_CAMERA", a[0], new mp.Vector3(0, 0, 0), 60), camera.pointAtCoord(a[1].x, a[1].y, a[1].z), camera.setActive(!0), mp.game.cam.renderScriptCams(!0, !1, 0, !0, !1), playerSavePosition = new mp.Vector3(mp.players.local.position.x, mp.players.local.position.y, mp.players.local.position.z)
+            }
+            if (0 > mp.players.local.getVariable("rsd")) return endCameraMode();
+            const {
+                x: a,
+                y: b,
+                z: c
+            } = mp.players.local.position;
+            if (1.5 < mp.game.system.vdist(a, b, c, playerSavePosition.x, playerSavePosition.y, playerSavePosition.z)) return endCameraMode();
+            if ((mp.keys.isDown(1) || mp.keys.isDown(2)) && global.actionAntiFlood("prisonCameraSwitch", 1e3)) {
+                mp.keys.isDown(1) ? (cameraModeIndex++, cameraModeIndex >= cameraModeList.length && (cameraModeIndex = 0)) : (cameraModeIndex--, 0 > cameraModeIndex && (cameraModeIndex = cameraModeList.length - 1));
+                const a = cameraModeList[cameraModeIndex];
+                mp.cameras.exists(camera) && (camera.stopPointing(), camera.setCoord(a[0].x, a[0].y, a[0].z), camera.pointAtCoord(a[1].x, a[1].y, a[1].z), mp.game.audio.playSoundFrontend(-1, "SELECT", "HUD_FREEMODE_SOUNDSET", !0))
+            } else if ((mp.game.controls.isDisabledControlJustReleased(0, 200) || mp.game.controls.isDisabledControlJustReleased(0, 202)) && global.actionAntiFlood("prisonCameraCancel", 500)) return void endCameraMode();
+            mp.game.graphics.drawText(`CAM 0${cameraModeIndex+1}`, [.05, .05], {
+                font: 4,
+                centre: !0,
+                color: [255, 255, 255, 255],
+                scale: [.4, .4],
+                outline: !1
+            }), mp.game.graphics.drawText("\u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 \u043C\u044B\u0448\u044C \u0447\u0442\u043E\u0431\u044B \u043F\u0435\u0440\u0435\u043A\u043B\u044E\u0447\u0430\u0442\u044C \u043A\u0430\u043C\u0435\u0440\u044B\nESC - \u0432\u044B\u0439\u0442\u0438", [.5, .9], {
+                font: 4,
+                centre: !0,
+                color: [255, 255, 255, 255],
+                scale: [.4, .4],
+                outline: !1
+            })
+        };
+    class PrisonCameraList {
+        constructor({
+            startPosition: a,
+            cameraList: b
+        }) {
+            this.startPosition = a, this.cameraList = b, new global.ActionColshape(this.startPosition, 0, 1, "\u0441\u043C\u043E\u0442\u0440\u0435\u0442\u044C \u0432 \u043A\u0430\u043C\u0435\u0440\u044B", () => {
+                cameraModeIndex = 0, cameraModeList = this.cameraList, startCameraMode(), global.notifyKeyHelpHide()
+            })
+        }
+    }
+    new PrisonCameraList({
+        startPosition: new mp.Vector3(1690.8, 2457.59, 49.54),
+        cameraList: [
+            [new mp.Vector3(1671.55, 2441.56, 48.2), new mp.Vector3(1674.55, 2443.73, 47.6)],
+            [new mp.Vector3(1718.76, 2439.48, 48.95), new mp.Vector3(1709.31, 2450.45, 44.1)],
+            [new mp.Vector3(1713.76, 2480, 48.45), new mp.Vector3(1713.05, 2439.29, 28.35)],
+            [new mp.Vector3(1688.71, 2455.93, 49.95), new mp.Vector3(1685.71, 2458.6, 48.35)],
+            [new mp.Vector3(1710.21, 2441.72, 53.14), new mp.Vector3(1707.06, 2446, 50.54)]
+        ]
+    }), new PrisonCameraList({
+        startPosition: new mp.Vector3(1712.92, 2708.04, 49.51),
+        cameraList: [
+            [new mp.Vector3(1732.19, 2723.99, 48.43), new mp.Vector3(1725.93, 2716.84, 45.58)],
+            [new mp.Vector3(1684.24, 2726.25, 48.43), new mp.Vector3(1686.91, 2724.26, 46.83)],
+            [new mp.Vector3(1689.52, 2685.62, 48.43), new mp.Vector3(1691.7, 2694.77, 43.33)],
+            [new mp.Vector3(1714.93, 2710.06, 49.68), new mp.Vector3(1721.99, 2704.97, 45.83)],
+            [new mp.Vector3(1693.19, 2723.84, 52.86), new mp.Vector3(1696.44, 2720.84, 51.01)]
+        ]
+    });
+    const TURNER_END_POS = new mp.Vector3(1747.23, 2597.86, 44.68),
+        TURNER_WORK_POSITION = [new mp.Vector3(1729.19, 2581.91, 44.68), new mp.Vector3(1728.9, 2586.53, 44.68), new mp.Vector3(1725.86, 2586.52, 44.68), new mp.Vector3(1725.79, 2582.07, 44.68), new mp.Vector3(1725.71, 2575.31, 44.68), new mp.Vector3(1729.49, 2575.1, 44.68), new mp.Vector3(1738.86, 2577.37, 44.68), new mp.Vector3(1738.81, 2581.92, 44.68), new mp.Vector3(1738.82, 2586.56, 44.68), new mp.Vector3(1741.88, 2586.5, 44.68), new mp.Vector3(1741.84, 2582.13, 44.68), new mp.Vector3(1741.85, 2577.53, 44.68)];
+    let turnerIsStartWork = !1,
+        turnerEndCheckpoint = null,
+        turnerEndMarker = null,
+        turnerEndBlip = null;
+    TURNER_WORK_POSITION.forEach(a => {
+        new global.ActionColshape(a, 0, 1, "\u043D\u0430\u0447\u0430\u0442\u044C \u0440\u0430\u0431\u043E\u0442\u0430\u0442\u044C \u0442\u043E\u043A\u0430\u0440\u0435\u043C", async () => {
+            if (turnerIsStartWork || global.isPlayerDeath || global.handItemIsInHand("PRISON_TURNER_BOX")) return;
+            if (!mp.players.local.getVariable("isInPrison")) return global.rpc.triggerClient("clientFunc_notifyError", "\u042D\u0442\u0430 \u0440\u0430\u0431\u043E\u0442\u0430 \u0442\u043E\u043B\u044C\u043A\u043E \u0434\u043B\u044F \u0437\u0430\u043A\u043B\u044E\u0447\u0451\u043D\u043D\u044B\u0445");
+            const a = "anim@amb@machinery@vertical_mill@";
+            if (!mp.game.streaming.hasAnimDictLoaded("anim@amb@machinery@vertical_mill@"))
+                for (mp.game.streaming.requestAnimDict(a); !mp.game.streaming.hasAnimDictLoaded(a);) await mp.game.waitAsync(0);
+            mp.players.local.taskPlayAnim("anim@amb@machinery@vertical_mill@", "unload_ll_01_amy_skater_01", 8, 0, -1, 1, 0, !1, !1, !1), mp.game.streaming.removeAnimDict("anim@amb@machinery@vertical_mill@"), turnerIsStartWork = !0, global.showCursor(!0, !0), global.disableChatAndKeys(!0), global.menuBrowser.execute("startPrisonTurnerGame()")
+        })
+    }), mp.events.add("__client_prison_job_turner_end", a => {
+        turnerIsStartWork && (turnerIsStartWork = !1, global.showCursor(!1, !1), global.disableChatAndKeys(!1), mp.players.local.clearTasksImmediately(), a ? mp.events.callRemote("server_prison_job_turner_end") : global.rpc.triggerClient("clientFunc_notifyInfo", "\u0423 \u0432\u0430\u0441 \u043D\u0438\u0447\u0435\u0433\u043E \u043D\u0435 \u043F\u043E\u043B\u0443\u0447\u0438\u043B\u043E\u0441\u044C, \u043F\u043E\u043F\u0440\u043E\u0431\u0443\u0439\u0442\u0435 \u0435\u0449\u0435 \u0440\u0430\u0437"))
+    }), global.handItemEventOnSet("PRISON_TURNER_BOX", () => {
+        global.rpc.triggerClient("clientFunc_notifyInfo", "\u041E\u0442\u043D\u0435\u0441\u0438\u0442\u0435 \u044F\u0449\u0438\u043A \u043D\u0430 \u0441\u043A\u043B\u0430\u0434"), turnerEndCheckpoint && turnerEndCheckpoint.destroy(), mp.markers.exists(turnerEndMarker) && turnerEndMarker.destroy(), mp.blips.exists(turnerEndBlip) && turnerEndBlip.destroy(), turnerEndCheckpoint = new global.TriggerColshape(TURNER_END_POS, 0, 2, () => {
+            mp.events.callRemote("server_prison_job_turner_put")
+        }, () => {}), turnerEndMarker = mp.markers.new(27, TURNER_END_POS.add(0, 0, .8), 5, {
+            color: [255, 0, 0, 255],
+            dimension: 0,
+            rotation: new mp.Vector3(0, 0, 0),
+            bobUpAndDown: !0
+        }), turnerEndBlip = mp.blips.new(1, TURNER_END_POS, {
+            name: "???",
+            color: 1
+        })
+    }), global.handItemEventOnRemove("PRISON_TURNER_BOX", () => {
+        turnerEndCheckpoint && turnerEndCheckpoint.destroy(), mp.markers.exists(turnerEndMarker) && turnerEndMarker.destroy(), mp.blips.exists(turnerEndBlip) && turnerEndBlip.destroy(), turnerEndCheckpoint = null
+    });
+    const SEAMSTRESS_END_POS = new mp.Vector3(1747.23, 2597.86, 44.68),
+        SEAMSTRESS_WORK_POSITION = [new mp.Vector3(1725.22, 2566.62, 50.88), new mp.Vector3(1725.12, 2568.75, 50.88), new mp.Vector3(1721.58, 2571.31, 50.88), new mp.Vector3(1723.86, 2571.11, 50.88), new mp.Vector3(1726.03, 2571.4, 50.88), new mp.Vector3(1735.09, 2573.85, 50.88), new mp.Vector3(1735.28, 2575.9, 50.88), new mp.Vector3(1735.18, 2578.34, 50.88), new mp.Vector3(1735.23, 2580.71, 50.88), new mp.Vector3(1735.27, 2582.85, 50.88), new mp.Vector3(1735.18, 2585.07, 50.88), new mp.Vector3(1741.7, 2587.11, 50.88), new mp.Vector3(1744.24, 2587.16, 50.88), new mp.Vector3(1746.74, 2587.19, 50.88), new mp.Vector3(1741.24, 2583.98, 50.88), new mp.Vector3(1743.95, 2583.94, 50.88), new mp.Vector3(1747.05, 2583.95, 50.88), new mp.Vector3(1746.89, 2574.31, 50.88), new mp.Vector3(1744.37, 2574.23, 50.88), new mp.Vector3(1741.76, 2574.18, 50.88), new mp.Vector3(1741.74, 2571.1, 50.88), new mp.Vector3(1744.17, 2571.21, 50.88), new mp.Vector3(1746.71, 2571.05, 50.88), new mp.Vector3(1725.84, 2588.87, 50.88), new mp.Vector3(1723.96, 2588.97, 50.88), new mp.Vector3(1721.5, 2589.2, 50.88)];
+    let seamstressIsStartWork = !1,
+        seamstressEndCheckpoint = null,
+        seamstressEndMarker = null,
+        seamstressEndBlip = null;
+    SEAMSTRESS_WORK_POSITION.forEach(a => {
+        new global.ActionColshape(a, 0, 1, "\u043D\u0430\u0447\u0430\u0442\u044C \u0440\u0430\u0431\u043E\u0442\u0430\u0442\u044C", async () => {
+            if (seamstressIsStartWork || global.isPlayerDeath || global.handItemIsInHand("PRISON_SEAMSTRESS_JOB_BOX")) return;
+            if (!mp.players.local.getVariable("isInPrison")) return global.rpc.triggerClient("clientFunc_notifyError", "\u042D\u0442\u0430 \u0440\u0430\u0431\u043E\u0442\u0430 \u0442\u043E\u043B\u044C\u043A\u043E \u0434\u043B\u044F \u0437\u0430\u043A\u043B\u044E\u0447\u0451\u043D\u043D\u044B\u0445");
+            const a = "anim@amb@machinery@vertical_mill@";
+            if (!mp.game.streaming.hasAnimDictLoaded("anim@amb@machinery@vertical_mill@"))
+                for (mp.game.streaming.requestAnimDict(a); !mp.game.streaming.hasAnimDictLoaded(a);) await mp.game.waitAsync(0);
+            mp.players.local.taskPlayAnim("anim@amb@machinery@vertical_mill@", "unload_ll_01_amy_skater_01", 8, 0, -1, 1, 0, !1, !1, !1), mp.game.streaming.removeAnimDict("anim@amb@machinery@vertical_mill@"), seamstressIsStartWork = !0, global.showCursor(!0, !0), global.disableChatAndKeys(!0), global.menuBrowser.execute("startPrisonSeamstressGame()")
+        })
+    }), mp.events.add("__client_prison_job_seamstress_end", a => {
+        seamstressIsStartWork && (seamstressIsStartWork = !1, global.showCursor(!1, !1), global.disableChatAndKeys(!1), mp.players.local.clearTasksImmediately(), a ? mp.events.callRemote("server_prison_job_seamstress_end") : global.rpc.triggerClient("clientFunc_notifyInfo", "\u0423 \u0432\u0430\u0441 \u043D\u0438\u0447\u0435\u0433\u043E \u043D\u0435 \u043F\u043E\u043B\u0443\u0447\u0438\u043B\u043E\u0441\u044C, \u043F\u043E\u043F\u0440\u043E\u0431\u0443\u0439\u0442\u0435 \u0435\u0449\u0435 \u0440\u0430\u0437"))
+    }), mp.attachmentMngr.register("prisonJobSeamstressHandItem", "p_t_shirt_pile_s", 28422, new mp.Vector3(.2, 0, -.03), new mp.Vector3(0, 40, 270)), global.handItemEventOnSet("PRISON_SEAMSTRESS_JOB_BOX", () => {
+        global.rpc.triggerClient("clientFunc_notifyInfo", "\u041E\u0442\u043D\u0435\u0441\u0438\u0442\u0435 \u043E\u0434\u0435\u0436\u0434\u0443 \u043D\u0430 \u0441\u043A\u043B\u0430\u0434"), seamstressEndCheckpoint && seamstressEndCheckpoint.destroy(), mp.markers.exists(seamstressEndMarker) && seamstressEndMarker.destroy(), mp.blips.exists(seamstressEndBlip) && seamstressEndBlip.destroy(), seamstressEndCheckpoint = new global.TriggerColshape(SEAMSTRESS_END_POS, 0, 2, () => {
+            mp.events.callRemote("server_prison_job_seamstress_put")
+        }, () => {}), seamstressEndMarker = mp.markers.new(27, SEAMSTRESS_END_POS.add(0, 0, .8), 5, {
+            color: [255, 0, 0, 255],
+            dimension: 0,
+            rotation: new mp.Vector3(0, 0, 0),
+            bobUpAndDown: !0
+        }), seamstressEndBlip = mp.blips.new(1, SEAMSTRESS_END_POS, {
+            name: "???",
+            color: 1
+        })
+    }), global.handItemEventOnRemove("PRISON_SEAMSTRESS_JOB_BOX", () => {
+        seamstressEndCheckpoint && seamstressEndCheckpoint.destroy(), mp.markers.exists(seamstressEndMarker) && seamstressEndMarker.destroy(), mp.blips.exists(seamstressEndBlip) && seamstressEndBlip.destroy(), seamstressEndCheckpoint = null
+    });
+    const TOILET_QUEST_POS = [
+        [new mp.Vector3(1703.71, 2459.19, 44.8), 180],
+        [new mp.Vector3(1705.2, 2459.22, 44.8), 180],
+        [new mp.Vector3(1706.97, 2459.19, 44.8), 180],
+        [new mp.Vector3(1708.42, 2459.18, 44.8), 180],
+        [new mp.Vector3(1710.13, 2459.18, 44.8), 180],
+        [new mp.Vector3(1703.58, 2457.18, 44.8), 0],
+        [new mp.Vector3(1705.28, 2457.22, 44.8), 0],
+        [new mp.Vector3(1706.94, 2457.19, 44.8), 0],
+        [new mp.Vector3(1708.53, 2457.18, 44.8), 0],
+        [new mp.Vector3(1710.09, 2457.2, 44.8), 0]
+    ];
+    let toilerQuestPickups = [],
+        toilerQuestMarkers = [],
+        toilerQuestBlips = [];
+    const toilerQuestDestroyAllObject = () => {
+        toilerQuestPickups.forEach(a => a.destroy()), toilerQuestPickups = [], toilerQuestMarkers.forEach(a => mp.markers.exists(a) && a.destroy()), toilerQuestMarkers = [], toilerQuestBlips.forEach(a => mp.blips.exists(a) && a.destroy()), toilerQuestBlips = []
+    };
+    global.registerPlayerQuest({
+        code: "PRISON_TOILET_QUEST",
+        onStart: () => {
+            toilerQuestDestroyAllObject();
+            const a = TOILET_QUEST_POS.length;
+            let b = 0;
+            TOILET_QUEST_POS.forEach(c => {
+                const d = mp.blips.new(1, c[0], {
+                        color: 1,
+                        name: "???"
+                    }),
+                    e = mp.markers.new(27, c[0].add(new mp.Vector3(0, 0, .6)), .7, {
+                        color: [255, 0, 0, 255],
+                        bobUpAndDown: !0
+                    }),
+                    f = new global.ActionColshape(c[0], 0, .5, "\u043C\u044B\u0442\u044C", () => {
+                        b++, f.destroy(), mp.blips.exists(d) && d.destroy(), mp.blips.exists(e) && e.destroy(), mp.players.local.setHeading(c[1]), global.disableChatAndKeys(!0), global.crouchSystemStart(), mp.events.callRemote("server_prison_toiletQuest_anim", b >= a), setTimeout(() => {
+                            global.disableChatAndKeys(!1), global.crouchSystemEnd()
+                        }, 1e4)
+                    });
+                toilerQuestPickups.push(f), toilerQuestMarkers.push(e), toilerQuestBlips.push(d)
+            })
+        },
+        onEnd: () => {
+            toilerQuestDestroyAllObject()
+        }
+    });
+    let isPrisonAttackStarted = !1;
+    (() => {
+        mp.objects.new(mp.game.joaat("prop_elecbox_24b"), new mp.Vector3(1471.35, 2424.49, 48.17), {
+            rotation: new mp.Vector3(0, 0, 0),
+            dimension: 0
+        }), mp.objects.new(mp.game.joaat("prop_elecbox_24b"), new mp.Vector3(1784.81, 2528.49, 44.57), {
+            rotation: new mp.Vector3(0, 0, .71),
+            dimension: 0
+        });
+        let a = "",
+            b = null,
+            c = null,
+            d = null,
+            e = null,
+            f = null,
+            g = !1,
+            h = !1,
+            i = null;
+        const j = [
+            [
+                [1435.06, 2410.65],
+                [1479.86, 2367.15],
+                [1791.07, 2342.33],
+                [1936.41, 2567.66],
+                [1968.58, 2599.74],
+                [1885.99, 2740.23],
+                [1795.18, 2838.37],
+                [1667.47, 2827.42],
+                [1472.21, 2693.81],
+                [1412.61, 2579.5],
+                [1435.06, 2410.65]
+            ]
+        ];
+        for (const d of ["F_GANG_BALLAS", "F_GANG_BLOODS", "F_GANG_GROVE", "F_GANG_MARABUNTA", "F_GANG_VAGOS", "F_YAKUZA", "F_RUSSIANMAFIA", "F_MEXICOMAFIA", "F_ITALYMAFIA", "F_ARMENIAMAFIA"]) global.registerFactionEvent({
+            factionId: d,
+            onEnter: () => {
+                b && b.destroy(), b = new global.ActionColshape(new mp.Vector3(1473.41, 2426.01, 48.55), 0, 1, "\u043E\u0442\u043A\u043B\u044E\u0447\u0438\u0442\u044C \u044D\u043B\u0435\u043A\u0442\u0440\u0438\u0447\u0435\u0441\u0442\u0432\u043E \u0442\u044E\u0440\u044C\u043C\u044B", () => {
+                    isPrisonAttackStarted || mp.events.callRemote("server_prison_startAttack")
+                }), b.onceMode = !0, mp.markers.exists(c) && c.destroy(), c = mp.markers.new(1, new mp.Vector3(1473.41, 2426.01, 48.55 - .15), 1, {
+                    direction: new mp.Vector3(0, 0, 0),
+                    rotation: new mp.Vector3(0, 0, 0),
+                    color: [237, 194, 21, 255],
+                    visible: !0,
+                    dimension: 0
+                }), isPrisonAttackStarted && d === a && n()
+            },
+            onLeave: () => {
+                b && b.destroy(), b = null, mp.markers.exists(c) && c.destroy(), isPrisonAttackStarted && d === a && o()
+            }
+        });
+        global.registerFactionEvent({
+            factionId: "F_PRISON",
+            onEnter: () => {
+                isPrisonAttackStarted && l()
+            },
+            onLeave: () => {
+                isPrisonAttackStarted && m()
+            }
+        });
+        const k = async (b, c, d) => {
+            var e = Math.sqrt,
+                f = Math.pow;
+            if (c && !isPrisonAttackStarted) {
+                isPrisonAttackStarted = !0, a = b;
+                let c = -1;
+                if (streamInterval = setInterval(async () => {
+                        const {
+                            x: a,
+                            y: b,
+                            z: d
+                        } = mp.players.local.position;
+                        c++;
+                        const h = 321 > e(f(a - 1705.495, 2) + f(b - 2584.215, 2)) && mp.api.location.isPointInPolygon([a, b], j);
+                        if (h && !g && (g = !0, mp.game.audio.startAlarm("PRISON_ALARMS", !0), mp.game.graphics.setLightsState(0, !0), mp.game.graphics.setLightsState(1, !0), mp.game.graphics.setLightsState(2, !0), mp.game.graphics.setLightsState(3, !0), mp.game.graphics.setLightsState(4, !0), mp.game.graphics.setLightsState(5, !0), mp.game.graphics.setLightsState(7, !0), mp.game.graphics.setLightsState(8, !0), mp.game.graphics.setLightsState(9, !0), mp.game.graphics.setLightsState(10, !0), mp.game.graphics.setLightsState(11, !0), mp.game.graphics.setLightsState(12, !0), mp.game.graphics.setLightsState(13, !0), mp.game.graphics.setLightsState(14, !0), mp.game.graphics.setLightsState(15, !0), mp.game.invoke("0xE2B187C0939B3D32", !1)), !h && g && (g = !1, mp.game.graphics.setLightsState(0, !1), mp.game.graphics.setLightsState(1, !1), mp.game.graphics.setLightsState(2, !1), mp.game.graphics.setLightsState(3, !1), mp.game.graphics.setLightsState(4, !1), mp.game.graphics.setLightsState(5, !1), mp.game.graphics.setLightsState(7, !1), mp.game.graphics.setLightsState(8, !1), mp.game.graphics.setLightsState(9, !1), mp.game.graphics.setLightsState(10, !1), mp.game.graphics.setLightsState(11, !1), mp.game.graphics.setLightsState(12, !1), mp.game.graphics.setLightsState(13, !1), mp.game.graphics.setLightsState(14, !1), mp.game.graphics.setLightsState(15, !1), mp.game.invoke("0xE2B187C0939B3D32", !0)), h) {
+                            if (!mp.game.streaming.hasNamedPtfxAssetLoaded("core")) {
+                                mp.game.streaming.requestNamedPtfxAsset("core");
+                                do await mp.game.waitAsync(10); while (!mp.game.streaming.hasNamedPtfxAssetLoaded("core"))
+                            }
+                            mp.game.graphics.setPtfxAssetNextCall("core"), mp.game.graphics.startParticleFxNonLoopedAtCoord("sp_foundry_sparks", 1786.06, 2529.91, 46.42, 0, 270, 0, 1, !0, !0, !0), 0 == c % 15 && (mp.game.graphics.setPtfxAssetNextCall("core"), mp.game.graphics.startParticleFxNonLoopedAtCoord("ent_dst_elec_fire", 1472.64, 2425.92, 50.15, 0, 0, 0, 2, !0, !0, !0))
+                        }
+                    }, 1e3), mp.game.audio.startAlarm("PRISON_ALARMS", !0), "F_PRISON" === mp.players.local.getVariable("factionId") && l(), !d) return;
+                const {
+                    x: h,
+                    y: i
+                } = mp.players.local.position;
+                321 > e(f(h - 1705.495, 2) + f(i - 2584.215, 2)) && ("F_PRISON" === mp.players.local.getVariable("factionId") && mp.gui.chat.push(`!{5999FF}[R] На тюрьму напали! Не допустите побега заключенных и отремонтируйте аварию как можно скорее.`), mp.game.audio.playSoundFrontend(-1, "Failure", "DLC_HEIST_HACKING_SNAKE_SOUNDS", !0)), mp.players.local.getVariable("factionId") === a && n()
+            }!c && isPrisonAttackStarted && (isPrisonAttackStarted = !1, clearInterval(streamInterval), mp.game.audio.stopAlarm("PRISON_ALARMS", !0), g && (g = !1, mp.game.graphics.setLightsState(0, !1), mp.game.graphics.setLightsState(1, !1), mp.game.graphics.setLightsState(2, !1), mp.game.graphics.setLightsState(3, !1), mp.game.graphics.setLightsState(4, !1), mp.game.graphics.setLightsState(5, !1), mp.game.graphics.setLightsState(7, !1), mp.game.graphics.setLightsState(8, !1), mp.game.graphics.setLightsState(9, !1), mp.game.graphics.setLightsState(10, !1), mp.game.graphics.setLightsState(11, !1), mp.game.graphics.setLightsState(12, !1), mp.game.graphics.setLightsState(13, !1), mp.game.graphics.setLightsState(14, !1), mp.game.graphics.setLightsState(15, !1), mp.game.invoke("0xE2B187C0939B3D32", !0)), m(), mp.players.local.getVariable("factionId") === a && o(), a = b)
+        }, l = () => {
+            m(), d = new global.ActionColshape(new mp.Vector3(1786.87, 2529.94, 44.56), 0, 1, "\u0447\u0438\u043D\u0438\u0442\u044C \u044D\u043B\u0435\u043A\u0442\u0440\u0438\u0447\u0435\u0441\u0442\u0432\u043E", () => {
+                h || mp.events.callRemote("server_prison_defend_task")
+            }), d.onceMode = !0, e = mp.markers.new(1, new mp.Vector3(1786.87, 2529.94, 44.56 - .15), 1, {
+                direction: new mp.Vector3(0, 0, 0),
+                rotation: new mp.Vector3(0, 0, 0),
+                color: [237, 194, 21, 255],
+                visible: !0,
+                dimension: 0
+            }), f = mp.blips.new(402, new mp.Vector3(1786.87, 2529.94, 44.56), {
+                color: 1,
+                dimension: 0,
+                shortRange: !1,
+                scale: 1,
+                name: "???"
+            })
+        }, m = () => {
+            d && d.destroy(), d = null, mp.markers.exists(e) && e.destroy(), mp.blips.exists(f) && f.destroy()
+        }, n = () => {
+            global.targetMenuFactionCustomItems.push({
+                key: "prisonSave",
+                desc: "\u041E\u0441\u0432\u043E\u0431\u043E\u0434\u0438\u0442\u044C",
+                ico: "free-prisoner.svg",
+                event: "server_prison_crimeSave"
+            })
+        }, o = () => {
+            global.targetMenuFactionCustomItems = global.targetMenuFactionCustomItems.filter(a => "prisonSave" !== a.key)
+        };
+        mp.events.add("client_prison_startDefend", async (a, b) => {
+            if (h) return;
+            h = !0;
+            const c = mp.players.local;
+            null !== i && clearInterval(i), i = setInterval(() => {
+                const {
+                    x: d,
+                    y: e,
+                    z: f
+                } = c.position;
+                return global.isPlayerDeath || 10 < mp.dist(d, e, f, 1786.87, 2529.94, 44.56) || 0 !== c.dimension || a >= b ? (h = !1, clearInterval(i), i = null, c.clearTasksImmediately(), a >= b ? mp.events.callRemote("server_prison_defend_end") : mp.events.callRemote("server_prison_defend_stop", a), global.hideUI(!1), global.disableChatAndKeys(!1), void global.mainBrowser.execute(`mainHud.progressStop();`)) : void(a++, global.mainBrowser.execute(`mainHud.progressValue(${100*(a/b)});`))
+            }, 1e3), global.hideUI(!0), global.disableChatAndKeys(!0), global.mainBrowser.execute(`mainHud.progressStart('Починка электричества', ${100*(a/b)}, 400);`), c.setCoordsNoOffset(1786.58, 2529.91, 45.56, !1, !1, !1), c.setHeading(110.73)
+        }), mp.api.data.onChange("prisonAttack", a => {
+            k(a, !!a, !0)
+        }), mp.events.add("serverWorldDataReady", () => {
+            k(mp.api.data.get("prisonAttack"), !!mp.api.data.get("prisonAttack"), !1)
+        })
+    })(), new global.ActionColshape(new mp.Vector3(1820.43, 2604.76, 44.58), 0, 1, "\u043F\u043E\u0437\u0432\u043E\u043D\u0438\u0442\u044C \u0432 \u0438\u043D\u0442\u0435\u0440\u043A\u043E\u043C", () => {
+        global.actionAntiFlood("server_prison_taskOpenDoor", 3e4) && mp.events.callRemote("server_prison_taskOpenDoor")
+    }).onceMode = !0;
+    let isLocalPlayerInPrison = !1,
+        prisonTimer = null;
+    mp.events.addDataHandler("isInPrison", (a, b) => {
+        a === mp.players.local && (!isLocalPlayerInPrison && b ? (prisonTimer && clearInterval(prisonTimer), prisonTimer = setInterval(prisonTimerHandle, 5e3), isLocalPlayerInPrison = !0) : isLocalPlayerInPrison && !b && (clearInterval(prisonTimer), prisonTimer = null, isLocalPlayerInPrison = !1, global.discordUpdate()))
+    });
+    const prisonTimerHandle = () => {
+        if (!isPrisonAttackStarted) {
+            const {
+                x: a,
+                y: b,
+                z: c
+            } = mp.players.local.position;
+            (!pointInPolygon([a, b], [
+                [
+                    [1812.14, 2620.27, 45.51],
+                    [1809.72, 2564.21, 43.41],
+                    [1809.27, 2536.84, 43.41],
+                    [1813.28, 2502.33, 43.41],
+                    [1815.96, 2488.87, 45.45],
+                    [1810.3, 2473.24, 45.45],
+                    [1763.9, 2425.24, 45.42],
+                    [1749.43, 2418.3, 45.42],
+                    [1668.07, 2406.14, 45.4],
+                    [1652.29, 2408.1, 45.4],
+                    [1557.16, 2467.88, 45.39],
+                    [1549.49, 2482.54, 45.39],
+                    [1545.15, 2576.14, 45.39],
+                    [1546.39, 2591.58, 45.39],
+                    [1574.3, 2667.63, 45.47],
+                    [1583.22, 2680.35, 45.47],
+                    [1647.64, 2742.92, 45.44],
+                    [1661.47, 2749.74, 45.44],
+                    [1762.58, 2753.77, 45.43],
+                    [1776.95, 2748.29, 45.43],
+                    [1831.13, 2704.5, 45.43],
+                    [1836.58, 2688.86, 45.43],
+                    [1816.17, 2629.93, 45.43],
+                    [1812.14, 2620.27, 45.51]
+                ]
+            ]) || 55.4 < c) && global.actionAntiFlood("server_prison_leave", 1e4) && mp.events.callRemote("server_prison_leave")
+        }
+        global.discordUpdate("\u0421\u0438\u0434\u0438\u0442 \u0432 \u0442\u044E\u0440\u044C\u043C\u0435")
+    };
+    mp.events.add("client_prison_knifeDamage", async (a, b) => {
+        var c = Math.PI,
+            d = Math.atan2;
+        const e = mp.players.atRemoteId(a),
+            f = mp.players.atRemoteId(b);
+        if (!mp.players.exists(e) || 0 === e.handle || !mp.players.exists(f) || 0 === f.handle) return;
+        if (10 < mp.game.system.vdist(e.position.x, e.position.y, e.position.z, f.position.x, f.position.y, f.position.z)) return;
+        f === mp.players.local && global.disableChatAndKeys(!0);
+        const g = e.getHeading() - f.getHeading(),
+            h = 90 <= g && 270 >= g ? "plyr_knife_front_takedown" : "plyr_knife_rear_takedown",
+            i = 90 <= g && 270 >= g ? "victim_knife_front_takedown" : "victim_knife_rear_takedown";
+        if (90 <= g && 270 >= g ? (f.setHeading(180 * d(e.position.y - f.position.y, e.position.x - f.position.x) / c + 270), e.setHeading(180 * d(f.position.y - e.position.y, f.position.x - e.position.x) / c + 270)) : (f.setHeading(180 * d(e.position.y - f.position.y, e.position.x - f.position.x) / c + 90), e.setHeading(180 * d(f.position.y - e.position.y, f.position.x - e.position.x) / c + 275)), !mp.game.streaming.hasAnimDictLoaded("melee@knife@streamed_core"))
+            for (mp.game.streaming.requestAnimDict("melee@knife@streamed_core"); !mp.game.streaming.hasAnimDictLoaded("melee@knife@streamed_core");) await mp.game.waitAsync(0);
+        mp.players.exists(e) && 0 !== e.handle && mp.players.exists(f) && 0 !== f.handle && (mp.attachmentMngr.addClient(e, mp.game.joaat("prisonKnifeDamage")), e.taskPlayAnim("melee@knife@streamed_core", h, 8, 0, -1, 1, 0, !1, !1, !1), f.taskPlayAnim("melee@knife@streamed_core", i, 8, 0, -1, 2, 0, !1, !1, !1), mp.game.streaming.removeAnimDict("melee@knife@streamed_core"), setTimeout(() => mp.players.exists(e) && 0 !== e.handle && mp.players.exists(f) && 0 !== f.handle || !mp.players.exists(e) || 0 === e.handle ? void(e.stopAnimTask("melee@knife@streamed_core", h, 3), setTimeout(() => {
+            mp.players.exists(e) && 0 !== e.handle && e.clearTasksImmediately()
+        }, 500), mp.attachmentMngr.removeFor(e, mp.game.joaat("prisonKnifeDamage"))) : (mp.attachmentMngr.removeFor(e, mp.game.joaat("prisonKnifeDamage")), void e.clearTasksImmediately()), 1600), setTimeout(() => {
+            mp.players.exists(f) && 0 !== f.handle && (f.stopAnimTask("melee@knife@streamed_core", i, 3), setTimeout(() => {
+                mp.players.exists(f) && 0 !== f.handle && f.clearTasksImmediately()
+            }, 500), f === mp.players.local && (setTimeout(() => mp.events.callRemote("client_prison_knifeDamageTake"), 500), global.disableChatAndKeys(!1)))
+        }, 9e3))
+    }), mp.attachmentMngr.register("prisonKnifeDamage", "w_me_knife_01", 28422, new mp.Vector3(.04, -.02, 0), new mp.Vector3(270, 90, 90));
+    const pointInPolygon = (a, b) => {
+        let c = 0,
+            d = 0,
+            e = 0,
+            g = 0,
+            h = 0,
+            j = 0,
+            l = 0,
+            m = 0,
+            n = null,
+            o = null;
+        const p = a[0],
+            q = a[1],
+            r = b.length;
+        for (c; c < r; c++) {
+            d = 0;
+            const f = b[c].length - 1,
+                i = b[c];
+            for (n = i[0], h = n[0] - p, j = n[1] - q, d; d < f; d++) {
+                if (o = i[d + 1], m = o[1] - q, 0 > j && 0 > m || 0 < j && 0 < m) {
+                    n = o, j = m, h = n[0] - p;
+                    continue
+                }
+                if (l = o[0] - a[0], 0 < m && 0 >= j) {
+                    if (g = h * m - l * j, 0 < g) ++e;
+                    else if (0 === g) return 0;
+                } else if (0 < j && 0 >= m) {
+                    if (g = h * m - l * j, 0 > g) ++e;
+                    else if (0 === g) return 0;
+                } else if (0 === m && 0 > j) {
+                    if (g = h * m - l * j, 0 === g) return 0;
+                } else if (0 === j && 0 > m) {
+                    if (g = h * m - l * j, 0 === g) return 0;
+                } else if (0 === j && 0 === m) {
+                    if (0 >= l && 0 <= h) return 0;
+                    if (0 >= h && 0 <= l) return 0
+                }
+                n = o, j = m, h = l
+            }
+        }
+        return 0 != e % 2
+    };
 }

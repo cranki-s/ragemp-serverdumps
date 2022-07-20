@@ -1,3 +1,225 @@
 {
-const mp=global.mp,localPlayer=mp.players.local;(()=>{var c=Math.sqrt,d=Math.pow;new CustomScenarioAnimWithItem("scenNeutralContractJunk","scenNeutralContractJunkItem","anim@heists@narcotics@trash","idle",49),mp.attachmentMngr.register("scenNeutralContractJunkItem","bkr_prop_fakeid_binbag_01",28422,new mp.Vector3(-.08,.06,-.55),new mp.Vector3(0,0,2));let a=null,b=null,e=null,f=!1,g=null,h=null,i=null,j=-1;const k=[new mp.Vector3(-337.49,-2786.47,4),new mp.Vector3(-528.3,-2888.13,5),new mp.Vector3(-374.68,-2732.93,5.04),new mp.Vector3(-318.65,-2728.54,5),new mp.Vector3(628.8,-2992.58,5.05),new mp.Vector3(785.36,-3188.76,4.9),new mp.Vector3(996.89,-2540.46,27.46),new mp.Vector3(1279.2,-2560.54,42.64),new mp.Vector3(1071.03,-2387.63,29.48),new mp.Vector3(948.49,-2365.34,29.53),new mp.Vector3(873.46,-2419.55,26.99),new mp.Vector3(811.66,-2228.49,28.75),new mp.Vector3(842.43,-2252.65,29.22),new mp.Vector3(887.43,-2201.98,29.52),new mp.Vector3(856.11,-2197.28,29.67),new mp.Vector3(167.26,-2225.73,5.17),new mp.Vector3(97.57,-2222.96,5.17),new mp.Vector3(102.83,-2182.52,4.95),new mp.Vector3(-60.15,-2252.58,6.81),new mp.Vector3(-161.2,-2217.41,6.81),new mp.Vector3(-463.98,-2284.45,6.61),new mp.Vector3(-701.11,-2446.88,12.94),new mp.Vector3(-641.62,-2348.36,12.94),new mp.Vector3(-1052.03,-2085.31,12.35),new mp.Vector3(-820.54,-2094.73,7.81),new mp.Vector3(-608.88,-1785.03,22.64),new mp.Vector3(-1084.7,-1667.73,3.7),new mp.Vector3(-1096.86,-1630.72,3.4),new mp.Vector3(-1109.86,-1626.25,3.49),new mp.Vector3(-1126.38,-1599.61,3.38),new mp.Vector3(-1145.25,-1539.92,3.37),new mp.Vector3(-1161.18,-1456.44,3.33),new mp.Vector3(-1126.75,-1455.74,3.94),new mp.Vector3(-1192.53,-1514.6,3.37),new mp.Vector3(-1099.28,-1287.32,4.46),new mp.Vector3(-1130.82,-1414.64,4.15),new mp.Vector3(-1095.11,-1253.8,4.33),new mp.Vector3(-1255.84,-864.59,11.33),new mp.Vector3(-1284.49,-825.45,16.11),new mp.Vector3(-1304.92,-799.18,16.57),new mp.Vector3(-1815.13,-1231.67,12.02),new mp.Vector3(-1305.54,-773.12,18.7),new mp.Vector3(-1502.11,-889.29,9.11),new mp.Vector3(-1478.15,-899.51,9.02),new mp.Vector3(-1989.07,-489.34,10.61),new mp.Vector3(-1461.24,-626.35,29.76),new mp.Vector3(-1422.67,-661.65,27.67),new mp.Vector3(-1452.3,-676.95,25.47),new mp.Vector3(-1146.13,-1445.96,3.65),new mp.Vector3(-1151.26,-1266.25,5.85),new mp.Vector3(-1228.05,-1219.07,5.99),new mp.Vector3(-1094.2,-1253.75,4.35),new mp.Vector3(-1170.56,-1100.38,1.42),new mp.Vector3(-1180.64,-1090.53,1.27),new mp.Vector3(-1127.82,-943.65,1.64),new mp.Vector3(-1367.51,-667.21,25.68),new mp.Vector3(-1379.12,-639.43,27.67),new mp.Vector3(-1792.67,-397.32,43.99),new mp.Vector3(-1799.91,-407.2,43.74),new mp.Vector3(-2034.26,-257.29,22.39),new mp.Vector3(-347.49,-101.95,44.66),new mp.Vector3(-360.45,-145.64,37.25),new mp.Vector3(-965,-185.44,36.8),new mp.Vector3(-1394.08,-444.4,33.48),new mp.Vector3(-1503.99,-511.41,31.81),new mp.Vector3(-1558.53,-478.39,34.44),new mp.Vector3(-1565.46,-426.44,36.91),new mp.Vector3(-1433.09,-395.24,35.23),new mp.Vector3(-1440.43,-380.35,37.04),new mp.Vector3(-1483.62,-335.3,44.91),new mp.Vector3(-1499.22,-187.18,49.4),new mp.Vector3(-310.51,74.87,65.18),new mp.Vector3(-261.05,74.24,64.95),new mp.Vector3(-548.14,297.49,82.02),new mp.Vector3(-619.48,325.66,81.26),new mp.Vector3(-622.32,302.02,81.24),new mp.Vector3(265.15,276.03,104.62),new mp.Vector3(373.47,351.42,101.8),new mp.Vector3(380.08,251.36,102.04),new mp.Vector3(320.38,-183.07,56.43),new mp.Vector3(351.4,-195.47,56.23),new mp.Vector3(316.08,-215.83,53.09),new mp.Vector3(258.89,377.59,104.53),new mp.Vector3(220.87,390.37,105.75),new mp.Vector3(195.69,335.82,104.55),new mp.Vector3(175.34,306.42,104.37),new mp.Vector3(449.38,-574.66,27.5),new mp.Vector3(475.64,-599.97,27.5),new mp.Vector3(452.72,-917.19,27.47),new mp.Vector3(-43.6,-1300,28.07),new mp.Vector3(-77.33,-1383.53,28.32),new mp.Vector3(94.52,-1437.87,28.29),new mp.Vector3(83.74,-1292.33,28.26),new mp.Vector3(120.99,-1326.93,28.38),new mp.Vector3(164.52,-1286.51,28.3),new mp.Vector3(144.28,-1262.78,28.25),new mp.Vector3(146.26,-1289.06,28.33),new mp.Vector3(732.22,-1333.75,25.3),new mp.Vector3(739.76,-987.84,23.59),new mp.Vector3(693.81,-970.51,22.84),new mp.Vector3(870.29,-1140.69,23.16),new mp.Vector3(1070.98,-2387.35,29.47),new mp.Vector3(-27.32,-78.2,56.25),new mp.Vector3(-591.82,343,84.12),new mp.Vector3(345.44,353.58,104.29),new mp.Vector3(2491.61,1569.37,31.72),new mp.Vector3(2542.52,342.69,107.46),new mp.Vector3(2570.78,484.4,107.68),new mp.Vector3(564.2,2803.29,41.16),new mp.Vector3(571.52,2791.34,41.09),new mp.Vector3(562.58,2670.96,41.12),new mp.Vector3(274.83,2574.13,44.18),new mp.Vector3(464.95,3551.63,32.24),new mp.Vector3(1386.33,3601.58,33.89),new mp.Vector3(1722.37,3697.64,33.47),new mp.Vector3(1558.34,3803.93,33.25),new mp.Vector3(1975.86,3786.67,31.18),new mp.Vector3(2042.82,3198.48,44.19),new mp.Vector3(2657.2,3270.1,54.24),new mp.Vector3(2540.37,4674.12,32.87),new mp.Vector3(2019.69,4982.32,40.21),new mp.Vector3(1771.94,4587.63,36.71),new mp.Vector3(1731.74,4791.77,40.83),new mp.Vector3(1686.57,4972.26,41.7),new mp.Vector3(1639.46,4821.53,40.97),new mp.Vector3(1636.7,4875.83,41.03),new mp.Vector3(2019.72,4982.41,40.21),new mp.Vector3(1462.1,6540.23,13.65),new mp.Vector3(146.9,6389.93,30.31),new mp.Vector3(144.96,6388.92,30.31),new mp.Vector3(106.2,6369.66,30.38),new mp.Vector3(85.42,6360.11,30.38),new mp.Vector3(-93.55,6494.64,30.49),new mp.Vector3(-95.37,6496.8,30.49),new mp.Vector3(-82.14,6479.71,30.49),new mp.Vector3(-190.66,6430.6,30.52),new mp.Vector3(-436.12,6144.09,30.48),new mp.Vector3(-384.58,6041.63,30.5),new mp.Vector3(-128.12,6230.12,30.34),new mp.Vector3(-268.93,6173.65,30.42),new mp.Vector3(-842.35,5405.96,33.62),new mp.Vector3(-3190.91,1230.36,9.05),new mp.Vector3(-3172.77,1096.4,19.84),new mp.Vector3(-2954.3,445.35,14.28),new mp.Vector3(-2949.34,58.61,10.61),new mp.Vector3(-2950.16,420.91,14.28),new mp.Vector3(-2954.08,389.38,14.02),new mp.Vector3(-3050.25,175.32,10.6)],l=()=>{mp.blips.exists(g)&&g.destroy(),mp.markers.exists(h)&&h.destroy(),i&&(i.destroy(),i=null),mp.blips.exists(a)&&a.destroy(),mp.markers.exists(b)&&b.destroy(),e&&(e.destroy(),e=null)},m=()=>{var g=Math.floor;if(mp.blips.exists(a)&&a.destroy(),mp.markers.exists(b)&&b.destroy(),e&&(e.destroy(),e=null),-1===j)j=g(Math.random()*k.length);else{const e=k[j],a=k.filter((a,b)=>b!==j).sort((f,a)=>c(d(e.x-a.x,2)+d(e.y-a.y,2))-c(d(e.x-f.x,2)+d(e.y-f.y,2))).filter((a,b)=>b<g(.6*k.length)),b=a[g(Math.random()*a.length)];j=k.findIndex(a=>a===b)}const h=k[j];a=mp.blips.new(318,h,{color:1,scale:1.5,shortRange:!1,name:"?"}),b=mp.markers.new(27,new mp.Vector3(h.x,h.y,h.z+1),4.5,{color:[255,0,0,150],rotation:new mp.Vector3(0,0,0),bobUpAndDown:!0}),e=new global.ActionColshape(h,0,2,"\u0432\u0437\u044F\u0442\u044C \u043C\u0443\u0441\u043E\u0440",()=>{!global.actionAntiFlood("s:fQuest:junk:get",8e3)||f||(f=!0,mp.events.callRemote("s:fQuest:junk:get"))})};mp.events.add("client_neutralContractJunk_takeOk",()=>{m(),f=!1}),mp.events.add("client_neutralContractJunk_takeError",()=>{f=!1});const n=()=>{l(),g=mp.blips.new(652,new mp.Vector3(-454.63,-1721.53,17.7),{color:11,shortRange:!1,name:"?"}),h=mp.markers.new(27,new mp.Vector3(-454.63,-1721.53,18.7),4.5,{color:[255,0,0,150],rotation:new mp.Vector3(0,0,0),bobUpAndDown:!0}),i=new global.TriggerColshape(new mp.Vector3(-454.63,-1721.53,17.7),0,3,()=>{localPlayer.vehicle&&localPlayer.vehicle.getPedInSeat(-1)==localPlayer.handle&&!(60<3.6*localPlayer.vehicle.getSpeed())&&global.actionAntiFlood("s:fQuest:junk:put",5e3)&&mp.events.callRemote("s:fQuest:junk:put")},()=>{}),m()};global.registerFamilyQuest({code:"DIVERJUNK",onStart:()=>{n()},onEnd:()=>{l()},localObjects:[]})})(),(()=>{new CustomScenarioAnimWithItem("scenNeutralContractMeat","scenNeutralContractMeatItem","anim@heists@box_carry@","idle",49),mp.attachmentMngr.register("scenNeutralContractMeatItem","prop_hat_box_05",28422,new mp.Vector3(0,-.17,-.19),new mp.Vector3(0,0,0));const a=[new mp.Vector3(180.07,6397.23,30.35),new mp.Vector3(145.66,6366.19,30.53),new mp.Vector3(-55.13,6271.76,30.39),new mp.Vector3(-117.78,6210.93,30.2)];let b=null,c=null,d=null,e=null,f=null,g=null;global.registerFamilyQuest({code:"MEATFACTORY",onStart:h=>{mp.blips.exists(b)&&b.destroy(),c&&(c.destroy(),c=null),mp.markers.exists(d)&&d.destroy(),mp.blips.exists(e)&&e.destroy(),mp.markers.exists(f)&&f.destroy(),g&&(g.destroy(),g=null);const i=a[h];b=mp.blips.new(478,i,{color:38,shortRange:!1,name:"?"}),c=new global.ActionColshape(i,0,2,"\u0432\u0437\u044F\u0442\u044C \u044F\u0449\u0438\u043A",()=>{global.actionAntiFlood("s:fQuest:meat:get",8e3)&&mp.events.callRemote("s:fQuest:meat:get")}),d=mp.markers.new(27,new mp.Vector3(i.x,i.y,i.z+1),4.5,{color:[255,0,0,150],rotation:new mp.Vector3(0,0,0),bobUpAndDown:!0}),e=mp.blips.new(652,new mp.Vector3(-415.64,-2175.94,9.7),{color:38,shortRange:!1,name:"?"}),f=mp.markers.new(27,new mp.Vector3(-415.64,-2175.94,9.7),4.5,{color:[255,0,0,150],rotation:new mp.Vector3(0,0,0),bobUpAndDown:!0}),g=new global.TriggerColshape(new mp.Vector3(-415.64,-2175.94,9.32),0,3,()=>{localPlayer.vehicle&&localPlayer.vehicle.getPedInSeat(-1)==localPlayer.handle&&!(60<3.6*localPlayer.vehicle.getSpeed())&&global.actionAntiFlood("s:fQuest:meat:put",5e3)&&mp.events.callRemote("s:fQuest:meat:put")},()=>{})},onEnd:()=>{mp.blips.exists(b)&&b.destroy(),c&&(c.destroy(),c=null),mp.markers.exists(d)&&d.destroy(),mp.blips.exists(e)&&e.destroy(),mp.markers.exists(f)&&f.destroy(),g&&(g.destroy(),g=null)},localObjects:[["prop_boxpile_05a",145.66,6366.19,30.53,0,0,0],["prop_boxpile_05a",-55.13,6271.76,30.39,0,0,0],["prop_boxpile_05a",-117.78,6210.93,30.2,0,0,0]]})})(),(()=>{mp.objects.new(mp.game.joaat("prop_rub_binbag_03"),new mp.Vector3(299.36,2897.28,42.61),{alpha:255,dimension:0,rotation:new mp.Vector3(0,0,0)}),mp.objects.new(mp.game.joaat("prop_rub_binbag_03"),new mp.Vector3(301.33,2896.95,42.61),{alpha:255,dimension:0,rotation:new mp.Vector3(0,0,0)}),new global.ActionColshape(new mp.Vector3(287.17,2843.53,43.7),0,1,"\u0432\u0437\u044F\u0442\u044C \u0441\u0442\u0440\u043E\u0439\u043C\u0430\u0442\u0435\u0440\u0438\u0430\u043B\u044B",()=>{global.actionAntiFlood("server_bnbContract_getMaterial",8e3)&&mp.events.callRemote("server_bnbContract_getMaterial")}),mp.markers.new(27,new mp.Vector3(-446.77,-990.12,23.7),4.5,{color:[255,0,0,150],rotation:new mp.Vector3(0,0,0),bobUpAndDown:!0}),new global.TriggerColshape(new mp.Vector3(-446.77,-990.12,22.7),0,3,()=>{localPlayer.vehicle&&localPlayer.vehicle.getPedInSeat(-1)==localPlayer.handle&&!(60<3.6*localPlayer.vehicle.getSpeed())&&global.actionAntiFlood("server_bnbContract_putMaterial",5e3)&&mp.events.callRemote("server_bnbContract_putMaterial")},()=>{}),mp.objects.new(mp.game.joaat("prop_bollard_01c"),new mp.Vector3(1838.16,3670.71,33.28),{rotation:new mp.Vector3(0,0,0),dimension:0}),mp.objects.new(mp.game.joaat("prop_bollard_01c"),new mp.Vector3(1839.43,3671.43,33.28),{rotation:new mp.Vector3(0,0,0),dimension:0}),mp.objects.new(mp.game.joaat("prop_bollard_01c"),new mp.Vector3(1840.7,3672.16,33.28),{rotation:new mp.Vector3(0,0,0),dimension:0}),mp.objects.new(mp.game.joaat("prop_bollard_01c"),new mp.Vector3(1841.71,3672.78,33.28),{rotation:new mp.Vector3(0,0,0),dimension:0}),mp.objects.new(mp.game.joaat("prop_bollard_01c"),new mp.Vector3(-501.4,-252.56,34.68),{rotation:new mp.Vector3(0,0,0),dimension:0}),mp.objects.new(mp.game.joaat("prop_bollard_01c"),new mp.Vector3(-499.61,-251.9,34.7),{rotation:new mp.Vector3(0,0,0),dimension:0}),mp.objects.new(mp.game.joaat("prop_bollard_01c"),new mp.Vector3(-497.93,-251.15,34.71),{rotation:new mp.Vector3(0,0,0),dimension:0}),mp.objects.new(mp.game.joaat("prop_bollard_01c"),new mp.Vector3(-496.23,-250.43,34.73),{rotation:new mp.Vector3(0,0,0),dimension:0})})(),(()=>{let a=null,b=null;global.ServerPed.registerScript("POSTAL_WORK",c=>{c=JSON.parse(c),mp.markers.exists(a)&&a.destroy(),b&&(b.destroy(),b=null);const d=new mp.Vector3(parseFloat(c[0]),parseFloat(c[1]),parseFloat(c[2]));mp.events.call("client_smartphone_gps_start","\u0414\u043E\u0441\u0442\u0430\u0432\u043A\u0430",d.x,d.y,d.z),a=mp.markers.new(27,new mp.Vector3(d.x,d.y,d.z+1),5,{color:[255,0,0,255],dimension:0,visible:!0,bobUpAndDown:!1});let e=null;b=new global.TriggerColshape(d,0,5,()=>{localPlayer.vehicle||(null!==e&&clearTimeout(e),e=setTimeout(()=>{e=null;5<mp.dist(localPlayer.position.x,localPlayer.position.y,localPlayer.position.z,d.x,d.y,d.z)||(mp.markers.exists(a)&&a.destroy(),b&&(b.destroy(),b=null),mp.events.callRemote("server_postal_work_end"))},2e3))},()=>{})})})();
+    const mp = global.mp;
+    (() => {
+        const a = [new mp.Vector3(1864.92, 2705.94, 44.91), new mp.Vector3(1860.26, 2714.02, 44.93), new mp.Vector3(1863.08, 2728.62, 44.82), new mp.Vector3(1872.39, 2732.68, 44.81), new mp.Vector3(1884.85, 2724.24, 44.83)];
+        let b = null,
+            c = [],
+            d = [],
+            e = null,
+            f = null,
+            g = null;
+        global.registerFamilyQuest({
+            code: "MOTIVATED_VOLUNTEERING",
+            onStart: () => {
+                mp.blips.exists(b) && b.destroy(), c.forEach(a => a.destroy()), c = [], d.forEach(a => mp.markers.exists(a) && a.destroy()), d = [], e && (e.destroy(), e = null), mp.markers.exists(f) && f.destroy(), mp.blips.exists(g) && g.destroy(), b = mp.blips.new(764, new mp.Vector3(1874.32, 2715.55, 55.82), {
+                    color: 3,
+                    shortRange: !1,
+                    name: "?"
+                }), c = a.map(a => new global.ActionColshape(a, 0, 2, "\u0432\u0437\u044F\u0442\u044C \u044F\u0449\u0438\u043A", () => {
+                    global.actionAntiFlood("server_govContract_takeMotivatedVolunteering", 5e3) && mp.events.callRemote("server_govContract_takeMotivatedVolunteering")
+                })), d = a.map(a => mp.markers.new(1, new mp.Vector3(a.x, a.y, a.z), 2, {
+                    color: [237, 194, 21, 255],
+                    rotation: new mp.Vector3(0, 0, 0),
+                    bobUpAndDown: !0
+                })), e = new global.TriggerColshape(new mp.Vector3(752.41, -968.97, 23.89), 0, 3, () => {
+                    const a = mp.players.local;
+                    a.vehicle && a.vehicle.getPedInSeat(-1) == a.handle && !(60 < 3.6 * a.vehicle.getSpeed()) && global.actionAntiFlood("server_govContract_endMotivatedVolunteering", 5e3) && mp.events.callRemote("server_govContract_endMotivatedVolunteering")
+                }, () => {}), f = mp.markers.new(27, new mp.Vector3(752.41, -968.97, 23.89), 2, {
+                    color: [255, 0, 0, 150],
+                    rotation: new mp.Vector3(0, 0, 0),
+                    bobUpAndDown: !0
+                }), g = mp.blips.new(367, new mp.Vector3(752.41, -968.97, 23.89), {
+                    color: 25,
+                    shortRange: !1,
+                    name: "?",
+                    scale: 1.5
+                })
+            },
+            onEnd: () => {
+                mp.blips.exists(b) && b.destroy(), c.forEach(a => a.destroy()), c = [], d.forEach(a => mp.markers.exists(a) && a.destroy()), d = [], e && (e.destroy(), e = null), mp.markers.exists(f) && f.destroy(), mp.blips.exists(g) && g.destroy()
+            },
+            localObjects: []
+        })
+    })(), (() => {
+        var a = !1;
+        const b = [
+            [714.79, -967.89, 29.4, 88],
+            [714.92, -970.23, 29.4, 88],
+            [715.02, -972.58, 29.4, 88],
+            [711.46, -969.76, 29.4, 88],
+            [716.63, -959.94, 29.4, 167],
+            [719.29, -959.87, 29.4, 167],
+            [714.28, -959.99, 29.4, 167],
+            [716.57, -962.26, 29.4, 167],
+            [719.15, -962.4, 29.4, 167],
+            [713.77, -974.07, 29.4, 167],
+            [712.06, -974.02, 29.4, 167]
+        ];
+        for (const c of b) new global.ActionColshape(new mp.Vector3(c[0], c[1], c[2]), 0, 2, "\u043D\u0430\u0447\u0430\u0442\u044C \u0440\u0430\u0431\u043E\u0442\u0430\u0442\u044C", () => {
+            !global.actionAntiFlood("server_govContract_startMakeClothes", 2e3) || a || (mp.players.local.setHeading(c[3]), mp.events.callRemote("server_govContract_startMakeClothes"))
+        });
+        mp.events.add("client_contract_startMakeClothes", () => {
+            a = !0
+        }), mp.events.add("client_contract_endMakeClothes", () => {
+            a = !1
+        })
+    })(), (() => {
+        var a = Math.floor;
+        const b = mp.players.local;
+        let c = new mp.Vector3(-429.77, -2742.4, 5),
+            d = new mp.Vector3(-476.8, -2734.42, 5),
+            e = mp.blips.new(356, new mp.Vector3(-458.29, -2750.87, 6), {
+                name: "\u041F\u043E\u0440\u0442",
+                color: 4,
+                shortRange: !0
+            }),
+            f = 0,
+            g = !1,
+            h = !1,
+            i = null,
+            j = !1;
+        mp.events.add("client_jobs_port_start", a => {
+            j || (f = a, g = !1, h = !1, m(), mp.blips.exists(i) && i.destroy(), i = mp.blips.new(0, new mp.Vector3(-458.29, -2750.87, 6), {
+                color: 1,
+                scale: 1,
+                shortRange: !1,
+                name: "???"
+            }), mp.blips.exists(e) && e.destroy(), e = mp.blips.new(356, new mp.Vector3(-458.29, -2750.87, 6), {
+                name: "\u041F\u043E\u0440\u0442",
+                color: 4,
+                shortRange: !0
+            }), mp.events.add("render", l), j = !0)
+        }), mp.events.add("client_jobs_port_end", () => {
+            j && (mp.events.remove("render", l), mp.blips.exists(i) && i.destroy(), j = !1)
+        });
+        let k = 0;
+        const l = () => {
+            if (10 < ++k) {
+                if (k = 0, b.vehicle) return;
+                const {
+                    x: a,
+                    y: e,
+                    z: f
+                } = b.position;
+                if (!g) {
+                    if (n.isActive(b)) return void(g = !0);
+                    1.5 > mp.dist(a, e, f, c.x, c.y, c.z + 1) && global.actionAntiFlood("server_jobs_port_first", 2e3) && mp.events.callRemote(mp.clientEvCrypt("server_jobs_port_first"))
+                } else {
+                    if (!n.isActive(b)) return m(), h = !1, void(g = !1);
+                    !h && 1.5 > mp.dist(a, e, f, d.x, d.y, d.z + 1) && (h = !0, global.menuBrowser.execute(`startPortGame('${mp.clientEvCrypt("client_jobs_port_game")}')`))
+                }
+            }
+            g ? mp.game.graphics.drawMarker(0, d.x, d.y, d.z + 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 255, 0, 0, 255, !1, !1, 2, !1, null, null, !1) : mp.game.graphics.drawMarker(0, c.x, c.y, c.z + 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 255, 0, 0, 255, !1, !1, 2, !1, null, null, !1)
+        };
+        mp.events.add(mp.clientEvCrypt("client_jobs_port_game"), a => {
+            a ? mp.api.notify.success(`+${f}$ за ящик`) : mp.api.notify.error("\u0412\u044B \u0443\u0440\u043E\u043D\u0438\u043B\u0438 \u044F\u0449\u0438\u043A, \u043E\u0442\u043F\u0440\u0430\u0432\u043B\u044F\u0439\u0442\u0435\u0441\u044C \u0437\u0430 \u043D\u043E\u0432\u044B\u043C"), mp.events.callRemote(mp.clientEvCrypt("server_jobs_port_second"), a)
+        });
+        const m = () => {
+                c = [new mp.Vector3(-426.47, -2741.7, 5), new mp.Vector3(-427.98, -2740.03, 5), new mp.Vector3(-429.22, -2741.17, 5), new mp.Vector3(-430.39, -2742.29, 5), new mp.Vector3(-433.09, -2740.26, 5), new mp.Vector3(-436.67, -2741.82, 5)][a(6 * Math.random())], d = [new mp.Vector3(-459.05, -2717.81, 5), new mp.Vector3(-461.31, -2718.66, 5), new mp.Vector3(-462.82, -2716.1, 5), new mp.Vector3(-464.65, -2714.72, 5), new mp.Vector3(-466.27, -2714.29, 5)][a(5 * Math.random())]
+            },
+            n = new global.CustomScenarioAnimWithItem("portJobScen", "portJobScenItem", "anim@heists@box_carry@", "idle", 49);
+        mp.attachmentMngr.register("portJobScenItem", "prop_cardbordbox_02a", 28422, new mp.Vector3(0, -.18, -.18), new mp.Vector3(0, 0, 0))
+    })(), (() => {
+        const a = mp.players.local,
+            b = [new mp.Vector3(32.86, -445.57, 44.76), new mp.Vector3(21.83, -407.92, 44.76), new mp.Vector3(32.95, -375.04, 44.76), new mp.Vector3(57.46, -377.23, 44.76), new mp.Vector3(45.93, -410.72, 44.76)];
+        mp.blips.new(566, new mp.Vector3(142.58, -368.52, 43.49), {
+            name: "\u0421\u0442\u0440\u043E\u0439\u043A\u0430",
+            color: 4,
+            shortRange: !0
+        });
+        let c = null,
+            d = 0,
+            e = new mp.Vector3(0, 0, 0),
+            f = -1,
+            g = !1,
+            h = !1;
+        mp.events.add("client_jobs_bulder_start", a => {
+            h || (d = a, g = !1, mp.blips.exists(c) && c.destroy(), c = mp.blips.new(0, new mp.Vector3(41.58, -412.85, 44.6), {
+                color: 1,
+                shortRange: !1,
+                name: "???"
+            }), j(), mp.game.streaming.requestAnimDict("weapons@first_person@aim_rng@generic@projectile@thermal_charge@"), mp.events.add("render", i), h = !0)
+        }), mp.events.add("client_jobs_bulder_end", () => {
+            h && (mp.blips.exists(c) && c.destroy(), mp.events.remove("render", i), h = !1)
+        });
+        const i = () => {
+            if (!a.vehicle) {
+                const {
+                    x: b,
+                    y: c,
+                    z: d
+                } = a.position;
+                !g && 1.5 > mp.dist(b, c, d, e.x, e.y, e.z) && (a.taskPlayAnim("weapons@first_person@aim_rng@generic@projectile@thermal_charge@", "plant_floor", 8, -8, -1, 1, 0, !1, !1, !1), g = !0, global.menuBrowser.execute(`startBuilderGame('${mp.clientEvCrypt("client_jobs_builder_game")}')`)), mp.game.graphics.drawMarker(1, e.x, e.y, e.z, 0, 0, 0, 0, 0, 0, 2, 2, 15, 255, 0, 0, 120, !1, !1, 2, !1, null, null, !1)
+            }
+        };
+        mp.events.add(mp.clientEvCrypt("client_jobs_builder_game"), b => {
+            b && (mp.events.callRemote(mp.clientEvCrypt("server_jobs_builder_point"), f), mp.api.notify.success("\u0412\u044B \u0441\u043F\u0440\u0430\u0432\u0438\u043B\u0438\u0441\u044C \u0441 \u0437\u0430\u0434\u0430\u043D\u0438\u0435\u043C. \u041E\u0442\u043F\u0440\u0430\u0432\u043B\u044F\u0439\u0442\u0435\u0441\u044C \u043A \u043D\u043E\u0432\u043E\u0439 \u0442\u043E\u0447\u043A\u0435")), a.clearTasks(), j(), g = !1
+        });
+        const j = () => {
+            for (;;) {
+                const a = Math.floor(Math.random() * b.length);
+                if (a !== f) return f = a, void(e = b[a])
+            }
+        }
+    })(), (() => {
+        const a = mp.players.local;
+        mp.blips.new(527, new mp.Vector3(2945.27, 2781.26, 38.55), {
+            name: "\u0428\u0430\u0445\u0442\u0430",
+            color: 4,
+            shortRange: !0
+        });
+        const b = [new mp.Vector3(2983.28, 2793.94, 43.02), new mp.Vector3(2990.11, 2779.9, 42.44), new mp.Vector3(2996.61, 2755.75, 41.98)],
+            c = [new mp.Vector3(2963.83, 2821.29, 42.74), new mp.Vector3(2962.28, 2822.17, 42.84), new mp.Vector3(2959.7, 2821.68, 42.14), new mp.Vector3(2958.76, 2818.36, 42)];
+        let d = new mp.Vector3(0, 0, 0),
+            e = -1,
+            f = !1,
+            g = !1,
+            h = -1,
+            i = !1,
+            j = [];
+        mp.events.add("client_jobs_mine_start", () => {
+            i || (j.forEach(a => mp.blips.exists(a) && a.destroy()), j = b.map(a => mp.blips.new(0, a, {
+                color: 1,
+                shortRange: !1,
+                name: "???"
+            })), mp.game.streaming.requestAnimDict("weapons@first_person@aim_rng@generic@projectile@thermal_charge@"), f = !1, g = !1, l(), mp.events.add("render", k), i = !0)
+        }), mp.events.add("client_jobs_mine_end", () => {
+            i && (j.forEach(a => mp.blips.exists(a) && a.destroy()), j = [], mp.events.remove("render", k), i = !1)
+        });
+        const k = () => {
+            if (a.vehicle) return;
+            const {
+                x: c,
+                y: i,
+                z: j
+            } = a.position;
+            if (!f) {
+                if (m.isActive(a)) return l(), void(f = !0);
+                b.forEach((b, d) => {
+                    !g && 1.5 > mp.dist(c, i, j, b.x, b.y, b.z + 1) && global.actionAntiFlood("clientMineGameStart", 5e3) && (h = d, g = !0, a.taskPlayAnim("weapons@first_person@aim_rng@generic@projectile@thermal_charge@", "plant_floor", 8, -8, -1, 1, 0, !1, !1, !1), global.menuBrowser.execute(`startMineGame('${mp.clientEvCrypt("client_jobs_mine_game")}')`)), mp.game.graphics.drawMarker(0, b.x, b.y, b.z + 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 255, 0, 0, 255, !1, !1, 2, !1, null, null, !1)
+                })
+            } else {
+                if (!m.isActive(a)) return a.taskPlayAnim("weapons@first_person@aim_rng@generic@projectile@thermal_charge@", "plant_floor", 8, -8, -1, 1, 0, !1, !1, !1), setTimeout(() => {
+                    a.stopAnimTask("weapons@first_person@aim_rng@generic@projectile@thermal_charge@", "plant_floor", 3)
+                }, 1500), void(f = !1);
+                1.5 > mp.dist(c, i, j, d.x, d.y, d.z + 1) && global.actionAntiFlood("server_jobs_mine_put", 5e3) && mp.events.callRemote(mp.clientEvCrypt("server_jobs_mine_put"), e), mp.game.graphics.drawMarker(0, d.x, d.y, d.z + 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 255, 0, 0, 255, !1, !1, 2, !1, null, null, !1)
+            }
+        };
+        mp.events.add(mp.clientEvCrypt("client_jobs_mine_game"), b => {
+            global.actionAntiFlood("clientMineGameStart", 5e3), a.clearTasks(), g = !1, b && mp.events.callRemote(mp.clientEvCrypt("server_jobs_mine_take"), h)
+        });
+        const l = () => {
+                for (;;) {
+                    const a = Math.floor(Math.random() * c.length);
+                    if (a !== e) return d = c[a], void(e = a)
+                }
+            },
+            m = new global.CustomScenarioAnimWithItem("mineJobScen", "mineJobScenItem", "anim@heists@box_carry@", "idle", 49);
+        mp.attachmentMngr.register("mineJobScenItem", "prop_rock_5_d", 28422, new mp.Vector3(0, -.18, -.25), new mp.Vector3(0, 0, 0))
+    })(), (() => {
+        mp.events.add("playerCreateWaypoint", a => {
+            const b = mp.players.local.vehicle;
+            b && b.getVariable("isTaxiVeh") && mp.events.callRemote("playerCreateWaypointServer", JSON.stringify(a))
+        })
+    })();
 }
