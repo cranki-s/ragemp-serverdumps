@@ -1,4 +1,4 @@
 # ragemp-serverdumps
 - RageMP Client-Side from several servers
-- cef will be added gradually
+- Join our discord for more: https://crmnl.pw/discord
 
