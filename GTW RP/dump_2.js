@@ -1,0 +1,1 @@
+require('gtalife/index.js');
