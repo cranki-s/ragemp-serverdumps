@@ -1,5 +1,32 @@
 {
-    (((() => {
+    function _0x2d25(_0x272234, _0x53c94e) {
+        var _0x2ba66d = _0x5957();
+        return _0x2d25 = function(_0x21757f, _0x426790) {
+            _0x21757f = _0x21757f - (-0x12e2 + 0x159c + -0x1af);
+            var _0x16f52c = _0x2ba66d[_0x21757f];
+            return _0x16f52c;
+        }, _0x2d25(_0x272234, _0x53c94e);
+    }
+
+    function _0x5957() {
+        var _0x5c4775 = ['Menu', '2478140cohNnW', 'zPOwO', '30Tvqoun', 'getOwnProp', 'hitmarker', 'enumerable', 'KmKsS', 'Lrrhp', 'GangwarSer', 'selectFFA', 'HoSFl', 'FYqYv', 'Medal(', 'miXJv', 'ggoXy', 'nmenu:save', 'pydYK', 'YkQfs', 'djKfH', 'seAntiChea', 'fined.', 'setUsingAc', 'ertyNames', 'keyCountOn', 'weather', 'kFVHh', 'ETuqU', 'ctate:Stop', 'onFromWhit', 'BCNEb', 'getArmour', 'ZBhcQ', 'svtsw', 'Client:Scr', 'rmal', 'dropItem', 'checkPlaye', 'possibleIn', 'http://scr', 'oneHud(\x27', 'gozxV', 'jsuRb', 'loadCompon', 'setCoord', 'setAcPause', 'kPBQL', 'ctFFA', 'ZnCzv', 'applyDamag', 'currentTim', 'pGHhi', 'client:log', 'trolAction', 'players', 'thingSelec', 'eenshots/', 'tre', 'tate', 'show', 'heading', 's:FinishVe', 'showRockst', 'kLAoM', 'bYnmV', 'kaYjK', 'fzqPG', 'toggleProg', 'sqrt', 'Client:Mai', 'addBlipFor', 'setHealth', 'A4696DAF', 'default', 'jyusa', 'visible', 'next', 'showLoginF', 'PLAYER_WEA', 'CLOUDS', 'RAIN', 'ctTeam', 'men\x20nicht\x20', 'yGarage', 'AwQbF', 'LvskD', 'allowedWea', 'ponentThis', 'rQxOG', 'forEachInR', 'nmenu:tryB', 'playHitMar', 'xrASj', 'graphics', 'stats', 'EFcSP', 'HALLOWEEN', 'QfwKi', 'browser', 'BCYWf', 'YxmKS', 'DamageEven', 'ibility', 'flush', 'uQXWC', 'RaYNy', 'takeScreen', 'cameras', 'Response', 'SEwJM', 'pointAtPed', 'NGVzj', 'CLEARING', 'removeBlip', 'EJPbm', 't:selectOu', 'iCheat:Vis', 'hicleRepai', 'entory:Ope', 'loadOutfit', 'playerSpaw', 'meeles', 'EbErv', 'uKpAw', '565940OorBwX', 'rName', '388577ISKPAr', 'tion', 'GwvyS', 'VTVwb', 'RUupq', 'XiiWp', 'ange', 'kqqAu', 'Die\x20eingeg', 'parkOutVeh', 'teract', 'SP0_FLYING', 'nMenu:Sele', 'Sync:Apply', 'ication', 'xaQXS', 'tOnShot', 'vestDrawab', 'GmtTE', 'displayRad', 'apply', 'camera', 'HfWrv', 'AfterDeath', 'ZBOZc', 'setClockTi', 'checkAutoD', 'entVehicle', 'updateRedz', 'age:ParkOu', 'RwnHA', 'lqnYu', '0xDF735600', ':TryBuyCom', 'aOmIM', 'edkbB', 'th:trigger', 'lCam:ShowK', 'tlcai', 'ifCSb', 'attachToPe', 'vest', 'ZPfUJ', 'SFdPD', 'Drawable', 'KBnsJ', 'vAhhv', 'removeAllW', 'FOGGY', '1D25CA0B', 'legsTextur', 'tryBuyComp', 'dPqTa', 'etWeather', 'onState', 'FA38C5F3', 'tringPlaye', 'etTime', 'audio', 'VOrWA', 'hatDrawabl', 'peOf', 'Du\x20wurdest', 'PwScc', 's:PressE', 'wqMtx', 'Eptem', 'Client:Hit', 'parse', 'create', 'isTypingIn', ':JoinFFAAr', 'age', 'Yjcbj', 'bind', 'exports', 'naRYE', 'KfXCE', 'pgSZL', 'EAabT', 'nuuXx', 'align', 'getHealth', ':UpdateHud', 'addKillToH', 'ngeWeaponS', 'llcam', 'done', 'tryBindHot', 'qxZKj', 'SznXm', 'NpnLx', 'setCompone', 'player', 'OVERCAST', 'weOqy', 'xWYZp', 'hatTexture', 'erty', 'browsers', 'isInScreen', 'Medal(\x27', 'iCheat:Cli', 'TfZld', 'MtcAb', 'ode', 'IgUHU', '5bnWjsp', 'khzQn', 'hpXcz', 'sabFj', 'wncUm', 'E_ABILITY', 'Token(\x27', 'SNOWLIGHT', 's:UseMedik', 'setWarning', 'nBurst', 'SwUZg', 'zyzxL', 'mage', 'hideHudCom', 'dex.html\x27', 'AhRqL', 'screenshot', 'package://', 'spectateCa', 'lKNby', 'CYbBP', 'settings', '123123123', 'splice', 'updateHud(', 'rive', 'showKillst', 'ory/index.', 'rowser', 'ntVehicle', 'EXTRASUNNY', 'age:Destro', 'royMenu', 'game', 'EsUxT', 'DamageToPl', 'LCtrl', 'keys', 'gSbdF', 'shoeTextur', '\x27);', 'eHud(', 'includes', 'CELL_EMAIL', 'bilityFlag', 'CVdWi', 'giveWeapon', '\x27,\x20\x27', 'Killcam', 'thing', 'BLIZZARD', 'invoke', 'lmFaN', 'tSpectate', 'ggerACHeal', 'hdFpb', 'ncIterator', 'clickcount', 'ionMode', 'hKqUk', 'server:clo', 'pbLpr', 'duMbC', 'Colshape', '_ABILITY', 'batEB', 'toString', 'loadSettin', 'dler', '0xDE2EF5DA', 'indHotkey', '\x22,\x20', 'ThDAP', 'renderScri', 'tgHHw', 'SP0_SHOOTI', 'Armour', 'othing', 'nVzOh', 'shot/index', 'playerWeap', 'entoryItem', 'random', 'gCgCl', 'DEAD', 'PwFXm', 'toLocaleLo', 'addKillInf', 'floor', 'm/index.ht', 'openMainMe', 'callIntera', 'gOpmF', 'IkxeS', 'PFTUB', 'RCXWV', 'hjMkK', 'cef/clothi', 'kpmBu', 'warning_er', 'icheat:add', 'ACCOUNT_NA', 'requestInv', 'setTextSca', 'asdasd', 'LrGAH', 'sanitize', 'world3dToS', 'est', 'dVehicleWe', 'alpha', 'rColshape', 'setSuffers', 'Mosdy', 'getDisable', 'QZbme', 'nmiMl', 'lag', 'Cooxm', 'destroyBro', 'nqxTP', 'Naeka', 'key', 'ting', 'oczxH', 'in:TryRegi', 'NYoEo', 'Client:Ped', 'icleFlags', 'ud(', 'HguIw', 'vZsBS', 'NAWbB', 'changeSett', 'showRedzon', 'xFchI', 'dlNMX', 'destroyMen', 'UdDLC', 'optionStat', 'Server:Key', 'YvWWY', 'outgoingDa', 'lRirm', '0xF4F2C0D4', 'dnQjy', '338318qEutnV', 'waitAsync', 'previewVes', 's:SpawnPed', 'lnkxx', 'toLowerCas', ':ShowNotif', 'AiqXY', 'vwgOi', 'WFCrf', 'ait', 'renderSpec', 'zones', ',\x20\x22', 'reak(', 'loadWeathe', 'ponse', 'ysJDt', 'nmenu:letL', 'checkCanHi', 'client:ant', 'pedRotatio', 'oneHud', 'sFhCL', '\x0a~g~', 'RkHNl', 'isAllowedT', 'enHeV', 'XvlCB', 'loadMainMe', 'FMJom', 'EE1C8734', 'tryRegiste', 'mLDKr', 'IgfVd', 'HfnNn', 'yWvJr', 'ingsGamepl', 'nentShop', '0xADF692B2', 'mKqUz', '0x45FF974E', 'Server:Gar', 'Shift', 'WdWfu', 'entory:Use', 'detach', 'ena', ':PlayerHit', 'wozpn', 'CvHQS', 'ptor', 'now', 'gs(\x27', 'min', 'rwzeA', 'sqnKG', 'playerRead', 'icheat:pau', 'lEnWk', 'destroy', 'ltUEk', 'SpqAv', 'Client:Wea', 'elist', 'Hwvth', ':DestroyBr', 'wser', 'function', 'wqudY', '/indexgw', 'x.html', 'tfenI', 'data', 'nZNte', 'REGISTER', 'eUp', 'HitTo', 'OOARV', 'E63E94C6', 'GWtIg', 'jjRlw', 'dBone', 'keyCode', 'wniwE', 'discord.gg', '�berein', 'showReward', 'setActive', 'font', 'cam', 'topTexture', 'therMenu:D', 'PON_COMPON', 'ertyDescri', 'zPKzp', 'nd()', ':ShowKills', 'currentWea', 'cef/hud/in', 'nInventory', 'hitsound', 'name', 'formation(', 'LsEfO', 'events', 'fRztk', 'SP0_WHEELI', 'ponent', 'ouDzf', ':AddKillIn', 'length', 'OmTNI', 'Server:FFA', 'iStdQ', 'PM_PAUSE_H', 'icle', 'jlMdM', 'showHitMar', 'verbandska', 'createBrow', 'eToPlayer', 'NbiLp', 'in:tryRegi', 'setTextCen', 'ingSelecti', 'tryLogin', 'outline', 'iterator', 'bOiyU', 'gxt', 'SUuMp', 'Client:Spe', 'cef/garage', 'bMZWd', 'nzOJx', 'showDiscor', 'pgAUS', '46BBEAB8', 'lags', 'SMOG', 'client:tak', 'C9D93E5E', 'components', '_id', 'esbga', 'wyHUr', 'oveWeaponF', 'pedPositio', 'SWony', 'RszsJ', 'setCollisi', 'dLPah', ':CreateBro', '�rter\x20stim', 'pointAtCoo', 'pBadge', '.jpg', 'rHgyy', 'CSByF', 'discord', 'split', 'JQOMb', 'ggerAcHeav', 'screenToBa', 'setTextDro', 'Bjwep', 'rQInh', 'rage', 'xUidQ', 'ver', 'error', 'er(\x27', '284CC8DF', 'HwfyF', 'useVest', 'resolve', 'therMenu:S', 'ction', 'previewClo', 'forEach', 'system', 'setLoginIn', 'ptCams', 'reateMenu', 'OGhOJ', 'aGvcp', 'kWCCV', 'setCurrent', 'clothing', 'Client:Ant', 'ponentShop', 'dnfIe', 'YKaOI', 'yiKqb', 'torsoTextu', 'zCdfN', 'clothinJso', 'neHud', 'interactio', 'CWYFR', 'setTyresCa', '0x0A6DB496', 'selectTeam', 'defineProp', 'zDtpk', 'age:OpenGa', 'yIJsk', 'noClipFlag', 'PGJFB', 'NG_ABILITY', 'maskTextur', ':ShowLevel', 'PLAYER_CUR', 'triggerLog', 'dControlNo', 'ctate:Star', 'szPnK', 'Aaewy', 'value', 'laGcy', 'tateCam', 'CFwxR', ':ShowMedal', 'Symbol.asy', 'one', 'gHivV', 'StationNam', 'ror', 'yEUOa', 'VZGQh', '0211894E', 'DnXib', '0x475768A9', 'htJustify', 'Rfplx', 'password', 'WjAEl', 'oHit', 'DIJby', 'MhTaj', 'isAcPaused', 'weapon_una', 'treak', 'entory:Rem', 'window.loc', 'cef/screen', 'AEJyK', 'UpBadge', 'OXMlH', 'tulMF', '5674D243', 'EntityStre', '0x9E4CFFF9', 'storage', 'setTime', 'iCheat:Set', 'zoneHud', 'dSyncKey(\x27', 'in();', 'prototype', 'eqeWG', 'wQnmS', 'asAQB', 'Login', 'xIULY', 'mainmenuNo', 'Server:Hit', 'repairkit', 'ukiKm', 'maskDrawab', 'ones', 'unbind', 'playerLeav', 'tor', 'legsDrawab', 'HwlqB', 'icheat:rem', 'Gameplay', '18fnecYG', 'ash', 'entory:Dro', 'sage', 'akxRb', 'BBIDQ', 'firstaidki', 'l:finishKi', 'onShot', 'gameplay', 'hideDiscor', 'fiLUD', 'YsqqU', 'antiCheatT', 'ues', 'hKCzb', 'lKeyDetect', 'triggerHea', 'Ehqtk', 'eHud', 'aEHLA', 'Vector3', 'Index\x20Gang', 'playerVisi', 'oZDkg', 'qUIBT', 'vehicles', 'SNOW', 'pLvrv', 'oThVM', 'vJnaQ', 'RBKGG', 'ords', 'server:kil', 'OLbeq', 'PLHep', 'time', 'nLevelUp', 'ggerWeapon', 'addTextCom', 'destroyLog', 'UaOXK', 'rmenu/inde', 'BKeZz', 'XMAS', 'PLAYER_IS_', 'WBUhP', 'topDrawabl', 'IHQTy', 'deleteZone', 'removeWeap', 'ponentSubs', 'checkCanIn', 'rker', 'peds', 'KcmbK', 'isUsingAct', 'iCheat:tri', 'fINVV', 'BGjPN', 'dYaVO', 'asyncItera', 'OUZbK', 'CriticalHi', 'oeLpO', 'ngSelectio', 'LIozN', 'ation\x20=\x20\x27p', 'uIqAm', 'Frame', '~w~\x20-\x20~b~', 'sten', 'WlQbX', 'GoenZ', 'ZNXQA', 'ef/chat/in', 'type', 'getDistanc', 'MGNeM', 'our', 'shoeDrawab', 'html', 'ait(', 'bUypH', 'KjBxJ', 'Client:Kil', 'entShop(\x27', 'ory(\x27', 'wser()', '4|9|10|2|8', 'VrgmQ', 'dBJyX', 'XcdRu', 'assign', '\x20is\x20not\x20de', '0x1CA3E9EA', 'iQPiK', 'Client:Key', 'Server:Inv', 'buqfC', 'changeWeap', 'wordWrap', 'iNBAD', 'entory:Req', '\x20vor\x20kurze', 'IS_ADUTY', 'nmenu:sele', 'scale', 'YPUkT', 'entory:Des', 'KwZfM', 'SoyyR', 'setConfigF', 'illCam', 'hzKlt', 'estroyMenu', 'E75D6B7E', 'tPNsl', 'Sound', 'useRepairK', 'dSyncInput', '2282863dULwgv', 'client:dea', 'KzKwx', '0x997ABD67', 'playerQuit', 'dex.html', 'WazJP', 'YZRHx', 'esbMW', 'amera', 'sJoDJ', 'cation(\x27', 'setHeading', 'NPoiG', 's(\x27', 'ALfJk', 'entshop/in', 'A5B28BB9', 'THUNDER', 'orm()', 'NSaiS', 'PezNX', 'rget', '89258472', 'LvlUp', 'isShowingR', 'interaktio', ':TogglePro', '.html', 'lRqXA', 'freezePosi', 'showKillCa', 'giPWW', 'eVehicle', 'pedModel', 'bCJXQ', 'ccHiO', 'cef/invent', 'fCyXx', 'loadDiscor', 'username', 'oldPositio', 'eapons', 'BmwSq', 'CLEAR', 'setArmour', 'Client:Log', 'ndex.html', 'oDrive', 'AfOzv', 'hhEpq', 'zDMKz', '/index.htm', 'KvAEU', '0x2513DFB0', 'POYkt', 'ppxCV', 'rdSyncKey', 'Radius', 'eyQTv', 'sQAfy', 'streamIn', '__asyncVal', 'Server:Mai', 'tVehicle', 'cef/compon', 'IWgol', ':DestroyCo', 'YWPxc', 'qlifP', 'mbsMO', 'ggerACGodm', 'thing:save', 'indexOf', '69384XFGNsG', 'nrHFI', 'joaat', 'callRemote', 'eKZha', 'eirxF', ':ShowRedzo', 'createZone', 'XiVlk', 'dSyncKey', 'RBuCU', ',\x20\x27', 'OFF', 'oveItem', 'Server:Ant', 'QuaTH', '~w~', 'handle', 'GbkTH', 'SP0_STEALT', 'gTzMu', 'TuKtj', 'ayer', 'onent', 'ick', 'tionMode', 'tify(\x27', 'p(\x27', 'shot', 'ackage://c', 'loadInvent', 'H_ABILITY', 'setHealthR', 'es:AddNewZ', 'Client:Gar', 'pedDimensi', 'setRot', ':PlayHitMa', 'entityStre', 'call', 'nu/index.h', 'vysBV', 'SP0_LUNG_C', 'eben\x20Passw', 'cef/weathe', 'DBLRE', 'lbQHd', 'ntWeapon', 'MEIEC', 'setWeather', 'in:TryLogi', 'dKeys(\x27', 'loadClothi', 'useMedikit', 'getIsTaskA', 'creen2d', 'ble', 'NEUTRAL', 'iSxCx', 'ker()', 'lastHitted', 'jFJTr', 'SdThP', 'enabled', 'omOzP', 'getGamepla', 'srMuX', 'pshadow', 'updateHud', 'iCheat:Aut', 'cef/killca', 'VgJaG', 'mainmenu', 'CkRrL', 'substr', 'lelfR', 'zQxFN', 'dimension', 's:CancelAc', 'bsnCX', 'meagx', 'SbHRE', 'cursor', 'uuFPM', 'biKCj', 'ons', 'Client:Zon', 'IS_IN_ANIM', 'pons', ':previewCl', 'HnAzj', 'pItem', 'return', 'vehicle', 't:PreviewV', 'se64(\x27', 'new', 'lCdxo', 'zFRUJ', 'in:CreateB', 'ijgHV', 'echargeMul', ':ShowDisco', 'nwwZG', 'qiBIU', 'inNotifica', 'oIDzO', 'GlMfw', 'werCase', 'Kntnw', 'PwjaU', '\x27,\x20', 'disableCon', 'client:mai', ':loadCloth', 'oZmfI', ':UpdateRed', 'ckstarMess', 'ther', 'BWxyz', '__esModule', 'yzYDt', 'weste', 'yIyoJ', 'canInterac', 'NtiLG', 'ster', 'Key', 'lastIntera', 'YbUkE', 'EfJnr', 'Kqdnq', 'arMessage', 'isFocused', 'ker', 'setFadeOut', 'grIqu', 'KuHyp', 'RscDy', 'MaGTG', 'Server:Log', 'oll', 'set', 'setTextEnt', 'Item', 'OhlzE', 'yCamRot', 'Medal', '__awaiter', 'fYbEa', 'setCanRagd', 'shadow', 'playerEnte', 'veObW', 'isDown', 'YDBpw', 'drawNameTa', 'setTextFon', 'cation', 'EE209E20', 'oWhitelist', 'eWeather', 'then', 'YGIpe', 'showNotifi', 'RENT_TEAM', 'tml', 'sOffline', 'Client:Hud', 'spectator', 'SP0_STAMIN', 'pmoXl', 'Pdrpf', 'TOnFH', 'find', ':OpenCompo', 'ory', 'Bone', 'TFPAs', 'gressbar', 'wVrMR', 'uestItems', 'kqrGu', 'therMenu:C', 'nMenu:Load', 'thNAP', 'dmBfU', 'addDataHan', 'Client:Clo', 'tiplier', 'eBetweenCo', 'ctive', 'IvwYS', 'gWlkj', 'jYpGF', 'exists', 'TaGhH', 'FDhvI', 'mujNS', 'OckBb', 'royVV', 'gui', 'color', 'ent', 'drawText', 'ressBar(', 'setInvinci', 'war', 'inventory', 'Clothing', 'pHJRT', '_BCON', 'rVisibilit', 'local', 'nmenu:dest', 'DkpWn', 'YGJFr', 'throw', 'hEoTs', 'ueOet', '0xA6DB27D1', 'yer:ShowRo', 'controls', 'LbfzI', 'ZkvEI', 'DSbfb', 'entory:Cha', 'Qtaob', 'thesSelect', 'getVariabl', 'stringify', 'tAmount', 'es(\x27', 'warning_te', 'lth', '8fhXCev', 'dDIuM', 'keycount', 'romWhiteli', 'lXekw', 'spectateTa', 'khwfm', 'mponentSho', 'rAKNE', 'loadBounde', 'oYlaK', 'getPrototy', 'OocRd', 'WeaponToWh', 'playerExit', 'Takkb', 'rZJKL', 'setLoginAw', 'ldDoX', 'HsVzq', 'in:trylogi', 'hauptmenu', 'eout', 'UImtm', 'xRPeo', 'showLevelU', 'in:destroy', 'vestTextur', 'yxaGY', '0x5E6CC076', 'ating', 'e\x20warte\x20ku', 'jZeeS', 't:destroyB', 'setTextRig', 'fjBKm', 'eenshotRes', 'reak', 'ntVariatio', 'blackliste', 'ser', 'render', 'spawnedVeh', 'yPKpR', 'SBnOO', 'update', 'push', 'Texture', '54977C0C', 'krHgE', 'showLogin', 'game1', 'egvZi', 'kuKgl', 'TYtgk', 'setEngineO', 'setTextWra', 'setRadioTo', 'nmenu:chan', 'troyInvent', 'getDirecti', 'oldPositon', 'ayybj', 'optionName', 'Spectate', '0xF25DF915', 'CmsJh', 'Kxyio', 'weapon', 'kKCCM', 'HEqXy', 'wPFbz', 'checkCurre', 's:UseRepai', 'spawnPeds', 'OSNmx', 'eOpticalVe', 'efOxB', 'OxHyP', ':BuyCompon', 'JDeVB', 'BrJBx', 'FB8400FE', 'JXrAr', 'Qmiua', 'oveAllWeap', 'saveLogin', 'stopSpecta', '9ECBB7DA', 'ressbar', 'rmed', 'm\x20angescho', 'Sync:Remov', 'selectOutf', 'add', 'nu(\x27', 'Client:Inv', 'incomingDa', 'nLUcP', 'showMedal', 'ADUTY', '0xF314CF4F', 'keyName', '0x5A47B3B5', 'startSpect', 'componentH', '157224IluOYc', 'QADlW', 'isInColsha', 'getRot', 'setPropInd', 'PPJpu', 'NRWIw', 'VCgQH', 'itelist', 'oginWait', 'eogaF', 'soqdB', 'object', '0xD966D51A', 'setOverrid', 'rVehicle', 'weaponHash', 'amIn', 'loadVehicl', 'hPpcS', 'ATION', 'ion', 'ockstarMes', 'owser', 'Uhllf', 'TextChat', 'ENTS', 'statSetInt', 'allowedHea', 'rSettings(', 'IHFky', 'setVisible', 'yFist', 'lESnq', 'jMOlI', 'ZdXxN', 'useItem', 'apons', 'showDeathC', 'RFhZu', 'Health', 'rKit', 'cqgwa', 's:UseVest', 'respawnTim', 'nametags', 'eTo', 'ldvfS', 's:SetLastH', 'showWeapon', 'WuRAp', 'torsoDrawa', 'ObfaM', 'geSettings', 'eScreensho', '0x03D7FB09', 'AjzCx', 'rockstarMe', 'getClosest', 'position', 'nMenu:Open', 'execute', 'MainMenu', 'hasOwnProp', 'EibZC', 'Message', 'es:DeleteZ', 'HjVau', 'Client:Pla', 'SP0_STRENG', 'hruIj', 'OrxFz', 'onComponen', 'cef/mainme', 'chat', 'Client:Com', 'autoDriveF', 'uwqMa', 'ssageMessa', 'notify', 'getCoord', 'onClick', 'rz!', 'tfit', 'dPrTu', 'vRUOq', 'ePDRr', 'uMqxv', '75D5AD17', 'setTextCol', 'undershirt', 'VbuGH', 'playHitSou', 'QOTcX', '|7|0|3|6|5', 'gWMSO', 'removeAFKC', 'addWeaponT', 'crosshair', 'ssen,\x20bitt', 'Server:Com', 'ngselect/i', ':ShowWeapo', 'APACITY'];
+        _0x5957 = function() {
+            return _0x5c4775;
+        };
+        return _0x5957();
+    }(function(_0xbf1bd7, _0x1bd485) {
+        var _0x4065a1 = _0x2d25,
+            _0x340675 = _0xbf1bd7();
+        while (!![]) {
+            try {
+                var _0x2c16ed = -parseInt("338318qEutnV") / (0x1ca1 * -0x1 + 0x101e * -0x1 + 0x2cc0) + -parseInt("8fhXCev") / (-0x10 * 0x26c + 0xb7 * 0x6 + 0x2278) * (-parseInt("157224IluOYc") / (0x1 * 0xdf9 + -0x9 * -0x43f + 0x342d * -0x1)) + parseInt("565940OorBwX") / (-0x1e6 * -0x3 + -0x25fa + 0x562 * 0x6) * (parseInt("5bnWjsp") / (-0x3b * 0x2 + -0x4 * 0x49e + 0x12f3)) + parseInt("30Tvqoun") / (-0x18a4 + -0x1dff + -0x7 * -0x7cf) * (-parseInt("388577ISKPAr") / (-0x511 * -0x1 + 0xb * -0x112 + -0x6bc * -0x1)) + parseInt("69384XFGNsG") / (-0x41 * 0x61 + -0xb51 * -0x2 + 0xad * 0x3) * (-parseInt("18fnecYG") / (-0x19f + -0x7c1 + -0xb * -0xdb)) + parseInt("2478140cohNnW") / (0x1c20 + -0x3b * -0x41 + -0x2b11 * 0x1) + parseInt("2282863dULwgv") / (-0x1c7a + -0x1 * -0x24f7 + 0x1 * -0x872);
+                if (_0x2c16ed === _0x1bd485) break;
+                else _0x340675['push'](_0x340675['shift']());
+            } catch (_0x3bc8f1) {
+                _0x340675['push'](_0x340675['shift']());
+            }
+        }
+    }(_0x5957, 0x1 * 0x3b4ea + -0x54115 + 0x430e8), ((() => {
         var _0x1c2da7 = _0x2d25,
             _0x4ea218 = {
                 'uKpAw': function(_0x9f81bf, _0x5554ff) {
@@ -645,7 +672,7 @@
             })["exports"], _0x20d93c), _0x20d93c["exports"]),
             _0x31c9cf = (_0x235cb3, _0x30e8be, _0x480036, _0x575e28) => {
                 var _0x344229 = _0x1c2da7;
-                if (_0x30e8be && _0x4ea218["uKpAw"](typeof _0x30e8be, _0x4ea218["yWvJr"]) || _0x4ea218["uKpAw"](typeof _0x30e8be, _0x4ea218["GoenZ"])) {
+                if (_0x30e8be && _0x4ea218["uKpAw"](typeof _0x30e8be, "object") || _0x4ea218["uKpAw"](typeof _0x30e8be, "function")) {
                     for (let _0x3a3be of _0x4ea218["gCgCl"](_0x37002a, _0x30e8be)) !_0x43257a["call"](_0x235cb3, _0x3a3be) && _0x4ea218["ifCSb"](_0x3a3be, _0x480036) && _0x4ea218["pGHhi"](_0x26660f, _0x235cb3, _0x3a3be, {
                         'get': () => _0x30e8be[_0x3a3be],
                         'enumerable': !(_0x575e28 = _0x4ea218["eirxF"](_0x53e0de, _0x30e8be, _0x3a3be)) || _0x575e28["enumerable"]
@@ -661,9 +688,9 @@
                 'use strict';
                 var _0x4a0ed2 = _0x1c2da7,
                     _0x4f48ec = {
-                        'buqfC': _0x4ea218["FYqYv"],
-                        'qxZKj': _0x4ea218["KuHyp"],
-                        'OSNmx': _0x4ea218["WuRAp"],
+                        'buqfC': "client:anticheat:pauseAntiCheat",
+                        'qxZKj': "Server:MainMenu:SelectTeam",
+                        'OSNmx': "package://cef/mainmenu/index.html",
                         'AjzCx': function(_0x32bbff, _0x304cdb, _0x2dba99) {
                             var _0x452140 = _0x4a0ed2;
                             return _0x4ea218["srMuX"](_0x32bbff, _0x304cdb, _0x2dba99);
@@ -680,7 +707,7 @@
                             var _0x1d96d6 = _0x4a0ed2;
                             return _0x4ea218["UImtm"](_0x5158e6, _0x15c219);
                         },
-                        'QfwKi': _0x4ea218["BKeZz"],
+                        'QfwKi': "showLoginForm()",
                         'rwzeA': function(_0x1f54bb, _0x200671) {
                             var _0x40f4ff = _0x4a0ed2;
                             return _0x4ea218["EJPbm"](_0x1f54bb, _0x200671);
@@ -689,9 +716,9 @@
                             var _0x36acc4 = _0x4a0ed2;
                             return _0x4ea218["UImtm"](_0x2222f2, _0x19bb20);
                         },
-                        'HjVau': _0x4ea218["egvZi"],
-                        'dYaVO': _0x4ea218["XvlCB"],
-                        'uIqAm': _0x4ea218["ltUEk"],
+                        'HjVau': "crosshair",
+                        'dYaVO': "hitmarker",
+                        'uIqAm': "hitsound",
                         'TfZld': function(_0x104822, _0x22fef7) {
                             var _0x185769 = _0x4a0ed2;
                             return _0x4ea218["YZRHx"](_0x104822, _0x22fef7);
@@ -701,7 +728,7 @@
                             return _0x4ea218["qiBIU"](_0x585f79, _0x29a519);
                         }
                     };
-                Object["defineProperty"](_0x1d33ee, _0x4ea218["uuFPM"], {
+                Object["defineProperty"](_0x1d33ee, "__esModule", {
                     'value': !(0x7 * 0x371 + -0x8f * -0x11 + -0x2196)
                 });
                 var _0x1d6c2c = class {
@@ -719,7 +746,7 @@
                     _0x2214b = class {
                         constructor() {
                             var _0x216656 = _0x4a0ed2;
-                            mp["events"]["add"](_0x4ea218["IWgol"], (_0x5ac1e2, _0x953608) => this["tryLogin"](_0x5ac1e2, _0x953608)), mp["events"]["add"](_0x4ea218["YWPxc"], (_0x4919f1, _0x26ca61, _0x4d660d) => this["tryRegiste" + 'r'](_0x4919f1, _0x26ca61, _0x4d660d)), mp["events"]["add"](_0x4ea218["PwjaU"], (_0x59ee82, _0x418c37, _0x53c1ef, _0x9cde93) => this["triggerLoginNotification"](_0x59ee82, _0x418c37, _0x53c1ef, _0x9cde93)), mp["events"]["add"](_0x4ea218["RkHNl"], () => this["destroyLog" + 'in']()), mp["events"]["add"](_0x4ea218["pydYK"], () => this["showLogin"]()), mp["events"]["add"](_0x4ea218["WazJP"], _0x89b767 => this["selectTeam"](_0x89b767)), mp["events"]["add"](_0x4ea218["CWYFR"], _0x35418c => this["selectFFA"](_0x35418c)), mp["events"]["add"](_0x4ea218["FMJom"], () => this["destroyMen" + 'u']()), mp["events"]["add"](_0x4ea218["dPrTu"], (_0x342cd8, _0x13cd12) => this["saveLogin"](_0x342cd8, _0x13cd12)), mp["events"]["add"](_0x4ea218["ayybj"], _0x21acb9 => this["setLoginAwait"](_0x21acb9)), mp["events"]["add"](_0x4ea218["zPOwO"], (_0x58c398, _0x2fbde3) => this["changeSettingsGamepl" + 'ay'](_0x58c398, _0x2fbde3)), mp["events"]["add"](_0x4ea218["oZmfI"], () => this["playerRead" + 'y']()), this["browser"] = null, this["lastInteraction"] = Date["now"](), mp["events"]["add"](_0x4ea218["DBLRE"], _0x1e5166 => this["loadMainMe" + 'nu'](_0x1e5166));
+                            mp["events"]["add"]("client:login:trylogin", (_0x5ac1e2, _0x953608) => this["tryLogin"](_0x5ac1e2, _0x953608)), mp["events"]["add"]("client:login:tryRegister", (_0x4919f1, _0x26ca61, _0x4d660d) => this["tryRegiste" + 'r'](_0x4919f1, _0x26ca61, _0x4d660d)), mp["events"]["add"]("triggerLoginNotification", (_0x59ee82, _0x418c37, _0x53c1ef, _0x9cde93) => this["triggerLoginNotification"](_0x59ee82, _0x418c37, _0x53c1ef, _0x9cde93)), mp["events"]["add"]("client:login:destroyLogin", () => this["destroyLog" + 'in']()), mp["events"]["add"]("Client:Login:CreateBrowser", () => this["showLogin"]()), mp["events"]["add"]("client:mainmenu:selectTeam", _0x89b767 => this["selectTeam"](_0x89b767)), mp["events"]["add"]("client:mainmenu:selectFFA", _0x35418c => this["selectFFA"](_0x35418c)), mp["events"]["add"]("client:mainmenu:destroyMenu", () => this["destroyMen" + 'u']()), mp["events"]["add"]("client:mainmenu:saveLogin", (_0x342cd8, _0x13cd12) => this["saveLogin"](_0x342cd8, _0x13cd12)), mp["events"]["add"]("client:mainmenu:letLoginWait", _0x21acb9 => this["setLoginAwait"](_0x21acb9)), mp["events"]["add"]("client:mainmenu:changeSettingsGameplay", (_0x58c398, _0x2fbde3) => this["changeSettingsGamepl" + 'ay'](_0x58c398, _0x2fbde3)), mp["events"]["add"]("playerReady", () => this["playerRead" + 'y']()), this["browser"] = null, this["lastInteraction"] = Date["now"](), mp["events"]["add"]("Client:MainMenu:LoadMainMenu", _0x1e5166 => this["loadMainMe" + 'nu'](_0x1e5166));
                         }["changeSettingsGamepl" + 'ay'](_0x146d53, _0x3a77a3) {
                             var _0x4bdd94 = _0x4a0ed2;
                             if (_0x4ea218["HoSFl"](mp["storage"]["data"]["settings"], null)) {
@@ -737,7 +764,7 @@
                             this["browser"] && (this["browser"]["destroy"](), this["browser"] = null, mp["gui"]["cursor"]["show"](!(0x51 * 0x1d + 0x16f + -0xa9b), !(0x2086 * -0x1 + 0xfe * -0xb + 0x1 * 0x2b71)), mp["gui"]["chat"]["show"](!(-0x184 * -0x5 + -0x4 * -0x45d + -0x1908)), mp["events"]["call"](_0x4f48ec["buqfC"], !(-0x1 * 0x2327 + 0x1d * -0x77 + 0x30a3)));
                         }["selectFFA"](_0x5109e1) {
                             var _0x338c45 = _0x4a0ed2;
-                            this["canInterac" + 't']() && (this["lastInteraction"] = Date["now"](), mp["events"]["callRemote"](_0x4ea218["XiiWp"], _0x5109e1));
+                            this["canInterac" + 't']() && (this["lastInteraction"] = Date["now"](), mp["events"]["callRemote"]("Server:FFA:JoinFFAArena", _0x5109e1));
                         }["selectTeam"](_0x56cdc8) {
                             var _0x458081 = _0x4a0ed2;
                             this["canInterac" + 't']() && (this["lastInteraction"] = Date["now"](), mp["events"]["callRemote"](_0x4f48ec["qxZKj"], _0x56cdc8));
@@ -756,17 +783,17 @@
                         }["tryRegiste" + 'r'](_0x4b71f1, _0x5629c6, _0x4cc38d) {
                             var _0x39439c = _0x4a0ed2;
                             if (_0x4ea218["HoSFl"](_0x5629c6, _0x4cc38d)) {
-                                this["triggerLoginNotification"](_0x4ea218["xaQXS"], _0x4ea218["XcdRu"], -0x66 * 0x46 + 0x2554 + 0x50c * 0x2, _0x4ea218["GmtTE"]);
+                                this["triggerLoginNotification"]("REGISTER", "Die eingegeben Passw�rter stimmen nicht �berein", -0x66 * 0x46 + 0x2554 + 0x50c * 0x2, "error");
                                 return;
                             }
-                            this["canInterac" + 't']() && (mp["events"]["callRemote"](_0x4ea218["MGNeM"], _0x4b71f1, _0x5629c6, _0x4cc38d), this["lastInteraction"] = Date["now"]());
+                            this["canInterac" + 't']() && (mp["events"]["callRemote"]("Server:Login:TryRegister", _0x4b71f1, _0x5629c6, _0x4cc38d), this["lastInteraction"] = Date["now"]());
                         }["tryLogin"](_0x5a0adb, _0x3aa660) {
                             var _0x3a2bbc = _0x4a0ed2;
-                            this["canInterac" + 't']() && mp["events"]["callRemote"](_0x4ea218["LvskD"], _0x5a0adb, _0x3aa660);
+                            this["canInterac" + 't']() && mp["events"]["callRemote"]("Server:Login:TryLogin", _0x5a0adb, _0x3aa660);
                         }["destroyLog" + 'in']() {
                             var _0x3ff286 = _0x4a0ed2,
                                 _0x309a45;
-                            _0x4ea218["TOnFH"](_0x309a45 = this["browser"], null) || _0x4ea218["TOnFH"](_0x309a45, void(0x15 * 0x177 + 0x15bd + 0x1a4 * -0x20)) || _0x309a45["execute"](_0x4ea218["UdDLC"]);
+                            _0x4ea218["TOnFH"](_0x309a45 = this["browser"], null) || _0x4ea218["TOnFH"](_0x309a45, void(0x15 * 0x177 + 0x15bd + 0x1a4 * -0x20)) || _0x309a45["execute"]("destroyLogin();");
                         }["playerRead" + 'y']() {
                             var _0x2065d4 = _0x4a0ed2;
                             _0x4f48ec["bMZWd"](mp["storage"]["data"]["settings"], null) && (mp["storage"]["data"]["settings"] = new _0x2e3335(new _0x1d6c2c(_0x4f48ec["HjVau"], !(0x1ebc + -0x197a * 0x1 + -0x542)), new _0x1d6c2c(_0x4f48ec["dYaVO"], !(0x1a * 0x52 + -0x1 * -0x2c5 + -0xb19)), new _0x1d6c2c(_0x4f48ec["uIqAm"], !(-0x93 + -0x4fe + 0x592))), mp["storage"]["flush"]());
@@ -805,9 +832,9 @@
                             var _0x3f8c2c = _0x2d25;
                             return _0x4ea218["PwScc"](_0x2388e5, _0x1f5f2d);
                         },
-                        'eKZha': _0x4ea218["jyusa"],
-                        'weOqy': _0x4ea218["gSbdF"],
-                        'CFwxR': _0x4ea218["DkpWn"],
+                        'eKZha': "PLAYER_WEAPON_COMPONENTS",
+                        'weOqy': "entityStreamIn",
+                        'CFwxR': "0xD966D51AA5B28BB9",
                         'Mosdy': function(_0x2f5667, _0x473b88) {
                             var _0x678cbc = _0x2a5dea;
                             return _0x4ea218["aOmIM"](_0x2f5667, _0x473b88);
@@ -820,7 +847,7 @@
                             var _0x2a3230 = _0x2a5dea;
                             return _0x4ea218["UImtm"](_0x63357f, _0x248b25);
                         },
-                        'szPnK': _0x4ea218["mKqUz"],
+                        'szPnK': "player",
                         'CmsJh': function(_0x143641, _0x4620e8) {
                             var _0x5e126c = _0x2a5dea;
                             return _0x4ea218["HoSFl"](_0x143641, _0x4620e8);
@@ -829,7 +856,7 @@
                             var _0x1f3f52 = _0x2a5dea;
                             return _0x4ea218["MaGTG"](_0x1c1b79, _0x54e5e0);
                         },
-                        'zyzxL': _0x4ea218["CkRrL"],
+                        'zyzxL': "0xADF692B254977C0C",
                         'AhRqL': function(_0x1983ae, _0x36e6ad) {
                             var _0x26cb91 = _0x2a5dea;
                             return _0x4ea218["hpXcz"](_0x1983ae, _0x36e6ad);
@@ -934,10 +961,10 @@
                                     return _0x4ea218["gCgCl"](_0x333580, _0x56661c);
                                 }
                             };
-                        if (!Symbol["asyncIterator"]) throw new TypeError(_0x4ea218["Aaewy"]);
+                        if (!Symbol["asyncIterator"]) throw new TypeError("Symbol.asyncIterator is not defined.");
                         var _0x14b59b = _0x4312b6[Symbol["asyncIterator"]],
                             _0x58dc11;
-                        return _0x14b59b ? _0x14b59b["call"](_0x4312b6) : (_0x4312b6 = _0x4ea218["HEqXy"](typeof __values, _0x4ea218["GoenZ"]) ? _0x4ea218["vRUOq"](__values, _0x4312b6) : _0x4312b6[Symbol["iterator"]](), _0x58dc11 = {}, _0x4ea218["gCgCl"](_0x30b5a3, _0x4ea218["WBUhP"]), _0x4ea218["vRUOq"](_0x30b5a3, _0x4ea218["LbfzI"]), _0x4ea218["gCgCl"](_0x30b5a3, _0x4ea218["CvHQS"]), _0x58dc11[Symbol["asyncIterator"]] = function() {
+                        return _0x14b59b ? _0x14b59b["call"](_0x4312b6) : (_0x4312b6 = _0x4ea218["HEqXy"](typeof __values, "function") ? _0x4ea218["vRUOq"](__values, _0x4312b6) : _0x4312b6[Symbol["iterator"]](), _0x58dc11 = {}, _0x4ea218["gCgCl"](_0x30b5a3, "next"), _0x4ea218["vRUOq"](_0x30b5a3, "throw"), _0x4ea218["gCgCl"](_0x30b5a3, "return"), _0x58dc11[Symbol["asyncIterator"]] = function() {
                             return this;
                         }, _0x58dc11);
 
@@ -1074,14 +1101,14 @@
                 'use strict';
                 var _0x2976e9 = _0x1c2da7,
                     _0x28893b = {
-                        'oYlaK': _0x4ea218["lKNby"],
-                        'hPpcS': _0x4ea218["RCXWV"],
-                        'jsuRb': _0x4ea218["xFchI"],
+                        'oYlaK': "IS_IN_ANIMATION",
+                        'hPpcS': "IS_ADUTY",
+                        'jsuRb': "DEAD",
                         'YkQfs': function(_0x281e6c, _0x4f64ee) {
                             var _0xabc42e = _0x2976e9;
                             return _0x4ea218["HEqXy"](_0x281e6c, _0x4f64ee);
                         },
-                        'khwfm': _0x4ea218["laGcy"],
+                        'khwfm': "PLAYER_CURRENT_TEAM",
                         'EAabT': function(_0x2e3bf8, _0x34fbfc) {
                             var _0x18d44e = _0x2976e9;
                             return _0x4ea218["ijgHV"](_0x2e3bf8, _0x34fbfc);
@@ -1126,16 +1153,16 @@
                             var _0x5d45a2 = _0x2976e9;
                             return _0x4ea218["Rfplx"](_0x2bc5b4, _0x2993d5);
                         },
-                        'RFhZu': _0x4ea218["tgHHw"],
-                        'hKqUk': _0x4ea218["xIULY"]
+                        'RFhZu': "Server:AntiCheat:triggerACGodmode",
+                        'hKqUk': "Server:AntiCheat:triggerACHealKey"
                     };
-                Object["defineProperty"](_0x3642f7, _0x4ea218["uuFPM"], {
+                Object["defineProperty"](_0x3642f7, "__esModule", {
                     'value': !(0x166 * -0xa + -0x192f + -0x1 * -0x272b)
                 });
                 var _0x2f07de = class {
                         constructor() {
                             var _0x2907a6 = _0x2976e9;
-                            this["allowedHealth"] = null, mp["events"]["add"](_0x4ea218["vwgOi"], (_0x1f6eee, _0x35c4dc) => this["playerWeaponShot"](_0x1f6eee, _0x35c4dc)), mp["events"]["add"](_0x4ea218["batEB"], (_0x427a27, _0x5610da, _0x37ee44, _0x5b22d1, _0x431268, _0x42746e) => this["incomingDamage"](_0x427a27, _0x5610da, _0x37ee44, _0x5b22d1, _0x431268, _0x42746e)), mp["events"]["add"](_0x4ea218["lESnq"], (_0x1e26af, _0x3ce558, _0x1572f2, _0x94a566, _0x35c4d3, _0x57b49a) => this["outgoingDamage"](_0x1e26af, _0x3ce558, _0x1572f2, _0x94a566, _0x35c4d3, _0x57b49a)), mp["events"]["add"](_0x4ea218["qUIBT"], (_0x58fb63, _0x2937a2) => this["applyDamageToPlayer"](_0x58fb63, _0x2937a2)), mp["events"]["add"](_0x4ea218["oZmfI"], () => this["playerRead" + 'y']()), mp["events"]["add"](_0x4ea218["tfenI"], () => this["playerSpaw" + 'n']()), mp["events"]["add"](_0x4ea218["PGJFB"], _0xe47db7 => this["setHealth"](_0xe47db7)), mp["events"]["add"](_0x4ea218["Kntnw"], _0x31d9f1 => this["setArmour"](_0x31d9f1));
+                            this["allowedHealth"] = null, mp["events"]["add"]("playerWeaponShot", (_0x1f6eee, _0x35c4dc) => this["playerWeaponShot"](_0x1f6eee, _0x35c4dc)), mp["events"]["add"]("incomingDamage", (_0x427a27, _0x5610da, _0x37ee44, _0x5b22d1, _0x431268, _0x42746e) => this["incomingDamage"](_0x427a27, _0x5610da, _0x37ee44, _0x5b22d1, _0x431268, _0x42746e)), mp["events"]["add"]("outgoingDamage", (_0x1e26af, _0x3ce558, _0x1572f2, _0x94a566, _0x35c4d3, _0x57b49a) => this["outgoingDamage"](_0x1e26af, _0x3ce558, _0x1572f2, _0x94a566, _0x35c4d3, _0x57b49a)), mp["events"]["add"]("Client:HitSync:ApplyDamageToPlayer", (_0x58fb63, _0x2937a2) => this["applyDamageToPlayer"](_0x58fb63, _0x2937a2)), mp["events"]["add"]("playerReady", () => this["playerRead" + 'y']()), mp["events"]["add"]("playerSpawn", () => this["playerSpaw" + 'n']()), mp["events"]["add"]("Client:AntiCheat:SetHealth", _0xe47db7 => this["setHealth"](_0xe47db7)), mp["events"]["add"]("Client:AntiCheat:SetArmour", _0x31d9f1 => this["setArmour"](_0x31d9f1));
                         }["checkCanHitOnShot"](_0x2edc6a) {
                             var _0x310f1c = _0x2976e9;
                             return !(_0x2edc6a["getVariabl" + 'e'](_0x28893b["oYlaK"]) || _0x2edc6a["vehicle"]);
@@ -1144,26 +1171,26 @@
                             return !(mp["players"]["local"]["vehicle"] && !_0x3319e0["vehicle"] || _0x3319e0["getVariabl" + 'e'](_0x28893b["hPpcS"]) || _0x3319e0["getVariabl" + 'e'](_0x28893b["jsuRb"]) || _0x28893b["YkQfs"](mp["players"]["local"]["getVariabl" + 'e'](_0x28893b["khwfm"]), _0x3319e0["getVariabl" + 'e'](_0x28893b["khwfm"])) && _0x28893b["EAabT"](mp["players"]["local"]["getVariabl" + 'e'](_0x28893b["khwfm"]), '') && _0x28893b["cqgwa"](_0x3319e0["getVariabl" + 'e'](_0x28893b["khwfm"]), '') && _0x28893b["YkQfs"](_0x3319e0["dimension"], 0x27 * -0xe3 + -0x1 * 0xde5 + -0x92 * -0x55) && _0x28893b["YkQfs"](mp["players"]["local"]["dimension"], 0x3 * -0xaef + 0xed9 + 0x11f4));
                         }["playerWeaponShot"](_0x2eb120, _0x8afe7e) {
                             var _0x2fc481 = _0x2976e9;
-                            if (_0x8afe7e && _0x4ea218["HEqXy"](_0x8afe7e["type"], _0x4ea218["mKqUz"])) {
+                            if (_0x8afe7e && _0x4ea218["HEqXy"](_0x8afe7e["type"], "player")) {
                                 var _0x64ffe2 = _0x8afe7e;
                                 if (!this["checkCanHitOnShot"](_0x64ffe2) || !this["isAllowedToHit"](_0x64ffe2)) {
                                     _0x64ffe2["setCanRagdoll"](!(-0x94 + -0x18fd * -0x1 + 0x1869 * -0x1));
                                     return;
                                 }
-                                mp["players"]["exists"](_0x64ffe2) && _0x4ea218["WjAEl"](_0x64ffe2["getHealth"](), -0x62f * -0x1 + -0x496 * 0x8 + 0x13 * 0x19b) && (_0x64ffe2["setCanRagdoll"](!(-0x1df2 + -0xb1b * 0x1 + 0x836 * 0x5)), mp["events"]["callRemote"](_0x4ea218["SoyyR"], _0x64ffe2), _0x4ea218["HoSFl"](mp["storage"]["data"]["settings"]["gameplay"][0xe0 * -0x26 + 0x7 * -0x32f + 0x378a]["optionStat" + 'e'], null) && _0x4ea218["HEqXy"](mp["storage"]["data"]["settings"]["gameplay"][0x62 * -0x23 + -0x6 * -0x4cf + -0xf73]["optionStat" + 'e'], !(-0x138e + 0x264e + -0x4b0 * 0x4)) && mp["events"]["call"](_0x4ea218["ueOet"]), _0x4ea218["NtiLG"](mp["storage"]["data"]["settings"]["gameplay"][-0x10d3 + 0x5f2 * -0x1 + 0x16c7]["optionStat" + 'e'], null) && _0x4ea218["EFcSP"](mp["storage"]["data"]["settings"]["gameplay"][0x96f + -0xaca + 0x1 * 0x15d]["optionStat" + 'e'], !(0xbf9 + 0x2319 + -0x2f12)) && mp["events"]["call"](_0x4ea218["QZbme"]));
+                                mp["players"]["exists"](_0x64ffe2) && _0x4ea218["WjAEl"](_0x64ffe2["getHealth"](), -0x62f * -0x1 + -0x496 * 0x8 + 0x13 * 0x19b) && (_0x64ffe2["setCanRagdoll"](!(-0x1df2 + -0xb1b * 0x1 + 0x836 * 0x5)), mp["events"]["callRemote"]("Server:HitSync:ApplyHitTo", _0x64ffe2), _0x4ea218["HoSFl"](mp["storage"]["data"]["settings"]["gameplay"][0xe0 * -0x26 + 0x7 * -0x32f + 0x378a]["optionStat" + 'e'], null) && _0x4ea218["HEqXy"](mp["storage"]["data"]["settings"]["gameplay"][0x62 * -0x23 + -0x6 * -0x4cf + -0xf73]["optionStat" + 'e'], !(-0x138e + 0x264e + -0x4b0 * 0x4)) && mp["events"]["call"]("Client:Hud:PlayHitMarker"), _0x4ea218["NtiLG"](mp["storage"]["data"]["settings"]["gameplay"][-0x10d3 + 0x5f2 * -0x1 + 0x16c7]["optionStat" + 'e'], null) && _0x4ea218["EFcSP"](mp["storage"]["data"]["settings"]["gameplay"][0x96f + -0xaca + 0x1 * 0x15d]["optionStat" + 'e'], !(0xbf9 + 0x2319 + -0x2f12)) && mp["events"]["call"]("Client:Hud:PlayerHitSound"));
                             }
                         }["incomingDamage"](_0x25f298, _0x3d2fe8, _0x556995, _0xed7fdc, _0x355385, _0x3c6177) {
                             var _0x1c8644 = _0x2976e9;
-                            _0x4ea218["TOnFH"](_0x556995["type"], _0x4ea218["mKqUz"]) && mp["game"]["weapon"]["setCurrentDamageEventAmount"](-0x1 * 0x9af + -0x7 * -0x23d + -0x1 * 0x5fc);
+                            _0x4ea218["TOnFH"](_0x556995["type"], "player") && mp["game"]["weapon"]["setCurrentDamageEventAmount"](-0x1 * 0x9af + -0x7 * -0x23d + -0x1 * 0x5fc);
                         }["outgoingDamage"](_0x5dd5bd, _0x2746d9, _0x1ec12a, _0x13f1fd, _0x39473a, _0x261319) {
                             var _0x37aa99 = _0x2976e9;
-                            if (_0x2746d9 && _0x4ea218["HEqXy"](_0x2746d9["type"], _0x4ea218["mKqUz"])) {
+                            if (_0x2746d9 && _0x4ea218["HEqXy"](_0x2746d9["type"], "player")) {
                                 var _0x2ba69f = _0x2746d9;
                                 if (this["checkCanHitOnShot"](_0x2ba69f) || !this["isAllowedToHit"](_0x2ba69f)) {
                                     _0x2ba69f["setCanRagdoll"](!(0x5cc * 0x2 + 0x31 * -0x10 + 0x1 * -0x888));
                                     return;
                                 }
-                                return mp["players"]["exists"](_0x2ba69f) && _0x4ea218["WjAEl"](_0x2ba69f["getHealth"](), 0x3 * 0x582 + 0x493 + 0x1 * -0x1519) && (_0x2ba69f["setCanRagdoll"](!(0x1 * -0xb0d + 0x2ca + 0x844)), mp["events"]["callRemote"](_0x4ea218["SoyyR"], _0x2ba69f), _0x4ea218["EJPbm"](mp["storage"]["data"]["settings"]["gameplay"][0x1 * -0x379 + -0x7 * -0x382 + -0x4c * 0x47]["optionStat" + 'e'], null) && _0x4ea218["HEqXy"](mp["storage"]["data"]["settings"]["gameplay"][0x407 + 0x3df * -0x9 + 0x1 * 0x1ed1]["optionStat" + 'e'], !(0x2555 * -0x1 + -0x1dfe + 0x1671 * 0x3)) && mp["events"]["call"](_0x4ea218["ueOet"]), _0x4ea218["EJPbm"](mp["storage"]["data"]["settings"]["gameplay"][-0x16 * -0x1b5 + 0x11b5 * 0x1 + -0x3741]["optionStat" + 'e'], null) && _0x4ea218["HEqXy"](mp["storage"]["data"]["settings"]["gameplay"][-0x16e1 + -0x3 * 0x3d5 + 0x2262]["optionStat" + 'e'], !(0x4 * -0x133 + 0x20a * 0x8 + -0xb84)) && mp["events"]["call"](_0x4ea218["QZbme"])), !(-0x980 * -0x4 + -0x2608 + 0x8);
+                                return mp["players"]["exists"](_0x2ba69f) && _0x4ea218["WjAEl"](_0x2ba69f["getHealth"](), 0x3 * 0x582 + 0x493 + 0x1 * -0x1519) && (_0x2ba69f["setCanRagdoll"](!(0x1 * -0xb0d + 0x2ca + 0x844)), mp["events"]["callRemote"]("Server:HitSync:ApplyHitTo", _0x2ba69f), _0x4ea218["EJPbm"](mp["storage"]["data"]["settings"]["gameplay"][0x1 * -0x379 + -0x7 * -0x382 + -0x4c * 0x47]["optionStat" + 'e'], null) && _0x4ea218["HEqXy"](mp["storage"]["data"]["settings"]["gameplay"][0x407 + 0x3df * -0x9 + 0x1 * 0x1ed1]["optionStat" + 'e'], !(0x2555 * -0x1 + -0x1dfe + 0x1671 * 0x3)) && mp["events"]["call"]("Client:Hud:PlayHitMarker"), _0x4ea218["EJPbm"](mp["storage"]["data"]["settings"]["gameplay"][-0x16 * -0x1b5 + 0x11b5 * 0x1 + -0x3741]["optionStat" + 'e'], null) && _0x4ea218["HEqXy"](mp["storage"]["data"]["settings"]["gameplay"][-0x16e1 + -0x3 * 0x3d5 + 0x2262]["optionStat" + 'e'], !(0x4 * -0x133 + 0x20a * 0x8 + -0xb84)) && mp["events"]["call"]("Client:Hud:PlayerHitSound")), !(-0x980 * -0x4 + -0x2608 + 0x8);
                             }
                         }["applyDamageToPlayer"](_0x588717, _0x117444) {
                             var _0x16c722 = _0x2976e9;
@@ -1173,7 +1200,7 @@
                             var _0x12a28b = mp["players"]["local"]["getArmour"]();
                             mp["players"]["local"]["applyDamageTo"](_0x4ea218["JQOMb"](parseInt, _0x588717["toString"]()), !(-0x1a3 * -0xf + -0x88f * -0x2 + -0x29ab)), _0x4ea218["NpnLx"](mp["players"]["local"]["getHealth"](), -0x423 + -0x185b * 0x1 + 0x1c7e) && mp["players"]["local"]["applyDamageTo"](_0x4ea218["PwScc"](parseInt, _0x588717["toString"]()), !(-0xe63 + 0x1270 + -0x40d));
                             var _0x3ffb15 = mp["players"]["local"]["getArmour"]();
-                            _0x4ea218["dnfIe"](_0x12a28b, -0x200c + 0x7c7 * 0x1 + 0x1845) && _0x4ea218["KjBxJ"](_0x3ffb15, 0x3fa * -0x9 + -0x1b6 + 0xa0 * 0x3c) && mp["events"]["callRemote"](_0x4ea218["zCdfN"]), _0x4ea218["tulMF"](this["allowedHealth"], null) && _0x4ea218["ePDRr"](_0x4ea218["ZPfUJ"](mp["players"]["local"]["getHealth"](), mp["players"]["local"]["getArmour"]()), this["allowedHealth"]) && this["triggerHealKeyDetection"](), this["allowedHealth"] = _0x4ea218["lCdxo"](mp["players"]["local"]["getHealth"](), mp["players"]["local"]["getArmour"]()), mp["events"]["call"](_0x4ea218["BBIDQ"]);
+                            _0x4ea218["dnfIe"](_0x12a28b, -0x200c + 0x7c7 * 0x1 + 0x1845) && _0x4ea218["KjBxJ"](_0x3ffb15, 0x3fa * -0x9 + -0x1b6 + 0xa0 * 0x3c) && mp["events"]["callRemote"]("Server:HitSync:RemoveOpticalVest"), _0x4ea218["tulMF"](this["allowedHealth"], null) && _0x4ea218["ePDRr"](_0x4ea218["ZPfUJ"](mp["players"]["local"]["getHealth"](), mp["players"]["local"]["getArmour"]()), this["allowedHealth"]) && this["triggerHealKeyDetection"](), this["allowedHealth"] = _0x4ea218["lCdxo"](mp["players"]["local"]["getHealth"](), mp["players"]["local"]["getArmour"]()), mp["events"]["call"]("Client:Keys:SetLastHit");
                         }["sanitize"](_0x21e1e0) {
                             var _0x87833d = _0x2976e9;
                             return _0x28893b["rQxOG"](_0x21e1e0, -(0x2cc + 0xfd4 * 0x1 + -0x1246)) ? _0x28893b["IvwYS"](_0x21e1e0, 0x112c + -0x71 * 0x1 + 0x1 * -0xef9) : _0x28893b["gTzMu"](_0x21e1e0, 0x1f6b + -0x6 * -0x4fd + -0x3cff);
@@ -1198,11 +1225,11 @@
                     },
                     _0x3d9a8e = new _0x2f07de();
             });
-        mp["gui"]["execute"](_0x4ea218["YbUkE"]);
+        mp["gui"]["execute"]("window.location = 'package://cef/chat/index.html'");
         var _0x287fe1 = class {
                 constructor() {
                     var _0x3ca502 = _0x1c2da7;
-                    this["browser"] = null, this["clothinJso" + 'n'] = null, this["camera"] = null, this["vestDrawab" + 'le'] = 0x714 + 0x218e + -0x40f * 0xa, this["vestTextur" + 'e'] = -0xc7 + 0x15ec + 0x7b * -0x2c, mp["events"]["add"](_0x4ea218["kqqAu"], _0x2e0e7c => this["loadClothingSelectio" + 'n'](_0x2e0e7c)), mp["events"]["add"](_0x4ea218["POYkt"], _0x3662f8 => this["previewClothing"](_0x3662f8)), mp["events"]["add"](_0x4ea218["oThVM"], _0x54e9c1 => this["selectOutf" + 'it'](_0x54e9c1)), mp["events"]["add"](_0x4ea218["esbga"], () => this["destroyBrowser"]()), mp["events"]["add"](_0x4ea218["Eptem"], _0x35e7f5 => this["previewVes" + 't'](_0x35e7f5));
+                    this["browser"] = null, this["clothinJso" + 'n'] = null, this["camera"] = null, this["vestDrawab" + 'le'] = 0x714 + 0x218e + -0x40f * 0xa, this["vestTextur" + 'e'] = -0xc7 + 0x15ec + 0x7b * -0x2c, mp["events"]["add"]("Client:ClothesSelect:loadClothingSelection", _0x2e0e7c => this["loadClothingSelectio" + 'n'](_0x2e0e7c)), mp["events"]["add"]("Client:ClothesSelect:previewClothing", _0x3662f8 => this["previewClothing"](_0x3662f8)), mp["events"]["add"]("Client:ClothingSelect:selectOutfit", _0x54e9c1 => this["selectOutf" + 'it'](_0x54e9c1)), mp["events"]["add"]("Client:ClothingSelect:destroyBrowser", () => this["destroyBrowser"]()), mp["events"]["add"]("Client:ClothingSelect:PreviewVest", _0x35e7f5 => this["previewVes" + 't'](_0x35e7f5));
                 }["previewVes" + 't'](_0x1c9d0d) {
                     var _0x28eda3 = _0x1c2da7;
                     switch (_0x1c9d0d) {
@@ -1218,7 +1245,7 @@
                     }
                 }["loadClothingSelectio" + 'n'](_0x39a003) {
                     var _0x2fe689 = _0x1c2da7;
-                    _0x4ea218["NYoEo"](this["browser"], null) && (this["clothinJso" + 'n'] = JSON["parse"](_0x39a003), _0x4ea218["tulMF"](this["clothinJso" + 'n'], null) && (this["browser"] = mp["browsers"]["new"](_0x4ea218["OLbeq"]), this["browser"]["execute"]("loadOutfits('" + JSON["stringify"](this["clothinJso" + 'n']) + '\x27)'), this["camera"] = mp["cameras"]["new"](_0x4ea218["YKaOI"], new mp[("Vector3")](-(0x1 * -0xa43 + -0x40 + 0x81 * 0x1b + 0.82550048828125), -0x1cb4 + 0x5ee * 0x5 + 0x59 + 0.82183837890625, _0x4ea218["tlcai"](0x4 * 0x60e + -0xcb9 * 0x1 + -0x392 * 0x3 + 0.413787841796875, -0x245e + 0x26f4 + 0x1 * -0x296 + 0.9)), new mp[("Vector3")](0x8f6 + 0x207a + 0x198 * -0x1a, 0x19f * 0x9 + -0x807 * 0x2 + 0x177, -(-0xeca + 0x1cd8 + -0xdb7 + 0.35272216796875)), 0x110b * -0x1 + -0x10d + 0x1240), this["camera"]["pointAtCoo" + 'rd'](mp["players"]["local"]["position"]['x'], mp["players"]["local"]["position"]['y'], mp["players"]["local"]["position"]['z']), this["camera"]["setActive"](!(0x342 + -0xa * 0x12e + 0x1 * 0x88a)), mp["game"]["cam"]["renderScriptCams"](!(-0x2032 + -0x1811 + 0x3 * 0x12c1), !(0x13 * 0xb1 + 0x1e50 + -0x1 * 0x2b72), 0x1b0b + 0x1 * -0x389 + -0x1782, !(0x20b9 * -0x1 + -0x638 * 0x5 + 0x3fd1), !(0x1 * 0x1421 + -0x185 + 0xb * -0x1b1)), mp["game"]['ui']["displayRad" + 'ar'](!(0x1dbc + 0x250f * -0x1 + -0x3aa * -0x2)), mp["gui"]["chat"]["show"](!(0xb9f + 0x3d2 + -0xd * 0x130)), _0x4ea218["srMuX"](setTimeout, () => {
+                    _0x4ea218["NYoEo"](this["browser"], null) && (this["clothinJso" + 'n'] = JSON["parse"](_0x39a003), _0x4ea218["tulMF"](this["clothinJso" + 'n'], null) && (this["browser"] = mp["browsers"]["new"]("package://cef/clothingselect/index.html"), this["browser"]["execute"]("loadOutfits('" + JSON["stringify"](this["clothinJso" + 'n']) + '\x27)'), this["camera"] = mp["cameras"]["new"]("clothing", new mp[("Vector3")](-(0x1 * -0xa43 + -0x40 + 0x81 * 0x1b + 0.82550048828125), -0x1cb4 + 0x5ee * 0x5 + 0x59 + 0.82183837890625, _0x4ea218["tlcai"](0x4 * 0x60e + -0xcb9 * 0x1 + -0x392 * 0x3 + 0.413787841796875, -0x245e + 0x26f4 + 0x1 * -0x296 + 0.9)), new mp[("Vector3")](0x8f6 + 0x207a + 0x198 * -0x1a, 0x19f * 0x9 + -0x807 * 0x2 + 0x177, -(-0xeca + 0x1cd8 + -0xdb7 + 0.35272216796875)), 0x110b * -0x1 + -0x10d + 0x1240), this["camera"]["pointAtCoo" + 'rd'](mp["players"]["local"]["position"]['x'], mp["players"]["local"]["position"]['y'], mp["players"]["local"]["position"]['z']), this["camera"]["setActive"](!(0x342 + -0xa * 0x12e + 0x1 * 0x88a)), mp["game"]["cam"]["renderScriptCams"](!(-0x2032 + -0x1811 + 0x3 * 0x12c1), !(0x13 * 0xb1 + 0x1e50 + -0x1 * 0x2b72), 0x1b0b + 0x1 * -0x389 + -0x1782, !(0x20b9 * -0x1 + -0x638 * 0x5 + 0x3fd1), !(0x1 * 0x1421 + -0x185 + 0xb * -0x1b1)), mp["game"]['ui']["displayRad" + 'ar'](!(0x1dbc + 0x250f * -0x1 + -0x3aa * -0x2)), mp["gui"]["chat"]["show"](!(0xb9f + 0x3d2 + -0xd * 0x130)), _0x4ea218["srMuX"](setTimeout, () => {
                         var _0x43631c = _0x2fe689;
                         mp["gui"]["cursor"]["show"](!(-0x1f78 + -0x1 * -0x1bb3 + 0x3c5), !(0xef6 * 0x2 + -0x200d + 0x221));
                     }, -0x132d * -0x1 + -0x14b1 + 0x2 * 0xdb), this["previewClothing"](JSON["parse"](_0x39a003)[0xec8 + 0x70c + -0x1 * 0x15d4]["_id"])));
@@ -1230,43 +1257,59 @@
                     _0x4ea218["MaGTG"](_0x5ae39e, null) && (mp["players"]["local"]["setComponentVariatio" + 'n'](-0x32d * -0x1 + -0xa92 + 0x766, _0x5ae39e["maskDrawab" + 'le'], _0x5ae39e["maskTextur" + 'e'], 0x250b + 0x64 * -0xa + 0x1 * -0x2123), mp["players"]["local"]["setComponentVariatio" + 'n'](0x36 * 0x6a + -0x8 * -0x329 + 0x59 * -0x89, _0x5ae39e["torsoDrawable"], _0x5ae39e["torsoTextu" + 're'], -0x1 * 0x220f + -0x2676 * 0x1 + 0x4885), mp["players"]["local"]["setComponentVariatio" + 'n'](0x1f67 + 0x1 * 0x251b + -0x447e, _0x5ae39e["legsDrawab" + 'le'], _0x5ae39e["legsTextur" + 'e'], -0x1f49 * -0x1 + -0x1ea9 + -0xa0), mp["players"]["local"]["setComponentVariatio" + 'n'](-0x1d * -0xa1 + 0x1d74 + -0x2fab, _0x5ae39e["shoeDrawab" + 'le'], _0x5ae39e["shoeTextur" + 'e'], -0x1772 + 0x8 * 0x236 + 0x43 * 0x16), mp["players"]["local"]["setComponentVariatio" + 'n'](-0x1506 + -0x1a6b + 0x2f79, _0x5ae39e["undershirtDrawable"], _0x5ae39e["undershirtTexture"], -0x32 * 0x3f + 0x25 * 0xe7 + -0x1515), mp["players"]["local"]["setComponentVariatio" + 'n'](0x1 * -0xbf7 + -0x462 + 0x2 * 0x832, _0x5ae39e["topDrawabl" + 'e'], _0x5ae39e["topTexture"], 0x1d0f + 0xc85 * -0x3 + 0x880), mp["players"]["local"]["setPropInd" + 'ex'](-0x12 * -0x133 + -0x3 * 0xafb + 0xb5b, _0x5ae39e["hatDrawabl" + 'e'], _0x5ae39e["hatTexture"], !(-0xde4 * 0x2 + 0x1 * 0xc73 + 0x19 * 0x9d)));
                 }["selectOutf" + 'it'](_0xf4b8bb) {
                     var _0x35446d = _0x1c2da7;
-                    _0x4ea218["EFcSP"](this["browser"], null) || _0x4ea218["EFcSP"](_0xf4b8bb, '') || mp["events"]["callRemote"](_0x4ea218["BmwSq"], _0xf4b8bb, this["vestDrawab" + 'le'], this["vestTextur" + 'e']);
+                    _0x4ea218["EFcSP"](this["browser"], null) || _0x4ea218["EFcSP"](_0xf4b8bb, '') || mp["events"]["callRemote"]("server:clothing:saveClothing", _0xf4b8bb, this["vestDrawab" + 'le'], this["vestTextur" + 'e']);
                 }["destroyBrowser"]() {
                     var _0x56e728 = _0x1c2da7;
-                    _0x4ea218["VgJaG"](this["camera"], null) && (this["camera"]["setActive"](!(-0x1 * -0x1fb5 + 0x1 * 0x795 + -0x2749)), mp["game"]["cam"]["renderScriptCams"](!(0xea2 + 0x3b9 + -0x125a), !(0x2405 + 0xf03 + -0x1 * 0x3307), 0xb * -0x171 + -0x1 * -0x17f0 + -0x815 * 0x1, !(0x18a2 * -0x1 + -0xc71 + 0x2514), !(0x2dd * -0x3 + 0x124d + -0x1f1 * 0x5)), this["camera"]["destroy"](), this["camera"] = null), _0x4ea218["ijgHV"](this["browser"], null) && (this["browser"]["destroy"](), this["browser"] = null), mp["game"]['ui']["displayRad" + 'ar'](!(-0x242b + 0x1eb0 + 0x57b)), mp["gui"]["chat"]["show"](!(-0xf4f * -0x1 + -0x91 * 0x1 + -0xebe)), mp["gui"]["cursor"]["show"](!(-0xd * -0x165 + 0x1f28 + -0x3148), !(-0x7d7 * 0x3 + -0x2b3 * -0xb + -0x1 * 0x62b));
+                    _0x4ea218["VgJaG"](this["camera"], null) &&
+                        (this["camera"]["setActive"](!(-0x1 * -0x1fb5 + 0x1 * 0x795 + -0x2749)),
+                            mp["game"]["cam"]["renderScriptCams"](!(0xea2 + 0x3b9 + -0x125a), !(0x2405 + 0xf03 + -0x1 * 0x3307), 0xb * -0x171 + -0x1 * -0x17f0 + -0x815 * 0x1, !(0x18a2 * -0x1 + -0xc71 + 0x2514), !(0x2dd * -0x3 + 0x124d + -0x1f1 * 0x5)),
+                            this["camera"]["destroy"](),
+                            this["camera"] = null),
+                        _0x4ea218["ijgHV"](this["browser"], null) &&
+                        (this["browser"]["destroy"](),
+                            this["browser"] = null),
+                        mp["game"]['ui']["displayRad" + 'ar'](!(-0x242b + 0x1eb0 + 0x57b)),
+                        mp["gui"]["chat"]["show"](!(-0xf4f * -0x1 + -0x91 * 0x1 + -0xebe)),
+                        mp["gui"]["cursor"]["show"](!(-0xd * -0x165 + 0x1f28 + -0x3148), !(-0x7d7 * 0x3 + -0x2b3 * -0xb + -0x1 * 0x62b));
                 }
             },
             _0x460fb1 = new _0x287fe1(),
             _0x52f359 = class {
                 constructor() {
                     var _0xb696eb = _0x1c2da7;
-                    this["browser"] = null, mp["events"]["add"](_0x4ea218["PezNX"], _0x5637ac => this["createBrowser"](_0x5637ac)), mp["events"]["add"](_0x4ea218["NRWIw"], () => this["destroyBrowser"]()), mp["events"]["add"](_0x4ea218["edkbB"], (_0x350b1b, _0x8c8675) => this["tryBuyComponent"](_0x350b1b, _0x8c8675)), mp["keys"]["bind"](-0xa55 + -0x1a8 * -0x1 + 0x8c8, !(0x1 * 0x2de + -0x1dfc + -0x35 * -0x83), () => this["destroyBrowser"]());
+                    this["browser"] = null, mp["events"]["add"]("Client:ComponentShop:OpenComponentShop", _0x5637ac => this["createBrowser"](_0x5637ac)), mp["events"]["add"]("Client:ComponentShop:DestroyComponentShop", () => this["destroyBrowser"]()), mp["events"]["add"]("Client:ComponentShop:TryBuyComponent", (_0x350b1b, _0x8c8675) => this["tryBuyComponent"](_0x350b1b, _0x8c8675)), mp["keys"]["bind"](-0xa55 + -0x1a8 * -0x1 + 0x8c8, !(0x1 * 0x2de + -0x1dfc + -0x35 * -0x83), () => this["destroyBrowser"]());
                 }["createBrowser"](_0x26243c) {
                     var _0x23642d = _0x1c2da7;
-                    _0x4ea218["ysJDt"](this["browser"], null) && (this["browser"] = mp["browsers"]["new"](_0x4ea218["Cooxm"]), _0x4ea218["dlNMX"](this["browser"], null) && (this["browser"]["execute"]("loadComponentShop('" + _0x26243c + '\x27)'), mp["gui"]["chat"]["show"](!(0x11b9 * 0x2 + 0x1d3 + 0x5 * -0x774)), _0x4ea218["eirxF"](setTimeout, () => {
+                    _0x4ea218["ysJDt"](this["browser"], null) && (this["browser"] = mp["browsers"]["new"]("package://cef/componentshop/index.html"), _0x4ea218["dlNMX"](this["browser"], null) && (this["browser"]["execute"]("loadComponentShop('" + _0x26243c + '\x27)'), mp["gui"]["chat"]["show"](!(0x11b9 * 0x2 + 0x1d3 + 0x5 * -0x774)), _0x4ea218["eirxF"](setTimeout, () => {
                         var _0x19ffed = _0x23642d;
                         mp["gui"]["cursor"]["show"](!(-0x1083 * 0x2 + -0x2e1 * 0x9 + 0x3 * 0x13a5), !(0x1e6 + -0xe90 + -0xcaa * -0x1));
                     }, -0x16 * -0x161 + -0xccb + -0x1127)));
                 }["destroyBrowser"]() {
                     var _0x4a4f67 = _0x1c2da7;
-                    _0x4ea218["tulMF"](this["browser"], null) && (mp["gui"]["chat"]["show"](!(-0x40e * -0x9 + -0x1ddf + -0x69f)), mp["gui"]["cursor"]["show"](!(0x17a1 + -0x1130 + -0x670), !(0x20ca + -0x1 * 0x85a + -0x186f)), this["browser"]["execute"](_0x4ea218["HguIw"]), _0x4ea218["omOzP"](setTimeout, () => {
-                        var _0x28ce62 = _0x4a4f67,
-                            _0x35f9ed;
-                        _0x4ea218["IgUHU"](_0x35f9ed = this["browser"], null) || _0x4ea218["lXekw"](_0x35f9ed, void(-0x18ee + -0x6 * 0x2d4 + 0x1f * 0x15a)) || _0x35f9ed["destroy"](), this["browser"] = null;
-                    }, 0x2 * -0x6a1 + -0x16d8 + 0x2 * 0x1307));
+                    _0x4ea218["tulMF"](this["browser"], null) &&
+                        (mp["gui"]["chat"]["show"](!(-0x40e * -0x9 + -0x1ddf + -0x69f)),
+                            mp["gui"]["cursor"]["show"](!(0x17a1 + -0x1130 + -0x670), !(0x20ca + -0x1 * 0x85a + -0x186f)),
+                            this["browser"]["execute"]("destroyBrowser()"),
+                            _0x4ea218["omOzP"](setTimeout, () => {
+                                var _0x28ce62 = _0x4a4f67,
+                                    _0x35f9ed;
+                                _0x4ea218["IgUHU"](_0x35f9ed = this["browser"], null) ||
+                                    _0x4ea218["lXekw"](_0x35f9ed, void(-0x18ee + -0x6 * 0x2d4 + 0x1f * 0x15a)) ||
+                                    _0x35f9ed["destroy"](), this["browser"] = null;
+                            }, 0x2 * -0x6a1 + -0x16d8 + 0x2 * 0x1307));
                 }["tryBuyComponent"](_0x56eac7, _0x4fd14d) {
                     var _0x500295 = _0x1c2da7;
-                    _0x4ea218["VgJaG"](this["browser"], null) && mp["events"]["callRemote"](_0x4ea218["BCYWf"], _0x56eac7, _0x4fd14d);
+                    _0x4ea218["VgJaG"](this["browser"], null) && mp["events"]["callRemote"]("Server:ComponentShop:BuyComponent", _0x56eac7, _0x4fd14d);
                 }
             },
             _0x5997c2 = new _0x52f359(),
             _0x2fe11a = class {
                 constructor() {
                     var _0x289f9c = _0x1c2da7;
-                    this["browser"] = null, mp["events"]["add"](_0x4ea218["yzYDt"], _0x2d53f => this["createBrowser"](_0x2d53f)), mp["events"]["add"](_0x4ea218["bUypH"], () => this["destroyBrowser"]()), mp["events"]["add"](_0x4ea218["vJnaQ"], _0x29d1cd => this["parkOutVehicle"](_0x29d1cd)), mp["keys"]["bind"](-0x20a4 + -0x96e + 0x3d * 0xb1, !(0x3c6 + 0x1 * -0x5f3 + 0x22e), () => this["destroyBrowser"]());
+                    this["browser"] = null, mp["events"]["add"]("Client:Garage:OpenGarage", _0x2d53f => this["createBrowser"](_0x2d53f)), mp["events"]["add"]("Client:Garage:DestroyGarage", () => this["destroyBrowser"]()), mp["events"]["add"]("Client:Garage:ParkOutVehicle", _0x29d1cd => this["parkOutVehicle"](_0x29d1cd)), mp["keys"]["bind"](-0x20a4 + -0x96e + 0x3d * 0xb1, !(0x3c6 + 0x1 * -0x5f3 + 0x22e), () => this["destroyBrowser"]());
                 }["createBrowser"](_0x403b69) {
                     var _0x7e980c = _0x1c2da7;
-                    _0x4ea218["EFcSP"](this["browser"], null) && (this["browser"] = mp["browsers"]["new"](_0x4ea218["PFTUB"]), _0x4ea218["nZNte"](this["browser"], null) && (this["browser"]["execute"]("loadVehicles('" + _0x403b69 + '\x27)'), mp["gui"]["chat"]["show"](!(-0x1 * 0x221d + 0xf23 * 0x2 + 0x3d8)), _0x4ea218["omOzP"](setTimeout, () => {
+                    _0x4ea218["EFcSP"](this["browser"], null) && (this["browser"] = mp["browsers"]["new"]("package://cef/garage/index.html"), _0x4ea218["nZNte"](this["browser"], null) && (this["browser"]["execute"]("loadVehicles('" + _0x403b69 + '\x27)'), mp["gui"]["chat"]["show"](!(-0x1 * 0x221d + 0xf23 * 0x2 + 0x3d8)), _0x4ea218["omOzP"](setTimeout, () => {
                         var _0x5d0569 = _0x7e980c;
                         mp["gui"]["cursor"]["show"](!(-0xcda + -0x105c + 0x1d36), !(-0x144b + -0x16c3 + 0x2b0e));
                     }, 0x85 * 0x19 + 0x18b2 + -0x254b)));
@@ -1282,24 +1325,24 @@
                                 return _0x4ea218["IgUHU"](_0x48ece4, _0x113742);
                             }
                         };
-                    _0x4ea218["wPFbz"](this["browser"], null) && (mp["gui"]["chat"]["show"](!(-0x17 * 0x125 + -0x5 * 0x4e9 + 0x32e0)), mp["gui"]["cursor"]["show"](!(-0xd1f * -0x1 + -0x83f + -0x4df), !(0x185b * 0x1 + 0x186f + -0x21f * 0x17)), this["browser"]["execute"](_0x4ea218["HguIw"]), _0x4ea218["lqnYu"](setTimeout, () => {
+                    _0x4ea218["wPFbz"](this["browser"], null) && (mp["gui"]["chat"]["show"](!(-0x17 * 0x125 + -0x5 * 0x4e9 + 0x32e0)), mp["gui"]["cursor"]["show"](!(-0xd1f * -0x1 + -0x83f + -0x4df), !(0x185b * 0x1 + 0x186f + -0x21f * 0x17)), this["browser"]["execute"]("destroyBrowser()"), _0x4ea218["lqnYu"](setTimeout, () => {
                         var _0x33b815 = _0x96b3ed,
                             _0x6d273;
                         _0x5adb34["HsVzq"](_0x6d273 = this["browser"], null) || _0x5adb34["meagx"](_0x6d273, void(0x6fe + 0x1f35 + 0x7 * -0x575)) || _0x6d273["destroy"](), this["browser"] = null;
                     }, -0x1eec * 0x1 + -0x246d + -0x454d * -0x1));
                 }["parkOutVehicle"](_0x4e37ad) {
                     var _0x347dc6 = _0x1c2da7;
-                    _0x4ea218["tulMF"](_0x4e37ad, '') && mp["events"]["callRemote"](_0x4ea218["krHgE"], _0x4e37ad);
+                    _0x4ea218["tulMF"](_0x4e37ad, '') && mp["events"]["callRemote"]("Server:Garage:ParkOutVehicle", _0x4e37ad);
                 }
             },
             _0x1ab771 = new _0x2fe11a(),
             _0x1c8041 = class {
                 constructor() {
                     var _0x302f36 = _0x1c2da7;
-                    this["browser"] = null, mp["events"]["add"](_0x4ea218["GbkTH"], (_0x43e2e3, _0x3d5aab, _0x2c249c, _0x4cde10, _0x2c0101, _0x8c74a8) => this["createBrowser"](_0x43e2e3, _0x3d5aab, _0x2c249c, _0x4cde10, _0x2c0101, _0x8c74a8)), mp["events"]["add"](_0x4ea218["ZkvEI"], () => this["destroyBrowser"]()), mp["events"]["add"](_0x4ea218["BCNEb"], (_0x220fae, _0x20a16c, _0x806fca, _0x2de5b2, _0x73ce5, _0x1d657d) => this["updateHud"](_0x220fae, _0x20a16c, _0x806fca, _0x2de5b2, _0x73ce5, _0x1d657d)), mp["events"]["add"](_0x4ea218["ueOet"], () => this["playHitMarker"]()), mp["events"]["add"](_0x4ea218["esbMW"], (_0x19f58e, _0x477598) => this["addKillInf" + 'o'](_0x19f58e, _0x477598)), mp["events"]["add"](_0x4ea218["GlMfw"], (_0x1cd22f, _0x2b59fc, _0x5a4d7a, _0x36f789, _0x32326f) => this["showNotification"](_0x1cd22f, _0x2b59fc, _0x5a4d7a, _0x36f789, _0x32326f)), mp["events"]["add"](_0x4ea218["XiVlk"], (_0x1a0f05, _0x26e3c5, _0xf356f6) => this["toggleProgressbar"](_0x1a0f05, _0x26e3c5, _0xf356f6)), mp["events"]["add"](_0x4ea218["veObW"], _0x5547d6 => this["showLevelUpBadge"](_0x5547d6)), mp["events"]["add"](_0x4ea218["kuKgl"], (_0x3d0865, _0x996cd2) => this["showWeaponLvlUp"](_0x3d0865, _0x996cd2)), mp["events"]["add"](_0x4ea218["dDIuM"], (_0x2bb2ac, _0xd3eaf5) => this["showMedal"](_0x2bb2ac, _0xd3eaf5)), mp["events"]["add"](_0x4ea218["QZbme"], () => this["playHitSou" + 'nd']()), mp["events"]["add"](_0x4ea218["yIJsk"], _0x20d0b9 => this["showKillstreak"](_0x20d0b9)), mp["events"]["add"](_0x4ea218["djKfH"], (_0x5c71cd, _0x672766) => this["showRedzoneHud"](_0x5c71cd, _0x672766)), mp["events"]["add"](_0x4ea218["RszsJ"], _0x552fc9 => this["updateRedzoneHud"](_0x552fc9)), mp["events"]["add"](_0x4ea218["Hwvth"], _0x500b5f => this["showDiscordSyncKey"](_0x500b5f)), mp["keys"]["bind"](-0xb * 0x295 + -0x1 * 0xbb1 + -0x2833 * -0x1, !(0x1 * 0x84f + -0x699 + -0x1b5), () => this["hideDiscordSyncKey"]());
+                    this["browser"] = null, mp["events"]["add"]("Client:Hud:CreateBrowser", (_0x43e2e3, _0x3d5aab, _0x2c249c, _0x4cde10, _0x2c0101, _0x8c74a8) => this["createBrowser"](_0x43e2e3, _0x3d5aab, _0x2c249c, _0x4cde10, _0x2c0101, _0x8c74a8)), mp["events"]["add"]("Client:Hud:DestroyBrowser", () => this["destroyBrowser"]()), mp["events"]["add"]("Client:Hud:UpdateHud", (_0x220fae, _0x20a16c, _0x806fca, _0x2de5b2, _0x73ce5, _0x1d657d) => this["updateHud"](_0x220fae, _0x20a16c, _0x806fca, _0x2de5b2, _0x73ce5, _0x1d657d)), mp["events"]["add"]("Client:Hud:PlayHitMarker", () => this["playHitMarker"]()), mp["events"]["add"]("Client:Hud:AddKillInfo", (_0x19f58e, _0x477598) => this["addKillInf" + 'o'](_0x19f58e, _0x477598)), mp["events"]["add"]("Client:Hud:ShowNotification", (_0x1cd22f, _0x2b59fc, _0x5a4d7a, _0x36f789, _0x32326f) => this["showNotification"](_0x1cd22f, _0x2b59fc, _0x5a4d7a, _0x36f789, _0x32326f)), mp["events"]["add"]("Client:Hud:ToggleProgressbar", (_0x1a0f05, _0x26e3c5, _0xf356f6) => this["toggleProgressbar"](_0x1a0f05, _0x26e3c5, _0xf356f6)), mp["events"]["add"]("Client:Hud:ShowLevelUpBadge", _0x5547d6 => this["showLevelUpBadge"](_0x5547d6)), mp["events"]["add"]("Client:Hud:ShowWeaponLevelUp", (_0x3d0865, _0x996cd2) => this["showWeaponLvlUp"](_0x3d0865, _0x996cd2)), mp["events"]["add"]("Client:Hud:ShowMedal", (_0x2bb2ac, _0xd3eaf5) => this["showMedal"](_0x2bb2ac, _0xd3eaf5)), mp["events"]["add"]("Client:Hud:PlayerHitSound", () => this["playHitSou" + 'nd']()), mp["events"]["add"]("Client:Hud:ShowKillstreak", _0x20d0b9 => this["showKillstreak"](_0x20d0b9)), mp["events"]["add"]("Client:Hud:ShowRedzoneHud", (_0x5c71cd, _0x672766) => this["showRedzoneHud"](_0x5c71cd, _0x672766)), mp["events"]["add"]("Client:Hud:UpdateRedzoneHud", _0x552fc9 => this["updateRedzoneHud"](_0x552fc9)), mp["events"]["add"]("Client:Hud:ShowDiscordSyncKey", _0x500b5f => this["showDiscordSyncKey"](_0x500b5f)), mp["keys"]["bind"](-0xb * 0x295 + -0x1 * 0xbb1 + -0x2833 * -0x1, !(0x1 * 0x84f + -0x699 + -0x1b5), () => this["hideDiscordSyncKey"]());
                 }["hideDiscordSyncKey"]() {
                     var _0x49553 = _0x1c2da7;
-                    _0x4ea218["OXMlH"](this["browser"], null) && (this["browser"]["execute"](_0x4ea218["giPWW"]), mp["gui"]["cursor"]["show"](!(0x1 * -0x250d + -0x1486 * -0x1 + 0x1088), !(0x4cd * 0x6 + 0x123d + -0x36 * 0xdf)));
+                    _0x4ea218["OXMlH"](this["browser"], null) && (this["browser"]["execute"]("hideDiscordSyncInput()"), mp["gui"]["cursor"]["show"](!(0x1 * -0x250d + -0x1486 * -0x1 + 0x1088), !(0x4cd * 0x6 + 0x123d + -0x36 * 0xdf)));
                 }["showDiscordSyncKey"](_0x7bfe5b) {
                     var _0x3cae07 = _0x1c2da7;
                     _0x4ea218["ijgHV"](this["browser"], null) && (this["browser"]["execute"]("loadDiscordSyncKey('" + _0x7bfe5b + '\x27)'), mp["gui"]["cursor"]["show"](!(-0x26c1 + 0x144c * 0x1 + -0x3 * -0x627), !(-0x1 * 0x169b + 0x73a * -0x3 + -0x1 * -0x2c49)));
@@ -1320,7 +1363,7 @@
                     _0x4ea218["YGIpe"](this["browser"], null) && this["browser"]["execute"]("showRewardMedal(" + _0x5a9184 + ',\x20' + _0x2039f4 + ')');
                 }["playHitSou" + 'nd']() {
                     var _0x4070fd = _0x1c2da7;
-                    _0x4ea218["tulMF"](this["browser"], null) && this["browser"]["execute"](_0x4ea218["ALfJk"]);
+                    _0x4ea218["tulMF"](this["browser"], null) && this["browser"]["execute"]("playHitSound()");
                 }["showLevelUpBadge"](_0x14c9f0) {
                     var _0x5a909c = _0x1c2da7;
                     _0x4ea218["OOARV"](this["browser"], null) && this["browser"]["execute"]("showLevelUp('" + _0x14c9f0 + '\x27)');
@@ -1329,7 +1372,7 @@
                     _0x4ea218["wPFbz"](this["browser"], null) && this["browser"]["execute"]("showWeaponToken('" + _0x25d92f + "', " + _0x4f2ad1 + ')');
                 }["createBrowser"](_0x443194, _0x13741b, _0x838502, _0x3a30c6, _0x4abe41, _0x332e6) {
                     var _0x265256 = _0x1c2da7;
-                    _0x4ea218["kLAoM"](this["browser"], null) && (this["browser"] = mp["browsers"]["new"](_0x4ea218["SBnOO"]), _0x4ea218["srMuX"](setTimeout, () => {
+                    _0x4ea218["kLAoM"](this["browser"], null) && (this["browser"] = mp["browsers"]["new"]("package://cef/hud/index.html"), _0x4ea218["srMuX"](setTimeout, () => {
                         var _0xf1754f = _0x265256,
                             _0x1a0237;
                         _0x4ea218["EibZC"](_0x1a0237 = this["browser"], null) || _0x4ea218["LsEfO"](_0x1a0237, void(-0xb1a + 0x5 * 0x565 + -0xfdf)) || _0x1a0237["execute"]("updateHud(" + _0x443194 + ',\x20' + _0x13741b + ',\x20' + _0x838502 + ',\x20' + _0x3a30c6 + ',\x20' + _0x4abe41 + ',\x20' + _0x332e6 + ')');
@@ -1345,7 +1388,7 @@
                     _0x4ea218["oeLpO"](this["browser"], null) && this["browser"]["execute"]("updateHud(" + _0x381701 + ',\x20' + _0x58ca42 + ',\x20' + _0x52a410 + ',\x20' + _0x489de2 + ',\x20' + _0x4b373f + ',\x20' + _0x541182 + ')');
                 }["playHitMarker"]() {
                     var _0x471e88 = _0x1c2da7;
-                    _0x4ea218["gHivV"](this["browser"], null) && this["browser"]["execute"](_0x4ea218["VZGQh"]);
+                    _0x4ea218["gHivV"](this["browser"], null) && this["browser"]["execute"]("showHitMarker()");
                 }["addKillInf" + 'o'](_0x377c63, _0x2bf3da) {
                     var _0x400e0c = _0x1c2da7;
                     _0x4ea218["lbQHd"](this["browser"], null) && this["browser"]["execute"]("addKillToHud(" + _0x377c63 + ", '" + _0x2bf3da + '\x27)');
@@ -1354,7 +1397,7 @@
                     _0x4ea218["dlNMX"](this["browser"], null) && (this["browser"]["execute"]("showNotification('" + _0x10c062 + "', '" + _0x5e2609 + "', '" + _0xf8d033 + "', '" + _0x2143df + "', " + _0x525c83 + ')'), mp["system"]["isFocused"] || mp["system"]["notify"]({
                         'title': '' + _0x10c062,
                         'text': '' + _0xf8d033,
-                        'attribute': _0x4ea218["ouDzf"],
+                        'attribute': "Index Gangwar",
                         'duration': 0x1d4c,
                         'silent': !(0x7 * -0xd6 + 0x2 * -0x644 + 0x1263)
                     }));
@@ -1364,10 +1407,10 @@
             _0x184856 = class {
                 constructor() {
                     var _0x43cb49 = _0x1c2da7;
-                    this["browser"] = null, mp["events"]["add"](_0x4ea218["OmTNI"], (_0x5a887f, _0x2181ec) => this["createBrowser"](_0x5a887f, _0x2181ec)), mp["events"]["add"](_0x4ea218["vAhhv"], () => this["destroyBrowser"]()), mp["events"]["add"](_0x4ea218["YPUkT"], _0x5e0f01 => this["useItem"](_0x5e0f01)), mp["events"]["add"](_0x4ea218["ggoXy"], (_0x3cbbc2, _0xe12032) => this["dropItem"](_0x3cbbc2, _0xe12032)), mp["events"]["add"](_0x4ea218["uwqMa"], _0x8b4de => this["changeWeaponState"](_0x8b4de)), mp["keys"]["bind"](0xb * -0x14d + -0x211c + -0x17c3 * -0x2, !(0x11 * -0x189 + -0x215c + 0x56 * 0xb1), () => this["destroyBrowser"]());
+                    this["browser"] = null, mp["events"]["add"]("Client:Inventory:OpenInventory", (_0x5a887f, _0x2181ec) => this["createBrowser"](_0x5a887f, _0x2181ec)), mp["events"]["add"]("Client:Inventory:DestroyInventory", () => this["destroyBrowser"]()), mp["events"]["add"]("Client:Inventory:UseItem", _0x5e0f01 => this["useItem"](_0x5e0f01)), mp["events"]["add"]("Client:Inventory:DropItem", (_0x3cbbc2, _0xe12032) => this["dropItem"](_0x3cbbc2, _0xe12032)), mp["events"]["add"]("Client:Inventory:ChangeWeaponState", _0x8b4de => this["changeWeaponState"](_0x8b4de)), mp["keys"]["bind"](0xb * -0x14d + -0x211c + -0x17c3 * -0x2, !(0x11 * -0x189 + -0x215c + 0x56 * 0xb1), () => this["destroyBrowser"]());
                 }["createBrowser"](_0x15bf3c, _0x1a62be) {
                     var _0x155439 = _0x1c2da7;
-                    _0x4ea218["xUidQ"](this["browser"], null) && (this["browser"] = mp["browsers"]["new"](_0x4ea218["BGjPN"]), _0x4ea218["royVV"](this["browser"], null) && (this["browser"]["execute"]("loadInventory('" + _0x15bf3c + "', '" + _0x1a62be + '\x27)'), mp["gui"]["chat"]["show"](!(0xbad * -0x2 + 0xb4 * -0x1d + 0xe95 * 0x3)), _0x4ea218["eirxF"](setTimeout, () => {
+                    _0x4ea218["xUidQ"](this["browser"], null) && (this["browser"] = mp["browsers"]["new"]("package://cef/inventory/index.html"), _0x4ea218["royVV"](this["browser"], null) && (this["browser"]["execute"]("loadInventory('" + _0x15bf3c + "', '" + _0x1a62be + '\x27)'), mp["gui"]["chat"]["show"](!(0xbad * -0x2 + 0xb4 * -0x1d + 0xe95 * 0x3)), _0x4ea218["eirxF"](setTimeout, () => {
                         var _0x3833a7 = _0x155439;
                         mp["gui"]["cursor"]["show"](!(-0x23e5 + 0x2650 + -0x1 * 0x26b), !(0x6b * -0x25 + 0x1 * -0x15d + -0x1 * -0x10d4));
                     }, 0x4be + 0x656 * -0x2 + -0x6 * -0x163)));
@@ -1376,20 +1419,20 @@
                     _0x4ea218["Kxyio"](this["browser"], null) && (mp["gui"]["chat"]["show"](!(-0x9a6 + 0x65f * -0x6 + 0x2fe0)), mp["gui"]["cursor"]["show"](!(-0x68c + 0x26f3 + -0x2066), !(0x1277 + 0x5e * 0x63 + 0x6da * -0x8)), this["browser"]["destroy"](), this["browser"] = null);
                 }["useItem"](_0x514487) {
                     var _0x5572c9 = _0x1c2da7;
-                    _0x4ea218["TYtgk"](this["browser"], null) && (mp["events"]["callRemote"](_0x4ea218["NGVzj"], _0x514487), this["destroyBrowser"]());
+                    _0x4ea218["TYtgk"](this["browser"], null) && (mp["events"]["callRemote"]("Server:Inventory:UseItem", _0x514487), this["destroyBrowser"]());
                 }["dropItem"](_0x596719, _0x4553c1) {
                     var _0x321600 = _0x1c2da7;
-                    _0x4ea218["Naeka"](this["browser"], null) && (mp["events"]["callRemote"](_0x4ea218["ldDoX"], _0x596719, _0x4553c1), this["destroyBrowser"]());
+                    _0x4ea218["Naeka"](this["browser"], null) && (mp["events"]["callRemote"]("Server:Inventory:RemoveItem", _0x596719, _0x4553c1), this["destroyBrowser"]());
                 }["changeWeaponState"](_0x5ea556) {
                     var _0x3dce3a = _0x1c2da7;
-                    _0x4ea218["dlNMX"](this["browser"], null) && mp["events"]["callRemote"](_0x4ea218["Takkb"], _0x5ea556);
+                    _0x4ea218["dlNMX"](this["browser"], null) && mp["events"]["callRemote"]("Server:Inventory:ChangeWeaponState", _0x5ea556);
                 }
             },
             _0x1faaa0 = new _0x184856(),
             _0x27bfd1 = class {
                 constructor() {
                     var _0x292847 = _0x1c2da7;
-                    this["browser"] = mp["browsers"]["new"](_0x4ea218["kKCCM"]), mp["events"]["add"](_0x4ea218["vZsBS"], (_0xc857d5, _0x3bf578, _0x31758f, _0xa50aa4) => this["showDeathC" + 'am'](_0xc857d5, _0x3bf578, _0x31758f, _0xa50aa4));
+                    this["browser"] = mp["browsers"]["new"]("package://cef/killcam/index.html"), mp["events"]["add"]("Client:KillCam:ShowKillCam", (_0xc857d5, _0x3bf578, _0x31758f, _0xa50aa4) => this["showDeathC" + 'am'](_0xc857d5, _0x3bf578, _0x31758f, _0xa50aa4));
                 }["showDeathC" + 'am'](_0x3b39e2, _0x117dab, _0x10bf6c, _0x204815) {
                     var _0x27b789 = _0x1c2da7;
                     _0x4ea218["QOTcX"](this["browser"], null) && this["browser"]["execute"]("respawnTimer('" + _0x3b39e2 + "', '" + _0x117dab + "', '" + _0x10bf6c + "', '" + _0x204815 + '\x27)');
@@ -1400,11 +1443,11 @@
             _0x5f3e12 = class {
                 constructor() {
                     var _0x1ae94e = _0x1c2da7;
-                    mp["events"]["add"](_0x4ea218["OhlzE"], () => this["takeScreenshot"]()), mp["keys"]["bind"](-0x17 * 0x1a2 + -0xb * -0x349 + -0x1 * -0x199, !(0x1650 + -0x2cf * -0xd + 0x3ad2 * -0x1), () => this["keyCountOneUp"]()), mp["events"]["add"](_0x4ea218["ppxCV"], () => this["screenshotResponse"]()), this["browser"] = null, this["keycount"] = -0xb2a + 0x2150 + -0xa2 * 0x23, this["possibleInMenu"] = !(-0x1 * -0x86d + -0x1c27 + 0x13bb), this["clickcount"] = 0x2033 * -0x1 + 0x26e6 + -0x6b3, this["isInScreenshot"] = !(-0x14e5 * 0x1 + -0x1027 + -0x7 * -0x54b);
+                    mp["events"]["add"]("client:takeScreenshot", () => this["takeScreenshot"]()), mp["keys"]["bind"](-0x17 * 0x1a2 + -0xb * -0x349 + -0x1 * -0x199, !(0x1650 + -0x2cf * -0xd + 0x3ad2 * -0x1), () => this["keyCountOneUp"]()), mp["events"]["add"]("Client:ScreenshotResponse", () => this["screenshotResponse"]()), this["browser"] = null, this["keycount"] = -0xb2a + 0x2150 + -0xa2 * 0x23, this["possibleInMenu"] = !(-0x1 * -0x86d + -0x1c27 + 0x13bb), this["clickcount"] = 0x2033 * -0x1 + 0x26e6 + -0x6b3, this["isInScreenshot"] = !(-0x14e5 * 0x1 + -0x1027 + -0x7 * -0x54b);
                 }["takeScreenshot"]() {
                     var _0x234f65 = _0x1c2da7;
                     if (_0x4ea218["SdThP"](this["browser"], null) || _0x4ea218["ysJDt"](this["isInScreenshot"], !(0x171a + 0x2652 * -0x1 + 0xf38))) return;
-                    this["isInScreenshot"] = !(-0x1 * -0x16fc + 0x685 * 0x3 + -0x2a8b), this["browser"] = mp["browsers"]["new"](_0x4ea218["asAQB"]);
+                    this["isInScreenshot"] = !(-0x1 * -0x16fc + 0x685 * 0x3 + -0x2a8b), this["browser"] = mp["browsers"]["new"]("package://cef/screenshot/index.html");
                     let _0x94d801 = mp["players"]["local"]["name"];
                     mp["gui"]["takeScreenshot"](_0x94d801 + ".jpg", 0x1 * 0x22cb + -0x15d * -0x18 + -0x15 * 0x337, -0x1922 + 0x19af + -0x51, 0x1825 * 0x1 + 0x3ec * -0x3 + -0xc61);
                     let _0x2658f0 = "http://screenshots/" + _0x94d801 + ".jpg";
@@ -1427,7 +1470,7 @@
                             _0x79a875["clickcount"]++;
                             return;
                         }
-                        mp["events"]["call"](_0x4ea218["OhlzE"]), _0x79a875["clickcount"] = 0x199b + 0x1 * 0x1a21 + -0x33bc, _0x79a875["possibleInMenu"] = !(0x146 * 0x11 + -0x236c + 0xdc7 * 0x1);
+                        mp["events"]["call"]("client:takeScreenshot"), _0x79a875["clickcount"] = 0x199b + 0x1 * 0x1a21 + -0x33bc, _0x79a875["possibleInMenu"] = !(0x146 * 0x11 + -0x236c + 0xdc7 * 0x1);
                     }
                 }["screenshotResponse"]() {
                     var _0x55d15a = _0x1c2da7,
@@ -1442,16 +1485,16 @@
             _0x3521f0 = class {
                 constructor() {
                     var _0x45c8fe = _0x1c2da7;
-                    this["browser"] = null, this["weather"] = [_0x4ea218["SEwJM"], _0x4ea218["QuaTH"], _0x4ea218["dmBfU"], _0x4ea218["KzKwx"], _0x4ea218["GwvyS"], _0x4ea218["RBuCU"], _0x4ea218["EbErv"], _0x4ea218["IHQTy"], _0x4ea218["iQPiK"], _0x4ea218["ukiKm"], _0x4ea218["naRYE"], _0x4ea218["svtsw"], _0x4ea218["KfXCE"], _0x4ea218["gWlkj"], _0x4ea218["qlifP"]], this["currentWeather"] = _0x4ea218["SEwJM"], this["currentTim" + 'e'] = -0xc19 + 0xc7 * -0x7 + 0x2 * 0x8ce, mp["events"]["add"](_0x4ea218["jjRlw"], () => this["createBrowser"]()), mp["events"]["add"](_0x4ea218["RwnHA"], () => this["destroyBrowser"]()), mp["events"]["add"](_0x4ea218["Pdrpf"], _0x253737 => this["setWeather"](_0x253737)), mp["events"]["add"](_0x4ea218["iNBAD"], _0x5cc8ba => this["setTime"](_0x5cc8ba)), mp["events"]["add"](_0x4ea218["yxaGY"], () => this["render"]()), mp["keys"]["bind"](-0xa37 + -0x43 * -0x95 + -0x1cad, !(0x61 * -0x1 + 0x1b0f + -0x1aad), () => this["destroyBrowser"]());
+                    this["browser"] = null, this["weather"] = ["EXTRASUNNY", "CLEAR", "CLOUDS", "SMOG", "FOGGY", "OVERCAST", "RAIN", "THUNDER", "CLEARING", "NEUTRAL", "SNOW", "BLIZZARD", "SNOWLIGHT", "XMAS", "HALLOWEEN"], this["currentWeather"] = "EXTRASUNNY", this["currentTim" + 'e'] = -0xc19 + 0xc7 * -0x7 + 0x2 * 0x8ce, mp["events"]["add"]("Client:WeatherMenu:CreateMenu", () => this["createBrowser"]()), mp["events"]["add"]("Client:WeatherMenu:DestroyMenu", () => this["destroyBrowser"]()), mp["events"]["add"]("Client:WeatherMenu:SetWeather", _0x253737 => this["setWeather"](_0x253737)), mp["events"]["add"]("Client:WeatherMenu:SetTime", _0x5cc8ba => this["setTime"](_0x5cc8ba)), mp["events"]["add"]("render", () => this["render"]()), mp["keys"]["bind"](-0xa37 + -0x43 * -0x95 + -0x1cad, !(0x61 * -0x1 + 0x1b0f + -0x1aad), () => this["destroyBrowser"]());
                 }["createBrowser"]() {
                     var _0x3f2797 = _0x1c2da7;
-                    _0x4ea218["uKpAw"](this["browser"], null) && (this["browser"] = mp["browsers"]["new"](_0x4ea218["VbuGH"]), _0x4ea218["gHivV"](this["browser"], null) && (this["browser"]["execute"]("loadWeatherSettings(" + this["weather"]["indexOf"](this["currentWeather"]) + ',\x20' + this["currentTim" + 'e'] + ')'), mp["gui"]["chat"]["show"](!(-0xe60 + 0xd12 * 0x2 + -0xbc3)), _0x4ea218["srMuX"](setTimeout, () => {
+                    _0x4ea218["uKpAw"](this["browser"], null) && (this["browser"] = mp["browsers"]["new"]("package://cef/weathermenu/index.html"), _0x4ea218["gHivV"](this["browser"], null) && (this["browser"]["execute"]("loadWeatherSettings(" + this["weather"]["indexOf"](this["currentWeather"]) + ',\x20' + this["currentTim" + 'e'] + ')'), mp["gui"]["chat"]["show"](!(-0xe60 + 0xd12 * 0x2 + -0xbc3)), _0x4ea218["srMuX"](setTimeout, () => {
                         var _0x5d9ec2 = _0x3f2797;
                         mp["gui"]["cursor"]["show"](!(-0x989 + -0x2437 + -0x40 * -0xb7), !(-0xf7f + 0x590 * 0x2 + 0x45f));
                     }, -0x3 * 0x778 + 0x7ec + 0xee0)));
                 }["destroyBrowser"]() {
                     var _0x2b1b1c = _0x1c2da7;
-                    _0x4ea218["hruIj"](this["browser"], null) && (mp["gui"]["chat"]["show"](!(0x3 * 0x36b + -0x2562 + 0x1b21)), mp["gui"]["cursor"]["show"](!(0x2 * 0x20b + -0x1c3a * 0x1 + 0x1825), !(-0x31 * 0x3e + -0x93 * -0x2e + -0x33 * 0x49)), this["browser"]["execute"](_0x4ea218["HguIw"]), _0x4ea218["jFJTr"](setTimeout, () => {
+                    _0x4ea218["hruIj"](this["browser"], null) && (mp["gui"]["chat"]["show"](!(0x3 * 0x36b + -0x2562 + 0x1b21)), mp["gui"]["cursor"]["show"](!(0x2 * 0x20b + -0x1c3a * 0x1 + 0x1825), !(-0x31 * 0x3e + -0x93 * -0x2e + -0x33 * 0x49)), this["browser"]["execute"]("destroyBrowser()"), _0x4ea218["jFJTr"](setTimeout, () => {
                         var _0x2fe0ec = _0x2b1b1c,
                             _0x13c2c2;
                         _0x4ea218["bsnCX"](_0x13c2c2 = this["browser"], null) || _0x4ea218["jZeeS"](_0x13c2c2, void(-0x195c + -0x1 * 0x2614 + 0x3f70)) || _0x13c2c2["destroy"](), this["browser"] = null;
@@ -1473,10 +1516,10 @@
             _0x117b54 = class {
                 constructor() {
                     var _0xe2cce9 = _0x1c2da7;
-                    mp["events"]["add"](_0x4ea218["yxaGY"], () => this["render"]());
+                    mp["events"]["add"]("render", () => this["render"]());
                 }["render"]() {
                     var _0x27c605 = _0x1c2da7;
-                    _0x4ea218["hzKlt"](mp["players"]["local"]["getVariabl" + 'e'](_0x4ea218["RCXWV"]), !(-0x65 * 0x48 + 0x14bc + 0x7ac)) && mp["players"]["forEachInRange"](mp["players"]["local"]["position"], -0x8d * -0x43 + -0x6b6 * -0x4 + -0x3ef7, _0x769813 => {
+                    _0x4ea218["hzKlt"](mp["players"]["local"]["getVariabl" + 'e']("IS_ADUTY"), !(-0x65 * 0x48 + 0x14bc + 0x7ac)) && mp["players"]["forEachInRange"](mp["players"]["local"]["position"], -0x8d * -0x43 + -0x6b6 * -0x4 + -0x3ef7, _0x769813 => {
                         var _0x58e02e = _0x27c605;
                         this["drawNameTa" + 'gs'](_0x769813);
                     });
@@ -1485,7 +1528,7 @@
                     if (_0x4ea218["hruIj"](_0x568028, mp["players"]["local"])) {
                         let _0x1c495b = mp["game"]["graphics"]["world3dToScreen2d"](_0x568028["position"]);
                         if (_0x4ea218["uKpAw"](_0x1c495b, null) || _0x4ea218["nzOJx"](_0x1c495b, null)) return;
-                        this["drawText"](_0x568028["getVariabl" + 'e'](_0x4ea218["dPqTa"]) + "\n~g~" + _0x568028["getHealth"]() + "~w~ - ~b~" + _0x568028["getArmour"]() + "~w~", [_0x1c495b['x'], _0x1c495b['y']], {
+                        this["drawText"](_0x568028["getVariabl" + 'e']("ACCOUNT_NAME") + "\n~g~" + _0x568028["getHealth"]() + "~w~ - ~b~" + _0x568028["getArmour"]() + "~w~", [_0x1c495b['x'], _0x1c495b['y']], {
                             'align': 0x1,
                             'font': 0x4,
                             'scale': 0.3,
@@ -1512,12 +1555,12 @@
                         _0x5c9171 = _0x583f23["color"],
                         _0x39333b = _0x583f23["wordWrap"],
                         _0x369a44 = _0x583f23["align"];
-                    _0x18b676["setTextEnt" + 'ry'](_0x4ea218["JDeVB"]);
+                    _0x18b676["setTextEnt" + 'ry']("CELL_EMAIL_BCON");
                     for (let _0x170f8e = -0x4 * -0x5bc + -0x1588 + -0x168; _0x4ea218["YvWWY"](_0x170f8e, _0xec409c["length"]); _0x170f8e += 0x1fdb + -0x1d2d + 0x24b * -0x1) {
                         let _0x3c061d = _0xec409c["substr"](_0x170f8e, Math["min"](-0x2282 + -0xbd2 + -0x2eb7 * -0x1, _0x4ea218["CVdWi"](_0xec409c["length"], _0x170f8e)));
                         mp["game"]['ui']["addTextComponentSubstringPlayerName"](_0x3c061d);
                     }
-                    switch (_0x18b676["setTextFon" + 't'](_0x4285ea), _0x18b676["setTextSca" + 'le'](_0x18bf0e, _0x18bf0e), _0x18b676["setTextColour"](_0x5c9171[0x119c + -0x8a1 * 0x4 + 0x4 * 0x43a], _0x5c9171[-0x1dd0 + 0x2 * 0x9f1 + 0x9ef], _0x5c9171[0xd96 + -0x1c91 + 0xefd], _0x5c9171[0xe1d * 0x1 + -0x3 * 0xb3d + 0x139d]), _0x36dfd2 && (mp["game"]["invoke"](_0x4ea218["zDMKz"]), _0x18b676["setTextDropshadow"](0x1889 + 0x4 * -0x4a3 + -0x5fb, -0x1a2c + -0x99a + 0x23c6, -0x174 * -0x4 + 0x1 * -0xed5 + -0x905 * -0x1, 0xbc9 + -0xcfb + 0x132, 0x2c9 * 0x1 + -0x9 * 0x257 + -0x1345 * -0x1)), _0x19c158 && mp["game"]["invoke"](_0x4ea218["sabFj"]), _0x369a44) {
+                    switch (_0x18b676["setTextFon" + 't'](_0x4285ea), _0x18b676["setTextSca" + 'le'](_0x18bf0e, _0x18bf0e), _0x18b676["setTextColour"](_0x5c9171[0x119c + -0x8a1 * 0x4 + 0x4 * 0x43a], _0x5c9171[-0x1dd0 + 0x2 * 0x9f1 + 0x9ef], _0x5c9171[0xd96 + -0x1c91 + 0xefd], _0x5c9171[0xe1d * 0x1 + -0x3 * 0xb3d + 0x139d]), _0x36dfd2 && (mp["game"]["invoke"]("0x1CA3E9EAC9D93E5E"), _0x18b676["setTextDropshadow"](0x1889 + 0x4 * -0x4a3 + -0x5fb, -0x1a2c + -0x99a + 0x23c6, -0x174 * -0x4 + 0x1 * -0xed5 + -0x905 * -0x1, 0xbc9 + -0xcfb + 0x132, 0x2c9 * 0x1 + -0x9 * 0x257 + -0x1345 * -0x1)), _0x19c158 && mp["game"]["invoke"]("0x2513DFB0FB8400FE"), _0x369a44) {
                         case -0x7f * 0x2f + -0xa0c + 0x215e:
                             {
                                 _0x18b676["setTextCentre"](!(0x3 * -0x22b + -0xd80 + -0x9 * -0x239));
@@ -1537,11 +1580,11 @@
             _0x1077ec = class {
                 constructor() {
                     var _0x4afca8 = _0x1c2da7;
-                    mp["events"]["add"](_0x4ea218["dnQjy"], () => this["showKillCa" + 'm']());
+                    mp["events"]["add"]("client:death:triggerKillcam", () => this["showKillCa" + 'm']());
                 }["showKillCa" + 'm']() {
                     var _0x3bff49 = _0x1c2da7,
                         _0x576dc8 = {
-                            'efOxB': _0x4ea218["Ehqtk"]
+                            'efOxB': "server:kill:finishKillcam"
                         };
                     _0x4ea218["lqnYu"](setTimeout, () => {
                         var _0x5e428c = _0x3bff49;
@@ -1553,25 +1596,25 @@
             _0x271ffe = class {
                 constructor() {
                     var _0x4ffabb = _0x1c2da7;
-                    this["isShowingRockstarMessage"] = !(-0x5aa + 0x24da + 0x1f2f * -0x1), this["rockstarMessageMessa" + 'ge'] = '', mp["events"]["add"](_0x4ea218["yxaGY"], () => this["render"]()), mp["events"]["add"](_0x4ea218["oZmfI"], () => this["playerRead" + 'y']()), mp["events"]["add"](_0x4ea218["KvAEU"], _0x40df8d => this["showRockstarMessage"](_0x40df8d)), _0x4ea218["jFJTr"](setInterval, () => this["render"](), 0x985 + -0x1 * 0x9c1 + 0x4e5c * 0x1), mp["events"]["add"](_0x4ea218["gSbdF"], _0x4ec268 => this["streamIn"](_0x4ec268));
+                    this["isShowingRockstarMessage"] = !(-0x5aa + 0x24da + 0x1f2f * -0x1), this["rockstarMessageMessa" + 'ge'] = '', mp["events"]["add"]("render", () => this["render"]()), mp["events"]["add"]("playerReady", () => this["playerRead" + 'y']()), mp["events"]["add"]("Client:Player:ShowRockstarMessage", _0x40df8d => this["showRockstarMessage"](_0x40df8d)), _0x4ea218["jFJTr"](setInterval, () => this["render"](), 0x985 + -0x1 * 0x9c1 + 0x4e5c * 0x1), mp["events"]["add"]("entityStreamIn", _0x4ec268 => this["streamIn"](_0x4ec268));
                 }["streamIn"](_0x5de11e) {
                     var _0x300fd0 = _0x1c2da7;
-                    if (_0x4ea218["nzOJx"](_0x5de11e["type"], _0x4ea218["mKqUz"])) {
+                    if (_0x4ea218["nzOJx"](_0x5de11e["type"], "player")) {
                         let _0x425d74 = _0x5de11e;
-                        mp["players"]["exists"](_0x425d74) && _0x4ea218["ysJDt"](_0x425d74["getVariabl" + 'e'](_0x4ea218["RCXWV"]), !(-0x125e + 0xb * 0x2d + 0x259 * 0x7)) && (_0x425d74["alpha"] = 0x81 * 0x3 + -0x5 * -0x5ff + -0x1f7e);
+                        mp["players"]["exists"](_0x425d74) && _0x4ea218["ysJDt"](_0x425d74["getVariabl" + 'e']("IS_ADUTY"), !(-0x125e + 0xb * 0x2d + 0x259 * 0x7)) && (_0x425d74["alpha"] = 0x81 * 0x3 + -0x5 * -0x5ff + -0x1f7e);
                     }
                 }["render"]() {
                     var _0x33bdd4 = _0x1c2da7;
-                    mp["game"]["player"]["setHealthRechargeMultiplier"](-0x11e9 + 0x1a4b + -0x862), mp["game"]['ui']["hideHudComponentThisFrame"](0x1fc * -0x11 + -0x1d37 + -0x14fe * -0x3), mp["game"]['ui']["hideHudComponentThisFrame"](-0xa * -0x36e + 0x1a8c * -0x1 + -0x18b * 0x5), mp["game"]['ui']["hideHudComponentThisFrame"](0x81 * -0xd + -0x2aa * -0xa + -0x2f * 0x6d), mp["game"]["invoke"](_0x4ea218["FDhvI"], mp["players"]["local"]["handle"], -0x150f + 0xc11 * 0x2 + 0x30d * -0x1) && (mp["game"]["controls"]["disableControlAction"](0x897 * 0x3 + -0x1 * -0xe35 + -0x25a * 0x11, 0x5b + 0x25ea * 0x1 + -0xc93 * 0x3, !(0x1e02 + -0x260c * -0x1 + -0x440e)), mp["game"]["controls"]["disableControlAction"](-0xb4e * -0x1 + 0x2ba + 0x1c1 * -0x8, -0x1b4d + -0x143d + 0x3017, !(0xba * -0x20 + -0x1e20 + -0x7 * -0x7a0)), mp["game"]["controls"]["disableControlAction"](0x19eb + -0x1cbf + 0x2d4, -0x1d4b + 0x3 * -0x542 + -0x2af * -0x11, !(-0x114c + 0x4c0 + 0x323 * 0x4))), mp["game"]["controls"]["disableControlAction"](-0x1e62 + -0x1b0f + -0xbf * -0x4d, 0x4 * 0x638 + -0x9c0 + -0xef4, !(0x199a + 0x230d + -0x3ca7)), mp["players"]["local"]["isUsingActionMode"]() && mp["players"]["local"]["setUsingActionMode"](!(0x160f * 0x1 + 0x2 * -0x36a + 0x1 * -0xf3a), -(0x49 * -0x18 + 0x3b9 * -0x6 + 0x1d2f), '-1'), mp["game"]["gameplay"]["setFadeOutAfterDeath"](!(-0x3 * -0x78d + -0x11f6 + 0x8 * -0x96)), mp["game"]["invoke"](_0x4ea218["bCJXQ"]), _0x4ea218["RaYNy"](mp["players"]["local"]["dimension"], -0x1e1a + 0x1137 + 0xd47) && mp["game"]["invoke"](_0x4ea218["AiqXY"], mp["players"]["local"], !(-0x139d * -0x1 + -0x1dee + 0xa51)), this["isShowingRockstarMessage"] && (mp["game"]["gxt"]["set"](_0x4ea218["KwZfM"], ''), mp["game"]["gxt"]["set"](_0x4ea218["xRPeo"], this["rockstarMessageMessa" + 'ge']), mp["game"]['ui']["setWarningMessage"](_0x4ea218["KwZfM"], 0x1c31 + -0x1 * 0x2329 + 0x6f8, _0x4ea218["xRPeo"], !(0x237e + 0x852 + -0x8c3 * 0x5), -(0x1 * 0xc4c + 0x166c + 0x22b7 * -0x1), _0x4ea218["NAWbB"], _0x4ea218["jYpGF"], !(-0x540 + 0x2 * -0x598 + 0x1070)));
+                    mp["game"]["player"]["setHealthRechargeMultiplier"](-0x11e9 + 0x1a4b + -0x862), mp["game"]['ui']["hideHudComponentThisFrame"](0x1fc * -0x11 + -0x1d37 + -0x14fe * -0x3), mp["game"]['ui']["hideHudComponentThisFrame"](-0xa * -0x36e + 0x1a8c * -0x1 + -0x18b * 0x5), mp["game"]['ui']["hideHudComponentThisFrame"](0x81 * -0xd + -0x2aa * -0xa + -0x2f * 0x6d), mp["game"]["invoke"]("0x475768A975D5AD17", mp["players"]["local"]["handle"], -0x150f + 0xc11 * 0x2 + 0x30d * -0x1) && (mp["game"]["controls"]["disableControlAction"](0x897 * 0x3 + -0x1 * -0xe35 + -0x25a * 0x11, 0x5b + 0x25ea * 0x1 + -0xc93 * 0x3, !(0x1e02 + -0x260c * -0x1 + -0x440e)), mp["game"]["controls"]["disableControlAction"](-0xb4e * -0x1 + 0x2ba + 0x1c1 * -0x8, -0x1b4d + -0x143d + 0x3017, !(0xba * -0x20 + -0x1e20 + -0x7 * -0x7a0)), mp["game"]["controls"]["disableControlAction"](0x19eb + -0x1cbf + 0x2d4, -0x1d4b + 0x3 * -0x542 + -0x2af * -0x11, !(-0x114c + 0x4c0 + 0x323 * 0x4))), mp["game"]["controls"]["disableControlAction"](-0x1e62 + -0x1b0f + -0xbf * -0x4d, 0x4 * 0x638 + -0x9c0 + -0xef4, !(0x199a + 0x230d + -0x3ca7)), mp["players"]["local"]["isUsingActionMode"]() && mp["players"]["local"]["setUsingActionMode"](!(0x160f * 0x1 + 0x2 * -0x36a + 0x1 * -0xf3a), -(0x49 * -0x18 + 0x3b9 * -0x6 + 0x1d2f), '-1'), mp["game"]["gameplay"]["setFadeOutAfterDeath"](!(-0x3 * -0x78d + -0x11f6 + 0x8 * -0x96)), mp["game"]["invoke"]("0xDE2EF5DA284CC8DF"), _0x4ea218["RaYNy"](mp["players"]["local"]["dimension"], -0x1e1a + 0x1137 + 0xd47) && mp["game"]["invoke"]("0x5E6CC07646BBEAB8", mp["players"]["local"], !(-0x139d * -0x1 + -0x1dee + 0xa51)), this["isShowingRockstarMessage"] && (mp["game"]["gxt"]["set"]("warning_error", ''), mp["game"]["gxt"]["set"]("warning_text", this["rockstarMessageMessa" + 'ge']), mp["game"]['ui']["setWarningMessage"]("warning_error", 0x1c31 + -0x1 * 0x2329 + 0x6f8, "warning_text", !(0x237e + 0x852 + -0x8c3 * 0x5), -(0x1 * 0xc4c + 0x166c + 0x22b7 * -0x1), "asdasd", "123123123", !(-0x540 + 0x2 * -0x598 + 0x1070)));
                 }["playerRead" + 'y']() {
                     var _0x2c5ec5 = _0x1c2da7;
-                    mp["discord"]["update"](_0x4ea218["ouDzf"], _0x4ea218["OUZbK"]), mp["nametags"]["enabled"] = !(0x1 * -0x12fb + 0x9f9 + 0x903), mp["players"]["local"]["setSuffersCriticalHi" + 'ts'](!(-0x1b9b + 0x1a17 + -0x1 * -0x185)), mp["players"]["local"]["setConfigFlag"](-0x2390 + 0x1 * -0x1f0f + -0x5d * -0xbc, !(0x1 * -0xd8d + -0x67e * -0x4 + -0xc6b * 0x1)), mp["players"]["local"]["setConfigFlag"](-0x14ad + -0x12 * 0x1fd + -0xb * -0x538, !(0xd3d + -0x2282 + 0x1545)), mp["game"]["invoke"](_0x4ea218["gOpmF"], 0x2569 + 0x5b0 + 0x21 * -0x14a, 0x2c * 0x7b + 0x1921 + -0x2df3, 0x16dc + -0x15f9 + -0xc8, 0x3ea + -0x1316 + 0x1023, -0x89 * -0x3 + 0x2470 + -0x2557), mp["game"]["invoke"](_0x4ea218["gOpmF"], -0x137 * 0x1a + -0x9a8 + 0x29b2, -0x1 * 0x856 + -0x2 * -0x6c7 + -0x3 * 0x1a2, -0x9a + 0x1db8 + -0x1d03, -0x5 * 0x1c3 + -0x2051 + 0x2a17, -0x1bc5 + 0xf0 * 0x22 + -0x367), mp["game"]["gxt"]["set"](_0x4ea218["VrgmQ"], _0x4ea218["YGJFr"]), mp["game"]["stats"]["statSetInt"](mp["game"]["joaat"](_0x4ea218["ldvfS"]), 0x123b + -0x1c99 * 0x1 + 0x11 * 0xa2, !(0x2371 + -0xf3f * -0x1 + -0xad * 0x4b)), mp["game"]["stats"]["statSetInt"](mp["game"]["joaat"](_0x4ea218["uQXWC"]), 0x117b * 0x1 + -0x5de + -0xb39, !(-0x2418 + 0x2 * -0xc89 + 0x3d2b)), mp["game"]["stats"]["statSetInt"](mp["game"]["joaat"](_0x4ea218["WFCrf"]), 0xd8b * -0x1 + -0x149b + 0x228a, !(-0x82 * 0x29 + -0x16e0 + -0xb * -0x3f9)), mp["game"]["stats"]["statSetInt"](mp["game"]["joaat"](_0x4ea218["SpqAv"]), -0xc01 + 0x1d79 * 0x1 + 0x1114 * -0x1, !(0x1e1c + -0x1 * 0x451 + 0x2 * -0xce5)), mp["game"]["stats"]["statSetInt"](mp["game"]["joaat"](_0x4ea218["nqxTP"]), 0x83 * 0xd + 0x782 + -0xdc5, !(-0x1bf4 * 0x1 + 0xc16 + -0xef * -0x11)), mp["game"]["stats"]["statSetInt"](mp["game"]["joaat"](_0x4ea218["hKCzb"]), -0x58c + -0xd1a + 0x1 * 0x130a, !(-0x123e + -0x11df + -0x17 * -0x192)), mp["game"]["stats"]["statSetInt"](mp["game"]["joaat"](_0x4ea218["hjMkK"]), 0x207 * -0xa + 0x2b * 0x6 + -0x25 * -0x88, !(-0x2224 + 0x2028 + 0x1fd));
+                    mp["discord"]["update"]("Index Gangwar", "discord.gg/indexgw"), mp["nametags"]["enabled"] = !(0x1 * -0x12fb + 0x9f9 + 0x903), mp["players"]["local"]["setSuffersCriticalHi" + 'ts'](!(-0x1b9b + 0x1a17 + -0x1 * -0x185)), mp["players"]["local"]["setConfigFlag"](-0x2390 + 0x1 * -0x1f0f + -0x5d * -0xbc, !(0x1 * -0xd8d + -0x67e * -0x4 + -0xc6b * 0x1)), mp["players"]["local"]["setConfigFlag"](-0x14ad + -0x12 * 0x1fd + -0xb * -0x538, !(0xd3d + -0x2282 + 0x1545)), mp["game"]["invoke"]("0xF314CF4F0211894E", 0x2569 + 0x5b0 + 0x21 * -0x14a, 0x2c * 0x7b + 0x1921 + -0x2df3, 0x16dc + -0x15f9 + -0xc8, 0x3ea + -0x1316 + 0x1023, -0x89 * -0x3 + 0x2470 + -0x2557), mp["game"]["invoke"]("0xF314CF4F0211894E", -0x137 * 0x1a + -0x9a8 + 0x29b2, -0x1 * 0x856 + -0x2 * -0x6c7 + -0x3 * 0x1a2, -0x9a + 0x1db8 + -0x1d03, -0x5 * 0x1c3 + -0x2051 + 0x2a17, -0x1bc5 + 0xf0 * 0x22 + -0x367), mp["game"]["gxt"]["set"]("PM_PAUSE_HDR", "GangwarServer"), mp["game"]["stats"]["statSetInt"](mp["game"]["joaat"]("SP0_STAMINA"), 0x123b + -0x1c99 * 0x1 + 0x11 * 0xa2, !(0x2371 + -0xf3f * -0x1 + -0xad * 0x4b)), mp["game"]["stats"]["statSetInt"](mp["game"]["joaat"]("SP0_STRENGTH"), 0x117b * 0x1 + -0x5de + -0xb39, !(-0x2418 + 0x2 * -0xc89 + 0x3d2b)), mp["game"]["stats"]["statSetInt"](mp["game"]["joaat"]("SP0_LUNG_CAPACITY"), 0xd8b * -0x1 + -0x149b + 0x228a, !(-0x82 * 0x29 + -0x16e0 + -0xb * -0x3f9)), mp["game"]["stats"]["statSetInt"](mp["game"]["joaat"]("SP0_WHEELIE_ABILITY"), -0xc01 + 0x1d79 * 0x1 + 0x1114 * -0x1, !(0x1e1c + -0x1 * 0x451 + 0x2 * -0xce5)), mp["game"]["stats"]["statSetInt"](mp["game"]["joaat"]("SP0_FLYING_ABILITY"), 0x83 * 0xd + 0x782 + -0xdc5, !(-0x1bf4 * 0x1 + 0xc16 + -0xef * -0x11)), mp["game"]["stats"]["statSetInt"](mp["game"]["joaat"]("SP0_SHOOTING_ABILITY"), -0x58c + -0xd1a + 0x1 * 0x130a, !(-0x123e + -0x11df + -0x17 * -0x192)), mp["game"]["stats"]["statSetInt"](mp["game"]["joaat"]("SP0_STEALTH_ABILITY"), 0x207 * -0xa + 0x2b * 0x6 + -0x25 * -0x88, !(-0x2224 + 0x2028 + 0x1fd));
                 }["showRockstarMessage"](_0x392a72) {
                     var _0x359906 = _0x1c2da7;
-                    mp["events"]["call"](_0x4ea218["ZkvEI"]), mp["gui"]["chat"]["show"](!(-0x44 * 0x57 + 0x5 * -0x771 + 0x3c52)), this["rockstarMessageMessa" + 'ge'] = _0x392a72, this["isShowingRockstarMessage"] = !(-0xa7d + 0x1bc8 + -0x114b);
+                    mp["events"]["call"]("Client:Hud:DestroyBrowser"), mp["gui"]["chat"]["show"](!(-0x44 * 0x57 + 0x5 * -0x771 + 0x3c52)), this["rockstarMessageMessa" + 'ge'] = _0x392a72, this["isShowingRockstarMessage"] = !(-0xa7d + 0x1bc8 + -0x114b);
                 }["removeAFKCamera"]() {
                     var _0x35c9d0 = _0x1c2da7;
-                    mp["game"]["invoke"](_0x4ea218["nuuXx"]), mp["game"]["invoke"](_0x4ea218["pgSZL"]);
+                    mp["game"]["invoke"]("0x9E4CFFF989258472"), mp["game"]["invoke"]("0xF4F2C0D4EE209E20");
                 }
             },
             _0x5b2862 = new _0x271ffe(),
@@ -1590,23 +1633,23 @@
             _0x348fba = class {
                 constructor() {
                     var _0x23a3ac = _0x1c2da7;
-                    this["isInColsha" + 'pe'] = !(-0x1c0a + 0x2 * -0x136d + 0x19 * 0x2ad), this["lastInteraction"] = Date["now"](), this["currentTimeout"] = null, this["lastHitted"] = Date["now"](), mp["events"]["add"](_0x4ea218["fRztk"], _0x56bdf7 => this["playerEnterColshape"](_0x56bdf7)), mp["events"]["add"](_0x4ea218["yPKpR"], _0x26b190 => this["playerExitColshape"](_0x26b190)), mp["events"]["add"](_0x4ea218["BBIDQ"], () => this["lastHitted"] = Date["now"]()), mp["events"]["add"](_0x4ea218["wVrMR"], (_0x236940, _0x573e66, _0x251611, _0x3b945b) => this["tryBindHotkey"](_0x236940, _0x573e66, _0x251611, _0x3b945b)), mp["events"]["add"](_0x4ea218["oZmfI"], () => this["playerRead" + 'y']());
+                    this["isInColsha" + 'pe'] = !(-0x1c0a + 0x2 * -0x136d + 0x19 * 0x2ad), this["lastInteraction"] = Date["now"](), this["currentTimeout"] = null, this["lastHitted"] = Date["now"](), mp["events"]["add"]("playerEnterColshape", _0x56bdf7 => this["playerEnterColshape"](_0x56bdf7)), mp["events"]["add"]("playerExitColshape", _0x26b190 => this["playerExitColshape"](_0x26b190)), mp["events"]["add"]("Client:Keys:SetLastHit", () => this["lastHitted"] = Date["now"]()), mp["events"]["add"]("client:mainmenu:tryBindHotkey", (_0x236940, _0x573e66, _0x251611, _0x3b945b) => this["tryBindHotkey"](_0x236940, _0x573e66, _0x251611, _0x3b945b)), mp["events"]["add"]("playerReady", () => this["playerRead" + 'y']());
                 }["callInteraction"]() {
                     var _0x3d7c14 = _0x1c2da7;
-                    !this["checkCanInteract"]() || _0x4ea218["KjBxJ"](mp["players"]["local"]["getHealth"](), 0x7c * 0x36 + 0x10c9 + -0x2af1 * 0x1) || mp["players"]["local"]["isTypingInTextChat"] || mp["gui"]["cursor"]["visible"] || mp["players"]["local"]["vehicle"] || (_0x4ea218["Kxyio"](this["currentTimeout"], null) ? (this["lastInteraction"] = Date["now"](), mp["events"]["callRemote"](_0x4ea218["xWYZp"]), _0x4ea218["JQOMb"](clearTimeout, this["currentTimeout"]), this["currentTimeout"] = null) : _0x4ea218["nzOJx"](this["isInColsha" + 'pe'], !(0x26d0 + -0x449 * 0x1 + 0x2287 * -0x1)) && (this["lastInteraction"] = Date["now"](), mp["events"]["callRemote"](_0x4ea218["mbsMO"])));
+                    !this["checkCanInteract"]() || _0x4ea218["KjBxJ"](mp["players"]["local"]["getHealth"](), 0x7c * 0x36 + 0x10c9 + -0x2af1 * 0x1) || mp["players"]["local"]["isTypingInTextChat"] || mp["gui"]["cursor"]["visible"] || mp["players"]["local"]["vehicle"] || (_0x4ea218["Kxyio"](this["currentTimeout"], null) ? (this["lastInteraction"] = Date["now"](), mp["events"]["callRemote"]("Server:Keys:CancelAction"), _0x4ea218["JQOMb"](clearTimeout, this["currentTimeout"]), this["currentTimeout"] = null) : _0x4ea218["nzOJx"](this["isInColsha" + 'pe'], !(0x26d0 + -0x449 * 0x1 + 0x2287 * -0x1)) && (this["lastInteraction"] = Date["now"](), mp["events"]["callRemote"]("Server:Keys:PressE")));
                 }["useMedikit"]() {
                     var _0x50d12a = _0x1c2da7;
-                    !this["checkCanInteract"]() || _0x4ea218["HwfyF"](this["currentTimeout"], null) || _0x4ea218["NpnLx"](mp["players"]["local"]["getHealth"](), -0x1353 + -0x1 * 0x11ab + 0x24fe * 0x1) || mp["players"]["local"]["isTypingInTextChat"] || mp["gui"]["cursor"]["visible"] || mp["players"]["local"]["vehicle"] || (this["lastInteraction"] = Date["now"](), mp["events"]["callRemote"](_0x4ea218["kWCCV"]), this["currentTimeout"] = _0x4ea218["AEJyK"](setTimeout, () => {
+                    !this["checkCanInteract"]() || _0x4ea218["HwfyF"](this["currentTimeout"], null) || _0x4ea218["NpnLx"](mp["players"]["local"]["getHealth"](), -0x1353 + -0x1 * 0x11ab + 0x24fe * 0x1) || mp["players"]["local"]["isTypingInTextChat"] || mp["gui"]["cursor"]["visible"] || mp["players"]["local"]["vehicle"] || (this["lastInteraction"] = Date["now"](), mp["events"]["callRemote"]("Server:Keys:UseMedikit"), this["currentTimeout"] = _0x4ea218["AEJyK"](setTimeout, () => {
                         var _0x16976e = _0x50d12a;
-                        mp["events"]["callRemote"](_0x4ea218["xWYZp"]), mp["events"]["call"](_0x4ea218["PGJFB"], 0x39 * 0x69 + -0x14bf + -0x2 * 0x11f), this["currentTimeout"] = null;
+                        mp["events"]["callRemote"]("Server:Keys:CancelAction"), mp["events"]["call"]("Client:AntiCheat:SetHealth", 0x39 * 0x69 + -0x14bf + -0x2 * 0x11f), this["currentTimeout"] = null;
                     }, -0x19e5 + 0x1 * -0x605 + 0x2f8a));
                 }["useVest"]() {
                     var _0x9cf0fb = _0x1c2da7,
                         _0x24e339 = {
-                            'sqnKG': _0x4ea218["xWYZp"],
-                            'gWMSO': _0x4ea218["Kntnw"]
+                            'sqnKG': "Server:Keys:CancelAction",
+                            'gWMSO': "Client:AntiCheat:SetArmour"
                         };
-                    !this["checkCanInteract"]() || _0x4ea218["rHgyy"](this["currentTimeout"], null) || _0x4ea218["Yjcbj"](mp["players"]["local"]["getHealth"](), 0x1e91 * 0x1 + -0x9a3 * 0x2 + -0x19d * 0x7) || mp["players"]["local"]["isTypingInTextChat"] || mp["gui"]["cursor"]["visible"] || mp["players"]["local"]["vehicle"] || (this["lastInteraction"] = Date["now"](), mp["events"]["callRemote"](_0x4ea218["dBJyX"]), this["currentTimeout"] = _0x4ea218["dLPah"](setTimeout, () => {
+                    !this["checkCanInteract"]() || _0x4ea218["rHgyy"](this["currentTimeout"], null) || _0x4ea218["Yjcbj"](mp["players"]["local"]["getHealth"](), 0x1e91 * 0x1 + -0x9a3 * 0x2 + -0x19d * 0x7) || mp["players"]["local"]["isTypingInTextChat"] || mp["gui"]["cursor"]["visible"] || mp["players"]["local"]["vehicle"] || (this["lastInteraction"] = Date["now"](), mp["events"]["callRemote"]("Server:Keys:UseVest"), this["currentTimeout"] = _0x4ea218["dLPah"](setTimeout, () => {
                         var _0x5451ec = _0x9cf0fb;
                         mp["events"]["callRemote"](_0x24e339["sqnKG"]), mp["events"]["call"](_0x24e339["gWMSO"], 0xf47 + -0xc5 * -0x1f + -0x26be), this["currentTimeout"] = null;
                     }, -0x14e5 + 0x2bd * -0x4 + 0x2f79));
@@ -1615,38 +1658,38 @@
                     if (!this["checkCanInteract"]() || _0x4ea218["OckBb"](this["currentTimeout"], null) || _0x4ea218["vysBV"](mp["players"]["local"]["getHealth"](), -0xfdd + -0x1c16 + -0x2bf3 * -0x1) || mp["players"]["local"]["isTypingInTextChat"] || mp["gui"]["cursor"]["visible"] || mp["players"]["local"]["vehicle"]) return;
                     this["lastInteraction"] = Date["now"]();
                     let _0x5ca89a = mp["vehicles"]["getClosest"](mp["players"]["local"]["position"]);
-                    mp["vehicles"]["exists"](_0x5ca89a) && _0x4ea218["Yjcbj"](mp["game1"]["gameplay"]["getDistanceBetweenCoords"](_0x5ca89a["position"]['x'], _0x5ca89a["position"]['y'], _0x5ca89a["position"]['z'], mp["players"]["local"]["position"]['x'], mp["players"]["local"]["position"]['y'], mp["players"]["local"]["position"]['z'], !(0x2ae * -0xa + -0x1f97 + 0x3a63)), 0x355 + -0x97 * -0x37 + -0x23c4 + 0.5) && (mp["events"]["callRemote"](_0x4ea218["pmoXl"]), this["currentTimeout"] = _0x4ea218["srMuX"](setTimeout, () => {
+                    mp["vehicles"]["exists"](_0x5ca89a) && _0x4ea218["Yjcbj"](mp["game1"]["gameplay"]["getDistanceBetweenCoords"](_0x5ca89a["position"]['x'], _0x5ca89a["position"]['y'], _0x5ca89a["position"]['z'], mp["players"]["local"]["position"]['x'], mp["players"]["local"]["position"]['y'], mp["players"]["local"]["position"]['z'], !(0x2ae * -0xa + -0x1f97 + 0x3a63)), 0x355 + -0x97 * -0x37 + -0x23c4 + 0.5) && (mp["events"]["callRemote"]("Server:Keys:UseRepairKit"), this["currentTimeout"] = _0x4ea218["srMuX"](setTimeout, () => {
                         var _0x2b1c6a = _0x36eb79;
-                        mp["events"]["callRemote"](_0x4ea218["NSaiS"], _0x5ca89a), this["currentTimeout"] = null;
+                        mp["events"]["callRemote"]("Server:Keys:FinishVehicleRepair", _0x5ca89a), this["currentTimeout"] = null;
                     }, -0x1 * -0x835 + -0x1e01 + 0x211 * 0x14));
                 }["requestInventoryItem" + 's']() {
                     var _0x4ad621 = _0x1c2da7;
-                    !this["checkCanInteract"]() || _0x4ea218["pbLpr"](this["currentTimeout"], null) || _0x4ea218["kFVHh"](mp["players"]["local"]["getHealth"](), -0x4ee * 0x1 + -0xab0 + -0x2 * -0x7cf) || mp["players"]["local"]["isTypingInTextChat"] || mp["gui"]["cursor"]["visible"] || (this["lastInteraction"] = Date["now"](), mp["events"]["callRemote"](_0x4ea218["yIyoJ"]));
+                    !this["checkCanInteract"]() || _0x4ea218["pbLpr"](this["currentTimeout"], null) || _0x4ea218["kFVHh"](mp["players"]["local"]["getHealth"](), -0x4ee * 0x1 + -0xab0 + -0x2 * -0x7cf) || mp["players"]["local"]["isTypingInTextChat"] || mp["gui"]["cursor"]["visible"] || (this["lastInteraction"] = Date["now"](), mp["events"]["callRemote"]("Server:Inventory:RequestItems"));
                 }["openMainMe" + 'nu']() {
                     var _0x5968fc = _0x1c2da7;
                     if (!(_0x4ea218["iSxCx"](mp["players"]["local"]["getHealth"](), 0xc1 * -0x26 + -0x2 * 0xf07 + 0xd * 0x484) || mp["players"]["local"]["isTypingInTextChat"] || mp["gui"]["cursor"]["visible"])) {
                         if (_0x4ea218["PLHep"](_0x4ea218["nVzOh"](this["lastHitted"], 0x35 * 0x3d + 0x951 + 0x135 * -0x2), Date["now"]())) {
-                            mp["gui"]["chat"]["push"](_0x4ea218["OGhOJ"]);
+                            mp["gui"]["chat"]["push"]("Du wurdest vor kurzem angeschossen, bitte warte kurz!");
                             return;
                         }
-                        mp["events"]["callRemote"](_0x4ea218["Uhllf"]);
+                        mp["events"]["callRemote"]("Server:MainMenu:OpenMainMenu");
                     }
                 }["tryBindHotkey"](_0x53b9b7, _0x127675, _0x1fa63f, _0xc2e20e) {
                     var _0x1b0d38 = _0x1c2da7;
                     switch (_0x1fa63f["toLocaleLowerCase"]()) {
-                        case _0x4ea218["CYbBP"]:
+                        case "interaktion":
                             mp["keys"]["unbind"](_0x53b9b7, !(0xd57 + -0x1ee7 + -0x8 * -0x232)), mp["keys"]["bind"](_0x127675, !(0x254b + -0x2265 + -0x2e6 * 0x1), () => this["callInteraction"]()), mp["storage"]["data"]["keys"]["interactio" + 'n'] = new _0x839f9d(_0x127675, _0xc2e20e), mp["storage"]["flush"]();
                             break;
-                        case _0x4ea218["khzQn"]:
+                        case "hauptmenu":
                             mp["keys"]["unbind"](_0x53b9b7, !(0x267c + 0x8 * 0x155 + -0x3124)), mp["keys"]["bind"](_0x127675, !(0xeb1 + 0x14f8 * 0x1 + -0x23a9), () => this["openMainMe" + 'nu']()), mp["storage"]["data"]["keys"]["mainmenu"] = new _0x839f9d(_0x127675, _0xc2e20e), mp["storage"]["flush"]();
                             break;
-                        case _0x4ea218["ThDAP"]:
+                        case "verbandskasten":
                             mp["keys"]["unbind"](_0x53b9b7, !(-0x751 * 0x3 + -0x1aaf + 0x32 * 0xf9)), mp["keys"]["bind"](_0x127675, !(0xa * -0x2d0 + 0xf58 * 0x1 + 0xcc8), () => this["useMedikit"]()), mp["storage"]["data"]["keys"]["firstaidki" + 't'] = new _0x839f9d(_0x127675, _0xc2e20e), mp["storage"]["flush"]();
                             break;
-                        case _0x4ea218["RUupq"]:
+                        case "weste":
                             mp["keys"]["unbind"](_0x53b9b7, !(-0x309 + 0x1eb * 0xd + -0x15e6)), mp["keys"]["bind"](_0x127675, !(-0x4 * 0x4ee + -0x644 + 0x1 * 0x19fc), () => this["useVest"]()), mp["storage"]["data"]["keys"]["vest"] = new _0x839f9d(_0x127675, _0xc2e20e), mp["storage"]["flush"]();
                             break;
-                        case _0x4ea218["AfOzv"]:
+                        case "repairkit":
                             mp["keys"]["unbind"](_0x53b9b7, !(-0x25ee + -0x1 * 0x53b + 0x2b29)), mp["keys"]["bind"](_0x127675, !(0x1800 * -0x1 + -0x1990 + -0x18c8 * -0x2), () => this["useRepairK" + 'it']()), mp["storage"]["data"]["keys"]["repairkit"] = new _0x839f9d(_0x127675, _0xc2e20e), mp["storage"]["flush"]();
                             break;
                     }
@@ -1690,24 +1733,24 @@
             _0xacc28d = mp["players"]["local"];
         mp["keys"]["bind"](_0x8b784b['F5'], !(-0x4eb * -0x5 + 0x1 * -0x1f7 + -0x16a0), function() {
             var _0x32bc2f = _0x1c2da7;
-            _0x4ea218["YsqqU"](_0xacc28d["getVariabl" + 'e'](_0x4ea218["RCXWV"]), !(0x1fe + -0x3b * 0x3c + 0x1e * 0x65)) && (_0x1ba6ab = !_0x1ba6ab, mp["game"]['ui']["displayRad" + 'ar'](!_0x1ba6ab), _0x1ba6ab ? _0x4ea218["HfWrv"](_0x232773) : _0x4ea218["HfWrv"](_0x24d416));
+            _0x4ea218["YsqqU"](_0xacc28d["getVariabl" + 'e']("IS_ADUTY"), !(0x1fe + -0x3b * 0x3c + 0x1e * 0x65)) && (_0x1ba6ab = !_0x1ba6ab, mp["game"]['ui']["displayRad" + 'ar'](!_0x1ba6ab), _0x1ba6ab ? _0x4ea218["HfWrv"](_0x232773) : _0x4ea218["HfWrv"](_0x24d416));
         });
 
         function _0x232773() {
             var _0x2d9861 = _0x1c2da7,
                 _0x4ef509 = new mp[("Vector3")](_0xacc28d["position"]['x'], _0xacc28d["position"]['y'], _0xacc28d["position"]['z']),
                 _0x4ef9a4 = mp["game"]["cam"]["getGameplayCamRot"](0xf8 * -0x1 + 0x6b0 + -0x5b6);
-            _0x4f4ab5 = mp["cameras"]["new"](_0x4ea218["Lrrhp"], _0x4ef509, _0x4ef9a4, 0x53 * 0x6 + -0x1dd7 + 0x1c12), _0x4f4ab5["setActive"](!(-0xf2f * 0x1 + -0x7 * -0x297 + -0x2 * 0x179)), mp["game"]["cam"]["renderScriptCams"](!(0x1ee0 + 0x1 * 0x10cb + -0x2fab), !(0x29 * 0x6d + 0xb78 + -0x1cec), 0x1c1f * 0x1 + -0xd * 0x1f + -0x6a3 * 0x4, !(0xa94 + 0xfc4 + -0x8c8 * 0x3), !(-0x15fa + -0x2277 + 0x3872)), _0xacc28d["freezePosition"](!(0x10e2 + -0x163a + 0x558)), _0xacc28d["setInvincible"](!(-0x1 * -0x15c1 + 0x943 * -0x2 + 0x1 * -0x33b)), _0xacc28d["setVisible"](!(0x1de8 + -0x694 * -0x1 + 0xb * -0x351), !(0x1 * -0x586 + -0xd9d + 0x1324)), _0xacc28d["setCollisi" + 'on'](!(-0x1 * -0x43b + -0x17 * -0x8b + 0x185 * -0xb), !(0x1a9e + 0x242 * 0x4 + -0x7d * 0x49));
+            _0x4f4ab5 = mp["cameras"]["new"]("default", _0x4ef509, _0x4ef9a4, 0x53 * 0x6 + -0x1dd7 + 0x1c12), _0x4f4ab5["setActive"](!(-0xf2f * 0x1 + -0x7 * -0x297 + -0x2 * 0x179)), mp["game"]["cam"]["renderScriptCams"](!(0x1ee0 + 0x1 * 0x10cb + -0x2fab), !(0x29 * 0x6d + 0xb78 + -0x1cec), 0x1c1f * 0x1 + -0xd * 0x1f + -0x6a3 * 0x4, !(0xa94 + 0xfc4 + -0x8c8 * 0x3), !(-0x15fa + -0x2277 + 0x3872)), _0xacc28d["freezePosition"](!(0x10e2 + -0x163a + 0x558)), _0xacc28d["setInvincible"](!(-0x1 * -0x15c1 + 0x943 * -0x2 + 0x1 * -0x33b)), _0xacc28d["setVisible"](!(0x1de8 + -0x694 * -0x1 + 0xb * -0x351), !(0x1 * -0x586 + -0xd9d + 0x1324)), _0xacc28d["setCollisi" + 'on'](!(-0x1 * -0x43b + -0x17 * -0x8b + 0x185 * -0xb), !(0x1a9e + 0x242 * 0x4 + -0x7d * 0x49));
         }
 
         function _0x24d416() {
             var _0x471daf = _0x1c2da7;
             _0x4f4ab5 && (_0xacc28d["position"] = _0x4f4ab5["getCoord"](), _0xacc28d["setHeading"](_0x4f4ab5["getRot"](0x6c6 + 0x5 * 0x67c + -0x2730)['z']), _0x4f4ab5["destroy"](!(-0xbda + 0x229 * -0xf + 0x2c41)), _0x4f4ab5 = null), mp["game"]["cam"]["renderScriptCams"](!(0xc28 + -0x1c * -0xd6 + 0x1 * -0x238f), !(0x1d69 * 0x1 + 0x1 * 0xc4c + -0x29b4), 0x27 * -0x1 + 0x2057 + -0x2030, !(0x74e + 0x632 + -0xd80), !(0x56f + -0x1 * 0x16e1 + 0x1173 * 0x1)), _0xacc28d["freezePosition"](!(-0x2413 + -0x74 + -0x38 * -0xa7)), _0xacc28d["setInvincible"](!(0x132c + -0x5 * -0x17c + 0x1a97 * -0x1)), _0xacc28d["setVisible"](!(0x10 + 0x26ea + 0x1 * -0x26fa), !(-0x1 * 0xb76 + -0x2 * 0x1021 + 0x35d * 0xd)), _0xacc28d["setCollisi" + 'on'](!(-0xc28 + 0x1f28 + -0x1300), !(0xf * -0x185 + -0x3 * -0xc92 + -0xeea));
         }
-        mp["events"]["add"](_0x4ea218["yxaGY"], function() {
+        mp["events"]["add"]("render", function() {
             var _0x1ca481 = _0x1c2da7;
             if (!(!_0x4f4ab5 || mp["gui"]["cursor"]["visible"])) {
-                var _0x1452b5 = _0x4ea218["CSByF"]["split"]('|'),
+                var _0x1452b5 = "4|9|10|2|8|7|0|3|6|5|1" ["split"]('|'),
                     _0x347f92 = -0xf2 * 0x16 + -0x139b + 0x2867;
                 while (!![]) {
                     switch (_0x1452b5[_0x347f92++]) {
@@ -1761,10 +1804,10 @@
         var _0x3f10ca = class {
                 constructor() {
                     var _0x162e1f = _0x1c2da7;
-                    this["spectateTarget"] = null, this["oldPositio" + 'n'] = null, this["spectateCa" + 'm'] = null, mp["events"]["add"](_0x4ea218["yxaGY"], () => this["renderSpectateCam"]()), mp["events"]["add"](_0x4ea218["bOiyU"], _0x2daa9c => this["startSpectating"](_0x2daa9c)), mp["events"]["add"](_0x4ea218["sJoDJ"], () => this["stopSpectating"]());
+                    this["spectateTarget"] = null, this["oldPositio" + 'n'] = null, this["spectateCa" + 'm'] = null, mp["events"]["add"]("render", () => this["renderSpectateCam"]()), mp["events"]["add"]("Client:Spectate:StartSpectate", _0x2daa9c => this["startSpectating"](_0x2daa9c)), mp["events"]["add"]("Client:Spectate:StopSpectate", () => this["stopSpectating"]());
                 }["startSpectating"](_0x5c55e4) {
                     var _0x41f68d = _0x1c2da7;
-                    !mp["players"]["exists"](_0x5c55e4) || (this["oldPositio" + 'n'] = mp["players"]["local"]["position"], this["spectateTarget"] = _0x5c55e4, this["spectateCa" + 'm'] = mp["cameras"]["new"](_0x4ea218["VCgQH"], _0x5c55e4["position"], new mp[("Vector3")](-0x1b43 + -0x45a + 0x1f9d, 0x1a07 + -0x439 + 0xae7 * -0x2, -0x73 + 0x176b * -0x1 + -0xa * -0x263), -0xb00 + 0x5c1 + 0x567), this["spectateCa" + 'm']["pointAtPedBone"](this["spectateTarget"]["handle"], -0xfc * -0x4f + 0x4895 + 0x33c, -0xa0c * 0x3 + 0x1459 + -0x6d * -0x17, 0x1 * -0x21 + 0xe51 * 0x2 + -0x1c81, -0xf * 0x14f + -0x1efb + 0x329c, !(-0x832 + 0x552 + 0x2e0)), this["spectateCa" + 'm']["setActive"](!(-0x1 * 0x1dbf + 0x2 * -0xbd2 + 0x4f * 0xad)), mp["game"]["cam"]["renderScriptCams"](!(-0xe2b + -0xb * -0x16f + -0x19a * 0x1), !(-0x1 * 0x207a + 0x439 * -0x5 + 0x1ea * 0x1c), 0xc * -0x12a + 0xf * -0x203 + 0x2c25, !(-0x5 * 0x21a + -0x1f60 + -0x29e2 * -0x1), !(-0xa * 0x2c7 + 0x2273 + 0x7a * -0xe)));
+                    !mp["players"]["exists"](_0x5c55e4) || (this["oldPositio" + 'n'] = mp["players"]["local"]["position"], this["spectateTarget"] = _0x5c55e4, this["spectateCa" + 'm'] = mp["cameras"]["new"]("spectator", _0x5c55e4["position"], new mp[("Vector3")](-0x1b43 + -0x45a + 0x1f9d, 0x1a07 + -0x439 + 0xae7 * -0x2, -0x73 + 0x176b * -0x1 + -0xa * -0x263), -0xb00 + 0x5c1 + 0x567), this["spectateCa" + 'm']["pointAtPedBone"](this["spectateTarget"]["handle"], -0xfc * -0x4f + 0x4895 + 0x33c, -0xa0c * 0x3 + 0x1459 + -0x6d * -0x17, 0x1 * -0x21 + 0xe51 * 0x2 + -0x1c81, -0xf * 0x14f + -0x1efb + 0x329c, !(-0x832 + 0x552 + 0x2e0)), this["spectateCa" + 'm']["setActive"](!(-0x1 * 0x1dbf + 0x2 * -0xbd2 + 0x4f * 0xad)), mp["game"]["cam"]["renderScriptCams"](!(-0xe2b + -0xb * -0x16f + -0x19a * 0x1), !(-0x1 * 0x207a + 0x439 * -0x5 + 0x1ea * 0x1c), 0xc * -0x12a + 0xf * -0x203 + 0x2c25, !(-0x5 * 0x21a + -0x1f60 + -0x29e2 * -0x1), !(-0xa * 0x2c7 + 0x2273 + 0x7a * -0xe)));
                 }["renderSpectateCam"]() {
                     var _0x5f1b00 = _0x1c2da7;
                     if (_0x4ea218["gHivV"](this["spectateCa" + 'm'], null)) {
@@ -1780,16 +1823,16 @@
             _0xccd5d7 = class {
                 constructor() {
                     var _0x106dee = _0x1c2da7;
-                    this["blacklistedVehicleWeapons"] = [0xd13ef438 * -0x1 + 0x186eff53 * -0xb + 0x2 * 0x14d943c0f, 0x6c32071 + 0x1 * -0x110fae43 + -0x31751 * -0xe9b], mp["events"]["add"](_0x4ea218["yxaGY"], () => this["render"]()), mp["events"]["add"](_0x4ea218["soqdB"], (_0x311da0, _0x37fae9) => this["playerEnterVehicle"](_0x311da0, _0x37fae9)), mp["events"]["add"](_0x4ea218["tPNsl"], (_0x25737e, _0x706e3e) => this["playerLeaveVehicle"](_0x25737e, _0x706e3e)), mp["events"]["add"](_0x4ea218["gSbdF"], _0x2058d0 => this["entityStreamIn"](_0x2058d0));
+                    this["blacklistedVehicleWeapons"] = [0xd13ef438 * -0x1 + 0x186eff53 * -0xb + 0x2 * 0x14d943c0f, 0x6c32071 + 0x1 * -0x110fae43 + -0x31751 * -0xe9b], mp["events"]["add"]("render", () => this["render"]()), mp["events"]["add"]("playerEnterVehicle", (_0x311da0, _0x37fae9) => this["playerEnterVehicle"](_0x311da0, _0x37fae9)), mp["events"]["add"]("playerLeaveVehicle", (_0x25737e, _0x706e3e) => this["playerLeaveVehicle"](_0x25737e, _0x706e3e)), mp["events"]["add"]("entityStreamIn", _0x2058d0 => this["entityStreamIn"](_0x2058d0));
                 }["render"]() {
                     var _0x2dd7ae = _0x1c2da7;
-                    mp["players"]["local"]["vehicle"] && (mp["game"]["audio"]["setRadioToStationNam" + 'e'](_0x4ea218["pgAUS"]), mp["game"]['ui']["hideHudComponentThisFrame"](0xf1f + -0x765 * 0x1 + -0x4 * 0x1ed), mp["game"]['ui']["hideHudComponentThisFrame"](-0x1 * 0x15f5 + 0x1373 + 0x28a)), mp["players"]["local"]["vehicle"] && this["blacklistedVehicleWeapons"]["includes"](mp["players"]["local"]["weapon"]) && mp["game"]["invoke"](_0x4ea218["AiqXY"], mp["players"]["local"], !(0x17 * 0xfb + -0x55 * 0x23 + -0xaee));
+                    mp["players"]["local"]["vehicle"] && (mp["game"]["audio"]["setRadioToStationNam" + 'e']("OFF"), mp["game"]['ui']["hideHudComponentThisFrame"](0xf1f + -0x765 * 0x1 + -0x4 * 0x1ed), mp["game"]['ui']["hideHudComponentThisFrame"](-0x1 * 0x15f5 + 0x1373 + 0x28a)), mp["players"]["local"]["vehicle"] && this["blacklistedVehicleWeapons"]["includes"](mp["players"]["local"]["weapon"]) && mp["game"]["invoke"]("0x5E6CC07646BBEAB8", mp["players"]["local"], !(0x17 * 0xfb + -0x55 * 0x23 + -0xaee));
                 }["playerEnterVehicle"](_0x1ad13d, _0x51df35) {
                     var _0x382827 = _0x1c2da7;
                     _0x1ad13d["setEngineO" + 'n'](!(0x37 + 0x239f * 0x1 + -0x23d6), !(-0x1 * -0x3e9 + -0x1 * -0x2d3 + -0x4 * 0x1af), !(-0x162d + 0x2ed * -0x1 + 0x191b));
                 }["playerLeaveVehicle"](_0x123ecc, _0x55c7b3) {}["entityStreamIn"](_0x1c42c4) {
                     var _0x460f42 = _0x1c2da7;
-                    if (_0x4ea218["nzOJx"](_0x1c42c4["type"], _0x4ea218["AwQbF"])) {
+                    if (_0x4ea218["nzOJx"](_0x1c42c4["type"], "vehicle")) {
                         var _0x129149 = _0x1c42c4;
                         mp["vehicles"]["exists"](_0x129149) && _0x129149["setTyresCanBurst"](!(-0x16c9 + -0x248b * 0x1 + 0x3b55));
                     }
@@ -1801,10 +1844,10 @@
             _0x427d1d = class {
                 constructor() {
                     var _0x14047c = _0x1c2da7;
-                    this["meeles"] = [-0x903d19f * 0x20 + 0x1 * 0xd60203e0 + 0xdd1aa487, 0xa * -0x19151dbb + -0xa22e1b7b + 0x1480b68 * 0x1b7, -0x1d598ae53 + -0xc7e2d9e3 + 0x182f * 0x26044f, -0x1b5bc969 + -0xe282eb9 + 0xae41741f, 0x75899fe7 * -0x1 + -0x686f * -0x40bd + -0x1 * -0xfd925857, 0x2759ca * -0x33f + -0x2d6151e4 + 0x17 * 0xd99a8b7, 0x758ba * -0xe4b + 0x62dcff33 + 0x1 * 0x4a3272d3, 0x4b95baa0 + 0x4976e832 + -0x4685435f, 0x1eb2 * -0xa4527 + -0x11dc29d68 + 0x1 * 0x352de03b3, 0xbe0b00ec + -0x1a94dee94 + -0x32d4 * -0x8e535, -0xe0b0f5 * -0x6b + 0x8b * 0xfbd796 + 0x1 * -0x4cf2fcef, -0x3009f8c9 * 0x6 + -0xc45b22e6 * -0x1 + 0x3 * 0x686a38e3, 0x3 * 0x89becec9 + 0x1f4164a9 + -0x2f0fdcc * 0x4b, -0x10ae396 * -0x67 + -0x1 * -0x330490d3 + -0x36daa07c, -0x2f34292a + -0x136cb1b1 + 0x1 * 0x5ba529bb, -0x9a * -0x8eaeed + -0x30e2b223 * -0x3 + -0x1b560fb2, -0x9a709637 + 0x11c5a2fd1 + 0x1227d96b, -0x49a9c592 + -0x10448e9 + 0x82c20a83], this["allowedWeapons"] = [], this["playerVisibilityFlag" + 's'] = -0x2bb + -0x59e + 0x859, this["autoDriveFlags"] = -0x240 + -0xebe + 0x3 * 0x5aa, this["spawnedVehicleFlags"] = 0xb30 + 0x1 * -0x1ee5 + -0x5 * -0x3f1, this["noClipFlag" + 's'] = -0x3 * -0x333 + 0xd * -0x33 + -0x702, this["oldPositon"] = mp["players"]["local"]["position"], this["isAcPaused"] = !(-0x4de + -0x1 * -0x1a6e + 0x8 * -0x2b2), mp["events"]["add"](_0x4ea218["lESnq"], (_0x4b1ddb, _0xf4e551, _0xced66, _0x380d63, _0x16e0a3, _0x395557) => this["outgoingDamage"](_0x4b1ddb, _0xf4e551, _0xced66, _0x380d63, _0x16e0a3, _0x395557)), mp["events"]["add"](_0x4ea218["WdWfu"], _0x52a039 => this["addWeaponToWhitelist"](_0x52a039)), mp["events"]["add"](_0x4ea218["aGvcp"], _0x127642 => this["removeWeaponFromWhitelist"](_0x127642)), mp["events"]["add"](_0x4ea218["iStdQ"], () => this["removeAllWeapons"]()), mp["events"]["add"](_0x4ea218["FYqYv"], _0x41b959 => this["setAcPause"](_0x41b959)), _0x4ea218["lqnYu"](setInterval, () => this["antiCheatTick"](), 0x1a46 + -0x1f * -0xc7 + -0x119 * 0x2d);
+                    this["meeles"] = [-0x903d19f * 0x20 + 0x1 * 0xd60203e0 + 0xdd1aa487, 0xa * -0x19151dbb + -0xa22e1b7b + 0x1480b68 * 0x1b7, -0x1d598ae53 + -0xc7e2d9e3 + 0x182f * 0x26044f, -0x1b5bc969 + -0xe282eb9 + 0xae41741f, 0x75899fe7 * -0x1 + -0x686f * -0x40bd + -0x1 * -0xfd925857, 0x2759ca * -0x33f + -0x2d6151e4 + 0x17 * 0xd99a8b7, 0x758ba * -0xe4b + 0x62dcff33 + 0x1 * 0x4a3272d3, 0x4b95baa0 + 0x4976e832 + -0x4685435f, 0x1eb2 * -0xa4527 + -0x11dc29d68 + 0x1 * 0x352de03b3, 0xbe0b00ec + -0x1a94dee94 + -0x32d4 * -0x8e535, -0xe0b0f5 * -0x6b + 0x8b * 0xfbd796 + 0x1 * -0x4cf2fcef, -0x3009f8c9 * 0x6 + -0xc45b22e6 * -0x1 + 0x3 * 0x686a38e3, 0x3 * 0x89becec9 + 0x1f4164a9 + -0x2f0fdcc * 0x4b, -0x10ae396 * -0x67 + -0x1 * -0x330490d3 + -0x36daa07c, -0x2f34292a + -0x136cb1b1 + 0x1 * 0x5ba529bb, -0x9a * -0x8eaeed + -0x30e2b223 * -0x3 + -0x1b560fb2, -0x9a709637 + 0x11c5a2fd1 + 0x1227d96b, -0x49a9c592 + -0x10448e9 + 0x82c20a83], this["allowedWeapons"] = [], this["playerVisibilityFlag" + 's'] = -0x2bb + -0x59e + 0x859, this["autoDriveFlags"] = -0x240 + -0xebe + 0x3 * 0x5aa, this["spawnedVehicleFlags"] = 0xb30 + 0x1 * -0x1ee5 + -0x5 * -0x3f1, this["noClipFlag" + 's'] = -0x3 * -0x333 + 0xd * -0x33 + -0x702, this["oldPositon"] = mp["players"]["local"]["position"], this["isAcPaused"] = !(-0x4de + -0x1 * -0x1a6e + 0x8 * -0x2b2), mp["events"]["add"]("outgoingDamage", (_0x4b1ddb, _0xf4e551, _0xced66, _0x380d63, _0x16e0a3, _0x395557) => this["outgoingDamage"](_0x4b1ddb, _0xf4e551, _0xced66, _0x380d63, _0x16e0a3, _0x395557)), mp["events"]["add"]("client:anticheat:addWeaponToWhitelist", _0x52a039 => this["addWeaponToWhitelist"](_0x52a039)), mp["events"]["add"]("client:anticheat:removeWeaponFromWhitelist", _0x127642 => this["removeWeaponFromWhitelist"](_0x127642)), mp["events"]["add"]("client:anticheat:removeAllWeapons", () => this["removeAllWeapons"]()), mp["events"]["add"]("client:anticheat:pauseAntiCheat", _0x41b959 => this["setAcPause"](_0x41b959)), _0x4ea218["lqnYu"](setInterval, () => this["antiCheatTick"](), 0x1a46 + -0x1f * -0xc7 + -0x119 * 0x2d);
                 }["outgoingDamage"](_0x2c1c1e, _0x1d35b6, _0x126a61, _0x2e354a, _0x2877c8, _0x2dffc9) {
                     var _0x110e36 = _0x1c2da7;
-                    if (this["meeles"]["includes"](_0x2e354a) && _0x4ea218["aEHLA"](_0x2dffc9, 0x10bf + 0xd * -0x45 + -0xc12)) return mp["events"]["callRemote"](_0x4ea218["SFdPD"], _0x2dffc9), !(0x2 * 0x10a3 + -0xa9f + -0x16a7);
+                    if (this["meeles"]["includes"](_0x2e354a) && _0x4ea218["aEHLA"](_0x2dffc9, 0x10bf + 0xd * -0x45 + -0xc12)) return mp["events"]["callRemote"]("Server:AntiCheat:triggerAcHeavyFist", _0x2dffc9), !(0x2 * 0x10a3 + -0xa9f + -0x16a7);
                 }["addWeaponToWhitelist"](_0xd21a15) {
                     var _0x4c5fcd = _0x1c2da7;
                     this["allowedWeapons"]["push"](_0xd21a15);
@@ -1814,22 +1857,22 @@
                     _0x4ea218["fiLUD"](_0x28721b, -(-0x163d + 0x2179 + 0x73 * -0x19)) && this["allowedWeapons"]["splice"](_0x28721b, 0x14a5 * -0x1 + 0x1 * 0x2581 + 0x1 * -0x10db);
                 }["removeAllWeapons"]() {
                     var _0xf49f3b = _0x1c2da7;
-                    mp["game"]["invoke"](_0x4ea218["HnAzj"], mp["players"]["local"]["handle"], !(-0x1a67 + -0x16df + 0x3146)), this["allowedWeapons"] = [];
+                    mp["game"]["invoke"]("0xF25DF915FA38C5F3", mp["players"]["local"]["handle"], !(-0x1a67 + -0x16df + 0x3146)), this["allowedWeapons"] = [];
                 }["checkCurrentWeapon"]() {
                     var _0x506609 = _0x1c2da7;
-                    if (_0x4ea218["MEIEC"](mp["players"]["local"]["weapon"], mp["game"]["joaat"](_0x4ea218["IgfVd"]))) return;
-                    let _0x369698 = mp["game1"]["invoke"](_0x4ea218["BWxyz"], mp["players"]["local"]["handle"]);
+                    if (_0x4ea218["MEIEC"](mp["players"]["local"]["weapon"], mp["game"]["joaat"]("weapon_unarmed"))) return;
+                    let _0x369698 = mp["game1"]["invoke"]("0x0A6DB4965674D243", mp["players"]["local"]["handle"]);
                     if (_0x4ea218["kLAoM"](_0x369698, -(-0xa36083c + 0x8b598de3 + -0x2395180a))) return;
-                    _0x4ea218["NYoEo"](this["allowedWeapons"]["includes"](_0x369698), !(-0x2593 + 0x1507 * -0x1 + 0x9 * 0x683)) && mp["events"]["callRemote"](_0x4ea218["wQnmS"]);
+                    _0x4ea218["NYoEo"](this["allowedWeapons"]["includes"](_0x369698), !(-0x2593 + 0x1507 * -0x1 + 0x9 * 0x683)) && mp["events"]["callRemote"]("Server:AntiCheat:triggerWeaponAc");
                 }["checkPlayerVisibilit" + 'y']() {
                     var _0x3209f9 = _0x1c2da7;
-                    _0x4ea218["YvWWY"](mp["game"]["invoke"](_0x4ea218["yEUOa"], mp["players"]["local"]["handle"]), -0x18b + 0x2a * 0x49 + -0x9d9) && _0x4ea218["lelfR"](mp["players"]["local"]["getVariabl" + 'e'](_0x4ea218["IkxeS"]), !(0x1311 + 0xd22 + -0x2032)) && (this["playerVisibilityFlag" + 's']++, _0x4ea218["ePDRr"](this["playerVisibilityFlag" + 's'], 0x20eb + 0x13d * 0x1d + -0x44d1) && mp["events"]["callRemote"](_0x4ea218["VOrWA"], mp["game"]["invoke"](_0x4ea218["yEUOa"], mp["players"]["local"]["handle"])));
+                    _0x4ea218["YvWWY"](mp["game"]["invoke"]("0x5A47B3B5E63E94C6", mp["players"]["local"]["handle"]), -0x18b + 0x2a * 0x49 + -0x9d9) && _0x4ea218["lelfR"](mp["players"]["local"]["getVariabl" + 'e']("PLAYER_IS_ADUTY"), !(0x1311 + 0xd22 + -0x2032)) && (this["playerVisibilityFlag" + 's']++, _0x4ea218["ePDRr"](this["playerVisibilityFlag" + 's'], 0x20eb + 0x13d * 0x1d + -0x44d1) && mp["events"]["callRemote"]("Server:AntiCheat:Visibility", mp["game"]["invoke"]("0x5A47B3B5E63E94C6", mp["players"]["local"]["handle"])));
                 }["checkAutoDrive"]() {
                     var _0x5d6263 = _0x1c2da7;
-                    mp["players"]["local"]["vehicle"] && mp["players"]["local"]["getIsTaskActive"](-0x135 + -0x363 * -0x3 + 0x1 * -0x84b) && (this["autoDriveFlags"]++, _0x4ea218["ePDRr"](this["autoDriveFlags"], -0x150d * -0x1 + -0xb71 * 0x3 + 0xd49) && mp["events"]["callRemote"](_0x4ea218["ccHiO"]));
+                    mp["players"]["local"]["vehicle"] && mp["players"]["local"]["getIsTaskActive"](-0x135 + -0x363 * -0x3 + 0x1 * -0x84b) && (this["autoDriveFlags"]++, _0x4ea218["ePDRr"](this["autoDriveFlags"], -0x150d * -0x1 + -0xb71 * 0x3 + 0xd49) && mp["events"]["callRemote"]("Server:AntiCheat:AutoDrive"));
                 }["checkCurrentVehicle"]() {
                     var _0xfeabe0 = _0x1c2da7;
-                    _0x4ea218["NYoEo"](mp["players"]["local"]["vehicle"], null) && _0x4ea218["sQAfy"](mp["game"]["invoke"](_0x4ea218["eyQTv"], mp["players"]["local"]["handle"], !(0x1 * -0x2287 + 0x2586 + 0x2fe * -0x1)), !(-0x12 * -0x60 + 0x2 * 0x40 + -0x740)) && (this["spawnedVehicleFlags"]++, _0x4ea218["ePDRr"](this["spawnedVehicleFlags"], 0x117 * 0x1a + 0x1885 + 0x164 * -0x26) && mp["events"]["callRemote"](_0x4ea218["Bjwep"]));
+                    _0x4ea218["NYoEo"](mp["players"]["local"]["vehicle"], null) && _0x4ea218["sQAfy"](mp["game"]["invoke"]("0x997ABD671D25CA0B", mp["players"]["local"]["handle"], !(0x1 * -0x2287 + 0x2586 + 0x2fe * -0x1)), !(-0x12 * -0x60 + 0x2 * 0x40 + -0x740)) && (this["spawnedVehicleFlags"]++, _0x4ea218["ePDRr"](this["spawnedVehicleFlags"], 0x117 * 0x1a + 0x1885 + 0x164 * -0x26) && mp["events"]["callRemote"]("Server:AntiCheat:ClientVehicle"));
                 }["antiCheatTick"]() {
                     var _0x5b27d0 = _0x1c2da7;
                     this["checkCurrentWeapon"](), this["checkPlayerVisibilit" + 'y'](), this["checkAutoDrive"](), this["checkCurrentVehicle"]();
@@ -1842,7 +1885,7 @@
             _0xf00855 = class {
                 constructor() {
                     var _0x4f0acd = _0x1c2da7;
-                    mp["events"]["add"](_0x4ea218["kpmBu"], _0x1e7617 => this["spawnPeds"](_0x1e7617));
+                    mp["events"]["add"]("Client:Peds:SpawnPeds", _0x1e7617 => this["spawnPeds"](_0x1e7617));
                 }["spawnPeds"](_0x6d0ff7) {
                     var _0x3eb665 = _0x1c2da7;
                     _0x6d0ff7 = JSON["parse"](_0x6d0ff7), _0x6d0ff7["forEach"](_0x2bd511 => {
@@ -1855,18 +1898,18 @@
             _0x4d95c9 = class {
                 constructor() {
                     var _0x585044 = _0x1c2da7;
-                    this["zones"] = [], mp["events"]["add"](_0x4ea218["OrxFz"], (_0x392117, _0x484f53, _0x52a200, _0x2f52f9) => this["createZone"](_0x392117, _0x484f53, _0x52a200, _0x2f52f9)), mp["events"]["add"](_0x4ea218["akxRb"], () => this["deleteZone" + 's']()), mp["events"]["add"](_0x4ea218["grIqu"], _0x2fcf24 => this["deleteZonesOffline"](_0x2fcf24));
+                    this["zones"] = [], mp["events"]["add"]("Client:Zones:AddNewZone", (_0x392117, _0x484f53, _0x52a200, _0x2f52f9) => this["createZone"](_0x392117, _0x484f53, _0x52a200, _0x2f52f9)), mp["events"]["add"]("Client:Zones:DeleteZones", () => this["deleteZone" + 's']()), mp["events"]["add"]("playerQuit", _0x2fcf24 => this["deleteZonesOffline"](_0x2fcf24));
                 }["createZone"](_0x49b34f, _0x4750d1, _0x119586, _0x2091b9) {
                     var _0x1cf186 = _0x1c2da7;
                     let _0x25248f = mp["game1"]['ui']["addBlipForRadius"](_0x49b34f['x'], _0x49b34f['y'], _0x49b34f['z'], _0x4750d1);
-                    mp["game1"]["invoke"](_0x4ea218["EsUxT"], _0x25248f, 0x1ccf * -0x1 + -0x1 * 0x8b + 0x1d63), mp["game1"]["invoke"](_0x4ea218["ETuqU"], _0x25248f, _0x119586), mp["game1"]["invoke"](_0x4ea218["UaOXK"], _0x25248f, _0x2091b9), this["zones"]["push"](_0x25248f);
+                    mp["game1"]["invoke"]("0xDF735600A4696DAF", _0x25248f, 0x1ccf * -0x1 + -0x1 * 0x8b + 0x1d63), mp["game1"]["invoke"]("0x45FF974EEE1C8734", _0x25248f, _0x119586), mp["game1"]["invoke"]("0x03D7FB09E75D6B7E", _0x25248f, _0x2091b9), this["zones"]["push"](_0x25248f);
                 }["deleteZone" + 's']() {
                     var _0x1450fa = _0x1c2da7;
-                    for (let _0x1c64db of this["zones"]) mp["game1"]["invoke"](_0x4ea218["PwFXm"], _0x1c64db) && mp["game"]['ui']["removeBlip"](_0x1c64db);
+                    for (let _0x1c64db of this["zones"]) mp["game1"]["invoke"]("0xA6DB27D19ECBB7DA", _0x1c64db) && mp["game"]['ui']["removeBlip"](_0x1c64db);
                 }["deleteZonesOffline"](_0x385422) {
                     var _0x565bf6 = _0x1c2da7;
                     if (_0x4ea218["ZBhcQ"](_0x385422, mp["players"]["local"])) {
-                        for (let _0x6eb2a8 of this["zones"]) mp["game1"]["invoke"](_0x4ea218["PwFXm"], _0x6eb2a8) && mp["game"]['ui']["removeBlip"](_0x6eb2a8);
+                        for (let _0x6eb2a8 of this["zones"]) mp["game1"]["invoke"]("0xA6DB27D19ECBB7DA", _0x6eb2a8) && mp["game"]['ui']["removeBlip"](_0x6eb2a8);
                     }
                 }
             },
