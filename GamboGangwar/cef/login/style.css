@@ -1,0 +1,201 @@
+@font-face {
+    font-family: 'PEL';
+    src: url('../utils/fonts/Poppins-ExtraLight.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'PM';
+    src: url('../utils/fonts/Poppins-Medium.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'PT';
+    src: url('../utils/fonts/Poppins-Thin.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'OSR';
+    src: url('../utils/fonts/OpenSans-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'OSL';
+    src: url('../utils/fonts/OpenSans-Light.ttf') format('truetype');
+}
+
+body {
+    user-select: none;
+    background-image: url('./bg.png');
+    background-size: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-y: hidden;
+}
+
+.md-form input[type="password"]:not(.browser-default):focus:not([readonly]),
+.md-form input[type="text"]:not(.browser-default):focus:not([readonly]) {
+    border-bottom: 1px solid #ffffff;
+    -webkit-box-shadow: 0 1px 0 0 #ffffff;
+    box-shadow: 0 1px 0 0 #868686;
+}
+
+input {
+    color: #c3c3c3 !important;
+}
+
+.md-form input[type="password"]:not(.browser-default):focus:not([readonly])+label,
+.md-form input[type="text"]:not(.browser-default):focus:not([readonly])+label {
+    color: #d2d2d2;
+    font-family: PEL;
+}
+
+label {
+    font-family: PEL;
+    font-weight: bold;
+}
+
+.box {
+    width: 40vw;
+}
+
+.error {
+    text-align: center;
+    font-weight: bold;
+    font-family: PEL;
+    color: #fd6262;
+    display: none;
+    text-shadow: 2px 2px 18px rgb(0 0 0);
+}
+
+.heading {
+    font-family: PEL;
+    font-size: 32px;
+    letter-spacing: 1px
+}
+
+button.btn-dark {
+    opacity: 0.5;
+    transition: all 0.8s ease-in-out;
+}
+
+button.btn-dark:hover {
+    opacity: 1;
+    transform: scale(1.02);
+}
+
+div#outfitSelectBox,
+div#teamSelectBox,
+div#loginBox {
+    display: none;
+    opacity: 0;
+}
+
+div#teamSelectBox>div>ul>li {
+    color: #fff;
+    width: 50%;
+    background: #2020209e;
+    float: left;
+    text-align: center;
+    height: 5vh;
+    align-items: center;
+    border-bottom: 1px solid #0000008a;
+    padding-top: 1.5vh;
+    opacity: .6;
+    transition: all 0.3s ease-in-out;
+    filter: grayscale(1);
+}
+
+div#teamSelectBox>div>ul {
+    border: 1px solid #0000008a;
+    border-bottom: none;
+    border-radius: 5px;
+}
+
+div#teamSelectBox>div>ul>li:hover {
+    cursor: pointer;
+    opacity: 1;
+    filter: grayscale(0);
+}
+
+div#teamSelectBox>div>ul>li:nth-child(odd) {
+    border-right: 1px solid #0000008a;
+}
+
+div#teamSelectBox>div>ul>li>span.name {
+    float: left;
+    margin-left: 1.5vw;
+    font-family: PM;
+    font-size: 1.3vh;
+}
+
+div#outfitSelectBox>div>ul>li>span.badge,
+div#teamSelectBox>div>ul>li>span.badge {
+    float: right;
+    margin-right: 1.5vw;
+}
+
+div#outfitSelectBox>div>ul>li>span.badge.text-bg-success,
+div#teamSelectBox>div>ul>li>span.badge.text-bg-success {
+    padding-right: 0.5vw;
+    padding-left: 0.5vw;
+    background: rgb(125, 56, 241);
+    font-family: 'PEL';
+    padding-top: 0.3vh;
+    padding-bottom: 0.4vh;
+}
+
+div#outfitSelectBox>div>ul>li>span.badge.text-bg-success {
+    font-family: OSL;
+    position: absolute;
+    left: 1vw;
+    bottom: 1vh;
+}
+
+div#outfitSelectBox>div>ul>li {
+    border-radius: 0 !important;
+    float: left;
+    width: 11vw;
+    height: 22vh;
+    margin-right: 0.5vw;
+    margin-left: 0.5vw;
+    margin-bottom: 2vh;
+    margin-top: 2vh;
+    border: 2px solid #5e5e5e;
+    background: url(./outfits/outfit2.png);
+    background-size: cover;
+    transition: all 0.3s ease-in-out;
+    filter: grayscale(0.4);
+}
+
+div#outfitSelectBox>div>ul>li:hover {
+    filter: grayscale(0);
+    transform: scale(1.02);
+    border-color: #833c3c;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+    border-radius: 4px;
+}
+
+
+/* Track */
+
+ ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+
+/* Handle */
+
+ ::-webkit-scrollbar-thumb {
+    background: rgba(212, 103, 103, 0.836);
+}
+
+
+/* Handle on hover */
+
+ ::-webkit-scrollbar-thumb:hover {
+    background: rgb(179, 76, 76);
+}

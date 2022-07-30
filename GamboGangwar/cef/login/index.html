@@ -1,0 +1,150 @@
+﻿<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="../utils/mdb/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../utils/mdb/css/mdb.min.css">
+    <link rel="stylesheet" href="../utils/mdb/css/style.css">
+    <link rel="stylesheet" href="style.css">
+
+    <title>Loginscreen</title>
+</head>
+
+<body>
+    <div class="container box" style="margin-top: -7.5%;">
+        <img style="width: 40%;" src="../utils/img/logo.png" class="img-fluid rounded mx-auto d-block">
+        <p id="error" class="error">Ein Fehler ist aufgetreten.</p>
+        <div id="loginBox">
+            <p class="text-center text-light" style="text-shadow: 2px 2px 18px rgba(0, 0, 0, 1);margin-top: 2vh; font-family: PEL; font-size: 18px;">Willkommen auf dem Gambo Gangwars Server.<br>Logge dich mit deinem Benutzernamen ein oder erstelle dir einen neuen Benutzer.</p>
+            <div class="md-form mx-auto" style="width: 50%; margin-top: 40px;">
+                <i style="margin-top: 0.7vh;" class="text-white fas fa-user prefix usernameLabel"></i>
+                <input type="text" id="inputIconEx2" style="font-family: PEL;" class="form-control text-white">
+                <label for="inputIconEx2" class="usernameLabel">Benutzername</label>
+            </div>
+            <div class="md-form mx-auto" style="width: 50%; margin-top: 40px;">
+                <i style="margin-top: 0.7vh;" class="text-white fas fa-key prefix passwordLabel"></i>
+                <input type="password" id="passwordInput" style="font-family: PEL;" class="form-control text-white">
+                <label for="passwordInput" class="passwordLabel">Passwort</label>
+                <center><button type="button" onclick="login();" class="btn btn-dark" style="background: #ffffff26 !important; margin-top: 4vh; width: 80%;">Anmelden</button></center>
+            </div>
+        </div>
+        <div id="teamSelectBox">
+            <p class="text-center text-light" style="font-family: PEL; font-size: 18px;">Wähle ein Team aus, dem du beitreten möchtest.</p>
+            <div class="col-12 container" style="height: 350px;">
+                <ul id="teamSelectBox-List" class="list-unstyled row"></ul>
+            </div>
+        </div>
+        <div id="outfitSelectBox">
+            <p class="text-center text-light" style="font-family: PEL; font-size: 18px;">Wähle ein Outfit aus, welches du tragen möchtest.</p>
+            <div class="col-12 container" style="height: 350px;">
+                <ul id="outfitSelectBox-List" style="overflow: auto;max-height: 50vh;" class="list-unstyled row"></ul>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="../utils/mdb/js/jquery.min.js"></script>
+    <script src="../utils/mdb/js/popper.min.js"></script>
+    <script src="../utils/mdb/js/bootstrap.min.js"></script>
+    <script src="../utils/mdb/js/mdb.min.js"></script>
+    <script src="../utils/fontawesome.js"></script>
+</body>
+
+<script>
+    let currentWindow = "";
+
+    function openWindow(window, optionalData) {
+        $("#error").text("");
+        $("#error").hide();
+
+        if (window == "") { // if string is empty, destroy the browser.
+            $(`#${currentWindow}`).fadeTo(500, 0, function() {
+                $(`#${currentWindow}`).hide();
+                mp.trigger("Client:Login:destroyBrowser");
+            });
+        } else {
+            if (currentWindow != "") {
+                $(`#${currentWindow}`).fadeTo(500, 0, function() {
+                    $(`#${currentWindow}`).hide();
+                    $(`#${window}`).fadeTo(500, 1, function() {
+                        $(`#${window}`).show();
+                        currentWindow = window;
+                    });
+                });
+            } else {
+                var automaticLogin = false;
+
+                if (window == "loginBox" && optionalData != undefined && optionalData != "") {
+                    loginData = JSON.parse(optionalData);
+                    $(".usernameLabel").addClass("active");
+                    $(".passwordLabel").addClass("active");
+                    $("#inputIconEx2").val(loginData.name);
+                    $("#passwordInput").val(loginData.password);
+                    automaticLogin = true;
+                }
+
+                $(`#${window}`).fadeTo(2500, 1, function() {
+                    $(`#${window}`).show();
+                    currentWindow = window;
+
+                    if (window == "loginBox" && automaticLogin) login();
+                });
+            }
+        }
+    }
+
+    function setOutfitlist(data) {
+        let html = "";
+        data = JSON.parse(data);
+
+        for (var i in data)
+            html += `<li style='background-image: url(./outfits/${data[i].Id}.jpg);' onclick='selectOutfit(${data[i].Id});' class='list-group-item'><span class='badge rounded-pill text-bg-success'>${data[i].Name}</span></li>`;
+
+        $("#outfitSelectBox-List").html(html);
+    }
+
+    function setTeamlist(data) {
+        let html = "";
+        data = JSON.parse(data);
+
+        for (var i in data) {
+            html += `<li onclick='selectTeam(${data[i].Id});' class='list-item'><span class='name'>${data[i].Name}</span><span class='badge rounded-pill text-bg-success'>${data[i].PlayerCount} Spieler</span></li>`;
+        }
+
+        $("#teamSelectBox-List").html(html);
+    }
+
+    function selectOutfit(outfitId) {
+        if (outfitId == undefined) return;
+        mp.trigger("Client:Team:selectOutfit", outfitId);
+    }
+
+    function selectTeam(teamId) {
+        if (teamId == undefined) return;
+        mp.trigger("Client:Team:selectTeam", teamId);
+    }
+
+    function login() {
+        var username = $("#inputIconEx2").val().replace(/^\s+|\s+$/g, "");
+        var password = $("#passwordInput").val();
+        if (username.length <= 0) {
+            showError("Du hast keinen Username eingegeben.");
+            return;
+        }
+        if (password.length <= 0) {
+            showError("Du hast kein Passwort eingegeben.");
+            return;
+        }
+        mp.trigger("Client:Login:loginTask", username, password);
+    }
+
+    function showError(msg) {
+        $("#error").text(msg);
+        $("#error").show();
+    }
+</script>
+
+</html>

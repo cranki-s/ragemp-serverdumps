@@ -1,0 +1,1168 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../utils/toastr.min.css">
+    <link rel="stylesheet" href="../utils/mdb/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.8.2/css/all.css" integrity="sha384-xVVam1KS4+Qt2OrFa+VdRUoXygyKIuNWUUUBZYv+n27STsJ7oDOHJgfF0bNKLMJF" crossorigin="anonymous">
+    <title>Hauptmenü</title>
+</head>
+
+<body>
+    <div id="notificaion_list"></div>
+
+    <div id="fadeInBox">
+        <div id="infoBox">
+            <div class="box">
+                <span id="money">0$</span>
+                <div class="hr"></div>
+                <span class="level">Level</span>
+                <span id="levelNumber"></span>
+                <div class="hr"></div>
+                <span id="username"></span>
+                <img id="logo" class="logo" src="">
+            </div>
+        </div>
+        <ul id="navbar" class="list-group navbar">
+            <li onclick="selectNavbarItem(this, 'homeBox');" class="list-group-item active">Home</li>
+            <li onclick="selectNavbarItem(this, 'teamSelectBox');" class="list-group-item">Teams</li>
+            <li onclick="selectNavbarItem(this, 'weaponSelectBox');" class="list-group-item">Klasseneditor</li>
+            <li class="list-group-item">Leaderboard</li>
+            <li onclick="selectNavbarItem(this, 'achievementBox');" class="list-group-item">Errungenschaften</li>
+            <li onclick="selectNavbarItem(this, 'settingsBox');" class="list-group-item">Einstellungen</li>
+        </ul>
+
+        <div id="ffaBox">
+            <div class="box">
+                <div class="header">
+                    <p class="title">FREI FÜR ALLE - PRIVAT</p>
+                    <p class="desc">Private Arenen mit oder ohne Passwort.</p>
+                </div>
+                <ul id="ffaBox-PrivateList">
+                    <li style="background: url(./img/ffaHeader1.png); background-size: cover; background-position: top;">
+                        <p class="title">Arena erstellen</p>
+                        <div class="box" style="height: 80%;">
+                            <span class="subtitle">Karte</span>
+                            <ul>
+                                <li class="active">Mirror Park</li>
+                                <li>Vinewood</li>
+                                <li>Mirror Park</li>
+                                <li>Vinewood</li>
+                            </ul>
+                        </div>
+                        <div class="box">
+                            <span class="subtitle">Passwort</span>
+                            <input type="password" spellcheck="false">
+                        </div>
+                        <div class="box">
+                            <span class="subtitle">Spielerzahl</span>
+                            <input type="number" spellcheck="false">
+                        </div>
+                        <div class="box">
+                            <span class="subtitle" style="font-size: 1vh; margin-top: 1.25vh;">Gibst du kein Passwort ein, kann jeder beitreten.</span>
+                        </div>
+                        <div class="box">
+                            <input type="checkbox" id="c1" />
+                            <label style="margin-left: 1vw; margin-top: 0.25vh;" for="c1"><span></span>Erlaube Cheater</label>
+                            <button type="button">Erstellen</button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="box">
+                <div class="header">
+                    <p class="title">FREI FÜR ALLE - ÖFFENTLICH</p>
+                    <p class="desc">Öffentliche Arenen zugänglich für alle.</p>
+                </div>
+                <ul id="ffaBox-PublicList"></ul>
+            </div>
+            <div class="box">
+                <div class="header">
+                    <p class="title">FREI FÜR ALLE - HvH</p>
+                    <p class="desc">Hacker vs Hacker Arenen - für Cheater und normale Spieler.</p>
+                </div>
+                <ul id="ffaBox-HvHList"></ul>
+            </div>
+        </div>
+
+        <div id="homeBox">
+            <div class="box">
+                <div onclick="selectStreetfight();" class="smallBox unlocked" style="background: url(./img/bg1.png); background-size: cover; background-position: center center;">
+                    <p class="title">STREETFIGHT</p>
+                </div>
+                <div onclick="openWindow('ffaBox');" class="smallBox unlocked" style="background: url(./img/bg2.jpg); background-size: cover; background-position: center center;">
+                    <p class="title">FREI FÜR ALLE</p>
+                </div>
+                <div id="versusBox" class="smallBox unlocked" style="box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, .15);background: url(./img/bg3.png); background-size: cover; background-position: center center;">
+                    <p class="title" style="margin-bottom: 0.2vh">VERSUS</p>
+                    <div class="versusCont" style="opacity: 0;">
+                        <div class="box" style="height: 80%;">
+                            <span class="subtitle">Karte</span>
+                            <ul id="versusBox-MapList">
+                                <li class="selectedMap">Mirror Park</li>
+                                <li>Vinewood</li>
+                                <li>Mirror Park</li>
+                                <li>Vinewood</li>
+                            </ul>
+                        </div>
+                        <div class="box" style="margin-left: 0.5vw">
+                            <span class="subtitle">Rundenanzahl</span>
+                            <input id="versusBox-RoundAmount" type="number" spellcheck="false">
+                        </div>
+                        <div class="box" style="margin-left: 0.5vw">
+                            <span class="subtitle">Spielername</span>
+                            <input id="versusBox-PlayerName" type="text" spellcheck="false">
+                        </div>
+                        <div class="box" style="margin-top: -2.6vh">
+                            <input type="checkbox" id="c2" />
+                            <label style="margin-left: 1vw; margin-top: 0.25vh;" for="c2"><span></span>Eigene Kits</label>
+                        </div>
+
+                        <button onclick="SendVersusRequest();" type="button">Herausfordern</button>
+                    </div>
+                </div>
+            </div>
+            <div class="box">
+                <div class="bigBox fancy" style="background: url(./img/bg4.jpg); background-size: cover; background-position: center center;">
+                    <div class="hr"></div>
+                    <p class="title">LAUFENDES EVENT</p>
+                    <img class="flag" src="./img/flag.png">
+                    <p class="subText">Coming soon</p>
+                    <div class="endBox" style="border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
+                        <p class="title">Veranstaltung endet in:</p>
+                        <p class="desc">31 Tage</p>
+                    </div>
+                </div>
+                <div class="smallBox" style="background: url(./img/bg5.jpg); background-size: cover; background-position: center center;">
+                    <p class="title">STELLUNG</p>
+                </div>
+            </div>
+            <div class="box">
+                <div class="bigBox" style="opacity: 1; filter: grayscale(0); box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, .5);background: url(./img/bg6.png); background-size: cover; background-position: center center;">
+                    <p class="title" style="opacity: 1;text-align: center;background-color: rgb(22 22 22 / 75%);border-top: 2px solid #1e1e1e;position: relative;padding-top: 0.5vh;padding-bottom: 0.5vh;font-size: 2.8vh;margin-bottom: 0;">FREUNDE <span style="font-size: 1.2vh;font-family: 'F1';position: relative;top: -0.5vh;color: #ebed86;font-weight: bold;">BETA</span></p>
+                    <ul id="homeBox-FriendList" class="list-group" style="overflow: auto;max-height: 41.6vh; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;"></ul>
+                </div>
+                <div onclick="selectGungame();" class="smallBox unlocked" style="background: url(./img/bg7.jpg); background-size: cover; background-position: center center;">
+                    <p class="title">WAFFENSPIELE</p>
+                    <div class="endBox" style="border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
+                        <p class="title">Aktuelle Teilnehmer:</p>
+                        <p class="desc">
+                            <font id="GungameCount">0</font> Spieler</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="teamSelectBox">
+            <div class="box" style="width: 54%;">
+                <ul id="teamSelectBox-TeamList" class="list-group" style="width: 95%"></ul>
+            </div>
+            <div class="box" style="width: 30%">
+                <ul id="teamSelectBox-OutfitList" class="list-group"></ul>
+            </div>
+        </div>
+
+        <div id="achievementBox">
+            <div id="achievement_list"></div>
+        </div>
+
+        <div id="settingsBox">
+            <div class="box" style="box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, .75); background: url(https://cdn.discordapp.com/attachments/871818456989843476/926386039403216956/r5dER0tLZt.png); background-position: center center; background-size: 180% 100%;">
+                <p class="title" style="background-color: rgb(22,22,22,0.95); border-bottom: 2px solid #1e1e1e;">INFORMATIONEN</p>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <p>Spieler-ID
+                            <font id="settingsBox-PlayerID"></font>
+                        </p>
+                    </li>
+                    <li class="list-group-item">
+                        <p>Benutzername
+                            <font id="settingsBox-Name"></font>
+                        </p>
+                    </li>
+                    <li class="list-group-item">
+                        <p>Rang
+                            <font id="settingsBox-Rank"></font>
+                        </p>
+                    </li>
+                    <li class="list-group-item">
+                        <p>Registriert seit
+                            <font id="settingsBox-RegisterDate"></font>
+                        </p>
+                    </li>
+                    <li class="list-group-item">
+                        <p>Als Cheater markiert
+                            <font id="settingsBox-CheaterFlag"></font>
+                        </p>
+                    </li>
+                    <li class="list-group-item">
+                        <p>Verwarnungen
+                            <font id="settingsBox-Warns"></font>
+                        </p>
+                    </li>
+                    <li class="list-group-item">
+                        <p>Geworbene Spieler
+                            <font id="settingsBox-RecruitedCount"></font>
+                        </p>
+                    </li>
+                    <p class="title" style="background-color: rgb(22,22,22,0.95); border-bottom: 2px solid #1e1e1e;border-top: 2px solid #1e1e1e;">EINSTELLUNGEN</p>
+                    <li class="list-group-item">
+                        <p>Von wem geworben</p>
+                        <input id="settingsBox-RecruitedInput" type="text" spellcheck="false">
+                        <button onclick="setRecruitedPlayer();" id="settingsBox-RecruitedBtn" type="button" class="btn btn-sm btn-success">OK</button>
+                    </li>
+                    <li class="list-group-item">
+                        <p>Name ändern</p>
+                        <input id="settingsBox-NameChangeInput" type="text" spellcheck="false">
+                        <button onclick="changeName();" type="button" class="btn btn-sm btn-success" style="width: 2.8vw;height: 2.8vh;display: flex;justify-content: center;align-items: center;padding-top: 0.5vh;">OK</button>
+                    </li>
+                    <li class="list-group-item">
+                        <p>Freund hinzufügen</p>
+                        <input id="settingsBox-AddFriendInput" type="text" spellcheck="false">
+                        <button onclick="addFriend();" type="button" class="btn btn-sm btn-success" style="width: 2.8vw;height: 2.8vh;display: flex;justify-content: center;align-items: center;padding-top: 0.5vh;"><i class="fas fa-check"></i></button>
+                    </li>
+                    <li class="list-group-item">
+                        <p>Discord-Sync</p>
+                        <input style="display: none" id="settingsBox-DCSyncTokenInput" type="text" spellcheck="false">
+                        <button onclick="CopyDCToken();" type="button" class="btn btn-sm btn-success" style="width: 2.8vw;height: 2.8vh;display: flex;justify-content: center;align-items: center;padding-top: 0.5vh;"><i class="fas fa-copy"></i></button>
+                    </li>
+                </ul>
+            </div>
+            <div class="box" style="box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, .85);background: url(./img/settingsBg2.png); background-position: center center; background-size: 180% 100%;">
+                <p class="title" style="background-color: rgb(22,22,22,0.95); border-bottom: 2px solid #1e1e1e;">BELOHNUNGEN <span style="font-size: 1.2vh;font-family: 'F1';position: relative;top: -0.5vh;color: #ebed86;font-weight: bold;">* Donator</span></p>
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        <p>XP-Boost
+                            <font id="settingsBox-XPBoostNormal" style="color: #70e584"></font>
+                        </p>
+                        <button onclick="activateXPBoost(0);" id="settingsBox-XPBoostNormalBTN" type="button" class="btn btn-sm btn-success" style="width: auto;height: 2.8vh;display: flex;justify-content: center;align-items: center;padding-top: 0.5vh;">Aktivieren</button>
+                    </li>
+                    <li class="list-group-item">
+                        <p>XP-Boost <span style="font-size: 0.95vh">(Team)</span>
+                            <font id="settingsBox-XPBoostTeam" style="color: #70e584"></font>
+                        </p>
+                        <button onclick="activateXPBoost(2);" id="settingsBox-XPBoostTeamBTN" type="button" class="btn btn-sm btn-success" style="width: auto;height: 2.8vh;display: flex;justify-content: center;align-items: center;padding-top: 0.5vh;">Aktivieren</button>
+                    </li>
+                    <li class="list-group-item">
+                        <p>XP-Boost <span style="font-size: 0.95vh">(Freunde)</span>
+                            <font id="settingsBox-XPBoostFriends" style="color: #70e584"></font>
+                        </p>
+                        <button onclick="activateXPBoost(1);" id="settingsBox-XPBoostFriendsBTN" type="button" class="btn btn-sm btn-success" style="width: auto;height: 2.8vh;display: flex;justify-content: center;align-items: center;padding-top: 0.5vh;">Aktivieren</button>
+                    </li>
+                </ul>
+                <p class="title" style="background-color: rgb(22,22,22,0.95); border-bottom: 2px solid #1e1e1e;border-top: 2px solid #1e1e1e;">PRIVATFAHRZEUG <span style="font-size: 1.2vh;font-family: 'F1';position: relative;top: -0.5vh;color: #ebed86;font-weight: bold;">* Donator</span></p>
+                <ul id="settingsBox-VehicleList" class="list-group" style="max-height: 15.6vh;overflow: auto;"></ul>
+                <p class="title" style="background-color: rgb(22,22,22,0.95); border-bottom: 2px solid #1e1e1e;border-top: 2px solid #1e1e1e;">FREUNDESANFRAGEN <span style="font-size: 1.2vh;font-family: 'F1';position: relative;top: -0.5vh;color: #ebed86;font-weight: bold;">BETA</span></p>
+                <ul id="settingsBox-FriendRequestList" class="list-group" style="overflow: auto;max-height: 26vh;">
+                    <!-- <li class="list-group-item online">
+                        <p>Thomas Gotti</p>
+                        <button type="button" class="btn btn-sm btn-success" style="margin-right: 1vw;"><i class="fas fa-times"></i></button>
+                        <button type="button" class="btn btn-sm green"><i class="fas fa-check"></i></button>
+                    </li>
+                    <li class="list-group-item online">
+                        <p>Thomas Gotti</p>
+                        <button type="button" class="btn btn-sm btn-success" style="margin-right: 1vw;"><i class="fas fa-times"></i></button>
+                        <button type="button" class="btn btn-sm green"><i class="fas fa-check"></i></button>
+                    </li>
+                    <li class="list-group-item online">
+                        <p>Thomas Gotti</p>
+                        <button type="button" class="btn btn-sm btn-success" style="margin-right: 1vw;"><i class="fas fa-times"></i></button>
+                        <button type="button" class="btn btn-sm green"><i class="fas fa-check"></i></button>
+                    </li>
+                    <li class="list-group-item online">
+                        <p>Thomas Gotti</p>
+                        <button type="button" class="btn btn-sm btn-success" style="margin-right: 1vw;"><i class="fas fa-times"></i></button>
+                        <button type="button" class="btn btn-sm green"><i class="fas fa-check"></i></button>
+                    </li>
+                    <li class="list-group-item online">
+                        <p>Thomas Gotti</p>
+                        <button type="button" class="btn btn-sm btn-success" style="margin-right: 1vw;"><i class="fas fa-times"></i></button>
+                        <button type="button" class="btn btn-sm green"><i class="fas fa-check"></i></button>
+                    </li>
+                    <li class="list-group-item online">
+                        <p>Thomas Gotti</p>
+                        <button type="button" class="btn btn-sm btn-success" style="margin-right: 1vw;"><i class="fas fa-times"></i></button>
+                        <button type="button" class="btn btn-sm green"><i class="fas fa-check"></i></button>
+                    </li>
+                    <li class="list-group-item online">
+                        <p>Thomas Gotti</p>
+                        <button type="button" class="btn btn-sm btn-success" style="margin-right: 1vw;"><i class="fas fa-times"></i></button>
+                        <button type="button" class="btn btn-sm green"><i class="fas fa-check"></i></button>
+                    </li> -->
+                </ul>
+            </div>
+            <div class="box" style="box-shadow: inset 0 0 0 1000px rgba(0, 0, 0, .65);overflow: hidden; background: url(./img/settingsBg3.jpg); background-position: center center; background-size: 160% 100%;">
+                <p class="title" style="background-color: rgb(22,22,22,0.95); border-bottom: 2px solid #1e1e1e;">TASTENBELEGUNG</p>
+                <div id="hotkey_settigs_list">
+                </div>
+                <div id="hotkey_settigs_overlay">
+                    Drücke eine Taste, um diese als Hotkey festzulegen. Mit Escape brichst du ab.
+                </div>
+            </div>
+        </div>
+
+        <div id="weaponSelectBox">
+            <div class="box" style="width: 52%">
+                <div class="weapon_container" id="FirstPrimary" style="background: url(./img/ffaHeader1.png); background-size: cover; background-position: top;">
+                    <div class="category_title">1. Primärwaffe</div>
+                    <div class="weapon_list">
+                    </div>
+                </div>
+                <div class="weapon_container" id="SecondPrimary" style="background: url(./img/ffaHeader2.png); background-size: cover; background-position: top;">
+                    <div class="category_title">2. Primärwaffe</div>
+                    <div class="weapon_list">
+                    </div>
+                </div>
+
+                <div class="weapon_container" id="Pistol" style="background: url(./img/ffaHeader3.png); background-size: cover; background-position: top;">
+                    <div class="category_title">Pistole</div>
+                    <div class="weapon_list">
+                    </div>
+                </div>
+
+                <div class="weapon_container" id="Melee" style="background: url(./img/ffaHeader3.png); background-size: cover; background-position: top;">
+                    <div class="category_title">Handwaffen</div>
+                    <div class="weapon_list">
+                    </div>
+                </div>
+            </div>
+            <div id="weaponEditor-AttachmentBox" class="box" style="margin-left: 2%; width: 30%">
+                <div class="weapon_container" style="background: url(./img/ffaHeader1.png); background-size: cover; background-position: top;">
+                    <div class="category_title">Aufsätze wählen</div>
+                    <ul id="weaponEditor-AttachmentSelect" class="list-group"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src=" ../utils/mdb/js/jquery.min.js "></script>
+    <script src="../utils/mdb/js/popper.min.js "></script>
+    <script src="../utils/mdb/js/bootstrap.min.js "></script>
+    <script src="../utils/mdb/js/mdb.min.js "></script>
+    <script src="../utils/toastr.js"></script>
+    <script src="../utils/fontawesome.js "></script>
+    <script src="../utils/notification.js"></script>
+</body>
+<script>
+    let currentWindow = "",
+        selectedFFAMapId = 0,
+        selectedVersusMapId = 0;
+
+    $(document).ready(() => {
+        // initWeaponEditorConfigurationData('[]', '[{"hash": "2937143193", "Name": "Advanced Rifle"},{"hash": "3220176749", "Name": "Assault Rifle"},{"hash": "2132975508", "Name": "Bullpup Rifle"},{"hash": "2210333304", "Name": "Carbine Rifle"}]', '[{"hash": "3523564046", "Name": "Heavy Pistol"},{"hash": "2578377531", "Name": "Pistol50"},{"hash": "3249783761", "Name": "Revolver"},{"hash": "3675956304", "Name": "Maschinenpistole"},{"hash": "3173288789", "Name": "MiniSMG"},{"hash": "324215364", "Name": "MicroSMG"}]', '[]', '{ "FirstPrimary": "0", "SecondPrimary": "0",  "Pistol": "0", "Melee": "0"}')
+        // setMainMenuData('{"Money": 88, "Level": 5, "Name": "Yallah", "Team": 1, "GungameCount": 5, "Friends": [], "VersusMaps": [{"Id": 1, "Name": "test"}]}', true);
+        // setHotKeys('[{"Target": "Menü", "Key": "69" },{"Target": "Waffe ziehen", "Key": "188" },{"Target": "Menü", "Key": "69" },{"Target": "Waffe ziehen", "Key": "188" },{"Target": "Menü", "Key": "69" },{"Target": "Waffe ziehen", "Key": "188" },{"Target": "Menü", "Key": "69" },{"Target": "Waffe ziehen", "Key": "188" },{"Target": "Menü", "Key": "69" },{"Target": "Waffe ziehen", "Key": "188" },{"Target": "Menü", "Key": "69" },{"Target": "Waffe ziehen", "Key": "188" },{"Target": "Menü", "Key": "69" },{"Target": "Waffe ziehen", "Key": "188" }]');
+    });
+
+    function CopyDCToken() {
+        var input = document.getElementById("settingsBox-DCSyncTokenInput");
+        input.select();
+        input.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(input.value);
+        addNotification("Discord-Sync Code kopiert", false, 2500);
+    }
+
+    function setSettings(settingsObj) {
+        settingsObj = JSON.parse(settingsObj);
+
+        $("#settingsBox-PlayerID").html(settingsObj.Id);
+        $("#settingsBox-Rank").html(settingsObj.Rank);
+        $("#settingsBox-RegisterDate").html(settingsObj.Registered);
+
+        let cheaterFlag = "Nicht aktiv";
+
+        settingsObj.CheaterFlag = Date.parse(settingsObj.CheaterFlag);
+
+        if (settingsObj.CheaterFlag > new Date()) {
+            $("#settingsBox-CheaterFlag").css("color", "#f04b4b");
+            cheaterFlag = `bis ${new Date(settingsObj.CheaterFlag).toLocaleString("de-DE")}`;
+        } else $("#settingsBox-CheaterFlag").css("color", "#70e584");
+
+        $("#settingsBox-CheaterFlag").html(cheaterFlag);
+        $("#settingsBox-Warns").html(settingsObj.Warns);
+        $("#settingsBox-RecruitedCount").html(settingsObj.RecruitedPlayers);
+        $("#settingsBox-DCSyncTokenInput").val(`${settingsObj.DCSyncToken}`);
+        setReferredPlayer(`${settingsObj.RecruitedName}`);
+        setFriendRequests(JSON.stringify(settingsObj.FriendRequests));
+        setXPBoostData(JSON.stringify(settingsObj.XPBoostData));
+
+        let vehHTML = "";
+
+        for (var i in settingsObj.PrivateVehicles) {
+            vehHTML += `<li class='list-group-item'><p>${settingsObj.PrivateVehicles[i].Name}</p><button onclick='selectPrivateVehicle("` + settingsObj.PrivateVehicles[i].Name + `", "` + settingsObj.PrivateVehicles[i].Hash + `");' type='button' class='btn btn-sm btn-success' style='width: auto; height: 2.8vh; display: flex; justify-content: center; align-items: center; padding-top: 0.5vh;'>Wählen</button></li>`;
+        }
+
+        $("#settingsBox-VehicleList").html(vehHTML);
+    }
+
+    function selectPrivateVehicle(name, hash) {
+        if (name == undefined || hash == undefined) return;
+        mp.trigger("Client:MainMenu:selectPrivateVehicle", name, hash);
+    }
+
+    function setReferredPlayer(name) {
+        $("#settingsBox-RecruitedInput").val(`${name}`);
+
+        if (name.length > 0) {
+            $("#settingsBox-RecruitedBtn").hide();
+            $("#settingsBox-RecruitedInput").attr("disabled", true);
+        }
+    }
+
+    function setFriendRequests(friends) {
+        friends = JSON.parse(friends);
+        let requestHTML = "";
+
+        for (var i in friends) {
+            if (friends[i].IsOnline) requestHTML += "<li class='list-group-item online'>";
+            else requestHTML += "<li class='list-group-item offline'>";
+
+            requestHTML += `<p>${friends[i].Name}</p><button onclick='declineFriend(${friends[i].Id});' type='button' class='btn btn-sm btn-success' style='margin-right: 1vw;'><i class='fas fa-times'></i></button>` +
+                `<button onclick='acceptFriend(${friends[i].Id});' type='button' class='btn btn-sm green'><i class='fas fa-check'></i></button></li>`;
+        }
+
+        if (requestHTML.length <= 0)
+            requestHTML = "<li class='list-group-item'><p style='text-align: center'>Du hast keine offenen Freundesanfragen.</p></li>";
+
+        $("#settingsBox-FriendRequestList").html(requestHTML);
+    }
+
+    function setRecruitedPlayer() {
+        var name = $("#settingsBox-RecruitedInput").val();
+        if (name == undefined || name.length <= 0) return;
+        mp.trigger("Client:MainMenu:setRecruitedPlayer", name);
+    }
+
+    function setXPBoostData(json) {
+        json = JSON.parse(json);
+
+        for (var i in json) {
+            switch (json[i].Type) {
+                case 0:
+                    if (json[i].remainingMinutes > 0) {
+                        $("#settingsBox-XPBoostNormal").html(`${json[i].remainingMinutes} Minuten`);
+                        $("#settingsBox-XPBoostNormal").show();
+                        $("#settingsBox-XPBoostNormalBTN").hide();
+                    } else {
+                        $("#settingsBox-XPBoostNormal").hide();
+                        $("#settingsBox-XPBoostNormalBTN").show();
+                    }
+                    break;
+                case 1:
+                    if (json[i].remainingMinutes > 0) {
+                        $("#settingsBox-XPBoostFriends").html(`${json[i].remainingMinutes} Minuten`);
+                        $("#settingsBox-XPBoostFriends").show();
+                        $("#settingsBox-XPBoostFriendsBTN").hide();
+                    } else {
+                        $("#settingsBox-XPBoostFriends").hide();
+                        $("#settingsBox-XPBoostFriendsBTN").show();
+                    }
+                    break;
+                case 2:
+                    if (json[i].remainingMinutes > 0) {
+                        $("#settingsBox-XPBoostTeam").html(`${json[i].remainingMinutes} Minuten`);
+                        $("#settingsBox-XPBoostTeam").show();
+                        $("#settingsBox-XPBoostTeamBTN").hide();
+                    } else {
+                        $("#settingsBox-XPBoostTeam").hide();
+                        $("#settingsBox-XPBoostTeamBTN").show();
+                    }
+                    break;
+            }
+        }
+    }
+
+    function changeName() {
+        var newName = $("#settingsBox-NameChangeInput").val();
+        if (newName == undefined || newName.length <= 0) return;
+        mp.trigger("Client:MainMenu:changeName", newName);
+    }
+
+    function activateXPBoost(type) {
+        mp.trigger("Client:MainMenu:activateBoost", type);
+    }
+
+    function addFriend() {
+        var input = $("#settingsBox-AddFriendInput").val();
+        if (input == undefined || input.length <= 0) return;
+        mp.trigger("Client:MainMenu:addFriend", input);
+    }
+
+    function declineFriend(ID) {
+        mp.trigger("Client:MainMenu:declineFriend", ID);
+    }
+
+    function acceptFriend(ID) {
+        mp.trigger("Client:MainMenu:acceptFriend", ID);
+    }
+
+    function setMainMenuData(mainMenuObject, open) {
+        mainMenuObject = JSON.parse(mainMenuObject);
+
+        $("#money").text(`${numberWithCommas(mainMenuObject.Money)}$`);
+        $("#levelNumber").text(`${mainMenuObject.Level}`);
+        $("#logo").attr("src", `../utils/img/logos/${mainMenuObject.Team}.png`);
+        $("#GungameCount").text(`${mainMenuObject.GungameCount}`);
+        setName(mainMenuObject.Name);
+
+        let friendHTML = "";
+
+        for (var friend in mainMenuObject.Friends) {
+            let onStr = "Offline";
+            if (mainMenuObject.Friends[friend].IsOnline == true) onStr = "Online";
+
+            friendHTML += `<li class='list-group-item ${onStr}'><button onclick='deleteFriend(${mainMenuObject.Friends[friend].Id});' type='button' class='btn btn-sm btn-success'><i class='fas fa-times'></i></button><p>${mainMenuObject.Friends[friend].Name}</p><span class='friend'>${onStr}<br><font>${mainMenuObject.Friends[friend].Desc}</font></span></li>`;
+        }
+
+        if (friendHTML.length <= 0) {
+            friendHTML = `<li class='list-group-item'><p style='text-align: center'>Du hast keine Freunde. <br>Füge welche in den Einstellungen hinzu.</p></li>`;
+        }
+        $("#homeBox-FriendList").html(friendHTML);
+
+        let versusHTML = "";
+        for (var i in mainMenuObject.VersusMaps) {
+            versusHTML += `<li class='versusMap' onclick='selectVersusMap(this, ${mainMenuObject.VersusMaps[i].Id});'>${mainMenuObject.VersusMaps[i].Name}</li>`;
+        }
+        $("#versusBox-MapList").html(versusHTML);
+
+        if (!open) return;
+        openWindow("homeBox");
+
+        $("#fadeInBox").fadeTo(1500, 1, function() {
+            $("#fadeInBox").show();
+        });
+    }
+
+    function selectVersusMap(htmlElem, mapId) {
+        if (mapId == undefined || mapId <= 0) return;
+        $(".versusMap").removeClass("selectedMap");
+        $(htmlElem).addClass("selectedMap");
+        selectedVersusMapId = mapId;
+    }
+
+    function SendVersusRequest() {
+        if (selectedVersusMapId == undefined || selectedVersusMapId <= 0) return;
+        let roundAmount = $("#versusBox-RoundAmount").val();
+        if (roundAmount <= 0) return;
+        let playerName = $("#versusBox-PlayerName").val();
+        if (playerName == undefined || playerName.length <= 0) return;
+        let ownWeaponSet = document.getElementById("c2").checked;
+
+        mp.trigger("Client:Versus:sendRequest", selectedVersusMapId, roundAmount, ownWeaponSet, playerName);
+    }
+
+    function setName(name) {
+        $("#username").text(`${name}`);
+        $("#settingsBox-Name").html(`${name}`);
+    }
+
+    function deleteFriend(ID) {
+        if (ID == undefined) return;
+        mp.trigger("Client:MainMenu:deleteFriend", ID);
+    }
+
+    function setAchievementData(achievements_json) {
+        $("#achievement_list").html("");
+        var achievements = JSON.parse(achievements_json);
+
+        for (let index = 0; index < achievements.length; index++) {
+            const achievement = achievements[index];
+            var container = "<div  class='achievement_container'>" +
+                "<div class='achievement_img'><img  src='./img/achievements/icon.png'/></div>" +
+                "<div class='achievement_info_full_wrapper' >" +
+                "<div class='achievement_info_wrapper' >" +
+                "<div class='achievement_title'>" + achievement.Title + "</div>" +
+                "<div class='achievement_taks'>" + achievement.Task + "</div>" +
+                "</div>" +
+                "<div class='achievement_Reward'>" + achievement.Reward + "</div>" +
+                "<div class='achievement_Reward_2'>" + achievement.ProgressText + "</div>" +
+                "</div>";
+
+            if (achievement.Cur >= achievement.Max)
+                container += "<div class='achievement_Progress activ' style='width:" + ((achievement.Cur / achievement.Max) * 100).toFixed(0) + "%'></div></div>";
+            else
+                container += "<div class='achievement_Progress' style='width:" + ((achievement.Cur / achievement.Max) * 100).toFixed(0) + "%'></div></div>";
+            $("#achievement_list").append(container);
+        }
+    }
+
+    function selectNavbarItem(htmlElem, window) {
+        if (navigationDisabled) return;
+        if (currentWindow == window) return;
+        $(".active").removeClass("active");
+        $(htmlElem).addClass("active");
+        openWindow(window);
+    }
+
+    function setHotKeys(hotkeysJson) {
+        var listCotainer = $("#hotkey_settigs_list");
+        listCotainer.html("");
+        var hotKeys = JSON.parse(hotkeysJson);
+        for (let index = 0; index < hotKeys.length; index++) {
+            const hotKey = hotKeys[index];
+            var container = "<div class='hotkey_settigs_list_item'><div class='hotkey_settigs_list_item_target'>" + hotKey.Target + "</div><div class='hotkey_settigs_list_item_key' data-target='" + hotKey.Target + "'>" + getKey(hotKey.Key) + "</div></div>"
+            listCotainer.append(container);
+        }
+
+        $(".hotkey_settigs_list_item_key").click(function() {
+            var button = $(this);
+            $("#hotkey_settigs_overlay").css("display", "flex");
+            $("#hotkey_settigs_overlay").html(`Drücke eine Taste, um diese als Hotkey festzulegen. Mit Escape brichst du ab.`);
+            $("#hotkey_settigs_overlay").css("color", "#d2d2d2");
+            var key = "";
+            var keyCode = "";
+            var target = button.data().target;
+            $(document).keydown(function(event) {
+                key = event.key;
+                keyCode = event.keyCode;
+
+                if (key === "Escape" || keyAllowed(key)) {
+                    $("#hotkey_settigs_overlay").css("display", "none");
+                    $(document).off("keydown");
+                }
+
+                if (key !== "Escape" && keyAllowed(key)) {
+                    button.html(key);
+                    mp.trigger("Client:Hotkey:setHotkey", target, keyCode);
+                    return;
+                }
+
+                if (!keyAllowed(key)) {
+                    $("#hotkey_settigs_overlay").html(`Du hast eine ungültige Taste eingegeben, wähle eine Neue aus.<br>Erlaubt sind: F2-F12 (außer F8) Tasten, 0-9, A-Z, Punkt, Komma.<br><br>Mit ESC (Escape) brichst du ab.`);
+                    $("#hotkey_settigs_overlay").css("color", "red");
+                }
+            });
+        });
+    }
+
+    function keyAllowed(key) {
+        for (let index = 0; index < possibleKeys.length; index++) {
+            const possibleKey = possibleKeys[index];
+            if (possibleKey.Key == key) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function getKey(hexaCode) {
+        for (let index = 0; index < possibleKeys.length; index++) {
+            const key = possibleKeys[index];
+            if (key.Hexacode == hexaCode) {
+                return key.Key;
+            }
+        }
+        return null;
+    }
+
+    var possibleKeys = [{
+            Key: "0",
+            Hexacode: 0x30
+        }, {
+            Key: "1",
+            Hexacode: 0x31
+        }, {
+            Key: "2",
+            Hexacode: 0x32
+        }, {
+            Key: "3",
+            Hexacode: 0x33
+        }, {
+            Key: "4",
+            Hexacode: 0x34
+        }, {
+            Key: "5",
+            Hexacode: 0x35
+        }, {
+            Key: "6",
+            Hexacode: 0x36
+        }, {
+            Key: "7",
+            Hexacode: 0x37
+        }, {
+            Key: "8",
+            Hexacode: 0x38
+        }, {
+            Key: "9",
+            Hexacode: 0x39
+        },
+
+        {
+            Key: "F2",
+            Hexacode: 0x71
+        }, {
+            Key: "F3",
+            Hexacode: 0x72
+        }, {
+            Key: "F4",
+            Hexacode: 0x73
+        }, {
+            Key: "F5",
+            Hexacode: 0x74
+        }, {
+            Key: "F6",
+            Hexacode: 0x75
+        }, {
+            Key: "F7",
+            Hexacode: 0x76
+        }, {
+            Key: "F9",
+            Hexacode: 0x78
+        }, {
+            Key: "F10",
+            Hexacode: 0x79
+        }, {
+            Key: "F11",
+            Hexacode: 0x7A
+        }, {
+            Key: "F12",
+            Hexacode: 0x7B
+        },
+
+        {
+            Key: "a",
+            Hexacode: 0x42
+        }, {
+            Key: "b",
+            Hexacode: 0x42
+        }, {
+            Key: "c",
+            Hexacode: 0x43
+        }, {
+            Key: "d",
+            Hexacode: 0x44
+        }, {
+            Key: "e",
+            Hexacode: 0x45
+        }, {
+            Key: "f",
+            Hexacode: 0x46
+        }, {
+            Key: "g",
+            Hexacode: 0x47
+        }, {
+            Key: "h",
+            Hexacode: 0x48
+        }, {
+            Key: "i",
+            Hexacode: 0x49
+        }, {
+            Key: "j",
+            Hexacode: 0x4A
+        }, {
+            Key: "k",
+            Hexacode: 0x4B
+        }, {
+            Key: "l",
+            Hexacode: 0x4C
+        }, {
+            Key: "m",
+            Hexacode: 0x4D
+        }, {
+            Key: "n",
+            Hexacode: 0x4E
+        }, {
+            Key: "o",
+            Hexacode: 0x4F
+        }, {
+            Key: "p",
+            Hexacode: 0x50
+        }, {
+            Key: "q",
+            Hexacode: 0x51
+        }, {
+            Key: "r",
+            Hexacode: 0x52
+        }, {
+            Key: "s",
+            Hexacode: 0x53
+        }, {
+            Key: "t",
+            Hexacode: 0x54
+        }, {
+            Key: "u",
+            Hexacode: 0x55
+        }, {
+            Key: "v",
+            Hexacode: 0x56
+        }, {
+            Key: "w",
+            Hexacode: 0x57
+        }, {
+            Key: "x",
+            Hexacode: 0x58
+        }, {
+            Key: "y",
+            Hexacode: 0x59
+        }, {
+            Key: "z",
+            Hexacode: 0x5A
+        },
+
+        {
+            Key: ",",
+            Hexacode: 0xBC
+        }, {
+            Key: ".",
+            Hexacode: 0xBE
+        },
+    ];
+
+    function openWindow(newWindow) {
+        switch (newWindow) {
+            case "homeBox":
+                mp.trigger("Client:MainMenu:requestHome");
+                break;
+            case "ffaBox":
+                mp.trigger("Client:MainMenu:requestFFA");
+                break;
+            case "weaponSelectBox":
+                mp.trigger("Client:MainMenu:requestWeaponEditorWeapons");
+                break;
+            case "teamSelectBox":
+                mp.trigger("Client:MainMenu:requestTeams");
+                break;
+            case "achievementBox":
+                mp.trigger("Client:MainMenu:requestAchievements");
+                break;
+            case "settingsBox":
+                mp.trigger("Client:MainMenu:requestSettings");
+                break;
+        }
+
+        if (currentWindow == "") {
+            currentWindow = newWindow;
+            $(`#${newWindow}`).fadeTo(250, 1, function() {
+                $(`#${newWindow}`).show();
+            });
+        } else {
+            $(`#${currentWindow}`).fadeTo(250, 0, function() {
+                $(`#${currentWindow}`).hide();
+                $(`#${newWindow}`).fadeTo(250, 1, function() {
+                    $(`#${newWindow}`).show();
+                    currentWindow = newWindow;
+                });
+            });
+        }
+    }
+
+    let navigationDisabled = false;
+
+    function setTeams(teamJson) {
+        teamJson = JSON.parse(teamJson);
+        let html = "";
+
+        for (var i in teamJson) {
+            html += `<li onclick='selectTeam(${teamJson[i].Id});' class='list-group-item'><center><img src='../utils/img/logos/${teamJson[i].Id}.png'></center><p class='title'>${teamJson[i].Name}</p><p class='desc'>${teamJson[i].PlayerCount} Spieler</p></li>`;
+        }
+
+        $("#teamSelectBox-OutfitList").hide();
+        $("#teamSelectBox-TeamList").html(html);
+    }
+
+    function setOutfits(outfit) {
+        outfit = JSON.parse(outfit);
+        let html = "";
+
+        for (var i in outfit) {
+            html += `<li onclick='selectOutfit(${outfit[i].Id});' class='list-group-item' style='background: url(../login/outfits/${outfit[i].Id}.jpg); background-size: cover;'><p class='desc'>${outfit[i].Name}</p></li>`;
+        }
+
+        $("#teamSelectBox-OutfitList").html(html);
+        $("#teamSelectBox-OutfitList").show();
+    }
+
+    function selectOutfit(outfitId) {
+        if (outfitId == undefined) return;
+        mp.trigger("Client:Mainmenu:SetCanBrowserBeClosed", true);
+        mp.trigger("Client:MainMenu:selectOutfit", outfitId);
+        navigationDisabled = false;
+    }
+
+    function selectTeam(teamId) {
+        if (teamId == undefined) return;
+        navigationDisabled = true;
+        mp.trigger("Client:Mainmenu:SetCanBrowserBeClosed", false);
+        mp.trigger("Client:MainMenu:selectTeam", teamId);
+    }
+
+    function selectFFAMap(htmlElem, mapId) {
+        if (mapId == undefined || mapId <= 0) return;
+        $(".privateFFAMap").removeClass("active");
+        $(htmlElem).addClass("active");
+        selectedFFAMapId = mapId;
+    }
+
+    function createFFAArena() {
+        if (selectedFFAMapId == undefined || selectedFFAMapId <= 0) {
+            console.log("Keine Karte ausgewählt.");
+            return;
+        }
+
+        let password = $("#createFFA-PasswordInput").val(),
+            playerCount = $("#createFFA-PlayerCountInput").val(),
+            allowCheater = document.getElementById("createFFA-CheaterCheckbox").checked;
+
+        if (playerCount == undefined || playerCount <= 0) {
+            console.log("Zu wenige Spieler.");
+            return;
+        }
+
+        mp.trigger("Client:MainMenu:createFFA", selectedFFAMapId, playerCount, allowCheater, password);
+    }
+
+    function joinPrivateArena(htmlElem, arenaId) {
+        if (htmlElem == undefined) return;
+        let input = $(htmlElem).parent().find("input.ffaPassword").val();
+        mp.trigger("Client:FFA:joinArena", arenaId, input);
+    }
+
+    function joinArena(arenaId, password) {
+        mp.trigger("Client:FFA:joinArena", arenaId, password);
+    }
+
+    function setFFAArenas(private, public, hvh, maps) {
+        private = JSON.parse(private);
+        public = JSON.parse(public);
+        hvh = JSON.parse(hvh);
+        maps = JSON.parse(maps);
+
+        let privateHTML = "",
+            publicHTML = "",
+            hvhHTML = "";
+
+        privateHTML += `<li style='background: url(./img/ffaHeader1.png); background-size: cover; background-position: top;'><p class='title'>Arena erstellen</p><div class='box' style='height: 80%;'>` +
+            `<span class='subtitle'>Karte</span><ul>`;
+
+        for (var i in maps) {
+            privateHTML += `<li class='privateFFAMap' onclick='selectFFAMap(this, ${maps[i].Id});'>${maps[i].Name}</li>`;
+        }
+
+        privateHTML += `</ul></div><div class='box'><span class='subtitle'>Passwort</span><input id='createFFA-PasswordInput' type='password' spellcheck='false'></div>` +
+            `<div class='box'><span class='subtitle'>Spielerzahl</span><input id='createFFA-PlayerCountInput' type='number'></div><div class='box'><span class='subtitle' style='font-size: 1vh; margin-top: 1.25vh;'>Gibst du kein Passwort ein, kann jeder beitreten.</span></div>` +
+            `<div class='box'><input id='createFFA-CheaterCheckbox' type='checkbox'/><label style='margin-left: 1vw; margin-top: 0.25vh;' for='createFFA-CheaterCheckbox'><span></span>Erlaube Cheater</label><button type='button' onclick='createFFAArena();'>Erstellen</button></div></li>`;
+
+        for (var i in private) {
+            let hvhText = "";
+            if (private[i].IsHvHLobby)
+                hvhText = "[HvH] ";
+
+            privateHTML += `<li style='background: url(./img/ffaMaps/${private[i].map}.png); background-size: cover; background-position: center;'>` +
+                `<span class='pcount'>${private[i].count} / ${private[i].MaxPlayers}</span><span class='name'>${hvhText}${private[i].Name}</span><input class='ffaPassword' type='password' spellcheck='false' placeholder='Passwort'><button onclick='joinPrivateArena(this, ${private[i].Id});' class='ffaButton' type='button'>Beitreten</button>`;
+
+            if (private[i].Password != "")
+                privateHTML += `<span class='locked'><i class='fas fa-lock'></i></span>`;
+
+            privateHTML += "</li>";
+        }
+
+        for (var i in public) {
+            publicHTML += `<li onclick='joinArena(${public[i].Id});' style='background: url(./img/ffaMaps/${public[i].map}.png); background-size: cover; background-position: center;'>` +
+                `<span class='pcount'>${public[i].count} / ${public[i].MaxPlayers}</span><span class='name'>${public[i].Name}</span></li>`;
+        }
+
+        for (var i in hvh) {
+            hvhHTML += `<li onclick='joinArena(${hvh[i].Id});' style='background: url(./img/ffaMaps/${hvh[i].map}.png); background-size: cover; background-position: center;'>` +
+                `<span class='pcount'>${hvh[i].count} / ${hvh[i].MaxPlayers}</span><span class='name'>${hvh[i].Name}</span></li>`;
+        }
+
+        $("#ffaBox-PrivateList").html(privateHTML);
+        $("#ffaBox-PublicList").html(publicHTML);
+        $("#ffaBox-HvHList").html(hvhHTML);
+    }
+
+    function selectStreetfight() {
+        mp.trigger("Client:MainMenu:selectStreetfight");
+    }
+
+    function selectGungame() {
+        mp.trigger("Client:MainMenu:joinGungame");
+    }
+
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+
+    var current_set = {
+        Primary: 0,
+        PrimarySecondary: 0,
+        Secondary: 0,
+        Melee: 0,
+    };
+
+    let lastSelectedWeaponCategory = undefined;
+
+    var first_primary_container = $("#FirstPrimary");
+    var second_primary_container = $("#SecondPrimary");
+    var pistol_container = $("#Pistol");
+    var melee_container = $("#Melee");
+
+    function initWeaponEditorConfigurationData(primaries_json, primariessecondaries_json, secondaries_json, melees_json, current_set_json) {
+        first_primary_container.find(".weapon_list").html("");
+        second_primary_container.find(".weapon_list").html("");
+        pistol_container.find(".weapon_list").html("");
+        melee_container.find(".weapon_list").html("");
+
+        var primaries = JSON.parse(primaries_json);
+        var primariessecondaries = JSON.parse(primariessecondaries_json);
+        var secondaries = JSON.parse(secondaries_json);
+        var melees = JSON.parse(melees_json);
+        current_set = JSON.parse(current_set_json);
+
+        var primary_empty_weapon_container = "<div onclick='FirstPrimarySelected(0)' data-hash='" + 0 + "' class='weapon_view'><div class='title'>Leer</div><img src='img/weapons/" + 0 + ".png' /></div>"
+        var secondary_empty_weapon_container = "<div onclick='SecondPrimarySelected(0)' data-hash='" + 0 + "' class='weapon_view'><div class='title'>Leer</div><img src='img/weapons/" + 0 + ".png' /></div>"
+        var pistol_empty_weapon_container = "<div onclick='PistolSelected(0)' data-hash='" + 0 + "' class='weapon_view'><div class='title'>Leer</div><img src='img/weapons/" + 0 + ".png' /></div>"
+        var melee_empty_weapon_container = "<div onclick='MeleeSelected(0)' data-hash='" + 0 + "' class='weapon_view'><div class='title'>Leer</div><img src='img/weapons/" + 0 + ".png' /></div>"
+
+
+        for (let index = 0; index < primaries.length; index++) {
+            var weapon = primaries[index];
+            var weapon_list = first_primary_container.find(".weapon_list");
+            var new_weapon_container = "<div onclick='FirstPrimarySelected(" + weapon.Hash + ")' data-hash='" + weapon.Hash + "' class='weapon_view'><div class='title'>" + weapon.Name + "</div><img src='img/weapons/" + weapon.Hash + ".png' /></div>"
+            weapon_list.html(weapon_list.html() + new_weapon_container);
+        }
+        first_primary_container.find(".weapon_list").html(first_primary_container.find(".weapon_list").html() + primary_empty_weapon_container)
+
+        for (let index = 0; index < primariessecondaries.length; index++) {
+            var weapon = primariessecondaries[index];
+            var weapon_list = second_primary_container.find(".weapon_list");
+            var new_weapon_container = "<div onclick='SecondPrimarySelected(" + weapon.Hash + ")' data-hash='" + weapon.Hash + "' class='weapon_view'><div class='title'>" + weapon.Name + "</div><img src='img/weapons/" + weapon.Hash + ".png' /></div>"
+            weapon_list.html(weapon_list.html() + new_weapon_container);
+        }
+        second_primary_container.find(".weapon_list").html(second_primary_container.find(".weapon_list").html() + secondary_empty_weapon_container)
+
+        for (let index = 0; index < secondaries.length; index++) {
+            var weapon = secondaries[index];
+            var weapon_list = pistol_container.find(".weapon_list");
+            var new_weapon_container = "<div onclick='PistolSelected(" + weapon.Hash + ")' data-hash='" + weapon.Hash + "' class='weapon_view'><div class='title'>" + weapon.Name + "</div><img src='img/weapons/" + weapon.Hash + ".png' /></div>"
+            weapon_list.html(weapon_list.html() + new_weapon_container);
+        }
+        pistol_container.find(".weapon_list").html(pistol_container.find(".weapon_list").html() + pistol_empty_weapon_container)
+
+        for (let index = 0; index < melees.length; index++) {
+            var weapon = melees[index];
+            var weapon_list = melee_container.find(".weapon_list");
+            var new_weapon_container = "<div onclick='MeleeSelected(" + weapon.Hash + ")' data-hash='" + weapon.Hash + "' class='weapon_view'><div class='title'>" + weapon.Name + "</div><img src='img/weapons/" + weapon.Hash + ".png' /></div>"
+            weapon_list.html(weapon_list.html() + new_weapon_container);
+        }
+        melee_container.find(".weapon_list").html(melee_container.find(".weapon_list").html() + melee_empty_weapon_container)
+
+        SetActiveWeapons();
+        hideAttachmentList();
+    }
+
+    function hideAttachmentList() {
+        $("#weaponEditor-AttachmentBox").hide();
+    }
+
+    function requestAttachmentlist(hash) {
+        mp.trigger("Client:WeaponEditor:requestAttachmentList", hash);
+    }
+
+    function fillAttachmentList(availableJson, currentJson) {
+        availableJson = JSON.parse(availableJson);
+        currentJson = JSON.parse(currentJson);
+
+        let html = "";
+
+        for (var i in availableJson) {
+            if (availableJson[i].Locked)
+                html += `<li data-compId='${availableJson[i].Id}' class='list-group-item'>`;
+            else
+                html += `<li onclick='toggleAttachment(this, ${availableJson[i].Id});' data-compId='${availableJson[i].Id}' class='list-group-item'>`;
+
+            html += `<span>${availableJson[i].Name}</span></li>`;
+        }
+
+        $("#weaponEditor-AttachmentSelect").html(html);
+
+        for (var i in currentJson) {
+            var element = $("#weaponEditor-AttachmentSelect").find(`[data-compId='${currentJson[i].Id}']`)
+            element.addClass("activ");
+        }
+
+        $("#weaponEditor-AttachmentBox").show();
+    }
+
+    function toggleAttachment(htmlElem, compId) {
+        if (lastSelectedWeaponCategory != "PrimarySecondary" && lastSelectedWeaponCategory != "Primary") return;
+
+        if ($(htmlElem).hasClass("activ")) {
+            // Ablegen
+            mp.trigger("Client:WeaponEdtor:changeAttachment", lastSelectedWeaponCategory, compId, "remove");
+            $(htmlElem).removeClass("activ");
+        } else {
+            // Ausrüsten
+            mp.trigger("Client:WeaponEdtor:changeAttachment", lastSelectedWeaponCategory, compId, "add");
+            $(htmlElem).addClass("activ");
+        }
+    }
+
+    function setOnlyCurrentWeaponSet(givenSet) {
+        current_set = JSON.parse(givenSet);
+        SetActiveWeapons();
+    }
+
+    function FirstPrimarySelected(hash) {
+        lastSelectedWeaponCategory = "Primary";
+
+        if (hash != undefined && hash != 0)
+            requestAttachmentlist(hash);
+        else hideAttachmentList();
+        if (current_set.Primary == hash) return;
+        current_set.Primary = hash;
+        mp.trigger("Client:WeaponEditor:selectWeapon", "Primary", hash);
+        SetActiveWeapons();
+    }
+
+    function SecondPrimarySelected(hash) {
+        lastSelectedWeaponCategory = "PrimarySecondary";
+
+        if (hash != undefined && hash != 0)
+            requestAttachmentlist(hash);
+        else hideAttachmentList();
+        if (current_set.PrimarySecondary == hash) return;
+        current_set.PrimarySecondary = hash;
+        mp.trigger("Client:WeaponEditor:selectWeapon", "PrimarySecondary", hash);
+        SetActiveWeapons();
+    }
+
+    function PistolSelected(hash) {
+        lastSelectedWeaponCategory = "Secondary";
+        hideAttachmentList();
+        if (current_set.Secondary == hash) return;
+        current_set.Secondary = hash;
+        mp.trigger("Client:WeaponEditor:selectWeapon", "Secondary", hash);
+        SetActiveWeapons();
+    }
+
+    function MeleeSelected(hash) {
+        lastSelectedWeaponCategory = "Melee";
+        hideAttachmentList();
+        if (current_set.Melee == hash) return;
+        current_set.Melee = hash;
+        mp.trigger("Client:WeaponEditor:selectWeapon", "Melee", hash);
+        SetActiveWeapons();
+    }
+
+    function SetActiveWeapons() {
+        $(".selected").removeClass("selected")
+
+        var container = first_primary_container.find(`[data-hash='${current_set.Primary}']`)
+        container.addClass("selected");
+
+        container = second_primary_container.find(`[data-hash='${current_set.PrimarySecondary}']`)
+        container.addClass("selected");
+
+        container = pistol_container.find(`[data-hash='${current_set.Secondary}']`)
+        container.addClass("selected");
+
+        container = melee_container.find(`[data-hash='${current_set.Melee}']`)
+        container.addClass("selected");
+    }
+</script>
+
+</html>

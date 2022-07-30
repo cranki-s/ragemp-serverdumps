@@ -1,0 +1,107 @@
+@font-face {
+    font-family: "Roboto";
+    src: url("../../../cef/utils/fonts/Roboto-Regular.ttf");
+}
+
+*,
+body,
+html {
+    padding: 0;
+    margin: 0;
+    opacity: .98;
+    font-family: Roboto !important;
+    outline: none !important;
+}
+
+#chat,
+a,
+body,
+html {
+    color: #fff
+}
+
+body,
+html {
+    outline: none;
+    user-select: none;
+    overflow: hidden;
+    font-size: 14px;
+    -webkit-user-select: none;
+    font-family: Roboto !important;
+}
+
+a {
+    text-decoration: none;
+}
+
+.ui_element {
+    display: none;
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2;
+    outline: none !important;
+}
+
+#chat {
+    outline: none !important;
+    display: block;
+    z-index: 0;
+    line-height: 24px;
+    font-weight: 400;
+    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+    font-family: Roboto !important;
+    font-size: 1.2vh;
+    letter-spacing: .4px;
+    margin-left: 15px
+}
+
+@media screen and (min-height:1080px) {
+    #chat {
+        font-size: 18px!important;
+        font-weight: 700
+    }
+}
+
+#chat ul#chat_messages {
+    outline: none !important;
+    overflow-y: auto;
+    height: 285px;
+    margin-top: 2vh;
+    /*2vh*/
+    transform: rotate(180deg);
+    /*width:37vw; /* old: 37vw*/
+    width: 800px;
+    padding: 10px 20px;
+    /* old padding: 10px 20px*/
+    list-style-type: none
+}
+
+#chat ul#chat_messages>li {
+    transform: rotate(-180deg)
+}
+
+#chat input#chat_msg {
+    color: #fff;
+    background: rgba(0, 0, 0, .5);
+    outline: 0;
+    border: none;
+    font-family: Roboto;
+    font-size: 1.1vh;
+    line-height: 35px;
+    width: 35vw;
+    padding: 5px 5px 5px 15px
+}
+
+::-webkit-scrollbar {
+    width: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(158, 64, 202, 0.35);
+    border-radius: 10px
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(179, 67, 231, 0.65)
+}

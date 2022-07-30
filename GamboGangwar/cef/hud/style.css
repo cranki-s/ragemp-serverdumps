@@ -1,0 +1,314 @@
+@font-face {
+    font-family: "Bebas Neue Rounded";
+    src: local("Bebas Neue Rounded Regular"), local("Bebas-Neue-Rounded-Regular"), url("../utils/fonts/BebasNeueRounded-Regular.woff2") format("woff2"), url("../utils/fonts/BebasNeueRounded-Regular.woff") format("woff"), url("../utils/fonts/BebasNeueRounded-Regular.ttf") format("truetype");
+    font-weight: 400;
+    font-style: Regular;
+}
+
+@font-face {
+    font-family: "OSR";
+    src: url("../utils/fonts/OpenSans-Regular.ttf");
+}
+
+@font-face {
+    font-family: "F1";
+    src: url("../utils/fonts/F1Regular.ttf");
+}
+
+@font-face {
+    font-family: "Roboto";
+    src: url("../utils/fonts/Roboto-Regular.ttf");
+}
+
+* {
+    color: white;
+}
+
+html,
+body {
+    margin: 0px;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+#achievement {
+    width: 100%;
+    position: absolute;
+}
+
+#achievement #achievement_wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    top: 7rem;
+    opacity: 0;
+}
+
+#achievement #achievement_wrapper .top_row img {
+    width: 6rem;
+}
+
+#achievement #achievement_wrapper .bottom_row {
+    background: #00000080;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: "Bebas Neue Rounded";
+    padding: 0.2rem 5rem;
+    font-size: 1.4rem;
+    border-radius: 3rem;
+    background: linear-gradient(#000000c9, #000000c9) padding-box, linear-gradient(to right, #7738f3, #dd6ce4) border-box;
+    border-radius: 50em;
+    border: 6px solid transparent;
+}
+
+#achievement #achievement_wrapper .bottom_row #achievement_title {
+    font-family: "Helvetica";
+    font-size: initial;
+}
+
+#achievement #achievement_wrapper .bottom_row #achievement_reward {
+    font-size: 1.3rem;
+}
+
+#info {
+    position: absolute;
+    padding: 0.5rem;
+    right: 0;
+    background: linear-gradient( to right, rgb(238, 79, 217, 0.37), rgb(118, 55, 243, 0.37));
+    display: flex;
+    gap: 1rem;
+    border-bottom-left-radius: 5rem;
+}
+
+#info .left_info_container,
+#info .right_info_container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: auto;
+}
+
+#info .left_info_container {
+    display: grid;
+    grid-template-columns: 2rem 1fr;
+    margin-left: 2rem;
+    gap: 0 0.5rem;
+}
+
+#info .left_info_container div {
+    font-family: "Bebas Neue Rounded";
+    font-size: 1.1rem;
+}
+
+#info .left_info_container img {
+    width: 2rem;
+    height: 2rem;
+}
+
+#info .right_info_container {
+    justify-content: center;
+}
+
+#info .right_info_container #current_level {
+    font-family: "Bebas Neue Rounded";
+    font-size: 3.3rem;
+}
+
+#info .right_info_container #level_progess {
+    font-family: "Bebas Neue Rounded";
+    font-size: 0.8rem;
+    text-align: center;
+    position: inherit;
+}
+
+#info .right_info_container .level_wrapper {
+    position: relative;
+    width: 9rem;
+    border-radius: 0.6rem;
+    overflow: hidden;
+}
+
+#info .right_info_container .level_wrapper #level_status_progress {
+    width: 0;
+    height: 100%;
+    top: 0;
+    position: absolute;
+    background: linear-gradient( to right, rgb(238, 79, 217, 1), rgb(118, 55, 243, 1));
+    transition: width 0.5s ease-in-out;
+}
+
+#info .right_info_container .level_wrapper .level_progress_background {
+    height: 100%;
+    width: 100%;
+    top: 0;
+    position: absolute;
+    background: #00000021;
+}
+
+.btn-gradient-1 {
+    border-width: 4px;
+    border-style: solid;
+    border-image: linear-gradient(to right, darkblue, darkorchid) 1;
+}
+
+.btn-gradient-2 {
+    background: linear-gradient(var(--color-bg), var(--color-bg)) padding-box, linear-gradient(to right, darkblue, darkorchid) border-box;
+    border-radius: 50em;
+    border: 4px solid transparent;
+}
+
+#notificaion_list {
+    display: flex;
+    color: #d2d2d2;
+    flex-direction: column;
+    position: relative;
+    padding: 1vw;
+    left: 0;
+    gap: 1vw;
+    position: absolute;
+    z-index: 9999;
+}
+
+#notificaion_list .notificaion_list_item {
+    font-family: OSR;
+    font-size: 1.3vh;
+    top: 1rem;
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    align-items: start;
+    position: relative;
+    opacity: 0;
+    background: #000000c4;
+    width: 16vw;
+    border-radius: 0.15vw;
+    padding: 0.5vw;
+    padding-left: 1vw;
+    padding-right: 1vw;
+    overflow: hidden;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+#notificaion_list .notificaion_list_item .top_row {
+    margin-bottom: 0.5vw;
+    text-align: center;
+}
+
+#notificaion_list .notificaion_list_item .bottom_row {
+    width: 100%;
+    display: flex;
+    gap: 0.3vw;
+    margin-bottom: 0.5vh;
+    margin-top: 0.5vh;
+}
+
+#notificaion_list .notificaion_list_item .bottom_row .option {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    font-size: 1.45vh;
+    font-family: sans-serif;
+}
+
+#notificaion_list .notificaion_list_item .bottom_row .option .ok {
+    padding: 0.3vw;
+    display: flex;
+    align-items: center;
+    font-size: 1.6vh;
+    justify-content: center;
+    width: 1vw;
+    height: 1vw;
+    font-family: Roboto;
+    font-weight: bold;
+    border: 2px solid rgb(88 249 167 / 50%);
+    margin-right: 0.5vw;
+    box-shadow: 0 0 4px rgb(71 255 187 / 75%);
+    border-radius: 0.2vw;
+}
+
+#notificaion_list .notificaion_list_item .bottom_row .option .abort {
+    padding: 0.3vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1vw;
+    height: 1vw;
+    font-family: Roboto;
+    font-weight: bold;
+    border: 2px solid rgb(249 88 88 / 50%);
+    margin-right: 0.5vw;
+    box-shadow: 0 0 4px rgb(255 71 71 / 75%);
+    border-radius: 0.2vw;
+}
+
+#notificaion_list .notificaion_list_item .progress_row {
+    width: 100%;
+    height: 5px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(to right, #7738f3, #dd6ce4);
+}
+
+#killfeed_list {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    padding: 1vw;
+    gap: 0.5vw;
+    right: 0;
+    top: 15vh;
+}
+
+#killfeed_list .killfeed_list_item .name {
+    text-align: right;
+    width: 100%;
+}
+
+#killfeed_list .killfeed_list_item .target {
+    text-align: left;
+    width: 100%;
+}
+
+#killfeed_list .killfeed_list_item>span {
+    font-family: F1;
+    font-size: 1.2vh;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: white;
+    text-shadow: 0px 0px 10px black;
+}
+
+#killfeed_list .killfeed_list_item {
+    color: #efefef;
+    background: linear-gradient(45deg, #8e5da200, #886bcdc7);
+    top: 1rem;
+    display: flex;
+    grid-template-columns: 1fr 1fr 1fr;
+    position: relative;
+    align-items: center;
+    opacity: 0;
+    font-size: 0.8vw;
+    text-transform: uppercase;
+    border-radius: 0.3vw;
+    gap: 0.3vw;
+    padding: 0 0.3vw;
+    transform: translate3d(2px, 10px, 10px) rotate3d(-1, 4, 0, -20deg);
+    padding-left: 1vw;
+    padding-right: 1vw;
+    width: 20vw;
+    max-width: 20vw;
+    padding-top: 0.5vh;
+    padding-bottom: 0.5vh;
+}
+
+#killfeed_list .killfeed_list_item img {
+    width: 2.5vw;
+    padding-left: 0.5vw;
+    padding-right: 0.5vw;
+}

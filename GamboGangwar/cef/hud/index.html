@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="style.css" rel="stylesheet"></link>
+</head>
+
+<body>
+    <div id="achievement">
+        <div id="achievement_wrapper">
+            <div class="top_row">
+                <img src="./icons/pepe_final_png.png" />
+            </div>
+            <div class="bottom_row">
+                <div class="achievement_header">Misson erfüllt!</div>
+                <div id="achievement_title"></div>
+                <div id="achievement_reward"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notificaion_list"></div>
+
+    <div id="info">
+        <div class="left_info_container">
+            <img src="./icons/dollar_final_png.png" />
+            <div id="current_money">0000000</div>
+            <img src="./icons/crosshair_final_png.png" />
+            <div id="current_kills">0</div>
+            <img src="./icons/skull_final_png.png" />
+            <div id="current_deaths">0</div>
+        </div>
+        <div class="right_info_container">
+            <div id="current_level">0</div>
+            <div class="level_wrapper">
+                <div id="level_status_progress"></div>
+                <div class="level_progress_background"></div>
+                <div id="level_progess">0 | 0</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="killfeed_list"></div>
+
+    <script src="../utils/mdb/js/jquery.min.js"></script>
+    <script type="text/javascript" src="../utils/notification.js"></script>
+    <script type="text/javascript" src="./killfeed.js"></script>
+</body>
+<script>
+    const achievements = new Array();
+
+    function setOpacity(opacity) {
+        $("#info").fadeTo(500, opacity, () => {
+            if (opacity > 0)
+                $("#info").show();
+            else $("#info").hide();
+        });
+    }
+
+    function setKills(kills) {
+        $("#current_kills").text(`${kills}`);
+    }
+
+    function setMoney(money) {
+        $("#current_money").text(`${money}`);
+    }
+
+    function setDeaths(deaths) {
+        $("#current_deaths").text(`${deaths}`);
+    }
+
+    function setLevel(level) {
+        $("#current_level").text(`${level}`);
+    }
+
+    function setEXP(currentEXP, maxEXP) {
+        document.getElementById("level_progess").innerHTML =
+            currentEXP + " | " + maxEXP;
+        if (currentEXP < 0) currentEXP = 0;
+        document.getElementById("level_status_progress").style.width = ((currentEXP / maxEXP) * 100).toFixed(0) + "%"
+    }
+
+    function addAchievement(title, reward) {
+        achievements.push({
+            title: title,
+            reward: reward
+        });
+    }
+
+    function execute_interval() {
+        if (achievements.length > 0) {
+            clearInterval(interval);
+            const achievement = achievements[0];
+            showAchievement(achievement);
+            achievements.shift();
+        }
+    }
+
+    var interval = setInterval(execute_interval, 1000);
+
+    function showAchievement(achievement) {
+        document.getElementById("achievement_title").innerHTML = achievement.title;
+        document.getElementById("achievement_reward").innerHTML = achievement.reward;
+
+        var achievement_wrapper = $("#achievement_wrapper");
+
+        $(achievement_wrapper).animate({
+            top: "4rem",
+            opacity: "1"
+        }, {
+            duration: 500,
+            easing: "swing",
+            done: function() {
+                setTimeout(function() {
+                    $(achievement_wrapper).animate({
+                        top: "6rem",
+                        opacity: "0"
+                    }, {
+                        duration: 500,
+                        easing: "swing",
+                        done: function() {
+                            interval = setInterval(execute_interval, 1000);
+                        }
+                    });
+                }, 2000);
+            },
+        });
+    }
+</script>
+
+</html>
