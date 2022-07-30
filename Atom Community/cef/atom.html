@@ -1,0 +1,95 @@
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<!-- <link rel="stylesheet" href="../css/jquery-ui.min.css"> -->
+		<!-- <link rel="stylesheet" href="../css/animate.css"> -->
+		<!-- <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet"> -->
+		<!-- <link href="https://fonts.googleapis.com/css?family=Paytone+One&display=swap" rel="stylesheet"> -->
+		<!-- <script src="../js/jquery-3.1.1.min.js"></script> -->
+		<!-- <link href="https://fonts.googleapis.com/css?family=Montserrat:400,900&display=swap" rel="stylesheet"> -->
+		<!-- <link href="https://fonts.googleapis.com/css?family=Ubuntu&display=swap&subset=cyrillic,cyrillic-ext" rel="stylesheet"> -->
+	<script defer src="./js/ui.app.js"></script><link href="./css/app.main.css" rel="stylesheet"></head>
+  <body style="color: white; width: 100% !important; height: 100% !important; position: absolute !important; top: 0 !important; left: 0 !important; overflow: hidden !important;">
+    <div id="root" style="color: white; width: 100% !important; height: 100% !important; position: absolute !important; top: 0 !important; left: 0 !important; overflow: hidden !important;"></div>
+    <script src="https://cdn.jsdelivr.net/npm/react@16/umd/react.production.min.js"></script>
+		<!-- <script src="../js/react.production.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@16/umd/react-dom.production.min.js"></script>
+		<!-- <script src="../js/react-dom.production.min.js"></script> -->
+
+	<div id="help_info2" class="helper2" style="display:none;">
+		<div class="text"><div id="info_bar"></div></div>
+	</div>
+
+	<div id="chat_status" style="display: none;">-1</div>
+
+	<div id="gang_active" style="display:none">
+		<div id="gang_active2"><h1><span style="padding: 20px;"><font color="white"><span id="timewar"></span></font></span></h1></div>
+		<div id="gang_active3"><h1><span style="padding: 20px;"><font color="green" id="counter_1_color"><span id="counter1">0</span></font> : <font color="purple" id="counter_2_color"><span id="counter2">0</span></font></span></h1></div>
+	</div>
+
+	<div class="inventory_help" style="position: absolute; top: 0px; height: 30px; width: 70px; background: #fff; display: none;">Inventory system by Tellarion</div>
+	<div class="inventory_right" style="position: absolute; top: 0px; height: 30px; width: 70px; background: #fff; display: none;">Inventory system by Tellarion</div>
+
+	<div id="character_bottom_information" class="info_form_character_bottom_information" style="display:none">
+		<form rel="personmoneystore">
+			<h1 id="character_store_money_css"><span id="character_store_money">0</span>$</h1>
+		</form>
+	</div>
+
+	<div id="store_form_barbershop" class="store_form" style="display:none">
+		<form rel="personauth">
+      <div class="text-center">
+        <h3>Барбершоп</h3>
+        <div class="form-group">
+          <ul class="navex navex-tabs">
+            <li id="barbershop_tab_1" class="active"><a href="#">Основное</a></li>
+          </ul>
+        </div>
+        <div class="form-group">
+          <button class="btn btn-atom btn-atom-p text-white" id="barbershop_accept">Применить</button>
+          <button class="btn btn-atom btn-atom-p text-white" id="barbershop_exit">Выйти</button>
+        </div>
+      </div>
+    </form>
+	</div>
+
+    <div id="business-store" style="display:none; width: 100%; justify-content: center; align-items: center; height: 100%; position: absolute;">
+		<div class="global_form">
+			<div class="basic_form_business_2">
+				<h1 class="logo" id="business-store_name">UNKNOWN</h1>
+          <div class="col-md-12" style="width: 100%; margin: 0; padding: 0; height: 40px; display: flex; justify-content: center; align-items: center; margin-bottom: 17px;">
+					<ul id="business-category">
+
+					</ul>
+				</div>
+				<div class="col-md-12">
+					<div id="business-category-items">
+
+					</div>
+				</div>
+				<div class="col-md-12">
+					<div class="text-center">
+						<button class="btn btn-atom btn-atom-p text-white" id="business-store_exit">Закрыть</button>
+					</div>
+				</div>
+				<div class="row" style="padding-bottom: 2em;">
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+    
+	<div id="control_object" class="basic_form_admin_control" style="display:none;">
+		<div class="selector" id="s_obj_1">X+</div><div class="selector" id="s_obj_2">X-</div>
+		<div class="selector" id="s_obj_3">Y+</div><div class="selector" id="s_obj_4">Y-</div>
+		<div class="selector" id="s_obj_5">Z+</div><div class="selector" id="s_obj_6">Z-</div>
+	</div>
+
+	<div id="recon_panel" class="basic_form_admin_recon" style="display:none;">
+		<div id="recon_table" class="table" style="width: 100%; text-align: center;">
+		</div>
+	</div>
+</body>
+
+</html>   
