@@ -773,18 +773,13 @@
                 }
             }
             destroyBrowser() {
-                var _0x54ade3 = {
-                    'ZqZEB': function (_0x2e7041, _0x3d6b7f) {
-                        return _0x2e7041 === _0x3d6b7f;
-                    }
-                };
                 if (this.browser != null) {
                     mp.gui.chat.show(true);
                     mp.gui.cursor.show(false, false);
                     this.browser.execute('destroyBrowser()');
                     setTimeout(() => {
                         var _0x174fcc;
-                        if (_0x54ade3.ZqZEB(_0x174fcc = this.browser, null) || _0x54ade3.ZqZEB(_0x174fcc, void 0)) {
+                        if ((_0x174fcc = this.browser) === null || _0x174fcc === void 0) {
                             _0x174fcc.destroy();
                         }
                         this.browser = null;
@@ -1051,16 +1046,12 @@
                 }
             }
             useMedikit() {
-                var _0x33af3c = {
-                    'rxghM': 'Server:Keys:CancelAction',
-                    'oYwln': 'Client:AntiCheat:SetHealth'
-                };
                 if (!this.checkCanInteract() || this.currentTimeout != null || mp.players.local.getHealth() <= 0 || mp.players.local.isTypingInTextChat || mp.gui.cursor.visible || mp.players.local.vehicle) {
                     this.lastInteraction = Date.now();
                     mp.events.callRemote('Server:Keys:UseMedikit');
                     this.currentTimeout = setTimeout(() => {
-                        mp.events.callRemote(_0x33af3c.rxghM);
-                        mp.events.call(_0x33af3c.oYwln, 100);
+                        mp.events.callRemote('Server:Keys:CancelAction');
+                        mp.events.call('Client:AntiCheat:SetHealth', 100);
                         this.currentTimeout = null;
                     }, 4000);
                 }
@@ -1077,7 +1068,6 @@
                 }
             }
             useRepairKit() {
-                var _0x323f5c = { 'qIlSc': 'Server:Keys:FinishVehicleRepair' };
                 if (!this.checkCanInteract() || this.currentTimeout != null || mp.players.local.getHealth() <= 0 || mp.players.local.isTypingInTextChat || mp.gui.cursor.visible || mp.players.local.vehicle)
                     return;
                 this.lastInteraction = Date.now();
@@ -1085,7 +1075,7 @@
                 if (mp.vehicles.exists(_0x5f5caf) && mp.game1.gameplay.getDistanceBetweenCoords(_0x5f5caf.position.x, _0x5f5caf.position.y, _0x5f5caf.position.z, mp.players.local.position.x, mp.players.local.position.y, mp.players.local.position.z, true) <= 2.5) {
                     mp.events.callRemote('Server:Keys:UseRepairKit');
                     this.currentTimeout = setTimeout(() => {
-                        mp.events.callRemote(_0x323f5c.qIlSc, _0x5f5caf);
+                        mp.events.callRemote('Server:Keys:FinishVehicleRepair', _0x5f5caf);
                         this.currentTimeout = null;
                     }, 5000);
                 }
