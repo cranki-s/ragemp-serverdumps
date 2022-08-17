@@ -1,13 +1,3 @@
 {
-    const mp = global.mp,
-        localPlayer = mp.players.local;
-    let currentAction = !0,
-        afkCounter = 0;
-    setInterval(() => {
-        global.isAuth && (currentAction ? afkCounter = 0 : (afkCounter++, 3 <= afkCounter && mp.events.callRemote("server_player_antiAFK_add")), currentAction = !1)
-    }, 60000), setInterval(() => {
-        (mp.game.controls.isControlPressed(0, 32) || mp.game.controls.isControlPressed(0, 33) || mp.game.controls.isControlPressed(0, 34) || mp.game.controls.isControlPressed(0, 35) || mp.game.controls.isControlPressed(0, 71) || mp.game.controls.isControlPressed(0, 72)) && (currentAction = !0)
-    }, 1e3), global.antiAFK_sendAction = () => {
-        currentAction = !0
-    };
+const mp=global.mp;let actionList=[],isMenuOpen=!1;global.createMenuList=a=>{if("auto"===a.toPlayer){const{x:b,y:c,z:d}=mp.players.local.position,e=mp.game.graphics.world3dToScreen2d(b,c,d);a.toPlayer=null==e?[.5,.5]:[e.x,Math.max(Math.min(e.y,.8),.4)]}actionList=a.items.map(a=>a[1]),global.rpc.triggerBrowser(global.mainBrowser,"client_browser_listMenu_open",a),isMenuOpen||(global.showCursor(!0,!0),isMenuOpen=!0)},global.hideMenuList=()=>{actionList=[],global.rpc.triggerBrowser(global.mainBrowser,"client_browser_listMenu_hide"),isMenuOpen&&(global.showCursor(!1,!1),isMenuOpen=!1)},global.rpc.on("client_listMenu_click",function(a){let b=actionList[a];b&&b()});
 }

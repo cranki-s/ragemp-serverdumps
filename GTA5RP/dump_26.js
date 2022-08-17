@@ -1,37 +1,3 @@
 {
-    const mp = global.mp;
-    let crawlTimer = null,
-        lastCrawlUse = -1;
-    const crawlBinder = global.binder.register({
-            action: "TOGGLE_CRAWL",
-            desc: "\u041F\u043E\u043B\u0437\u0442\u0438 (\u0437\u0430\u0436\u0430\u0442\u044C)",
-            defaultKey: -1,
-            func: () => {
-                if (mp.gui.cursor.visible || global.isChatOpen || global.disableKeys || global.isPlayerDeath || global.disableAnimList || global.isAnyPedAttachedToLocalPlayer || null !== mp.players.local.vehicle || mp.players.local.getVariable("cuffed") || mp.players.local.isSwimming() || mp.players.local.isSwimmingUnderWater() || mp.players.local.isReloading() || lastCrawlUse + 1e3 > new Date().getTime() || crawlTimer) return;
-                let a, b;
-                crawlTimer = setInterval(() => {
-                    const c = mp.players.local.getVariable("cuffed") || global.isPlayerDeath || mp.players.local.isSwimming() || mp.players.local.isSwimmingUnderWater() || global.disableAnimList;
-                    if (lastCrawlUse + 1e3 < new Date().getTime() && !mp.keys.isDown(crawlBinder.key) && !mp.keys.isDown(crawlBinder.key) || !isPlayerCanCrawl() || c) return mp.players.local.clearTasks(), clearInterval(crawlTimer), crawlTimer = null, void(lastCrawlUse = new Date().getTime());
-                    const d = "move_crawl",
-                        e = mp.players.local.getRotation(2);
-                    if (mp.game.controls.disableControlAction(0, 32, !0), mp.game.controls.disableControlAction(0, 33, !0), mp.game.controls.disableControlAction(0, 34, !0), mp.game.controls.disableControlAction(0, 35, !0), mp.game.controls.isDisabledControlPressed(0, 34) && mp.players.local.setRotation(e.x, e.y, e.z + .2, 2, !0), mp.game.controls.isDisabledControlPressed(0, 35) && mp.players.local.setRotation(e.x, e.y, e.z - .2, 2, !0), mp.game.controls.isDisabledControlPressed(0, 32)) {
-                        if ("onfront_fwd" === a || b) return;
-                        a = "onfront_fwd";
-                        const c = mp.game.entity.getEntityAnimDuration("move_crawl", a);
-                        mp.game.streaming.requestAnimDict(d), mp.players.local.taskPlayAnim(d, a, 8, 1e3, -1, 2, 0, !1, !1, !1), b = setTimeout(() => {
-                            a = void 0, b = void 0
-                        }, 1e3 * (c - .1))
-                    }
-                    if (mp.game.controls.isDisabledControlPressed(0, 33)) {
-                        if ("onfront_fwd" === a || b) return;
-                        a = "onfront_bwd";
-                        const c = mp.game.entity.getEntityAnimDuration("move_crawl", a);
-                        mp.game.streaming.requestAnimDict(d), mp.players.local.taskPlayAnim(d, a, 8, 1e3, -1, 2, 0, !1, !1, !1), b = setTimeout(() => {
-                            a = void 0, b = void 0
-                        }, 1e3 * (c - .1))
-                    }
-                }, 0), mp.game.streaming.requestAnimDict("move_crawlprone2crawlfront"), mp.players.local.taskPlayAnim("move_crawlprone2crawlfront", "front", 2, 1e3, -1, 2, 0, !1, !1, !1), lastCrawlUse = new Date().getTime()
-            }
-        }),
-        isPlayerCanCrawl = () => !global.isPlayerDeath && !global.isAnyPedAttachedToLocalPlayer && null === mp.players.local.vehicle && !global.disableKeys;
+const mp=global.mp,marketCounterList=new Set,marketCounterMap=new Map;class MarketCounter{constructor(a,b){this.id=a,this.mainObject=b,this.controlPickup=new global.ActionColshape(mp.game.object.getObjectOffsetFromCoords(this.mainObject.position.x,this.mainObject.position.y,this.mainObject.position.z,this.mainObject.rotation.z,0,1,0),0,1,"\u0442\u043E\u0440\u0433\u043E\u0432\u0430\u0442\u044C",()=>{mp.events.callRemote("server_market_contol",this.id)}),this.buyPickup=new global.ActionColshape(mp.game.object.getObjectOffsetFromCoords(this.mainObject.position.x,this.mainObject.position.y,this.mainObject.position.z,this.mainObject.rotation.z,0,-1.5,0),0,1,"\u043A\u0443\u043F\u0438\u0442\u044C \u043F\u0440\u0435\u0434\u043C\u0435\u0442\u044B",()=>{mp.events.callRemote("server_market_startBuy",this.id)}),this.buyPickup.getText=()=>{if(mp.objects.exists(this.mainObject)){const a=this.mainObject.getVariable("owner");if(""!=a)return`купить предметы у Гражданина[${a}]`}return""},this.buyPickup.isPlayerCanUse=()=>{if(mp.objects.exists(this.mainObject)){const a=this.mainObject.getVariable("owner");if(""!=a)return!0}return!1},this.buyPickup.onceMode=!0,this.isDeleted=!1,marketCounterList.add(this),marketCounterMap.set(this.id,this)}destroy(){this.isDeleted||(this.isDeleted=!0,this.controlPickup.destroy(),this.buyPickup.destroy(),marketCounterList.delete(this),marketCounterMap.delete(this.id))}}let loadDataFirst=!1;setTimeout(()=>{mp.objects.forEach(a=>{const b=a.getVariable("_market");b!=null&&new MarketCounter(b,a)}),loadDataFirst=!0},5e3),mp.events.addDataHandler("_market",(a,b)=>{loadDataFirst&&new MarketCounter(b,a)}),mp.events.add("client_market_destroy",a=>{const b=marketCounterMap.get(a);b&&b.destroy()}),mp.events.add("client_market_setClothes",(a,b,c)=>{const d=marketCounterMap.get(a);if(d&&0!==d.mainObject.handle){const a=mp.players.local;try{a.setHeading(d.mainObject.rotation.z+180),b=JSON.parse(b);for(let c=0;c<b[3].length;c++)0>=b[3][c][0]?a.setPropIndex(-1*b[3][c][0],b[3][c][1],b[3][c][2],!0):a.setComponentVariation(b[3][c][0],b[3][c][1],b[3][c][2],2);0>=b[0]?a.setPropIndex(-1*b[0],b[1],b[2][c],!0):8==b[0]?(a.setComponentVariation(8,a.getDrawableVariation(8),b[2][c],2),a.setComponentVariation(11,b[5],b[2][c],2)):a.setComponentVariation(b[0],b[1],b[2][c],2),setTimeout(()=>{switch(b[0]){case 6:{global.setCameraToPlayer(.5,new mp.Vector3(0,0,-.7),new mp.Vector3(0,0,-1),0,500);break}case 5:{global.setCameraToPlayer(1,new mp.Vector3(0,0,.1),new mp.Vector3(0,0,0),180,500);break}case 4:{global.setCameraToPlayer(1,new mp.Vector3(0,0,-.7),new mp.Vector3(0,0,-.6),0,500);break}case 3:{global.setCameraToPlayer(.65,new mp.Vector3(0,0,.1),new mp.Vector3(0,0,0),35,500);break}case-0:{global.setCameraToPlayer(1,new mp.Vector3(0,0,.9),new mp.Vector3(0,0,1),0,500);break}case-1:{global.setCameraToPlayer(.65,new mp.Vector3(0,0,.7),new mp.Vector3(0,0,.85),0,500);break}case-2:{global.setCameraToPlayer(.5,new mp.Vector3(0,0,.7),new mp.Vector3(0,0,.7),0,500);break}case-6:{global.setCameraToPlayer(.65,new mp.Vector3(0,0,.1),new mp.Vector3(0,0,0),35,500);break}case-7:{global.setCameraToPlayer(.65,new mp.Vector3(0,0,.1),new mp.Vector3(0,0,0),260,500);break}case 11:case 8:default:{global.setCameraToPlayer(1,new mp.Vector3(0,0,.1),new mp.Vector3(0,0,0),0,500);break}}},200),global.hideUI(!0)}catch(a){}}}),mp.events.add("client_market_disableCamera",()=>{global.hideUI(!1),global.resetCamera()});
 }
