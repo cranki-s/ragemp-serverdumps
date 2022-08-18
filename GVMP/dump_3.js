@@ -4,7 +4,7 @@
 
 require('./modules/modules');
 
-},{"./modules/modules":200}],2:[function(require,module,exports){
+},{"./modules/modules":210}],2:[function(require,module,exports){
 "use strict";
 
 const { cbHelper } = require("../CircuitBreaker/CbHelper");
@@ -704,7 +704,7 @@ class CircuitBreaker {
       return;
     }
     this.status = 'QUIT';
-    mp.events.callRemote(this.callbackEvent, true, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemote(this.callbackEvent, true, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
   }
   restartSameLevel() {
     this.status = 'DEATH';
@@ -731,7 +731,7 @@ class CircuitBreaker {
       }
       if (now >= this.endTime) {
         this.status = 'QUIT';
-        mp.events.callRemote(this.callbackEvent, false, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote(this.callbackEvent, false, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
       }
     }
   }
@@ -791,7 +791,7 @@ class CircuitBreaker {
     }
   }
   endGame(exit) {
-    if (exit) mp.events.callRemote(this.callbackEvent, false, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    if (exit) mp.events.callRemote(this.callbackEvent, false, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     this.status = 'NONE';
     this.destroy();
   }
@@ -966,7 +966,7 @@ class CircuitBreaker {
 
 exports.CircuitBreaker = CircuitBreaker;
 
-},{"../CircuitBreaker/CbGenericPorts":2,"../CircuitBreaker/CbHelper":3,"../CircuitBreaker/CbMapBoundaries":4,"../CircuitBreaker/CbPoint":5,"../CircuitBreaker/Scaleform":10,"../player/player":208}],9:[function(require,module,exports){
+},{"../CircuitBreaker/CbGenericPorts":2,"../CircuitBreaker/CbHelper":3,"../CircuitBreaker/CbMapBoundaries":4,"../CircuitBreaker/CbPoint":5,"../CircuitBreaker/Scaleform":10,"../player/player":218}],9:[function(require,module,exports){
 "use strict";
 
 const { CircuitBreaker } = require("../CircuitBreaker/CircuitBreaker");
@@ -1097,7 +1097,7 @@ class App extends _component2.default {
 
 exports.default = App;
 
-},{"../components/component":106,"./apps":12}],12:[function(require,module,exports){
+},{"../components/component":108,"./apps":12}],12:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1201,7 +1201,7 @@ class Apps {
 
 exports.default = new Apps();
 
-},{"../browser/browser":104}],13:[function(require,module,exports){
+},{"../browser/browser":106}],13:[function(require,module,exports){
 "use strict";
 
 require("./gps/gpsApp");
@@ -1619,7 +1619,7 @@ class CallManageApp extends _app2.default {
 
 exports.default = new CallManageApp();
 
-},{"../app/app":11,"../app/apps":12,"../browser/browser":104,"../player/player":208,"../windows/windows":235,"./home":44,"./telefon/telefon":96}],22:[function(require,module,exports){
+},{"../app/app":11,"../app/apps":12,"../browser/browser":106,"../player/player":218,"../windows/windows":249,"./home":44,"./telefon/telefon":96}],22:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1677,7 +1677,7 @@ class ContactsAdd extends _app2.default {
 
 exports.default = new ContactsAdd();
 
-},{"../../app/app":11,"../../player/player":208,"./contactsList":25}],24:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":218,"./contactsList":25}],24:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1716,7 +1716,7 @@ class ContactsEdit extends _app2.default {
 
 exports.default = new ContactsEdit();
 
-},{"../../app/app":11,"../../player/player":208,"./contactsList":25}],25:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":218,"./contactsList":25}],25:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1755,7 +1755,7 @@ class ContactsApp extends _app2.default {
 
 exports.default = new ContactsApp();
 
-},{"../../app/app":11,"../../player/player":208}],26:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":218}],26:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1799,7 +1799,7 @@ class ContactsOverview extends _app2.default {
 
 exports.default = new ContactsOverview();
 
-},{"../../app/app":11,"../../player/player":208,"./contactsList":25}],27:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":218,"./contactsList":25}],27:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2053,7 +2053,7 @@ class FunkApp extends _app2.default {
 
 exports.default = new FunkApp();
 
-},{"../app/app":11,"../interfaces/hud/player-panel":155}],38:[function(require,module,exports){
+},{"../app/app":11,"../interfaces/hud/player-panel":164}],38:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2246,7 +2246,7 @@ class HomeApp extends _app2.default {
 
 exports.default = new HomeApp();
 
-},{"../app/app":11,"../interfaces/hud/smartphone":162}],45:[function(require,module,exports){
+},{"../app/app":11,"../interfaces/hud/smartphone":171}],45:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2469,7 +2469,7 @@ class MarketplaceApp extends _app2.default {
 }
 exports.default = new MarketplaceApp();
 
-},{"../../app/app":11,"../../browser/browser":104}],55:[function(require,module,exports){
+},{"../../app/app":11,"../../browser/browser":106}],55:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2595,7 +2595,7 @@ class MessengerOverviewApp extends _app2.default {
 
 exports.default = new MessengerOverviewApp();
 
-},{"../../app/app":11,"../../player/player":208}],59:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":218}],59:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2633,7 +2633,7 @@ class NewsAddApp extends _app2.default {
 
 exports.default = new NewsAddApp();
 
-},{"../../app/app":11,"../../player/player":208}],60:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":218}],60:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2666,7 +2666,7 @@ class NewsApp extends _app2.default {
 
 exports.default = new NewsApp();
 
-},{"../../app/app":11,"../../player/player":208}],61:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":218}],61:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2701,7 +2701,7 @@ class NewsListApp extends _app2.default {
 
 exports.default = new NewsListApp();
 
-},{"../../app/app":11,"../../player/player":208}],62:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":218}],62:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3039,7 +3039,7 @@ class ProfileApp extends _app2.default {
                 return "Triaden";
                 break;
             case 18:
-                return "Los Santos Vagos";
+                return "Los Santos Yardies";
                 break;
             case 19:
                 return "The Marabunta Grande";
@@ -3081,7 +3081,7 @@ class ProfileApp extends _app2.default {
                 return "Outlaws MC";
                 break;
             case 43:
-                return "Bruderschaft";
+                return "Panthers";
                 break;
             case 44:
                 return "Madrazo Cartel";
@@ -3095,13 +3095,16 @@ class ProfileApp extends _app2.default {
             case 48:
                 return "Midnight Club";
                 break;
+            case 49:
+                return "LS Rifa";
+                break;
         }
     }
 }
 
 exports.default = new ProfileApp();
 
-},{"../app/app":11,"../player/player":208}],70:[function(require,module,exports){
+},{"../app/app":11,"../player/player":218}],70:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3312,7 +3315,7 @@ class SettingsApp extends _app2.default {
 
 exports.default = new SettingsApp();
 
-},{"../../app/app":11,"../../player/player":208,"../home":44}],78:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":218,"../home":44}],78:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3424,7 +3427,7 @@ class SettingsEditWallpaperApp extends _app2.default {
 }
 exports.default = new SettingsEditWallpaperApp();
 
-},{"../../app/app":11,"../../interfaces/hud/smartphone":162}],81:[function(require,module,exports){
+},{"../../app/app":11,"../../interfaces/hud/smartphone":171}],81:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3752,13 +3755,13 @@ class TeamList extends _app2.default {
     }
 
     onReady() {
-        mp.events.callRemote("requestTeamMembers", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote("requestTeamMembers", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     }
 }
 
 exports.default = new TeamList();
 
-},{"../../app/app":11,"../../player/player":208}],96:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":218}],96:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3795,7 +3798,7 @@ class Telefon extends _app2.default {
 
 exports.default = new Telefon();
 
-},{"../../app/app":11,"../../player/player":208}],97:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":218}],97:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3820,7 +3823,7 @@ class TelefonCalls extends _app2.default {
 
 exports.default = new TelefonCalls();
 
-},{"../../app/app":11,"../../player/player":208}],98:[function(require,module,exports){
+},{"../../app/app":11,"../../player/player":218}],98:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -3938,6 +3941,330 @@ exports.default = new VehicleTaxApp();
 },{"../../app/app":11}],103:[function(require,module,exports){
 "use strict";
 
+const ipls = ["xs_arena_interior", "xs_arena_interior_mod"];
+
+const props = { "neededProps": ["Set_Crowd_A", "Set_Crowd_B", "Set_Crowd_C", "Set_Crowd_D", "Set_Team_Band_A", "Set_Lights_night", "Set_Pit_Fence_Closed", "Set_Pit_Fence_Wall"],
+    "modProps": ["Set_Int_MOD_SHELL_DEF", "Set_Int_MOD_BOOTH_COMBO", "Set_Int_MOD_BEDROOM_BLOCKER", "SET_OFFICE_INDUSTRIAL", "Set_Mod1_Style_03", "set_arena_peds", "SET_BANDITO_RC"],
+    "dystopianProps": ["Set_Dystopian_01", "Set_Dystopian_02", "Set_Dystopian_03", "Set_Dystopian_04", "Set_Dystopian_05", "Set_Dystopian_06", "Set_Dystopian_07", "Set_Dystopian_08", "Set_Dystopian_09", "Set_Dystopian_10", "Set_Dystopian_11", "Set_Dystopian_12", "Set_Dystopian_13", "Set_Dystopian_14", "Set_Dystopian_15", "Set_Dystopian_16", "Set_Dystopian_17"],
+    "wastelandProps": ["Set_Wasteland_01", "Set_Wasteland_02", "Set_Wasteland_03", "Set_Wasteland_04", "Set_Wasteland_05", "Set_Wasteland_06", "Set_Wasteland_07", "Set_Wasteland_08", "Set_Wasteland_09", "Set_Wasteland_10"],
+    "scifiProps": ["Set_Scifi_01", "Set_Scifi_02", "Set_Scifi_03", "Set_Scifi_04", "Set_Scifi_05", "Set_Scifi_06", "Set_Scifi_07", "Set_Scifi_08", "Set_Scifi_09", "Set_Scifi_10"]
+};
+
+const FORCE_ROOM_FOR_ENTITY = '0x52923C4710DD9907';
+let isArenaLoaded = false;
+let loadedMap = null;
+
+mp.events.add('loadarena', async (type, map) => {
+    if (type == null || isArenaLoaded || map == null) return;
+    mp.console.logInfo(type + " " + map, true, true);
+    //Load IPL's
+    ipls.forEach(ipl => {
+        mp.game.streaming.requestIpl(ipl);
+    });
+
+    const arenaInterior = mp.game.interior.getInteriorAtCoords(2800.000, -3800.000, 100.000);
+    const arenaMod = mp.game.interior.getInteriorAtCoords(205.000, 5180.000, -90.000);
+
+    //DEV
+    mp.game.interior.disableInteriorProp(arenaInterior, "Set_Dystopian_Scene");
+    mp.game.interior.disableInteriorProp(arenaInterior, "Set_Wasteland_Scene");
+    mp.game.interior.disableInteriorProp(arenaInterior, "Set_Scifi_Scene");
+    props.dystopianProps.forEach(element => {
+        mp.game.interior.disableInteriorProp(arenaInterior, element);
+    });
+    props.scifiProps.forEach(element => {
+        mp.game.interior.disableInteriorProp(arenaInterior, element);
+    });
+    props.wastelandProps.forEach(element => {
+        mp.game.interior.disableInteriorProp(arenaInterior, element);
+    });
+
+    //Load needed Interiorprops
+    props.neededProps.forEach(prop => {
+        mp.game.interior.enableInteriorProp(arenaInterior, prop);
+    });
+
+    props.modProps.forEach(prop => {
+        mp.game.interior.enableInteriorProp(arenaMod, prop);
+    });
+
+    //Load special Interiorprops
+    switch (type) {
+        case "dystopian":
+            mp.game.interior.enableInteriorProp(arenaInterior, "Set_Dystopian_Scene");
+            mp.game.interior.enableInteriorProp(arenaInterior, "Set_Turrets");
+            if (props.dystopianProps.includes(map)) {
+                mp.game.interior.enableInteriorProp(arenaInterior, map);
+                loadedMap = map;
+            }
+            break;
+        case "wasteland":
+            mp.game.interior.enableInteriorProp(arenaInterior, "Set_Wasteland_Scene");
+            mp.game.interior.enableInteriorProp(arenaInterior, "set_turrets_wasteland");
+            if (props.wastelandProps.includes(map)) {
+                mp.game.interior.enableInteriorProp(arenaInterior, map);
+                loadedMap = map;
+            }
+            break;
+        case "scifi":
+            mp.game.interior.enableInteriorProp(arenaInterior, "Set_Scifi_Scene");
+            mp.game.interior.enableInteriorProp(arenaInterior, "set_turrets_scifi");
+            if (props.scifiProps.includes(map)) {
+                mp.game.interior.enableInteriorProp(arenaInterior, map);
+                loadedMap = map;
+            }
+            break;
+
+        default:
+            break;
+    }
+    mp.game.interior.refreshInterior(arenaInterior);
+    isArenaLoaded = true;
+});
+
+mp.events.add("removearena", () => {
+    mp.game.interior.disableInteriorProp(arenaInterior, "Set_Dystopian_Scene");
+    mp.game.interior.disableInteriorProp(arenaInterior, "Set_Wasteland_Scene");
+    mp.game.interior.disableInteriorProp(arenaInterior, "Set_Scifi_Scene");
+    mp.game.interior.disableInteriorProp(arenaInterior, loadedMap);
+
+    props.neededProps.forEach(prop => {
+        mp.game.interior.disableInteriorProp(arenaInterior, prop);
+    });
+    props.modProps.forEach(prop => {
+        mp.game.interior.disableInteriorProp(arenaMod, prop);
+    });
+
+    ipls.forEach(ipl => {
+        mp.game.streaming.removeIpl(ipl);
+    });
+
+    isArenaLoaded = false;
+    loadedMap = null;
+});
+
+mp.events.add("renderArenaRoomPlayer", async () => {
+    await mp.game.waitAsync(2000);
+    mp.game.invoke(FORCE_ROOM_FOR_ENTITY, mp.players.local.handle, 272385, 289098304);
+});
+
+mp.events.add("spawnProtectionForPlayer", async player => {
+    if (player == null) return;
+    player.setInvincible(true);
+    for (let i = 0; i < 3; i++) {
+        player.setAlpha(100);
+        await mp.game.waitAsync(500);
+        player.setAlpha(180);
+        await mp.game.waitAsync(500);
+    }
+    player.setAlpha(255);
+    player.setInvincible(false);
+});
+
+},{}],104:[function(require,module,exports){
+// import apps from "../app/apps"
+// import player from "../player/player"
+// import windows from "../windows/windows"
+// import Utils from "../utils/utils"
+
+// const requiredModels = ["p_cargo_chute_s", "ex_prop_adv_case_sm", "cargobob3", "s_m_m_pilot_02", "prop_box_wood02a_pu"];
+// mp.keys.bind(0x55 /* U */, false, () => {
+//     if (windows.visibleWindow != null || apps.componentVisibleApp["Smartphone"] || apps.componentVisibleApp["Computer"] || apps.componentVisibleApp["Ipad"] || player.chatFlag || player.injured) return
+//     mp.console.logInfo('Keypressed', true, true);
+//     crateDrop('weapon_gusenberg', 100, true, 400.0, new mp.Vector3(mp.players.local.position.x, mp.players.local.position.y + 10.0, mp.players.local.position.z))
+// });
+
+// async function crateDrop(weapon, ammo, roofCheck, planeSpawnDistance, dropCoords) {
+//     mp.console.logInfo('In Func.', true, true);
+//     for (let i = 0; i < requiredModels.length; i++) {
+//         var hash = mp.game.joaat(requiredModels[i])
+//         mp.game.streaming.requestModel(hash);
+//         while (!mp.game.streaming.hasModelLoaded(hash)) {
+//             await mp.game.waitAsync(50);
+//         }
+//     }
+//     mp.console.logInfo('Loaded Models', true, true);
+
+//     await Utils.loadAnimation("P_cargo_chute_S")
+//     mp.console.logInfo('Loaded AnimDict', true, true);
+
+//     var hash = mp.game.joaat("weapon_flare")
+//     mp.game.weapon.requestWeaponAsset(hash, 31, 0);
+//     while (!mp.game.weapon.hasWeaponAssetLoaded(hash)) {
+//         await mp.game.waitAsync(10);
+//     }
+//     mp.console.logInfo('Loaded Flare', true, true);
+
+//     let rHeading = Utils.randInt(0, 360)
+//     let theta = (rHeading / 180.0) * 3.14
+//     let rPlaneSpawn = new mp.Vector3(dropCoords.x - (Math.cos(theta) * planeSpawnDistance), dropCoords.y - (Math.sin(theta) * planeSpawnDistance), dropCoords.z + 250)
+//     mp.console.logInfo('~g~Plane Coords: ' + rPlaneSpawn.x.toString() + " " + rPlaneSpawn.y.toString() + " " + rPlaneSpawn.z.toString(), true, true);
+//     await mp.game.waitAsync(5000);
+
+//     let dx = dropCoords.x - rPlaneSpawn.x
+//     let dy = dropCoords.y - rPlaneSpawn.y
+//     let heading = mp.game.gameplay.getHeadingFromVector2d(dx, dy);
+
+
+//     let aircraft = mp.vehicles.new(mp.game.joaat("cargobob3"), rPlaneSpawn,
+//     {
+//         heading: heading,
+//         engine: true,
+//         locked: true
+//     });
+
+//     aircraft.setHeading(heading);
+//     aircraft.setDoorsLocked(2);
+//     aircraft.setDynamic(true);
+//     mp.game.invoke('0x710311ADF0E20730', aircraft.handle) //ACTIVATE_PHYSICS
+//     aircraft.setEngineOn(true, true, false);
+//     aircraft.setHeliBladesFullSpeed();
+//     aircraft.setForwardSpeed(30.0);
+//     aircraft.setLandingGear(3);
+//     mp.game.invoke('0xFAEE099C6F890BB8', aircraft.handle, true, false, true, false, false, false, false, false) //SET_ENTITY_PROOFS
+//     mp.console.logInfo('Spawned Aircraft', true, true);
+
+//     let pilot = mp.peds.new(mp.game.joaat("s_m_m_pilot_02"), rPlaneSpawn, 0, mp.players.local.dimension);
+//     pilot.setIntoVehicle(aircraft.handle, -1);
+
+//     if (mp.game.invoke('0x5F9532F3B5CC2551', pilot.handle)) {
+//         mp.console.logInfo(pilot.getSourceOfDeath().toString(), true, true);
+//     }
+
+//     mp.game.invoke('0x90D2156198831D69', pilot.handle) // TASK_SET_BLOCKING_OF_NON_TEMPORARY_EVENTS
+//     mp.game.invoke('0xC8A9481A01E63C28', pilot.handle, false) // SET_PED_RANDOM_COMPONENT_VARIATION
+//     mp.game.invoke('0x971D38760FBC02EF', pilot.handle, true) // SET_PED_KEEP_TASK
+//     mp.game.invoke('0xB893215D8D4C015B', aircraft.handle, 100) // SET_TASK_VEHICLE_GOTO_PLANE_MIN_HEIGHT_ABOVE_TERRAIN
+
+//     mp.console.logInfo("After Ped create dead?: " + mp.game.invoke('0x5F9532F3B5CC2551', pilot.handle), true, true);
+
+//     let destination = new mp.Vector3(dropCoords.x - (rPlaneSpawn.x - dropCoords.x), dropCoords.y - (rPlaneSpawn.y - dropCoords.y), (dropCoords.z - (rPlaneSpawn.z - dropCoords.z)) + 500)
+
+//     mp.game.invoke('0x158BB33F920D360C', pilot.handle, aircraft.handle, destination.x, destination.y, destination.z, 30.0, 262144, 10.0) // TASK_VEHICLE_DRIVE_TO_COORD_LONGRANGE
+
+//     mp.console.logInfo("After Route set: " + mp.game.invoke('0x5F9532F3B5CC2551', pilot.handle), true, true);
+//     let droparea = {'x': dropCoords.x, 'y': dropCoords.y}
+//     let planeLocation = {'x': aircraft.getCoords(true).x, 'y': aircraft.getCoords(true).y}
+
+//     while (Utils.calculateVector2Distance(droparea.x, droparea.y, planeLocation.x, planeLocation.y) > 40.0) {
+//         await mp.game.waitAsync(10);
+//         planeLocation = {'x': aircraft.getCoords(true).x, 'y': aircraft.getCoords(true).y}
+//     }
+
+//     aircraft.setDoorOpen(2, false, false);
+//     mp.console.logInfo("Pilot at Dropoff.", true, true);
+//     if (mp.game.invoke('0x5F9532F3B5CC2551', pilot.handle)) {
+//         mp.console.logInfo("Pilot ist tot.", true, true);
+//         //pilot.destroy()
+//         aircraft.destroy()
+//         return
+//     }
+
+//     let crateSpawn = new mp.Vector3(dropCoords.x, dropCoords.y, aircraft.getCoords(true).z - 5.0)
+
+//     let crate = mp.objects.new(mp.game.joaat(requiredModels[4]), crateSpawn,
+//         {
+//             rotation: new mp.Vector3(),
+//             alpha: 255,
+//             dimension: mp.players.local.dimension
+//         }
+//     );
+//     mp.console.logInfo("Spawned Crate.", true, true);
+//     crate.setLodDist(1000);
+
+//     let parachute = mp.objects.new(mp.game.joaat(requiredModels[0]), crateSpawn,
+//         {
+//             rotation: new mp.Vector3(),
+//             alpha: 255,
+//             dimension: mp.players.local.dimension
+//         }
+//     );
+//     mp.console.logInfo("Created Parachut.", true, true);
+//     parachute.setLodDist(1000);
+
+
+//     mp.console.logInfo("Loading Sound.", true, true);
+//     let soundID = mp.game.invoke('0x430386FE9BF80B45')
+//     mp.game.audio.playSoundFromEntity(soundID, "Crate_Beeps", crate.handle, "MP_CRATE_DROP_SOUNDS", false, 0);
+//     mp.console.logInfo("Playing Sound.", true, true);
+
+//     let blip = mp.blips.new(408, crateSpawn,
+//         {
+//             name: 'Airdrop',
+//             scale: 0.7,
+//             color: 2,
+//             alpha: 120,
+//             shortRange: false,
+//         });
+//     mp.console.logInfo("Created Blip", true, true);
+
+//     //mp.game.invoke('0x6B9BBD38AB0796DF', parachute.handle, crate.handle, 0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0, false, false, false, false, 2, true) // ATTACH_ENTITY_TO_ENTITY
+//     //mp.console.logInfo("Attchated Objects", true, true);
+
+//     mp.game.invoke('0x7FB218262B810701', parachute.handle, "P_cargo_chute_S_deploy", "P_cargo_chute_S", 1000.0, false, false, false, 0, 0) // PLAY_ENTITY_ANIM
+//     mp.game.invoke('0x40FDEDB72F8293B2', parachute.handle) // FORCE_ENTITY_AI_AND_ANIMATION_UPDATE
+
+//     await floatObjects(crate, parachute, crateSpawn)
+//     mp.console.logInfo("Crate at bottom", true, true);
+
+//     let parachuteCoords = new mp.Vector3(parachute.getCoords(true))
+//     mp.game.gameplay.shootSingleBulletBetweenCoords(crate.position.x, crate.position.y, crate.position.z, crate.position.x - 0.0001, crate.position.y - 0.0001, crate.position.z - 0.0001, 0, false, mp.game.joaat("weapon_flare"), 0, true, false, -1.0);
+
+//     mp.game.invoke('0x961AC54BF0613F5D', parachute.handle, true, true) // DETACH_ENTITY
+
+//     mp.game.invoke('0x7FB218262B810701', parachute.handle, "P_cargo_chute_S_crumple", "P_cargo_chute_S", 1000.0, false, false, false, 0, 0)
+//     parachute.destroy();
+//     blip.setAlpha(255)
+
+//     // while (mp.game.object.doesObjectOfTypeExistAtCoords(parachuteCoords.x, parachuteCoords.y, parachuteCoords.z, 10.0, mp.game.joaat("w_am_flare"), true)) {
+//     //     await mp.game.waitAsync(100);
+//     //     let prop = mp.game.invoke('0xE143FA2249364369', parachuteCoords.x, parachuteCoords.y, parachuteCoords.z, 10.0, mp.game.joaat("w_am_flare"), false, false, false)
+//     //     mp.game.invoke('0xB8FEAEEBCC127425', prop)
+//     //     mp.game.invoke('0xAD738C3085FE7E11', prop, true, true)
+//     //     mp.game.invoke('0x539E0AE3E6634B9F', prop)
+//     // }
+
+//     // if (blip.doesExist()) {
+//     //     mp.game.ui.removeBlip(blip);
+//     // }
+//     // mp.game.audio.stopSound(soundID);
+//     // mp.game.audio.releaseSoundId(soundID);
+
+//     // for (let i = 0; i < requiredModels.length; i++) {
+//     //     await mp.game.waitAsync(1);
+//     //     mp.game.streaming.setModelAsNoLongerNeeded(mp.game.joaat(requiredModels[i]));
+//     // }
+//     // mp.game.weapon.removeWeaponAsset(mp.game.joaat("weapon_flare"));
+// }
+
+// async function floatObjects(crate, parachute, crateSpawn){
+//     let interval1 = setInterval(() => {
+//         if(!crate.slide(crateSpawn.x, crateSpawn.y, mp.game.gameplay.getGroundZFor3dCoord(crateSpawn.x, crateSpawn.y, crateSpawn.z, parseFloat(0), false), 0.0, 0.0, 0.002, true)){
+//             crate.slide(crateSpawn.x, crateSpawn.y, mp.game.gameplay.getGroundZFor3dCoord(crateSpawn.x, crateSpawn.y, crateSpawn.z, parseFloat(0), false), 0.0, 0.0, 0.002, true);
+//         }else{
+//             clearInterval(interval1)
+//             interval1 = null
+//         }  
+//     }, 1)
+
+//     let interval2 = setInterval(() => {
+//         if(!parachute.slide(crateSpawn.x, crateSpawn.y, mp.game.gameplay.getGroundZFor3dCoord(crateSpawn.x, crateSpawn.y, crateSpawn.z, parseFloat(0), false), 0.0, 0.0, 0.002, true)){
+//             parachute.slide(crateSpawn.x, crateSpawn.y, mp.game.gameplay.getGroundZFor3dCoord(crateSpawn.x, crateSpawn.y, crateSpawn.z, parseFloat(0), false), 0.0, 0.0, 0.002, true);
+//         }else{
+//             clearInterval(interval2)
+//             interval2 = null
+//         }  
+//     }, 1)
+//     while (interval1 != null || interval2 != null) {
+//         await mp.game.waitAsync(100);
+//     }
+//     return true
+// }
+"use strict";
+
+},{}],105:[function(require,module,exports){
+"use strict";
+
 Object.defineProperty(exports, "__esModule", {
     value: true
 });
@@ -3974,7 +4301,7 @@ class Attachments {
                             if (!attachmentHandler.attachmentsSyncEntities.includes(streamedPlayer.handle)) {
 
                                 attachmentHandler.attachmentsSyncEntities.push(streamedPlayer.handle);
-                                mp.events.callRemote("requestAttachmentsPlayer", streamedPlayer.remoteId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+                                mp.events.callRemote("requestAttachmentsPlayer", streamedPlayer.remoteId, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
                             }
                         } else if (attachmentHandler.attachmentsSyncEntities.includes(streamedPlayer.handle)) {
                             let index = attachmentHandler.attachmentsSyncEntities.indexOf(streamedPlayer.handle);
@@ -4243,7 +4570,7 @@ class Attachments {
 
 exports.default = new Attachments();
 
-},{"../player/player":208}],104:[function(require,module,exports){
+},{"../player/player":218}],106:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -4292,7 +4619,7 @@ class Browser {
 
 exports.default = new Browser();
 
-},{}],105:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 "use strict";
 
 var _player = require("../player/player");
@@ -4301,7 +4628,6 @@ var _player2 = _interopRequireDefault(_player);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-let objectplaceRot = 0.0;
 let boneIdx = 338;
 let rotationSpeed = 2.0;
 let positionSpeed = 0.05;
@@ -4311,14 +4637,41 @@ let useUpDown = false;
 let xIndex = 0;
 let yIndex = 1.5;
 let zIndex = -1.0;
+let mode = 1;
+let useAttachment = true;
 
-mp.events.add('initPlacement', (return_event, hash, use_up_down) => {
+let xrot = 0;
+let yrot = 0;
+let objectplaceRot = 0.0;
+
+mp.events.add('initPlacement', (return_event, hash, use_up_down, useAttach, posG, rotG) => {
+
+    let pos = mp.players.local.position;
+    let rot = mp.players.local.rotation;
 
     // restore defaults
-    xIndex = 0;
-    yIndex = 1.5;
-    zIndex = -1.0;
-    objectplaceRot = 0.0;
+    if (useAttach) {
+        xIndex = 0;
+        yIndex = 1.5;
+        zIndex = -1.0;
+        objectplaceRot = 0.0;
+        xrot = 0;
+        yrot = 0;
+    } else {
+        // set to 0 because of snapping
+        xIndex = 0;
+        yIndex = 0.0;
+        zIndex = 0.0;
+        objectplaceRot = 0.0;
+        xrot = 0;
+        yrot = 0;
+
+        // set initial coord
+        pos = posG;
+        rot = rotG;
+    }
+    mode = 1;
+    useAttachment = useAttach;
 
     useUpDown = use_up_down;
     currHash = hash;
@@ -4328,8 +4681,8 @@ mp.events.add('initPlacement', (return_event, hash, use_up_down) => {
         _player2.default.placementObject.destroy();
     }
 
-    _player2.default.placementObject = mp.objects.new(hash, mp.players.local.position, {
-        rotation: mp.players.local.rotation,
+    _player2.default.placementObject = mp.objects.new(hash, pos, {
+        rotation: rot,
         alpha: 200,
         dimension: mp.players.local.dimension
     });
@@ -4344,10 +4697,62 @@ mp.events.add('initPlacement', (return_event, hash, use_up_down) => {
     resyncObject();
 });
 
+// komma numpad
+mp.keys.bind(0x6E, true, () => {
+    if (_player2.default.placementObject !== undefined) {
+        if (mode == 1) {
+            mode = 2;
+            mp.game.graphics.notify("Build-Modues: Rotation");
+        } else {
+            mode = 1;
+            mp.game.graphics.notify("Build-Modues: Position");
+        }
+    }
+});
+
+// space lock object position
+mp.keys.bind(0x20, true, () => {
+    if (_player2.default.placementObject !== undefined) {
+
+        if (useAttachment) {
+            useAttachment = false;
+            let position = _player2.default.placementObject.getCoords(false);
+            let rotation = _player2.default.placementObject.getRotation(2);
+
+            _player2.default.placementObject.alpha = 0;
+            _player2.default.placementObject.destroy();
+
+            mp.game.wait(200);
+
+            _player2.default.placementObject = mp.objects.new(currHash, position, {
+                rotation: rotation,
+                alpha: 200,
+                dimension: mp.players.local.dimension
+            });;
+
+            // resett because of new handling
+            xIndex = 0;
+            yIndex = 0.0;
+            zIndex = 0.0;
+            objectplaceRot = 0.0;
+            xrot = 0;
+            yrot = 0;
+
+            // set initial coord
+            pos = posG;
+            rot = rotG;
+        }
+    }
+});
+
 // 4
 mp.keys.bind(0x64, true, () => {
     if (_player2.default.placementObject !== undefined) {
-        xIndex -= positionSpeed;
+        if (mode == 1) {
+            xIndex -= positionSpeed;
+        } else if (mode == 2) {
+            yrot -= rotationSpeed;
+        }
         resyncObject();
     }
 });
@@ -4371,7 +4776,11 @@ mp.keys.bind(0x63, true, () => {
 // 6
 mp.keys.bind(0x66, true, () => {
     if (_player2.default.placementObject !== undefined) {
-        xIndex += positionSpeed;
+        if (mode == 1) {
+            xIndex += positionSpeed;
+        } else if (mode == 2) {
+            yrot += rotationSpeed;
+        }
         resyncObject();
     }
 });
@@ -4379,7 +4788,11 @@ mp.keys.bind(0x66, true, () => {
 // 8
 mp.keys.bind(0x68, true, () => {
     if (_player2.default.placementObject !== undefined && useUpDown) {
-        yIndex += positionSpeed;
+        if (mode == 1) {
+            yIndex += positionSpeed;
+        } else if (mode == 2) {
+            xrot += rotationSpeed;
+        }
         resyncObject();
     }
 });
@@ -4387,7 +4800,11 @@ mp.keys.bind(0x68, true, () => {
 // 2
 mp.keys.bind(0x62, true, () => {
     if (_player2.default.placementObject !== undefined && useUpDown) {
-        yIndex -= positionSpeed;
+        if (mode == 1) {
+            yIndex -= positionSpeed;
+        } else if (mode == 2) {
+            xrot -= rotationSpeed;
+        }
         resyncObject();
     }
 });
@@ -4408,9 +4825,75 @@ mp.keys.bind(0x69, true, () => {
     }
 });
 
+// - langsamer
+mp.keys.bind(0x6D, true, () => {
+    if (_player2.default.placementObject !== undefined) {
+        let step = 0.5;
+        if (rotationSpeed >= 0.0) {
+            if (rotationSpeed <= 1) step = 0.1;
+            if (rotationSpeed <= 5) step = 0.3;
+            if (rotationSpeed <= 10) step = 0.5;
+
+            rotationSpeed -= step;
+            if (rotationSpeed <= 0) rotationSpeed = 0.1;
+        }
+        if (positionSpeed >= 0.0) {
+            if (positionSpeed <= 1) step = 0.01;
+            if (positionSpeed <= 5) step = 0.03;
+            if (positionSpeed <= 10) step = 0.05;
+
+            positionSpeed -= step;
+            if (positionSpeed <= 0) positionSpeed = 0.1;
+        }
+        mp.game.graphics.notify("Geschw. Rotation: " + rotationSpeed + " | Position: " + positionSpeed);
+    }
+});
+
+// + schneller
+mp.keys.bind(0x6B, true, () => {
+    if (_player2.default.placementObject !== undefined) {
+        let step = 0.5;
+        if (rotationSpeed < 10.0) {
+            if (rotationSpeed <= 1) step = 0.1;
+            if (rotationSpeed <= 5) step = 0.3;
+            if (rotationSpeed <= 10) step = 0.5;
+
+            rotationSpeed += step;
+            if (rotationSpeed <= 0) rotationSpeed = 0.1;
+        }
+        if (positionSpeed < 10.0) {
+            if (positionSpeed <= 1) step = 0.01;
+            if (positionSpeed <= 5) step = 0.03;
+            if (positionSpeed <= 10) step = 0.05;
+
+            positionSpeed += step;
+            if (positionSpeed <= 0) positionSpeed = 0.1;
+        }
+        mp.game.graphics.notify("Geschw. Rotation: " + rotationSpeed + " | Position: " + positionSpeed);
+    }
+});
+
 function resyncObject() {
     if (_player2.default.placementObject !== undefined) {
-        _player2.default.placementObject.attachTo(mp.players.local.handle, boneIdx, xIndex, yIndex, zIndex, 0.0, 0.0, objectplaceRot, false, false, true, false, 0, true);
+        if (useAttachment) {
+            _player2.default.placementObject.attachTo(mp.players.local.handle, boneIdx, xIndex, yIndex, zIndex, xrot, yrot, objectplaceRot, false, false, true, false, 0, true);
+        } else {
+            let position = _player2.default.placementObject.getCoords(false);
+            let rotation = _player2.default.placementObject.getRotation(2);
+
+            let newPos = new mp.Vector3(position.x + xIndex, position.y + yIndex, position.z + zIndex);
+            let newRot = new mp.Vector3(rotation.x + xrot, rotation.y + yrot, rotation.z + objectplaceRot);
+
+            _player2.default.placementObject.position = newPos;
+            _player2.default.placementObject.rotation = newRot;
+
+            xIndex = 0;
+            yIndex = 0.0;
+            zIndex = 0.0;
+            objectplaceRot = 0.0;
+            xrot = 0;
+            yrot = 0;
+        }
     }
 }
 
@@ -4442,15 +4925,19 @@ mp.keys.bind(0x60, true, () => {
         rotation = tmpobj.getRotation(2);
         position = tmpobj.getCoords(false);
 
-        mp.events.callRemote(returnEvent, position.x, position.y, position.z, rotation.x, rotation.y, rotation.z, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote(returnEvent, position.x, position.y, position.z, rotation.x, rotation.y, rotation.z, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
 
         tmpobj.destroy();
+        _player2.default.placementObject.alpha = 0;
+        mp.game.wait(100);
         _player2.default.placementObject.destroy();
+        mp.game.wait(200);
         _player2.default.placementObject = undefined;
+        tmpobj = undefined;
     }
 });
 
-},{"../player/player":208}],106:[function(require,module,exports){
+},{"../player/player":218}],108:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -4612,7 +5099,7 @@ class Component {
 
 exports.default = Component;
 
-},{"../browser/browser":104,"./components":107}],107:[function(require,module,exports){
+},{"../browser/browser":106,"./components":109}],109:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -4710,7 +5197,7 @@ class Components {
             eventArgs = [];
         }
 
-        eventArgs.push("0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        eventArgs.push("483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
 
         mp.events.callRemote(eventName, ...eventArgs);
     }
@@ -4718,7 +5205,7 @@ class Components {
 
 exports.default = new Components();
 
-},{"../player/player":208}],108:[function(require,module,exports){
+},{"../player/player":218}],110:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -4734,7 +5221,291 @@ class Doors {
 
 exports.default = new Doors();
 
-},{}],109:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
+"use strict";
+
+class BasicScaleform {
+    constructor(scaleformName) {
+        this.handle = mp.game1.graphics.requestScaleformMovie(scaleformName);
+        while (!mp.game1.graphics.hasScaleformMovieLoaded(this.handle)) {
+            mp.game.wait(10);
+        }
+    }
+
+    callFunction(functionName, ...args) {
+        mp.game.graphics.pushScaleformMovieFunction(this.handle, functionName);
+        args.forEach(arg => {
+            switch (typeof arg) {
+                case "string":
+                    {
+                        mp.game.graphics.pushScaleformMovieFunctionParameterString(arg);
+                        break;
+                    }
+
+                case "boolean":
+                    {
+                        mp.game.graphics.pushScaleformMovieFunctionParameterBool(arg);
+                        break;
+                    }
+
+                case "number":
+                    {
+                        if (Number(arg) === arg && arg % 1 !== 0) {
+                            mp.game.graphics.pushScaleformMovieFunctionParameterFloat(arg);
+                        } else {
+                            mp.game.graphics.pushScaleformMovieFunctionParameterInt(arg);
+                        }
+                    }
+            }
+        });
+
+        mp.game.graphics.popScaleformMovieFunctionVoid();
+    }
+
+    drawScaleform(x, y, width, height, red, green, blue, alpha, p9) {
+        mp.game.graphics.drawScaleformMovie(this.handle, x, y, width, height, red, green, blue, alpha, p9);
+    }
+
+    renderFullscreen() {
+        mp.game.graphics.drawScaleformMovieFullscreen(this.handle, 255, 255, 255, 255, false);
+    }
+
+    dispose() {
+        mp.game1.graphics.setScaleformMovieAsNoLongerNeeded(this.handle);
+    }
+}
+
+exports.BasicScaleform = BasicScaleform;
+
+},{}],112:[function(require,module,exports){
+'use strict';
+
+const { BasicScaleform } = require('./Scaleform');
+const validStyles = [-1, 1];
+
+class hudManager {
+    constructor(style, bgColor) {
+        // bgColor accepts HEX and RGBA
+        this.style = null;
+        this.counter = 0;
+        this.hud = new BasicScaleform('instructional_buttons');
+        this.render = null;
+        this.buttons = {};
+        this.availableSlots = [];
+        if (style) this.changeStyle(style);
+        if (bgColor) this.setBackgroundColor(bgColor);
+        this.resetBar();
+    }
+
+    changeStyle(style) {
+        if (!validStyles.includes(style)) return;
+        if (this.style === style) return;
+        this.style = style;
+        this.hud.callFunction("DRAW_INSTRUCTIONAL_BUTTONS", this.style);
+    }
+
+    changeButtonTitle(index, title) {
+        switch (typeof index) {
+            case 'string':
+                {
+                    Object.keys(this.buttons).forEach(button => {
+                        if (this.buttons[button].title === index || this.buttons[button].control === index) {
+                            this.hud.callFunction("SET_DATA_SLOT", parseInt(button), this.buttons[button].control, title);
+                        }
+                    });
+                    break;
+                }
+            case 'number':
+                {
+                    index = getControl(index);
+                    Object.keys(this.buttons).forEach(button => {
+                        if (this.buttons[button].control === index) {
+                            this.hud.callFunction("SET_DATA_SLOT", parseInt(button), this.buttons[button].control, title);
+                        }
+                    });
+                }
+        }
+
+        if (this.render) this.hud.callFunction("DRAW_INSTRUCTIONAL_BUTTONS", this.style);
+    }
+
+    changeButtonControl(index, control) {
+        switch (typeof index) {
+            case 'string':
+                {
+                    Object.keys(this.buttons).forEach(button => {
+                        if (this.buttons[button].title === index || this.buttons[button].control === index) {
+                            index = getControl(control);
+                            this.hud.callFunction("SET_DATA_SLOT", parseInt(button), index, this.buttons[button].title);
+                        }
+                    });
+                    break;
+                }
+            case 'number':
+                {
+                    index = getControl(index);
+                    Object.keys(this.buttons).forEach(button => {
+                        if (this.buttons[button].control === index) {
+                            control = getControl(control);
+                            this.hud.callFunction("SET_DATA_SLOT", parseInt(button), control, this.buttons[button].title);
+                        }
+                    });
+                }
+        }
+        if (this.render) this.hud.callFunction("DRAW_INSTRUCTIONAL_BUTTONS", this.style);
+    }
+
+    setBackgroundColor(bgColor) {
+        if (bgColor) {
+            if (Array.isArray(bgColor)) {
+                this.hud.callFunction("SET_BACKGROUND_COLOUR", bgColor[0], bgColor[1], bgColor[2], bgColor[3]);
+            } else if (bgColor.match(/#[0-9A-Fa-f]{6}/)) {
+                let color = hexToRGB(bgColor.replace('#', ''));
+                this.hud.callFunction("SET_BACKGROUND_COLOUR", color[0], color[1], color[2], 180);
+            }
+        }
+        this.hud.callFunction("DRAW_INSTRUCTIONAL_BUTTONS", this.style);
+    }
+
+    addButton(title, controlID) {
+        let slot, cnt;
+        if (this.availableSlots.length > 0) {
+            slot = this.availableSlots[0];
+            let index = this.availableSlots.indexOf(slot);
+            if (index > -1) {
+                this.availableSlots.splice(index, 1);
+            }
+        } else {
+            slot = this.counter++;
+        };
+
+        if (controlID) cnt = verifyControl(controlID);
+
+        this.hud.callFunction("SET_DATA_SLOT", slot, cnt, title);
+        this.buttons[slot] = {
+            title: title ? title : "",
+            control: cnt ? cnt : ""
+        };
+        if (this.render) this.hud.callFunction("DRAW_INSTRUCTIONAL_BUTTONS", this.style);
+    }
+
+    addButtons(buttons) {
+        if (typeof buttons === 'object') {
+            Object.keys(buttons).forEach(btn => {
+                let title = btn,
+                    cnt,
+                    slot = this.availableSlots.length > 0 ? this.availableSlots[0] : this.counter++;
+                if (buttons[btn]) cnt = verifyControl(buttons[btn]);
+
+                this.hud.callFunction("SET_DATA_SLOT", slot, cnt, title);
+                this.buttons[slot] = {
+                    title: title ? title : "",
+                    control: cnt ? cnt : ""
+                };
+
+                let index = this.availableSlots.indexOf(slot);
+                if (index > -1) {
+                    this.availableSlots.splice(index, 1);
+                }
+            });
+
+            if (this.render) this.hud.callFunction("DRAW_INSTRUCTIONAL_BUTTONS", this.style);
+        } else {
+            return;
+        }
+    }
+
+    removeButton(btn) {
+        switch (typeof btn) {
+            case 'string':
+                {
+                    Object.keys(this.buttons).forEach(button => {
+                        if (this.buttons[button].title === btn) {
+                            this.availableSlots.push(button);
+                            this.hud.callFunction("SET_DATA_SLOT", parseInt(button), "", "");
+                            delete this.buttons[button];
+                        }
+                    });
+                    break;
+                }
+            case 'number':
+                {
+                    Object.keys(this.buttons).forEach(button => {
+                        if (this.buttons[button].control === btn) {
+                            this.availableSlots.push(button);
+                            this.hud.callFunction("SET_DATA_SLOT", parseInt(button), "", "");
+                            delete this.buttons[button];
+                        }
+                    });
+                }
+        }
+        this.hud.callFunction("DRAW_INSTRUCTIONAL_BUTTONS", this.style);
+    }
+
+    removeButtons() {
+        this.counter = 0;
+        this.buttons = {};
+        this.resetBar();
+    }
+
+    toggleHud(state) {
+        if (state) {
+            this.hud.callFunction("DRAW_INSTRUCTIONAL_BUTTONS", this.style);
+            if (this.render === null) {
+                this.render = new mp.Event('render', () => {
+                    this.hud.renderFullscreen();
+                });
+            } else {
+                this.render.enable();
+            }
+        } else {
+            if (this.render !== null) this.render.destroy();else return false;
+        }
+    }
+
+    resetBar() {
+        this.hud.callFunction("CLEAR_ALL");
+        this.hud.callFunction("TOGGLE_MOUSE_BUTTONS", 0);
+        this.hud.callFunction("CREATE_CONTAINER");
+        this.hud.callFunction("SET_CLEAR_SPACE", 100);
+    }
+};
+
+function verifyControl(btn) {
+    let control;
+    switch (typeof btn) {
+        case 'number':
+            {
+                control = getControl(btn);
+                break;
+            }
+
+        case 'string':
+            {
+                if (btn.length > 1) {
+                    control = `t_${btn.toString()}`;
+                }
+            };
+    }
+    return control;
+}
+
+function getControl(id) {
+    if (id > -1 && id < 357) {
+        return mp.game.controls.getControlActionName(2, id, true);
+    } else {
+        return false;
+    }
+}
+
+function hexToRGB(hex) {
+    let bigint = parseInt(hex.replace(/[^0-9A-F]/gi, ''), 16);
+    return [bigint >> 16 & 255, bigint >> 8 & 255, bigint & 255];
+}
+
+exports.hudManager = hudManager;
+
+},{"./Scaleform":111}],113:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -4761,7 +5532,7 @@ class AdminWindow extends _window2.default {
 
 exports.default = new AdminWindow();
 
-},{"../../windows/window":234}],110:[function(require,module,exports){
+},{"../../windows/window":248}],114:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -4796,7 +5567,61 @@ class AnimationWheelFavoritesList extends _window2.default {
 
 exports.default = new AnimationWheelFavoritesList();
 
-},{"../../windows/window":234,"../hud/n-menu":152}],111:[function(require,module,exports){
+},{"../../windows/window":248,"../hud/n-menu":161}],115:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _window = require('../../windows/window');
+
+var _window2 = _interopRequireDefault(_window);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class ArenaWars extends _window2.default {
+    constructor() {
+        super('ArenaWars');
+
+        this.setCurserVisible(true);
+        this.setChatVisible(false);
+
+        mp.events.add('updateArenaWarsLobby', data => {
+            this.callOnBrowser(`updateArenaLobbyData('${data}')`);
+        });
+    }
+
+}
+
+exports.default = new ArenaWars();
+
+},{"../../windows/window":248}],116:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _window = require('../../windows/window');
+
+var _window2 = _interopRequireDefault(_window);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class ArenaWarsLoadout extends _window2.default {
+    constructor() {
+        super('ArenaWarsLoadout');
+
+        this.setCurserVisible(true);
+        this.setChatVisible(false);
+    }
+
+}
+
+exports.default = new ArenaWarsLoadout();
+
+},{"../../windows/window":248}],117:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4821,12 +5646,12 @@ class BankWindow extends _window2.default {
 
 exports.default = new BankWindow();
 
-},{"../../windows/window":234}],112:[function(require,module,exports){
+},{"../../windows/window":248}],118:[function(require,module,exports){
 "use strict";
 
 require("./bank-window");
 
-},{"./bank-window":111}],113:[function(require,module,exports){
+},{"./bank-window":117}],119:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4847,12 +5672,12 @@ class BannWindow extends _window2.default {
 
 exports.default = new BannWindow();
 
-},{"../../windows/window":234}],114:[function(require,module,exports){
+},{"../../windows/window":248}],120:[function(require,module,exports){
 "use strict";
 
 require("./bann-window");
 
-},{"./bann-window":113}],115:[function(require,module,exports){
+},{"./bann-window":119}],121:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -4939,7 +5764,7 @@ class BarberWindow extends _window2.default {
 
 exports.default = new BarberWindow();
 
-},{"../../utils/bodyCamera":225,"../../windows/window":234}],116:[function(require,module,exports){
+},{"../../utils/bodyCamera":239,"../../windows/window":248}],122:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4970,7 +5795,7 @@ class BusLinienWindow extends _window2.default {
 
 exports.default = new BusLinienWindow();
 
-},{"../../windows/window":234}],117:[function(require,module,exports){
+},{"../../windows/window":248}],123:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -4993,12 +5818,12 @@ class CannabisLaborWindow extends _window2.default {
 
 exports.default = new CannabisLaborWindow();
 
-},{"../../windows/window":234}],118:[function(require,module,exports){
+},{"../../windows/window":248}],124:[function(require,module,exports){
 "use strict";
 
 require("./cannabislab-window");
 
-},{"./cannabislab-window":117}],119:[function(require,module,exports){
+},{"./cannabislab-window":123}],125:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5022,12 +5847,12 @@ class CarshopWindow extends _window2.default {
 
 exports.default = new CarshopWindow();
 
-},{"../../windows/window":234}],120:[function(require,module,exports){
+},{"../../windows/window":248}],126:[function(require,module,exports){
 "use strict";
 
 require("./carshop-window");
 
-},{"./carshop-window":119}],121:[function(require,module,exports){
+},{"./carshop-window":125}],127:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5053,7 +5878,7 @@ class SlotMachine extends _window2.default {
 
 exports.default = new SlotMachine();
 
-},{"../../windows/window":234}],122:[function(require,module,exports){
+},{"../../windows/window":248}],128:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -5159,7 +5984,7 @@ class CharacterCreator extends _window2.default {
 
 exports.default = new CharacterCreator();
 
-},{"../../utils/bodyCamera":225,"../../windows/window":234}],123:[function(require,module,exports){
+},{"../../utils/bodyCamera":239,"../../windows/window":248}],129:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5198,12 +6023,12 @@ class ChatWindow extends _window2.default {
 
 exports.default = new ChatWindow();
 
-},{"../../player/player":208,"../../windows/window":234}],124:[function(require,module,exports){
+},{"../../player/player":218,"../../windows/window":248}],130:[function(require,module,exports){
 "use strict";
 
 require("./chat-window");
 
-},{"./chat-window":123}],125:[function(require,module,exports){
+},{"./chat-window":129}],131:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -5456,7 +6281,7 @@ class ClothingShop extends _window2.default {
 
 exports.default = new ClothingShop();
 
-},{"../../utils/bodyCamera":225,"../../windows/window":234}],126:[function(require,module,exports){
+},{"../../utils/bodyCamera":239,"../../windows/window":248}],132:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5479,12 +6304,12 @@ class ConfirmWindow extends _window2.default {
 
 exports.default = new ConfirmWindow();
 
-},{"../../windows/window":234}],127:[function(require,module,exports){
+},{"../../windows/window":248}],133:[function(require,module,exports){
 "use strict";
 
 require("./confirm-window");
 
-},{"./confirm-window":126}],128:[function(require,module,exports){
+},{"./confirm-window":132}],134:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5507,12 +6332,12 @@ class DeathWindow extends _window2.default {
 
 exports.default = new DeathWindow();
 
-},{"../../windows/window":234}],129:[function(require,module,exports){
+},{"../../windows/window":248}],135:[function(require,module,exports){
 "use strict";
 
 require("./death-window");
 
-},{"./death-window":128}],130:[function(require,module,exports){
+},{"./death-window":134}],136:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5543,7 +6368,7 @@ class EjectWindow extends _window2.default {
 
 exports.default = new EjectWindow();
 
-},{"../../windows/window":234}],131:[function(require,module,exports){
+},{"../../windows/window":248}],137:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5566,12 +6391,12 @@ class FlyerWindow extends _window2.default {
 
 exports.default = new FlyerWindow();
 
-},{"../../windows/window":234}],132:[function(require,module,exports){
+},{"../../windows/window":248}],138:[function(require,module,exports){
 "use strict";
 
 require("./flyer-window");
 
-},{"./flyer-window":131}],133:[function(require,module,exports){
+},{"./flyer-window":137}],139:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5595,12 +6420,12 @@ class FriskWindow extends _window2.default {
 
 exports.default = new FriskWindow();
 
-},{"../../windows/window":234}],134:[function(require,module,exports){
+},{"../../windows/window":248}],140:[function(require,module,exports){
 "use strict";
 
 require("./frisk-window");
 
-},{"./frisk-window":133}],135:[function(require,module,exports){
+},{"./frisk-window":139}],141:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5624,12 +6449,12 @@ class GarageWindow extends _window2.default {
 
 exports.default = new GarageWindow();
 
-},{"../../windows/window":234}],136:[function(require,module,exports){
+},{"../../windows/window":248}],142:[function(require,module,exports){
 "use strict";
 
 require("./garage-window");
 
-},{"./garage-window":135}],137:[function(require,module,exports){
+},{"./garage-window":141}],143:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5652,12 +6477,12 @@ class GiveMoneyWindow extends _window2.default {
 
 exports.default = new GiveMoneyWindow();
 
-},{"../../windows/window":234}],138:[function(require,module,exports){
+},{"../../windows/window":248}],144:[function(require,module,exports){
 "use strict";
 
 require("./giveMoney-window");
 
-},{"./giveMoney-window":137}],139:[function(require,module,exports){
+},{"./giveMoney-window":143}],145:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -5682,7 +6507,7 @@ class HeistOverview extends _window2.default {
 
 exports.default = new HeistOverview();
 
-},{"../../windows/window":234}],140:[function(require,module,exports){
+},{"../../windows/window":248}],146:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5705,12 +6530,12 @@ class HeroinLaborWindow extends _window2.default {
 
 exports.default = new HeroinLaborWindow();
 
-},{"../../windows/window":234}],141:[function(require,module,exports){
+},{"../../windows/window":248}],147:[function(require,module,exports){
 "use strict";
 
 require("./heroinlab-window");
 
-},{"./heroinlab-window":140}],142:[function(require,module,exports){
+},{"./heroinlab-window":146}],148:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5751,7 +6576,73 @@ class AntiAFK extends _component2.default {
 
 exports.default = new AntiAFK();
 
-},{"../../components/component":106}],143:[function(require,module,exports){
+},{"../../components/component":108}],149:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _component = require("../../components/component");
+
+var _component2 = _interopRequireDefault(_component);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class ArenaScore extends _component2.default {
+    constructor() {
+        super("ArenaScore");
+
+        mp.events.add('updateArenaScore', (team_one_score, team_two_score) => {
+            this.callOnBrowser(`updateArenaScore('${team_one_score}','${team_two_score}')`);
+        });
+        mp.events.add('showArenaScore', (team_one, team_two, time) => {
+            this.callOnBrowser(`showArenaScore('${team_one}','${team_two}','${time}')`);
+        });
+        mp.events.add('hideArenaScore', () => {
+            this.callOnBrowser(`hideArenaScore()`);
+        });
+
+        mp.events.add('updateFFAArenaScore', scoredata => {
+            this.callOnBrowser(`updateFFAArenaScore('${scoredata}')`);
+        });
+        mp.events.add('showFFAArenaScore', (scoredata, time, player) => {
+            this.callOnBrowser(`showFFAArenaScore('${scoredata}','${time}', '${player}')`);
+        });
+    }
+}
+
+exports.default = new ArenaScore();
+
+},{"../../components/component":108}],150:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _component = require("../../components/component");
+
+var _component2 = _interopRequireDefault(_component);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class ArenaScoreboard extends _component2.default {
+    constructor() {
+        super("ArenaScoreboard");
+
+        mp.events.add('updateArenaScoreboard', data => {
+            this.callOnBrowser(`updateArenaScoreboard('${data}')`);
+        });
+        mp.events.add('showArenaScoreboard', (state, data = null, player) => {
+            this.callOnBrowser(`showArenaScoreboard(${state}, '${data}', '${player}')`);
+        });
+    }
+}
+
+exports.default = new ArenaScoreboard();
+
+},{"../../components/component":108}],151:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5776,7 +6667,7 @@ class BuildMenu extends _component2.default {
 
 exports.default = new BuildMenu();
 
-},{"../../components/component":106}],144:[function(require,module,exports){
+},{"../../components/component":108}],152:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5805,7 +6696,7 @@ class Bus extends _component2.default {
 
 exports.default = new Bus();
 
-},{"../../components/component":106}],145:[function(require,module,exports){
+},{"../../components/component":108}],153:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5836,7 +6727,7 @@ class Fishing extends _component2.default {
 
 exports.default = new Fishing();
 
-},{"../../components/component":106}],146:[function(require,module,exports){
+},{"../../components/component":108}],154:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5869,7 +6760,7 @@ class Gangwar extends _component2.default {
 
 exports.default = new Gangwar();
 
-},{"../../components/component":106}],147:[function(require,module,exports){
+},{"../../components/component":108}],155:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5894,7 +6785,7 @@ class GlobalNotification extends _component2.default {
 
 exports.default = new GlobalNotification();
 
-},{"../../components/component":106}],148:[function(require,module,exports){
+},{"../../components/component":108}],156:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5927,7 +6818,7 @@ class HelpPanel extends _component2.default {
 
 exports.default = new HelpPanel();
 
-},{"../../components/component":106,"../../player/player":208}],149:[function(require,module,exports){
+},{"../../components/component":108,"../../player/player":218}],157:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -5979,7 +6870,7 @@ class Hud extends _component2.default {
 
 exports.default = new Hud();
 
-},{"../../components/component":106}],150:[function(require,module,exports){
+},{"../../components/component":108}],158:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6004,7 +6895,32 @@ class Infocard extends _component2.default {
 
 exports.default = new Infocard();
 
-},{"../../components/component":106}],151:[function(require,module,exports){
+},{"../../components/component":108}],159:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _component = require("../../components/component");
+
+var _component2 = _interopRequireDefault(_component);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class ArenaKillFeed extends _component2.default {
+    constructor() {
+        super("ArenaKillFeed");
+
+        mp.events.add('addKillToFeed', (killer, victem, weapon) => {
+            this.callOnBrowser(`addKillToFeed('${killer}','${victem}','${weapon}')`);
+        });
+    }
+}
+
+exports.default = new ArenaKillFeed();
+
+},{"../../components/component":108}],160:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6054,7 +6970,7 @@ class Menu extends _component2.default {
 
 exports.default = new Menu();
 
-},{"../../components/component":106,"../hud/player-panel":155}],152:[function(require,module,exports){
+},{"../../components/component":108,"../hud/player-panel":164}],161:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6102,14 +7018,14 @@ class NMenu extends _component2.default {
                 return;
             }
 
-            mp.events.callRemote('REQUEST_ANIMATION_USE', args[0], "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+            mp.events.callRemote('REQUEST_ANIMATION_USE', args[0], "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         }
     }
 }
 
 exports.default = new NMenu();
 
-},{"../../components/component":106,"../../player/player":208}],153:[function(require,module,exports){
+},{"../../components/component":108,"../../player/player":218}],162:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6133,7 +7049,7 @@ class Nutrition extends _component2.default {
 
 exports.default = new Nutrition();
 
-},{"../../components/component":106}],154:[function(require,module,exports){
+},{"../../components/component":108}],163:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6185,7 +7101,7 @@ class Paintball extends _component2.default {
 
 exports.default = new Paintball();
 
-},{"../../components/component":106,"../../player/player":208}],155:[function(require,module,exports){
+},{"../../components/component":108,"../../player/player":218}],164:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6255,6 +7171,11 @@ class PlayerPanel extends _component2.default {
         this.callOnBrowser(`state=${this.displayState}`);
     }
 
+    displayToggle(state) {
+        this.displayState = state;
+        this.callOnBrowser(`state=${this.displayState}`);
+    }
+
     setAirRadio(type) {
         this.callOnBrowser(`airRadioActiveType=${type}`);
     }
@@ -6314,7 +7235,7 @@ class PlayerPanel extends _component2.default {
 
 exports.default = new PlayerPanel();
 
-},{"../../components/component":106,"../../player/player":208}],156:[function(require,module,exports){
+},{"../../components/component":108,"../../player/player":218}],165:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6352,7 +7273,7 @@ class PlayerInfo extends _component2.default {
 
 exports.default = new PlayerInfo();
 
-},{"../../components/component":106,"../../player/player":208}],157:[function(require,module,exports){
+},{"../../components/component":108,"../../player/player":218}],166:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6384,7 +7305,7 @@ class PlayerNotification extends _component2.default {
 
 exports.default = new PlayerNotification();
 
-},{"../../components/component":106,"../../player/player":208}],158:[function(require,module,exports){
+},{"../../components/component":108,"../../player/player":218}],167:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6420,7 +7341,7 @@ class Progressbar extends _component2.default {
 
 exports.default = new Progressbar();
 
-},{"../../components/component":106,"../../player/player":208}],159:[function(require,module,exports){
+},{"../../components/component":108,"../../player/player":218}],168:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6461,7 +7382,7 @@ class RacingHud extends _component2.default {
 
 exports.default = new RacingHud();
 
-},{"../../components/component":106}],160:[function(require,module,exports){
+},{"../../components/component":108}],169:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6486,7 +7407,7 @@ class ZoneWarning extends _component2.default {
 
 exports.default = new ZoneWarning();
 
-},{"../../components/component":106}],161:[function(require,module,exports){
+},{"../../components/component":108}],170:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6511,7 +7432,7 @@ class ScreenHide extends _component2.default {
 
 exports.default = new ScreenHide();
 
-},{"../../components/component":106}],162:[function(require,module,exports){
+},{"../../components/component":108}],171:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6580,7 +7501,7 @@ class Smartphone extends _component2.default {
 
 exports.default = new Smartphone();
 
-},{"../../app/apps":12,"../../apps/callManage":21,"../../apps/home":44,"../../apps/phone":62,"../../components/component":106}],163:[function(require,module,exports){
+},{"../../app/apps":12,"../../apps/callManage":21,"../../apps/home":44,"../../apps/phone":62,"../../components/component":108}],172:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6609,7 +7530,7 @@ class TaskHint extends _component2.default {
 
 exports.default = new TaskHint();
 
-},{"../../components/component":106}],164:[function(require,module,exports){
+},{"../../components/component":108}],173:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6634,8 +7555,10 @@ class VehiclePanel extends _component2.default {
         this.currentDistance = 0.0;
         this.currentFuelDistance = 0.0;
         this.currentInterval = null;
+        this.currentSpeed = 0.0;
         this.speed = 0;
         this.engine = false;
+        this.electric = false;
         this.lock = false;
         this.tachoActive = false;
         this.isDriver = false;
@@ -6650,7 +7573,7 @@ class VehiclePanel extends _component2.default {
             this.callOnBrowser(`engine=${engine}`);
         });
 
-        mp.events.add("initialVehicleData", (fuel, maxFuel, health, maxHealth, maxSpeed, locked, mileage, engine) => {
+        mp.events.add("initialVehicleData", (fuel, maxFuel, health, maxHealth, maxSpeed, locked, mileage, engine, electric = false) => {
             this.callOnBrowser(`fuel=${fuel}`);
             this.callOnBrowser(`maxfuel=${maxFuel}`);
             this.callOnBrowser(`health=${health}`);
@@ -6659,6 +7582,7 @@ class VehiclePanel extends _component2.default {
             this.callOnBrowser(`lock=${locked}`);
             this.callOnBrowser(`mileage=${mileage}`);
             this.callOnBrowser(`engine=${engine}`);
+            this.callOnBrowser(`electric=${electric}`);
         });
 
         mp.events.add("setNormalSpeed", (vehicle, speed) => {
@@ -6749,6 +7673,7 @@ class VehiclePanel extends _component2.default {
                     this.currentFuelDistance += currentSpeed * (speed / 50.0);
 
                     let newSpeed = vehicle.getSpeed();
+                    this.currentSpeed = vehicle.getSpeed() * 4.4;
 
                     if (!noDistance) {
                         this.currentDistance += newSpeed;
@@ -6776,10 +7701,11 @@ class VehiclePanel extends _component2.default {
 
     sendAndReset(veh) {
         if (this.currentDistance > 0.001 && veh != null) {
-            mp.events.callRemote("updateVehicleDistance", veh.remoteId, Number(this.currentDistance.toFixed(3)), Number(this.currentFuelDistance.toFixed(3)), "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+            mp.events.callRemote("updateVehicleDistance", veh.remoteId, Number(this.currentDistance.toFixed(3)), Number(this.currentFuelDistance.toFixed(3)), Number(this.currentSpeed.toFixed(3)), "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
 
             this.currentDistance = 0;
             this.currentFuelDistance = 0;
+            this.currentSpeed = 0;
         }
     }
 
@@ -6802,7 +7728,7 @@ class VehiclePanel extends _component2.default {
     }
 
     requestNormalSpeed(vehicle) {
-        mp.events.callRemote("requestNormalSpeed", vehicle.remoteId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote("requestNormalSpeed", vehicle.remoteId, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     }
 
     tempomat() {
@@ -6832,7 +7758,7 @@ class VehiclePanel extends _component2.default {
 
 exports.default = new VehiclePanel();
 
-},{"../../components/component":106,"../../player/player":208}],165:[function(require,module,exports){
+},{"../../components/component":108,"../../player/player":218}],174:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6933,12 +7859,12 @@ class XMenu extends _component2.default {
                     _flatbed2.default.xmenuswitch(args[0].itemId);
                     return;
                 } else if (args[0].arg == "" || args[0].arg == undefined || args[0].arg.length <= 0) {
-                    mp.events.callRemote(args[0].itemId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+                    mp.events.callRemote(args[0].itemId, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
                     return;
                 } else if (args[0].itemId == "LOCAL_ACTION") {
                     if (args[0].arg == "RadioOff") mp.game.audio.setRadioToStationName("OFF");
                     return;
-                } else mp.events.callRemote(args[0].itemId, args[0].arg, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+                } else mp.events.callRemote(args[0].itemId, args[0].arg, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
             }
             // Not in vehicle
             else {
@@ -6948,8 +7874,8 @@ class XMenu extends _component2.default {
                     if (args[0].id == "donothing") {
                         return;
                     } else if (args[0].arg == "" || args[0].arg == undefined || args[0].arg.length <= 0) {
-                        mp.events.callRemote(args[0].itemId, obj.entity.remoteId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
-                    } else mp.events.callRemote(args[0].itemId, obj.entity.remoteId, args[0].arg, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+                        mp.events.callRemote(args[0].itemId, obj.entity.remoteId, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
+                    } else mp.events.callRemote(args[0].itemId, obj.entity.remoteId, args[0].arg, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
                 }
         }
     }
@@ -6957,7 +7883,7 @@ class XMenu extends _component2.default {
 
 exports.default = new XMenu();
 
-},{"../../components/component":106,"../../peds/peds":202,"../../player/player":208,"../../raycast/raycast":224,"../../vehicle/flatbed":229,"../../vehicle/vehicle-module":231}],166:[function(require,module,exports){
+},{"../../components/component":108,"../../peds/peds":212,"../../player/player":218,"../../raycast/raycast":238,"../../vehicle/flatbed":243,"../../vehicle/vehicle-module":245}],175:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7033,7 +7959,7 @@ class IdCard extends _component2.default {
 
 exports.default = new IdCard();
 
-},{"../../components/component":106,"../../player/player":208}],167:[function(require,module,exports){
+},{"../../components/component":108,"../../player/player":218}],176:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7074,12 +8000,12 @@ class InputWindow extends _window2.default {
 
 exports.default = new InputWindow();
 
-},{"../../player/player":208,"../../windows/window":234}],168:[function(require,module,exports){
+},{"../../player/player":218,"../../windows/window":248}],177:[function(require,module,exports){
 "use strict";
 
 require("./input-window");
 
-},{"./input-window":167}],169:[function(require,module,exports){
+},{"./input-window":176}],178:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7110,7 +8036,7 @@ class InsuranceWindow extends _window2.default {
 
 exports.default = new InsuranceWindow();
 
-},{"../../windows/window":234}],170:[function(require,module,exports){
+},{"../../windows/window":248}],179:[function(require,module,exports){
 'use strict';
 
 require('./login/login');
@@ -7249,7 +8175,19 @@ require('./hud/restrictedZone');
 
 require('./hud/taskHint');
 
-},{"./adminmenu/adminmenu":109,"./animation/animation-wheel-favorites-list-window":110,"./bank/bank":112,"./bann/bann":114,"./barber/barber":115,"./buslinien/buslinien":116,"./cannabislab/cannabislab":118,"./carshop/carshop":120,"./casino/slotmachine":121,"./character-creator/character-creator":122,"./chat/chat":124,"./clothing-shop/clothing-shop":125,"./confirm/confirm":127,"./death/death":129,"./ejectwindow/ejectwindow":130,"./flyer/flyer":132,"./frisk/frisk":134,"./garage/garage":136,"./giveMoney/giveMoney":138,"./heists/heists":139,"./heroinlab/heroinlab":141,"./hud/buildMenu":143,"./hud/bus":144,"./hud/fishing":145,"./hud/gangwar":146,"./hud/globalnotification":147,"./hud/help-panel":148,"./hud/hud":149,"./hud/infocard":150,"./hud/menu":151,"./hud/n-menu":152,"./hud/nutrition":153,"./hud/paintball":154,"./hud/player-panel":155,"./hud/playernotification":157,"./hud/progressbar":158,"./hud/racinghud":159,"./hud/restrictedZone":160,"./hud/screenHide":161,"./hud/smartphone":162,"./hud/taskHint":163,"./hud/vehicle-panel":164,"./hud/x-menu":165,"./id-card/id-card":166,"./input/input":168,"./insurance/insurance":169,"./inventory/inventory":172,"./jobs/jobs":173,"./keys/keys":174,"./kick/kick":176,"./licenses/licenses":177,"./login/login":179,"./methlab/methlab":181,"./paintball/paintballwindow":182,"./paymentMethods/paymentMethods-window":183,"./petbuy/petbuy":184,"./racing/racing":185,"./racing/racingloading":186,"./register/register":188,"./rims/rims":189,"./shop/shop":190,"./shopikea/ShopIkeaWindow":191,"./tattoo-license/tattoo-license":192,"./tattoo/tattoo":194,"./tuning/tuning":195,"./vehiclerent/vehiclerent":196,"./wardrobe/wardrobe":197,"./workstation/workstation":198}],171:[function(require,module,exports){
+require('./weed/weed');
+
+require('./arenawars/arenawars');
+
+require('./arenawars/arenawarsloadout');
+
+require('./hud/killfeed');
+
+require('./hud/arenascore');
+
+require('./hud/arenascoreboard');
+
+},{"./adminmenu/adminmenu":113,"./animation/animation-wheel-favorites-list-window":114,"./arenawars/arenawars":115,"./arenawars/arenawarsloadout":116,"./bank/bank":118,"./bann/bann":120,"./barber/barber":121,"./buslinien/buslinien":122,"./cannabislab/cannabislab":124,"./carshop/carshop":126,"./casino/slotmachine":127,"./character-creator/character-creator":128,"./chat/chat":130,"./clothing-shop/clothing-shop":131,"./confirm/confirm":133,"./death/death":135,"./ejectwindow/ejectwindow":136,"./flyer/flyer":138,"./frisk/frisk":140,"./garage/garage":142,"./giveMoney/giveMoney":144,"./heists/heists":145,"./heroinlab/heroinlab":147,"./hud/arenascore":149,"./hud/arenascoreboard":150,"./hud/buildMenu":151,"./hud/bus":152,"./hud/fishing":153,"./hud/gangwar":154,"./hud/globalnotification":155,"./hud/help-panel":156,"./hud/hud":157,"./hud/infocard":158,"./hud/killfeed":159,"./hud/menu":160,"./hud/n-menu":161,"./hud/nutrition":162,"./hud/paintball":163,"./hud/player-panel":164,"./hud/playernotification":166,"./hud/progressbar":167,"./hud/racinghud":168,"./hud/restrictedZone":169,"./hud/screenHide":170,"./hud/smartphone":171,"./hud/taskHint":172,"./hud/vehicle-panel":173,"./hud/x-menu":174,"./id-card/id-card":175,"./input/input":177,"./insurance/insurance":178,"./inventory/inventory":181,"./jobs/jobs":182,"./keys/keys":183,"./kick/kick":185,"./licenses/licenses":186,"./login/login":188,"./methlab/methlab":190,"./paintball/paintballwindow":191,"./paymentMethods/paymentMethods-window":192,"./petbuy/petbuy":193,"./racing/racing":194,"./racing/racingloading":195,"./register/register":197,"./rims/rims":198,"./shop/shop":199,"./shopikea/ShopIkeaWindow":200,"./tattoo-license/tattoo-license":201,"./tattoo/tattoo":203,"./tuning/tuning":204,"./vehiclerent/vehiclerent":205,"./wardrobe/wardrobe":206,"./weed/weed":207,"./workstation/workstation":208}],180:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7274,12 +8212,12 @@ class InventoryWindow extends _window2.default {
 
 exports.default = new InventoryWindow();
 
-},{"../../windows/window":234}],172:[function(require,module,exports){
+},{"../../windows/window":248}],181:[function(require,module,exports){
 "use strict";
 
 require("./inventory-window");
 
-},{"./inventory-window":171}],173:[function(require,module,exports){
+},{"./inventory-window":180}],182:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -7303,7 +8241,7 @@ class Jobs extends _window2.default {
 
 exports.default = new Jobs();
 
-},{"../../windows/window":234}],174:[function(require,module,exports){
+},{"../../windows/window":248}],183:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7326,7 +8264,7 @@ class Keys extends _window2.default {
 
 exports.default = new Keys();
 
-},{"../../windows/window":234}],175:[function(require,module,exports){
+},{"../../windows/window":248}],184:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7347,12 +8285,12 @@ class KickWindow extends _window2.default {
 
 exports.default = new KickWindow();
 
-},{"../../windows/window":234}],176:[function(require,module,exports){
+},{"../../windows/window":248}],185:[function(require,module,exports){
 "use strict";
 
 require("./kick-window");
 
-},{"./kick-window":175}],177:[function(require,module,exports){
+},{"./kick-window":184}],186:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7377,7 +8315,7 @@ class Licenses extends _component2.default {
 
 exports.default = new Licenses();
 
-},{"../../components/component":106}],178:[function(require,module,exports){
+},{"../../components/component":108}],187:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7426,12 +8364,12 @@ class LoginWindow extends _window2.default {
 
 exports.default = new LoginWindow();
 
-},{"../../player/player":208,"../../windows/window":234}],179:[function(require,module,exports){
+},{"../../player/player":218,"../../windows/window":248}],188:[function(require,module,exports){
 "use strict";
 
 require("./login-window");
 
-},{"./login-window":178}],180:[function(require,module,exports){
+},{"./login-window":187}],189:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7454,12 +8392,12 @@ class MethLaborWindow extends _window2.default {
 
 exports.default = new MethLaborWindow();
 
-},{"../../windows/window":234}],181:[function(require,module,exports){
+},{"../../windows/window":248}],190:[function(require,module,exports){
 "use strict";
 
 require("./methlab-window");
 
-},{"./methlab-window":180}],182:[function(require,module,exports){
+},{"./methlab-window":189}],191:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -7483,7 +8421,7 @@ class PaintballWindow extends _window2.default {
 
 exports.default = new PaintballWindow();
 
-},{"../../windows/window":234}],183:[function(require,module,exports){
+},{"../../windows/window":248}],192:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -7506,7 +8444,7 @@ class PaymentMethodsWindow extends _window2.default {
 
 exports.default = new PaymentMethodsWindow();
 
-},{"../../windows/window":234}],184:[function(require,module,exports){
+},{"../../windows/window":248}],193:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7537,7 +8475,7 @@ class PetBuyWindow extends _window2.default {
 
 exports.default = new PetBuyWindow();
 
-},{"../../windows/window":234}],185:[function(require,module,exports){
+},{"../../windows/window":248}],194:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -7564,7 +8502,7 @@ class Racing extends _window2.default {
 
 exports.default = new Racing();
 
-},{"../../windows/window":234}],186:[function(require,module,exports){
+},{"../../windows/window":248}],195:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -7589,7 +8527,7 @@ class RacingLoadingScreen extends _window2.default {
 
 exports.default = new RacingLoadingScreen();
 
-},{"../../windows/window":234}],187:[function(require,module,exports){
+},{"../../windows/window":248}],196:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7610,12 +8548,12 @@ class RegisterWindow extends _window2.default {
 
 exports.default = new RegisterWindow();
 
-},{"../../windows/window":234}],188:[function(require,module,exports){
+},{"../../windows/window":248}],197:[function(require,module,exports){
 "use strict";
 
 require("./register-window");
 
-},{"./register-window":187}],189:[function(require,module,exports){
+},{"./register-window":196}],198:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -7642,7 +8580,7 @@ class RimsWindow extends _window2.default {
 
 exports.default = new RimsWindow();
 
-},{"../../windows/window":234}],190:[function(require,module,exports){
+},{"../../windows/window":248}],199:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7673,7 +8611,7 @@ class ShopWindow extends _window2.default {
 
 exports.default = new ShopWindow();
 
-},{"../../windows/window":234}],191:[function(require,module,exports){
+},{"../../windows/window":248}],200:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -7756,7 +8694,7 @@ class ShopIkeaWindow extends _window2.default {
 
 exports.default = new ShopIkeaWindow();
 
-},{"../../utils/bodyCamera":225,"../../windows/window":234}],192:[function(require,module,exports){
+},{"../../utils/bodyCamera":239,"../../windows/window":248}],201:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -7782,7 +8720,7 @@ class TattooLicenseShopWindow extends _window2.default {
 
 exports.default = new TattooLicenseShopWindow();
 
-},{"../../windows/window":234}],193:[function(require,module,exports){
+},{"../../windows/window":248}],202:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -7969,12 +8907,12 @@ class TattooWindow extends _window2.default {
 
 exports.default = new TattooWindow();
 
-},{"../../utils/bodyCamera":225,"../../windows/window":234}],194:[function(require,module,exports){
+},{"../../utils/bodyCamera":239,"../../windows/window":248}],203:[function(require,module,exports){
 "use strict";
 
 require("./tattoo-window");
 
-},{"./tattoo-window":193}],195:[function(require,module,exports){
+},{"./tattoo-window":202}],204:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -8022,7 +8960,7 @@ class TuningWindow extends _window2.default {
 
 exports.default = new TuningWindow();
 
-},{"../../peds/peds":202,"../../windows/window":234}],196:[function(require,module,exports){
+},{"../../peds/peds":212,"../../windows/window":248}],205:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8053,7 +8991,7 @@ class VehicleRentWindow extends _window2.default {
 
 exports.default = new VehicleRentWindow();
 
-},{"../../windows/window":234}],197:[function(require,module,exports){
+},{"../../windows/window":248}],206:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -8260,7 +9198,36 @@ class WardrobeWindow extends _window2.default {
 
 exports.default = new WardrobeWindow();
 
-},{"../../utils/bodyCamera":225,"../../windows/window":234}],198:[function(require,module,exports){
+},{"../../utils/bodyCamera":239,"../../windows/window":248}],207:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _window = require('../../windows/window');
+
+var _window2 = _interopRequireDefault(_window);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class WeedStatus extends _window2.default {
+    constructor() {
+        super('WeedStatus');
+
+        this.setCurserVisible(true);
+        this.setChatVisible(false);
+
+        mp.events.add("updateWeedStatus", (waterLevel, remainingMinutes, fertilized, potState) => {
+            this.callOnBrowser(`updateStatus(${waterLevel}, ${remainingMinutes}, ${fertilized}, ${potState})`);
+        });
+    }
+
+}
+
+exports.default = new WeedStatus();
+
+},{"../../windows/window":248}],208:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -8291,7 +9258,7 @@ class WorkstationWindow extends _window2.default {
 
 exports.default = new WorkstationWindow();
 
-},{"../../windows/window":234}],199:[function(require,module,exports){
+},{"../../windows/window":248}],209:[function(require,module,exports){
 "use strict";
 
 var _apps = require("../app/apps");
@@ -8371,21 +9338,21 @@ mp.keys.bind(0x45, false, () => {
 
     if (garbagevehicle !== null) {
         if (vehicleEnter.calcDist(mp.players.local.position, garbagevehicle.getWorldPositionOfBone(garbagevehicle.getBoneIndexByName('seat_dside_r1'))) < 2 || vehicleEnter.calcDist(mp.players.local.position, garbagevehicle.getWorldPositionOfBone(garbagevehicle.getBoneIndexByName('seat_pside_r1'))) < 2) {
-            mp.events.callRemote("Pressed_E_Garbage_Vehicle", garbagevehicle.remoteId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+            mp.events.callRemote("Pressed_E_Garbage_Vehicle", garbagevehicle.remoteId, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         }
     }
     let forPressVehicle = vehicleEnter.getClosestSingleVehicleInRange(10);
 
     if (forPressVehicle !== null) {
         if (vehicleEnter.calcDist(mp.players.local.position, forPressVehicle.getWorldPositionOfBone(forPressVehicle.getBoneIndexByName('door_dside_r'))) < 2 || vehicleEnter.calcDist(mp.players.local.position, forPressVehicle.getWorldPositionOfBone(forPressVehicle.getBoneIndexByName('door_pside_r'))) < 2) {
-            mp.events.callRemote("Pressed_E_Vehicle_Trunk", forPressVehicle.remoteId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+            mp.events.callRemote("Pressed_E_Vehicle_Trunk", forPressVehicle.remoteId, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         } else if (vehicleEnter.calcDist(mp.players.local.position, forPressVehicle.getWorldPositionOfBone(forPressVehicle.getBoneIndexByName('exhaust'))) < 2 || vehicleEnter.calcDist(mp.players.local.position, forPressVehicle.getWorldPositionOfBone(forPressVehicle.getBoneIndexByName('exhaust_2'))) < 2) {
-            mp.events.callRemote("Pressed_E_Vehicle_Trunk", forPressVehicle.remoteId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+            mp.events.callRemote("Pressed_E_Vehicle_Trunk", forPressVehicle.remoteId, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         }
     }
 
     // getobjects.getBin()
-    mp.events.callRemoteUnreliable("Pressed_E", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemoteUnreliable("Pressed_E", _objects2.default.getBin(), "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     mp.gui.chat.push("Pressed_E");
     checkInterval();
 });
@@ -8396,10 +9363,10 @@ mp.keys.bind(0x4c, false, () => {
 
     // ALT + L
     if (mp.keys.isDown(18) === true) {
-        mp.events.callRemoteUnreliable("Pressed_ALT_L", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemoteUnreliable("Pressed_ALT_L", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         mp.gui.chat.push("Pressed_ALT_L");
     } else {
-        mp.events.callRemoteUnreliable("Pressed_L", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemoteUnreliable("Pressed_L", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         mp.gui.chat.push("Pressed_L");
     }
     checkInterval();
@@ -8416,20 +9383,20 @@ mp.keys.bind(0x71, false, () => {
     }
 
     if (_apps2.default.componentVisibleApp["Smartphone"] != null) {
-        mp.events.callRemoteUnreliable("Keks", false, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemoteUnreliable("Keks", false, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     } else {
-        mp.events.callRemoteUnreliable("Keks", true, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemoteUnreliable("Keks", true, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     }
 
     if (arrowDown) {
         arrowDown = false;
         _playerPanel2.default.setVoiceRadioActiveType(1);
-        mp.events.callRemote("changeSettings", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote("changeSettings", 1, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         clearAFK();
     }
     if (airArrowDown) {
         airArrowDown = false;
-        mp.events.callRemote("changeAirFunk", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote("changeAirFunk", 1, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         clearAFK();
     }
     checkInterval();
@@ -8446,19 +9413,19 @@ mp.keys.bind(0x72, false, () => {
     }
 
     if (_apps2.default.componentVisibleApp["Computer"] === "ComputerMainScreen") {
-        mp.events.callRemoteUnreliable("closeComputer", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemoteUnreliable("closeComputer", 1, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     } else {
-        mp.events.callRemoteUnreliable("computerCheck", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemoteUnreliable("computerCheck", 1, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     }
     if (arrowDown) {
         arrowDown = false;
         _playerPanel2.default.setVoiceRadioActiveType(1);
-        mp.events.callRemote("changeSettings", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote("changeSettings", 1, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         clearAFK();
     }
     if (airArrowDown) {
         airArrowDown = false;
-        mp.events.callRemote("changeAirFunk", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote("changeAirFunk", 1, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         clearAFK();
     }
     checkInterval();
@@ -8468,24 +9435,24 @@ mp.keys.bind(0x72, false, () => {
 mp.keys.bind(0x74, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null || _player2.default.injured || _player2.default.tied || _player2.default.cuffed || _player2.default.isCarrying || _player2.default.HasRagdall) return;
 
-    mp.events.callRemoteUnreliable("openAnimationMenu", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemoteUnreliable("openAnimationMenu", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     checkInterval();
 
     if (arrowDown) {
         arrowDown = false;
         _playerPanel2.default.setVoiceRadioActiveType(1);
-        mp.events.callRemote("changeSettings", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote("changeSettings", 1, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         clearAFK();
     }
     if (airArrowDown) {
         airArrowDown = false;
-        mp.events.callRemote("changeAirFunk", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote("changeAirFunk", 1, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         clearAFK();
     }
 });
 // F6
 mp.keys.bind(0x75, false, () => {
-    mp.events.callRemote("showNutrition", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemote("showNutrition", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     _playerPanel2.default.displayChange();
 });
 
@@ -8494,19 +9461,19 @@ mp.keys.bind(0x78, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null || !_player2.default.allowHandy) return;
 
     if (_apps2.default.componentVisibleApp["Ipad"] === "IpadMainScreen") {
-        mp.events.callRemote("closeComputer", 2, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote("closeComputer", 2, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     } else {
-        mp.events.callRemote("computerCheck", 2, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote("computerCheck", 2, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     }
     if (arrowDown) {
         arrowDown = false;
         _playerPanel2.default.setVoiceRadioActiveType(1);
-        mp.events.callRemote("changeSettings", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote("changeSettings", 1, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         clearAFK();
     }
     if (airArrowDown) {
         airArrowDown = false;
-        mp.events.callRemote("changeAirFunk", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote("changeAirFunk", 1, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         clearAFK();
     }
     checkInterval();
@@ -8517,9 +9484,9 @@ mp.keys.bind(0x7B, false, () => {
     if (_player2.default.chatFlag) return;
 
     if (_windows2.default.visibleWindow == "AdminMenu") {
-        mp.events.callRemoteUnreliable("closeAdminMenu", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemoteUnreliable("closeAdminMenu", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     } else {
-        mp.events.callRemoteUnreliable("openAdminMenu", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemoteUnreliable("openAdminMenu", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     }
 
     checkInterval();
@@ -8543,18 +9510,18 @@ mp.keys.bind(0x76, false, () => {
 // I Inventory show
 mp.keys.bind(0x49, false, () => {
     if (_windows2.default.visibleWindow != null || _apps2.default.componentVisibleApp["Smartphone"] || _player2.default.chatFlag || _player2.default.injured || _player2.default.tied || _player2.default.cuffed || _apps2.default.componentVisibleApp["Computer"] || _apps2.default.componentVisibleApp["Ipad"]) return;
-    mp.events.callRemoteUnreliable("requestInventory", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemoteUnreliable("requestInventory", _objects2.default.getBin(), "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     checkInterval();
 
     if (arrowDown) {
         arrowDown = false;
         _playerPanel2.default.setVoiceRadioActiveType(1);
-        mp.events.callRemote("changeSettings", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote("changeSettings", 1, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         clearAFK();
     }
     if (airArrowDown) {
         airArrowDown = false;
-        mp.events.callRemote("changeAirFunk", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote("changeAirFunk", 1, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         clearAFK();
     }
 });
@@ -8562,7 +9529,7 @@ mp.keys.bind(0x49, false, () => {
 // Y Key
 mp.keys.bind(0x59, false, () => {
     if (_windows2.default.visibleWindow != null || _apps2.default.componentVisibleApp["Smartphone"] || _player2.default.chatFlag || _player2.default.injured || _apps2.default.componentVisibleApp["Computer"] || _apps2.default.componentVisibleApp["Ipad"]) return;
-    mp.events.callRemote("changeVoiceRange", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemote("changeVoiceRange", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     checkInterval();
 });
 
@@ -8576,12 +9543,12 @@ mp.keys.bind(0x54, false, () => {
     if (arrowDown) {
         arrowDown = false;
         _playerPanel2.default.setVoiceRadioActiveType(1);
-        mp.events.callRemote("changeSettings", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote("changeSettings", 1, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         clearAFK();
     }
     if (airArrowDown) {
         airArrowDown = false;
-        mp.events.callRemote("changeAirFunk", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote("changeAirFunk", 1, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         clearAFK();
     }
 });
@@ -8601,12 +9568,12 @@ mp.keys.bind(0x58, true, () => {
     if (arrowDown) {
         arrowDown = false;
         _playerPanel2.default.setVoiceRadioActiveType(1);
-        mp.events.callRemote("changeSettings", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote("changeSettings", 1, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         clearAFK();
     }
     if (airArrowDown) {
         airArrowDown = false;
-        mp.events.callRemote("changeAirFunk", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote("changeAirFunk", 1, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         clearAFK();
     }
 });
@@ -8621,11 +9588,11 @@ mp.keys.bind(0x58, false, () => {
 // Pfeil Rechts/Links
 mp.keys.bind(0x27, false, () => {
     if (_windows2.default.visibleWindow != null || _apps2.default.componentVisibleApp["Smartphone"] || _player2.default.chatFlag || _apps2.default.componentVisibleApp["Computer"] || _apps2.default.componentVisibleApp["Ipad"]) return;
-    mp.events.callRemote("nextInteractionAnim", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemote("nextInteractionAnim", 1, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
 });
 mp.keys.bind(0x25, false, () => {
     if (_windows2.default.visibleWindow != null || _apps2.default.componentVisibleApp["Smartphone"] || _player2.default.chatFlag || _apps2.default.componentVisibleApp["Computer"] || _apps2.default.componentVisibleApp["Ipad"]) return;
-    mp.events.callRemote("prevInteractionAnim", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemote("prevInteractionAnim", 1, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
 });
 
 // Push to Talk
@@ -8638,7 +9605,7 @@ mp.keys.bind(0x28, true, () => {
         }, 1000);
         _playerPanel2.default.setVoiceRadioActive(true);
         _playerPanel2.default.setVoiceRadioActiveType(2);
-        mp.events.callRemote("changeSettings", 2, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote("changeSettings", 2, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     }
     checkInterval();
 });
@@ -8647,7 +9614,7 @@ mp.keys.bind(0x28, false, () => {
     if (_windows2.default.visibleWindow != null || _menu2.default.visible == true || _apps2.default.componentVisibleApp["Smartphone"] || _player2.default.injured || _apps2.default.componentVisibleApp["Ipad"] || _apps2.default.componentVisibleApp["Computer"] || !arrowDown) return;
     arrowDown = false;
     _playerPanel2.default.setVoiceRadioActiveType(1);
-    mp.events.callRemote("changeSettings", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemote("changeSettings", 1, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     clearAFK();
 });
 
@@ -8656,7 +9623,7 @@ mp.keys.bind(0x26, true, () => {
     if (_windows2.default.visibleWindow != null || _menu2.default.visible == true || _apps2.default.componentVisibleApp["Smartphone"] || _player2.default.injured || _apps2.default.componentVisibleApp["Ipad"] || _apps2.default.componentVisibleApp["Computer"]) return;
     if (!airArrowDown) {
         airArrowDown = true;
-        mp.events.callRemote("changeAirFunk", 2, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote("changeAirFunk", 2, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     }
     checkInterval();
 });
@@ -8664,7 +9631,7 @@ mp.keys.bind(0x26, true, () => {
 mp.keys.bind(0x26, false, () => {
     if (_windows2.default.visibleWindow != null || _menu2.default.visible == true || _apps2.default.componentVisibleApp["Smartphone"] || _player2.default.injured || _apps2.default.componentVisibleApp["Ipad"] || _apps2.default.componentVisibleApp["Computer"] || !airArrowDown) return;
     airArrowDown = false;
-    mp.events.callRemote("changeAirFunk", 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemote("changeAirFunk", 1, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     clearAFK();
 });
 
@@ -8803,7 +9770,7 @@ mp.keys.bind(0x60, true, () => {
 
         _player2.default.buildingobject.obj.destroy();
 
-        mp.events.callRemote("objed_saveobject", _player2.default.buildingobject.hash, _player2.default.buildingobject.pos.x, _player2.default.buildingobject.pos.y, _player2.default.buildingobject.pos.z, _player2.default.buildingobject.rot.x, _player2.default.buildingobject.rot.y, _player2.default.buildingobject.rot.z, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote("objed_saveobject", _player2.default.buildingobject.hash, _player2.default.buildingobject.pos.x, _player2.default.buildingobject.pos.y, _player2.default.buildingobject.pos.z, _player2.default.buildingobject.rot.x, _player2.default.buildingobject.rot.y, _player2.default.buildingobject.rot.z, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     }
 });
 
@@ -8813,7 +9780,7 @@ mp.keys.bind(0x2E, true, () => {
 
         _player2.default.buildingobject.obj.destroy();
 
-        mp.events.callRemote("objed_close", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote("objed_close", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     }
 });
 
@@ -8836,7 +9803,7 @@ mp.keys.bind(0x6B, true, () => {
 // Pressed K
 mp.keys.bind(0x4b, false, () => {
     if (_windows2.default.visibleWindow != null || _player2.default.chatFlag || _apps2.default.componentVisibleApp["Smartphone"] || _apps2.default.componentVisibleApp["Computer"] || _apps2.default.componentVisibleApp["Ipad"] || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemote("Pressed_K", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemote("Pressed_K", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     mp.gui.chat.push("Pressed_K");
     checkInterval();
 });
@@ -8917,7 +9884,7 @@ mp.keys.bind(0x46, true, () => {
 // H handsup
 mp.keys.bind(0x48, false, () => {
     if (_apps2.default.componentVisibleApp["Smartphone"] || _player2.default.injured || _player2.default.cuffed || _player2.default.chatFlag || _apps2.default.componentVisibleApp["Ipad"] || _apps2.default.componentVisibleApp["Computer"] || _windows2.default.visibleWindow != null || _player2.default.isInAir() || _player2.default.isCarrying || _player2.default.HasRagdall) return;
-    mp.events.callRemoteUnreliable("Pressed_H", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemoteUnreliable("Pressed_H", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     checkInterval();
 });
 
@@ -8925,9 +9892,9 @@ mp.keys.bind(0x48, false, () => {
 mp.keys.bind(0x4A, false, () => {
     if (_apps2.default.componentVisibleApp["Smartphone"] || _player2.default.injured || _player2.default.cuffed || _player2.default.chatFlag || _apps2.default.componentVisibleApp["Ipad"] || _apps2.default.componentVisibleApp["Computer"] || _windows2.default.visibleWindow != null || _player2.default.isInAir() || _player2.default.isCarrying || _player2.default.HasRagdall) return;
     if (mp.players.local.vehicle != null && mp.players.local.isInAnyVehicle(false) && mp.players.local.vehicle.isSirenOn()) {
-        mp.events.callRemoteUnreliable("Silent_Sirene", mp.players.local.vehicle.remoteId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemoteUnreliable("Silent_Sirene", mp.players.local.vehicle.remoteId, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     } else {
-        mp.events.callRemoteUnreliable("Pressed_J", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemoteUnreliable("Pressed_J", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     }
 
     checkInterval();
@@ -8941,7 +9908,7 @@ mp.keys.bind(0x42, true, () => {
         let obj = _raycast2.default.createRaycast();
         if (obj != null) {
             if (obj != null && obj.entity.isAPed()) {
-                mp.events.callRemoteUnreliable("Pessed_B_Aiming", obj.entity.remoteId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+                mp.events.callRemoteUnreliable("Pessed_B_Aiming", obj.entity.remoteId, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
             }
         }
     }
@@ -8958,82 +9925,82 @@ mp.keys.bind(0x42, false, () => {
 mp.keys.bind(0x75, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null) return;
     _player2.default.openVoiceSettings = true;
-    mp.events.callRemote("openVoiceSettings", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemote("openVoiceSettings", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
 });
 
 mp.keys.bind(0x2D, false, () => {
     if (!checkShortCut(2000)) return;
-    mp.events.callRemoteUnreliable("aains", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemoteUnreliable("aains", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     _player2.default.shortCutBeingUsed = Date.now();
 });
 
 // Num 0
 mp.keys.bind(0x60, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemoteUnreliable("Pressed_Num_0", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemoteUnreliable("Pressed_Num_0", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     checkInterval();
 });
 
 // Num 1
 mp.keys.bind(0x61, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemoteUnreliable("Pressed_Num_1", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemoteUnreliable("Pressed_Num_1", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     checkInterval();
 });
 
 // Num 2
 mp.keys.bind(0x62, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemoteUnreliable("Pressed_Num_2", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemoteUnreliable("Pressed_Num_2", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     checkInterval();
 });
 
 // Num 3
 mp.keys.bind(0x63, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemoteUnreliable("Pressed_Num_3", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemoteUnreliable("Pressed_Num_3", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     checkInterval();
 });
 
 // Num 4
 mp.keys.bind(0x64, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemoteUnreliable("Pressed_Num_4", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemoteUnreliable("Pressed_Num_4", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     checkInterval();
 });
 
 // Num 6
 mp.keys.bind(0x66, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemoteUnreliable("Pressed_Num_6", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemoteUnreliable("Pressed_Num_6", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     checkInterval();
 });
 
 // Num 7
 mp.keys.bind(0x67, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemoteUnreliable("Pressed_Num_7", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemoteUnreliable("Pressed_Num_7", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     checkInterval();
 });
 
 // Num 8
 mp.keys.bind(0x68, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemoteUnreliable("Pressed_Num_8", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemoteUnreliable("Pressed_Num_8", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     checkInterval();
 });
 
 // Num 9
 mp.keys.bind(0x69, false, () => {
     if (_player2.default.chatFlag || _windows2.default.visibleWindow != null || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemoteUnreliable("Pressed_Num_9", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemoteUnreliable("Pressed_Num_9", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     checkInterval();
 });
 
 //M key
 mp.keys.bind(0x4D, false, () => {
     if (_windows2.default.visibleWindow != null || _apps2.default.componentVisibleApp["Smartphone"] || _apps2.default.componentVisibleApp["Computer"] || _apps2.default.componentVisibleApp["Ipad"] || _player2.default.chatFlag || _player2.default.injured || _player2.default.tied || _player2.default.cuffed) return;
-    mp.events.callRemoteUnreliable("Pressed_M", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemoteUnreliable("Pressed_M", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     mp.gui.chat.push("Pressed_M");
     checkInterval();
 });
@@ -9211,7 +10178,7 @@ function addInterval() {
 mp.keys.bind(0xBC, false, () => {
     if (_windows2.default.visibleWindow != null || _apps2.default.componentVisibleApp["Smartphone"] || _apps2.default.componentVisibleApp["Computer"] || _apps2.default.componentVisibleApp["Ipad"] || _player2.default.chatFlag || _player2.default.injured || _player2.default.tied || _player2.default.cuffed || _player2.default.isInAir()) return;
     if (!checkShortCut()) return;
-    mp.events.callRemote("Pressed_KOMMA", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemote("Pressed_KOMMA", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     _player2.default.shortCutBeingUsed = Date.now();
 });
 
@@ -9219,7 +10186,7 @@ mp.keys.bind(0xBC, false, () => {
 mp.keys.bind(0xBE, false, () => {
     if (_windows2.default.visibleWindow != null || _apps2.default.componentVisibleApp["Smartphone"] || _apps2.default.componentVisibleApp["Computer"] || _apps2.default.componentVisibleApp["Ipad"] || _player2.default.chatFlag || _player2.default.injured || _player2.default.tied || _player2.default.cuffed || _player2.default.isInAir()) return;
     if (!checkShortCut()) return;
-    mp.events.callRemote("Pressed_PUNKT", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemote("Pressed_PUNKT", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     _player2.default.shortCutBeingUsed = Date.now();
 });
 
@@ -9238,7 +10205,7 @@ function checkShortCut(time = 4000) {
     return true;
 }
 
-},{"../app/apps":12,"../interfaces/hud/antiafk":142,"../interfaces/hud/menu":151,"../interfaces/hud/n-menu":152,"../interfaces/hud/player-panel":155,"../interfaces/hud/vehicle-panel":164,"../interfaces/hud/x-menu":165,"../player/player":208,"../rage11/objects":221,"../raycast/raycast":224,"../vehicle/VehicleEnter":227,"../vehicle/rappel":230,"../windows/windows":235}],200:[function(require,module,exports){
+},{"../app/apps":12,"../interfaces/hud/antiafk":148,"../interfaces/hud/menu":160,"../interfaces/hud/n-menu":161,"../interfaces/hud/player-panel":164,"../interfaces/hud/vehicle-panel":173,"../interfaces/hud/x-menu":174,"../player/player":218,"../rage11/objects":233,"../raycast/raycast":238,"../vehicle/VehicleEnter":241,"../vehicle/rappel":244,"../windows/windows":249}],210:[function(require,module,exports){
 'use strict';
 
 require('./key-events/key-events');
@@ -9293,10 +10260,22 @@ require('./rage11/fxeffects');
 
 require('./rage11/einreiseamt');
 
+require('./rage11/mlo');
+
+require('./arenawars/arena');
+
+require('./arenawars/battleroyal');
+
+require('./rage11/securitycams');
+
+require('./rage11/custommarker');
+
+require('./rage11/shootingRange');
+
 // Include all static modules here (modules that doesnt require an import to be useful)
 require('./CircuitBreaker/CircuitBreaker.events.js');
 
-},{"./CircuitBreaker/CircuitBreaker.events.js":7,"./apps/apps":13,"./building/building":105,"./doors/doors":108,"./interfaces/interfaces":170,"./key-events/key-events":199,"./peds/animalapi":201,"./peds/vehiclesync":203,"./player/bigDataReceiver":204,"./player/crouching":207,"./player/player":208,"./player/spectate.js":209,"./player/weaponcomponent":212,"./player/welcomescene":213,"./rage11/casino":214,"./rage11/drone":215,"./rage11/einreiseamt":216,"./rage11/finger":217,"./rage11/firework":218,"./rage11/fxeffects":219,"./rage11/noclip":220,"./rage11/rage11":222,"./rage11/sperrzonen":223,"./utils/bodyCamera":225,"./vehicle/rappel":230,"./vehicle/vehicle":232,"./voice/voice":233}],201:[function(require,module,exports){
+},{"./CircuitBreaker/CircuitBreaker.events.js":7,"./apps/apps":13,"./arenawars/arena":103,"./arenawars/battleroyal":104,"./building/building":107,"./doors/doors":110,"./interfaces/interfaces":179,"./key-events/key-events":209,"./peds/animalapi":211,"./peds/vehiclesync":213,"./player/bigDataReceiver":214,"./player/crouching":217,"./player/player":218,"./player/spectate.js":219,"./player/weaponcomponent":222,"./player/welcomescene":223,"./rage11/casino":224,"./rage11/custommarker":225,"./rage11/drone":226,"./rage11/einreiseamt":227,"./rage11/finger":228,"./rage11/firework":229,"./rage11/fxeffects":230,"./rage11/mlo":231,"./rage11/noclip":232,"./rage11/rage11":234,"./rage11/securitycams":235,"./rage11/shootingRange":236,"./rage11/sperrzonen":237,"./utils/bodyCamera":239,"./vehicle/rappel":244,"./vehicle/vehicle":246,"./voice/voice":247}],211:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -9481,7 +10460,7 @@ class AnimalApi {
 
         mp.events.add("animal_checkDeath", (testPed, returnEvent) => {
             if (testPed != null && mp.peds.exists(testPed)) {
-                mp.events.callRemote(returnEvent, testPed.isDeadOrDying(true), testPed.remoteId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+                mp.events.callRemote(returnEvent, testPed.isDeadOrDying(true), testPed.remoteId, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
             }
         });
 
@@ -9558,7 +10537,7 @@ class AnimalApi {
 
 exports.default = new AnimalApi();
 
-},{"../player/player":208}],202:[function(require,module,exports){
+},{"../player/player":218}],212:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -9679,7 +10658,7 @@ class Peds {
                     // Check if the player is a cop, fib, army, gov, swat
                     if (_player2.default.cduty == true) {
                         return this.menuItemsPedsCduty;
-                    } else if (_player2.default.team == 1 || _player2.default.team == 5 || _player2.default.team == 13 || _player2.default.team == 14 || _player2.default.team == 20 || _player2.default.team == 21 || _player2.default.team == 23) {
+                    } else if (_player2.default.team == 1 || _player2.default.team == 5 || _player2.default.team == 13 || _player2.default.team == 14 || _player2.default.team == 21 || _player2.default.team == 23) {
                         return this.menuItemsPedsCop;
                     }
                     // Check if the player is a medic
@@ -9712,7 +10691,7 @@ class Peds {
 
 exports.default = new Peds();
 
-},{"../player/player":208}],203:[function(require,module,exports){
+},{"../player/player":218}],213:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9766,7 +10745,7 @@ class VehicleSync {
 
 exports.default = new VehicleSync();
 
-},{"../player/player":208}],204:[function(require,module,exports){
+},{"../player/player":218}],214:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -9792,7 +10771,7 @@ class BigDataReceiver {
                 bucket: []
             };
 
-            mp.events.callRemote('sDataSender-initSuccess', id, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+            mp.events.callRemote('sDataSender-initSuccess', id, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         });
 
         mp.events.add('cDataReceiverComponent-init', (id, eventName, componentName, size) => {
@@ -9807,7 +10786,7 @@ class BigDataReceiver {
                 bucket: []
             };
 
-            mp.events.callRemote('sDataSender-initSuccess', id, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+            mp.events.callRemote('sDataSender-initSuccess', id, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         });
 
         mp.events.add('cDataReceiver-receive', (id, data, end, idx) => {
@@ -9825,7 +10804,7 @@ class BigDataReceiver {
             if (bigBucket.bucket.length !== bigBucket.chunkSize) return;
 
             this.createDataStructure(bigBucket.bucket).then(stringData => {
-                mp.events.callRemote('sDataSender-end', id, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+                mp.events.callRemote('sDataSender-end', id, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
 
                 if (bigBucket.isComponent) {
                     mp.events.call('componentServerEvent', ...[bigBucket.componentName, bigBucket.eventName, ...stringData]);
@@ -9835,7 +10814,7 @@ class BigDataReceiver {
 
                 mp.events.call(bigBucket.eventName, ...stringData);
             }).catch(() => {
-                mp.events.callRemote('sDataSender-failed', id, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+                mp.events.callRemote('sDataSender-failed', id, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
             });
         });
     }
@@ -9899,7 +10878,7 @@ class BigDataReceiver {
 
 exports.default = new BigDataReceiver();
 
-},{"./player":208}],205:[function(require,module,exports){
+},{"./player":218}],215:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -9914,7 +10893,7 @@ class Contact {
 
 exports.default = Contact;
 
-},{}],206:[function(require,module,exports){
+},{}],216:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -9955,7 +10934,7 @@ class Contacts {
     request(callback) {
         this.callback = callback;
 
-        mp.events.callRemote('requestPhoneContacts', "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote('requestPhoneContacts', "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     }
 
     parseContacts(serverResponse) {
@@ -9981,8 +10960,8 @@ class Contacts {
             this.contacts.set(oldNumber, new _contact2.default(name, oldNumber));
         }
 
-        mp.events.callRemote('updatePhoneContact', oldNumber, newNumber, name, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
-        mp.events.callRemote('requestPhoneContacts', "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote('updatePhoneContact', oldNumber, newNumber, name, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
+        mp.events.callRemote('requestPhoneContacts', "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     }
 
     addContact(number, name) {
@@ -9992,15 +10971,15 @@ class Contacts {
         if (this.contacts.has(number)) return;
         this.contacts.set(number, new _contact2.default(name, number));
 
-        mp.events.callRemote('addPhoneContact', name, number, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
-        mp.events.callRemote('requestPhoneContacts', "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote('addPhoneContact', name, number, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
+        mp.events.callRemote('requestPhoneContacts', "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     }
 
     removeContact(number) {
         this.contacts.delete(number);
 
-        mp.events.callRemote('delPhoneContact', number, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
-        mp.events.callRemote('requestPhoneContacts', "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+        mp.events.callRemote('delPhoneContact', number, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
+        mp.events.callRemote('requestPhoneContacts', "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
     }
 
     getContact(number) {
@@ -10021,7 +11000,7 @@ class Contacts {
 
 exports.default = Contacts;
 
-},{"../../player/player":208,"./contact":205}],207:[function(require,module,exports){
+},{"../../player/player":218,"./contact":215}],217:[function(require,module,exports){
 "use strict";
 
 var _apps = require("../app/apps");
@@ -10069,10 +11048,10 @@ mp.events.add("loadCrouchClipsets", async () => {
 // CTRL key to toggle crouching
 mp.keys.bind(0x11, false, () => {
     if (_windows2.default.visibleWindow != null || _apps2.default.componentVisibleApp["Smartphone"] || _apps2.default.componentVisibleApp["Computer"] || _apps2.default.componentVisibleApp["Ipad"] || _player2.default.chatFlag || _player2.default.injured) return;
-    mp.events.callRemote("toggleCrouch", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemote("toggleCrouch", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
 });
 
-},{"../app/apps":12,"../player/player":208,"../windows/windows":235}],208:[function(require,module,exports){
+},{"../app/apps":12,"../player/player":218,"../windows/windows":249}],218:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -10203,6 +11182,8 @@ class Player {
         this.remoteHashKey = "";
         const props = ['Set_Pent_Tint_Shell', 'Set_Pent_Pattern_01', 'Set_Pent_Spa_Bar_Open', 'Set_Pent_Media_Bar_Open', 'Set_Pent_Dealer', 'Set_Pent_Arcade_Modern', 'Set_Pent_Bar_Clutter', 'Set_Pent_Clutter_01', 'set_pent_bar_light_01', 'set_pent_bar_party_0', 'hei_dlc_windows_casino', 'vw_dlc_casino_door', 'hei_dlc_casino_door'];
         this.bigDataChunkBucket = {};
+        this.isInArena = false;
+        this.currentCustomWaypoint = undefined;
 
         let autopilotActive = false;
         var autopilotPoint = null;
@@ -10223,11 +11204,11 @@ class Player {
         }, 25000);
 
         setInterval(() => {
-            if ("0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7" == "") return;
+            if ("483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335" == "") return;
             let res = mp.game.graphics.getScreenAspectRatio(true);
 
             if (res < 1.5) {
-                mp.events.callRemote('wrongScreenScale', res, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+                mp.events.callRemote('wrongScreenScale', res, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
             }
         }, 20000);
 
@@ -10398,8 +11379,11 @@ class Player {
             interiorID: 260353,
             props: ['set_tint_shell', 'set_floor_1', 'set_floor_decal_3', 'set_modarea', 'set_office_modern', 'set_bedroom_modern', 'set_bedroom_tint', 'set_lightning_hangar_c', 'set_lightning_wall_tint01']
 
-            //IPLs hei_dlc_casino_door, hei_dlc_windows_casino
+            //Remove Vehicledamage
+            //mp.game.invoke('0x4757F00BC6323CFE', -1553120962, 0.2)
 
+
+            //IPLs hei_dlc_casino_door, hei_dlc_windows_casino
         };mp.game.streaming.requestIpl('hei_dlc_casino_door');
         mp.game.streaming.requestIpl('hei_dlc_windows_casino');
 
@@ -10495,9 +11479,9 @@ class Player {
 
         mp.events.add('isPlayerSwimming', () => {
             if (mp.players.local.isSwimmingUnderWater() || mp.players.local.isSwimming()) {
-                mp.events.callRemote('swimmingOrDivingResponse', true, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+                mp.events.callRemote('swimmingOrDivingResponse', true, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
             } else {
-                mp.events.callRemote('swimmingOrDivingResponse', false, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+                mp.events.callRemote('swimmingOrDivingResponse', false, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
             }
         });
 
@@ -10764,11 +11748,64 @@ class Player {
 
             if (objectsData !== undefined && objectsData.length > 0) {
                 objectsData.forEach(objData => {
-                    objects.push(mp.objects.new(objData.objectid, objData.pos, {
+
+                    let obj = mp.objects.new(objData.objectid, objData.pos, {
                         rotation: objData.rot,
                         alpha: 255,
                         dimension: dimension
-                    }));
+                    });
+
+                    if (obj == null) {
+                        obj = mp.objects.new(objData.objectid, objData.pos, {
+                            rotation: objData.rot,
+                            alpha: 255,
+                            dimension: dimension
+                        });
+                    }
+                    objects.push(obj);
+                });
+
+                this.customObjects[key] = objects;
+            }
+        });
+
+        mp.events.add('createCustomObjectsQ', (key, data, dimension = 0) => {
+
+            if (this.customObjects[key] == null) {
+                this.customObjects[key] = [];
+            }
+
+            if (this.customObjects[key] != undefined && this.customObjects[key].length > 0) {
+                this.customObjects[key].forEach(customObj => {
+                    if (customObj !== undefined && mp.objects.exists(customObj)) customObj.destroy();
+                });
+            }
+            let objectsData = JSON.parse(data);
+            let objects = [];
+
+            if (objectsData !== undefined && objectsData.length > 0) {
+                objectsData.forEach(objData => {
+
+                    var new_rot = this.QuaternionToEuler(objData.quat.x, objData.quat.y, objData.quat.z, objData.quat.w);
+                    new_rot[0] = new_rot[0] * 180 / Math.PI * -1;
+                    new_rot[1] = new_rot[1] * 180 / Math.PI * -1;
+                    new_rot[2] = new_rot[2] * 180 / Math.PI * -1;
+
+                    let obj = mp.objects.new(objData.objectid, objData.pos, {
+                        rotation: new_rot,
+                        alpha: 255,
+                        dimension: mp.players.local.dimension
+                    });
+
+                    if (obj == null) {
+                        obj = mp.objects.new(objData.objectid, objData.pos, {
+                            rotation: new_rot,
+                            alpha: 255,
+                            dimension: mp.players.local.dimension
+                        });
+                    }
+
+                    objects.push(obj);
                 });
 
                 this.customObjects[key] = objects;
@@ -10842,7 +11879,7 @@ class Player {
         });
 
         mp.events.add('getWeaponAmmo', () => {
-            mp.events.callRemote('getWeaponAmmoAnswer', JSON.stringify(this.weaponAmmo), "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+            mp.events.callRemote('getWeaponAmmoAnswer', JSON.stringify(this.weaponAmmo), "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         });
 
         mp.events.add('fillWeaponAmmo', (id, ammo) => {
@@ -10922,7 +11959,7 @@ class Player {
 
             this.ready = true;
             render();
-            weaponSwitch();
+            //weaponSwitch();
         });
 
         mp.events.add('loadClientIpl', ipl => {
@@ -10950,33 +11987,33 @@ class Player {
         });
 
         mp.events.add("switchToWeapon", weapon => {
-            mp.players.local.setCanSwitchWeapon(true);
+            //mp.players.local.setCanSwitchWeapon(true);
             mp.players.local.weapon = weapon;
         });
 
-        const weaponSwitch = async () => {
-            while (true) {
-
-                mp.players.local.setCanSwitchWeapon(true);
-
-                // set current weapon
-                if (!this.weaponSwitchActualWeapon || this.weaponSwitchActualWeapon == undefined) {
-                    this.weaponSwitchActualWeapon = mp.players.local.weapon;
-                } else {
-                    var newGun = mp.players.local.weapon;
-                    if (this.weaponSwitchActualWeapon != newGun) {
-                        this.weaponSwitchActualWeapon = newGun;
-
-                        // nur außerhalb des Fahrzeugs
-                        if (!this.getPlayer().isInAnyVehicle(true)) {
-                            mp.players.local.setCanSwitchWeapon(false);
-                            await mp.game.waitAsync(1000);
-                        }
-                    }
-                }
-                await mp.game.waitAsync(50);
-            }
-        };
+        /*const weaponSwitch = async () => {
+            while (true) {
+                  mp.players.local.setCanSwitchWeapon(true);
+                  // set current weapon
+                if(!this.weaponSwitchActualWeapon || this.weaponSwitchActualWeapon == undefined) {
+                    this.weaponSwitchActualWeapon = mp.players.local.weapon;
+                }
+                else {
+                    var newGun = mp.players.local.weapon;
+                    if(this.weaponSwitchActualWeapon != newGun) {
+                        this.weaponSwitchActualWeapon = newGun;
+                        
+                        // nur außerhalb des Fahrzeugs
+                        if(!this.getPlayer().isInAnyVehicle(true)) {
+                            mp.players.local.setCanSwitchWeapon(false);
+                            await mp.game.waitAsync(1000);
+                        }
+                    }
+                }
+                await mp.game.waitAsync(50);
+            }
+        }
+        */
         const render = async () => {
             while (true) {
                 if (this.ready === false) {
@@ -10995,11 +12032,11 @@ class Player {
 
                 if (mp.players.local.isInWater() && this.isInWater === false) {
                     this.isInWater = true;
-                    mp.events.callRemote('UpdatePlayerWaterState', true, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+                    mp.events.callRemote('UpdatePlayerWaterState', true, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
                 } else {
                     if (mp.players.local.isInWater() === false && this.isInWater === true) {
                         this.isInWater = false;
-                        mp.events.callRemote('UpdatePlayerWaterState', true, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+                        mp.events.callRemote('UpdatePlayerWaterState', true, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
                     }
                 }
 
@@ -11037,8 +12074,12 @@ class Player {
                 // resync weapondmg
                 if (mp.players.local.weapon == mp.game.joaat("weapon_heavysniper")) {
                     mp.game.player.setWeaponDamageModifier(0.445);
+                } else if (mp.players.local.weapon == mp.game.joaat("weapon_unarmed")) {
+                    mp.game.player.setWeaponDamageModifier(0.15);
+                    mp.game.player.setMeleeWeaponDamageModifier(0.15);
                 } else {
                     mp.game.player.setWeaponDamageModifier(this.weaponDmg);
+                    mp.game.player.setMeleeWeaponDamageModifier(this.meleeDmg);
                 }
 
                 mp.gui.chat.show(false);
@@ -11070,7 +12111,7 @@ class Player {
                 if (!zCoord) return;
             }
 
-            mp.events.callRemote(returnEvent, waypointPos.x, waypointPos.y, waypointPos.z, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+            mp.events.callRemote(returnEvent, waypointPos.x, waypointPos.y, waypointPos.z, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         });
 
         mp.events.add('setPlayerMeleeDamageMultiplier', weaponDmg => {
@@ -11084,6 +12125,42 @@ class Player {
 
         mp.events.add('setNMenuItems', data => {
             this.animations = JSON.parse(data);
+        });
+
+        mp.events.add("CreateCustomWaypoint", position => {
+            position = JSON.parse(position);
+
+            if (this.currentCustomWaypoint != undefined) this.currentCustomWaypoint.destroy();
+
+            this.currentCustomWaypoint = mp.blips.new(315, position, {
+                name: "Wegmarkierung Fahrzeug",
+                scale: 0.7,
+                color: 25,
+                alpha: 255,
+                shortRange: true,
+                rotation: 0
+            });
+
+            this.currentCustomWaypoint.setRouteColour(25);
+            this.currentCustomWaypoint.setRoute(true);
+        });
+
+        mp.events.add("DeleteCustomWaypoint", () => {
+            this.deleteCustomWaypoint();
+        });
+
+        mp.events.add("playerLeaveVehicle", (vehicle, seat) => {
+            this.deleteCustomWaypoint();
+        });
+
+        mp.events.add("playerCreateWaypoint", position => {
+            if (mp.players.local.vehicle == undefined) return;
+            mp.events.callRemote("PlayerCreatedWaypoint", JSON.stringify(position), "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
+        });
+
+        mp.events.add("playerRemoveWaypoint", () => {
+            if (mp.players.local.vehicle == undefined) return;
+            mp.events.callRemote("PlayerRemovedWaypoint", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         });
 
         mp.events.add('onPlayerContactsLoaded', contacts => {
@@ -11468,7 +12545,7 @@ class Player {
         mp.events.add('entityStreamIn', entity => {
             if (entity != null && entity.type == "player") {
                 if (!mp.players.exists(entity)) return;
-                mp.events.callRemote("requestPlayerSyncData", entity.remoteId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+                mp.events.callRemote("requestPlayerSyncData", entity.remoteId, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
             }
         });
 
@@ -11588,6 +12665,12 @@ class Player {
         }
     }
 
+    deleteCustomWaypoint() {
+        if (this.currentCustomWaypoint == undefined) return;
+        this.currentCustomWaypoint.destroy();
+        this.currentCustomWaypoint = undefined;
+    }
+
     checkCamInAir() {
         if (mp.game.invoke(this.natives.IS_PLAYER_SWITCH_IN_PROGRESS)) {
             setTimeout(() => {
@@ -11634,33 +12717,24 @@ class Player {
         return this.getPlayer().isInAir();
     }
 
-    /*
-    async setAmmoInClip(weapon, ammo) {
-          var ammoFull = mp.players.local.getWeaponAmmo(weapon);
-        await mp.game.waitAsync(100);
-        mp.game.graphics.notify("fullammo:" + ammoFull);
-        if(ammoFull == undefined) return;
-          if(ammo <= 0 && ammoFull > 0)  {
-            ammoFull = ammoFull-1;
-            ammo = 1;
-        }
-        else if(ammo <= 0 && ammoFull <= 0) return;
-        
-        mp.game.graphics.notify("weapon " + weapon);
-        mp.game.graphics.notify("Setclip:" + ammo);
-        mp.players.local.setWeaponAmmo(weapon, ammo);
-        await mp.game.waitAsync(300)
-        mp.game.graphics.notify("setfull:" + ammoFull);
-        mp.players.local.setWeaponAmmo(weapon, ammoFull);
-        
-        this.weaponSwitchAmmo[weapon] = -1;
-    }*/
+    QuaternionToEuler(x, y, z, w) {
+        var q0 = w;
+        var q1 = y;
+        var q2 = x;
+        var q3 = z;
+        var rot = [];
 
+        rot.push(parseFloat(Math.asin(2 * (q0 * q2 - q3 * q1))));
+        rot.push(parseFloat(Math.atan2(2 * (q0 * q1 + q2 * q3), 1 - 2 * (Math.pow(q1, 2) + Math.pow(q2, 2)))));
+        rot.push(parseFloat(Math.atan2(2 * (q0 * q3 + q1 * q2), 1 - 2 * (Math.pow(q2, 2) + Math.pow(q3, 2)))));
+
+        return rot;
+    }
 }
 
 exports.default = new Player();
 
-},{"../attachments/attachments":103,"../interfaces/hud/hud":149,"../interfaces/hud/player-panel":155,"../interfaces/hud/playerinfo":156,"../interfaces/hud/playernotification":157,"../utils/utils":226,"./contacts/contacts":206,"./telefonHistory/historys":211}],209:[function(require,module,exports){
+},{"../attachments/attachments":105,"../interfaces/hud/hud":157,"../interfaces/hud/player-panel":164,"../interfaces/hud/playerinfo":165,"../interfaces/hud/playernotification":166,"../utils/utils":240,"./contacts/contacts":216,"./telefonHistory/historys":221}],219:[function(require,module,exports){
 "use strict";
 
 var _player = require("../player/player");
@@ -11698,7 +12772,7 @@ mp.events.add("startSpectate", specplayer => {
                 mp.players.local.position = pos;
             } else {
                 clearInterval(interval);
-                if (spectatePlayer != null) mp.events.callRemote("stopSpectate", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");else spectatePlayer = null;
+                if (spectatePlayer != null) mp.events.callRemote("stopSpectate", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");else spectatePlayer = null;
             }
         }, 5);
     }, 1500);
@@ -11708,7 +12782,7 @@ mp.events.add("stopSpectate", () => {
     spectatePlayer = null;
 });
 
-},{"../player/player":208}],210:[function(require,module,exports){
+},{"../player/player":218}],220:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11726,7 +12800,7 @@ class History {
 
 exports.default = History;
 
-},{}],211:[function(require,module,exports){
+},{}],221:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -11759,7 +12833,7 @@ class Historys {
 
 exports.default = Historys;
 
-},{"./history":210}],212:[function(require,module,exports){
+},{"./history":220}],222:[function(require,module,exports){
 "use strict";
 
 const Natives = {
@@ -11868,7 +12942,7 @@ mp.events.addDataHandler("currentWeaponComponents", (entity, value) => {
     }
 });
 
-},{}],213:[function(require,module,exports){
+},{}],223:[function(require,module,exports){
 "use strict";
 
 var _player = require("../player/player");
@@ -11903,7 +12977,7 @@ mp.events.add("doneCutscene", () => {
     }, 2000);
 
     player.setInvincible(false);
-    mp.events.callRemote("cutsceneEnded", "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+    mp.events.callRemote("cutsceneEnded", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
 });
 
 mp.events.add("startWelcomeCutscene", async (gender = 0, name = null) => {
@@ -11983,7 +13057,7 @@ mp.events.add("render", () => {
     }
 });
 
-},{"../player/player":208}],214:[function(require,module,exports){
+},{"../player/player":218}],224:[function(require,module,exports){
 'use strict';
 
 const casinoUnloadVaultData = {
@@ -12026,7 +13100,40 @@ mp.events.add("jewellerySetCasesState", caseJson => {
     }, 1000);
 });
 
-},{}],215:[function(require,module,exports){
+},{}],225:[function(require,module,exports){
+// let loaded = true
+
+// async function loadDict() {
+//     if (!mp.game.graphics.hasStreamedTextureDictLoaded("custommarker")) {
+//         mp.game.graphics.requestStreamedTextureDict("custommarker", true);
+//         while (!mp.game.graphics.hasStreamedTextureDictLoaded("custommarker")) {
+//             await mp.game.waitAsync(100)
+//         }
+//         loaded = true
+//     }
+// }
+
+
+// mp.events.add("render", () => {
+//     if (loaded) {
+//         mp.game.graphics.drawMarker(9,
+//             1257.8198242188, -3266.3317871094, 5.8021354675293,
+//             0.0, 0.0, 0.0,
+//             0.0, 0.0, 0.0,
+//             1.0, 1.0, 1.0,
+//             255, 255, 255, 255,
+//             true, false, 2,
+//             true, "custommarker", "rosa", false
+//         );
+//     }
+// });
+
+// //  /coord 1257 -3266 6
+
+// loadDict()
+"use strict";
+
+},{}],226:[function(require,module,exports){
 "use strict";
 
 var currentVision = 0,
@@ -12063,7 +13170,7 @@ mp.keys.bind(0x4E, true, function () {
     mp.game.audio.playSoundFrontEnd(-1, "SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET", false);
 });*/
 
-},{}],216:[function(require,module,exports){
+},{}],227:[function(require,module,exports){
 'use strict';
 
 let einreisetor = null;
@@ -12096,7 +13203,7 @@ mp.events.add('openEinreiseamtDoor', () => {
     mp.events.call('floatObject', einreisetor, -1082.378, -2827.082, 33.76645, 0, 0, 0.0006, true);
 });
 
-},{}],217:[function(require,module,exports){
+},{}],228:[function(require,module,exports){
 "use strict";
 
 var _apps = require("../app/apps");
@@ -12269,7 +13376,7 @@ function getPlayerByHandle(handle) {
     return pla;
 }
 
-},{"../app/apps":12,"../player/player":208,"../windows/windows":235}],218:[function(require,module,exports){
+},{"../app/apps":12,"../player/player":218,"../windows/windows":249}],229:[function(require,module,exports){
 "use strict";
 
 mp.events.add("startFirework", fireworkJson => {
@@ -12283,7 +13390,7 @@ async function startFirework(fireworkJson) {
     while (!mp.game.streaming.hasNamedPtfxAssetLoaded("scr_indep_fireworks")) await mp.game.waitAsync(100);
 
     for (var fireworkEntry in fireworkJson) {
-        let offset = new mp.Vector3(fireworkJson[fireworkEntry].prop.Position.x, fireworkJson[fireworkEntry].prop.Position.y + 0.05, fireworkJson[fireworkEntry].prop.Position.z - 1.02);
+        let offset = new mp.Vector3(fireworkJson[fireworkEntry].Position.x, fireworkJson[fireworkEntry].Position.y + 0.05, fireworkJson[fireworkEntry].Position.z - 1.02);
 
         switch (fireworkJson[fireworkEntry].type) {
             case "rocket":
@@ -12353,7 +13460,7 @@ async function startBox(offset) {
     mp.game.graphics.startParticleFxNonLoopedAtCoord("scr_indep_firework_trailburst", offset.x, offset.y, offset.z, 0.0, 0.0, 0.0, Math.random() * 1.2 + 1.8, false, false, false);
 }
 
-},{}],219:[function(require,module,exports){
+},{}],230:[function(require,module,exports){
 "use strict";
 
 mp.events.add("spawnFX", async (effectCat, effectName, pos, rot, duration = null) => {
@@ -12376,7 +13483,51 @@ mp.events.add("spawnFX", async (effectCat, effectName, pos, rot, duration = null
     }
 });
 
-},{}],220:[function(require,module,exports){
+},{}],231:[function(require,module,exports){
+'use strict';
+
+let checker = null;
+
+const GET_INTERIOR_FROM_ENTITY = '0x2107BA504071A6BB';
+const GET_ROOM_KEY_FOR_ENTITY = '0x47C2A06D4F5F424B';
+const FORCE_ROOM_FOR_ENTITY = '0x52923C4710DD9907';
+
+const MLOChecker = setInterval(() => {
+    if (mp.game.invoke(GET_INTERIOR_FROM_ENTITY, mp.players.local.handle) == 0 || mp.game.invoke(GET_ROOM_KEY_FOR_ENTITY, mp.players.local.handle) == 0) {
+        if (checker == null) return;
+
+        clearInterval(checker);
+        checker = null;
+    } else {
+        if (checker != null) return;
+
+        playerInMLO();
+    }
+}, 5000);
+
+function playerInMLO() {
+    checker = setInterval(() => {
+        const playerInterior = mp.game.invoke(GET_INTERIOR_FROM_ENTITY, mp.players.local.handle);
+        const playerRoom = mp.game.invoke(GET_ROOM_KEY_FOR_ENTITY, mp.players.local.handle);
+
+        if (playerInterior != 0 || playerRoom != 0) {
+            mp.players.forEachInRange(mp.players.local.position, 20, player => {
+                if (player.dimension != mp.players.local.dimension) return;
+
+                if (player.remoteId == mp.players.local.remoteId) return;
+
+                const targetInterior = mp.game.invoke(GET_INTERIOR_FROM_ENTITY, player.handle);
+                const targetRoom = mp.game.invoke(GET_ROOM_KEY_FOR_ENTITY, player.handle);
+
+                if (targetRoom != playerRoom || targetInterior != playerInterior) {
+                    mp.game.invoke(FORCE_ROOM_FOR_ENTITY, player.handle, playerInterior, playerRoom);
+                }
+            });
+        }
+    }, 1000);
+}
+
+},{}],232:[function(require,module,exports){
 'use strict';
 
 var _player = require('../player/player');
@@ -12427,6 +13578,15 @@ mp.events.add('gotocam', pos => {
     if (noClipCamera) {
         pos = JSON.parse(pos);
         noClipCamera.setCoord(pos.x, pos.y, pos.z);
+    }
+});
+
+mp.events.add('getCamPos', () => {
+    if (noClipCamera) {
+        let pos = noClipCamera.getCoord();
+        let rot = noClipCamera.getRot(2);
+        //mp.events.callRemote("saveCamPos", JSON.stringify({"pos": {"x": pos.X, "y": pos.Y, "z": pos.Z}, "rot": {"x": rot.X, "y": rot.Y, "z": rot.Z}}))
+        mp.events.callRemote("saveCamPos", `Pos: ${JSON.stringify(pos)} || Rot: ${JSON.stringify(rot)}`);
     }
 });
 
@@ -12504,7 +13664,7 @@ mp.events.add('render', () => {
     noClipCamera.setRot(rot.x + rightAxisY * -5.0, 0.0, rot.z + rightAxisX * -5.0, 2);
 });
 
-},{"../player/player":208}],221:[function(require,module,exports){
+},{"../player/player":218}],233:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12519,22 +13679,17 @@ class GetObjects {
         for (let i = 0; i < bins.length; i++) {
             var check = mp.game.object.getClosestObjectOfType(mp.players.local.position.x, mp.players.local.position.y, mp.players.local.position.z, 1, bins[i], false, true, true);
             if (check) {
-                return "bin";
+                return true;
             }
         }
 
-        return "";
+        return false;
     }
-
-    test() {
-        return "TEST";
-    }
-
 }
 
 exports.default = new GetObjects();
 
-},{}],222:[function(require,module,exports){
+},{}],234:[function(require,module,exports){
 "use strict";
 
 var _peds = require("../peds/peds");
@@ -12544,6 +13699,10 @@ var _peds2 = _interopRequireDefault(_peds);
 var _player = require("../player/player");
 
 var _player2 = _interopRequireDefault(_player);
+
+var _utils = require("../utils/utils");
+
+var _utils2 = _interopRequireDefault(_utils);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -12565,6 +13724,32 @@ mp.events.add("addExplosion", (pos, explosionType, damageScale, isAudible, isInv
     mp.game.fire.addExplosion(pos.x, pos.y, pos.z, explosionType, damageScale, isAudible, isInvisible, cameraShake);
 });
 
+mp.events.add("isObjectOnGround", (callback, prop, pos, rot) => {
+    if (key === null || prop === null || pos === null || rot == null) return;
+
+    let obj = mp.objects.new(prop, pos, {
+        rotation: rot,
+        alpha: 0,
+        dimension: 0
+    });
+
+    let count = 0;
+    while ((obj == null || obj.handle === 0) && count < 30) {
+        mp.game.wait(100);
+        count++;
+    }
+
+    mp.players.local.setNoCollision(obj.handle, false);
+    mp.game.invoke("0x58A850EAEE20FAA3", obj.handle); // set on ground
+    mp.game.wait(200);
+
+    let position = obj.getCoords(false);
+    let rotation = obj.getRotation(2);
+
+    mp.events.callRemote(callback, position.x, position.y, position.z, rotation.x, rotation.y, rotation.z, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
+    obj.destroy();
+});
+
 //Explosion-Types: https://wiki.rage.mp/index.php?title=Explosions
 mp.events.add("addExplosionOnGround", (pos, explosionType, damageScale, isAudible, isInvisible, cameraShake) => {
 
@@ -12582,6 +13767,14 @@ mp.events.add("playerSpawn", client => {
 
     mp.game.player.setWeaponDamageModifier(_player2.default.weaponDmg);
     mp.game.player.setMeleeWeaponDamageModifier(_player2.default.meleeDmg);
+});
+
+mp.events.add("toggleIPL", (ipl, state) => {
+    if (state) {
+        mp.game.streaming.requestIpl(ipl);
+    } else {
+        mp.game.streaming.removeIpl(ipl);
+    }
 });
 
 mp.players.local.setSuffersCriticalHits(true);
@@ -12625,11 +13818,9 @@ mp.events.add('render', () => {
     //mp.game.controls.disableControlAction(0, 44, true); // Cover
 
     // Combat running
-    /*
-    if (mp.players.local.isUsingActionMode()) {
-        mp.players.local.setUsingActionMode(false, -1, "DEFAULT_ACTION");
-    }
-    */
+    if (mp.players.local.isUsingActionMode()) {
+        mp.players.local.setUsingActionMode(false, -1, "-1");
+    }
 
     // Hide Ammo
     mp.game.ui.displayAmmoThisFrame(false);
@@ -12666,10 +13857,20 @@ mp.events.add('outgoingDamage', (sourceEntity, targetEntity, sourcePlayer, weapo
 
 mp.events.add('incomingDamage', (sourceEntity, sourcePlayer, targetEntity, weapon, boneIndex, damage) => {
 
-    if (targetEntity.type === 'player' && boneIndex === 20 && !_player2.default.invincible) {
+    // if (weapon === -1553120962 && targetEntity.type === 'player' && !player.invincible) {
+    //     mp.console.logInfo(`${sourceEntity.name} hat ${targetEntity.name} überfahren. Schaden: ${damage}`, true, true);
+    //     return false
+    // }
+
+    if (targetEntity.type === 'player' && (boneIndex === 20 || boneIndex === 18 || boneIndex === 16) && !_player2.default.invincible) {
+
         if (damage <= 5) {
             damage = 306;
         }
+        if (mp.players.local.getHealth() <= damage / 18) {
+            return false;
+        }
+
         mp.players.local.applyDamageTo(Math.floor(damage / 18), true);
         return true;
     }
@@ -12690,7 +13891,250 @@ mp.events.add("stopSoundFromCoordLooped", () => {
     soundInterval = null;
 });
 
-},{"../peds/peds":202,"../player/player":208}],223:[function(require,module,exports){
+},{"../peds/peds":212,"../player/player":218,"../utils/utils":240}],235:[function(require,module,exports){
+'use strict';
+
+var _playerPanel = require('../interfaces/hud/player-panel');
+
+var _playerPanel2 = _interopRequireDefault(_playerPanel);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+const CLEAR_TIMECYCLE_MODIFIER = '0x0F07E7745A236711';
+
+let isCamActive = false;
+let currentCamIndex = 0;
+let camObj = null;
+let camdata = null;
+let isInSwitch = false;
+
+const { hudManager } = require('../instructionButtons/hudManager');
+const buttonHud = new hudManager(-1, "#141414");
+buttonHud.addButtons({
+    Vorherige: 174,
+    Nächste: 175,
+    Hoch: 32,
+    Runter: 33,
+    Links: 34,
+    Rechts: 35,
+    Schließen: 194
+});
+buttonHud.toggleHud(false);
+
+mp.game.invoke(CLEAR_TIMECYCLE_MODIFIER);
+
+mp.events.add("startSecurityCamera", async camdataJSON => {
+    if (camdataJSON === null || isCamActive) return;
+    camdata = JSON.parse(camdataJSON);
+
+    toggleIsManipulatedCamera(camdata[currentCamIndex].IsManipulated);
+    mp.game.ui.displayRadar(false);
+
+    camObj = mp.cameras.new('DEFAULT_SCRIPTED_CAMERA', new mp.Vector3(camdata[currentCamIndex].Pos.x, camdata[currentCamIndex].Pos.y, camdata[currentCamIndex].Pos.z), new mp.Vector3(camdata[currentCamIndex].Rot.x, camdata[currentCamIndex].Rot.y, camdata[currentCamIndex].Rot.z), camdata[currentCamIndex].FOV);
+    camObj.setActive(true);
+
+    mp.game.streaming.setFocusPosAndVel(camdata[currentCamIndex].Pos.x, camdata[currentCamIndex].Pos.y, camdata[currentCamIndex].Pos.z, 0, 0, 0);
+    mp.game.cam.renderScriptCams(true, false, 0, true, true);
+    mp.game.graphics.startScreenEffect("switch_cam_1", 1000, false);
+    buttonHud.toggleHud(true);
+    _playerPanel2.default.displayToggle(false);
+    mp.events.call("freezePlayer", true);
+    isCamActive = true;
+});
+
+mp.events.add("stopSecurityCamera", () => {
+    if (!isCamActive) return;
+    mp.game.invoke(CLEAR_TIMECYCLE_MODIFIER);
+    mp.game.ui.displayRadar(true);
+    mp.game.streaming.clearFocus();
+    mp.game.graphics.startScreenEffect("switch_cam_1", 1000, false);
+    mp.game.cam.renderScriptCams(false, false, 0, true, false);
+    camObj.destroy();
+    camObj = null;
+    currentCamIndex = 0;
+    buttonHud.toggleHud(false);
+    _playerPanel2.default.displayToggle(true);
+    mp.events.call("freezePlayer", false);
+    isCamActive = false;
+});
+
+mp.events.add("toggleSingleCamera", (id, state) => {
+    if (!isCamActive) return;
+
+    for (let i = 0; i < camdata.length; i++) {
+        if (camdata[i].Id === id) {
+            camdata[i].IsManipulated = state;
+            if (i === currentCamIndex) {
+                toggleIsManipulatedCamera(state);
+                return;
+            }
+        }
+    }
+});
+
+mp.events.add("playerDeath", () => {
+    if (isCamActive) {
+        mp.events.call("stopSecurityCamera");
+    }
+});
+
+mp.events.add("render", () => {
+    if (!isCamActive) return;
+
+    mp.game.controls.disableControlAction(0, 14, true);
+    mp.game.controls.disableControlAction(0, 15, true);
+    mp.game.controls.disableControlAction(0, 16, true);
+    mp.game.controls.disableControlAction(0, 17, true);
+
+    mp.game.controls.disableControlAction(0, 44, true);
+    mp.game.controls.disableControlAction(0, 22, true);
+    mp.game.controls.disableControlAction(0, 24, true);
+    mp.game.controls.disableControlAction(0, 25, true);
+    mp.game.controls.disableControlAction(0, 26, true);
+    if (!isInSwitch) {
+        mp.game.graphics.drawText(camdata[currentCamIndex].Name, [0.5, 0.005], {
+            font: 0,
+            color: [255, 255, 255, 185],
+            scale: [0.5, 0.5],
+            outline: false
+        });
+    }
+
+    //GO BACK
+    if (mp.game.controls.isControlJustPressed(1, 174)) {
+        if (isInSwitch) return;
+        if (currentCamIndex === 0) {
+            currentCamIndex = camdata.length - 1;
+        } else {
+            currentCamIndex--;
+        }
+        updateCamPos();
+        toggleIsManipulatedCamera(camdata[currentCamIndex].IsManipulated);
+        return;
+    }
+
+    //GO FORWARD
+    if (mp.game.controls.isControlJustPressed(1, 175)) {
+        if (isInSwitch) return;
+        if (currentCamIndex === camdata.length - 1) {
+            currentCamIndex = 0;
+        } else {
+            currentCamIndex++;
+        }
+        updateCamPos();
+        toggleIsManipulatedCamera(camdata[currentCamIndex].IsManipulated);
+        return;
+    }
+
+    //CLOSE
+    if (mp.game.controls.isControlJustPressed(1, 194)) {
+        mp.events.call("stopSecurityCamera");
+        return;
+    }
+
+    //ROTATE CAM
+    if (camdata[currentCamIndex].CanRotate && isCamActive) {
+        let getCameraRot = camObj.getRot(2);
+
+        if (mp.game.controls.isControlPressed(1, 32)) {
+            // Rotate up
+            if (getCameraRot.x <= 0.0) camObj.setRot(getCameraRot.x + 0.7, 0.0, getCameraRot.z, 2);
+        }
+
+        if (mp.game.controls.isControlPressed(1, 33)) {
+            // Rotate down
+            if (getCameraRot.x >= -50.0) camObj.setRot(getCameraRot.x - 0.7, 0.0, getCameraRot.z, 2);
+        }
+
+        if (mp.game.controls.isControlPressed(1, 34)) {
+            // Rotate left
+            camObj.setRot(getCameraRot.x, 0.0, getCameraRot.z + 0.7, 2);
+        }
+
+        if (mp.game.controls.isControlPressed(1, 35)) {
+            // Rotate Right
+            camObj.setRot(getCameraRot.x, 0.0, getCameraRot.z - 0.7, 2);
+        }
+    }
+});
+
+function toggleIsManipulatedCamera(state) {
+    if (!state) {
+        mp.game.graphics.setTimecycleModifier("scanline_cam_cheap");
+        mp.game.graphics.setTimecycleModifierStrength(2.0);
+    } else {
+        mp.game.graphics.setTimecycleModifier("Broken_camera_fuzz");
+        mp.game.graphics.setTimecycleModifierStrength(1.0);
+    }
+}
+
+async function updateCamPos() {
+    if (camObj === null) return;
+    isInSwitch = true;
+    mp.game.graphics.startScreenEffect("switch_cam_1", 1000, false);
+    await mp.game.waitAsync(1000);
+    camObj.setCoord(camdata[currentCamIndex].Pos.x, camdata[currentCamIndex].Pos.y, camdata[currentCamIndex].Pos.z, 2);
+    camObj.setRot(camdata[currentCamIndex].Rot.x, camdata[currentCamIndex].Rot.y, camdata[currentCamIndex].Rot.z, 2);
+    camObj.setFov(camdata[currentCamIndex].FOV);
+    isInSwitch = false;
+}
+
+},{"../instructionButtons/hudManager":112,"../interfaces/hud/player-panel":164}],236:[function(require,module,exports){
+"use strict";
+
+var _player = require("../player/player");
+
+var _player2 = _interopRequireDefault(_player);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+let serverObject = undefined;
+
+mp.events.add("triggerShootingRangeObject", remoteId => {
+    serverObject = mp.objects.atRemoteId(remoteId);
+});
+
+mp.events.add("removeShootingRangeObject", () => {
+    if (serverObject != undefined && mp.objects.exists(serverObject)) serverObject.destroy();
+
+    serverObject = undefined;
+});
+
+mp.events.add("render", () => {
+    if (serverObject != undefined && mp.objects.exists(serverObject)) {
+        if (serverObject.hasBeenDamagedBy(mp.players.local.handle, true)) {
+            mp.events.callRemote("hitShootingRangeObject", "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
+            mp.game.audio.playSoundFrontend(-1, "CONFIRM_BEEP", "HUD_MINI_GAME_SOUNDSET", true); // GARAGE_DOOR_SCRIPTED_CLOSE  0  
+            serverObject = undefined;
+        }
+    }
+});
+
+mp.events.add("InitliazePedStats", Ped => {
+    Ped.setCombatAbility(100);
+    Ped.setFleeAttributes(0.0, false);
+    Ped.setCombatMovement(0);
+    Ped.setCombatAttributes(292, true);
+    Ped.freezePosition(true);
+});
+
+mp.events.add("PlayNewPedTask", (attackerPed, defenderPed, weaponHash) => {
+    attackerPed.setKeepTask(true);
+    attackerPed.giveWeapon(weaponHash, 900, true);
+    attackerPed.setKeepTask(true);
+    attackerPed.setCombatAbility(100);
+    attackerPed.setFleeAttributes(0.0, false);
+    attackerPed.setCombatMovement(0);
+    attackerPed.setCombatAttributes(292, true);
+    // attackerPed.setCombatAttributes(1424, false);
+
+    setTimeout(() => {
+        attackerPed.taskAimGunAt(defenderPed.handle, -1, true);
+        attackerPed.setKeepTask(true);
+    }, 5000);
+});
+
+},{"../player/player":218}],237:[function(require,module,exports){
 'use strict';
 
 var _player = require('../player/player');
@@ -12742,7 +14186,7 @@ mp.events.add('removeBlipForRadius', id => {
     });
 });
 
-},{"../player/player":208}],224:[function(require,module,exports){
+},{"../player/player":218}],238:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12786,7 +14230,7 @@ class Raycast {
 
 exports.default = new Raycast();
 
-},{}],225:[function(require,module,exports){
+},{}],239:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -12948,7 +14392,7 @@ class BodyCameraSingleton {
 
 exports.default = new BodyCameraSingleton();
 
-},{}],226:[function(require,module,exports){
+},{}],240:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -12995,11 +14439,19 @@ class Utils {
             await mp.game.waitAsync(5);
         }
     }
+
+    randInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+
+    calculateVector2Distance(x1, y1, x2, y2) {
+        return Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
+    }
 }
 
 exports.default = new Utils();
 
-},{}],227:[function(require,module,exports){
+},{}],241:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -13459,7 +14911,7 @@ class VehicleEnter {
 
 exports.default = VehicleEnter;
 
-},{}],228:[function(require,module,exports){
+},{}],242:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13481,7 +14933,7 @@ class BoatModule {
 
 exports.default = new BoatModule();
 
-},{}],229:[function(require,module,exports){
+},{}],243:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -13498,480 +14950,82 @@ let player = mp.players.local;
 
 class Flatbed {
     constructor() {}
-
     xmenuswitch(cmd) {
 
         let flatbed = player.vehicle;
-
         if (cmd == "REQUEST_VEHICLE_FlATBED_LOAD_TOGGLE") {
-            if (isDrivingFlatbed() && !flatbed.bed.moving && flatbed.bed.rope == null) {
-                if (flatbed.bed.state == 0) {
-                    mp.events.callRemote('fbSetState', flatbed, 1, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
-                    extendBed(flatbed);
-                } else if (flatbed.bed.state == 1) {
-                    mp.events.callRemote('fbSetState', flatbed, 0, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
-                    retractBed(flatbed);
-                }
-            }
-        }
-
-        if (cmd == "REQUEST_VEHICLE_FlATBED_ROPE_TOGGLE") {
-
-            if (isDrivingTowTruck()) {
-                let pos = flatbed.getWorldPositionOfBone(flatbed.getBoneIndexByName('bumper_r'));
-                let targetVeh = mp.game.vehicle.getClosestVehicle(pos.x, pos.y, pos.z, 7, 0, 70);
-                targetVeh = mp.vehicles.atHandle(targetVeh);
-                if (targetVeh != undefined) {
-                    if (flatbed.isAttachedToTowTruck(targetVeh.handle)) {
-                        flatbed.detachFromTowTruck(targetVeh.handle);
-                    } else {
-                        if (targetVeh.isSeatFree(-1)) {
-                            player.setAlpha(0);
-                            player.setIntoVehicle(targetVeh.handle, -1);
-                            setTimeout(function () {
-                                player.setAlpha(255);
-                                player.setIntoVehicle(flatbed.handle, -1);
-                            }, 100);
-                            targetVeh.setEngineOn(false, false, false);
-                            flatbed.attachToTowTruck(targetVeh.handle, false, 0, 0, 0);
-                        }
-                    }
-                }
-
-                return;
-            }
-
-            if (isDrivingFlatbed() && !flatbed.bed.moving && flatbed.bed.state == 1 && flatbed.bed.rope == null && !flatbed.attachedVehicle) {
-                let targetVeh = getTargetVehicle(flatbed);
-                if (targetVeh) {
-                    /* ROPE
-                    //if (targetVeh.getNumberOfPassengers() > 0 || targetVeh.isSeatFree(-1)) return; // Keine Insassen
-                      mp.events.callRemote('fbAttachRope', flatbed, targetVeh, true, pl.remoteHashKey)
-                    attachRope(flatbed, targetVeh)
-                    setTimeout(async () => {
-                        mp.events.callRemote('fbWindRope', flatbed, pl.remoteHashKey)
-                        let windingSuccess = await windRope(flatbed)
-                        if (windingSuccess) {
-                            if (attachToBed(flatbed, targetVeh)) {
-                                mp.events.callRemote('fbAttachVehicle', flatbed, targetVeh, true, pl.remoteHashKey)
-                                startSyncIntervalForVeh(targetVeh)
-                            }
-                          }
-                        mp.events.callRemote('fbAttachRope', flatbed, targetVeh, false, pl.remoteHashKey)
-                    }, 1000);
-                    */
-
-                    if (attachToBed(flatbed, targetVeh)) {
-                        mp.players.forEachInStreamRange((toplayer, id) => {
-                            if (toplayer.handle != player.handle) {
-                                mp.events.callRemote('fbAttachVehicle', toplayer, flatbed, targetVeh, true, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
-                            }
-                        });
-                        startSyncIntervalForVeh(targetVeh);
-                    }
-
-                    // mp.events.callRemote('fbAttachRope', flatbed, targetVeh, false, pl.remoteHashKey)
-                }
-            } else if (isDrivingFlatbed() && flatbed.attachedVehicle && !flatbed.bed.moving && flatbed.bed.state == 1) {
-
-                mp.players.forEachInStreamRange((toplayer, id) => {
-                    if (toplayer.handle != player.handle) {
-                        mp.events.callRemote('fbAttachVehicle', toplayer, flatbed, flatbed, false, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
-                    }
-                });
-
-                attachToBed(flatbed, false);
-
-                clearInterval(syncInterval);
-                syncInterval = null;
+            if (isDrivingFlatbed()) {
+                mp.events.callRemote('flatbedToggle', flatbed, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
             }
         }
     }
 }
 
-function createBed(veh) {
+function isDrivingFlatbed() {
+    return player.vehicle && checkModel(player.vehicle.model) && player.vehicle.getPedInSeat(-1) == player.handle;
+}
+
+function createCover(veh) {
     return new Promise((resolve, reject) => {
-        let bedRot = veh.getRotation(2);
+        let vehRot = veh.getRotation(2);
         let tempPos = veh.position;
-        tempPos.z += 15;
-        veh.bed = mp.objects.new(mp.game.joaat('imp_prop_flatbed_ramp'), tempPos, { rotation: { x: 14 - bedRot.x, y: bedRot.y, z: bedRot.z + 180 }, dimension: player.dimension });
-        veh.bed.streamingRange = 500;
-        veh.bed.state = 0;
+        tempPos.z -= 100;
+        let z = 0.4;
+        if (veh.model == mp.game.joaat('wastelander')) {
+            z = 0.6;
+        }
+        veh.cover = mp.objects.new(mp.game.joaat('prop_entityxf_covered'), tempPos, { rotation: { x: vehRot.x, y: vehRot.y, z: vehRot.z + 180 }, dimension: player.dimension });
         setTimeout(() => {
-            veh.bed.attachTo(veh.handle, veh.getBoneIndexByName('chassis_dummy'), 0, -3, -0.48, 14, 0, 180, true, false, false, false, 0, true);
+            veh.cover.attachTo(veh.handle, veh.getBoneIndexByName('chassis_dummy'), -0.1, -1.6, z, 0, 0, 0, true, false, false, false, 0, true);
             resolve();
-        }, 100);
+        }, 200);
     });
 }
 
-let syncInterval;
-function startSyncIntervalForVeh(veh) {
-    if (syncInterval != null) return;
+function checkModel(model) {
 
-    syncInterval = setInterval(() => {
-        if (isDrivingFlatbed() && player.vehicle.getVariable('fbAttachVehicle') == veh.remoteId) {
-            mp.events.callRemote('fbSyncPosition', veh, JSON.stringify(veh.position), JSON.stringify(veh.getRotation(2)), "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
-        } else {
-            clearInterval(syncInterval);
-            syncInterval = null;
-        }
-    }, 1000);
-}
+    if (model == mp.game.joaat('flatbed') || model == mp.game.joaat('slamtruck') || model == mp.game.joaat('wastelander')) {
+        return true;
+    }
 
-function extendBed(flatbed) {
-    let y = -3,
-        z = -0.48,
-        rotX = 14;
-    let toY = -8.6,
-        toZ = -1.24,
-        toRotX = 0;
-    flatbed.bed.moving = true;
-
-    // audio
-    let sound = mp.game.invoke('0x430386FE9BF80B45'); // getSoundId
-    mp.game.audio.playSoundFromEntity(sound, "OPENING", flatbed.bed.handle, "DOOR_GARAGE", false, 0);
-
-    let render = new mp.Event('render', () => {
-        if (!flatbed.bed) {
-            return render.destroy();
-        }
-
-        if (y > toY) {
-            y = parseFloat((y - 0.05).toFixed(2));
-
-            // after y finish transition
-        }
-        if (y <= toY) {
-            if (z > toZ) {
-                z = parseFloat((z - 0.04).toFixed(2));
-            }
-
-            if (rotX > toRotX) {
-                rotX = parseFloat((rotX - 0.8).toFixed(2));
-            }
-        }
-        flatbed.bed.attachTo(flatbed.handle, flatbed.getBoneIndexByName('chassis_dummy'), 0, y, z, rotX, 0, 180, true, false, true, false, 0, true);
-        if (y <= toY && z <= toZ && rotX <= toRotX) {
-            flatbed.bed.moving = false;
-            flatbed.bed.state = 1;
-            render.destroy();
-            mp.game.audio.stopSound(sound);
-        }
-    });
-}
-
-function retractBed(flatbed) {
-    let y = -8.6,
-        z = -1.24,
-        rotX = 0;
-    let toY = -3,
-        toZ = -0.48,
-        toRotX = 14;
-    flatbed.bed.moving = true;
-
-    // audio
-    let sound = mp.game.invoke('0x430386FE9BF80B45'); // getSoundId
-    mp.game.audio.playSoundFromEntity(sound, "CLOSING", flatbed.bed.handle, "DOOR_GARAGE", false, 0);
-
-    let render = new mp.Event('render', () => {
-        if (!flatbed.bed) {
-            return render.destroy();
-        }
-
-        if (z < toZ) {
-            z = parseFloat((z + 0.04).toFixed(2));
-        }
-
-        if (rotX < toRotX) {
-            rotX = parseFloat((rotX + 0.8).toFixed(2));
-        }
-
-        // after z and rotX finish transition
-        if (z >= toZ && rotX >= toRotX) {
-            if (y < toY) {
-                y = parseFloat((y + 0.05).toFixed(2));
-            }
-        }
-
-        flatbed.bed.attachTo(flatbed.handle, flatbed.getBoneIndexByName('chassis_dummy'), 0, y, z, rotX, 0, 180, true, false, true, false, 0, true);
-        if (y >= toY && z >= toZ && rotX >= toRotX) {
-            flatbed.bed.moving = false;
-            flatbed.bed.state = 0;
-            render.destroy();
-            mp.game.audio.stopSound(sound);
-        }
-    });
+    return false;
 }
 
 mp.events.add({
-    async entityStreamIn(e) {
-        if (e != null && e.type == 'vehicle' && mp.vehicles.exists(e) && e.model == mp.game.joaat('flatbed')) {
-            await createBed(e);
-            if (e.getVariable('fbState') === 1) extendBed(e);
-
-            /*
-            if (typeof e.getVariable('fbAttachRope') == 'number') {
-                let vehID = e.getVariable('fbAttachRope')
-                let veh = mp.vehicles.atRemoteId(vehID)
-                if (veh)
-                    attachRope(e, veh)
-            }*/
-
-            if (typeof e.getVariable('fbAttachVehicle') == 'number') {
-                let veh = mp.vehicles.atRemoteId(e.getVariable('fbAttachVehicle'));
-                if (veh) setTimeout(() => {
-                    attachToBed(e, veh);
-                }, 1000);
+    async createFlatbedCover(e) {
+        if (e != null) {
+            if (e != null && typeof e.cover !== 'undefined' && e.cover) {
+                // Cover besteht bereits
+            } else {
+                await createCover(e);
             }
+        }
+    },
+    removeFlatbedCover(e) {
+        if (e != null && typeof e.cover !== 'undefined' && e.cover) {
+            e.cover.destroy();
+            delete e.cover;
+        }
+    },
+    async entityStreamIn(e) {
+        if (e != null && e.type == 'vehicle' && mp.vehicles.exists(e) && checkModel(e.model)) {
+            mp.events.callRemote('checkFlatbed', e, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
         }
     },
 
     entityStreamOut(e) {
-        if (e != null && e.type == 'vehicle' && mp.vehicles.exists(e) && e.model == mp.game.joaat('flatbed')) {
-            if (e.bed) {
-                if (e.bed.sound != null) mp.game.audio.stopSound(e.bed.sound);
-
-                if (e.bed.rope != null) {
-                    mp.game.rope.deleteRope(e.bed.rope);
-                    mp.game.rope.deleteChildRope(e.bed.rope);
-                }
-                e.bed.destroy();
-                delete e.bed;
-
-                if (e.attachedVehicle) delete e.attachedVehicle;
+        if (e != null && e.type == 'vehicle' && mp.vehicles.exists(e) && checkModel(e.model)) {
+            if (typeof e.cover !== 'undefined' && e.cover) {
+                e.cover.destroy();
+                delete e.cover;
             }
         }
-    },
-
-    playerEnterVehicle(v, seat) {
-        if (v == null || !mp.vehicles.exists(v) || v.model != mp.game.joaat('flatbed')) return;
-
-        if (seat === -1 && typeof v.getVariable('fbAttachVehicle') == 'number') startSyncIntervalForVeh(mp.vehicles.atRemoteId(v.getVariable('fbAttachVehicle')));
-    },
-
-    playerLeaveVehicle(v) {
-        if (!v || v == null || !mp.vehicles.exists(v)) return; // vehicle destroyed
-        if (v.model != mp.game.joaat('flatbed')) return;
-    },
-
-    sAttachRope(fb, veh) {
-        if (fb == null || !mp.vehicles.exists(fb)) return;
-        if (veh == null || !mp.vehicles.exists(veh)) return;
-        attachRope(fb, veh);
-    },
-    sAttachToBed(fb, veh) {
-        if (fb == null || !mp.vehicles.exists(fb)) return;
-        if (veh != false && !mp.vehicles.exists(veh)) return;
-        attachToBed(fb, veh);
     }
 });
-
-// sync code
-mp.events.addDataHandler('fbState', (fb, state) => {
-    if (fb == null || !mp.vehicles.exists(fb) || fb.handle == 0 || fb == player.vehicle && player.seat == -1) return;
-
-    if (state == 1) extendBed(fb);else retractBed(fb);
-});
-
-function getTargetVehicle(flatbed) {
-    let from = flatbed.bed.getOffsetFromInWorldCoords(0, 2, 1);
-    let to = flatbed.bed.getOffsetFromInWorldCoords(0, 4, 0.7);
-    let raycast = mp.raycasting.testPointToPoint(from, to, null, 2);
-    let targetVeh = raycast && raycast.entity && raycast.entity.type == 'vehicle' ? raycast.entity : null;
-    return targetVeh;
-}
-
-function isDrivingTowTruck() {
-    return player.vehicle && (player.vehicle.model == mp.game.joaat('towtruck') || player.vehicle.model == mp.game.joaat('towtruck2')) && player.vehicle.getPedInSeat(-1) == player.handle;
-}
-
-function isDrivingFlatbed() {
-    return player.vehicle && player.vehicle.model == mp.game.joaat('flatbed') && player.vehicle.getPedInSeat(-1) == player.handle;
-}
-
-function isVehicleFacingFlatbed(veh, fb) {
-    let direction = veh.getForwardVector();
-    direction = new mp.Vector3(direction.x, direction.y, direction.z);
-    let fbPos = new mp.Vector3(fb.position.x, fb.position.y, fb.position.z);
-    let vehPos = new mp.Vector3(veh.position.x, veh.position.y, veh.position.z);
-
-    function angle(from, to) {
-        let dot = from.unit().dot(to.unit());
-        return Math.acos(dot) * (180 / Math.PI);
-    }
-
-    return angle(direction, fbPos.subtract(vehPos)) < 90;
-}
-
-function getVehicleHook(veh, forward) {
-    if (forward) {
-        if (veh.getBoneIndexByName('neon_f') > -1) {
-            return veh.getWorldPositionOfBone(veh.getBoneIndexByName('neon_f'));
-        } else if (veh.getBoneIndexByName('bumper_f') > -1) {
-            return veh.getWorldPositionOfBone(veh.getBoneIndexByName('bumper_f'));
-        } else if (veh.getBoneIndexByName('engine') > -1) {
-            return veh.getWorldPositionOfBone(veh.getBoneIndexByName('engine'));
-        } else {
-            let pos = veh.position;
-            let forwardVec = veh.getForwardVector();
-            return new mp.Vector3(pos.x + forwardVec.x, pos.y + forwardVec.y, pos.z + forwardVec.z);
-        }
-    } else {
-        if (veh.getBoneIndexByName('neon_b') > -1) {
-            return veh.getWorldPositionOfBone(veh.getBoneIndexByName('neon_b'));
-        } else if (veh.getBoneIndexByName('bumper_r') > -1) {
-            return veh.getWorldPositionOfBone(veh.getBoneIndexByName('bumper_r'));
-        } else if (veh.getBoneIndexByName('trunk') > -1) {
-            return veh.getWorldPositionOfBone(veh.getBoneIndexByName('trunk'));
-        } else {
-            let pos = veh.position;
-            let forwardVec = veh.getForwardVector();
-            return new mp.Vector3(pos.x + forwardVec.x, pos.y + forwardVec.y, pos.z + forwardVec.z);
-        }
-    }
-}
-
-function playSound(flatbed, sound) {
-    let id = -1;
-    if (sound != 'OPENED') id = mp.game.invoke('0x430386FE9BF80B45'); // getSoundId
-    mp.game.audio.playSoundFromEntity(id, sound, flatbed.bed.handle, "DOOR_GARAGE", false, 0);
-    if (id > -1) flatbed.bed.sound = id;
-    return id;
-}
-
-function attachRope(flatbed, targetVeh) {
-    if (!flatbed.handle || !mp.vehicles.exists(flatbed)) return;
-
-    if (targetVeh === false) {
-        if (flatbed.bed.rope == null) return;
-        mp.game.rope.detachRopeFromEntity(flatbed.bed.rope, flatbed.attachedVehicle.handle);
-        mp.game.rope.deleteRope(flatbed.bed.rope);
-        mp.game.rope.deleteChildRope(flatbed.bed.rope);
-        delete flatbed.bed.rope;
-
-        return;
-    }
-
-    if (!mp.vehicles.exists(targetVeh) || !targetVeh.handle) return;
-    let anchorPos = flatbed.getOffsetFromInWorldCoords(0, -5.9, 0.6);
-    anchorPos = new mp.Vector3(anchorPos.x, anchorPos.y, anchorPos.z);
-
-    let isForward = isVehicleFacingFlatbed(targetVeh, flatbed);
-    let hookPos = getVehicleHook(targetVeh, isForward);
-    hookPos = new mp.Vector3(hookPos.x, hookPos.y, hookPos.z);
-    let dist = anchorPos.subtract(hookPos).length();
-
-    mp.game.invoke('0x9B9039DBF2D258C1'); // loadRopeTextures
-    let rope = mp.game.invoke('0xE832D760399EB220', anchorPos.x, anchorPos.y, anchorPos.z, 0, 0, 0, dist, 6, dist, 0.1, 0.5, false, false, true, 1.0, false, 0); // addRope
-    flatbed.bed.rope = rope;
-    mp.game.rope.attachEntitiesToRope(rope, flatbed.handle, targetVeh.handle, anchorPos.x, anchorPos.y, anchorPos.z, hookPos.x, hookPos.y, hookPos.z, dist, false, false, 0, 0);
-    mp.game.invoke('0x710311ADF0E20730', rope); // activatePhysics
-    return rope;
-}
-
-function windRope(flatbed) {
-    return new Promise((resolve, reject) => {
-        if (!flatbed.handle || !mp.vehicles.exists(flatbed)) return;
-
-        let rope = flatbed.bed.rope;
-        mp.game.rope.startRopeWinding(rope);
-        let sound = playSound(flatbed, 'CLOSING');
-
-        let startTime = Date.now();
-        let interval = setInterval(() => {
-            if (!flatbed.handle) return clearInterval(interval);
-
-            // if rope winding takes more than 15 seconds, its stuck
-            if (Date.now() - startTime >= 15000) {
-                clearInterval(interval);
-                mp.game.rope.stopRopeWinding(rope);
-                mp.game.audio.stopSound(sound);
-                delete flatbed.bed.sound;
-                attachRope(flatbed, false); // delete rope
-                return resolve(false);
-            }
-
-            if (flatbed.bed.rope == null) {
-                clearInterval(interval);
-                mp.game.audio.stopSound(sound);
-                delete flatbed.bed.sound;
-                return;
-            }
-
-            if (mp.game.rope.getRopeLength(flatbed.bed.rope) <= 1) {
-                clearInterval(interval);
-                mp.game.rope.stopRopeWinding(rope);
-                mp.game.audio.stopSound(sound);
-                delete flatbed.bed.sound;
-
-                setTimeout(() => {
-                    attachRope(flatbed, false);
-                }, 800);
-
-                resolve(true);
-            }
-        }, 500);
-    });
-}
-
-function attachToBed(flatbed, targetVeh) {
-    if (!flatbed.handle || targetVeh !== false && !targetVeh.handle) return;
-
-    if (targetVeh === false && flatbed.attachedVehicle != null && mp.vehicles.exists(flatbed.attachedVehicle)) {
-
-        flatbed.attachedVehicle.setInvincible(false);
-        flatbed.attachedVehicle.detach(true, false);
-        flatbed.attachedVehicle.setNoCollision(flatbed.handle, true);
-
-        delete flatbed.attachedVehicle;
-    } else {
-        if (!mp.vehicles.exists(targetVeh)) return;
-        flatbed.freezePosition(true);
-        let pos = targetVeh.position;
-        let height = targetVeh.getHeight(pos.x, pos.y, pos.z, true, false);
-        if (height <= 0.924 || targetVeh.model == mp.game.joaat('taxi')) height += 1;else height += 0.4;
-        let rotX = 14,
-            rotZ = 180;
-
-        if (!isVehicleFacingFlatbed(targetVeh, flatbed)) {
-            rotX *= -1;
-            rotZ = 0;
-        }
-
-        targetVeh.attachTo(flatbed.bed.handle, 0, 0, 0, height, rotX, 0, rotZ, true, false, false, false, 0, true);
-        var attached = Boolean(targetVeh.isAttached());
-        if (attached) {
-            flatbed.attachedVehicle = targetVeh;
-            flatbed.attachedVehicle.setInvincible(true);
-        }
-        setTimeout(() => {
-            flatbed.freezePosition(false);
-        }, 1000);
-    }
-    playSound(flatbed, 'OPENED');
-    if (attached) return attached;
-}
-
-function waitFor(e) {
-    return new Promise((resolve, reject) => {
-        let time = Date.now();
-        let interval = setInterval(() => {
-            if (e.handle) {
-                clearInterval(interval);
-                resolve(e);
-            }
-
-            if (Date.now() - time >= 5000) {
-                clearInterval(interval);
-                resolve(null);
-            }
-        }, 100);
-    });
-}
 
 exports.default = new Flatbed();
 
-},{"../player/player":208}],230:[function(require,module,exports){
+},{"../player/player":218}],244:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14027,7 +15081,7 @@ class Rappel {
 
 exports.default = new Rappel();
 
-},{}],231:[function(require,module,exports){
+},{}],245:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -14057,7 +15111,7 @@ class VehicleModule {
         // Menu items for dpos inside a car
         this.menuItemsInCarDpos = [{ label: 'Exit', description: 'Schließt das Menü', icon: 'img/icons/exit.png', id: 'donothing', arg: "" }, { label: 'Schlüssel', description: 'Fahrzeug auf/abschließen', icon: 'img/icons/vehicle/key.png', id: 'REQUEST_VEHICLE_TOGGLE_LOCK', arg: "" }, { label: 'Rauswerfen', description: 'Wirft jemanden aus dem Fahrzeug', icon: 'img/icons/vehicle/eject.png', id: 'REQUEST_VEHICLE_EJECT', arg: "" }, { label: 'Kofferraum', description: 'Öffnet/Schließt den Kofferraum', icon: 'img/icons/vehicle/trunk.png', id: 'REQUEST_VEHICLE_TOGGLE_DOOR', arg: "5" }, { label: 'Motor', description: 'Startet/Stopt den Motor', icon: 'img/icons/vehicle/engine.png', id: 'REQUEST_VEHICLE_TOGGLE_ENGINE', arg: "" }, { label: 'Radio', description: 'Schaltet das Radio ab', icon: 'img/icons/vehicle/radio.png', id: 'LOCAL_ACTION', arg: "RadioOff" }];
         // FLATBED MENU
-        this.menuItemsInCarDposFlatbed = [{ label: 'Exit', description: 'Schließt das Menü', icon: 'img/icons/exit.png', id: 'donothing', arg: "" }, { label: 'Schlüssel', description: 'Fahrzeug auf/abschließen', icon: 'img/icons/vehicle/key.png', id: 'REQUEST_VEHICLE_TOGGLE_LOCK', arg: "" }, { label: 'Rauswerfen', description: 'Wirft jemanden aus dem Fahrzeug', icon: 'img/icons/vehicle/eject.png', id: 'REQUEST_VEHICLE_EJECT', arg: "" }, { label: 'Kofferraum', description: 'Öffnet/Schließt den Kofferraum', icon: 'img/icons/vehicle/trunk.png', id: 'REQUEST_VEHICLE_TOGGLE_DOOR', arg: "5" }, { label: 'Motor', description: 'Startet/Stopt den Motor', icon: 'img/icons/vehicle/engine.png', id: 'REQUEST_VEHICLE_TOGGLE_ENGINE', arg: "" }, { label: 'Radio', description: 'Schaltet das Radio ab', icon: 'img/icons/vehicle/radio.png', id: 'LOCAL_ACTION', arg: "RadioOff" }, { label: 'Hoch/Runter', description: 'Rampe hoch/runter', icon: 'img/icons/vehicle/UpAndDown.png', id: 'REQUEST_VEHICLE_FlATBED_LOAD_TOGGLE', arg: "dposclient" }, { label: 'An/Ab', description: 'Seil an/ab', icon: 'img/icons/vehicle/rope.png', id: 'REQUEST_VEHICLE_FlATBED_ROPE_TOGGLE', arg: "dposclient" }];
+        this.menuItemsInCarDposFlatbed = [{ label: 'Exit', description: 'Schließt das Menü', icon: 'img/icons/exit.png', id: 'donothing', arg: "" }, { label: 'Schlüssel', description: 'Fahrzeug auf/abschließen', icon: 'img/icons/vehicle/key.png', id: 'REQUEST_VEHICLE_TOGGLE_LOCK', arg: "" }, { label: 'Rauswerfen', description: 'Wirft jemanden aus dem Fahrzeug', icon: 'img/icons/vehicle/eject.png', id: 'REQUEST_VEHICLE_EJECT', arg: "" }, { label: 'Kofferraum', description: 'Öffnet/Schließt den Kofferraum', icon: 'img/icons/vehicle/trunk.png', id: 'REQUEST_VEHICLE_TOGGLE_DOOR', arg: "5" }, { label: 'Motor', description: 'Startet/Stopt den Motor', icon: 'img/icons/vehicle/engine.png', id: 'REQUEST_VEHICLE_TOGGLE_ENGINE', arg: "" }, { label: 'Radio', description: 'Schaltet das Radio ab', icon: 'img/icons/vehicle/radio.png', id: 'LOCAL_ACTION', arg: "RadioOff" }, { label: 'Auf/Ab', description: 'Aufladen/Abladen Flatbed', icon: 'img/icons/vehicle/UpAndDown.png', id: 'REQUEST_VEHICLE_FlATBED_LOAD_TOGGLE', arg: "dposclient" }];
         let smokeR = -1;
         let smokeG = -1;
         let smokeB = -1;
@@ -14169,7 +15223,7 @@ class VehicleModule {
         setInterval(() => {
             if (mp.players.local.vehicle != null && mp.players.local.isInAnyVehicle(false) && (mp.players.local.vehicle.isSirenOn() != this.lastSireneStateCheck || this.lastSireneStateCheck == null)) {
                 this.lastSireneStateCheck = mp.players.local.vehicle.isSirenOn();
-                mp.events.callRemote("syncSireneStatus", mp.players.local.vehicle.remoteId, mp.players.local.vehicle.isSirenOn(), mp.players.local.vehicle.isSirenSoundOn(), "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+                mp.events.callRemote("syncSireneStatus", mp.players.local.vehicle.remoteId, mp.players.local.vehicle.isSirenOn(), mp.players.local.vehicle.isSirenSoundOn(), "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
             }
         }, 500);
 
@@ -14215,7 +15269,7 @@ class VehicleModule {
                 entity.setInvincible(false);
                 await mp.game.waitAsync(100);
                 if (entity != null && mp.vehicles.exists(entity) && entity.type == "vehicle") {
-                    mp.events.callRemote("requestVehicleLongRangeData", entity.remoteId, "0d02fb89052145a2994374a9de024de69ca2434713be69de5ebf13e2453fccb7");
+                    mp.events.callRemote("requestVehicleLongRangeData", entity.remoteId, "483354befdca5125fa981373556f0cdc7196ca6b28caebf0801a1502f2dae335");
                 }
             }
         });
@@ -14346,7 +15400,7 @@ class VehicleModule {
 
 exports.default = new VehicleModule();
 
-},{"../player/player":208}],232:[function(require,module,exports){
+},{"../player/player":218}],246:[function(require,module,exports){
 'use strict';
 
 require('./vehicle-module');
@@ -14355,7 +15409,7 @@ require('./flatbed');
 
 require('./boat-module');
 
-},{"./boat-module":228,"./flatbed":229,"./vehicle-module":231}],233:[function(require,module,exports){
+},{"./boat-module":242,"./flatbed":243,"./vehicle-module":245}],247:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14384,6 +15438,7 @@ class Voice {
     constructor() {
         this.radioChatPlayers = '';
         this.radioAirFunkPlayers = '';
+        this.customVoicePlayers = '';
         this.serverId = 1;
         this.voiceChannel = '';
         this.voicePassword = '';
@@ -14413,6 +15468,10 @@ class Voice {
 
         mp.events.add('setAirFunkPlayers', funkPlayers => {
             this.radioAirFunkPlayers = funkPlayers;
+        });
+
+        mp.events.add('setCustomVoicePlayers', customVoicePlayers => {
+            this.customVoicePlayers = customVoicePlayers;
         });
 
         mp.events.add('setCallingPlayer', phonePartner => {
@@ -14498,11 +15557,16 @@ class Voice {
                     voiceAirFunk = `${voice.radioAirFunkPlayers};`;
                 }
 
+                let voiceCustomVoice = "";
+                if (voice.customVoicePlayers.length > 0) {
+                    voiceCustomVoice = `${voice.customVoicePlayers};`;
+                }
+
                 if (_player2.default.state == 0) {
-                    _browser2.default.voice.url = `http://localhost:15338/player/${voice.voiceChannel}/${voice.voicePassword}/${hash}/${voiceAirFunk}${voicePlayers.join(";")}/`;
+                    _browser2.default.voice.url = `http://localhost:15338/player/${voice.voiceChannel}/${voice.voicePassword}/${hash}/${voiceAirFunk}${voiceCustomVoice}${voicePlayers.join(";")}/`;
                 } else {
 
-                    _browser2.default.voice.url = `http://localhost:15338/player/${voice.voiceChannel}/${voice.voicePassword}/${hash}/${voice.radioChatPlayers};${voiceAirFunk}${voicePlayers.join(";")}/`;
+                    _browser2.default.voice.url = `http://localhost:15338/player/${voice.voiceChannel}/${voice.voicePassword}/${hash}/${voice.radioChatPlayers};${voiceAirFunk}${voiceCustomVoice}${voicePlayers.join(";")}/`;
                 }
                 _browser2.default.voice.execute(`document.body.style.display = "none";`);
             }
@@ -14512,7 +15576,7 @@ class Voice {
 
 exports.default = new Voice();
 
-},{"../app/apps":12,"../apps/callManage":21,"../browser/browser":104,"../player/player":208}],234:[function(require,module,exports){
+},{"../app/apps":12,"../apps/callManage":21,"../browser/browser":106,"../player/player":218}],248:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14614,7 +15678,7 @@ class Window extends _component2.default {
 
 exports.default = Window;
 
-},{"../browser/browser":104,"../components/component":106,"../peds/peds":202,"./windows":235}],235:[function(require,module,exports){
+},{"../browser/browser":106,"../components/component":108,"../peds/peds":212,"./windows":249}],249:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -14671,6 +15735,6 @@ class Windows {
 
 exports.default = new Windows();
 
-},{"../browser/browser":104}]},{},[1]);
+},{"../browser/browser":106}]},{},[1]);
 
 }
