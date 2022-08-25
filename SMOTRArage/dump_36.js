@@ -1,712 +1,144 @@
 {
-let oldFishingPos = false;
-let posFishingWarns = 0;
-
-function fishingStart() {
-    if(fishingMode && hud_browser) {
-		if(typeof(localPlayer.getVariable("player.inv")) === "undefined") return notyAPI.error("Инвентарь не инициализирован, рыбалка недоступна.", 3000, true);
-		let myInv = localPlayer.getVariable("player.inv");
-		if(typeof(myInv["instrument"]) !== "undefined") {
-			if(parseInt(myInv["instrument"].health) <= 0) return notyAPI.error("Рыболовная снасть слишком изношена.", 3000, true);
-		}else{
-			return notyAPI.error("У Вас должна быть удочка.", 3000, true);
-		}
-		
-		if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
-			if(localPlayer.getVariable("active.deal")) return notyAPI.error("У Вас есть активная сделка, рыбалка недоступна.", 3000, true);
-		}
-		
-		localPlayer.clearTasksImmediately();
-		
-		let breadCount = 0, insectsCount = 0, wormsCount = 0, bloodwormCount = 0, minfishCount = 0;
-		for (let i = 1; i <= 30; i++) {
-			if(typeof(myInv[i.toString()]) !== "undefined") {
-				if(myInv[i.toString()].hash == "bread") breadCount = breadCount + parseInt(myInv[i.toString()].amount);
-				else if(myInv[i.toString()].hash == "insects") insectsCount = insectsCount + parseInt(myInv[i.toString()].amount);
-				else if(myInv[i.toString()].hash == "worms") wormsCount = wormsCount + parseInt(myInv[i.toString()].amount);
-				else if(myInv[i.toString()].hash == "bloodworm") bloodwormCount = bloodwormCount + parseInt(myInv[i.toString()].amount);
-				else if(myInv[i.toString()].hash == "minifish") minfishCount = minfishCount + parseInt(myInv[i.toString()].amount);
-			}
-		}
-		
-		if(breadCount == 0 && insectsCount == 0 && wormsCount == 0 && bloodwormCount == 0 && minfishCount == 0) return notyAPI.error("У Вас нет наживок, купите их в магазине 24/7.", 3000, true);
-		
-		allowBinds = [];
-		hud_browser.execute('toggleFishBait(\''+JSON.stringify(myInv)+'\');');
-		mp.gui.cursor.visible = true;
-	}
-}
-
-function fishingStop(isDeath) {
-    if(fishingMode) {
-		if(typeof(fishingMode.rod) !== "undefined") mp.events.callRemote('stopFishingRod', fishingMode.rod);
-		if(poklevkaTimer) clearInterval(poklevkaTimer);
-		if(typeof(fishingMode.popl) !== "undefined") {
-			if(fishingMode.popl) {
-				if(mp.vehicles.exists(fishingMode.popl)) {
-					fishingMode.popl.destroy();
-				}
-			}
-		}
-		if(typeof(isDeath) === "undefined") localPlayer.clearTasksImmediately();
-		localPlayer.freezePosition(false);
-		restoreBinds();
-		fishingStartProcess = false;
-		fishingMode = {"rod":fishingMode.rod};
-	}
-}
-
-function closeFishingBait() {
-	if(hud_browser) {
-		hud_browser.execute("toggleFishBait();");
-		mp.gui.cursor.visible = false;
-		restoreBinds();
-	}
-}
-mp.events.add("closeFishingBait", closeFishingBait);
-
-var fishingStartProcess = false;
-function baitFishSelected(baitData) {
-	if(hud_browser && baitData) {
-		baitData = JSON.parse(baitData);
-		hud_browser.execute("toggleFishBait();");
-		mp.gui.cursor.visible = false;
-		
-		if(typeof(localPlayer.getVariable("player.inv")) === "undefined") {
-			restoreBinds();
-			return notyAPI.error("Инвентарь не инициализирован, рыбалка недоступна.", 3000, true);
-		}
-		
-		if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
-			if(localPlayer.getVariable("active.deal")) {
-				restoreBinds();
-				return notyAPI.error("У Вас есть активная сделка, рыбалка недоступна.", 3000, true);
-			}
-		}
-		
-		let myInv = localPlayer.getVariable("player.inv");
-		
-		if(typeof(myInv["instrument"]) !== "undefined") {
-			if(parseInt(myInv["instrument"].health) <= 0) return notyAPI.error("Рыболовная снасть слишком изношена.", 3000, true);
-		}else{
-			return notyAPI.error("У Вас должна быть удочка.", 3000, true);
-		}
-		
-		let breadCount = 0, insectsCount = 0, wormsCount = 0, bloodwormCount = 0, minfishCount = 0;
-		for (let i = 1; i <= 30; i++) {
-			if(typeof(myInv[i.toString()]) !== "undefined") {
-				if(myInv[i.toString()].hash == "bread") breadCount = breadCount + parseInt(myInv[i.toString()].amount);
-				else if(myInv[i.toString()].hash == "insects") insectsCount = insectsCount + parseInt(myInv[i.toString()].amount);
-				else if(myInv[i.toString()].hash == "worms") wormsCount = wormsCount + parseInt(myInv[i.toString()].amount);
-				else if(myInv[i.toString()].hash == "bloodworm") bloodwormCount = bloodwormCount + parseInt(myInv[i.toString()].amount);
-				else if(myInv[i.toString()].hash == "minifish") minfishCount = minfishCount + parseInt(myInv[i.toString()].amount);
-			}
-		}
-		
-		if(baitData.bait == "bread" && breadCount < 1) {
-			restoreBinds();
-			return notyAPI.error("У Вас нет хлебного мякиша, выберите другую наживку.", 3000, true);
-		}else if(baitData.bait == "insects" && insectsCount < 1) {
-			restoreBinds();
-			return notyAPI.error("У Вас нет личинок насекомых, выберите другую наживку.", 3000, true);
-		}else if(baitData.bait == "worms" && wormsCount < 1) {
-			restoreBinds();
-			return notyAPI.error("У Вас нет дождевых червей, выберите другую наживку.", 3000, true);
-		}else if(baitData.bait == "bloodworm" && bloodwormCount < 1) {
-			restoreBinds();
-			return notyAPI.error("У Вас нет личинок мотыля, выберите другую наживку.", 3000, true);
-		}else if(baitData.bait == "minifish" && minfishCount < 1) {
-			restoreBinds();
-			return notyAPI.error("У Вас нет мальков, выберите другую наживку.", 3000, true);
-		}
-		
-		if(dealerPanel) return notyAPI.error("У Вас есть активная сделка с барыгой.", 3000, true);
-		
-		fishingStartProcess = true;
-		restoreBinds();
-		
-		let theRod = "rod";
-		if(typeof(fishingMode.rod) !== "undefined") theRod = fishingMode.rod;
-		mp.events.callRemote('startFishing', baitData.bait, baitData.force, theRod);
-	}
-}
-mp.events.add("baitFishSelected", baitFishSelected);
-
-mp.game.streaming.requestAnimDict("amb@world_human_stand_fishing@idle_a");
-function fishingStartResult(selectedBait, selectedForce) {
-	if(hud_browser && selectedBait && selectedForce) {
-		selectedForce = parseInt(selectedForce);
-		selectedForce = selectedForce/2;
-		
-		if(selectedForce < 5) selectedForce = 5;
-		else if(selectedForce > 100) selectedForce = 50;
-		
-		if(typeof(fishingMode.rod) !== "undefined") {
-			if(fishingMode.rod == "badrod") selectedForce = selectedForce / 3;
-			else if(fishingMode.rod == "rod") selectedForce = selectedForce / 1.5;
-			//chatAPI.sysPush("<span style=\"color:#FF6146;\"> * fishingMode.rod: "+fishingMode.rod+"</span>");
-		}
-		
-		if(selectedForce < 5) selectedForce = 5;
-		else if(selectedForce > 100) selectedForce = 50;
-		
-		//chatAPI.sysPush("<span style=\"color:#FF6146;\"> * selectedForce: "+selectedForce+"</span>");
-		
-		localPlayer.freezePosition(true);
-		localPlayer.taskPlayAnim("amb@world_human_stand_fishing@idle_a", "idle_c", 8.0, 1.0, -1, 1, 1.0, false, false, false);
-		allowBinds = [0x45, 0x54];
-		
-		let myPos = localPlayer.position;
-		let myRot = localPlayer.getHeading();
-		
-		myPos.x = myPos.x + Math.sin(Math.radians(-myRot))*selectedForce;
-		myPos.y = myPos.y + Math.cos(Math.radians(-myRot))*selectedForce;
-		myPos.z = mp.game.gameplay.getGroundZFor3dCoord(myPos.x, myPos.y, myPos.z, parseFloat(0), false)+1;
-		
-		let objectPlaceChecker = mp.objects.new(mp.game.joaat("apa_mp_h_acc_candles_01"), myPos,
-		{
-			rotation: 0,
-			alpha: 0,
-			dimension: 0
-		});
-		
-		// waterchecker
-		let pedWaterChecker = mp.peds.new(
-			mp.game.joaat('a_c_fish'), 
-			myPos,
-			270.0,
-			localPlayer.dimension
-		);
-		setTimeout(function() { pedWaterChecker.freezePosition(false); }, 500);
-		
-		if(hud_browser) hud_browser.execute('playSound("fishStart", "0.15");');
-		
-		setTimeout(function() {
-			if(mp.peds.exists(pedWaterChecker) && mp.objects.exists(objectPlaceChecker)) {
-				localPlayer.taskPlayAnim("amb@world_human_stand_fishing@idle_a", "idle_a", 8.0, 1.0, -1, 1, 1.0, false, false, false);
-				
-				let inWater = pedWaterChecker.isInWater();
-				let isDead = pedWaterChecker.isDead();
-				//chatAPI.sysPush("<span style=\"color:#FF6146;\"> * isInWater: "+inWater.toString()+"</span>");
-				//chatAPI.sysPush("<span style=\"color:#FF6146;\"> * isDead: "+isDead.toString()+"</span>");
-				let fishPos = JSON.parse(JSON.stringify(pedWaterChecker.position));
-				let zWater = mp.game1.water.getWaterHeight(fishPos.x, fishPos.y, fishPos.z, 0);
-				pedWaterChecker.destroy();
-				
-				let fishDepth = roundNumber(mp.game.gameplay.getDistanceBetweenCoords(fishPos.x, fishPos.y, fishPos.z, fishPos.x, fishPos.y, zWater, true), 1);
-				
-				//if(fishDepth > 54 && fishDepth < 55.3) fishDepth = 3.5;
-				//else if(fishDepth > 100) fishDepth = false;
-				
-				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), 198.8398, -934.9554, 32.1712, 140)) fishDepth = 1.0; // ЛС, Новогодняя ёлка
-				
-				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), 1081.7274, -644.2034, 54.4545, 100)) fishDepth = 2.5; // Озеро ЛС, Зеркальный парк, миррор плейс.
-				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), 1218.9407, -89.261, 58.9954, 180)) fishDepth = 1.45; // Сеть речушек ЛС, Бульвар миррор-парк.
-				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), -1166.9042, 35.2409, 51.5676, 200)) fishDepth = 1.75; // Три озера ЛС, Дорсет драйв.
-				
-				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), -1544.209, 1458.4209, 116.2313, 350)) fishDepth = 2.45; // Долина Тонгва, Тонгва драйв. 1
-				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), -1421.0978, 2013.1532, 58.8455, 350)) fishDepth = 3.25; // Долина Тонгва, Тонгва драйв. 2
-				
-				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), 3097.5725, 6022.7881, 121.6004, 30)) fishDepth = 1.65; // Гора Гордо, Озеро 1
-				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), 2559.1509, 6153.6787, 161.1644, 30)) fishDepth = 3.15; // Гора Гордо, Озеро 2
-				
-				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), 1261.8419, -1051.9392, 38.6356, 100)) fishDepth = 1.35; // Высоты Муриетты, говнотечка.
-				
-				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), 1069.0568, 16.7011, 79.2786, 30)) fishDepth = 1.65; // Иподром возле Казино, Озеро 1
-				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), 1203.3315, 209.7524, 78.8071, 50)) fishDepth = 1.35; // Иподром возле Казино, Озеро 2
-				
-				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), -1319.1462, -430.8666, 34.7838, 30)) fishDepth = 1.35; // Фикс бассейна, Дель-Перро
-				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), -1708.988, -188.32, 56.3206, 100)) fishDepth = 1.55; // Фикс искусственного озера на кладбище ЛС
-				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), -2008.8386, -286.2224, 31.219, 80)) fishDepth = 1.35; // Фикс бассейна, Пасифик Блаффс.
-				
-				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), -2954.6509, 698.0601, 27.754, 100)) fishDepth = 1.55; // Фикс бассейнов в Каньоне Бэнхэм
-				
-				if(mp.game.object.isObjectNearPoint(mp.game.joaat("apa_mp_h_acc_candles_01"), -1849.9648, 283.6768, 87.1439, 30)) fishDepth = 1.55; // Фикс бассейна в особняке на VW
-				
-				
-				if(imInZZ) fishDepth = 1.0; // Если возможна рыбалка в ЗЗ, то 1 м.
-				
-				objectPlaceChecker.destroy();
-				
-				if(fishDepth > 100) fishDepth = false;
-				
-				if(fishDepth && inWater == 1 && isDead == 0 && zWater > -1) {
-					// poplavok
-					
-					let poplVeh = mp.vehicles.new(mp.game.joaat("popl"), new mp.Vector3(fishPos.x, fishPos.y, zWater), {
-						alpha: 255,
-						color: [[255, 255, 255],[255, 255, 255]],
-						locked: true,
-						engine: true,
-						dimension: localPlayer.dimension
-					});
-					
-					poplVeh.setLights(3);
-					poplVeh.setLightMultiplier(0.5);
-					poplVeh.setFullbeam(false);
-					poplVeh.setMaxSpeed(0);
-					poplVeh.setEngineHealth(660);
-					poplVeh.setProofs(true, true, true, true, true, false, false, true);
-					
-					fishingMode["popl"] = poplVeh;
-					
-					fishingMode["pos"] = fishPos;
-					fishingMode["bait"] = selectedBait;
-					fishingMode["depth"] = fishDepth;
-					fishingMode["poklevka"] = false;
-					fishingMode["putting"] = false;
-					fishingMode["time"] = 0;
-					
-					fishingMode["tip"] = "всё в порядке";
-					
-					if(!oldFishingPos) {
-						oldFishingPos = localPlayer.position;
-						posFishingWarns = 0;
-					}else{
-						let oldAndNew = mp.game.system.vdist(localPlayer.position.x, localPlayer.position.y, localPlayer.position.z, oldFishingPos.x, oldFishingPos.y, oldFishingPos.z);
-						if(oldAndNew < getRandomInt(5,15)) {
-							posFishingWarns++;
-						}else{
-							oldFishingPos = false;
-							posFishingWarns = 0;
-						}
-					}
-					
-					if(posFishingWarns >= 4) {
-						fishingMode["tip"] = "говорят, надо сместиться в другое место";
-					}else{
-						if(fishDepth > 0 && fishDepth <= 5) {
-							if(selectedBait == "bread") fishingMode["tip"] = "всё нормально";
-							else if(selectedBait == "insects") fishingMode["tip"] = "в целом, всё нормально";
-							else if(selectedBait == "worms") fishingMode["tip"] = "в целом, так себе";
-							else if(selectedBait == "bloodworm") fishingMode["tip"] = "малая глубина для мотыля";
-							else if(selectedBait == "minifish") fishingMode["tip"] = "малая глубина для малька";
-						}else if(fishDepth > 5 && fishDepth <= 15) {
-							if(selectedBait == "bread") fishingMode["tip"] = "всё хорошо";
-							else if(selectedBait == "insects") fishingMode["tip"] = "всё нормально";
-							else if(selectedBait == "worms") fishingMode["tip"] = "всё хорошо";
-							else if(selectedBait == "bloodworm") fishingMode["tip"] = "ну, так себе";
-							else if(selectedBait == "minifish") fishingMode["tip"] = "малая глубина для малька";
-						}else if(fishDepth > 15 && fishDepth <= 25) {
-							if(selectedBait == "bread") fishingMode["tip"] = "всё отлично";
-							else if(selectedBait == "insects") fishingMode["tip"] = "всё хорошо";
-							else if(selectedBait == "worms") fishingMode["tip"] = "всё нормально";
-							else if(selectedBait == "bloodworm") fishingMode["tip"] = "ну, так себе";
-							else if(selectedBait == "minifish") fishingMode["tip"] = "тут вроде что-то есть";
-						}else if(fishDepth > 25 && fishDepth <= 45) {
-							if(selectedBait == "bread") fishingMode["tip"] = "слишком глубоко для мякиша";
-							else if(selectedBait == "insects") fishingMode["tip"] = "всё отлично";
-							else if(selectedBait == "worms") fishingMode["tip"] = "всё хорошо";
-							else if(selectedBait == "bloodworm") fishingMode["tip"] = "всё нормально";
-							else if(selectedBait == "minifish") fishingMode["tip"] = "ну, пойдёт";
-						}else if(fishDepth > 45 && fishDepth <= 65) {
-							if(selectedBait == "bread") fishingMode["tip"] = "слишком глубоко для мякиша";
-							else if(selectedBait == "insects") fishingMode["tip"] = "слишком глубоко для насекомых";
-							else if(selectedBait == "worms") fishingMode["tip"] = "всё супер";
-							else if(selectedBait == "bloodworm") fishingMode["tip"] = "всё отлично";
-							else if(selectedBait == "minifish") fishingMode["tip"] = "всё нормально";
-						}else if(fishDepth > 65 && fishDepth <= 85) {
-							if(selectedBait == "bread") fishingMode["tip"] = "слишком глубоко для мякиша";
-							else if(selectedBait == "insects") fishingMode["tip"] = "слишком глубоко для насекомых";
-							else if(selectedBait == "worms") fishingMode["tip"] = "слишком глубоко для червей";
-							else if(selectedBait == "bloodworm") fishingMode["tip"] = "всё отлично";
-							else if(selectedBait == "minifish") fishingMode["tip"] = "всё хорошо";
-						}else if(fishDepth > 85) {
-							if(selectedBait == "bread") fishingMode["tip"] = "слишком глубоко для мякиша";
-							else if(selectedBait == "insects") fishingMode["tip"] = "слишком глубоко для насекомых";
-							else if(selectedBait == "worms") fishingMode["tip"] = "слишком глубоко для червей";
-							else if(selectedBait == "bloodworm") fishingMode["tip"] = "слишком глубоко для мотыля";
-							else if(selectedBait == "minifish") fishingMode["tip"] = "всё отлично";
-						}
-					}
-					
-					if(hud_browser) hud_browser.execute('playSound("splash", "0.1");');
-					//chatAPI.sysPush("<span style=\"color:#FF6146;\"> * fishing: "+JSON.stringify(fishingMode)+"</span>");
-				}else{
-					if(!fishDepth) {
-						fishingStartProcess = false;
-						fishingStop();
-						mp.game.ui.messages.showMidsizedShard("~w~Не хватило ~r~лески~w~ или ~r~мёртвый ~w~водоём!", "~s~Глубоко или мёртвый водоём, попробуйте в другом месте..", 5, false, true, 6500);
-					}else{
-						fishingStartProcess = false;
-						fishingStop();
-						mp.game.ui.messages.showMidsizedShard("~w~Вся приманка ~r~рассыпалась~w~!", "~s~Попробуйте ещё раз..", 5, false, true, 6500);
-					}
-				}
-				
-				fishingStartProcess = false;
-			}
-		}, 2500);
-	}
-}
-mp.events.add("fishingStartResult", fishingStartResult);
-
-var poklevkaTimer = false;
-function fishingProcessor() {
-	if(typeof(fishingMode.time) !== "undefined") {
-		fishingMode.time = parseInt(fishingMode.time) + 1;
-		//chatAPI.sysPush("<span style=\"color:#FF6146;\"> * fishing: "+JSON.stringify(fishingMode)+"</span>");
-		
-		let isPoklevka = 0;
-		if(typeof(fishingMode.depth) !== "undefined") {
-			if(fishingMode.depth > 0 && fishingMode.depth <= 5) {
-				if(fishingMode.time == 1) isPoklevka = getRandomInt(0,3);
-				else if(fishingMode.time >= 2) isPoklevka = 1;
-			}else if(fishingMode.depth > 5 && fishingMode.depth <= 15) {
-				if(fishingMode.time == 1) isPoklevka = getRandomInt(0,4);
-				else if(fishingMode.time == 2) isPoklevka = getRandomInt(0,3);
-				else if(fishingMode.time >= 3) isPoklevka = 1;
-			}else if(fishingMode.depth > 15 && fishingMode.depth <= 25) {
-				if(fishingMode.time == 1) isPoklevka = getRandomInt(0,5);
-				else if(fishingMode.time == 2) isPoklevka = getRandomInt(0,4);
-				else if(fishingMode.time == 3) isPoklevka = getRandomInt(0,3);
-				else if(fishingMode.time >= 4) isPoklevka = 1;
-			}else if(fishingMode.depth > 25 && fishingMode.depth <= 45) {
-				if(fishingMode.time == 1) isPoklevka = getRandomInt(0,6);
-				else if(fishingMode.time == 2) isPoklevka = getRandomInt(0,5);
-				else if(fishingMode.time == 3) isPoklevka = getRandomInt(0,4);
-				else if(fishingMode.time == 4) isPoklevka = getRandomInt(0,3);
-				else if(fishingMode.time >= 5) isPoklevka = 1;
-			}else if(fishingMode.depth > 45 && fishingMode.depth <= 65) {
-				if(fishingMode.time == 1) isPoklevka = getRandomInt(0,7);
-				else if(fishingMode.time == 2) isPoklevka = getRandomInt(0,6);
-				else if(fishingMode.time == 3) isPoklevka = getRandomInt(0,5);
-				else if(fishingMode.time == 4) isPoklevka = getRandomInt(0,3);
-				else if(fishingMode.time >= 5) isPoklevka = 1;
-			}else if(fishingMode.depth > 65 && fishingMode.depth <= 85) {
-				if(fishingMode.time == 1) isPoklevka = getRandomInt(0,8);
-				else if(fishingMode.time == 2) isPoklevka = getRandomInt(0,7);
-				else if(fishingMode.time == 3) isPoklevka = getRandomInt(0,5);
-				else if(fishingMode.time == 4) isPoklevka = getRandomInt(0,3);
-				else if(fishingMode.time >= 5) isPoklevka = 1;
-			}else if(fishingMode.depth > 85) {
-				if(fishingMode.time == 1) isPoklevka = getRandomInt(0,10);
-				else if(fishingMode.time == 2) isPoklevka = getRandomInt(0,8);
-				else if(fishingMode.time == 3) isPoklevka = getRandomInt(0,6);
-				else if(fishingMode.time == 4) isPoklevka = getRandomInt(0,4);
-				else if(fishingMode.time >= 5) isPoklevka = 1;
-			}
-		}
-		
-		if(isPoklevka == 1) {
-			localPlayer.taskPlayAnim("amb@world_human_stand_fishing@idle_a", "idle_c", 8.0, 1.0, -1, 1, 1.0, false, false, false);
-			fishingMode.poklevka = true;
-			mp.game.ui.messages.showMidsized("~w~Ого, у Вас ~g~клюёт", "~w~Подсекайте рыбу, срочно нажмите ~g~E ~w~!");
-			if(hud_browser) hud_browser.execute('playSound("poklevka", "0.15");');
-			
-			let poklevkaTimes = 0;
-			poklevkaTimer = setInterval(function() {
-				poklevkaTimes++;
-				if(poklevkaTimes >= 5) {
-					clearInterval(poklevkaTimer);
-					fishingStop();
-					mp.game.ui.messages.showMidsizedShard("~w~Рыба ~r~сорвалась~w~!", "~s~Вы не смогли поймать рыбу~n~Очень жаль, в следующий раз получится!", 5, false, true, 6500);
-				}
-			}, 1000);
-		}else{
-			if(hud_browser && getRandomInt(0,2) == 1) {
-				hud_browser.execute('playSound("fakePoklevka", "0.15");');
-				localPlayer.taskPlayAnim("amb@world_human_stand_fishing@idle_a", "idle_b", 8.0, 1.0, -1, 1, 1.0, false, false, false);
-			}else{
-				localPlayer.taskPlayAnim("amb@world_human_stand_fishing@idle_a", "idle_a", 8.0, 1.0, -1, 1, 1.0, false, false, false);
-			}
-		}
-	}
-}
-
-function poklevkaOk() {
-	if(poklevkaTimer) clearInterval(poklevkaTimer);
-	if(hud_browser) {
-		fishingMode.putting = true;
-		hud_browser.execute("toggleFishPutting(true);");
-		mp.gui.cursor.visible = true;
-		allowBinds = [];
-	}
-}
-
-function fishPutting(putResult) {
-	if(hud_browser && typeof(putResult) !== "undefined") {
-		hud_browser.execute("toggleFishPutting();");
-		if(putResult) {
-			if(typeof(fishingMode.depth) !== "undefined" && typeof(fishingMode.bait) !== "undefined") {
-				let fishHash = fishGenerator(fishingMode.depth, fishingMode.bait);
-				if(typeof(allStuff["fish"][fishHash]) !== "undefined") {
-					let fishName = allStuff["fish"][fishHash].name;
-					mp.game.ui.messages.showMidsizedShard("~w~Рыба ~g~поймана~w~!", "~w~Вы поймали ~g~"+fishName+"~n~~w~Проверьте Ваш инвентарь!", 5, false, true, 6500);
-					mp.events.callRemote('invPutFish', fishHash);
-				}else{
-					mp.game.ui.messages.showMidsizedShard("~w~Приманка ~r~оторвалась~w~!", "~s~Вы не смогли поймать рыбу~n~Очень жаль, в следующий раз получится!", 5, false, true, 6500);
-				}
-			}else{
-				mp.game.ui.messages.showMidsizedShard("~w~Приманка ~r~оторвалась~w~!", "~s~Вы не смогли поймать рыбу~n~Очень жаль, в следующий раз получится!", 5, false, true, 6500);
-			}
-		}else{
-			mp.game.ui.messages.showMidsizedShard("~w~Рыба ~r~сорвалась~w~!", "~s~Вы не смогли поймать рыбу~n~Очень жаль, в следующий раз получится!", 5, false, true, 6500);
-		}
-		mp.gui.cursor.visible = false;
-	}
-	fishingStop();
-}
-mp.events.add("fishPutting", fishPutting);
-
-function fishGenerator(theDepth, theBait) {
-	if(typeof(theDepth) !== "undefined" && typeof(theBait) !== "undefined") {
-		if(theDepth && theBait) {
-			let theFishResult = false;
-			
-			let theRod = "badrod";
-			
-			if(typeof(fishingMode.rod) !== "undefined") theRod = fishingMode.rod;
-			
-			if(posFishingWarns >= 4) {
-				theFishResult = "deadfish";
-			}else{
-				if(theDepth > 0 && theDepth <= 5) {
-					if(theBait == "bread") {
-						let getRand = getRandomInt(0,4);
-						if(getRand == 0) theFishResult = "ukleyka";
-						else if(getRand == 1) theFishResult = "peskar";
-						else if(getRand == 2) theFishResult = "ukleyka";
-						else if(getRand == 3) theFishResult = "peskar";
-					}else if(theBait == "insects") {
-						let getRand = getRandomInt(0,4);
-						if(getRand == 0) theFishResult = "krasnoperka";
-						else if(getRand == 1) theFishResult = "ukleyka";
-						else if(getRand == 2) theFishResult = "plotva";
-						else if(getRand == 3) theFishResult = "zherekh";
-					}else if(theBait == "worms") {
-						let getRand = getRandomInt(0,4);
-						if(getRand == 0) theFishResult = "lesh";
-						else if(getRand == 1) theFishResult = "lesh";
-						else if(getRand == 2) theFishResult = "karas";
-						else if(getRand == 3) theFishResult = "karas";
-					}else if(theBait == "bloodworm") {
-						theFishResult = false;
-					}else if(theBait == "minifish") {
-						theFishResult = false;
-					}
-				}else if(theDepth > 5 && theDepth <= 15) {
-					if(theBait == "bread") {
-						let getRand = getRandomInt(0,4);
-						if(getRand == 0) theFishResult = "peskar";
-						else if(getRand == 1) theFishResult = "peskar";
-						else if(getRand == 2) theFishResult = "ukleyka";
-						else if(getRand == 3) theFishResult = "gustera";
-					}else if(theBait == "insects") {
-						let getRand = getRandomInt(0,4);
-						if(getRand == 0) theFishResult = "krasnoperka";
-						else if(getRand == 1) theFishResult = "ukleyka";
-						else if(getRand == 2) theFishResult = "zherekh";
-						else if(getRand == 3) theFishResult = "plotva";
-					}else if(theBait == "worms") {
-						let getRand = getRandomInt(0,4);
-						if(getRand == 0) theFishResult = "lesh";
-						else if(getRand == 1) theFishResult = "karas";
-						else if(getRand == 2) theFishResult = "karas";
-						else if(getRand == 3) theFishResult = "golavl";
-					}else if(theBait == "bloodworm") {
-						if(theRod == "badrod") {
-							let getRand = getRandomInt(0,4);
-							if(getRand == 0) theFishResult = "lesh";
-							else if(getRand == 1) theFishResult = "karas";
-							else if(getRand == 2) theFishResult = "karas";
-							else if(getRand == 3) theFishResult = "golavl";
-						}else{
-							let getRand = getRandomInt(0,4);
-							if(getRand == 0) theFishResult = "forel";
-							else if(getRand == 1) theFishResult = "forel";
-							else if(getRand == 2) theFishResult = "losos";
-							else if(getRand == 3) theFishResult = "tunec";
-						}
-					}else if(theBait == "minifish") {
-						theFishResult = false;
-					}
-				}else if(theDepth > 15 && theDepth <= 25) {
-					if(theBait == "bread") {
-						let getRand = getRandomInt(0,4);
-						if(getRand == 0) theFishResult = "krasnoperka";
-						else if(getRand == 1) theFishResult = "ukleyka";
-						else if(getRand == 2) theFishResult = "peskar";
-						else if(getRand == 3) theFishResult = "zherekh";
-					}else if(theBait == "insects") {
-						let getRand = getRandomInt(0,4);
-						if(getRand == 0) theFishResult = "krasnoperka";
-						else if(getRand == 1) theFishResult = "plotva";
-						else if(getRand == 2) theFishResult = "peskar";
-						else if(getRand == 3) theFishResult = "gustera";
-					}else if(theBait == "worms") {
-						let getRand = getRandomInt(0,4);
-						if(getRand == 0) theFishResult = "sazan";
-						else if(getRand == 1) theFishResult = "golavl";
-						else if(getRand == 2) theFishResult = "lesh";
-						else if(getRand == 3) theFishResult = "karas";
-					}else if(theBait == "bloodworm") {
-						if(theRod == "badrod") {
-							let getRand = getRandomInt(0,4);
-							if(getRand == 0) theFishResult = "sazan";
-							else if(getRand == 1) theFishResult = "golavl";
-							else if(getRand == 2) theFishResult = "lesh";
-							else if(getRand == 3) theFishResult = "karas";
-						}else{
-							let getRand = getRandomInt(0,4);
-							if(getRand == 0) theFishResult = "losos";
-							else if(getRand == 1) theFishResult = "forel";
-							else if(getRand == 2) theFishResult = "scat";
-							else if(getRand == 3) theFishResult = "tunec";
-						}
-					}else if(theBait == "minifish") {
-						let getRand = getRandomInt(0,2);
-						if(getRand == 0) theFishResult = "scat";
-						else if(getRand == 1) theFishResult = "tunec";
-					}
-				}else if(theDepth > 25 && theDepth <= 45) {
-					if(theBait == "bread") {
-						theFishResult = false;
-					}else if(theBait == "insects") {
-						let getRand = getRandomInt(0,4);
-						if(getRand == 0) theFishResult = "krasnoperka";
-						else if(getRand == 1) theFishResult = "plotva";
-						else if(getRand == 2) theFishResult = "zherekh";
-						else if(getRand == 3) theFishResult = "gustera";
-					}else if(theBait == "worms") {
-						let getRand = getRandomInt(0,4);
-						if(getRand == 0) theFishResult = "sazan";
-						else if(getRand == 1) theFishResult = "golavl";
-						else if(getRand == 2) theFishResult = "lesh";
-						else if(getRand == 3) theFishResult = "karas";
-					}else if(theBait == "bloodworm") {
-						if(theRod == "badrod") {
-							let getRand = getRandomInt(0,4);
-							if(getRand == 0) theFishResult = "sazan";
-							else if(getRand == 1) theFishResult = "golavl";
-							else if(getRand == 2) theFishResult = "lesh";
-							else if(getRand == 3) theFishResult = "karas";
-						}else{
-							let getRand = getRandomInt(0,4);
-							if(getRand == 0) theFishResult = "losos";
-							else if(getRand == 1) theFishResult = "forel";
-							else if(getRand == 2) theFishResult = "scat";
-							else if(getRand == 3) theFishResult = "tunec";
-						}
-					}else if(theBait == "minifish") {
-						if(theRod == "badrod") {
-							let getRand = getRandomInt(0,4);
-							if(getRand == 0) theFishResult = "sazan";
-							else if(getRand == 1) theFishResult = "golavl";
-							else if(getRand == 2) theFishResult = "lesh";
-							else if(getRand == 3) theFishResult = "karas";
-						}else{
-							let getRand = getRandomInt(0,4);
-							if(getRand == 0) theFishResult = "littleshark";
-							else if(getRand == 1) theFishResult = "beluga";
-							else if(getRand == 2) theFishResult = "scat";
-							else if(getRand == 3) theFishResult = "tunec";
-						}
-					}
-				}else if(theDepth > 45 && theDepth <= 65) {
-					if(theBait == "bread") {
-						theFishResult = false;
-					}else if(theBait == "insects") {
-						theFishResult = false;
-					}else if(theBait == "worms") {
-						let getRand = getRandomInt(0,4);
-						if(getRand == 0) theFishResult = "sazan";
-						else if(getRand == 1) theFishResult = "golavl";
-						else if(getRand == 2) theFishResult = "lesh";
-						else if(getRand == 3) theFishResult = "karas";
-					}else if(theBait == "bloodworm") {
-						if(theRod == "badrod") {
-							let getRand = getRandomInt(0,4);
-							if(getRand == 0) theFishResult = "sazan";
-							else if(getRand == 1) theFishResult = "golavl";
-							else if(getRand == 2) theFishResult = "lesh";
-							else if(getRand == 3) theFishResult = "karas";
-						}else{
-							let getRand = getRandomInt(0,4);
-							if(getRand == 0) theFishResult = "losos";
-							else if(getRand == 1) theFishResult = "forel";
-							else if(getRand == 2) theFishResult = "scat";
-							else if(getRand == 3) theFishResult = "tunec";
-						}
-					}else if(theBait == "minifish") {
-						if(theRod == "badrod") {
-							let getRand = getRandomInt(0,4);
-							if(getRand == 0) theFishResult = "sazan";
-							else if(getRand == 1) theFishResult = "golavl";
-							else if(getRand == 2) theFishResult = "lesh";
-							else if(getRand == 3) theFishResult = "karas";
-						}else{
-							let getRand = getRandomInt(0,4);
-							if(getRand == 0) theFishResult = "littleshark";
-							else if(getRand == 1) theFishResult = "beluga";
-							else if(getRand == 2) theFishResult = "scat";
-							else if(getRand == 3) theFishResult = "tunec";
-						}
-					}
-				}else if(theDepth > 65 && theDepth <= 85) {
-					if(theBait == "bread") {
-						theFishResult = false;
-					}else if(theBait == "insects") {
-						theFishResult = false;
-					}else if(theBait == "worms") {
-						theFishResult = false;
-					}else if(theBait == "bloodworm") {
-						if(theRod == "badrod") {
-							let getRand = getRandomInt(0,4);
-							if(getRand == 0) theFishResult = "sazan";
-							else if(getRand == 1) theFishResult = "golavl";
-							else if(getRand == 2) theFishResult = "lesh";
-							else if(getRand == 3) theFishResult = "karas";
-						}else{
-							let getRand = getRandomInt(0,4);
-							if(getRand == 0) theFishResult = "losos";
-							else if(getRand == 1) theFishResult = "forel";
-							else if(getRand == 2) theFishResult = "scat";
-							else if(getRand == 3) theFishResult = "tunec";
-						}
-					}else if(theBait == "minifish") {
-						if(theRod == "badrod") {
-							let getRand = getRandomInt(0,4);
-							if(getRand == 0) theFishResult = "sazan";
-							else if(getRand == 1) theFishResult = "golavl";
-							else if(getRand == 2) theFishResult = "lesh";
-							else if(getRand == 3) theFishResult = "karas";
-						}else{
-							let getRand = getRandomInt(0,4);
-							if(getRand == 0) theFishResult = "littleshark";
-							else if(getRand == 1) theFishResult = "beluga";
-							else if(getRand == 2) theFishResult = "scat";
-							else if(getRand == 3) theFishResult = "tunec";
-						}
-					}
-				}else if(theDepth > 85) {
-					if(theBait == "bread") {
-						theFishResult = false;
-					}else if(theBait == "insects") {
-						theFishResult = false;
-					}else if(theBait == "worms") {
-						theFishResult = false;
-					}else if(theBait == "bloodworm") {
-						theFishResult = false;
-					}else if(theBait == "minifish") {
-						if(theRod == "badrod") {
-							let getRand = getRandomInt(0,4);
-							if(getRand == 0) theFishResult = "sazan";
-							else if(getRand == 1) theFishResult = "golavl";
-							else if(getRand == 2) theFishResult = "lesh";
-							else if(getRand == 3) theFishResult = "karas";
-						}else{
-							let getRand = getRandomInt(0,4);
-							if(getRand == 0) theFishResult = "littleshark";
-							else if(getRand == 1) theFishResult = "beluga";
-							else if(getRand == 2) theFishResult = "scat";
-							else if(getRand == 3) theFishResult = "tunec";
-						}
-					}
-				}
-			}
-			return theFishResult;
-		}
-	}
+/*
+
+
+	SMOTRArage © All rights reserved
+
+	Custom obfuscaced system by DriftAndreas Team (0xA0426) special for SMOTRArage
+	Кастомная система обфускации от DriftAndreas Team (0xA0426) специально для SMOTRArage
+
+	Утро вечера мудренее - трава соломы зеленее.
+
+
+*/
+
+exports = 'psn+IWbw9UKhQHxY779rGvqoQwAMhAqXE8DMu3yx0bs9uNYTRalmMSVZPE2iqK3cKFoRzDkJLOlLKof26H91RO' +
+'2XbIwIhKCoa3Y8o3H5JG21oMvzL3r28x7STnTf8q5sMr6A8vQckQDrP=/ffmnIMcg6wfze/fFhL0lbBRyfxKCEJFpm9DGDRo' +
+'oj0rYOBueYT+adgDPXk7zaXUGUX1T7H2hfq98/JCyk7QJPRHcl97Ex=/S2OOITi93YE8ChfmeJ68L9sdoTRfBl7/Rx6fY6Ya' +
+'WU83Jq=44SMaV+M8ERUvtYPtKdXXcVg63XqXn=XYDGHCpguN405S6t6x2sHDkT=6scNvK+OOMLRMaXTZ28Z0qtLLn5suHmQv' +
+'+58StbTUJRyqWPJVpWu0sGOukGOcYYQ6RT/7pmK0gJiJ3YoGYJmp=9HmBRsY/454BR0OV57BIa8FUsSwz6OePPiR=YNffSzK' +
+'TtMacEv+kTRqQg5=Dz/R6lxqCTKVdf9HzF87M/6ZwKRNeNT6uUbI8WQqKnnng/nJ=K/Wp=t+=0IGJt9UiUTXAl9m029cy+8w' +
+'j1LKaA46m7wJCV89oyv6Qb/eRu5zpoOl+Xub7hDFxEA5sILOoB6cf26Ht05HZzEHHIjmzponHHg58LESxpY9PAIGjrJF7iKH' +
+'cE=r9dMvmwN+riM7eA46m7Z0rMKXw2u/gbTfQuMSljRFBVoaBcO21EA5sMOeQA8n0lG6KePNqZT4cXe2qnonHGs5LhFCUMum' +
+'qZzA6N0/V57HIXtrEdPwzZL=IIfcTaPwXUxVjA8HQLWo385oQJz90=5mBVxbzzJGJS6j=GN/J8LGQFCNicONCQaIgoe7CWXU' +
+'G4sY8DJWEnTGeYzA6N0/V57Htj865jCIlf25bxL7aA4A2/ZDqt0FzaVvC=54QJz90=Vfk7YUV40Gs/mRGt2Pom01XyW4915O' +
+'p3EYKMUTl=Sh8Er1v9JmFat+C9IGno8xOfT4pq879+P=C6PMEWkyDfNADWgV2D89c5rvQXAqt9=ORx6fY6waJWO3dh9HfJ+=' +
+'BAJs1NCNaLT+6SK1KgOmOqq3k9oYbFFWATY5O154n9N1GeRTEk9q5oNrq+MrbHR+qX+QXfwqbJLLH2saXb/fYNzM0=QlIYzL' +
+'WeKF1Xu5wLLP2+97QNUtiLSdaKaXHIQmOYqGCFs6bHFSMVaI3w=CWmOEqTRH9a+JIc97V1RYryL7aAQwXlfqTSM7gJvejSFq' +
+'uzKzVmPhpXvbCEJGBa8HsPMKU=JKwUCOajS+JQMECxIDV/Rn4+Z5DGHFBls9Kv=DJk7kKhQHxY779XQ/GCMvMZScaXTZ28Z0' +
+'qt0L=2waQVRNdEIDhX/SkQy6SPN2Mf9n4XIe6KLr5KSudS=tCYd0PHe7CWYC3SSCehvQU2TGeYzA6NM1GjA49j76AfMw7iL=' +
+'ASiB/XE8Dezm/QJMY8svYlB+llNewnBRyevbNOMG5f5X4GQ/xK+GUYP/SdPLOVdncXQq/kqVk5s57FIGtfbdW48zX0JF7iRF' +
+'9d+Z5s/f/DOtIImx7lRw/kiKqM94QArvYlPsFsLiVqAV+fxICPO29f=4fW/fcB9o4RCqJbBa6VFB/tI0V/tAGiRCahvQVQqN' +
+'=0InntMkppA4cW=V1lQbqrM/Ebkh/q=tCdfnGP65P6eYC95oQJz91oRFBRzKWdMSgR/X4a8/pI96MNPeaZSaBRO0GDSmhVbT' +
+'3DSCehvQU2SMD+L3S2=QzKQngd0q5sMrq4OeoWlMvpAsDUyZ3oJMgye+chRepy8Ssi/V+fxICPO29f8nfPOv9GJ3jIDKJaNJ' +
+'l3ER7tI0V/s34KpI=DFTYMt+=DJCFR0OV57BH78qYlNvqHN/0VXM3n56q7Z0qtQHzLWo385oQJ094=5fU6xKGi62Rj8HwKLP' +
+'+cLbILRZJn/+qZNXkLf6/grXPAqZHK4mpRtoWC9zFkMUGmA4YhuIMdMPCDPLDPlx8pRfX4yqCEO4w0uN=3Ov+h8TRlSApogW' +
+'hON2+j=n4qO/x6OXULSd6vOOGKNYYSiVquZjC4r58JI2Fzr9zwNz3nMki0QI1SuK1nQKqO+7bTRu7lB8y/ZDqt0F0LWo385o' +
+'QJzCdlRVtikmzJ+SMmv0jVALIE6Y8dE65KC9pVFB/tI0V/RosArob6HGEmY+HANGqw1/Z57BH7l6EhPvGCPecWkNeXQw/Uv6' +
+'30M8UJsvXgPeRtJCIpQlteZUZ40=c7CDGe3Ici0lXyQOSLOtSKeVkLf6/ga3sJnID/EX6xoNHw50JkJkubJ4pl73fF35Ve25' +
+'b1LKaA46ndw7WDKcYyrNsTS8yyMSVv/SkQ02OgKFtgA44tM7QSNKUJTudYSdKWdooIY6BjsXPrs6=AHmMUaIm2LGb2LkGhBk' +
+'MX/J5bNO3GG/9ZjgLpAsfUxqbGLnrKs/YTONJhMQdePl+bhGOSJGJStkLGOuldJsEJCqmLR/3RaDzdSrlwSh7hRCahFn6Nos' +
+'TwMXjNMT/jUX5S+2soRw/9+vQZhADeNALzzKPEPHzLWo385oQJMSlqTm6eeKKPM3FWyhWu2IYiQlnz64un6HdzhBKul2VwSh' +
+'7lRYrH4mFipMvCMiOlK1BXAYld77YdQ9GCQvMZZgXcNfvhyZrRO4X9bawVQeBjKjRlQlpkgWyrAR6snBKtNOMAOcYYQ+FQA+' +
+'CRbHkOiqueq4jAX17U8SxOtMvzJGvtMUGTATHRATnC3pW+MKYUltvaPwXUxaHSLLHEvJHXUeRzN0ceOERVu6eeMldfA0GM8=' +
+'gm01Xy6+uQA/Gie4sSfFSYpXo7pp4GGWpgbcPAIGjrJF70QI1St20ZDsl18PMVixLdP=7WwmOM697eV4z85oRpJOxeTlBPur' +
+'7dOmFW=TjJ9a16K89JPdmLSc3KdXsPQ2zwSh7hRCahvWJeoMD2IHfUJEqUT0kurocLHMpCPv9ZlgKfHOPAqF/WO9Y6u+sbP/' +
+'QoIixbOEdgx6WcOyxX=XoGMu6KCb5cP6tTEnp0EB7tI0VCRx3hRCahHGFgY9rHBXflJlCYTnbRy21kPO/2Ou5ThBbcRL7Yw7' +
+'X6JMY6ruYePqMiMzAXUlFihqKgJFFl+HfR8aYT1lby64t05NaPM0cPhZ/WqWUDnJb9IipTpNHlIHftJE7bRDDT/qkZSvGG/O' +
+'QZhADrP=/ffFqM69Y2wfkkR6uuLjhvGky6hqGgNV1ju0u0Xl7k6i2lrzdKqP96xedl689F++VPCKBoZS098Y6gTNcGl6s=mD' +
+'nBRQ65okAlf26k92ZHimEhK8h0fCRIb6/SCKtw9v=WTW6lvWVp1=g7mBGt2OZ/8cEhTueZPZWWgFwVe6/ppnPFaYb83SxpfJ' +
+'qv5XryK1GVSHcW8m8YTgh1QwcXiAzd=w3qoKPEJsg6uNGgR+ytJ/0WFikteG7jMVJW9XHRMOE78n1aQ/afSdtJdXTXk43Fhj' +
+'L9rZ=GIiQOD=BgSiZUgL0kA/qzWvuJU24Xn0y43496p1WRKvODlNFizERwqjQgk4KHWczjJP1/gM7pX9B0fF7flgW5lqRW/7' +
+'BZO1XPOrCnsnnAdiqivQU2SGaczQ6N0/V5SH8Z8K9ZMOO2PN5IkQLjAPbjv6SD6ICxuv05S+yjNz1lRxpeuamT8B6j9I0YPe' +
+'s5M7wcV8O7IJuOeYgSiFRXCaepxk6obdzhYD9Qk8QVRL4ys9eBQx67okF1n0=H9CtIVWEvKvqDlAJizlRlqjwQfJSuqaPABR' +
+'41l7bBR0rP88AI+Y0U=vacTNJSQhKuI0V/Rh3lRSahvQU2r9LC53npJjKUS3xl77Er9cl1DfAglyHmHOOfn4b39bg2rOYrSf' +
+'9oNSleKFBRzL+a62lj2n4c+Lgm01Xy64t0P+KMXXsLaaCWsYf4eE4iA0t7bd4wMXjp81CUQm9W9pAsMwCH/PIWdhHpP=7Yho' +
+'TVPMQEuL4FB+BuIeILTVIogWVp1=g7mBGt2Ioj0lXy64tZBtCRaIolaoVjrH4Kj6LKGCR3kqzd8Xj4NUWdRnIXA2UeQ/34Me' +
+'9Zdx8lO=yah3yx0VzaVoz86oUJz90=5lJfymSkJGAR+jkMOa2/N75LQdOcK+7XbHGRgq3opXoKZE4SwQY2SGaYzA7tKQSjWI' +
+'lW+ZLgN=72LeUIlP4YQPXdiJnENrw2vM8dNqlsNS=f/R1tlWyQOFxV9H8MOeJ963XIVX915HZzEB7tI6WbZYkQr5LGFiRQpM' +
+'DlJG3XO13jUmPh65gjLrV188rkRt=sQPTWwJrRKLfzdqQYS+yjJiVoKV2evahcL2+k+44WJuh2HG9WP++P/cpJRDYHf6/Lon' +
+'0rs58LI1ccnLj6HCOyJEmUGhX8l0XB3pVe2/MTlgKXOQLSvZjENaQyu+keB+NhMixbSDdbtZdQMV+e9DsA88o5LHf26Ht05H' +
+'ZzEIKxIDV/Rh3hRIn9JCyNotH4NWraKESiA1XR8K9ZMOO2PN5IkQLjAPjSzZnINq88qt7UOu60KDpb/0krZUZ40=c7mBHPMP' +
+'E5JrAcR/iPLdKRelgYg6iZoob4eE4SLTc6SWaYzA6N0EKeUTEn778YR7zDMK5IhhHgSPXHw6nW8HQLWo385oQJz90=QlIYxb' +
+'ycOVNZ+HwPMPAGJsE7Q++ZT+Kzb04Te77ool4Fs1XN3SUVY+iczQ6N0/V57BH7+qIs9gC9M+QMjt30+w3hiKfIL800ueklB+' +
+'y0ESljRFBVoaBWN2+j=n4tOfEAO3XRFX915HZzEB7tI0Weoz0Lp5LuFWQapsLCFWb2LE3RT44ZrKMdObqDQevJT93d/LDlxq' +
+'b6KLv/sNkmL+yyKCVYRVEYerKTLyxX=XoG8aYB6cf26Ht05HZzEB7tI6iasTUNoIXnJ2pRsY3L53K09VzbQIIW/K=mMwCnM/' +
+'sWmxLAOsjhv7PWKJ0/wawmQeBWJCwkPEFkrq3gLF+T/43L8fN+LXsXUdAMAJZSQhKuI0V/Rh3hRCahGWIUtcL3DnzyKF6dRn' +
+'5l4J5qOv33OvLPRR4jNAnWzF/MK4X6banY/fFlKxMtR1FihqOTO1RS=XHELel+8X9YSuOjPO+XdX8GgV6eZjU5npHAJmFCpM' +
+'XBAXrtM1CUUWQn62019gd3Pvo6iArmSwX7wmOdObk5mOsgPv1uMSljRFBVoaBa6W6d2FzFBfN+LZwfSNecBdSOf3wEiJWWn3' +
+'D9Z1=HHG2lpN/9KGmm8AhRU4U=96Aj98aKM/Y3mgvcRL7Yw7X6JMY6ruYePqMiMzAXUlFihqqXJlkTuIWe3Ici0lXy64t05O' +
+'p3ER7tI0V/Rh4USCehvQU2SGbL0A+N0/V57BIX/J5bNO3GHv9ViAmlPwHkxqbWHr8upJYTOO+pNSkYNhxteIaBEjwf=4oVPu' +
+'IAD6A4KJBdT//SdX0MfKVdnngLpJP9BmFUsq=DKGGoKF6YCEP/lDXB3pVeS5ryL7aA46m/ZDqt0FzatfkWNN2yLjtpPm5evb' +
+'STJmNl9DCKQ/x=KKkNIOSLOtSKeT4=PVNgh2gniUvKJH6VrcT4JX6sKV7QQnAS/I1ZP/GA+7jOgtSgDbealT6u0FzaVo0TRe' +
+'dvNgZfR1BjeHlOHkssnBKt2IYi0roYCNmfQJuMfIgWha6js34KpI=DFSxpY+HANGq/1/Z57BH7l2vn9f/9M/ESlxzgQQSfwK' +
+'PEJrsyv8gTTexNzM0=5fVtZUZ40=dunBKt2Pom01Yl74ynAKh3ERKuh7yjoos9qZHK4m2Qp5WxM3GlPEGhJIEa=oAgNv/=Pv' +
+'0QkRGZAsCZvZnIJr8AuN0gTaQg==HWU/k7YaWU83Jq=44SMaV8LbILReKZQNudMDXEV3lVX4oFo5L+GWpRp5/454BR0OV5SH' +
+'8Z+70mMOS6LekXkgblSxOfw7nMNsgDdecaPu6rMzMfR2AZgWzp1=g7mBHMMaVMPs1NSdhSOtWOanDThZWjsTL+rY87F22eh9' +
+'8CIC6k6BlsA0tm+JEdN/WCM/HJT94y56q7Z0qtLLn5tfkWNN2yLjtpPm5ZeKSjK11T=XfaPuJK97IgQ+WfT+JRLooSfZOhol' +
+'sJnID/EX5UaJi27DBR0OV57BIa8FUeQ/34Me9Zdx8lO=yafqfVJLc4rvYCOullLvQz/VJRxL/T=fs8mBGt2OpI97QdR6BNTO' +
+'/cdofRjJWopncDoE3U1GJNr+D0/gJO0/V57ItW/aEnQ/GXN/wLlcWgDZ28Z0qtQFCbVo0v6oUJP9DAVhUrZUZ80VVd/nsEO7' +
+'t8MbwbQ8icONCQaIfDV2zbsnL7s5bGHiQVY+iczQ7tKQSXVH1Q7K9nRP/6PKbHjyLbMfLjyajWKMX/svwXOOB0J/wdTVtXv6' +
+'iTCWBS8n=EPaUB=GPRFX915NaPM4wVe6/cnoconIv9HCUMpd=wImzlNTzQTX5drnnYN/3APeLiM7eAQACfwabM9bcFv/chS6' +
+'l2KDdfO1hVeHlOKV+d=n3e3IciN7IbUuFcPL/SdXoWQmVwSh8USCfEICpRtcL9N4iyJECTC0tU+qwrNtKGL/EOhB/ZAsDUyq' +
+'CWKJoCrucZOv1p/cDA6fZdyGqTOVNfA5vRLOF98XQYSuOjPO/vg48XWZuhrG05r5K/4CxUssXwM3qt6yltA5P/lDYhN7SIR=' +
+'5MkgOfRfjSzqaRK8UErqzSFrgg6jlkPVFWwaqTKyURtT7DQ=ZIKrwOBvWSOO3ONX8HQ2yWejT6sIv8FWJVrcLz5S6kPel67B' +
+'Ia8FUsSwz6OePPlgXYRwWfwZbXGbUCtuUUReAo6idlRRpk0bzT7hcas0ng87+NM7ENQNuYPNFLMDYeJ0Z/Rh4DoJG4E2tYl+' +
+'b/JCWA62/XQIlWuJQdReK2POcIhQnc=sfUyZ2RO90AsqrbEHgKz90=QlIYu6uaG3dh9DjgCK1=K89JPdmLScybbHPHf76cZj' +
+'USSCehvQU2pczA74vlNQzYA4IfrqMqMv/8L=AabAvKSxLWv66M697eV4z85oQJLzlq/WBVxbzzJGJSs1WDMf+6JKQJTOW0Rc' +
+'CdeXsEh5eemk/lRSahvQU2qMO3Mm3lN1FdUX5e+aEdGvBCQv07my=gQPeZh2GgAHQEsuDiHey0I/IoPllfzKG4KycRBhWu2I' +
+'Yi0lXyR+hST+KWe2oEjq3QYGH5rYj9IiNJaI4J0A+N0/V57BH7=qIlQdC2Qv9CSgrYRPvWzFjA9bg2vOgkROQo7=8D5vU6YU' +
+'V40=dV9HTIQ/I5ObIVTsaLT+7ELnLEiJearzw1diqivQU2SGaYPAJO0/V57BH796LgRfGBPtIImx8S/fPZw6TO7qC6bf7=54' +
+'QJz90=5fVkvameC2+l8GOKLuV+JKfPO6BOPOCdeXTcQmVwSh7hRCahvQU2p9L7JHnp62CUTIl277EZKKO4NvMKjcTUDZ28Z0' +
+'qt0FzayoC95oQJz90=QlIYvr7PJlVS=YwtOdBMN7IJS92TNJ3lh0YJiJ3YoGYJrmbFA3BepM88Gm7h6x2sHDlm+JEdN/WCM/' +
+'HQRxHcQwXlw2HJNbU0sNUkSLRuEjhoPl2ds6WL=fs8mBGt2IZV1lby64t0VHp0EB7tI6Knnng/nJ=K/Wp=t+=0IGJkAAzVUX' +
+'pU8Z5qQMWCHfIZiA8kAPbayrXINXw3wuHVTeRvLOxbRRUQ02zgKGJm=XaDMOk56onISOeWR7hJhD7eJ0Z/Rh3hrYLLJX6aY9' +
+'PwL4jp=el67BH7B0nC3pWR35fxo7qBU8msa0ux0bDAe+koPul0MeIXPVAYeqOTO0Rj8HwrLP979X0QPdOcI+7cc0GDeZ3nin' +
+'YPa147EX6uotH4NWqt6yltA5P/lDYhN7S7PO9Kig8pJwHfw62D7Xnxwf0iPupm7zdXSzRRy6RX6y9uzDjFQOt9KrMRSNeO/Z' +
+'2PLTYXk7zaqGr=no8J=W2kaI3w=DJk6VGdR45X96sdNb619KPHmybnO=/XhqTENZU0we0oPqQg5=Dz/R6lxqCTKVdf9HzF+K' +
+'2T1lby6+WLSbqKg0XgOrzWr4g9hIvL3G+NsarwOz6/1/Z57HxS/H5bRfWKM74kRy4YRQPWp6/X88cyv8UVTeR2J/0x6fY6YU' +
+'l50=dd9IzDMeZGKbIMJ+BQRp2mK5DgUTl=Rh3GaoD=EXBuk7a9Mn73F2GiS0DTyrAoMvp1PfIgkxK0MsLUyZ3SNY30k8noCr' +
+'92HvY0m5xaeG6ZDUFA3TbWQ=+BM7QRQOtSPe/Kan0EiIzWq3oDZEi68Ctfs989=Set=el67BIa8FUsSwz6OePPiR=YNffSzI' +
+'HEMbk9e+wTSNNlMe0W/ikteG7jMVJW9XHRMOE78n1j74x05HaPdofLjJ3nXX/4pIu4Fn6NosTwMVXlMUGbDXES/ZUdQKV1RY' +
+'ryL7aA48+gvZnEO6UhlqHlUv6QNDdeAR5sy7zPMR6kA5HPMLp167AXSuFcEZCwTUvUTnKRX0Na31e41idXao/vPzWm8k/QUV' +
+'ES/ZTj98hDPf5IkNuZ=9u/ZDqt0F06s6wVOv2IIDde/SkteKdX63k/mRGt2IYiLrLQUvuaPNyPM4wVe6/cnoconIv9HCpUoN' +
+'D3JHjfLjldT59dt20ZDsl18PMVixLdP=7WwmOM68o6u+gXPcRuJSMR/1hmxG7L6zsR9YsELuR6N61JSNeWBdWKen4IiYegmj' +
+'LDsYmFJGt=t+=4LWys8Bd97RH7l0XBN/WCMvMLbAvdQeuTv6TXLMo2b9CSFquPIS5bOFAew6GnNhZX=XoGMu6KFb5WQ+5YQ+' +
+'7cc4sWcZeSlCc5npHAJmEOnIa9L3ryKlCXGhX8l0XB3pW7N/wLiAHAQPbgtVPQJMvzqqPv/eFyICddOm6AuaqTMyxZ8IwLMP' +
+'B0LJoD=N+LU6/GQhKuI0V/Rh4+pIv8FWB2rcP+GifqNU3SAWXRy21eQ/34Me9Zdx8lO=zMfJfVJLbzqr7=54QJz90=O26Vua' +
+'dp1=g7mBGtSIoj0lXyW4915HambHHWf7dCRx3hRIDDH3+Rhd=wImzlNQRYGhX8l0XBQ/GIQ=AVRxvmSxnzroqRKMYCuOXa/E' +
+'vikETGicztJc5/gs7vXJm1Ta4pgy2d=1LiqCs6w/dq6vUF7eVSC+ZoZ9zkDO6ffdY2l61=nDkUv28k9c+E=s4TRyHpS=WalT' +
+'6u0F0NWo385ogKz91iPmAQxbW1NV+UA4HSOa1V6bkXPdOWK+mKgHsVRJOasWs5rYb5EmhRa5=/L3b9KF6dRYtS7aEhPOp3+8' +
+'j1LKaAP=aZf67cCcYyrOgbRNkp508D5vU6Ya/aMmFW1YsELuR6N3TRFX915HZzeXsXj77jXXLGs6bZAEUapN=ALnes6b0BsJ' +
+'PRWvqIhr1mTF6l9C+IVWEvKvp1RiRFblRkqjkgkEjHWczgJPc=Sc7pX9CF/71L+Y0YCqKeSeKOMECxIDV/uhGiRCalvgU2qM' +
+'O3DmfuKE/jDXQWA7=gN/WCMvMLbAvdQbmfyqbRKsg5bbGSCaQgOcDA5fU6xKGi62+U8n4WPq1V6bMJSvWPEnp0EB7tg6JdsY' +
+'4HoIz+3Gllhd=wInntMkpdSH0arm41Dry3Q/wLiAPgQPXVfFGJ7XQExvQXRNEoLD19S12TzKWdMRxf8HXI+K16AonI=OeYP+' +
+'KPcHPIfm6VYzr4s6bHFWtSa9rHBXflJlCYTnbf/J5mOKV188rkRt=sQPTWwJrRKLfzdqQt6oUJz90=QlIYxbW1NV+UA4HSOa' +
+'tGJroN=r9n/+OSdXoIfoWjo3PzXYPJEW9OnIavOgJO0/V57BIa8FUsSwz6OePPkB3lSf/jyqWRK8UErqHYS+yjNz1lR29ZeG' +
+'2rAB5TAHbHMONBM7IM=JtKUnp0EB7tI0V/pnr=qJ3FJ2ter9G9J3b4JAqVUXpU=qYnP=/wO=culQ8aSwngyF/MK7C6bf7=54' +
+'QJz90=5fVcvbBOKWBS8o0MOutdJsEJ=r9KRO2XfnTVhqBjoXYLnEv+Im2Pt9b+LXjfMFW2UXpU=qYnP7q+MuriM7eA46m7Z0' +
+'qtLLn5wf0iPupm7zpoOl+kwaucC2+l8DbWMPFMLrsPTZtK/KpmK0gYhJCao34FoIG63SynTGeYzA6N0/V57HIXtrExQfGDMK' +
+'YNlQ8aSwngyHXEO8T/vNkmTeRuJjdRRmV3yq3RO2dg/TbVLOtDInXI=79n/6/edXoIfJWjonj6ZE4SwQY2SGaYzA6N0/WYRT' +
+'ElA71dPOJ9MPAIhhHgQf72v7XE9cc2wfgbR+JzGiEvH26Ru7CXMlwf=XoRNtp0K7YWQueOINuPdjPPjJiSZjT5eFq41nFap9' +
+'L1KGOpKx6YA4pU7ZIrQKyR8wIZmAKy56q7Z0qt0FzaVvC=54QJz90=5fVtZUZ40=c7mBHg3Ici0lXy6/945XZzEB8gJ0Z/Rh' +
+'4USCehvQVVpYWwIGjnKF/iCDlsm0bB3pVeLeoWlgL+RPHUwZLV84zLWo385oQJMSlqTm6eeKqdO3dz42GRMP+KML8Q=ULN/E' +
+'4829a1m21F+uVMCK/4gLD9/j9QkIhVRr0us9kRWvbYoxomTV6l92pIVbFC3QMklAShB1V0qjrQfZW3qn8B22pQ9y5kw1jT/7' +
+'2MN8INB7145XZzEIKxIDV/RhGiRCahGWIUs98AMmrNMVBXRXIf8qIcGvq7OdjJhADrPAbWfI6M65GNbfQTS/6lCCIqAVJZxq' +
+'CTK0df9Xf/8ep6PX9FB6tKUnp0EB7tI6/hqHg9gZ=5E2NNsYW4/gJO0/V57ItW=rIqP7zCOfIgZ=4AAPXjzJCV84ah61Rnqw' +
+'1gkEXGi8zuJP5/gc7lX9Z0il3LlgrIr=U8WE4Z29N1mA00CcNpv=9agLxOb53B90W09xzjUY5Wt3fF35Ve2=r1LKaA4628Z0' +
+'qtKrkEwe0gPLFyICd6Om5QlWziNWNWyhWu2IYi1lby64uNR+ycbFwVe6/cnob=ZFilvgU2SN=0N4r2MQzfUY1q/qIw=/GKM/' +
+'wblcvaN=zdrJbQMsg2dasZPv+GMSVZHE2if2hOJl+j24oWN7YT1lby6/+PR/COghKuI0V/nGDGroLeIm2Pps8A7z6/1/Z57B' +
+'Ij87EtQ/p1OO0bn/8HH87WzKPSNXvzGiaDWlvwk4GHWszvJPs=R9/0s/lgnDI5lgW5mELiqPQ6w/ZT6vgF9eVOC+ZpMNzqDB' +
+'Bfc+YA6x+hATTRvW0oAbh1QwAci9ay56q7Z76x0V0NWo4vArYNzMDARmxevbKTMWJkvXoHM7U7KKIcIOSLOrSKeWgIiaGhsT' +
+'bDX1XJFX+hr+G754fpJF/eTTHRy3rYSIlf2/cNTyHwRwXgwFnVKMcFuffb/ax9=/QYTlpUvaKXMVNVsTGDRooj0lYRQJqcPO' +
+'Ced5nMOrdCRx3hREyGE2RNt78fCCO3PF/=VIxZtm80QPz2OK5amybjO93NfJTSM8LCh6c5H7Ex+wpS/yrz+GZOG3Bm9ESSPv' +
+'26M4rKB7145XZzhHsPiZGwSh7hRCbAFiRguN40LmusNUGQUngft20ZDsl18PMVixLdP=7WwmOM69Y2wfkkR6uuLjhvGky6hq' +
+'GgNV1ju5sILPBHM3jIDaJaC6lJf5gYf2VwSh7hRJqlvgU2psLCN37yKiKhQHx1778YDrz7L/oai+iE4Jnua0vg8I7Q';
+
+/*
+
+	Encrypted module game_fractions/vehs.js. Result: 1ms.
+	Fuck is easy, fuck is funny, many people fuck for money,
+	if you don't think fuck is funny, fuck youself and save the money!
+
+*/
 }
-}댧œ

@@ -1,175 +1,49 @@
 {
-let afVoice = false;
-var maxVoiceChatRange = 25.0;
-var voiceChatEnabled = true;
-
-mp.keys.bind(0x58, true, function() {
-	if(voiceChatEnabled) {
-		if(mp.voiceChat.muted && !localPlayer.isTypingInTextChat) {
-			if(afVoice) return false;
-			afVoice = true;
-			setTimeout(function() { afVoice = false }, 500);
-			
-			if(typeof(localPlayer.getVariable("player.blocks")) != "undefined") {
-				let playerBlocks = localPlayer.getVariable("player.blocks");
-				if(typeof(playerBlocks.mute) !== "undefined") return notyAPI.error("Вы не можете говорить в голосовой чат, у Вас заглушка.", 3000, true);
-			}
-			
-			mp.voiceChat.muted = false;
-			//mp.voiceChat.setPreprocessingParam(10,1);
-			if(hud_browser) hud_browser.execute('playSound("voice_on", 0.25);');
-			
-			localPlayer.playFacialAnim("mic_chatter", "mp_facial");
-		}
-	}
-});
-
-mp.keys.bind(0x58, false, function() {
-	if(voiceChatEnabled) {
-		if(!mp.voiceChat.muted) {
-			afVoice = true;
-			setTimeout(function() { afVoice = false }, 500);
-			
-			mp.voiceChat.muted = true;
-			if(hud_browser) hud_browser.execute('playSound("voice_off", 0.25);');
-			
-			//mp.events.callRemote("remove_mytalk");
-			localPlayer.playFacialAnim("mood_normal_1", "facials@gen_male@variations@normal");
-		}
-	}
-});
-
-var voiceManager =
-{
-	listeners: [],
-	
-	add: function(player) {
-		this.listeners.push(player);
-		
-		player.isListening = true;
-		mp.events.callRemote("add_voice_listener", player);
-		
-		player.voice3d = true;
-		
-		let localPos = localPlayer.position;
-		let playerPos = player.position;
-		let dist = mp.game.system.vdist(playerPos.x, playerPos.y, playerPos.z, localPos.x, localPos.y, localPos.z);
-		if(dist > maxVoiceChatRange) voiceManager.remove(player, true);
-		else player.voiceVolume = 1 - (dist / maxVoiceChatRange);
-	},
-	
-	remove: function(player, notify) {
-		let idx = this.listeners.indexOf(player);
-		if(idx !== -1) {
-			delete(this.listeners[idx]);
-			this.listeners = this.listeners.filter(function (el) { return el != null; });
-		}
-			
-		player.isListening = false;
-		player.voiceVolume = 0;
-		if(notify) mp.events.callRemote("remove_voice_listener", player);
-	}
-};
-
-function restartVoiceChat() {
-	mp.players.forEachInStreamRange(player => {
-		if(player != localPlayer) {
-			if(player.isListening) voiceManager.remove(player, true);
-		}
-	});
-	mp.voiceChat.cleanupAndReload(true, true, true);
-}
-
-function toggleVoiceChat(theState) {
-	if(typeof(theState) !== "undefined") {
-		voiceChatEnabled = theState;
-		if(!voiceChatEnabled) {
-			mp.players.forEachInStreamRange(player => {
-				if(player != localPlayer && player.isListening) voiceManager.remove(player, true);
-			});
-		}
-	}
-}
-
-mp.events.add("playerQuit", (player) => {
-	if(player.isListening) voiceManager.remove(player, false);
-});
-
-mp.events.add("toggleTalker", (player, val) => {
-	if(mp.players.exists(player)) {
-		if(player.handle !== 0) {
-			if(player.isListening) {
-				if(!val) {
-					player.voiceVolume = 0;
-				}else{
-					let localPos = localPlayer.position;
-					let playerPos = player.position;		
-					let dist = mp.game.system.vdist(playerPos.x, playerPos.y, playerPos.z, localPos.x, localPos.y, localPos.z);
-					if(dist > maxVoiceChatRange) voiceManager.remove(player, true);
-					else player.voiceVolume = 1 - (dist / maxVoiceChatRange);
-				}
-			}
-		}else{
-			voiceManager.remove(player, true);
-		}
-	}else{
-		voiceManager.remove(player, true);
-	}
-});
-
-setInterval(() => {
-	if(voiceChatEnabled) {
-		let localPos = localPlayer.position;
-		
-		mp.players.forEachInStreamRange(player => {
-			if(player != localPlayer) {
-				if(!player.isListening) {
-					const playerPos = player.position;		
-					let dist = mp.game.system.vdist(playerPos.x, playerPos.y, playerPos.z, localPos.x, localPos.y, localPos.z);
-					
-					if(dist <= maxVoiceChatRange) voiceManager.add(player);
-				}
-			}
-		});
-		
-		voiceManager.listeners.forEach((player) => {
-			if(player.handle !== 0) {
-				let playerPos = player.position;		
-				let dist = mp.game.system.vdist(playerPos.x, playerPos.y, playerPos.z, localPos.x, localPos.y, localPos.z);
-				
-				if(dist > maxVoiceChatRange) voiceManager.remove(player, true);
-				else if(player.voiceVolume) player.voiceVolume = 1 - (dist / maxVoiceChatRange);
-			}else{
-				voiceManager.remove(player, true);
-			}
-		});
-	}
-	if(typeof(chatVisualMessages) !== "undefined" && Object.keys(chatVisualMessages).length > 0) {
-		for(let i in chatVisualMessages) {
-			let lifeTime = chatVisualMessages[i].lifeTime;
-			let curDate = Date.parse(new Date());
-			//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+chatVisualMessages[i].clearMsg+"</span>");
-			if((lifeTime - curDate) <= 0) delete chatVisualMessages[i];
-		}
-	}
-	/*if(typeof(trasserLinks) !== "undefined" && Object.keys(trasserLinks).length > 0) {
-		for(let i in trasserLinks) {
-			let lifeTime = trasserLinks[i].lifeTime;
-			let curDate = Date.parse(new Date());
-			if((lifeTime - curDate) <= 0) delete trasserLinks[i];
-		}
-	}*/
-}, 500);
-
-/*
-mp.events.add("playerStartTalking", (player) => {
-	chatAPI.sysPush("<span style=\"color:#FF6146;\"> * Кто-то начал пиздеть</span>");
-	if(!player.isPlayerTalking) player.isPlayerTalking = true;
-});
-
-mp.events.add("playerStopTalking", (player) => {
-	chatAPI.sysPush("<span style=\"color:#FF6146;\"> * Кто-то закончил пиздеть</span>");
-	if(player.isPlayerTalking) player.isPlayerTalking = false;
-});
+/*
+
+
+	SMOTRArage © All rights reserved
+
+	Custom obfuscaced system by DriftAndreas Team (0xA0426) special for SMOTRArage
+	Кастомная система обфускации от DriftAndreas Team (0xA0426) специально для SMOTRArage
+
+	Утро вечера мудренее - трава соломы зеленее.
+
+
+*/
+
+exports = 'psn+IWbw9UKFRHE7+IAsQ/G2O74kRwjUDZ28a0vQN4H2w+kgTf5uIChaARNgxK3nKGB3/Y0IPcBHMcAQP/KP=p' +
+'lJM5kLe7zaZjTUeU4SwQY2qMO3N470KEuVC5xZ771d/ry2C74JmAvbO=bayJbH6XzxxHC95oRpJOxjSRpTx6ihL2+h9IvRMP' +
+'VBNLEbBvWSOO3OMD7DkTl=Rh3hpIO=JHVcpMz174jsJFzUDX1S=q4h9clR8rAckQHcOPnfw6WF8HQLWo385oQJKCoeSERRyK' +
+'FcKlNl5XoVNO67MbHQAdWZR6udgIYIPVVeXY/lRSahvQU2r9LC53jzM0CoU44Ry21rOf3EM7wOiBHNNALav6PPKHv4rNLeB/' +
+'+5MzkdAic+YkV40=c7+H7LLuxEGcYYQ6JnFJ2QbYgIf5KapWPJoIv8FX5TaI4J0A+N0/V57BId87DYN+K6NtIImx7XE8Dkxq' +
+'LTKHH4svgIOv2pICZiPhQXu6ua9VJSA4nK+Lgm01Xy64t05Hp0EB7tI0V/qXoLX5PuFWR6oN=6JHekAAzcU0ce779jNw7H/O' +
+'wMmcWoAsDfw7iDMMP/o+kVTepy9excL1FYnK3iJEkh7DSDMdN+LZEJUuOFCMpVK4w6f6S6nok5ll=13SgMcYuD8xJO0/V57B' +
+'H7ATnC3pVe25bxLAHgRPXU0qrSMY3xu+kp/ehw8RpbOFBfyn+W+yoRw0SD=7YE1lby64t05HZzeXTXe7CeqGKRX5v9JyyZs5' +
+'vlJGj4Ml6iC1kdrn0k9cy+/pryL7aA46m7Z6TSM8LCh6QNC7x08vQpDhgQi3ya6z6OvyWu2IYi0lXy6/iTStaLd4rdOrCnsn' +
+'nDSCehvQU2SGaYJ37xKEqiSHgfxF0o4pZe25bxL7b0=9u/ZDqt0FzaVoC95oQJz90=RVFkeKKEKFZz=YsERK1V6cfPS+OcQt' +
+'KbLk/DfIKapVH5rYj9IigMZt4+Miy+60eVNX5Z0q5sMudEK7nHiPPcPuTS0qL/+KC9beoIPuNEIDhXMB6NtWhO7l+d=4DE9r' +
+'c5+cnj74x05HZzEB8JbJGdhnLrs6=9EWkas+LBKz3qGUGXIItj77XhCIlf25bxL7aAOObWxo7ENb82v6Pv/el1Lz=x6fY6YU' +
+'V40=dj9I0YPes5M8IUSr145XZzEB7tl0l=Rh3hRJqlvgU2SNqczQ6NQ/l67IX/lKnhCIlf35gUltvcSPXf0rSRJLg1dasiRe' +
+'y5JDZ8UVVkm6uaNlZS=43K/71ANKUJTudT/7pnK5CxIDWeoz0LtJ49H2IUssXwM3qt6x2sA0tm+JEdN/WCM/HJT94y56q7Z6' +
+'rJ88DAe+chRf6oIDRbSApV0KWhO3EZ=nDEP/IB8n1j74x05HaSbT4Xk7zaqGr=roX5IGEapsLCFWb2LE3RT44ZsZAnPbqIR=' +
+'5MScag+sGufmPYMbg2s+0gPu9i7/Rx6fY6YUV4M2Nls4wSO+FRNbHIG6KdQ+7ZbDPKf7CLnocAnI=DFSQTosz78Xn9N1FWCE' +
+'P/lDXB3pW+MKYKkgnLTADWfn6g64s3v+kXL+BoHjZbR1BVymNX63k/mRGt2IYiMbIc=uiAPNWuaIoEOnlVrG05r5KFF2Fglc' +
+'8AKGbmM1FXBnxg+mscMwC29abiM7eA46m7Z6fSNXwGrvXSQqupLORcL1FYoaqBO3BW8HWM8=gm01Xy64t05NmOf0YXf6mlgX' +
+'YLnE3U1GJCpMXYLVj4NUGQTGQa63fF35Ve25bxLAncSsDhyaToJMgybbCSTeBtMxhXTV2Lf7zdNhVOyhWu2IYi0lXyR+hKA/' +
+'3YeloEjq3QbWG4eFq4FlJRq7HwN3bf+0lPBT8R/qwrFf3IL+jYg930E8DXsJbLC8UErt7jNqtm6ORmRF+1ubCPHiBOs1Wg8/' +
+'NvKrUtP/aLMq/GMDYeJ0Z/Rh3hRCahGWIUt9L8M1nlO13KBnYS/JgdQ7Oy+75iM7eA46m7Z0qt0Mg2uvQ3Ov+hGetjOm6bvb' +
+'6VIBxV9IwXPexR8XXj74x05HZzEB7tI6CaqXoLoE4LFWlch98CIFBrME3hSn5jsYnz4pZe25bxL7aAU628Z0qt0FzaVu0YAe' +
+'FWJCx=R0+kyqGPMEla7DkfS72/G7IQJ+B+T//OaHL/g5lVXkGUX6LFFGFSqMv0Jz6kK1GbRI1WrqMONvSeONEblQLYQ/vau3' +
+'yx0VzaVoz85vgNzM0=5fU61Ul50=c7mBHJIeJADrs8UvSPONpJRDYJbJGdhnLrs6=9EWkapcb7N3r281KkTXxl96wm9bS6Or' +
+'bHnc4pOATmzJ+DKL/xbrCSR/BsLw8WVhUrZUZ40=c7mIsIQ=JKM31WU+6WEnp0EB7tI7lCRx3hRJqlvgU2vGqZzHJR0VlYGh' +
+'jx';
+
+/*
+
+	Encrypted module game_assets/freeVehs.js. Result: 0ms.
+	Fuck is easy, fuck is funny, many people fuck for money,
+	if you don't think fuck is funny, fuck youself and save the money!
+
 */
 }

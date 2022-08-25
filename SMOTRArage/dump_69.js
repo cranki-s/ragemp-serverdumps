@@ -1,191 +1,129 @@
 {
-let afTickets = false;
-mp.events.add('playerEnterColshape', (shape) => {
-	if(shape) {
-		if(typeof(shape.data) === 'undefined' && typeof(shape.id) !== "undefined") {
-			if(typeof(shape.getVariable('col.type')) !== "undefined") {
-				let colType = shape.getVariable('col.type');
-				if(colType == 'ticket_camera' && typeof(shape.getVariable('col.data')) !== "undefined") {
-					if(localPlayer.vehicle && vehSeat == -1 && typeof(localPlayer.getVariable("player.tickets")) !== "undefined") {
-						if(afTickets) return false;
-						
-						if(typeof(curCourierTask) !== "undefined") {
-							if(typeof(curCourierTask.workTimer) !== "undefined") return false;
-						}
-						
-						let theVeh = localPlayer.vehicle;
-						
-						if(typeof(theVeh.getVariable("veh.hash")) !== "undefined") {
-							if(theVeh.getVariable("veh.hash") == "s_p450") return false;
-						}
-						
-						let colData = shape.getVariable('col.data');
-						
-						let isPremium = false;
-						if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") {
-							let myBlocks = localPlayer.getVariable("player.blocks");
-							if(typeof(myBlocks.premium) !== "undefined") isPremium = true;
-						}
-						
-						let vehClass = theVeh.getClass().toString();
-						if(vehClass == "0" || parseInt(vehClass) <= 12 || (parseInt(vehClass) >= 17 && parseInt(vehClass) <= 20)) {
-							if(typeof(theVeh.getVariable("veh.num")) !== "undefined") {
-								let numData = JSON.parse(theVeh.getVariable("veh.num"));
-								if(numData.type == "ruVeh" || numData.type == "ruMoto") {
-									numData.num = str_replace_all(numData.num, " ", "");
-									numData.num = explode("|", numData.num);
-								}
-			
-								let speed = roundNumber(theVeh.getSpeed() * 3.6, 0);
-								let maxSpeed = colData.maxSpeed;
-								
-								let isRemen = true;
-								if(localPlayer.getConfigFlag(32, true) && vehClass != "8") isRemen = false;
-								
-								if(speed-10 > maxSpeed) {
-									let ticketData = {};
-									ticketData["speed"] = speed;
-									ticketData["maxSpeed"] = maxSpeed;
-									ticketData["cost"] = 2500;
-									if(speed-maxSpeed >= 60) ticketData["cost"] = 10000;
-									else if(speed-maxSpeed >= 40) ticketData["cost"] = 7500;
-									else if(speed-maxSpeed >= 20) ticketData["cost"] = 5000;
-									
-									ticketData["isRemen"] = "1";
-									if(!isRemen) {
-										ticketData["isRemen"] = "0";
-										ticketData["cost"] = ticketData["cost"]+1000;
-									}
-									
-									if(isPremium) ticketData["cost"] = roundNumber(ticketData["cost"] / 2, 0);
-									
-									mp.events.callRemote('newTicket', ticketData["cost"].toString());
-									ticketData["cost"] = ticketData["cost"].toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
-									
-									let myPos = localPlayer.position;
-									let getStreet = mp.game.pathfind.getStreetNameAtCoord(myPos.x, myPos.y, myPos.z, 0, 0);
-									let zoneName = mp.game.zone.getNameOfZone(myPos.x, myPos.y, myPos.z);
-
-									let realZoneName = "San Andreas";
-									if(zoneNamesShort.includes(zoneName)) {
-										let zoneID = zoneNamesShort.indexOf(zoneName);
-										realZoneName = zoneNames[zoneID];
-									}
-									
-									let street = mp.game.ui.getStreetNameFromHashKey(getStreet.streetName);
-									ticketData["photoLocation"] = realZoneName+", "+street;
-									
-									let month = curMonth;
-									if(month == 1) month = "янв";
-									else if(month == 2) month = "фев";
-									else if(month == 3) month = "мар";
-									else if(month == 4) month = "апр";
-									else if(month == 5) month = "мая";
-									else if(month == 6) month = "июня";
-									else if(month == 7) month = "июля";
-									else if(month == 8) month = "авг";
-									else if(month == 9) month = "сен";
-									else if(month == 10) month = "окт";
-									else if(month == 11) month = "ноя";
-									else if(month == 12) month = "дек";
-									
-									let hours = curHours;
-									let minutes = curMinutes;
-									if(hours < 10) hours = "0"+hours;
-									if(minutes < 10) minutes = "0"+minutes;
-									
-									ticketData["dateTime"] = curDay+" "+month+" "+curYear+", "+hours+":"+minutes;
-									
-									ticketData["number"] = false;
-									if(numData.type == "ruVeh" || numData.type == "ruMoto") {
-										if(Object.keys(numData).length > 0 && typeof(numData.num[1]) !== "undefined") ticketData["number"] = {"body":numData.num[0],"region":numData.num[1]};
-									}else{
-										ticketData["number"] = numData.num;
-									}
-									mp.gui.takeScreenshot("vehTicket.jpg", 0, 25, 100);
-									if(hud_browser) hud_browser.execute('giveTicket(\''+JSON.stringify(ticketData)+'\');');
-									mp.game.graphics.startScreenEffect("MinigameTransitionOut", 1500, false);
-									mp.game.graphics.startScreenEffect("HeistLocate", 1500, false);
-									
-									afTickets = true;
-									setTimeout(function() {
-										if(hud_browser) hud_browser.execute("giveTicket();");
-										afTickets = false;
-										if(isPremium) notyAPI.info("У Вас премиум-аккаунт, Вы получили штраф сразу со скидкой <b>50</b>%.", 3000, true);
-										mp.game.ui.notifications.showWithPicture("Полиция", "~w~Штраф~r~"+ticketData["cost"]+" ~w~руб.", "~w~Всего~r~"+localPlayer.getVariable("player.tickets").toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" ~w~руб.~n~Оплата в любом АТМ.", "CHAR_CALL911", 1, false, 1, 2);
-									}, 10000);
-								}else if(!isRemen) {
-									let ticketData = {};
-									ticketData["speed"] = speed;
-									ticketData["maxSpeed"] = maxSpeed;
-									ticketData["cost"] = 1000;
-									ticketData["isRemen"] = "2";
-									
-									if(isPremium) ticketData["cost"] = roundNumber(ticketData["cost"] / 2, 0);
-									
-									mp.events.callRemote('newTicket', ticketData["cost"].toString());
-									ticketData["cost"] = ticketData["cost"].toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
-									
-									let myPos = localPlayer.position;
-									let getStreet = mp.game.pathfind.getStreetNameAtCoord(myPos.x, myPos.y, myPos.z, 0, 0);
-									let zoneName = mp.game.zone.getNameOfZone(myPos.x, myPos.y, myPos.z);
-
-									let realZoneName = "San Andreas";
-									if(zoneNamesShort.includes(zoneName)) {
-										let zoneID = zoneNamesShort.indexOf(zoneName);
-										realZoneName = zoneNames[zoneID];
-									}
-									
-									let street = mp.game.ui.getStreetNameFromHashKey(getStreet.streetName);
-									ticketData["photoLocation"] = realZoneName+", "+street;
-									
-									let month = curMonth;
-									if(month == 1) month = "янв";
-									else if(month == 2) month = "фев";
-									else if(month == 3) month = "мар";
-									else if(month == 4) month = "апр";
-									else if(month == 5) month = "мая";
-									else if(month == 6) month = "июня";
-									else if(month == 7) month = "июля";
-									else if(month == 8) month = "авг";
-									else if(month == 9) month = "сен";
-									else if(month == 10) month = "окт";
-									else if(month == 11) month = "ноя";
-									else if(month == 12) month = "дек";
-									
-									let hours = curHours;
-									let minutes = curMinutes;
-									if(hours < 10) hours = "0"+hours;
-									if(minutes < 10) minutes = "0"+minutes;
-									
-									ticketData["dateTime"] = curDay+" "+month+" "+curYear+", "+hours+":"+minutes;
-									
-									ticketData["number"] = false;
-									if(numData.type == "ruVeh" || numData.type == "ruMoto") {
-										if(Object.keys(numData).length > 0 && typeof(numData.num[1]) !== "undefined") ticketData["number"] = {"body":numData.num[0],"region":numData.num[1]};
-									}else{
-										ticketData["number"] = numData.num;
-									}
-									mp.gui.takeScreenshot("vehTicket.jpg", 0, 25, 100);
-									if(hud_browser) hud_browser.execute('giveTicket(\''+JSON.stringify(ticketData)+'\');');
-									mp.game.graphics.startScreenEffect("MinigameTransitionOut", 1500, false);
-									mp.game.graphics.startScreenEffect("HeistLocate", 1500, false);
-									
-									afTickets = true;
-									setTimeout(function() {
-										if(hud_browser) hud_browser.execute("giveTicket();");
-										afTickets = false;
-										if(isPremium) notyAPI.info("У Вас премиум-аккаунт, Вы получили штраф сразу со скидкой <b>50</b>%.", 3000, true);
-										mp.game.ui.notifications.showWithPicture("Полиция", "~w~Штраф~r~"+ticketData["cost"]+" ~w~руб.", "~w~Всего~r~"+localPlayer.getVariable("player.tickets").toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" ~w~руб.~n~Оплата в любом АТМ.", "CHAR_CALL911", 1, false, 1, 2);
-									}, 10000);
-								}
-							}
-						}
-					}
-					return false;
-				}
-			}
-		}
-	}
-});
-}
+/*
+
+
+	SMOTRArage © All rights reserved
+
+	Custom obfuscaced system by DriftAndreas Team (0xA0426) special for SMOTRArage
+	Кастомная система обфускации от DriftAndreas Team (0xA0426) специально для SMOTRArage
+
+	Маленькая собачка до старости щенок.
+
+
+*/
+
+exports = 'psn+IWbw9UqkTHxZ/XYmIPCGM/9URuqXLe2sa0vKM8Lzru/gR/BtIixGOlpVxGyr62RS/5wIBoojKKkXPNOWBd' +
+'7Mf48Zf4qqqng=X2q4Fm2YssKJ0A+R0UKkTXxl96wm9fqJO/EPdx8lO=z1yqCWKHv6bf7=54RpJOxeTlBPur7dOmFW=TGDRo' +
+'oj0lYVTqBRONqONX0Ve7zdpngKaZDLH3y=ot=0JGOJKUKUQo0ZrHodP=GiEcYMjBDrKwnf0mOM=lCbVo0aTu+fITZlTF+Vym' +
+'qTP2NUAI0I+7+MMKQPSue5TNqMc3YEhJGhZT3SXUaSwQY2SMr/8Wz5LAqSVItk+a8mR/WHN/ATi930+wbSyrTI=lCbVo0gTu' +
+'hjKyRXR1FceHlOKV+d=n3e3Ici0s9NTeaZSdKscHPHiVRedAGiRJqlvnk6Scr/8Wr6KEqjUjcS8qDg9/qJO/EPdx8lO=z1yq' +
+'CWKHX9beHnRu6oEzVkPlh0xKuhKBcsnBKx2epI97IeQ+BeSpuKb4nLPZqqqng=goy/4CxUrdL8Im3KNUucD0lf=6obOeCD+7' +
+'4kYM4y56q7x6eLO90AsuLYAel1LCdeH26fxWVO6Csus0=YOeF+K7YWQ+ZR/6NPK5ociqGkoz0FsIr7GFBbaI3w=DJk7lGdR4' +
+'5X96sdNbN+8wj1LKaAP=aZv6TXLMo2m/kfONMp50ZbTWFixmzWOFJQ8YsSQvB+N3sNVueNTOGOM0gIiK7kr1LMqID=3CP93z' +
+'5Mk8xUd80qsJzBQA66ox9lfr744n51p1VBFQIZlAihAlV1qjAu8OsfEA5Zk0l50=c/mRGtOfJFJKUvTNFX/7pJUWkzZFqlno' +
+'cKoEXFJWlPq7PALmJt=el67BIf=6obOdKGOerHY94lS=3UxofVMrDsfdCt6oUJzCIrRl+YrKtOAB684lfy/f26N8ANBuBfRN' +
+'CRX4SMUTl=Rh4FsIr7GFBbY6qvLXrxJkSDTmPh63fF35Ve35fxLAncSsDe147SMbkJbbCSRepjICAGRV2pvb6cKlNl5XoVNO' +
+'67MbHQ=OKWOOaOeTPQhZqatjbAdiqivQVVpYX8OEKzMUGoA1TRw30oAcyE+75ZiBHsRP6RxrbHIrYCuOslPv1uJDxbOFFkvW' +
+'RQKGBj/osyQOp8LXTPrx=7jU4d29R1mA44CcWpvf5VgYP9/T5M5+cFlG1=lOmlW87JUF0G826b92lIYbFBFgIYlNSh=1Rvqj' +
+'nRQJSm/cztJPs/g97mXJm0iV7kltHIrzo7lU4Z29B01Q0nazK/ZFi63Tc6SWaY0A+N0EWVC4Em8pwaQ/uLPeMZRtOd+w7my6' +
+'TLCcY=uqPY=6uuNCEZQUBfgWzp1=g7mBHMMaVMPs1NSdhSR+yMaHH0hq3uoobFooLLBm2eqM8xL3qs6U3SV4In82scNv3A8K' +
+'bQRt70E8CT06/HKLo6u+kW/6QgOcDA5fU6YaWU82pg8noPH/l6PrIaCNmPT9OKeX8EeJiaZTc5npHAJmEap9LwLzet8AzhRI' +
+'1m/JrYOgG5KeAZkhTqOAKfw7nIJskEsqvUPv2yLjZETllTwGRVl6ERX7u0fF7a6i2dr=Q8Wk82K/ZT6vcGv+VPC+BobdzcDO' +
+'yvkIdUe80ks9SBQQ2o=b1lgl6X92BHiGIyK8p0fCVTGjjSqjDRU/Hk=AUremVp1=g7mBHg3Ici0lX26Ht05NaPM4PYh6/dg4' +
+'cGqEvAFCxpfI49NGKnL0CeDXIVt21qNwCJPOvHjyLbMfLjyajWKMX/svwXOOB0J/wYPm6ix779OFtU+0CKnB=qTG35mELf/E' +
+'4b2JF0yA42CcWo9v5P1N3vDO6fc+YAlG5=numvW83JU71lg26i9CyXp1ABDAMklAmhB1Rwqw0QcvsfEA5Zk0l50=c7+H7LOf' +
+'JFJKUvTNFXBeGie4rDO3lVq4oEnoXsHypguN407CX2KFCkUXbR9rIcLO7GOfUaiB/lOAjWvabXKHvzsvYkRO2ONCEZQRQXJO' +
+'9/f97wXJODnQ=qRi2Yrz=8WU4o29R1mx44CcJpxv9d1N3uDO6fdNY4lG5AYemjrx21okF1nA/44X5pp1ABCxIXlASi2EV1=J' +
+'Q75O0x6fY6YUV80Pc7mHbYOOBAFb5WQ+6uR+ycbD3MUTl=Rh3hnIDLGXJRjdL8Im2kAAzjUY5WxTnC3pVePOMbmB=l+xDj0r' +
+'rTKMv/svoXR/+z8SdXRVhCvamdO2MZ8oscP=EA67sdS+WSHtxLN0YHf6uAoo3Aa14iA0t7bdDCMW7yKkWVWDEf=6obOdKGOe' +
+'rQUt4BJd/=iKTXNb0/sN0YUqNuNCEZQUBfgWVp1=g7mIWx2YZVKrkbQ/145XZzcHvLgrGZmGcJqpTKFX5VY+=0N4r2MQzXVH' +
+'1Q7K9nRP/6PKwMnxLaSATWhmPINcY=v8HnRu6o7vvGdL3xJPs/f97oX9d1VF3Tlg0Irz=7jU4h2920yQ0qCpapvf5UgL0+zo' +
+'6ffdcMl6U=kOmrWv0m=7N+Ba=QXaqB4A2/ZK6M=lCbWo4fSallNSlkTW9euaCS8yVfAHXGN+++NLIUUqlW/6WXfHLGgp7arC' +
+'C4qZLEE2R/pM8BLmNt6yltA5P/lDYZMPC+QOM2mAraPsCufqfEM9c2hHC95uRm70hvSVFfvmScOFtU+3sIPqY56onl=qmfRd' +
+'GObX8Rf6BcZjUSSCehvWVSa9vDLGjsFUGiA1Xurm9nOK6+8wj1LKaA4ALW0rbVMXQ+vaHZOuhl8TlfB1lVy7/PKlNkvYwLOv' +
+'RmLrEbR/yPP9CRaIgHQm7ztoNozf9j1N3wDO+fftY5lGU=nOmvrrsvTF0Tn0O5p45sp15BDAMllA+hAaSCl1v+k4CGjs3xJP' +
+'yQ9y5TCYwhnBzpgB6rr=M7iE8x29u01A0zXYL/uZv=LjEcc53/90WkQV/tsJnCCg2p=76A8sLTRxPYQxPWimHXNck2eaPqCb' +
+'tw7=8D5vU61aGaNlMR+H7LOfJFJKU7Q/VKFKpJKXsViJunXz34tiqivQU2qMO3LXrxJkSBRHpk+Zrh9g76QwMZkM4lQgTqn5' +
+'Ht9bkCv+LkAa4QXZW/qaTABh0ol75rs0rOOfJFJKU7Q+OdRttVK1jTSnyhXYkJsIKA7wk3SGaYJGG3KAzYRTEf=6obOe76L=' +
+'EWkMaXRPXl07PR68H=wf00KcQuJDZoRF5Yex0Ll7PBR/lanD=pey6qr=U7lU4Z2JSD6vsGxeVPC++oatzcYD5Ak8Nkl69AY/' +
+'mmWvmJXK1lil6c9C6HiGEuKvA1RSRAblRvqjnQf6Srqn0AEx0g9RAds1vT=81E6cEaU+dTEnp0EB8gJ0Z/unoDroLSwQY2SM' +
+'b17335K0uRUXgo/ZIq/rzGM=IclQuXQP/l14L0DHH2v/YhS6Mik2GGjszoJPQ/dc7mXJq1Tl3Vlg36aZM7lk8y2960yA0vCc' +
+'T4C+Bobi098j9Pk8tUg84/A/mwWvKJUm0Jn0u44X95p1CRKv90giRMGjmDWlv+k4Yk/xgQi3ye+yoRA5sYMKYT1lbyW491VJ' +
+'ZkFB/xIJmla3oNoIvLIypNp9G36nXwJFWUUV5f=qIqEOuAPeYIlxKeAsCZzZnEN8j6bbCw/fYNzM1fPxRk0bzTMlQZ=nDEP/' +
+'IB6X4l=qmfRdGObX8Rf6BcXTr+X6HQIGFbpYXBK3b0KAqTQI1St201Dry8Q/wLiAPgQPXVgVqDPlCbVo0bP6NtMvIZREhjwK' +
+'3eKGEf9IDMPvFL8cAQP/KPAJZJghKuI0V/pnr=s6bHFWtSa+D3IHXp9UOUV39S/JYZM/i6+rUKkgmlSxnhw2iM8HPyiqPUTu' +
+'lkJCpfR1FUemVOPfs8mBGt2Ol+OX1LSd6/UO3OK1KDiZSWrXnFooLLBm2eqM8xL3qs7k/eT0clA71d+KVP35fxL7aAP=aZvZ' +
+'CPG90AsqPvFqtnLTljOEQXgWzp1=g7mBGt2OZ/8b5USuFhGdaXb5jDO3lVrHkGnojaGWpQsoavMWr4OF7dA49S+rAdCIlf25' +
+'bxL7bgOLiSyqCGJL=hueUrPv1uNSleQl+cvWyU7R6ZAH0CLf+HOLANTJJQ=Z2KaHkXg7Kai4oEnoWA1Hc6SWaYzA6N0EWVC4' +
+'Ug7Z5kIfi2R/MZUQTcSvbSzJrEJb=2dasiRey5JDYkQlAXgWyU7R6d/nwEO+2EJsYNTJBRPOG=aIgMe67hojz/r5n5KWFebc' +
+'r+LWr97gVYA5P/lDXB3pVe25cQiMXrTADWyZeLM8L0ru=CRey5JDYkPEFkrq3gLF+T/43L9v2EJsYNTJBgPNWcLj7MOnlyXT' +
+'cMqYH9FmVapMGx7CX2KFCkUXbR+JwsSt3lF7wMlR=mRLiTKtE0eSVRGjmCl1v+kEUWqanAEx0ql7PCD/lhnD95lgG5lkP6/E' +
+'4829a1m21F+uVMC+Jobt3uDOBgQtYCl6I=nDTRWvyIjF0TnA744X5opBRBEAMmlAjxGjNClEv3k4rGjhoShGyh+z5hv0kXPf' +
+'J+8of26Ht05HZzEB8MfFSptoU9qoO=HGtPoMnfL3b9KF6dRn5l4J5qOv33OvLPRQ8aSwnnw2/HKLU9b6zb/ax9=/QYTlpUva' +
+'KXMVNVsTGDRooj0lXy64t05HaSbT4PhZ/WqWUDnJb9IipTpNHlIHftJE7bRDDT76AsOwK6/OIMhAmZ=8mRzJbXOMY/beHhTf' +
+'RBEx0kPm6ix76W6c7Us/l2nD4qRn35kEPsqPA7l0a0yx0vCpeo9=5JgLn98D9e5+cFl6E=lOmsWveIgbh1n0W4145pp1ZC3x' +
+'MslAyizERn/lv1kFUkBx5ceH+e+z5ds50VQOIB=Enz64t05HZzEIKxIDV/Rh3hRCalvgU2SGaYzA7tKQSjWIlW+ZLgPfu4L/' +
+'o4kx8wOAKfwZbXGbUCtuUUReAo5TRiOmVVymqiLFFc9I0W8aYB6YnlG6JMTNuNbHwMhJGZXz34rYLLJX6aY9v+N47FFzVdRI' +
+'tj+a8g9F048266926IV8FBCAIhlA+h=1Rn/bdi=Pkm/SxgiHhdJSwRXJm1T13J9335mELf/E4n29V00g0lCpyo8P5UgLn+yz' +
+'9U5+cMlG9AY/mhW8GIjF0G/K=TRuCnBtCdfrXVOLj6hHC95oQJz90=5lVWgLzPNWFW2HbX+/lHJK5ULu6LUNKbNX0IjpKWr3' +
+'45nYn93C6cr98HJHeyO1WSSn5l/V8h/ryS8sLXVu3n=8Djw7XYNbGxu+LmUsyQC/IbS26fymRQl6ERX7u0fF7a6i2ZrzD7k0' +
+'4e29rDVq6zckT4b23H8CtOfY6gQ+cHl62dA/muWvHYokslil6i926IWmEmKv90gSVcGwjSqwPRQZW3qa0B3R0sl7AfsTSD=r' +
+'1I+XjIUvSfPJZkFB/tI0V/Rh3hSCehvQU2SGaYKGusOUGXM4pf86jh9f/AOfEMeQLfI=Xf02mM=lCbWo385oQJz90=T12ieL' +
+'CTMG684nfR88o5MbwLP+67R+7ibIfRfZGpk3YJpI86HGEUZt47IH7pNQqlRHEksVXz4pZe25bxL7aAP=aZ0rrTKLL3dfgXRv' +
+'uKEiMkB2JVwKWRM2NkuDjgCLo568IWQueQQNuOb0fMOr7asYoJqU4FH3BlgL4Y8Wr2NUuhC0vBJg22okwmT26l92+IVmEqK8' +
+'R0eHShBURwqjLQdZSrBxoShGyh+z5hv0kXPfJ+8of26Ht05HZzEB7xIDV/Rh3hRCb+H35Utc8A53BkLEpPV45e/ocLPOpCQO' +
+'MPjADjOAOafryx0VzaVoz85oQJLzlq/WJVwISPNlYRzDkXMOpID6AXSJBgPNWSanHIiYegmjL=nJD=7wk3SGaYzA6N0/WbRI' +
+'0R=JIgH/3BM74kRyPcPujSzZme1F3aVoz85oQJzCAbTRymvaSCPG6Ws1WD8fN+LbYLSudMEnp0EB7tI0V/Rh3lRSahvQU2SG' +
+'aYL3r461CUQm9W9pAsMwCH8srHZh=wRxTgpISRBJkke+gXOO25M0geT1FYq7CPO3Eds4PVFuJR8of26Ht05HZzEB7tfqGYk3' +
+'o=jpH5JH9MfI4ZEkSS9VzQUYxWtqEdMNK6NuEbhBHqAQTgraXVLLH4dcckUvu0Lg5JB1Feu2qDO2QpuDGe3Ici0lXy64t05H' +
+'p0EB7tI0V/Rh4AoUXLKXyRrsO3J3rnGUGXMo1S=rATAemwQOMPbx8qPv2afmKg64YFu+gXP+RuJCgYAhyrZUZ40=c7mBGt2I' +
+'ZOKrU3P++P/7pJb4sGbJGdjHk5s6Dz5FlHtcL3C3b3L0ldTXpe83fF35Ve25bxL7aA4AbWxpXcN8jxiqQWPu6WJCxJTV2ky5' +
+'deIEln9HDsLPBAInscV/KPEnp0EB7tI0V/Rh4USCehvQU2SGaYzHnpMFz6MngfuKMdOfW4OvMafgjUAP7Sy6aDAHQGsuwAOu' +
+'hl/cDA5fU6YUV40=dl9HXTFdBHM3seQ+qTOtmOemDOd2qptoU9X2q4JmFUl+b/JDBR0OV57BH7l0XB4pZe25bxL7aA4=zW0m' +
+'HZKLwfwuDUPv1g=/RqPllgop/dMRxn9HDMLul+NJgTO6BYTNqLbIfeJ0Z/Rh3hRCahvWVSa+P0K1O5ME7UUTkuy20aRfS6G/' +
+'0bkc/g+xTWy7HuFrL/e/oXQeRjLzlpMEdNeHlOMWNd/1Ox2YYi0lXy64t06HdzEB7tI0V/Rn4+Z6H9HXy3ksz98XvpL1WST4' +
+'5k5ZgV/rzP35fxL7aA46m7Z0rMKXwEsuDiI96vLOIsPlRZu6iTNklc7DbLLPBoOKs5TNFaPO/dgD3Fiq3nnnHKXUa41TkpY9' +
+'vDL3Ft62d97RH7l0XB3pVe25cQiMXrTADWyZeLO8k+vc4FRNkuNSleQl+cvb/JLksf=4oVLOpL8n0JG79K/eKXb4sJg6qaoT' +
+'bAX6ilvgU2SGaYzA6N0/V5T45lrrMdOez2PO9Ulc30+xTWy7HuFrL/e/oXQeRjLzlpMEdNhrzPNV+e=kOx2YYi0lXy64t05H' +
+'ZzcHvLjrWlonP+Z6P9GFyNsc88MiO2KEqjCDkSy3nY9=GCMvMNjAvcOsKafrXIMMQbnNLgB/FlKz1ZRVFjs6eL6zsR/Y4PO8' +
+'gm01Xy64t05HZzEB8gf6iooo/lRSahvQU2SGaYzA6NO1GcU2ME+ZrmR/G9N/ETiBDSPe2Rm2HROL=9hHC95oQJz90=5fU6Yb' +
+'l80Pc7mBGt2IYi0soNSvWPUnp0EB7tI0V/Rh3hRJH9HXy3ksz98XvpL1WST45k5ZgV9cl1OPMTkuiE4Jm7Z0qt0FzaVvC=54' +
+'QJz90=5fU61aGaNlNsnBKt2IYi0lXy64uePNqZUWkShFqron0Anon9I1dXnI3L53O5M1hq8BL7l0XB3pVe2=r1LKaA46m7Z0' +
+'rg1F3aVoz85oQJNzljSTZDx6pcOVNZ+HwPMPA5An14PNyPOuFXbHPXiJWarC0LoIrH/l+brYvEJG3tJkiUUjHf/JIcRv/6+r' +
+'YIUwjiAxbOh2GgAXP5w6PvFquuNCAi/SsQuWyo6yZS6nPACPME6b4RB65KUupSQhKuI0V/Rh3hRCqivQU2SGaYzG35K0uRUX' +
+'go/ZIq=/GMM/EcmxKf+QTgwZjPKJHFuucaKeyuJC=e=A5bop/+ERxkA5sMOeRBK8XQUueXS8e9dnOMQV6cZk/6ZFilvgU2SG' +
+'aYzA7xNxqWVHHf7aIqQOuG/PQQlgbZQwWRm2HXNck2hHC95oQJz90=5fk7YUV40=c7mHoPO/xPB7YWQvVKFJ3EZECxIDV/Rh' +
+'3hRCalvgU2SGaYzA7xNxqWQHYWuJQqMwz9N/EaURDrNALlrZTVKLk/kuoYPu607vZDPlplpYO3KFdkA30MOfE79X0YCqKeSe' +
+'KOMECxIDV/Rh3hRCalvgU2SGaYzA7yOEmSS3lS+JIk9cl1QwAci+iE4Jm7Z0qt0FzeV4z85oQJz91oPmBlyqpOKV+d=n3e3I' +
+'ci0lXy64un6HdzEB7tI7lCRx3hRCbUwQY2SGaYKGusJkubN5Ih8201Dry8OPMUhgXWRPXfwqbV7nzxxHC95oQJz91iPmAQxr' +
+'GbJlZ1/nToLPF66YnITdqLS+JXbnsXbJ3npnY6q5K=22+br5vzIHnl7gVq8BL7l0XB3plf25bxL7bjOASRyKbQJrwervYdPv' +
+'1g=/RjSRpdub7ZKGBkvXbIQqUJ9X1WQ/lKRO2XXXsGjqunbC0FsIr7GE+br7HwN3bf+0lbA4cm+6AgEOuAEv9bh=ioM8yRyK' +
+'bQJrwUuN=3Ov+hGfZTAhgQimpe9ws8mBGt2IZT1lby64t05HaNcIgIeaCeqGKRX5v9JyyZs5vlJGj4Ml6iC1kdrn0k9cy+/p' +
+'ryL7aA46m7zJCXJMg6uNGs/ellNeRjSRpGva/iMmAku1jP881E6Y0RCo915HZzEB7teZuhqHbRX4iJ6TEYY6/D+CFk+RFkD0' +
+'kjvn1V=Zlf25bxL7aASPnkx6PPKI3xwfYnPqcNzM0=5fU6YaCXMFNf=nHSObc5+Vnz64t05HamMECxIDV/Rh3hSCehvQU2SM' +
+'n0NzXyOEmSS2pj/J5x9cl1RaUUhB=iOAKYlFHROLD0tcDTS+ZlMO=W=Fyfy2No61lfAHXGN9BHMZEJUuOFC9pVK4PYh6/dfG' +
+'PDg58LEVcdnImvLXrxJkSzTnU277EZKL7yK7nHSg8jRwjSgWuD+9CLWo385oQJzCIrRl+Yy4WcFmJj9HoQ/f2NNKTQSOeXOt' +
+'WreYgEk2VwSh7hRCahvX6Rt+LALSXqJEiiREP/lDXB3pWR35fxL7b056q7Z76x0V0NWo4vArYNzMDARmxevbKTMWJkvXoHM7' +
+'U=NbkJV+ecHOWSf2kShr/dnoU9Ykm43H+UoN407CWAAQzq8BL796LgRgWEM/0NTyDfNADWh2GEAHP4wuHWPuFpLSla=AUQ00' +
+'l50=da9TDQP7t8MKkbRuOaPOBXbI4MiaCoZYg=nJ493SUMumqZzA6NLEJXV5Ih86we/g/9L=5MUQTcSvbSzJrEJb=2dasVRN' +
+'cuN01mPhMZgWyPAB5TAHbHMONBM7IM=JtKUnp0EB7tI6iasTU7qonsKXyRY6qvMm3lN1FdRn5l4J5qOv33OvLPSgDmQs7l17' +
+'HI7nzLWo385oQJKCoeOEtcrLWeKB5uzDjKOfJFJKTP=qhQ/+uedHkLaq3jonCAX6=9JHFerY49NGKnL0zQTX5dzZknQOF9+8' +
+'j1LKaA46nawFnGMr=lxvQX/bg95vtkTllTwJugKFxV9IrK+K2T1lby64t05NmOf0YRj6mYpVgGq3H5JG1MfI4BK3b0KAqWRI' +
+'1H779hMv7AM7XOhgzjAPTS0qKK8I7eV4z85oQJJSMoAWJRymzX62dfs4bYOOBANIYWLeacPN7WMDYeJ0Z/Rh3hRCbDFXAMt9' +
+'L8M1nlO12PHDlf=6obOg/eONEblQLYQ/vau3yx0VzaVoz85udlNvRmRF+1ubCP6zsRA44QP9F6Ob5DAeKZSpSGQhKuI0V/Rh' +
+'3hpIO43HybsqHwN3bf+0lPHEXR+KIlMOSYOeoshBHYLcDOfmeJ69Q=vLgTTeyb9BDWFikQxrGbJlZ1/nToLPF6HH5F=qhQ//' +
+'3YeloEjq3Qb2G4eFq4HnFZosXSLmGIJFCQOktOt21z4pZe25bxL7aAP=aZ0qbQN6gyweUN=NhhMS9bSxNNgWzp1=g7mBGt2I' +
+'Yi0sENS/KvOOGKYj0Qe77goob/mEv8FX+gsczH7z6/1/Z57BH7l0XB3vC6OvMbi94rO=3hoqLXJK74uuUkQNBy6hDx6fY6YU' +
+'V40=c7CBWu2IYi0lXy6+uQA+uedHkLiXWjjHkJoI8EC2VJY+nK53O5ME/XUlIf3aEqNv3BJecERt70E8DmyJXIKb0/sufb/e' +
+'+lLzlqPhyezamRL3F7/WwXPeJ6MqgRO7145XZzEB7tI7lCRx3hRCahLQk3SGaYzA7yOEmSS5x7+IAsQ/G2O74kRxvsQ=PZzX' +
+'rRFsgCsuUfB+FpL0hbSxRWzaqRO2dg/TjLMOkB6cfITNeeTO/XK4sPOm2yXXLMq5mS1HkVemqZzA6N0/WhRI1m/JrYN/3APe' +
+'LiM7eA46m7206u0FzayoC95oR9094=Vfk71WVp';
+
+/*
+
+	Encrypted module game_assets/numch.js. Result: 1ms.
+	Fuck is easy, fuck is funny, many people fuck for money,
+	if you don't think fuck is funny, fuck youself and save the money!
+
+*/
+}˂

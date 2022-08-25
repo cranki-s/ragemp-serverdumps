@@ -1,307 +1,106 @@
 {
-var shopBrowser = false;
-var shopsInStream = [];
-let inShopData = false;
-
-mp.events.add('playerEnterColshape', (shape) => {
-	if(typeof(shape.data) == 'undefined' && typeof(shape.id) != "undefined") {
-		if(typeof(shape.getVariable('col.type')) != "undefined") {
-			let colType = shape.getVariable('col.type');
-			if(colType == 'shop_render') {
-				let colData = shape.getVariable('col.data');
-				
-				let shopMarker = mp.markers.new(1, new mp.Vector3(parseFloat(colData[6]), parseFloat(colData[7]), parseFloat(colData[8])-1), 1.1,
-				{
-					direction: new mp.Vector3(0, 0, 0),
-					rotation: new mp.Vector3(0, 0, 0),
-					color: [217, 54, 54, 200],
-					visible: true,
-					dimension: 0
-				});
-				
-				let shopCheck = mp.checkpoints.new(40, new mp.Vector3(parseFloat(colData[6]), parseFloat(colData[7]), parseFloat(colData[8])), 0.5,
-				{
-					color: [255, 255, 255, 0],
-					visible: true,
-					dimension: localPlayer.dimension
-				});
-				shopCheck.shopData = colData;
-				
-				let shopArray = {'marker':shopMarker,'check':shopCheck,'data':colData,'alpha':0};
-				//let shopArray = {'marker':shopMarker,'data':colData,'alpha':0};
-				shopsInStream.push(shopArray);
-				return false;
-			}
-		}
-	}
-});
-
-mp.events.add("playerEnterCheckpoint", (checkpoint) => {
-	if(mp.checkpoints.exists(checkpoint)) {
-		if(typeof(checkpoint.shopData) !== "undefined") {
-			if(allowBinds != stockBinds) return false;
-			let shopData = checkpoint.shopData;
-			return enterToShop(shopData);
-		}
-	}
-});
-
-mp.events.add('playerExitColshape', (shape) => {
-	if(typeof(shape.data) == 'undefined' && typeof(shape.id) != "undefined") {
-		if(typeof(shape.getVariable('col.type')) != "undefined") {
-			let colType = shape.getVariable('col.type');
-			if(colType == 'shop_render') {
-				let colData = shape.getVariable('col.data');
-				for(var i in shopsInStream) {
-					let tempData = shopsInStream[i];
-					if(JSON.stringify(colData) == JSON.stringify(tempData.data)) {
-						if(tempData['marker']) {
-							tempData['marker'].destroy();
-							delete tempData['marker'];
-						}
-						if(tempData['check']) {
-							tempData['check'].destroy();
-							delete tempData['check'];
-						}
-						if(shopsInStream[i] || shopsInStream[i] !== undefined) delete shopsInStream[i];
-					}
-				}
-				shopsInStream = shopsInStream.filter(function (el) { return el != null; });
-				return false;
-			}
-		}
-	}
-});
-
-let shopCam = false;
-let targetPart = "body";
-let camOffsets = {
-	"head": new mp.Vector3(0.0, 0.0, 0.5),
-	"body": new mp.Vector3(0.0, 0.0, 0.0),
-	"legs": new mp.Vector3(0.0, 0.0, -0.5)
-};
-let plShopPos = new mp.Vector3(0,0,0);
-let camStartPos = new mp.Vector3(0,0,0);
-let plHeading = 0;
-let distCamToPlayer = 0;
-
-mp.game.streaming.requestAnimDict("mp_character_creation@customise@female_a");
-
-function enterToShop(colData) {
-	if(typeof(colData) !== "undefined") {
-		ammoInUseCount = parseInt((CryptoJS.AES.decrypt(ammoInUseCount, krKey)).toString(CryptoJS.enc.Utf8));
-		if(slotInUse != "0" || ammoInUseCount > 0) {
-			if(hud_browser) hud_browser.execute('playSound("noWeapShop", 0.15);');
-			ammoInUseCount = CryptoJS.AES.encrypt((ammoInUseCount).toString(), krKey);
-			return notyAPI.error("С оружием сюда нельзя, уберите оружие.", 3000, true);
-		}
-		ammoInUseCount = CryptoJS.AES.encrypt((ammoInUseCount).toString(), krKey);
-		if(typeof(localPlayer.getVariable("player.money")) === "undefined") return notyAPI.error("Магазин закрыт, приходите позже.. (#1)", 3000, true);
-		if(typeof(localPlayer.getVariable("player.bank")) === "undefined") return notyAPI.error("Магазин закрыт, приходите позже.. (#2)", 3000, true);
-		if(typeof(localPlayer.getVariable("player.donate")) === "undefined") return notyAPI.error("Магазин закрыт, приходите позже.. (#3)", 3000, true);
-		if(typeof(localPlayer.getVariable("player.inv")) === "undefined") return notyAPI.error("Магазин закрыт, приходите позже.. (#4)", 3000, true);
-		if(typeof(localPlayer.getVariable("player.pers")) === "undefined") return notyAPI.error("Магазин закрыт, приходите позже.. (#5)", 3000, true);
-		if(!shopCam) {
-			inShopData = colData;
-			
-			let shopName = inShopData[3].toString();
-			if(shopName == "Военторг « Полицейская форма »") {
-				if(typeof(localPlayer.getVariable("player.fraction")) === "undefined") return notyAPI.error("Военторг не доступен, повторите позже.", 3000, true);
-				let myFraction = localPlayer.getVariable("player.fraction");
-				if(typeof(myFraction.name) === "undefined") return notyAPI.error("К военторгу имеют доступ только полицейские.", 3000, true);
-				if(myFraction.name != "ПОЛИЦИЯ") return notyAPI.error("К военторгу имеют доступ только полицейские.", 3000, true);
-			}else if(shopName == "Магазин инвентаря « Пожарный департамент »") {
-				if(typeof(localPlayer.getVariable("player.job")) === "undefined") return notyAPI.error("Магазин инвентаря не доступен, повторите позже.", 3000, true);
-				let myJob = localPlayer.getVariable("player.job");
-				if(typeof(myJob.name) === "undefined") return notyAPI.error("Магазин инвентаря не доступен, повторите позже.", 3000, true);
-				if(myJob.name != "fire") notyAPI.error("К этому магазину имеют доступ только пожарники.", 3000, true);
-			}
-			
-			mp.events.callRemote('playerEnterShop');
-			
-			plShopPos = new mp.Vector3(parseFloat(inShopData[9]),parseFloat(inShopData[10]),parseFloat(inShopData[11]));
-			camStartPos = new mp.Vector3(parseFloat(inShopData[9]),parseFloat(inShopData[10]),parseFloat(inShopData[11]));
-			plHeading = parseFloat(inShopData[12]);
-			distCamToPlayer = parseFloat(inShopData[13]);
-			
-			localPlayer.position = plShopPos;
-			localPlayer.setHeading(plHeading);
-			localPlayer.freezePosition(true);
-			if(mp.game.streaming.hasAnimDictLoaded("mp_character_creation@customise@female_a")) localPlayer.taskPlayAnim("mp_character_creation@customise@female_a", "drop_loop", 8.0, 1.0, -1, 1, 1.0, false, false, false);
-			
-			targetPart = "body";
-			camStartPos.x = plShopPos.x + Math.sin(radians(-plHeading))*2;
-			camStartPos.y = plShopPos.y + Math.cos(radians(-plHeading))*2;
-			camStartPos.z = camStartPos.z + camOffsets[targetPart].z;
-			shopCam = mp.cameras.new('default_shop', new mp.Vector3(camStartPos.x, camStartPos.y, camStartPos.z + camOffsets[targetPart].z-0.2), new mp.Vector3(plShopPos.x, plShopPos.y, plShopPos.z), 40);
-			shopCam.setCoord(camStartPos.x, camStartPos.y, camStartPos.z + camOffsets[targetPart].z+0.2);
-			shopCam.pointAtCoord(plShopPos.x, plShopPos.y, plShopPos.z + camOffsets[targetPart].z);
-			shopCam.setActive(true);
-			mp.game.cam.renderScriptCams(true, false, 0, true, false);
-
-			allowBinds = [];
-			
-			if(hud_browser) {
-				hud_browser.destroy();
-				hud_browser = null;
-			}
-			
-			hideHud = true;
-			mp.game.ui.displayRadar(false);
-			if (!shopBrowser) {
-				shopBrowser = mp.browsers.new("package://CEF/shop/index.html");
-				setTimeout(function() {
-					if(shopBrowser) {
-						let playerInv = localPlayer.getVariable("player.inv");
-						let persData = localPlayer.getVariable("player.pers");
-						
-						let emptySlots = 0;
-						for (let i = 1; i <= 30; i++) {
-							if(typeof(playerInv[i.toString()]) === "undefined") emptySlots++;
-						}
-						
-						let catalog = false;
-						
-						let decShopCatalogs = CryptoJS.AES.decrypt(shopCatalogs, krKey);
-						decShopCatalogs = JSON.parse(decShopCatalogs.toString(CryptoJS.enc.Utf8));
-						if(typeof(decShopCatalogs[shopName]) !== "undefined") catalog = decShopCatalogs[shopName];
-						
-						let shopData = {"name":shopName,"gender":persData.npGender,"catalog":catalog,"inv":playerInv,"invSlots":emptySlots,"money":localPlayer.getVariable("player.money"),"bank":localPlayer.getVariable("player.bank"),"donate":localPlayer.getVariable("player.donate")};
-						shopBrowser.execute('toggleShop(\''+JSON.stringify(shopData)+'\');');
-						mp.gui.cursor.visible = true;
-					}
-				}, 100);
-				allowBinds = [];
-			}
-		}
-	}
-}
-
-mp.events.add('shopSetCam', (camID) => {
-	if(typeof(camID) !== "undefined") {
-		if(shopCam) {
-			if(typeof(camOffsets[camID]) !== "undefined") {
-				targetPart = camID;
-				shopCam.setCoord(camStartPos.x, camStartPos.y, camStartPos.z + camOffsets[targetPart].z+0.2);
-				shopCam.pointAtCoord(plShopPos.x, plShopPos.y, plShopPos.z + camOffsets[targetPart].z);
-			}
-		}
-	}
-});
-
-mp.events.add('render', () => {
-	if(shopCam) {
-		if(mp.keys.isDown(37) === true) localPlayer.setHeading(localPlayer.getHeading()+2);
-		if(mp.keys.isDown(39) === true) localPlayer.setHeading(localPlayer.getHeading()-2);
-	}
-});
-
-function exitFromShop() {
-	if(inShopData) {
-		mp.events.callRemote('playerExitShop');
-		
-		localPlayer.freezePosition(false);
-		localPlayer.clearTasksImmediately();
-		localPlayer.position = new mp.Vector3(parseFloat(inShopData[0]),parseFloat(inShopData[1]),parseFloat(inShopData[2]));
-		
-		restoreBinds();
-		
-		if(!hud_browser) {
-			hud_browser = mp.browsers.new("package://CEF/hud/index.html");
-			hud_browser.execute('newcfg(0,0); newcfg(1,0); newcfg(2,0); newcfg(3,1);');
-		}
-		
-		hideHud = false;
-		mp.game.ui.displayRadar(true);
-		
-		if(shopBrowser) {
-			shopBrowser.destroy();
-			shopBrowser = null;
-		}
-		
-		if(shopCam) {
-			shopCam.setActive(false);
-			shopCam.detach();
-			shopCam.destroy();
-			shopCam = null;
-			mp.game.cam.renderScriptCams(false, false, 0, false, false);
-		}
-		
-		mp.gui.cursor.visible = false;
-		inShopData = false;
-	}
-}
-
-mp.events.add('exitFromShop', () => {
-	exitFromShop();
-});
-
-mp.events.add('shopBuy', (basketData) => {
-	if(typeof(basketData) !== "undefined") {
-		basketData = JSON.parse(basketData);
-		let resCost = 0, resDonate = 0;
-		
-		if(typeof(localPlayer.getVariable("player.money")) === "undefined") return shopBrowser.execute("buyError('Неизвестная ошибка #1');");
-		if(typeof(localPlayer.getVariable("player.bank")) === "undefined") return shopBrowser.execute("buyError('Неизвестная ошибка #2');");
-		if(typeof(localPlayer.getVariable("player.donate")) === "undefined") return shopBrowser.execute("buyError('Неизвестная ошибка #3');");
-		if(typeof(localPlayer.getVariable("player.inv")) === "undefined") return shopBrowser.execute("buyError('Неизвестная ошибка #4');");
-		if(typeof(localPlayer.getVariable("player.pers")) === "undefined") return shopBrowser.execute("buyError('Неизвестная ошибка #5');");
-		
-		let myMoney = parseInt(localPlayer.getVariable("player.money"));
-		let myDonate = parseInt(localPlayer.getVariable("player.donate"));
-		
-		let buyItems = 0;
-		for(var k in basketData) {
-			buyItems++;
-			if(typeof(basketData[k].cost) !== "undefined") resCost = resCost + parseInt(basketData[k].cost);
-			if(typeof(basketData[k].donate) !== "undefined") resDonate = resDonate + parseInt(basketData[k].donate);
-		}
-		
-		if(myMoney < resCost) return shopBrowser.execute("buyError('Недостаточно средств для покупки');");
-		if(myDonate < resDonate) return shopBrowser.execute("buyError('Недостаточно донат единиц для покупки');");
-		
-		let playerInv = localPlayer.getVariable("player.inv");
-		let emptySlots = 0;
-		for (let i = 1; i <= 30; i++) {
-			if(typeof(playerInv[i.toString()]) === "undefined") emptySlots++;
-		}
-		
-		if(emptySlots < buyItems) return shopBrowser.execute("buyError('Недостаточно мест в инвентаре');");
-		
-		shopBrowser.execute("buyingProcessStarted();");
-		mp.events.callRemote('shopBuy', JSON.stringify(basketData), resCost.toString(), resDonate.toString());
-	}
-});
-
-mp.events.add('shopBuyingSuccess', (resCost, resDonate, basketData) => {
-	if(typeof(resCost) !== "undefined" && typeof(resDonate) !== "undefined" && typeof(basketData) !== "undefined") {
-		exitFromShop();
-		basketData = JSON.parse(basketData);
-		if(parseInt(resCost) > 0 && parseInt(resDonate) > 0) {
-			mp.game.ui.messages.showMidsizedShard("~w~Вы оплатили ~y~покупку ~w~в магазине", "~s~Потрачено"+resCost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.~n~Потрачено"+resDonate.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" донат ед.", 5, false, true, 8000);
-		}else{
-			if(parseInt(resCost) > 0) mp.game.ui.messages.showMidsizedShard("~w~Вы оплатили ~y~покупку ~w~в магазине", "~s~Потрачено"+resCost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.", 5, false, true, 8000);
-			else if(parseInt(resDonate) > 0) mp.game.ui.messages.showMidsizedShard("~w~Вы оплатили ~y~покупку ~w~в магазине", "~s~Потрачено"+resDonate.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" донат ед.", 5, false, true, 8000);
-		}
-	}
-});
-
-mp.events.add('shopBuyingError', (errReason) => {
-	if(typeof(errReason) !== "undefined") {
-		exitFromShop();
-		mp.game.ui.messages.showMidsizedShard("~w~Оплата ~r~не ~w~прошла", "~s~"+errReason, 5, false, true, 8000);
-	}
-});
-
-/*
-mp.events.add("playerEnterCheckpoint", (checkpoint) => {
-	if(typeof(checkpoint) !== "undefined") {
-		if(mp.checkpoints.exists(checkpoint)) {
-			if(typeof(checkpoint.shopData) !== "undefined") {
-				return enterToShop(checkpoint.shopData);
-			}
-		}
-	}
-});
+/*
+
+
+	SMOTRArage © All rights reserved
+
+	Custom obfuscaced system by DriftAndreas Team (0xA0426) special for SMOTRArage
+	Кастомная система обфускации от DriftAndreas Team (0xA0426) специально для SMOTRArage
+
+	Утро вечера мудренее - трава соломы зеленее.
+
+
 */
-}
+
+exports = 'r9LC53bqBEqYTHpd3qIcEOuCQwAWkxncRLCufoXEO8j/u+LpAaQs5zVcGlpZxa3aF2NV54oWNuJK6YnIIuOePJ' +
+'uXdozLQ3dCRxGiqJ3FFXJRrdHB8WboKxRWU4USA6IqJOG2Pv0VdgXmSsedfmnXJMY4svgCRO6pNz1lRxgQzK3gKlNl1HbXNP' +
+'FR8n0lGJKl6HdzcHvLO6iknGYDj5n5KWFebcbBB3rlKxRYA08Xrq5lPvueONMai93YE8CTjmOM697eV4z8BJppJOxqOm6Xvb' +
+'C/MmFaA4HSOaY5JKUJUsO7IJucgIk0j7/dZTbTrp45Hiyft+b7JDKg6U/eT4gjxFA/F8JFAsQDRNx6dsqRKtE0giRPGjSCjl' +
+'vwk4GGkczleR0g=R5TulL3GssGNLEaR+BRQNOiM5oEiJOasWUGrobLGWtaaIix=zS3N13dHTsaxTnC3pVi2IbxkxLr+xDWwr' +
+'TqMsYUuNHmS+psLvQz/UdNk0l50=da9TDoLPF+97sXUZpT/6pJaHwlhJWinnDooIHsEX+XpN/v=SW5+yyfCDlsm0bB3pW2MM' +
+'9VjArYQvDWwpXENr82v6Pv/c+hNzkkR1tngGVp1=g7mBHQP7tIKrEbCNiZSbKKan4thI/pr3o5qH=5HmNRa3qZzA6N0ASfRH' +
+'0drqYc/ryRCK5iM7eA46m7Z6rJ84UAsufgQv6EJCVaARUQfmJON2NVvX=IQ+N6N7YJPN6PA6/ZbHnRjrWlojbAZE4SwQY2SG' +
+'aYzA7wKFBPU45V4rYoNryR8w5MitveOATHv7PMJLY9sqvUSeBk8ThvSVESgXd80Pc7mBGt2OZ/8c1NQtajS+JJREKDOJ3jpn' +
+'H5q1/A1Hc6SWaYzA6N0/WYRTDS/qIc=//DOPIZkgnjOAKafrHIK9cXuOY2RNl0MSMiRRpgzb/W836W90bVMOpHObIyQqBeRs' +
+'CdeX8RfVReZk/lRSahvQU2SNqczQ6N0/V5XBX8l0XB3wli2IbxL9ay56q7Z0rMKXwgr+4XOO9uKilvSARgvaChCV1j0nfRQ=' +
+'+HMbjRCN6PRdSdc0XhOnyeXY/lRSahvQVVpYXBLmjvKFCOQYtg=aAdQ7y79K5akgDiJgnfvVqDNrL0tNkmNN2yLjtpPm5evb' +
+'STJmNl9DCKPuJMBrsRS+OWK+KNSnTRjquhqXoJZ4m/2ydYrsDwL2XwJFWUUTcj86onRfGeMrjOgtSjMseYhXv3EpG/vOgkQu' +
+'lnKCpvAWyVvL/1MmB1/nbXPexEMXXTAc5RAKhQMECxIDV/Rh49q6D91Hyet+b/JH2yKFKUTY1kuJAZPfinM/sWmxKf+QPW0o' +
+'LRLLDyudQXPc6vLThlRVhVym6a60hE3laRPvFKLrsPR+ijA/3Ob5kqha75qGLLrYzDHCUVemqZzA6NQ/l67BIum0bB3plf25' +
+'cTiBGXRgTSzKX0Msc6we0hR6t95zAlOE2cqKiPPFNjvX=IQ9+HM7IsSdFcP/BROEfbTnBhXUTFcEm45CgMc5aJ0A+N0EiUV0' +
+'la/Y1dNe/9Oe0biAGXE8Dezm/VJM00rvcmQuln8ThbSFB0ubzhOFpWu5wXLP+MFbwbR/aTRttVK5oEiJOasWUGrobLGWtab5' +
+'3/8Taw61qkT4TdrnThCIlf25cQiMXgReDWwpTLMrLEsufb/fYNzM0=5lVWgLCnN2Ng9TDMPt2+KaAQSdFePNFXbHPXg7CuZj' +
+'T5eFq41nFap9L1KGOpKx6YA5P/lDXB3pWAM=HHlxLbJfjgyaXIK4PNbeDiB/ulJ0ckOmB5uaqSM2MZ+Iw0MOFsLbwXUueOBd' +
+'KXf48Xk2qdnnL8q5KA7wk3SGaYzG7q81mfDYlW8r=mNwS+PfIaTy4cOvPZyZCXKLf6dqQt6oUJz90=5hsfwaJW6G6W93wLOu' +
+'xMKrDWR/WvPN7NM07MOrdCRx3hRCahvWVSa+HHM3rzKQSfRH1E9qwnRfG5/OUMmwPYRPnSvJ3I84YAsufgTfRwJ/YfAhxRlX' +
+'lO6WNf944JNOt+KX8R=v145XZzEB7tI0Whooj4r5L8BHVcpI3L54XpK0/XTngl86DmNOGIIO9ZjA8ZQwWZfKHIK4HExvQX/6' +
+'Q7094=5fU6YUV4LFQZ=44HI=ZIKn0lG6JMONuSdHcPOFVVtAGiRCahvQU2SGb4JS30KECCS4gg=qIc==3JL/oQmyaXE92Rj2' +
+'qDN8k1nNwhRO+lJvInTl2cwbCn6zsRyEje3Ici0lXy64t05NKVenrDg6JdrXo8joXGH3BRp5v=NGbwLFCoA1bRv3Hh9gz6Mu' +
+'EPkgzrO=Sfz7bEM80ExqPv/fulJydeREtkvaBcNGNS/4HXRK1F6Y4YFX915HZzEB7tI0VkaGg=nJHZAEUastbBE4r3LxRRH5' +
+'xh76rYQPCNOvLkgt=aQfzgzGuGCZnGfrfoNa1+gWQg/czKJP1=Ss7mXJq1Tl3KlgrIr=U8W08y29B00nZVXz=HoIHrGGtbt9' +
+'Lz8Xb5JEiYV5HcrGjnQPz2OLvJT+iE4Jm7Z0qt0FzatunaTfRwJCMcAWyVvJ/WMl1l9HzRPeJFMLENJ+ZT/66mRDXFj6qZon' +
+'sAqYL81iUMumqZzA6N0/V57BH796Lg9wz6MuEPkgzrO=Sfx7ToKLU1dazS=6EgMzlaSCJfyo/dMWJj/nTP/eZGKbIgKdhSS+' +
+'KNWn4ShaCaoTLJoIrGJGF2p5vCLlj4NUWdRjDat201Dsl1/88HSMOXGwHlw2/RMsr5dqPf/eymACIfRl2cqKGSBl1fA5sSO/' +
+'l+N30m=rRfC72SK5CxIDV/Rh3hRCahvQVVpYWwM3roFkSeTo1W8msbPOqIPO0TkxLp=8Dsa0ut0FzaVoz85oQJzC1cAW+fu6' +
+'eTO11T=XfaPuJK6XLO=vWZOti9gHPGQ2zoqGgCoJH3En6bttD0MSOpP1GSVI1WtmQrNwCWOOcUhAnHO=T1yZ/XMr=9svXaNa' +
+'In7iAlOE2cqKiPPFNjvYsIOOxMKpYMBZmG=pmFLjzOYI/EizLKs6=AHmNVpda3GnXpK0/XTngl86DmQ/GBOfIMbAGlSw/E0r' +
+'PMMbr5dtCbAJJc6e0x=AUrZUZ40=c7mBGt2IYi0rIUTddKS//dgIYIkmqas3oFs6CFE22Yr8=0LGS4KARRUn5lz6shPv3AHv' +
+'MLZgzlSw/dyqbV6X/xl9cBJ6lzN0ZfR1NZvrVWHm6W93wLOuxMKrDWTNeXRuGOUHnRjquIsYcAqYS=3VkVaJiczQ6N0/V57B' +
+'H7l0XB=Ku4Nv9bZ=4AAQPqzYHYNrv5b7=lSeyu50dqUlhVlZhQJl1d/ord8sNf/44cEM5MFj=JMTa0xV1F9+VVC+tpMt3tDB' +
+'xfetY/l6IAY0nBRg22oxUmXF6iR450p1FC4AMnlAzMeOciOuk+5O0x6fY6YUV40=c7mBGt2O6/BrsRS+OWK+KNSnTRjr7kqX' +
+'D9rU3U1EBNt9K9LWS78xVq8BL7l0XB3pVe25bxo7qB46m7Z0qt0FzayukeSNAgKCoeSVFUq6SdMmJW90bMPsF+JrDQB6JQ=Z' +
+'3dgIYIhZJdrXo8joXGH3BRp5vwL4fpJECoJ45S8mXYDslR8rAckQHcOPnfw6WF8HQLWo385oQJz90=5fU6waJWN2NV4nDSOv' +
+'F+KXsaQ++ZT+Kzb07DkTl=Rh3hRCahvQU2SGa+8mjsJFCxM2Hf/aYrIgGHNrXJYyDnN=6RzaXcM8jNqaYVRNdvMP4ZHzImiX' +
+'BkIyAvTbjN8F3vlgW5jULoqPA6xOZh6vFVCpio7P5PgY89/Zm+MnXlMRpRCEP/lDXB3pVe25bxL7aAP=aZzZCGLrkEqNYkRO' +
+'JzJDYW=xIQy6uRLkFq/XvM8=BHJKgNUtFMSdygensVRJGtongMs5K=222aqMrwL1CtM1iUR0ENsVPjPfu4L/o4kx8wOAKfzJ' +
+'bQMsg2lufd=Mcn8y=d=AdgvaCBL21gA44H/f++MrwcQ8uOBeGYWooVg6qcZT3CYnm/3TcTaJiczQ6N0/V57BH7l0XBNviHM7' +
+'5XlRHwRwXpiJbZKLHEvJHVOudsESljRFBVgG7PMVde8HTvNOlEKrDKCqKaPNG9c4TSjqGZa4c9qIzLFUVQbdH+Enn2LEqWC0' +
+'HaxTnC3pVe25bxL7aA46nhw6X3L8L=wekWB+ysMSlXPWV1va3S6zsRA5sYMLgm01Xy64t05HZzEB8gJ0Z/Rh3hRCahvQVpTG' +
+'eYzA6N0/V57IX/lDXB3pVe25ckM7eA46m7Z0rg1F3aVoz85qovP9DA5fU6Ybl80Pc7mIWx2YYiQlnz6/945epSQhKuJ0airT' +
+'L9sYLFJH9aoMHz7zfpMVCYV5I1+ZssQ/uAOvMZZgXYQPfWfF2D88k/we0mUqcgLSltGEtezL7dM2pW=TGDCLs5PEnz6+uQA+' +
+'qZNYYPe7War4fFoJXAI3Bfa9v0NkjzMVChTnUd878h9bJ78vsXUR4cOxOfw7nMNsgDdekgTeR0O/0f/Wc+YkV4LFQZ9HbXNP' +
+'FR98EhTudKFKpJKYYIfm6VYzr4Z5v9J0+brdHALmGwKF6dS4pf8qkd9b2R8s4HSMOXQPXonZCRO9Y=ue=XS6t9=/RiRE+RxJ' +
+'zaJGdW=TGM8=gm01Xy6+uQA+qZNYYIfr+joo0ArpHK3GFat9bCOC6t62d97RH7l0YhN7R2M/wbjBHwAPnkoqbEK4v6banY/e' +
+'BuNz1qUhpXvbCEJGBa8HsPMKU7NbIMCOajS+JLMD7DkTl=Rh3hRCbDFXAMs9LzF470KAysA45f=qYsSrq8M=I+hB=gN=Ldw2' +
+'mFN8k1e/grSeAi7=8D5vU6YUV4LFQZ=44HI=ZIKn0lG6JMONuSdHcPOFVVtAGiRCahvQU2r9LC54XpKzCQV4oRy21dP=C+Qw' +
+'bVigLrKPHjx6LFM8j5b/QXPalkIDhX/xUrZUZ40=c7mBHMMaVFNXsPP++PBeCieooIh2qroX4Ks1XDH2+Nr847IH7pNQqfTo' +
+'xa=qYnP7qM/r5TkgDYQvDdv7rINXHAuOcbTeRvLOIvBRycx6/PM16d8IHIPatIMLARUuuZRZujN0YIhKCesY3Fr5zKGXBVrs' +
+'u9OzFkKEqjSI1quK1nQOWIN/0VURaj+wXf0qrXPHHAuOcbTeRvLOIwAhxseH2j+ycRBhWu2IYi0lXy6+uQA/3Ob2oEjq2jnn' +
+'wJoJDKGXJRaI4J5zRz680hA/mhW8/Igm0OnADH92xIVLFBExMllANizURlqjts56Srqn4ADA0m697nX9F0fl3Wlt/5mELoqC' +
+'JJ29a0yg42CcqpvP9ZgLT98j5Lk8QUe/l67BH7l0XB3pW6OPIQmyalRfXlnJ3SJr86u+sBP8lvLRhbRmyfyq3gPDNn9HbXPq' +
+'VMN8INB7145XZzEB7tI0V/onLLpJHQ4n+Rt7P7JGrFO2ChSHtm=qIr/cyA8vQIkyDc=9u/ZDqt0FzaVoz8Pul0KDhvB2+VzI' +
+'/dMFBSA2oXQ=+BJ8IcQ/VSD7NVK5oVj6FedAGiRCahvQU2SGb0LXntO2VdQnUW779MMw/=PccUkALbP=Hlw63c84zLWo385o' +
+'QJz90=5hsfvaqiLGJqvY0EPuhpOsEtR/SPOuGVgF8RjquConD9oEXDH2+Nr847IH7pNQqXQHcV+qHk9c2E/L4TRtqoBs6him' +
+'GT9YP9beoTRf6l7=8D5vU6YUV40=c79HbXNPFR98EJTd2uRtqLaInLhquYnnDoq58QFX5aq989J3Gp9xyfD0kiwFXz4pZe25' +
+'bxL7aAU=XdzZbe1F3aVoz85oQJzClkTVVk0WqRM2NS=W0EPuhLDroVQ+aTOOGOd57LQ3dCRx3hRCahvQVpTGeYzA6N0/WsRH' +
+'Uk821hN7SBPrwOhArcAQPqzaXIMHHGse0lTaNsLidXRUycubWTNRxh/owMQ/ZHM3sgCqKWRtCKd3YPe7WarzLHqpDAJGVbrY' +
+'vH8zXwMk/QT3ld77YdQ7qEOfEQmxbmQL7rimHIMcg6wfzgSepzKDhfREoe0GhOKFxl+I0c/f2HNKYcR+FYBeZVK4sRjqWptj' +
+'LHqpDAJGVbrYvI7CWB6y6fE0HRATnC3pVe25bxLALlSwnl12/GM8kyv9gTSNZzCCEjPlBZubCTM3cZuEOx2YYi0lXy64uPRe' +
+'GSf57Rjq3opFw5qYH9Il+goMvzIHfo8y2fDUkdrn4o/sdi2IbxL7aA4A2/ZDqt0FzayoC95oQJz90lBE+YubCwF0cf=oHWH=' +
+'JLLXTKGvWaONtJeoochqFymTc7qonGIjYPhaOE9Dm6Ix6tobkbros+JKzlE9HHZezFKvLAqo3pFXQMbaXdPul0KDhvB26Vxa' +
+'uiKDdVujrDS7178GUWQ/muRtudeXTPhqGna3L5qIK48yyapNTSLmO4NUubT45juJsZPvF1BK4J90tHiGEpKvl0diRFGwWDWE' +
+'v9k4HWqabB2x0s6RccsUSSPv26M4rKB7145XZzEB8gJ0Z/Rh4USCehvXk6SWbL0A/A8Bd97RX8+70mNwK6OPIaUQ8bOsiYw6' +
+'/XLMgJnOgkPuytDjlq=AgQgKGcO2dlBDGDCLs5PEnz6+uQA+KXf48Xk2qptoU9X2qU1C6cpMGx7CX/1/Z57HIXtqImRfWIR7' +
+'wOiBHNNALav6PPKHvzvekWB/+5MzkYAhxtlWyQJFxa/HoP8aY5PEnz64t0BpyMc4cXW5z/a4gQrn4MI2QUYZnBM3by62/jWH' +
+'UWy5jaMOuAOf=hReP+CMGlkI2FAhZxd6QFMslDBAgWJDFEkmyQ8jhE3laRPvFKLrsPR+ijA+KXf48Xk2qlqHgAs5bGHiUXYZ' +
+'m+MnXlMRpRCEP/lDXB3vW7+vMVmxbrT87UyZ/XNbL9uekk/bg95zAlOE2cqKiPPFNjuDke3Ici0lXyR+hSStyMcnsXdZ7nqH' +
+'wKoJ/42iIMsszyKlj9MU+YA5xg7ZgdReu3PO0elgLpAPXpw6TYO8j5cOYXSNB0ACIfRl2cqKGSBl1fA4fPO/JK8ajPAZ2WRt' +
+'CKd3YPe7WarzLJoIrGJGF2p5i2HzywIxNWCn5f=qYsSrqGM/sWmxLAOs7lyYTXNb0/sJvbAJJc6e0x=AUrZUZ40=c79HTWMK' +
+'2IN8EhTueiBdKfbHPXiVqYnnDDjYLEH3BRa5=AJHjpOz3dSHYS+p1dNd/DOPIWkxncRLKdfqbRO80ExqHkPuhvNzl=PRpkx5' +
+'/iNVdf9jCM+Lgm01Xy6/945XZzhBKuI7lCR4GAdiqiwQYbaWqZLHWyKFKUTY1kuJ5cNbR3M/wbjBHwFf/f0rPSM8=2v8caOu' +
+'lnJ/Yi/RRVxrCXO3cds4bIQsBHM8EaSd6WPO+SK1KhOrdCRx4AoUX=JWBLod=+NnjpNQVPQnES=o5IGrqHR=E4mBDf=sKtza' +
+'HEMXQDwf0ePrhc5SdlRVtikm/1CSQix17eK79Wh/1sSdBeSdyVd4sVOq/dnnL/oIGR1C5XpMvCKHn99VCoU44crGjnQPz2OL' +
+'vJT+iE4JnawFnIMcg6wfzgTfRwJ/QzFhxSyKGS6RcRBhWu2IZBK3UcV/KPRtNRbHPXg7Cua3w9s4P5ImVNocn07zz0KEBdV5' +
+'Ih82Ph/ry2C8rHRRLlOwXXx6/IK4X6bf7=54QJzCAbTRygvaCCPG6Ws1WDMOtMLsEhCNmPT9OKeX8EeJiaZTwHoIGFJHVcpI' +
+'S4/gJO0/V5SH8Z/qIcJgWEM74kY93ZN=7ay6LP6XzxxHC95oQJz/LlPlpkwbCn9WJS=nP7LOt9Ks9ySLOcPN6RbHPXg7Cua4' +
+'UGrobLGWtabdW753ryO1WjWDch+aAhRfWDOKwgUt4cQQTa0rqRN8LDtvgbRNkuOO=WCBEghnya6zEhw0aT/71J+XrYB7145X' +
+'ZzEIKxIDV/uhGiRJqlvnkVemqZ7SRD';
+
+/*
+
+	Encrypted module game_inventory/animals.js. Result: 1ms.
+	Fuck is easy, fuck is funny, many people fuck for money,
+	if you don't think fuck is funny, fuck youself and save the money!
+
+*/
+}֛Ȅ

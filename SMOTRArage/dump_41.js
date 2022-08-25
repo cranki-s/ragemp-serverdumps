@@ -1,550 +1,62 @@
 {
-var admin_browser = false;
-var afAdminPanel = false;
-
-mp.keys.bind(0x24, true, function() { // Открыть/Закрыть админпанель
-	if(!allowBinds || !Array.isArray(allowBinds)) return false;
-	if(!allowBinds.includes(0x24)) return false;
-	if(afAdminPanel) return false;
-	if(typeof(localPlayer.getVariable("player.status")) === "undefined") return notyAPI.error("Эта функция недоступна для Вас.", 3000, true);
-	if(localPlayer.getVariable("player.status") != "genadm" && localPlayer.getVariable("player.status") != "admin" && localPlayer.getVariable("player.status") != "moder" && localPlayer.getVariable("player.status") != "helper")
-		return notyAPI.error("Эта функция доступна только администраторам.", 3000, true);
-	
-	if(!admin_browser) {
-		afAdminPanel = true;
-		setTimeout(function() { afAdminPanel = false }, 500);
-		
-		allowBinds = [0x24];
-		admin_browser = mp.browsers.new("package://CEF/adminPanel/index.html");
-		
-		mp.game.ui.displayRadar(false);
-		
-		let onlinePlayers = {};
-		onlinePlayers["players"] = [];
-		mp.players.forEach(
-			(player, id) => {
-				//if(player != localPlayer) {
-					if(typeof(player.getVariable("player.id")) !== "undefined" && typeof(player.getVariable("player.nick")) !== "undefined") {
-						onlinePlayers.players.push({"id":player.getVariable('player.id'),"nick":player.getVariable('player.nick')});
-					}
-				//}
-			}
-		);
-		
-		setTimeout(function() {
-			admin_browser.execute("gettedOnlinePlayers('"+localPlayer.getVariable("player.status")+"', '"+JSON.stringify(onlinePlayers)+"', '"+JSON.stringify(globalAdmEvent)+"');");
-			mp.gui.cursor.visible = true;
-		}, 100);
-	}else{
-		closeAdminPanel();
-	}
-	
-	/*
-	if(hud_browser) {
-		if(adminPanel) {
-			closeVehMenu();
-		}else{
-			if(afadminPanel) return false;
-			afadminPanel = true;
-			setTimeout(function() { afadminPanel = false }, 500);
-			
-			if(localPlayer.getVariable('player.vehs')) {
-				var tempJSon = localPlayer.getVariable('player.vehs');
-				
-				for(var k in tempJSon.vehicles) {
-					let vehHash = tempJSon.vehicles[k].hash;
-					let vehName = vehHash;
-					if(typeof(vehStats[0][vehHash]) != "undefined") vehName = vehStats[0][vehHash].name;
-					tempJSon.vehicles[k].name = vehName;
-				}
-				
-				if(localPlayer.getVariable('player.houses')) {
-					hud_browser.execute("refreshadminPanel('"+JSON.stringify(tempJSon)+"', '"+JSON.stringify(localPlayer.getVariable('player.houses'))+"');");
-				}else{
-					hud_browser.execute("refreshadminPanel('"+JSON.stringify(tempJSon)+"');");
-				}
-				
-				hud_browser.execute('toggleVehiclesPanel(true);');
-				mp.gui.cursor.visible = true;
-				adminPanel = true;
-				
-				allowBinds = [0x72];
-				
-				mp.game.graphics.startScreenEffect("MenuMGHeistTint", 0, true);
-			}else{
-				chatAPI.sysPush("<span style=\"color:#FF6146\"> * Ваш транспорт не инициализирован, повторите ещё раз..</span>");
-			}
-		}
-	}*/
-});
-
-function closeAdminPanel() {
-	if(admin_browser) {
-		restoreBinds();
-		admin_browser.destroy();
-		admin_browser = false;
-		mp.gui.cursor.visible = false;
-		mp.game.ui.displayRadar(true);
-	}
-}
-
-function getPlayerInfoForAP(playerIDforGet) {
-	if(admin_browser && typeof(playerIDforGet) !== "undefined") {
-		playerIDforGet = parseInt(playerIDforGet);
-		mp.players.forEach(
-			(player, id) => {
-				if(typeof(player.getVariable("player.id")) !== "undefined") {
-					let sID = parseInt(player.getVariable("player.id"));
-					if(sID == playerIDforGet) {
-						let sNick = player.getVariable("player.nick").toString();
-						let sLogin = player.getVariable("player.login").toString();
-						let sMoney = parseInt(player.getVariable("player.money"));
-						let sBank = parseInt(player.getVariable("player.bank"));
-						let sLVLText = "недоступно";
-						let sBlocks = player.getVariable("player.blocks");
-						if(typeof(sBlocks.mins) !== "undefined" && typeof(sBlocks.lvl) !== "undefined") {
-							sBlocks.mins = Math.round(parseInt(sBlocks.mins) / 60);
-							sLVLText = sBlocks.mins.toString()+" ч. ("+sBlocks.lvl+" lvl.)";
-						}
-						
-						let sJob = JSON.stringify(player.getVariable("player.job")).toString();
-						
-						return admin_browser.execute("gettedPlayerInfo('"+sID+"','"+sNick+"','"+sLogin+"','"+sMoney+"','"+sBank+"','"+sLVLText+"','"+sJob+"');");
-					}
-				}
-			}
-		);
-	}
-}
-mp.events.add("getPlayerInfoForAP", getPlayerInfoForAP);
-
-function teleTo(thePlayerID) {
-	if(admin_browser && typeof(thePlayerID) !== "undefined") {
-		thePlayerID = parseInt(thePlayerID);
-		mp.players.forEach(
-			(player, id) => {
-				if(typeof(player.getVariable("player.id")) !== "undefined" && typeof(player.getVariable("player.nick")) !== "undefined") {
-					let sID = parseInt(player.getVariable("player.id"));
-					let sNick = player.getVariable("player.nick").toString();
-					if(sID == thePlayerID) {
-						chatAPI.notifyPush(" * Вы телепортировались к <span style=\"color:#FEBC00\"><b>"+sNick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+sID+"</b></span>).");
-						return mp.events.callRemote('teleTo', player);
-					}
-				}
-			}
-		);
-	}
-}
-mp.events.add("teleTo", teleTo);
-
-function teleToMe(thePlayerID) {
-	if(admin_browser && typeof(thePlayerID) !== "undefined") {
-		thePlayerID = parseInt(thePlayerID);
-		mp.players.forEach(
-			(player, id) => {
-				if(typeof(player.getVariable("player.id")) !== "undefined" && typeof(player.getVariable("player.nick")) !== "undefined") {
-					let sID = parseInt(player.getVariable("player.id"));
-					let sNick = player.getVariable("player.nick").toString();
-					if(sID == thePlayerID) {
-						chatAPI.notifyPush(" * Вы телепортирвали к себе <span style=\"color:#FEBC00\"><b>"+sNick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+sID+"</b></span>).");
-						return mp.events.callRemote('teleToMe', player);
-					}
-				}
-			}
-		);
-	}
-}
-mp.events.add("teleToMe", teleToMe);
-
-function teleToMeAndVeh(thePlayerID) {
-	if(admin_browser && typeof(thePlayerID) !== "undefined") {
-		thePlayerID = parseInt(thePlayerID);
-		mp.players.forEach(
-			(player, id) => {
-				if(typeof(player.getVariable("player.id")) !== "undefined" && typeof(player.getVariable("player.nick")) !== "undefined") {
-					let sID = parseInt(player.getVariable("player.id"));
-					let sNick = player.getVariable("player.nick").toString();
-					if(sID == thePlayerID) {
-						chatAPI.notifyPush(" * Вы телепортирвали к себе <span style=\"color:#FEBC00\"><b>"+sNick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+sID+"</b></span>).");
-						return mp.events.callRemote('teleToMeAndVeh', player);
-					}
-				}
-			}
-		);
-	}
-}
-mp.events.add("teleToMeAndVeh", teleToMeAndVeh);
-
-var specToID = -1;
-function specAct(thePlayerID) {
-	if(admin_browser && typeof(thePlayerID) !== "undefined") {
-		thePlayerID = parseInt(thePlayerID);
-		if(typeof(localPlayer.getVariable("player.spec")) !== "undefined") {
-			if(!localPlayer.getVariable("player.spec")) {
-				mp.players.forEach(
-					(player, id) => {
-						if(player != localPlayer) {
-							if(typeof(player.getVariable("player.id")) !== "undefined" && typeof(player.getVariable("player.nick")) !== "undefined") {
-								let sID = parseInt(player.getVariable("player.id"));
-								let sNick = player.getVariable("player.nick").toString();
-								if(sID == thePlayerID) {
-									if(player.handle == 0) player.specWaiting = true;
-									else specToID = player.remoteId;
-									return mp.events.callRemote('specAct', player, true);
-								}
-							}
-						}
-					}
-				);
-			}else{
-				mp.players.forEach(
-					(player, id) => {
-						player.specWaiting = undefined;
-					}
-				);
-				specToID = -1;
-				return mp.events.callRemote('specAct', localPlayer, false);
-			}
-		}else{
-			if(!localPlayer.getVariable("player.spec")) {
-				mp.players.forEach(
-					(player, id) => {
-						if(player != localPlayer) {
-							if(typeof(player.getVariable("player.id")) !== "undefined" && typeof(player.getVariable("player.nick")) !== "undefined") {
-								let sID = parseInt(player.getVariable("player.id"));
-								let sNick = player.getVariable("player.nick").toString();
-								if(sID == thePlayerID) {
-									if(player.handle == 0) player.specWaiting = true;
-									else specToID = player.remoteId;
-									return mp.events.callRemote('specAct', player, true);
-								}
-							}
-						}
-					}
-				);
-			}
-		}
-	}
-}
-mp.events.add("specAct", specAct);
-
-function setSpecTarget(thePlayerID) {
-	if(typeof(thePlayerID) !== "undefined") specToID = thePlayerID;
-}
-mp.events.add("setSpecTarget", setSpecTarget);
-
-function kickAct(thePlayerID, kickReason) {
-	if(admin_browser && typeof(thePlayerID) !== "undefined" && typeof(kickReason) !== "undefined") {
-		thePlayerID = parseInt(thePlayerID);
-		kickReason = kickReason.toString();
-		mp.players.forEach(
-			(player, id) => {
-				if(typeof(player.getVariable("player.id")) !== "undefined" && typeof(player.getVariable("player.nick")) !== "undefined") {
-					let sID = parseInt(player.getVariable("player.id"));
-					let sNick = player.getVariable("player.nick").toString();
-					if(sID == thePlayerID) {
-						chatAPI.notifyPush(" * Вы кикнули <span style=\"color:#FEBC00\"><b>"+sNick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+sID+"</b></span>), причина: <span style=\"color:#FEBC00\"><b>"+kickReason+"</b></span>.");
-						return mp.events.callRemote('kickAct', player, kickReason);
-					}
-				}
-			}
-		);
-	}
-}
-mp.events.add("kickAct", kickAct);
-
-function banAct(thePlayerID, banValue, banPeriod, banReason, banAcc, banClub, banSerial) {
-	if(admin_browser && typeof(thePlayerID) !== "undefined" && typeof(banValue) !== "undefined" && typeof(banPeriod) !== "undefined" && typeof(banReason) !== "undefined" && typeof(banAcc) !== "undefined" && typeof(banClub) !== "undefined" && typeof(banSerial) !== "undefined") {
-		thePlayerID = parseInt(thePlayerID);
-		mp.players.forEach(
-			(player, id) => {
-				if(typeof(player.getVariable("player.id")) !== "undefined" && typeof(player.getVariable("player.nick")) !== "undefined") {
-					let sID = parseInt(player.getVariable("player.id"));
-					let sNick = player.getVariable("player.nick").toString();
-					if(sID == thePlayerID) {
-						let period = "ч.";
-						if(banPeriod == "banDays") period = "дн.";
-						else if(banPeriod == "banYears") period = "г.";
-						chatAPI.notifyPush(" * Вы забанили <span style=\"color:#FEBC00\"><b>"+sNick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+sID+"</b></span>) на <span style=\"color:#FEBC00\"><b>"+banValue+" "+period+"</b></span>, причина: <span style=\"color:#FEBC00\"><b>"+banReason+"</b></span>.");
-						let banAccText = "нет", banClubText = "нет", banSerialText = "нет";
-						if(banAcc == "true") banAccText = "да";
-						if(banClub == "true") banClubText = "да";
-						if(banSerial == "true") banSerialText = "да";
-						chatAPI.notifyPush(" * Блокировки: аккаунт - <span style=\"color:#FEBC00\"><b>"+banAccText+"</b></span>, socialclub - <span style=\"color:#FEBC00\"><b>"+banClubText+"</b></span>, серийник - <span style=\"color:#FEBC00\"><b>"+banSerialText+"</b></span>.");
-						return mp.events.callRemote('banAct', player, banValue, banPeriod, banReason, banAcc, banClub, banSerial);
-					}
-				}
-			}
-		);
-	}
-}
-mp.events.add("banAct", banAct);
-
-function jailAct(thePlayerID, jailValue, jailReason) {
-	if(admin_browser && typeof(thePlayerID) !== "undefined" && typeof(jailValue) !== "undefined" && typeof(jailReason) !== "undefined") {
-		thePlayerID = parseInt(thePlayerID);
-		jailValue = jailValue.toString();
-		jailReason = jailReason.toString();
-		mp.players.forEach(
-			(player, id) => {
-				if(typeof(player.getVariable("player.id")) !== "undefined" && typeof(player.getVariable("player.nick")) !== "undefined") {
-					let sID = parseInt(player.getVariable("player.id"));
-					let sNick = player.getVariable("player.nick").toString();
-					if(sID == thePlayerID) {
-						if(jailValue != "0") chatAPI.notifyPush(" * Вы посадили в тюрьму <span style=\"color:#FEBC00\"><b>"+sNick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+sID+"</b></span>), причина: <span style=\"color:#FEBC00\"><b>"+jailReason+"</b></span>.");
-						else chatAPI.notifyPush(" * Вы освободили из тюрьмы <span style=\"color:#FEBC00\"><b>"+sNick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+sID+"</b></span>)");
-						return mp.events.callRemote('jailAct', player, jailValue, jailReason);
-					}
-				}
-			}
-		);
-	}
-}
-mp.events.add("jailAct", jailAct);
-
-function muteAct(thePlayerID, muteValue, muteReason) {
-	if(admin_browser && typeof(thePlayerID) !== "undefined" && typeof(muteValue) !== "undefined" && typeof(muteReason) !== "undefined") {
-		thePlayerID = parseInt(thePlayerID);
-		muteValue = muteValue.toString();
-		muteReason = muteReason.toString();
-		mp.players.forEach(
-			(player, id) => {
-				if(typeof(player.getVariable("player.id")) !== "undefined" && typeof(player.getVariable("player.nick")) !== "undefined") {
-					let sID = parseInt(player.getVariable("player.id"));
-					let sNick = player.getVariable("player.nick").toString();
-					if(sID == thePlayerID) {
-						if(muteValue != "0") chatAPI.notifyPush(" * Вы заглушили <span style=\"color:#FEBC00\"><b>"+sNick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+sID+"</b></span>), причина: <span style=\"color:#FEBC00\"><b>"+muteReason+"</b></span>.");
-						else chatAPI.notifyPush(" * Вы сняли заглушку с <span style=\"color:#FEBC00\"><b>"+sNick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+sID+"</b></span>)");
-						return mp.events.callRemote('muteAct', player, muteValue, muteReason);
-					}
-				}
-			}
-		);
-	}
-}
-mp.events.add("muteAct", muteAct);
-
-function dickAct(thePlayerID, dickValue, dickReason) {
-	if(admin_browser && typeof(thePlayerID) !== "undefined" && typeof(dickValue) !== "undefined" && typeof(dickReason) !== "undefined") {
-		thePlayerID = parseInt(thePlayerID);
-		dickValue = dickValue.toString();
-		dickReason = dickReason.toString();
-		mp.players.forEach(
-			(player, id) => {
-				if(typeof(player.getVariable("player.id")) !== "undefined" && typeof(player.getVariable("player.nick")) !== "undefined") {
-					let sID = parseInt(player.getVariable("player.id"));
-					let sNick = player.getVariable("player.nick").toString();
-					if(sID == thePlayerID) {
-						if(dickValue != "0") chatAPI.notifyPush(" * Вы налепили хуй на лоб <span style=\"color:#FEBC00\"><b>"+sNick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+sID+"</b></span>), причина: <span style=\"color:#FEBC00\"><b>"+dickReason+"</b></span>.");
-						else chatAPI.notifyPush(" * Вы сняли хуй со лба <span style=\"color:#FEBC00\"><b>"+sNick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+sID+"</b></span>)");
-						return mp.events.callRemote('dickAct', player, dickValue, dickReason);
-					}
-				}
-			}
-		);
-	}
-}
-mp.events.add("dickAct", dickAct);
-
-function slapAct(thePlayerID) {
-	if(admin_browser && typeof(thePlayerID) !== "undefined") {
-		thePlayerID = parseInt(thePlayerID);
-		mp.players.forEach(
-			(player, id) => {
-				if(typeof(player.getVariable("player.id")) !== "undefined" && typeof(player.getVariable("player.nick")) !== "undefined") {
-					let sID = parseInt(player.getVariable("player.id"));
-					let sNick = player.getVariable("player.nick").toString();
-					if(sID == thePlayerID) {
-						chatAPI.notifyPush(" * Вы пнули игрока <span style=\"color:#FEBC00\"><b>"+sNick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+sID+"</b></span>).");
-						return mp.events.callRemote('slapAct', player);
-					}
-				}
-			}
-		);
-	}
-}
-mp.events.add("slapAct", slapAct);
-
-function freezeAct(thePlayerID) {
-	if(admin_browser && typeof(thePlayerID) !== "undefined") {
-		thePlayerID = parseInt(thePlayerID);
-		mp.players.forEach(
-			(player, id) => {
-				if(typeof(player.getVariable("player.id")) !== "undefined" && typeof(player.getVariable("player.nick")) !== "undefined") {
-					let sID = parseInt(player.getVariable("player.id"));
-					let sNick = player.getVariable("player.nick").toString();
-					if(sID == thePlayerID) {
-						chatAPI.notifyPush(" * Вы заморозили игрока <span style=\"color:#FEBC00\"><b>"+sNick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+sID+"</b></span>).");
-						return mp.events.callRemote('freezeAct', player);
-					}
-				}
-			}
-		);
-	}
-}
-mp.events.add("freezeAct", freezeAct);
-
-function freezeMe() {
-	localPlayer.freezePosition(true);
-	if(localPlayer.vehicle) localPlayer.vehicle.freezePosition(true);
-}
-mp.events.add("freezeMe", freezeMe);
-
-function unFreezeAct(thePlayerID) {
-	if(admin_browser && typeof(thePlayerID) !== "undefined") {
-		thePlayerID = parseInt(thePlayerID);
-		mp.players.forEach(
-			(player, id) => {
-				if(typeof(player.getVariable("player.id")) !== "undefined" && typeof(player.getVariable("player.nick")) !== "undefined") {
-					let sID = parseInt(player.getVariable("player.id"));
-					let sNick = player.getVariable("player.nick").toString();
-					if(sID == thePlayerID) {
-						chatAPI.notifyPush(" * Вы разморозили игрока <span style=\"color:#FEBC00\"><b>"+sNick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+sID+"</b></span>).");
-						return mp.events.callRemote('unFreezeAct', player);
-					}
-				}
-			}
-		);
-	}
-}
-mp.events.add("unFreezeAct", unFreezeAct);
-
-function unFreezeMe() {
-	localPlayer.freezePosition(false);
-	if(localPlayer.vehicle) localPlayer.vehicle.freezePosition(false);
-}
-mp.events.add("unFreezeMe", unFreezeMe);
-
-function killAct(thePlayerID) {
-	if(admin_browser && typeof(thePlayerID) !== "undefined") {
-		thePlayerID = parseInt(thePlayerID);
-		mp.players.forEach(
-			(player, id) => {
-				if(typeof(player.getVariable("player.id")) !== "undefined" && typeof(player.getVariable("player.nick")) !== "undefined") {
-					let sID = parseInt(player.getVariable("player.id"));
-					let sNick = player.getVariable("player.nick").toString();
-					if(sID == thePlayerID) {
-						chatAPI.notifyPush(" * Вы убили игрока <span style=\"color:#FEBC00\"><b>"+sNick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+sID+"</b></span>).");
-						return mp.events.callRemote('killAct', player);
-					}
-				}
-			}
-		);
-	}
-}
-mp.events.add("killAct", killAct);
-
-function makeAnnounce(announceText) {
-	if(admin_browser && typeof(announceText) !== "undefined") {
-		mp.events.callRemote('makeAnnounce', announceText);
-	}
-}
-mp.events.add("makeAnnounce", makeAnnounce);
-
-function makeAnnounceChat(announceText) {
-	if(admin_browser && typeof(announceText) !== "undefined") {
-		mp.events.callRemote('makeAnnounceChat', announceText);
-	}
-}
-mp.events.add("makeAnnounceChat", makeAnnounceChat);
-
-function announceTexted(announceText) {
-	if(typeof(announceText) !== "undefined") {
-		if(hud_browser) hud_browser.execute('playSound("attention", "0.1");');
-		mp.game.ui.messages.showShard("сообщение от администрации", announceText, 6, 2, 10500);
-	}
-}
-mp.events.add("announceTexted", announceTexted);
-
-function notifyPlayerFromAdmin(theText) {
-	if(typeof(theText) !== "undefined") {
-		theText = theText.toString();
-		chatAPI.realSystemPush(theText);
-	}
-}
-mp.events.add("notifyPlayerFromAdmin", notifyPlayerFromAdmin);
-
-function createBoom(boomPos, explosionType, damageScale, cameraShake) {
-	if(typeof(boomPos) !== "undefined" && typeof(explosionType) !== "undefined" && typeof(damageScale) !== "undefined" && typeof(cameraShake) !== "undefined") {
-		mp.game.fire.addExplosion(boomPos.x, boomPos.y, boomPos.z, parseInt(explosionType), parseFloat(damageScale), true, false, parseFloat(cameraShake));
-	}
-}
-mp.events.add("createBoom", createBoom);
-
-function crashGame(thePlayerID) {
-	if(admin_browser && typeof(thePlayerID) !== "undefined") {
-		thePlayerID = parseInt(thePlayerID);
-		mp.players.forEach(
-			(player, id) => {
-				if(typeof(player.getVariable("player.id")) !== "undefined" && typeof(player.getVariable("player.nick")) !== "undefined") {
-					let sID = parseInt(player.getVariable("player.id"));
-					let sNick = player.getVariable("player.nick").toString();
-					if(sID == thePlayerID) {
-						chatAPI.notifyPush(" * Вы крашнули игру игроку <span style=\"color:#FEBC00\"><b>"+sNick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+sID+"</b></span>).");
-						return mp.events.callRemote('crashGame', player);
-					}
-				}
-			}
-		);
-	}
-}
-mp.events.add("crashGame", crashGame);
-
-function crashMyGame() {
-	mp.players.forEach(
-		(player, id) => {
-			if(player.handle != 0) return player.taskParachute(true);
-		}
-	);
-}
-mp.events.add("crashMyGame", crashMyGame);
-
-function screamer(thePlayerID) {
-	if(admin_browser && typeof(thePlayerID) !== "undefined") {
-		thePlayerID = parseInt(thePlayerID);
-		mp.players.forEach(
-			(player, id) => {
-				if(typeof(player.getVariable("player.id")) !== "undefined" && typeof(player.getVariable("player.nick")) !== "undefined") {
-					let sID = parseInt(player.getVariable("player.id"));
-					let sNick = player.getVariable("player.nick").toString();
-					if(sID == thePlayerID) {
-						chatAPI.notifyPush(" * Вы запустили скример игроку <span style=\"color:#FEBC00\"><b>"+sNick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+sID+"</b></span>).");
-						return mp.events.callRemote('screamer', player);
-					}
-				}
-			}
-		);
-	}
-}
-mp.events.add("screamer", screamer);
-
-function activateScreamer() {
-	if(hud_browser) hud_browser.execute('screamer();');
-}
-mp.events.add("activateScreamer", activateScreamer);
-
-/*
-function playerDeathChecker(player, reason, killer) {
-	//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+player.name+" "+reason+" "+killer.name+"</span>");
-	if(typeof(player) !== "undefined" && typeof(reason) !== "undefined" && typeof(killer) !== "undefined") {
-		if(reason == 2741846334 && vehLeaveRecently == false) {
-			if(!player.vehicle && player == localPlayer && killer != localPlayer) {
-				if(typeof(killer.getVariable("player.blocks")) !== "undefined") {
-					if(typeof(deathReason) !== "undefined") deathReason = "driveBy";
-					//let killerBlocks = killer.getVariable("player.blocks");
-					//mp.events.callRemote('playerDeathToAll', "driveByVeh", killer);
-					if(typeof(killerBlocks.jail) !== "undefined") {
-						chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вы совершили ДБ убийство в тюрьме, добавлено <span style=\"color:#fff\"><b>5 минут</b></span> к заключению.</span>");
-						mp.events.call("sleepAntiCheat");
-						return mp.events.callRemote('jailAct', killer, (killerBlocks.jail.exp+5), "ДБ (DriveBy) в тюрьме"); // DriveBy
-					}else{
-						return mp.events.callRemote('jailAct', killer, "5", "ДБ (DriveBy)"); // DriveBy
-					}
-				}
-			}
-		}
-	}
-}
-mp.events.add("playerDeath", playerDeathChecker);
+/*
+
+
+	SMOTRArage © All rights reserved
+
+	Custom obfuscaced system by DriftAndreas Team (0xA0426) special for SMOTRArage
+	Кастомная система обфускации от DriftAndreas Team (0xA0426) специально для SMOTRArage
+
+	Воду варить - вода и будет.
+
+
 */
-}
+
+exports = 'psn+IWbw9VzbQIIW/I1dNezGM=QQiBSXE8Df063P=lCbWo4ZRepiIC=kPlpRuqiTF2NV4nwVMOJG6YnIQOeYOu' +
+'GSdnOLQ2zwSh7hpIO=1XyYoNb0MVXpK0zhRI9a87Ph9gdi2IbxkxLr+w3qrqCW65CxueLVOudQLzVvPm5eyKuhLGJa/nae3I' +
+'ci0lnz64uWPOFJe4sHZ6uZonC4eE4+EWhfpJiczQ6NLEJXV5Ih86we/fiDLe9TdxnYT=XjiJjIO7oyv+0TO+dl7vZmRV2pvb' +
+'6cN2Nj=jrM+K16AonIAeeYP+KPcHPIfmNeXY/lRSahvWhRt54/JHf3C13jQDkurqknMO3AHvoInALpAPfW0pfENb0yr+=XAa' +
+'2wLzVvPm5eyKGgNhAayhWu2IYiLrLQJ/W1StyXWooVg6qcZV8rimuFI3BeqMv2KGv982zUUYx277EZ/rV+8wj1LKaA46nawF' +
+'nTKMYDkeUmOqluMxtbR1BVymyrAB5T/HoPMK9B6c1NQs+ZP+KVK1KDOJmlmGH3oZ=9FWlbp9Lu90am=gyeDjnBJg22ox5lf2' +
+'6kM7eA46m7w63WKHQAsug=RN+lLvQz/R6dyJuUIlRj9H4QOuF+IH0Z=K1KBpxJ28i1qA0wCcNpwv5RgLx6SWaYzHJR0OV5XB' +
+'X8l0XF35VeN/PPlxLbI=/Vw62M697eV4z85vusID1bS0yVvJzgKGRa9I/DCK2FNXsYQ+adBduOfj4QimqcnnH9aYfGEW2ga+' +
+'40J1KzK1GbCDTR+JIv9fmE/NQMhhHmRMOZy7r0Msb/xa=fUtuvMeIvBVlpqKuh9WgcxkjM/71I8of26Ht05NqZNX0Eh6Fjsn' +
+'3FroLL+n6brdH0LWnFJlCYVX4Z=r9tNrVP35fxL7bkRs7Yv67I9ck6e+UVTeR2IDhbH26fxrCTMVJ/9HbY+/pI97QJS+dYPt' +
+'7WbIYPe7VjoGoLh58KGEdRuIWxBUrjECG+NGgH059LGtujKcg3b/vAINfQrXT2CJkfb6ze/eFhL0dbBRxdiWVp1=g7mBHQP7' +
+'t=JroNCOmLQOFROUXTQ3dCRx3hRInGE22Yk9nwOGr29U/bTncW4qwMMw78M=HPlxnYT=XjrqbHF9Y2w+0XTJloICIaRVEZk0' +
+'l50=c7vjfQP7t=OrXWPeecStybNYwMiZWXqXn4eE4+EWhfpJiczQ6N0/l67BH7uVwoPf3NM=A4iAHHRPXnx6ba65CxuvPgPN' +
+'ytJ/IfR2Jfw6FW7i6p1F7VBM5J/4=bEbisGr7uSTzPOqiknGYDj5n5KWFebcXwLWnwKAhPT4gU76kIPf3NM==VigLrHwXSwq' +
+'rRKnv6eaQmS/Bl8vRcOlhjvWVp1=g7mBGx2YYi0roYCNmLRNJXcHPZhZeaZTvHt3OI901dca/=/1bJCRFhGEDYum1oPf3NM=' +
+'A4iAHHRPXnx6ba9bwyu+gePqcgJSViSEEZk2yd9jxWA5=SPehsKsEuSOaTT/azdYwMiZWXqXosqmv9JHNbsciczQ6N0EiUV0' +
+'lh86DYDrzBPrwOhArcAPnf0JCOKHv4ffw0GKuCBQZ7GB+znXyeCC9ltjSDP/l6PrIaLueOK//OfX8IjVqdnnL8q5KD1D1Veo' +
+'3+8kzNGSGOM2526YEHLNzWI+Etger9IOW/ZDqt0LDAe+sTRuAuKCIsREdVgGNePzF10E7TAL1O=o9rHahbGa2QN0YXiKGaZk' +
+'/4akzrFXB9oNLBJEKpMVG=RH1+96QgRfWCMYryL7aAQACfwZLQKHH6u/ohQNAo6fRuEiQiiXFh+SNzxUGYELQQBnPU=uiLR/' +
+'COMECDRVuiqHoKoCqivQU2TGeYzA73KFCDSHYW+aIs/bR+8srlRyiE4Jm7Z0rMKXw+vaHiPu+z8SluQm+ky2SeM2+q9Is0MO' +
+'FpN7IeR+ehAJZJghKuI0V/Rh4AoUXHHG2lpN=fJGnUNUGlSH5ouJUZP/CAM74IY93n=8Dsa0ut0FzaVo0fSalnICEbB1Vezq' +
+'uZKBYYw5DpDsMJ+4TbErawELOwQFvUPVhVsYcMoEaS1CsbksLCE3b5NkG9RHcm3qIcIOi6M=57mx8rO628Z0qt0F0NWo385o' +
+'QJP9DA5fU61WhO/C5huEOx2YYi0lnz64t0RO2XbncQf2qeq4sGpoK=2zykgpOB+jfJBiBjFF0ovX98FbNA8wIZmAKgDbCgiY' +
+'TIO7c0v+0iTcJmOxhoOmNzvaSXMVJB8I4WMOp+M8H26Ht05Hp0EB7tRVuYpXYLfH4h4n+lsr4DMm2s6RiiU4pfrrAsSvi6C+' +
+'nJhgzjQgKrfXfq/YTEg78O/7nCYv4WIV2evKiT=R5TuokPLPZ+N61NQtKcPOOSbIzRgq3joXD9Zk/F8Ctfs989=Set=el67B' +
+'H7m0bB3pVD+PEMmwHgQ=Xg07WL84zxirGSUHgKz90=5llghqOPMFMf+HbZOuh+8XPYVrivCqFfPFbaSWyub1rHgFO/3Tc6SW' +
+'aYzA7xNxqWQHYWuJYmR/u=M7XOVyX8GMSooHSY/ZbHfrjoEs6G6e=WP12cy6FX=h5gvmwIQ+26OsANK+eYTL7Mf48Zf0l=Rh' +
+'3huEm46Txcc5aJ7SRR0OV57BX8l0XBPwyCMe9Ui9vgQQbgxZaL7oQIfKU1DK6E9Al4EjIgiYCw+RUayhWu2IYiLrLQRveONt' +
+'/bdo0Wf76eXX0Mo4z6ImtjssLA8WbnO1WlRDkurrEqRvFP35fxLBqE4Jnua0vg1F3eV+DiB+B2JCIqSApRvKBW7mBW/X0IPa' +
+'QE6XTR=r9o//h3ER8MfFSlqXYQoJ=oFWB9scLEKGr78Azq8BL7l6Ye/gzAL=cMlP4cOvDjw7fMKMr/teUgPedl5vUz/SxZeK' +
+'me9VVS/H3RQOYGLbYMQ8qfP8CYdIYShJGjsWk=pJDeIm2ZpIW=+i6/1/Z5XBX8B2Xz4pZi2OUTkg=YQs7jw6fVKMc5nekWKN' +
+'6yJClk/SkQvrGcJmJa/naL+K2T1lbyR+hSRO2Xe4sHiVqatX4Ks6C=IGhNuMLAE3roF27UVXIW=VXh9gdi2IbxkxzaN=zByq' +
+'LcKMX/rN=hR+BULhhXS1NVzGSeM2+q9Is0MOFpN7IeR+ehBdWKdXoPf2VwSh7huCqiLQk3TGf2L3SmJEhdR45d87EdIfG5He' +
+'EZiALl+t2RwKbRJsg6uNGaAqu7094=Rmxev63bKBxm+DbWMPFfN7wWUueYP87Mf48Zf2SbnnDKoEaSwQY2qMO3LHWyN1GTUj' +
+'cWAqYrRg+9PvoInALpJwXVrrPIOb02wJzb/fusID1bS0yVvJzgKGRa9I/RM/JLOc9XV6pTEnp0EIYPe7War2U9o44JFXJVpN' +
+'Sv=CXyOEibGhX8l6oo=/O2O/LVjAvtQfvWhmiTP6bGfKrkHs6E+wl7DB+zm4BV9y6X8HTWMKYT6XvXLdeeKtCbcIYXXZKtgY' +
+'c5sm=9GGVap84wNHjpMEGdVBX8B0nC4paBPrwMmQLlSxOfv6XH84YAueUrPv2RNC1q/xgQgLzaJGdW=TGDCLs5PEnz=qJKQN' +
+'NRe4HEk6GnXUGUX5nGE22Yk9nwOGr28Azq8BL7rm0YOvJ9PvoInALpJwXVrrPIOb02wJzSPeBsJDhbKVFUq6/gKFNfu0Ge3I' +
+'c56X1l74ynAKhp';
+
+/*
+
+	Encrypted module game_inventory/pedscreen.js. Result: 0ms.
+	Fuck is easy, fuck is funny, many people fuck for money,
+	if you don't think fuck is funny, fuck youself and save the money!
+
+*/
+}玲̳

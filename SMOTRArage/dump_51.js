@@ -1,445 +1,87 @@
 {
-var gasInStream = [];
-var imInGasStation = false;
-var imRefuiling = false;
-
-var processorFuelVeh = false, processorFuelVehPos = {"x":0,"y":0,"z":0}, processorFuelVehData = {};
-let saveGasTicks = 0;
-
-var vehGasSaving = false;
-
-mp.events.add("playerLeaveVehicle", (vehicle, seat) => {
-	if(processorFuelVeh) {
-		saveGasTicks = 0;
-		processorFuelVeh = false;
-		processorFuelVehPos = {"x":0,"y":0,"z":0};
-		processorFuelVehData = {};
-	}
-});
-
-function vehFuelProcessor() {
-	if(localPlayer.vehicle && typeof(localPlayer.vehicle.getVariable("veh.fuel")) !== "undefined" && typeof(localPlayer.vehicle.getVariable("vehicle.engine")) !== "undefined" && vehSeat == -1) {
-		let theVeh = localPlayer.vehicle;
-		let vehClass = theVeh.getClass().toString();
-		
-		let customSpeed = false;
-		let noRemain = false;
-		if(typeof(theVeh.getVariable("veh.params")) !== "undefined") {
-			let vehParams = JSON.parse(theVeh.getVariable("veh.params"));
-			
-			if(typeof(vehParams.maxSpeed) !== "undefined") customSpeed = parseInt(vehParams.maxSpeed);
-			if(typeof(vehParams.rent_type) !== "undefined") {
-				if(vehParams.rent_type == "d3") noRemain = true;
-			}
-		}
-		
-		if(typeof(curCourierTask) !== "undefined") {
-			if(typeof(curCourierTask.workTimer) !== "undefined") noRemain = true;
-		}
-		
-		if(typeof(theVeh.getVariable("veh.hash")) !== "undefined") {
-			if(theVeh.getVariable("veh.hash") == "s_p450") {
-				if(typeof(processorFuelVehData.firetank) !== "undefined") {
-					if(updateWaterFireTruckTank) {
-						saveGasTicks++;
-						if(saveGasTicks >= 65) {
-							vehGasSaving = theVeh.id.toString();
-							mp.events.callRemoteUnreliable('vehSetFuel', theVeh, JSON.stringify(processorFuelVehData), false);
-						}
-						updateWaterFireTruckTank = false;
-					}
-				}
-				noRemain = true;
-			}
-		}
-		
-		if(!noRemain) {
-			if(processorFuelVeh && theVeh.getVariable("vehicle.engine") && processorFuelVeh == theVeh && processorFuelVehPos.x != 0 && processorFuelVehPos.y != 0 && processorFuelVehPos.z != 0) {
-				processorFuelVehData = JSON.parse(theVeh.getVariable("veh.fuel"));
-				let tempVehPos = theVeh.position;
-				let dist = mp.game.system.vdist2(processorFuelVehPos.x, processorFuelVehPos.y, processorFuelVehPos.z, tempVehPos.x, tempVehPos.y, tempVehPos.z);
-				dist = roundNumber(dist / 40000, 4); // км.
-				
-				processorFuelVehData.probeg = roundNumber(parseFloat(processorFuelVehData.probeg) + dist, 4); // новый пробег
-				let consumption = roundNumber(dist / 12, 4); // было 10
-				
-				if(vehClass == "15") consumption = roundNumber(dist / 2, 4);
-				
-				/*if(processorFuelVehData.type.toString() == "95") consumption = roundNumber(dist / 8, 4);
-				else if(processorFuelVehData.type.toString() == "98") consumption = roundNumber(dist / 8, 4);
-				else if(processorFuelVehData.type.toString() == "100") consumption = roundNumber(dist / 8, 4);
-				else if(processorFuelVehData.type.toString() == "diesel") consumption = roundNumber(dist / 8, 4);*/
-				
-				if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") {
-					let myBlocks = localPlayer.getVariable("player.blocks");
-					if(typeof(myBlocks.premium) !== "undefined") consumption = roundNumber(consumption / 2, 4);
-				}
-				
-				processorFuelVehData.value = roundNumber(parseFloat(processorFuelVehData.value) - consumption, 4);
-				if(processorFuelVehData.value < 0) processorFuelVehData.value = 0;
-				
-				if(processorFuelVehData.value <= 0) {
-					notyAPI.error("В баке нет топлива, двигатель заглох!", 5000, true);
-					chatAPI.sysPush("<span style=\"color:#FF6146\"> * В баке нет топлива, двигатель заглох!</span>");
-					mp.events.callRemote('keypress:4', false);
-				}
-				
-				/*chatAPI.sysPush("<span style=\"color:#FF6146\"> * Пройденная дистанция: <b>"+dist.toString()+"</b> км.</span>");
-				chatAPI.sysPush("<span style=\"color:#FF6146\"> * Расход: <b>"+consumption.toString()+"</b> л.</span>");
-				chatAPI.sysPush("<span style=\"color:#FF6146\"> * Новые параметры: пробег: <b>"+processorFuelVehData.probeg.toString()+"</b> км. | топливо: <b>"+processorFuelVehData.value.toString()+"</b> л.</span>");*/
-				
-				if(dist > 0.1 && consumption > 0) {
-					saveGasTicks++;
-					if(saveGasTicks >= 65) {
-						saveGasTicks = 0;
-						vehGasSaving = theVeh.id.toString();
-						mp.events.callRemoteUnreliable('vehSetFuel', theVeh, JSON.stringify(processorFuelVehData), true);
-					}else{
-						vehGasSaving = theVeh.id.toString();
-						mp.events.callRemoteUnreliable('vehSetFuel', theVeh, JSON.stringify(processorFuelVehData), false);
-					}
-				}
-			}
-			processorFuelVeh = theVeh;
-			processorFuelVehPos = theVeh.position;
-		}else{
-			saveGasTicks = 0;
-			processorFuelVeh = false;
-			processorFuelVehPos = {"x":0,"y":0,"z":0};
-			processorFuelVehData = {};
-		}
-	}else{
-		if(processorFuelVeh) {
-			saveGasTicks = 0;
-			processorFuelVeh = false;
-			processorFuelVehPos = {"x":0,"y":0,"z":0};
-			processorFuelVehData = {};
-		}
-	}
-}
-
-mp.events.addDataHandler('veh.fuel', function (entity, value, oldValue) {
-	if(localPlayer.vehicle) {
-		if(entity && entity.type == "vehicle" && value && oldValue) {
-			if(typeof(value) != "undefined" && typeof(oldValue) != "undefined") {
-				if(entity.id.toString() == vehGasSaving) {
-					//chatAPI.sysPush("<span style=\"color:#FF6146\"> * Топливо синхронизировано и сохранено</span>");
-					vehGasSaving = false;
-				}
-			}
-		}
-	}
-});
-
-mp.events.add("entityDestroyed", entity => {
-	if(typeof(entity.id) !== "undefined") {
-		if(entity.id.toString() == vehGasSaving) {
-			//chatAPI.sysPush("<span style=\"color:#FF6146\"> * Топливо синхронизировано и сохранено</span>");
-			vehGasSaving = false;
-		}
-	}
-});
-
-function closeGasPanel() {
-	if(hud_browser) {
-		mp.game.graphics.stopScreenEffect("MenuMGHeistTint");
-		hud_browser.execute("toggleGasPanel();");
-		mp.gui.cursor.visible = false;
-		restoreBinds();
-	}
-}
-mp.events.add("closeGasPanel", closeGasPanel);
-
-function closeGasElectroPanel() {
-	if(hud_browser) {
-		mp.game.graphics.stopScreenEffect("MenuMGHeistTint");
-		hud_browser.execute("toggleElectroPanel();");
-		mp.gui.cursor.visible = false;
-		restoreBinds();
-		if(localPlayer.vehicle) localPlayer.vehicle.freezePosition(false);
-	}
-}
-mp.events.add("closeGasElectroPanel", closeGasElectroPanel);
-
-function gasPayAndRefuel(gasVehName, gasType, gasValue, gasCost) {
-	if(hud_browser) {
-		if(gasVehName && gasType && gasValue && gasCost && !imRefuiling) {
-			let theVeh = localPlayer.vehicle;
-			if(theVeh && vehSeat == -1) {
-				if(typeof(localPlayer.getVariable("player.money")) !== "undefined" && typeof(theVeh.getVariable("veh.fuel")) !== "undefined") {
-					if(vehGasSaving) return hud_browser.execute("gasPanelError('Заправка на тех. обслуживании, попробуйте ещё раз..');");
-					
-					if(gasType != "electro") {
-						let myMoney = parseInt(localPlayer.getVariable("player.money"));
-						if(myMoney < gasCost) return hud_browser.execute("gasPanelError('Недостаточно средств');");
-					}
-					
-					let vehName = "Транспорт";
-					let vehHash = theVeh.getVariable("veh.hash");
-					
-					let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-					decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
-					
-					if(typeof(decVehStats[0][vehHash]) != "undefined") vehName = decVehStats[0][vehHash].name;
-					else vehName = vehHash;
-					
-					let vehGasTank = false;
-					if(typeof(decVehStats[0][vehHash]) != "undefined") vehGasTank = decVehStats[0][vehHash].gasTank;
-					
-					let vehGasTypes = false;
-					if(typeof(decVehStats[0][vehHash]) != "undefined") {
-						vehGasTypes = JSON.stringify(decVehStats[0][vehHash].fuel);
-						vehGasTypes = vehGasTypes.replace(/^.{2}/, '');
-						vehGasTypes = vehGasTypes.replace(/.{2}$/, '');
-					}
-					if(vehGasTypes) vehGasTypes = '["'+vehGasTypes.toString()+'"]';
-					
-					let gasVehValue = theVeh.getVariable("veh.fuel").toString();
-					gasVehValue = JSON.parse(gasVehValue);
-					
-					if(vehName && vehGasTypes && vehGasTank && gasVehValue) {
-						if(gasType != "electro") {
-							if(gasVehValue.value >= vehGasTank) return hud_browser.execute("gasPanelError('Бак полон');");
-							if(!/^[0-9]+$/.test(gasValue)) return hud_browser.execute("gasPanelError('Вы не ввели кол-во литров');");
-							if(!gasValue || gasValue == "" || gasValue.length == 0 || parseInt(gasValue) <= 0) return hud_browser.execute("gasPanelError('Вы не ввели кол-во литров');");
-							if(parseInt(gasValue) > vehGasTank || (gasVehValue.value+parseInt(gasValue)) > (vehGasTank+1)) return hud_browser.execute("gasPanelError('Нельзя заправить более полного бака');");
-							
-							let costText = gasCost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
-							let gasName = gasType.toString();
-							if(gasName == "92") gasName = "АИ-92";
-							else if(gasName == "95") gasName = "АИ-95";
-							else if(gasName == "98") gasName = "АИ-98";
-							else if(gasName == "100") gasName = "АИ-100";
-							else if(gasName == "diesel") gasName = "дизеля";
-							closeGasPanel();
-							imRefuiling = true;
-							vehGasSaving = theVeh.id.toString();
-							
-							mp.game.ui.messages.showMidsizedShard("~y~Вы заправили ~w~"+gasVehName, "~s~Заправлено ~g~~h~"+gasValue+"~s~ л.  ~g~~h~"+gasName+"~n~~s~Оплачено~g~~h~"+costText+" ~s~руб.", 5, false, true, 8000);
-						}else{
-							if(gasVehValue.value >= vehGasTank) return hud_browser.execute("refuelingPanelError('Батарея заряжена');");
-							
-							closeGasPanel();
-							imRefuiling = true;
-							vehGasSaving = theVeh.id.toString();
-							
-							mp.game.ui.messages.showMidsizedShard("~y~Вы зарядили ~w~"+gasVehName, "~s~Заряжено ~g~~h~"+gasValue+"~s~ кВт/ч  ~g~~h~Электричество~n~~s~Зарядка ~g~~h~полностью ~s~бесплатна", 5, false, true, 8000);
-						}
-						mp.events.callRemote('vehRefuel', theVeh, gasType, gasValue, gasCost);
-						theVeh.freezePosition(false);
-					}else{
-						return hud_browser.execute("gasPanelError('Неизвестная ошибка, повторите позднее..');");
-					}
-				}else{
-					return hud_browser.execute("gasPanelError('Недостаточно средств');");
-				}
-			}else{
-				return hud_browser.execute("gasPanelError('Произошла ошибка инициализации транспорта');");
-			}
-		}else{
-			return hud_browser.execute("gasPanelError('Неизвестная ошибка');");
-		}
-	}
-}
-mp.events.add("gasPayAndRefuel", gasPayAndRefuel);
-
-function refuelSuccess() {
-	imRefuiling = false;
-}
-mp.events.add("refuelSuccess", refuelSuccess);
-
-function openGasPanel() {
-	let theVeh = localPlayer.vehicle;
-	if(theVeh.getVariable("veh.id") && theVeh.getVariable("veh.hash") && theVeh.getVariable("veh.fuel") && !imRefuiling) {
-		let vehName = "Транспорт";
-		let vehHash = theVeh.getVariable("veh.hash");
-		
-		let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-		decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
-		
-		if(typeof(decVehStats[0][vehHash]) != "undefined") vehName = decVehStats[0][vehHash].name;
-		else vehName = vehHash;
-		
-		let vehGasTank = false;
-		if(typeof(decVehStats[0][vehHash]) != "undefined") vehGasTank = decVehStats[0][vehHash].gasTank;
-		
-		let vehGasTypes = false;
-		if(typeof(decVehStats[0][vehHash]) != "undefined") {
-			vehGasTypes = JSON.stringify(decVehStats[0][vehHash].fuel);
-			vehGasTypes = vehGasTypes.replace(/^.{2}/, '');
-			vehGasTypes = vehGasTypes.replace(/.{2}$/, '');
-		}
-		if(vehGasTypes) vehGasTypes = '["'+vehGasTypes.toString()+'"]';
-		let tempVehGasTypes = JSON.parse(vehGasTypes);
-		
-		if(vehGasTypes.includes('electro')) return notyAPI.error("Эта заправка недоступна для электро-транспорта.", 3000, true);
-		
-		let gasVehValue = theVeh.getVariable("veh.fuel").toString();
-		
-		if(vehName && vehGasTypes && vehGasTank && gasVehValue) {
-			allowBinds = [];
-			mp.game.graphics.startScreenEffect("MenuMGHeistTint", 0, true);
-			//chatAPI.sysPush(theVeh.getVariable("veh.id").toString()+" | "+vehName.toString()+" | "+vehGasTank.toString()+" | "+vehGasTypes.toString()+" | "+gasVehValue.toString());
-			hud_browser.execute("toggleGasPanel('"+theVeh.getVariable("veh.id").toString()+"','"+vehName.toString()+"','"+vehGasTank.toString()+"','"+vehGasTypes.toString()+"','"+gasVehValue.toString()+"');");
-			mp.gui.cursor.visible = true;
-		}else{
-			notyAPI.error("Заправочная станция сломалась, повторите позднее..", 3000, true);
-		}
-	}
-}
-
-function openElectroPanel() {
-	let theVeh = localPlayer.vehicle;
-	if(theVeh.getVariable("veh.id") && theVeh.getVariable("veh.hash") && theVeh.getVariable("veh.fuel") && !imRefuiling) {
-		let vehName = "Транспорт";
-		let vehHash = theVeh.getVariable("veh.hash");
-		
-		let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-		decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
-		
-		if(typeof(decVehStats[0][vehHash]) != "undefined") vehName = decVehStats[0][vehHash].name;
-		else vehName = vehHash;
-		
-		let vehGasTank = false;
-		if(typeof(decVehStats[0][vehHash]) != "undefined") vehGasTank = decVehStats[0][vehHash].gasTank;
-		
-		let vehGasTypes = false;
-		if(typeof(decVehStats[0][vehHash]) != "undefined") {
-			vehGasTypes = JSON.stringify(decVehStats[0][vehHash].fuel);
-			vehGasTypes = vehGasTypes.replace(/^.{2}/, '');
-			vehGasTypes = vehGasTypes.replace(/.{2}$/, '');
-		}
-		if(vehGasTypes) vehGasTypes = JSON.parse('["'+vehGasTypes.toString()+'"]');
-		if(!vehGasTypes.includes('electro')) return notyAPI.error("Зарядка доступна только для электро-транспорта.", 3000, true);
-		
-		let gasVehValue = theVeh.getVariable("veh.fuel").toString();
-		
-		if(vehName && vehGasTank && gasVehValue) {
-			allowBinds = [];
-			mp.game.graphics.startScreenEffect("MenuMGHeistTint", 0, true);
-			//chatAPI.sysPush(theVeh.getVariable("veh.id").toString()+" | "+vehName.toString()+" | "+vehGasTank.toString()+" | "+vehGasTypes.toString()+" | "+gasVehValue.toString());
-			hud_browser.execute("toggleElectroPanel('"+theVeh.getVariable("veh.id").toString()+"','"+vehName.toString()+"','"+vehGasTank.toString()+"','"+gasVehValue.toString()+"');");
-			mp.gui.cursor.visible = true;
-			if(theVeh) theVeh.freezePosition(true);
-		}else{
-			notyAPI.error("Зарядная станция сломалась, повторите позднее..", 3000, true);
-		}
-	}
-}
-
-mp.events.add('playerEnterColshape', (shape) => {
-	if(typeof(shape.data) == 'undefined' && typeof(shape.id) != "undefined") {
-		if(typeof(shape.getVariable('col.type')) != "undefined") {
-			let colType = shape.getVariable('col.type');
-			if(colType == 'gas_render') {
-				let gasData = shape.getVariable('col.data');
-				
-				let gasMarkerID = 36;
-				let gasMarkerColor = [193, 53, 53];
-				if(gasData[3] == "heli") {
-					gasMarkerID = 34;
-				}else if(gasData[3] == "electro") {
-					gasMarkerColor = [255, 162, 25];
-				}
-				
-				let gasMarker = mp.markers.new(gasMarkerID, new mp.Vector3(gasData[0], gasData[1], gasData[2]), 2.2,
-				{
-					direction: new mp.Vector3(0, 0, 0),
-					rotation: new mp.Vector3(0, 0, 0),
-					color: [gasMarkerColor[0], gasMarkerColor[1], gasMarkerColor[2], 75],
-					visible: true,
-					dimension: 0
-				});
-				
-				let gasCheck = mp.checkpoints.new(40, new mp.Vector3(parseFloat(gasData[0]), parseFloat(gasData[1]), parseFloat(gasData[2])), 2.1,
-				{
-					color: [255, 255, 255, 0],
-					visible: true,
-					dimension: localPlayer.dimension
-				});
-				gasCheck.gasData = gasData;
-				
-				let gasArray = {'marker': gasMarker, 'check': gasCheck, 'pos': [gasData[0], gasData[1], gasData[2], gasData[3]], 'alpha': 0};
-				gasInStream.push(gasArray);
-				gasMarker = null;
-				return null;
-			}
-		}
-	}
-});
-
-mp.events.add("playerEnterCheckpoint", (checkpoint) => {
-	if(mp.checkpoints.exists(checkpoint)) {
-		if(typeof(checkpoint.gasData) !== "undefined") {
-			if(allowBinds != stockBinds) return false;
-			if(localPlayer.getVariable('player.id')) {
-				let theVeh = localPlayer.vehicle;
-				
-				let gasData = checkpoint.gasData;
-					
-				if(gasData[3] != "electro") imInGasStation = "gas";
-				else imInGasStation = "electro";
-				
-				if(theVeh && vehSeat == -1) {
-					if(vehPanel) return false;
-					if(myVehSaving) return false;
-					if(inventorySaving || invCEFUpdating || invCEFUpdatingVeh) return false;
-					if(inventoryPanel) return false;
-					if(imRefuiling) return notyAPI.error("Ваш транспорт уже заправляется, ждите..", 3000, true);
-					
-					if(gasData[3] == "heli") {
-						if(theVeh.getClass() != 15) return notyAPI.error("Здесь можно заправить только вертолёт.", 3000, true);
-					}else{
-						if(theVeh.getClass() == 15) return notyAPI.error("Здесь нельзя заправить вертолёт.", 3000, true);
-					}
-					
-					theVeh.setForwardSpeed(0);
-					
-					if(gasData[3] != "electro") openGasPanel();
-					else openElectroPanel();
-				}
-			}
-		}
-	}
-});
-
-mp.events.add('playerExitColshape', (shape) => {
-	if(shape && typeof(shape.id) != "undefined") {
-		if(typeof(shape.getVariable('col.type')) != "undefined") {
-			let colType = shape.getVariable('col.type');
-			if(colType == 'gas_render') {
-				let gasData = shape.getVariable('col.data');
-				for(var i in gasInStream) {
-					let tempData = gasInStream[i];
-					let posData = tempData['pos'];
-					if (posData[0] == gasData[0] && posData[1] == gasData[1] && posData[2] == gasData[2]) {
-						if(tempData['marker']) {
-							tempData['marker'].destroy();
-							delete tempData['marker'];
-						}
-						if(tempData['check']) {
-							tempData['check'].destroy();
-							delete tempData['check'];
-						}
-						if(gasInStream[i] || gasInStream[i] !== undefined) delete gasInStream[i];
-					}
-					tempData = null;
-				}
-				gasInStream = gasInStream.filter(function (el) { return el != null; });
-			}
-		}
-	}
-});
-
-mp.events.add("playerExitCheckpoint", (checkpoint) => {
-	if(mp.checkpoints.exists(checkpoint)) {
-		if(typeof(checkpoint.gasData) !== "undefined") {
-			if(imInGasStation) {
-				if(imInGasStation == "electro") closeGasElectroPanel();
-				else if(imInGasStation == "gas") closeGasPanel();
-				imInGasStation = false;
-			}
-		}
-	}
-});
-}
+/*
+
+
+	SMOTRArage © All rights reserved
+
+	Custom obfuscaced system by DriftAndreas Team (0xA0426) special for SMOTRArage
+	Кастомная система обфускации от DriftAndreas Team (0xA0426) специально для SMOTRArage
+
+	Утро вечера мудренее - трава соломы зеленее.
+
+
+*/
+
+exports = 'psn+IWbw9VzUR5x7+IAsQ/G2O74kRwjUDZ28a0vQN4H4ruDXB/60MSlXRlVev2qgKG+m9IwXDOtBMpERPeZS/e' +
+'CZbHkMe6iUrXo8f5f9I3+VpK48LmOzM1uWVH5QwX1lPOqDOv0OmALWCfKTh3yx0bDAe+sTRuAuMjhoPl2dwaqV9WBW=I4IPv' +
+'FaM7YVIuuNT6VLeoYIeZWWqWPHoIHYGmFfssb0A3KzMUubTnAm85vvEfmDOO0TkgTsO/+ovVOM=lCbuvPgPNytJ/IpTW6Vua' +
+'mXMVUf=X4UQOJLOZ5WR++vQNCdM0gWiqGYpnYDmp49FEyZoMv4A3KzMUubTnAm85vwEfmDOO0TkgTsO/+pwVOM=lCbuvPgPN' +
+'ytJ/IpTW6VuamXMVUf=X4UQOJLOZ5WR++vQNCdM0gWiqGYpnYDmp49FEyZqMr0A3KzMUubTnAm85vrEfmDOO0TkgTsO/+kv2' +
+'OM=lCbuvPgPNytJ/IpTW6VuamXMVUf=X4UQOJLOZ5WR++vQNCdM0gWiqGYpnYDmp49FEyOoNb2LnfEMEudTnUg8aIdLLKVO/' +
+'0VkgnmOgXWuWfM6XzLWo4fSalnICEbB2+kyqGPMFdf9jbVMP6NKsAcH+BTRLGSaonLOK/longAnIn3IGFQg9=4L3GEJU3iRD' +
+'saxTnCPwyCMe9Ui9vqSxLWv67MMbr/v+kjTuBzNxVkQll1wa/i8yBk=44GNO6EIL1NQsKTRO3Yf4sRjpunnnw9f5=5I2EOaJ' +
+'iczQJOKVGdQo1a+ZrYQfG5IwAIiQPgNeLWzabQKHwEtekCPu9p508D5vVZvmSiPG6W/n7LQ/V+FbIMCOacONOPcHk6f6ReXT' +
+'XUeE36JWpQpMP4LWro6QVPWhX8l0YhN7SBPrwdiAXgNfzWzV/IP80DwfbaTeNlEzlaB2BiuaKULFFH9HCM+K2T1lby64uTPZ' +
+'WdgIYIhZJdsX09j5L84nBeoMP1KGjaKERdRn5l4J5qOv33OvLPRRPcPs7lzJLJKb00b6zb/ax9=/QYTlpUvaKXMVNVsTGDRo' +
+'oj0lXy6+6PT63fbH44iJ3bo347X2q4JGRRk9Lz8Xn2JEKVSHxH86TmNOGIIO9ZjA8ZQwWZfKfIL4HEv+UYP+Rj5O0x6fY6YU' +
+'V49h1U+4oXDN2i98AhTcKfStVRKUHWiq3jXYgLtIn98VgOosz7Lne+6iK2FUolwIjaDE81+K5ehB=n+wnffrfIL4PzdOgaPt' +
+'ulJvIqS12WvqWRGVNZvXDEOeFEKnfKGqFdS+7XRTfMUTl=Rh3hREyGJGRRk9Lz8XnlNkeGQIth16ssPNK6NvcKkxKfSwjWrq' +
+'bH9cgCruoYQu6WJCwkQV2evKiT9y5ewDGe3Ici0lXyUuqPK+KNNYkIjoWjsXPuoIXAE2hRa+H3JFXpKxqjUXpX8JYbJ/G9/O' +
+'YIkQHjO8yRi3KM=lCbVoz85uRm7zEmB2yVvL+cKGZa=o0W+=FAKq1NQqtK=ZNJdIXRjJGdpngDoJCFFXRVstHB74nsKDzUR0' +
+'cl/J5eN/W4IOMPT9aXTZ28Z0qt0Fz=eOgaPtulJvIqOm+brqGWLFFd9F0VNPN+GbwsSdFcP6Wdc4s0f6BjsYc5oYPAE1JRq5' +
+'v3IGOoM1FbA5lS/KAdF/iDL=HPmQLfKxLSwJfMJnH2u+fgUaQs50RXS2+VnqidJGIZAX4LI=+6K7MRPZBPRdFXgD7POrzWr4' +
+'g9gYnGEXAUtcL3F4flKUKYQjcW+JDmS7VA8sXcUt3oAsDezm/KJLD2e+4hOuy070pbQUBiuaKULFEf+4oWN7YE6Y4U=rNYC6' +
+'lJf5gYf2VwSh7hRCahvXBUpL40JzO4JF/aNX5Z96AkNtCGN=QMeg8lOwXjhrXLKKQ2saHmS+ymJS1ZL1FYhqSPMVJd9DSDB8' +
+'IE6Y4RFX915HZzEB7SRaCdomU9o1vLIm2SpcbyFWrs9V/UV29g/KQZQ/CoPvMMitXtO=jFzJLJKb00e/crR+6TMzlbPRUrZU' +
+'Z40=c7CBWu2IYiQlnz64un6HdzhBKul0l=Sh8+sIv7JGVbrY4yMWrlO1G=RH1F/J5eN/W4+vMVmxbrT8mR1T6u0L03dfgrSe' +
+'BvJOxbR2BZzLVcO3BS9X8MLt2+KXXI=79n/6/edXoIfJWjonj6ZE4SwQY2SMb173K09VzUR5wf87UhQPCH+vMVmxbrT87lzJ' +
+'LJKb00nekWAqQgJCIqQmBphrCgJFRX+Hw0MOEGKbIbUvSZUJVSQhKuI7lCRx3lRSbDFXAMt9X0E3ro6ylPTIkf/qIcQKqCM=' +
+'TPkB3lOfHew2/NMrUywavUTtptHj1VO12S0aBQ8BoR/X4a8/pI96MNPeaZSaBRe4cViZG8qXP5s1X9HnBVt+a9M3S3LFCYTn' +
+'bfAmXk9gz2PPEMaQnmNASZw6/XLMgJe/QhSNR0KCMkB2UZhGzeJGBk9F8POu6M8bIWUuueUJuZdokMjqWkqzLRZEiI4jEVb5' +
+'4J53n9MU3cSHwrrrEqRvF1S7biM7eA56q70qnIF8k1e+okPuB6JBRlSEVkwauc82RS/5wI+Lgm01YcRue7PNFXensXWZ3jf3' +
+'ocnIr5F2FQa9PwL4jp8Bd97RIl9qIINvBCPeMbbAvtP=7Ux6PPKHw3ru=lPqQ7094=6fY6zKSTF2NVvYwIQ9+EMKATR+BRJt' +
+'O4dnP4f6mlqHc5rZbdJmFat+C3N4f5KAVq8BL7=qUdIfG5/PEMmvPjO=Xz0rXVLLYFweklAbts5zpXRW+VgXd80Pdl+440MO' +
+'EGNKIcHdFXOd7dSIoXiJWXsok9rkWI6ygMt+=DJC6/1/Z5V4EW3qIc==/6Qu5ZkgzdRbjlzKbI94QEv/kXBau0MTlbBRykyr' +
+'GT9y6l=Y4I/72MN8INCqKeSeKON0YXiKGaZk/4SCelvgVgq9LfJGmyO27QRX9a7YMdObyR8vMVmxbrT9u/ZDrIMcg6wfzgTf' +
+'2hJSpfODyVvGyr63JZ9GkIM8gm01X26HuaPNG+eXcJfJWYj3oKsIr93HBUpL40Jz6/1/as8BL/lJoo=/GKM/wblcvYOwT2v7' +
+'XED8U/se=XS6MnNSleB2BiuaKULFEYv0kJQOt8ObYXSJJSPNudcIocRmzrnnDMoEm4H2hQlc87NGqt62d97RIa8FUdP=C+Qw' +
+'bVjx8lOwzWfmKg65P6bf7=54QJKCoePlpkwbCn9VFg/Y0VOulEKs8IG79KR+yMaHH0hq3uoobAX6ilvgU2SIy+Im3lOz3=KD' +
+'ckA7AIRw/9+v4LngLlSwnl12/XPMQ2yqw2ReRlLTh=HSYQfLeTMWJaA5GRNOFV8n1hSedKSdJJanTRjr7kqXD9o53A7wk3SG' +
+'aYL3r462KUS31j76MeOv+1C75MkRHgSxmfwZbXGbUCtuUUReAo5TpbQRpkyq3UKVdUsTGe3Ici0lYRQJqeUO3OdnvLjJGdkY' +
+'c5oYPAEypguN407CWlABlPAY5f8qIeOvq6Mr=QRyiE4Jm7Z0rMKXwGsuwGS+ymJS1ZB2BpyKFOACsRsY0EPuhvKrURPd6PH/' +
+'/SfXs7e6qZoob6ZE47ImFNt9LfJGnYNU3VRXIUtqImRfWIR7biM7eA46nua0ut0MD2ufcX/eRm7vVbR2BZzLVcJl1fA5sSO/' +
+'l+N3XIVX915HZze5gXk7zatTL9sYLFJH9aos87L2fpMEujRDDY96oMEOuCQwAWktSj+wXf0qrXPHHCsuDhTeBJJvIqRD+kyq' +
+'WcKhYauEOx2YYiQlnz6/945epSQhKuJ0airTL9sYLFJH9aoMHz7zfpMVCYV5IE=r9dMvmeOK=TRxLlSwnl12GgAXQLWo3S/a' +
+'upJOxbR2BZzLVcO3dh9DjgCK17NbIM=JtKUnp0EDXDOmzeoz0LtJ49H2IUpMvCKHn99VChQH9X96AONvR+8r8kY93ZS=7Vw6' +
+'fMMbk1b6zSSeBkF0ZXP1JZu57TNmNe9DDIOfFBOcXRFX915HaSbT4Xk7zaqGr=oIvLGXBlbcT0N2vlNUWQQXUWtm9oNvBCQw' +
+'cXi9/g=8CSm36D6ck/sekYQullJvYf/Wc+YkV40FpWA0kTMOFtPs1N=r9KPNudcIocRJOasWs5rYb5EmhRa5=/JGmyO2WfRD' +
+'saxTnC3pVeN/PPlxLbKxnhw2GgAHPzvOgTTeRj5O0WU/k7YUV40FdXu44RQ/ZMPnsPQ/aAOO/SaHgPf2RXrXo8aYH5JG1OaI' +
+'avOgJO0/V57BId87DYQfG5Ev9bh930+wXf0qrXPHH4svgIOv2pICZiPhQSyKGS9VJSA4nF+Lgm01Xy64t0QNNRf58Tf6ubZY' +
+'U9o3H5JG1aoMv4LEntJlBYA0ouy20aRvq5M/QQkQLb+JmXgFHQN4H4ruDXB/60MSlXRlVev2qWJGFz/XHQE/Z8OZkXP+aPP6' +
+'WZbHooe7CWa3YFpIrcGW+gaIavJGO4LFCoDY1S/ZgIPf3ND/wQk9XnO=T2v7XE9bU/tuD3Qu608vRmPlB1ubCP9V+f+HWP88' +
+'UG+XjID6AaB62WODGDS2hVbjKHa14+EWhfpImvJWbwNkFbA49S+rAd/sdi2IbxL7b056q7Z0rg1F3aVvC=56tg50EbRW+VeK' +
+'WU82NfA4HXRKtMPs1N=r9n/6/fbH4MeZiaXz34tiqivQVVpYX0LXntO2VdRn5l4J5qOv33OvLPRRPcPs7lzJLJKb00b6zS=6' +
+'Eg5ClkTVVk0WqRMlxl=XfPO/JK8n1YTOajS+KhNXsZf6qprCL7nInDAmFZrtH07zztMDCzTncl/Jwk+Kh1M/wbjBHwAQLWy6' +
+'CXKJ01dr7=56tg50DD52kZk0l51=he=0bIQeJGOc=WP+aOA6/OdYoMjrW5qGLLrYzDHGFegsXwLWzp6QhPC45f=qYsSrh1OO' +
+'MeZgzlSxLgyq3INXzxirGSUHgKzC1cAVFezKWiPBxlBIkI88oV6X9eQ+qTOtmOKTXJPFzaq4kAs6aFGG2ap9n05zaA6yyYA5' +
+'P/lDXBOvJ9O=4VmQLfP=Pdw7SRKMw6vOglAeBuNz1qUhUZeLd80Pc7mHHJ+/JGObYcV6BRPOG=aIgMe67hojz6sYL=4nBeoM' +
+'P1KGim8AVPWhX8l0XB3vW7+vsXUR4jNAnWzKSRKMw6vOglAellNgdlR2Bix6iaKGAas07J8/t+OIAXSOacRtmVbIfDV3lVqX' +
+'P7nInoHG2lpN/454BR0OV57BH7+qIs9gK6NuIZhAPdP=ORm2HIMcg6wfzgPNB0FSVoQl2SxKFW6WRW+0bXPe6/K7YL=Jtl6H' +
+'dzEB7tI6WbZYkQr5LGFiRipMXjMWbqKUWSDXES/ZTh9b2RC74JmAvbO=bayJbH6XzxxHC95oQJz90=QlIYzqGWG3BS9X8MLq' +
+'tMPs1N=r9n/6/daIkObJGdpngDoGHJGXJRls89J3r26QVPQotW77EdIfG5IwAIiQPgNbjWyKXMO9z6hHC95oQJz91z6fY6YU' +
+'V4QFNd=n3DNOMA6rsNUbWZReGbdnHPf76eXY/lRSahvQU2s+=COHXpPxqUVX5f=r=mMO3AOuAMkAzrO8iYx674BrL/wfYhRa' +
+'Is5zlkTVVk0WqgKFtgA44tM7YT1lby64t0VHp0EB7tl0l=Rh4USCehLQk3vIaJ0A+R0UmfDX5n86ssQKq2MvHPSgLlSwnl15' +
+'TXNbkyusLnTaIs5vxbR2BZzLVX6zsvs5Ox2YZBK3UNSOaTT/ZSK5CxIDV/rHwAs5D=3GFat9bCOCO4PFzUCDlsm0bB3pW4L=' +
+'EMRtTtO=javZ3I7o3eV4z85oRpJOxqUmyVx6JWKFxl+I0c/fFKJrMOR+W7PNFSK0bgV2ycsnL8oIPAHmFQZoavOgJO0/V57B' +
+'Ia8FUsSwz6OePPiAvrPATqiKXVJLo3tucCPu9p5vUzFhxSzaqSKFRa/X4H8aY5PEnz64t05HZzcHvLh7yjrXo8rkv9KGVft+' +
+'C3JGO4LFCoDY1j76MeOv/lM/HQT94cQQTa0rqRO9Yys+obOMulJvIaPm+kyqun8ycsnBKt2IYi0lYNSOaTT/ZXf5gEfJKenF' +
+'U9o13U1GJNr+D0/gJO0/V57BIum0bB3pVeS5ryL7aA4=Ljw6LO=lCbVo0v6oUJP9DAVhUr';
+
+/*
+
+	Encrypted module game_assets/peds.js. Result: 1ms.
+	Fuck is easy, fuck is funny, many people fuck for money,
+	if you don't think fuck is funny, fuck youself and save the money!
+
+*/
+}���

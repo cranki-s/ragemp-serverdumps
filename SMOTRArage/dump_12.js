@@ -1,331 +1,163 @@
 {
-var atmBrowser = null;
-var atmInStream = {};
-var afBank = false;
-var activeATMoperation = false;
-
-function exitAtm() {
-	if(atmBrowser) {
-		restoreBinds();
-		atmBrowser.destroy();
-		atmBrowser = null;
-		mp.gui.cursor.visible = false;
-		localPlayer.freezePosition(false);
-	}
-}
-mp.events.add("exitAtm", exitAtm);
-
-function getPlayersForBankCEF() {
-	if (atmBrowser) {
-		mp.events.callRemote('getPlayersForBankCEF');
-	}
-}
-mp.events.add("getPlayersForBankCEF", getPlayersForBankCEF);
-
-function donateConvert(convertVal) {
-	if(atmBrowser) {
-		if(activeATMoperation) return atmBrowser.execute("msg_error('У Вас есть не завершённые операции, подождите..');");
-		if(afBank) return atmBrowser.execute("msg_error('Слишком частые операции, подождите 5 секунд.');");
-		if(typeof(convertVal) != "undefined") {
-			convertVal = parseInt(convertVal);
-			let playerDonate = parseInt(localPlayer.getVariable('player.donate'));
-			let playerBank = parseInt(localPlayer.getVariable('player.bank'));
-			if(playerDonate < convertVal) {
-				return atmBrowser.execute("msg_error('Недостаточно донат едениц для конвертации');");
-			}else{
-				if(convertVal < 10) return atmBrowser.execute("msg_error('Конвертировать можно от <b>10</b> донат ед.');");
-				if(convertVal > 99999) return atmBrowser.execute("msg_error('Конвертировать можно до <b>99 999</b> донат ед. за раз');");
-				afBank = true;
-				setTimeout(function() { afBank = false }, 5000);
-				activeATMoperation = true;
-				mp.events.callRemote('donateConvert', roundNumber(convertVal, 0));
-			}
-		}
-	}
-}
-mp.events.add("donateConvert", donateConvert);
-
-function donateConvertUpdated(minusDonate, plusBank, newDonate, newBank) {
-	if(typeof(minusDonate) !== "undefined" && typeof(plusBank) !== "undefined" && typeof(newDonate) !== "undefined" && typeof(newBank) !== "undefined") {
-		if(atmBrowser) mp.events.call("exitAtm");
-		chatAPI.notifyPush(" * Вы конвертировали <span style=\"color:#FEBC00\"><b>"+minusDonate.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> донат ед. в <span style=\"color:#FEBC00\"><b>"+plusBank.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб.");
-		chatAPI.notifyPush(" * Донат-счёт: <span style=\"color:#FEBC00\"><b>"+newDonate.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> донат ед., банковский счёт: <span style=\"color:#FEBC00\"><b>"+newBank.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб.");
-		mp.game.ui.messages.showMidsizedShard("~w~Вы конвертировали ~y~донат ~w~еденицы", "~s~Вы получили"+plusBank.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.~n~На банковский счёт, с уважением банк Los-Santos.", 5, false, true, 8000);
-	}
-	activeATMoperation = false;
-}
-mp.events.add("donateConvertUpdated", donateConvertUpdated);
-
-function depositBank(depositVal) {
-	if(atmBrowser) {
-		if(activeATMoperation) return atmBrowser.execute("msg_error('У Вас есть не завершённые операции, подождите..');");
-		if(afBank) return atmBrowser.execute("msg_error('Слишком частые операции, подождите 5 секунд.');");
-		if(typeof(depositVal) != "undefined") {
-			depositVal = parseInt(depositVal);
-			let playerMoney = parseInt(localPlayer.getVariable('player.money'));
-			let playerBank = parseInt(localPlayer.getVariable('player.bank'));
-			if(playerMoney < depositVal) {
-				return atmBrowser.execute("msg_error('Недостаточно средств для пополнения');");
-			}else{
-				if(depositVal < 1000) return atmBrowser.execute("msg_error('Пополнить можно от <b>1 000</b> руб.');");
-				if(depositVal > 100000000) return atmBrowser.execute("msg_error('Пополнить можно до <b>100 000 000</b> руб. за раз');");
-				afBank = true;
-				setTimeout(function() { afBank = false }, 5000);
-				activeATMoperation = true;
-				mp.events.callRemote('bankDeposit', roundNumber(depositVal, 0));
-			}
-		}
-	}
-}
-mp.events.add("depositBank", depositBank);
-
-function bankUpdated(newMoney, newBank) {
-	if(atmBrowser && typeof(newMoney) !== "undefined" && typeof(newBank) !== "undefined") {
-		atmBrowser.execute("bankUpdated('"+newMoney+"', '"+newBank+"');");
-	}
-	activeATMoperation = false;
-}
-mp.events.add("bankUpdated", bankUpdated);
-
-function withdrawBank(withdrawVal) {
-	if(atmBrowser) {
-		if(activeATMoperation) return atmBrowser.execute("msg_error('У Вас есть не завершённые операции, подождите..');");
-		if(afBank) return atmBrowser.execute("msg_error('Слишком частые операции, подождите 5 секунд.');");
-		if(typeof(withdrawVal) != "undefined") {
-			withdrawVal = parseInt(withdrawVal);
-			let playerMoney = parseInt(localPlayer.getVariable('player.money'));
-			let playerBank = parseInt(localPlayer.getVariable('player.bank'));
-			if(playerBank < withdrawVal) {
-				return atmBrowser.execute("msg_error('Недостаточно средств для снятия');");
-			}else{
-				if(withdrawVal < 1000) return atmBrowser.execute("msg_error('Снять можно от <b>1 000</b> руб.');");
-				if(withdrawVal > 100000000) return atmBrowser.execute("msg_error('Снять можно до <b>100 000 000</b> руб. за раз');");
-				afBank = true;
-				setTimeout(function() { afBank = false }, 5000);
-				activeATMoperation = true;
-				mp.events.callRemote('bankWithdraw', roundNumber(withdrawVal, 0));
-			}
-		}
-	}
-}
-mp.events.add("withdrawBank", withdrawBank);
-
-function makeTicketsPay(ticketsVal) {
-	if(atmBrowser) {
-		if(activeATMoperation) return atmBrowser.execute("msg_error('У Вас есть не завершённые операции, подождите..');");
-		if(afBank) return atmBrowser.execute("msg_error('Слишком частые операции, подождите 5 секунд.');");
-		if(typeof(ticketsVal) !== "undefined") {
-			if(!ticketsVal || ticketsVal == "0" || ticketsVal == "" || ticketsVal == " ") return atmBrowser.execute("msg_error('Вы не ввели сумму');");
-			ticketsVal = parseInt(ticketsVal);
-			let playerTickets = parseInt(localPlayer.getVariable('player.tickets'));
-			let playerBank = parseInt(localPlayer.getVariable('player.bank'));
-			if(playerBank < ticketsVal) {
-				return atmBrowser.execute("msg_error('Недостаточно средств для оплаты');");
-			}else{
-				if(ticketsVal < 1000) return atmBrowser.execute("msg_error('Оплатить можно от <b>1 000</b> руб.');");
-				if(ticketsVal > 9999999) return atmBrowser.execute("msg_error('Оплатить можно до <b>9 999 999</b> руб. за раз');");
-				if(!playerTickets || playerTickets == 0) return atmBrowser.execute("msg_error('У Вас нет не оплаченных штрафов');");
-				if(playerTickets < ticketsVal) return atmBrowser.execute("msg_error('У Вас нет столько штрафов');");
-				afBank = true;
-				setTimeout(function() { afBank = false }, 5000);
-				activeATMoperation = true;
-				mp.events.callRemote('makeTicketsPay', roundNumber(ticketsVal, 0));
-			}
-		}
-	}
-}
-mp.events.add("makeTicketsPay", makeTicketsPay);
-
-function makeTicketsPayed(ticketsVal) {
-	if(atmBrowser) {
-		if(typeof(ticketsVal) !== "undefined") {
-			if(atmBrowser) mp.events.call("exitAtm");
-			activeATMoperation = false;
-			chatAPI.notifyPush(" * Вы оплатили штрафы на сумму <span style=\"color:#FEBC00\"><b>"+ticketsVal.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб.");
-			mp.game.ui.messages.showMidsizedShard("~y~Успешная ~w~оплата штрафов", "~s~Вы оплатили"+ticketsVal.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.~n~С банковского счёта, с уважением банк Los-Santos.", 5, false, true, 8000);
-		}
-	}
-}
-mp.events.add("makeTicketsPayed", makeTicketsPayed);
-
-function getOnlinePlayers() {
-	if(atmBrowser) {
-		let onlinePlayers = {};
-		onlinePlayers["players"] = [];
-		mp.players.forEach(
-			(player, id) => {
-				if(player != localPlayer) {
-					if(typeof(player.getVariable("player.id")) !== "undefined" && typeof(player.getVariable("player.nick")) !== "undefined") {
-						onlinePlayers.players.push({"id":player.getVariable('player.id'),"nick":player.getVariable('player.nick')});
-					}
-				}
-			}
-		);
-		/*let i = 0;
-		while (i < 50) {
-			onlinePlayers.players.push({"id":999999,"nick":"Player"+i});
-			i++;
-		}*/
-		atmBrowser.execute("gettedOnlinePlayers('"+JSON.stringify(onlinePlayers)+"');");
-	}
-}
-mp.events.add("getOnlinePlayers", getOnlinePlayers);
-
-function transferBank(transferID, transferVal) {
-	if(atmBrowser) {
-		if(activeATMoperation) return atmBrowser.execute("msg_error('У Вас есть не завершённые операции, подождите..');");
-		if(afBank) return atmBrowser.execute("msg_error('Слишком частые операции, подождите 5 секунд.');");
-		if(!localPlayer.getVariable("player.blocks")) return atmBrowser.execute("msg_error('Перевод денег сейчас недоступен..');");
-		
-		let blocksData = localPlayer.getVariable("player.blocks");
-		if(typeof(blocksData.mins) === "undefined") return atmBrowser.execute("msg_error('Для активации переводов, необходимо иметь стаж: минимум 3 часа на сервере.');");
-		if(parseInt(blocksData.mins) < 180) return atmBrowser.execute("msg_error('Для активации переводов, необходимо иметь стаж: минимум 3 часа на сервере.');");
-		
-		if(typeof(transferID) != "undefined" && typeof(transferVal) != "undefined") {
-			transferID = parseInt(transferID);
-			transferVal = parseInt(transferVal);
-			let playerBank = parseInt(localPlayer.getVariable('player.bank'));
-			if(playerBank < transferVal) {
-				return atmBrowser.execute("msg_error('Недостаточно средств для перевода');");
-			}else{
-				if(transferVal < 1000) return atmBrowser.execute("msg_error('Перевести можно от <b>1 000</b> руб.');");
-				if(transferVal > 100000000) return atmBrowser.execute("msg_error('Перевести можно до <b>100 000 000</b> руб. за раз');");
-				
-				if(typeof(localPlayer.getVariable("player.tickets")) === "undefined") return atmBrowser.execute("msg_error('У Вас более 50 000 руб. штрафов');");
-				if(parseInt(localPlayer.getVariable("player.tickets")) > 50000) return atmBrowser.execute("msg_error('У Вас более 50 000 руб. штрафов');");
-				
-				let isFinded = false;
-				mp.players.forEach(
-					(player, id) => {
-						if(typeof(player.getVariable("player.id")) !== "undefined") {
-							if(parseInt(player.getVariable("player.id")) == transferID) isFinded = player;
-						}
-					}
-				);
-				
-				if(!isFinded) return atmBrowser.execute("msg_error('Для этого игрока недоступен сейчас перевод');");
-				
-				afBank = true;
-				setTimeout(function() { afBank = false }, 5000);
-				activeATMoperation = true;
-				mp.events.callRemote('bankTransfer', isFinded, roundNumber(transferVal, 0));
-			}
-		}
-	}
-}
-mp.events.add("transferBank", transferBank);
-
-function bankTransfered(toMe, actionPlayer, summa, isError) {
-	if(actionPlayer && summa) {
-		if(isError) return notyAPI.error("Перевод не удался, повторите попытку.", 3000, true);
-		
-		if(atmBrowser) mp.events.call("exitAtm");
-		let nick = "Инкогнито"
-		let id = 0;
-		
-		setTimeout(function() {
-			let myBank = 0;
-			if(typeof(localPlayer.getVariable("player.bank")) !== "undefined") myBank = localPlayer.getVariable("player.bank").toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
-			mp.game.ui.notifications.showWithPicture("Менеджер SMOTRAbank", "Новый баланс", "~w~Состояние:~o~"+myBank+" ~w~руб.", "CHAR_BANK_BOL", 1, false, 1, 2);
-		}, 3000);
-		
-		if(toMe) {
-			if(typeof(actionPlayer.getVariable("player.id")) != "undefined") id = actionPlayer.getVariable("player.id");
-			if(typeof(actionPlayer.getVariable("player.nick")) != "undefined") nick = actionPlayer.getVariable("player.nick");
-			chatAPI.notifyPush(" * <span style=\"color:#FEBC00\"><b>"+nick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+id+"</b></span>) перевёл Вам<span style=\"color:#FEBC00\"><b>"+summa.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб.");
-			mp.game.ui.messages.showMidsizedShard("~y~Перевод от ~w~"+nick+" ~y~(~w~"+id+"~y~)", "~s~Вы получили"+summa.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.~n~Банковским переводом, с уважением банк Los-Santos.", 5, false, true, 8000);
-		}else{
-			if(typeof(actionPlayer.getVariable("player.id")) != "undefined") id = actionPlayer.getVariable("player.id");
-			if(typeof(actionPlayer.getVariable("player.nick")) != "undefined") nick = actionPlayer.getVariable("player.nick");
-			chatAPI.notifyPush(" * Вы перевели <span style=\"color:#FEBC00\"><b>"+summa.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b></span> руб. <span style=\"color:#FEBC00\"><b>"+nick+"</b></span> (<span style=\"color:#FEBC00\"><b>"+id+"</b></span>).");
-			mp.game.ui.messages.showMidsizedShard("~y~Перевод для ~w~"+nick+" ~y~(~w~"+id+"~y~)", "~s~Вы отправили"+summa.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.~n~Банковским переводом, с уважением банк Los-Santos.", 5, false, true, 8000);
-			activeATMoperation = false;
-		}
-	}
-}
-mp.events.add("bankTransfered", bankTransfered);
-
-function bankOperationFailed() {
-	if(atmBrowser) mp.events.call("exitAtm");
-	activeATMoperation = false;
-	return notyAPI.error("Служба безопасности банка отменила транзакцию.", 3000, true);
-}
-mp.events.add("bankOperationFailed", bankOperationFailed);
-
-mp.events.add("playerEnterCheckpoint", (checkpoint) => {
-	if(mp.checkpoints.exists(checkpoint)) {
-		if(typeof(checkpoint.atmData) !== "undefined") {
-			if(typeof(localPlayer.getVariable('player.id')) != "undefined" && !localPlayer.vehicle && hud_browser) {
-				if(typeof(localPlayer.getVariable('player.money')) != "undefined" && typeof(localPlayer.getVariable('player.bank')) != "undefined" && typeof(localPlayer.getVariable('player.donate')) != "undefined" && typeof(localPlayer.getVariable('player.tickets')) != "undefined") {
-					if (!atmBrowser) {
-						if(allowBinds != stockBinds) return false;
-						if(activeATMoperation) return false;
-						//return chatAPI.notifyPush(" * Донат баланс <span style=\"color:#FEBC00\"><b>"+localPlayer.getVariable('player.donate')+"</b></span>.");
-						localPlayer.freezePosition(true);
-						atmBrowser = mp.browsers.new("package://CEF/atm/index.html");
-						setTimeout(function() {
-							if(atmBrowser) {
-								allowBinds = [];
-								atmBrowser.execute("initATMData("+localPlayer.getVariable('player.id')+", '"+localPlayer.getVariable('player.nick')+"', "+localPlayer.getVariable('player.money')+", "+localPlayer.getVariable('player.bank')+", "+localPlayer.getVariable('player.donate')+", "+localPlayer.getVariable('player.tickets')+");");
-								mp.gui.cursor.visible = true;
-							}
-						}, 100);
-					}
-				}
-				return false;
-			}
-		}
-		if(typeof(checkpoint.getVariable("checkpoint.type")) !== "undefined") {
-			let checkPointType = checkpoint.getVariable("checkpoint.type");
-			if(checkPointType == "atm_render") {
-				let atmData = checkpoint.getVariable('checkpoint.data');
-				
-				let atmMarker = mp.markers.new(1, new mp.Vector3(parseFloat(atmData[0]), parseFloat(atmData[1]), parseFloat(atmData[2])), 1.4,
-				{
-					direction: new mp.Vector3(0, 0, 0),
-					rotation: new mp.Vector3(0, 0, 0),
-					color: [146, 208, 170, 185],
-					visible: true,
-					dimension: 0
-				});
-				
-				let atmCheck = mp.checkpoints.new(40, new mp.Vector3(parseFloat(atmData[0]), parseFloat(atmData[1]), parseFloat(atmData[2])+1.2), 0.8,
-				{
-					color: [255, 255, 255, 0],
-					visible: true,
-					dimension: localPlayer.dimension
-				});
-				atmCheck.atmData = atmData;
-				
-				atmInStream[checkpoint.remoteId.toString()] = {'marker':atmMarker.id.toString(),'check':atmCheck.id.toString(),'pos':[parseFloat(atmData[0]),parseFloat(atmData[1]),parseFloat(atmData[2])],'alpha':0};
-			}
-		}
-	}
-});
-
-mp.events.add("playerExitCheckpoint", (checkpoint) => {
-	if(mp.checkpoints.exists(checkpoint)) {
-		if(typeof(checkpoint.atmData) !== "undefined") {
-			return mp.events.call("exitAtm");
-		}
-		if(typeof(checkpoint.getVariable("checkpoint.type")) !== "undefined") {
-			let checkPointType = checkpoint.getVariable("checkpoint.type");
-			if(checkPointType == "atm_render") {
-				let atmData = checkpoint.getVariable('checkpoint.data');
-				
-				if(typeof(atmData) !== "undefined") {
-					if(typeof(atmInStream[checkpoint.remoteId.toString()]) !== "undefined") {
-						let tempData = atmInStream[checkpoint.remoteId.toString()];
-						let tempMarker = mp.markers.at(parseInt(tempData['marker']));
-						if(mp.markers.exists(tempMarker)) tempMarker.destroy();
-						let tempCheck = mp.checkpoints.at(parseInt(tempData['check']));
-						if(mp.markers.exists(tempCheck)) tempCheck.destroy();
-						atmInStream[checkpoint.remoteId.toString()] = undefined;
-						atmInStream = JSON.parse(JSON.stringify(atmInStream));
-					}
-				}
-			}
-		}
-	}
-});
-}ƀ
+/*
+
+
+	SMOTRArage © All rights reserved
+
+	Custom obfuscaced system by DriftAndreas Team (0xA0426) special for SMOTRArage
+	Кастомная система обфускации от DriftAndreas Team (0xA0426) специально для SMOTRArage
+
+	У каждого одна голова на плечах. Кольца да у венца не найдешь конца.
+
+
+*/
+
+exports = 'rN39JmbxKAqiV5tW76ohP/NCPOMYmALqSunhymmKOcswrNUlQulvHiEXQloXgXd80VthvX=EOOIGNLEaQ+OXQN' +
+'uQNYgIi7GarHkhr5m=22+Nssb9LlSxJEqQRn5j6ZEdN/3JOwHOT+iE4P3hiJjEMLj/vOgkPuytKCIdB26VybGTNmJ7=4SL9u' +
+'B6NKYWScFXONuKbnsVdaOkr3=GsJG/3Tc6SWqZJmGzJU3bDXxS/ZYmPM3CQvcukxzmOsCufqfEM9c2hHC96oVnLzMYOlgeu6' +
+'3hLFxg0YsSQvB+N30l=uBfR+lkFB=KhquXnnCFpIvbEX+Vrcyv=CXqJEiiREP/lJQkPO72OrwIiODfPADkrqLRKL/xiqQYOu' +
+'dzJ=8D51Ncx67PMyxS8o0MQeJcBqAyKLFZS+KbaIoMhZpVejU+nInKFTc6Scb17zbxNxqWQHYWuKAsQ/G2O/cVicvgRdnhyo' +
+'LGO80GsqvUT/JfIiVpQlpft6mPLFwTuDGDOP1GKK5VQ6BdT//OaHLMhJNjr3oIsILKJEVcr5WxNXzjJk3iSHcg6ZoZOvp3+8' +
+'j1LQbd=sHezm/KJLD2e+skOvuoKCdpB1RRy5/iNVNS/H4HI/JQOcIaQ8aTOuG2dncHf6BdYFUJqp43A2+epML9HlvtMUGmTn' +
+'gVsVXh9fmE/OUIkAKlOgLSzqnMJsb/v+kjTuBzNydqS1FRxaGSG2NpA54VMMFBJLDQAcKcRu3IWnkVf6GjmFsAqYLOH2tQZo' +
+'mvJWbwNkFYGhX8+qIs9gC2POUMmvDYRfnfyXrH65Cxs+UeSNA7094D51hVzGzgMmIRzDjTBooj1lcVTqBRONqONXsRjqWptj' +
+'L7rYL5JGF6rsH0L13tK1G1W4xd=6EhP/OoLfAQlyHGNPrWvaXW85TBfbPgCbx3+fQmCiUli32g/BoRwUrT/b1K+o8aErthDK' +
+'JhPE7XRmyicU3FdFWQ7TIjcpGE9D61/yylD0kivmro=byGAbDaXuSwDtWhimHXNck2dr7=5+dlNvRmREBZzalOAB6e=0bSLe' +
+'d+JLEbCNBPTpVbPkjWUnNudUnHa14FFXMMrN39FWrnO1uhEjDiv30o=8yFAbTXVu7wC9OijGaP65XCfaGiC7xy9PgvDBElkH' +
+'Fn/yoRvEzc/bYQ=oXeEaVeDa6iOEnTTFVedAGiSCf/HGtOoMm9Imb3LEqeNX5ZrnnYP=GAOrnHignmNPHdiKPSO8UEstQhPe' +
+'R1LAdlRW+YubzT6zsR/IjRLuxENKUJTuedBduOfmkTgqGnojzIbF3H4jxddpS/90a9/B+gEU4drn8qAbpE=L8ZVNGwCcWmln' +
+'ac/4/xerfrB7Q4/=0sDB9kjn2n+CIhxTSDB81G+XXU=umWRt/Kd0PGe7/dpnoJfozDI2RNs9Kv=CXyOEibD0lY+qwaMvhCLe' +
+'9ajxbcRN3SzJzINXPNbeHnRec7094D5xsfeLdQPyArvEzW=qsN+YHbCqSj/adWOUbbTVptbU3Ia1=R1jYdc5u=/DW5QAycDD' +
+'nBGQ6+okslgr741M6HjWEhKvl0fCRKWo3=56ovNSleB1BfpquiBlZS/X=IDOlILb4IG6KeSeKOQhKuJ0airTL9sYLFJH9aoM' +
+'Hz7zf7Ml7bR21S=q58Of3CMeMLRMmX=wvW122DMr=1o+UeTuAs5zIbTDJRxLGT8B5uzTke3IciLrLQRdej/7pmK0gGe7/eq3' +
+'O6ZE4SwQY2SMb173K09VKUS4IU+qIr=/GMN=EblcXaNAPayJC6KLv6dqQVOv6pLSMMPlQevKGhO3BgBDCMBooj0lX26Ht0QN' +
+'NRf58Tf6ubZXHHaZTGImhQbcHwN3at6x2sHDkT=6scNvK+OOMLRMaXTZ28Z0qtLLn5wf0iPupm7zEmB2NfyqiS9VJSA4nRLu' +
+'6LLrsXB6JLFKpJKYsRfqGbpnL9o1/A1Hc6SWaYzA7tKQSjWIlW+ZLgPwyCQe0ZkxGlOwHlv2/GJMc6u+KgTepkID16Om5ZeG' +
+'2rAB5TAHbHMONBM7IM=JtKUnp0EB7tI0WYnogAqYzuFWQMfI48MzO6KESYQnUW/VsmNwN9O=4Vig8kO87byZLEO4w+vaHpRO' +
+'2sJvIaOmBRhq/PNldf/jbXOuF6PpAJTJtW/+uOfjYQimqLongLqp/K3D1dc63990a7/hyfEEHmvW4qBrh1=L=XUN3pB9Kjkn' +
+'qa/IjIgrzmBatt+wwkESEZhGzp1=g7mBGt2IZ8MKkXTKxKMshbOErPOnFhXUw1a4iJ6TEYc5m/HFJw1/Z57BH7l0YkPO/=M/' +
+'HhRyHpS=W/ZDqt0Fzayqzt6oUJz90=Vfk7YUV4Q=s8mBHg3IciQlnzW6tl6Hd3EXLTRJGronLLrkv5FGAUYd47IH7pNSGdV4' +
+'5jzZwkQOS2PvLJUt3fRfjSzqaM65CObf7=54RpJOxqUmyVx6JWNlZS=43M875VAn0KU+BOPNOSdXsHOFybYzULtJ49H2IUsc' +
+'zCIHnpF1uTSI5ezZwkQOS2PvLQRt70E8CT06/HKLo6u+kW/6tm6ORqUmyVx6JWJl+k+4HIPcBHMcAQP/KPAJ2KREKDOKGjoX' +
+'o+pIv9FC5VY+iczQ6NLEJXTIkf7ZwkQOS2PvMaUQLvPAPlzVnWL8UAsqzb/fYNzM0=5lVWgKme9VFg/5wLLP2+NGsNVuudT/' +
+'BReXTXe7CajXP8pJLE92tYssXwM3qt8Azq8BL7l0XBOvJ9PeYIlxKXE92RzJCXJMg2neLWQvBtAiMiSERRyKFX63k/mRGt2I' +
+'YiLrLQS/JYTdKRcHkPf7+joo0ArpHK3G+Nssb9LlvpLxVYA4xS/ZYmPNK6NrwLiBDrRP/qhmqe1F3aVoz85uRm7zEmB1+fxL' +
+'/WJG6W=jbIR/ZLOc=QPdOdQ+aOeVkShr/dnoU9ZEa4E22fq9b0MUjzM2/XQIlWuJEdQPCGOfbPT+iE4Jm7Z0qtLLn5uvPgRu' +
+'yyKiloSApV0KWhO3EZ8noWN/Z+N5oJTN2PSZZSK4kEiZSeooclnJ=CFX5ap9LBN4fzPARYGhX8l0XB3pVi2IbxL7aAP=aZ0r' +
+'rTKLL3deDiB/JvMSAaB1BRzK2X6y9uzDjFQOt9KrMRSNeO/ZZJghKuI0V/Rh3hpIO=JHVcpMz173K09VOeUXUVuJEZRf2CLe' +
+'9ajAvm=8CSm36D6ck/sekYQullJvYf/Wc+YkV40=c7mBHMMaVMPs1NSdhSRO2XfnTVhqBjoXYLnEv7EX+Vrcy9N3SoJFWzQI' +
+'sarm41Dry3Q/wLiAPgQPXVfFqDPlCbVoz85oQJz91ZOm+ZxquEKFYRzDkQP7tOKrURPd6PSpuXbIzLh7yjoGYEoEvBH22Nt5' +
+'X8MzO7Ml7bR0cV77EZ=//2PecVkcvrQfTS14TENXz9beHXTJutMvIMPl+kx76h8z9iw1jR=85P/H0YD7tfCq6bPDGDSG6la0' +
+'TJbF/J6DUjdJKG+D649xycF1DfxnHh=bzP35fxL7aA46m7Z0rGMr==v73SMMYy9=ki/SEceHOL91kjxE3P=7kIIqnU74x05H' +
+'ZzEB7tI0WhqGgCoIGR1HBetMKczQ6N0/V57BH7B2Xz4pZe25bxL7aAU628Z0qt0FzayoC95oQJz91z6fY+YkV40=c78noWN/' +
+'Z+N5AXSvWSOO3OK1KDh7yjnGPDroX5IGFfbcv0Nlj0L1GhRDDiv34t=8BFA8LTRu/oD86qjWeV94P+gbzgDb519/=WChoggU' +
+'l50=c7mBHGLPBALrIaK+OcQtKbK1KDh7yjqnYJpoLJIypapNS39CFkMUGmA4YhuIMdMPCDPLDPV+7oC86lj3aY94PCfrzgEr' +
+'529O=WBiAphnBh/C9ewDGP885G+nj26Ht05HZzghKuI0V/Rh3ho5bJFW+gqMz9/SXyKFNPTIkf4JIbRfuG=aXXUt3nAsChh2' +
+'2x0VzaVoz85v2vNzVqQltekmzcKGUR/IjRIeJ8ObwaDZpaB62ZN0XTQ2hCRx3hRCahvW+br9zA/SXf+R2mD0kmwmjYBsBA8s' +
+'=XVwqj56q7Z0qt0F0GtvcbO+dl/ORqS2FVhEl50=c7mBGtM/ZFKrsbR+FYEZ2ZFB/tI0V/RoGAdiqivQU2SGaczQ6N0/V5TI' +
+'kf8Z5lNrqJN7wZiATgRgTWzH/EMLk1n+kgPeByNzVoPEFkgG7RJGFa/XfWLv++KrsHDrNMB63PaHHWf2VwSh7hRCahvWlcbc' +
+'TwLGqyOEVdT4If9XsZPvG5HOMVixLpSwHjwZbX88DAe+sTRuAuKSMXOmAYf7KlImRo+HbX=864O7YMQ+FJRuOOeXHEk2NeZk' +
+'/lRSahvQU2t98AJmr4Bk3iSHcg16DYDrzBPrwOhArcAQXaiJjIO6HyuukWK+BuJzloTV2iv6GiFVNf944VFOEA67AJTduYRu' +
+'CMeXsIhItlbjbAdiqivQU2SGb8MzOrJEmUDXIf=JwjNrR8=wYuWe/qDuKpjWGYCYUXkrw1=Jcg9v=W/z+yq4W9Ek122FoCH9' +
+'k79X0ZB7145XZzEB7th7yjoGYEoEv/Im2cq9byMiO3KFCDVVpm8qYnF=7DOPIMkQGfSxLmw2qe1F3aVoz85uhw8StXRlEev7' +
+'7PN2Za8ovRPuJMGcM/Sd6fRNJRNEbTSmVwSh7hRCahvWlcbcTwLGqyKl7QU4Ea7a=mQOGIIwQrjx8lQPXdhm6U8I7eV4z85o' +
+'QJ094=5fU6YaWcBl+k+HbS88o5PG9PP++PL/aZbDfdfJ3hrGnDXYT5HWF7oMr05T/qJEiiRIXsm0bB3pVe2/sXUQTYQ=Wfwa' +
+'PEN8w6rObgSNB0F0p6QV2exqGa8z5ayhWu2IYi0lYVTqBPTdKXf5jRe6CZZTcJoIv8FX5Ob54ALnnlO1GFRHEz+JEIPf3NIu' +
+'PQXaqB46m7Z0qx0VzaVoz8QuEoNSleKV2evahX62Fd/owIIeJAErIWU6pTEnp0EB7tI0Weoz0AqZP9HnBbsdbfIGOpMxVPQn' +
+'Ug/ZIBP=K6OPIWlRaf=9u/ZDqt0F0NWo385oR9094=5fVZvmSbNyxU/nTWN/6IKs=WQ/qTSuGcM4kEiZSeoocbqonKGG2cpI' +
+'a454BR0OV57BIa8FUrOf3EM74kY94aNAPZx6bVBrL9vNwTSeAp508D5vU6YUV4LFQZA5HTMOx/8bkXPdOWK+mKgHsVRJOasW' +
+'s5rYb5EmhRa5T/L3b9KF6dSH0Yt2XY9slR8rAckQHcOPnfw6WF64n3bfgrSeBvJOxiRE+RxJzaJGdW=TbKMPFvJs9RP+SWPJ' +
+'VQe4HEk6Gna3HGqYLQ2yUVY57L=CWmOEqTRH9a+JIc97y79K5bnB4cQfaZyqCGJL=hueUrPv1uJilqL12iwa3QM2MZtokPLP' +
+'Z+N3sLRuuaSpRSMDXEV3lVX4oFo5L+GWpRp5/v6Suk6EieQnpd3qkZSvGG/PQMjxbaQwWRgFeDL9k1qNYkROJzJDYf/Wc+Yk' +
+'V40=c7mHHJ+768JsARSNFtSdygensVQ2zwSh7hRCahvQU2qMO3IGj4LFKUIlpE14sHPPz6PO9bjAzl=8Djw7XYNbGxs+UeSN' +
+'A7094=5fU6YUV49h1j9I0YPes5JKUJUsO7IJuXdooMfKWFsog=Z1BaUCYMD=JffdYAl61AYTnBOA2ookglf26k9C7XExPhv6' +
+'+DNsgJuejvNa2jLiAlSyYTnoGxBi5h70rhC/9W63gUSdWLR93VaI8IiFqcookunJ=AEW6YpIW2M3GlPEGhDX1g+J5sNrN++a' +
+'=jUg/1Es/kzqLRAXGzdr7=54QJz90=5fVcx6/PM16d8IHIPat/N7INVNe7RuCSf48ShFSpr4o9ZFilvgU2SGaYzA7nJF/YTX' +
+'g0/JwvQOGG8srHkB3lNQLg0aTINcb/u+kpAa2wICdhOlNVkmtdBjN4vnwEPuZGMGwRSNaPU6uRf4LPOFVwSh7hRCahvQU2ss' +
+'LCF37xKEukV0EX=6sbRfWDOKXQRyiE4Jm7Z0qt0FzatunaONyzKCIlG26fz7/TNRcRBhWu2IYi0lXy64t0ONmVdo0mg6qZrC' +
+'TUX4j17wk3SGaYzA6N0/V5Qnpk96snE=7DQfEMlMvcTwXU07XI84Y6u+0mGNyzKCIlHV2kuWRQ8lpg8noPH/l6PrIaCNmPT9' +
+'OKeX8EeJiaZTwHq58QFX5aqMG27CBm9xyWATQd+ZAZPezAL=cMlMveOATHv7PMJLY9sqvZSedhOCloB1pZu6dV8BkTtjSD8a' +
+'hEMKAJStKWOOaOeTPKf7CLnocAnI=DFSQTs9nwOGr29UmeTX5qsVXj97h18KkTkgDYQvDdv7rINXH4svgIOv2pICZiPhQXyK' +
+'iPPFNjvXwLNP2L7GXT=Jtl/ZZkFB/tI0V/Rh3hRCbEICpTtMa9Inr2NkuhDY9a/ZYaPfF1C75blRLcDZ28Z0qt0FzaVo0v6o' +
+'UJz90=5fU61WhO+C5huEOx2YYi0lXy6/945XZzEB7tl0l=Rh3hRJqlvgU2SNqczQ6NQ/l67IX/lKnhCIlf35gUltvcSPXf0r' +
+'SRJLg1daYiRey5JDZ8UVVkm6uaNlZS=43F/71ANKUJTudT/7pnK5CxIDWeoz0LtJ49H2IUssXwM3qt6x2sHDkT=6scNvK+OO' +
+'MLRM3d/LDl17HIMrn5v+LmOv+lEzMaQmFdm6uaNlZS=43M875VAn0KU+BOPNOSdXsHOFybYzULtJ49H2IUos8BK37pNS/eT5' +
+'xZ771d/ry2C8rHRRLlOwXXx6/IK4X6bf7=54QJKCoeRmxeu6uaNlZS=44W/eJQLsAcTZqdQ+7ZbD7MOrdCRx3hRIb+3Glcbc' +
+'D+L4jsJFzUUjcWAqYrRg+9PO0bhBHcJw/Vx7bQBrL9vNwTSeAp7/Rx6fY6YUV4LFQZ=nDEP/I5AonITNFeOOGOW4THg7GifG' +
+'PDroX5IGEVY+iczQ6N0/V5SH8Z+70mR/G9N/ETiBClOAjazaXW88cyvN0gRMFlKv0f/V+Ry6WcMkRW+0bHMPBMN7whBqtl6H' +
+'dzEB7tI6WbZXHHaYDGHH+UoN40MiOpP1WiV5wZ7Z5rOfW6PMEWkyDfNADWh2qDJrUDte0XS86vL0deOmyVhqCTNmJj/oGL+L' +
+'gm01Xy64t0QNNRdIXRh63npGoJrkv9KGVft+C3Imb3L1WUUVYS/JgdQ7V+8vEIlgXgOAL/v7POKMX/seklTf2vO/wfE/k7YU' +
+'V40=c/mRGt2IYiLrssP/WTRdxJRDYJe6iook/lRSahvQU2rN39JmbxKAqWUXph9qYbQKqHM=I8mODfN=7fw62L9IT6hHC95o' +
+'QJz91qOm6XvbCyJGFa/XftM71V6bMJSvWPEnp0EB7tI0VCRx3hRCahHXxapNP0LXn39V7UTHgn82TaQ/GCMvMZRMmXRP/lv7' +
+'XIGbk5juHWKedhOBhMAic+YkV40=dunBKt2IZV1lby64uTPZWWe0PGhZiopXYHoJCFFXRVstHB73jlNkSYRIt1+ZkrOf3EM7' +
+'bQRyiE4Jm7Z0rMKXwDteUiPqt9=/RZOm+YwaGgBl1d=nDEP/IB6cf26Ht05HZzcHvLeZ3opnLGfZ=GJ3+RsYavOgJO0/V57B' +
+'H787UhRd/2PecVkf4YQPXdhmqe1F3aVoz85vgNzM0=5fVtZUZ40=dunBKt2Pom01Yl74ynAKh3ERKufKGjnHkAqou4FXRVt7' +
+'DwMm7yMjzQTX5dtmXYSIlf2/cNTxDYRfnfyXPVMssDsvXb/fYNzM0=S1FjzKugKDBa/X0W+7YT1lby6+WLStaXdlgVhaOooo' +
+'bFo5LKJH6buIW4/gJO0/WSQIxa+Jw7Q/uLPeMZRuqXQQXdynyx0VzauvPgPOBp8SdrS2+fymqkLGFa8XTI88o5K75UTddl6H' +
+'dzEHHSeZ3hjXD5tILJ4mJepMLIJFXzNkWjSHgftqMZPg/6+8j1LKb056rua0vQN4H2w+kgTf5uIChaAR6V0KWiBl+k+HbSH/' +
+'6GKrjKCqKPU+adSncWg6qkjXYFoImA7wk3TGf1NGOnO1WeTTlT=7Y8OfWEPaYKjxbnRebSymqDPlCbVu0YAe6hMi1kRC6ix7' +
+'OhKGAas5Ox2YYiLrLQP+WeQOOOSlc3Y4qEqHU9rY8LGWtaaI4AJHn5NUpPQnpk96snE=7DQfEMlMvcTwXU07XI84Y+vNsRPv' +
+'2yLjYe=LzTeR0Al78CDDm0gV7alt/6aqM7lU4eK/Za6v1F7+VMCK6pON3+DBtffNcPl6FPs9eBRg2tox1lf2+u92ZHjsyRKv' +
+'E0giREGjJCjEv0k4zHW8zlhmpV8CkTuEOx2YYiLrLQP+iuQ+aZemYEhJGhZjUJoJHMImoMos8BKGOzBV7eVoxW/FsdSfG4Q=' +
+'IMTt=kRffQw7PVMsX5cURTqjbQe6W/qabAEx0q69/5X9m1TV7blti5k6M7lk4o29u1mx0lCpuo9=5P4C09/z5Mk8pUgb0ls9' +
+'3BQx67okF1A775pH5sp1tC3gIglAf/cJzt/6Q7094=5lVWgLCnN2Ng9TDGN/ZINJMJSqtK/KpmK0gYhJCao34FoIG63SynTG' +
+'eYzA7nL1WfUm9S+m019gz2PPEMbAvr=wPZx7HWGbU9dr7=54QJzCAbTRygxK3nKGB//nbIRK1V6c1JTOWPINudM4HSeZ3hjX' +
+'D5tILJ4mNRt8PwMW7lJUiUC0Ah+q5xNw6CO/0ViBae=8msa0ut0F09svfSSedhOCloGERZyL+OAB6h8IsWMMZGOXUUSdWLR9' +
+'3VaI8IiFqcookunJ=AEW6YpIW2M3GlPEGhDXxZ971r+KV+BYryL7aA56q7Z0rPKMfxrNwbSf6DLjdq/SkQu6SXN3FH8HSN=L' +
+'1T1lby64t45XZzEH8JQrzhno49rWrGHmFlY6mvIm3tN2/zToxlt21z4pZe25bxlQLrSALffqTENr0/uLYkROJzJDYkPmRVu7' +
+'GiKBYT/IwKKuJKN7waBqo7dU4e29q01Q43Cpeo7=9agLr+xz5Lk8NklG5AY/mmWvGJU24Xn0=H92JHjmIAfxIilAJhAEV2qj' +
+'rQeZSu=AUremVp1=g7mBHgMOlLKsf26Ht05HaSbT4GgqWlrFs5q13T1D1cc63454fpO2GhTTlU77AhP/uXPO0elgLpAPXpw6' +
+'TYO8j5b+DlPMplMTZlSxQXJNc=Rs7wX9F1Tl7l6i2krzD7jk4m29OD6vsGvzTTnVuI1Dxcc6m+ITNklGE=m/q6uFPhCK6+BY' +
+'ryL7aA4=nXhqTLLMQDo+Ue/bkg/=0vEiUpkWVONVNlAIsR8/B6NKYWSbScRuScbIfRf7SanHoLoEW6HX+TnsLAMWS28xQ=ee' +
+'q1WvyIim4XnAnH92pHkWEnKv90gXSh=lRw/bdi=P0WEiUpeHVn=Cog8UaDnQHpfi6xCJM7j04ZK/dk6v1F8CvAdk/A7wk3SG' +
+'aYzGbqBkSYU5xB76sdPbyR8wIZmAKy56q7Z0qtNrkEoe0fPup1NvxcTlpTzKWdMRYas5ODLONcLbYYTcKLRdKVK1KDfJ3hrG' +
+'n4uEm46Txcc5aJ0A+N0/V5QHxl97MdEM3oF9w3kh4cRPHlx6CR65CxwfYnPrYNzM0=5fVgyrCnN2NpvX4ZMOtMNGsLP+6WKd' +
+'KWdooIQq/ntoULZ1=6JXVwq9b/Miew61CUTlQWA2Xk9g7DQ/wLcRLkNPXjhqTLLMQDo+UeBatw7/0x6fY6YUWr1=g7mIWx2Y' +
+'ZV1lcl74yXS6uOfXsRjr+jnnk8Z1=6JXVwq9b/Miew617kWFxZ971r/sdi2IryiRLlNgTayZ+DNrk9uccaQvuz7zdeQmyjrq' +
+'3a8B6snBKtNOMAJK5bR+BZGe/YfokIiFVVtAGiRCbAFiRNotH4NWrHBD/5LVgg/qIqMwC+OevQRy=cSxXjyFHGJMc6u+L1S+' +
+'p3MiloB1Fova/jO2MZsXXWMtx+N89XTJpRqBBJ27i0yx43XeVMCK+pMt35YD5Lk8qkl6Q=k/mjWvKJUm4dnB/44H50pBxBD2' +
+'J0giRPGjmDWlvwkErGkczohG1/gs7vX920il3OlgG5l1PtqCJXNTzMUV6edAGiRCbAFiRNpaD3KHX3F13dRHTarr9dRgGGOK' +
+'5KhBDgQP/0zJCaNrkCe+kqPu61Nzke/1ljv5uTNWBg=TCKnC8pfR2gr=s7kk4n29GD68QF7eZZCKBpO9zhYD5Mk8UUeL4ws9' +
+'nCDQ2wokRA826m92xHi3EvKvh0eCRIGwaCjqt156W4qaHADx4yl7vBQ0aK+Lg78of26Ht0QNNRf58Tf6ubZXg=pJ4KBm2YaI' +
+'3w=DJk6VGdR45X96sdNb6+8wj1LKaA4=PZx7HWGbU9bbCSSeyyMil=R2AYu6SXN3FH8HSMBooj0lXySuee//3VaI8IiHmkq3' +
+'oQX2q4IG2essLYLXmsM1uSQHUB+q5xNw6CMeMbeQ8pP=HTyqaL7sQ9rv0XS6ltLiIbUhMZgXd80Pc7mHTIQ72IMb5hQ/SuQ+' +
+'aZejXgOrzWr4g9hIvL3Ghbos87E3GlPEGhDXAW=pMZQ/W2LOoMTtTnQwHqw7ORJrw6vfbZAqQ7094=5fU+YkV40FdXu5kPLP' +
+'Z+N5AQR/Kd/7lJan4Mir/LnnCAX6ilvgU2SGbAJHn5NUpPQnpk96snE=7DQfEMlMvcTwXU07XI84Y+vNsRPv2yLjYe=LzTeR' +
+'0Al78CDDm0iV3Nlt8Ir=Q8Wk4n29F1px0vCcK4CKJoaN31DBNfeSZUe80qsJfRWvyJUm0Sn0K4145tp1iYh3yF8I7eV4z85v' +
+'hlL0dbU/k7YUV40FdXu4wLNP2LG75U=r5KCK2ZMDYVf7Cqr3K4no8KGWpbgd=+NnjpNQqUW45U=7Ed/b7BPeUGiB=pQgKZgg' +
+'IClNShBERmqjwRQZWC/czsJPs/ec7uX9aDnDvqR30kPKAbC72lNnfhOx46Cc2px1u/3TcOaJiczQ6N0/WYRTEU9qYoQNK2Or' +
+'4lRuawD9mql3qM69Y2wfkkR6ujIDdfR1tzyqulNlNjvX4bMOBNObHQ=N+dPsyOeYgSiFRcCaRpv=5VgLD98D9RkIFkl6k=ne' +
+'mnWvqIj71lg26lRunZEMmRl3qc65zJhr/hO7kgkEjGkc35hm1/es7hs/pknD4peGPRFZRTEnp0EB7tI63bfG0Ar6DoEWpRr5' +
+'3L54n2OEFq8BL7l0XBQOGIIvcUiAzsSsjX06/GO80=u6vb/fYgICp6QVVgy5zPMVNds1WDMe6ENKHIW65KDK2ZO07eJ0Z/Rh' +
+'3hnIDLGXJRgq8iCEOTMlzUUXpl96wm9cl1QwAci+iE4Jm7Z0rTNcgJvekqB+B2JCIqSApTuaiaFVNe/o0I+/BKPs1cBqSdPN' +
+'mVSn4Mir+XaTU8oIzjFXUVb54ALnryKzqkTHtW/FUbOfWEPdQIktmXBsmalT6u0FzayoC95oR9094=Vfk71Ul5MG5f9I8IOf' +
+'FL975MQqpMStKVd2kLg7zoXzC4roLDHE+UqN4B7DBR0Ol6RY5f7aEhPOp1Le9ajAvmIgDWzJLXLLL/k+UbReBk7v0WU/k7Ya' +
+'WU82+l/FsVOvRLKs8R=vKcT/aZbI3Rf7Kaq4kKaYD5HGgUYcLGKHnHJF/YTXgB76sdPb6+BYryLA8aSwnnw4TlFp0fmNLiPv' +
+'2hNz1lRxxteKKPM3FWyhWu2P++OcIaSJKYRuGiSGYtRJGnr3PJZ1BoUdznDOFfddY1l6yPs9rBPA2vokslil6X9C+HkGEvK8' +
+'N1RiRIblRsqjwQdpSuqanAEm1/gc/0X9V0gV3VlgW5lkLa/E8r29q0zA0wCc+pvku64Cxfc63/8zX4NVGUCEP/lKnF3/mE/O' +
+'MdiAvrRb7SwqWL6bcyvN0gRLpwJDZXTVVfxoKPLFpW90rP8/B6NKYWSbFaPO/Kf48ShHKWpnD9o1aSwQY6ScPDLWj4LEudA4' +
+'xS/ZYmPNGEMv9biAGfQPXoq6CRKMz9beHXTL6oKDRpAhyrZUZ4LFQZ8noWNOtHB89XUeWPSZ2PLTYXk7zaqGr=qYLO=WtapN' +
+'a45zaAAAyRVHcV86MhP/G58K4NSM4rTADWyZeLMbkHjNwbSf5p5vUzFhxSzaqSKFRa/X4H8aY5PEnz64uNOOCSdXTmiJusrG' +
+'oJaYLPFW+ht9K35WjlNkWdTm5h8q5sNvB99a=SkQLuI=/fw7qO6Xr9barUANllNgdeQmyjg26V8CkTuEOx2YZV1lbyP+WeQO' +
+'OOSlc3Y4qEqHU9rY8LGWtaY6qvJWbwNkFq8BMum0clQbq6QOMVmyClN=TVhmPGJMc6u+LHSe+hNzla/xgQu63hLFxg5IkHLP' +
+'F+KXXj74x45dOedXkXg6ujXYcGs58LFVJRq789J2XwJFWDNTDarrfF35W+MKYbnB4cQfaZ0qLVKrkEjNUlQulvCCgf/R1tlW' +
+'yQOFxV9H8MOeJ963XIVX915HaSbT4Xe77cookbnJDAHmt2p5avOgJO0/V5TIkf8Z5lNrqJN7waiBHLOAjlrJbRK8kClufaTe' +
+'yyJilqGE2jwaqdDFIayhWu2IYiMs0WQdOXPJuQeXcTgqWYrCLKoJGJFEhNuMLA70mt=el67BH7+70mNO3BM7wQkRPmPfWZgW' +
+'HbBonDgKY4GL90+AgtCC60nGNa6z9ayhWu2IYiMs0WQdOXPJuSdYwSgZFdYDUPbW=b6TBue67G/0y6=yBnG0=drmQIQ/uEKd' +
+'EKlQLcQO/Hx6/IOrL=sare/aJCBhMNOlhct4/dM21m=WeXR8E=9X0YCKRfB62ZNUrPOnyjcjC4bEm45CgMcZKD8zW2/BFbA1' +
+'smw2jYA8FJ+8j1LKaA4=3hiJjEMLj/sOYTSeNpIjckPW6Rz5CkBlZS/XbIO7UI94HU=rJYDJlJODGDS2hVbTC4bVKM4CxedJ' +
+'K750e5/AhPEU4mt3fF35Ve2/sXUQTYQ=Wf06qRNrkEoekqTd2lLShbSzVUgH2X=fs8mBHg3IciQlnz64915NaPM4LTRKKapX' +
+'47q5LK4mFkqNDCMi3nJF/YTXgH86Th/rzP35fxLAbd=xDgwqrYMHH6vLLgKN6yJClkARUQfmJOJl+k+HbSIeJA97YbKdB+Ou' +
+'/ObHOLQ2VVtAGiRCahImtgapq/8TW5=el67BH796LgQ/uI8svkRuCtBsmRzJCX65Cxfb7=54QJzCdXSEVex5KTLyxh/owMQ/' +
+'ZHM30l=uBPTp3We0P6f6/pqHbKZ27I5Dxac67F+jW0+BVkEkojw2jYA86E/L4ZV+/pCtmok3ab/IzEeaQVOv6pLSMMPlQeyK' +
+'uhLGJa/naRRaYT1lby64uaRtGSfHKRiJupnokAqou48SyapNSvLHWyGUGSV4gjvVTo=byE/r5ZkhGgDZ28Z0qtJrUDtuHhL+' +
+'Bo8TdbTTRVuaCXMVUZ=XfX+Lgm01XyW4915Op3EYKj';
+
+/*
+
+	Encrypted module game_casino/casino.js. Result: 1ms.
+	Fuck is easy, fuck is funny, many people fuck for money,
+	if you don't think fuck is funny, fuck youself and save the money!
+
+*/
+}앰ą

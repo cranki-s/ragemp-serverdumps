@@ -1,300 +1,85 @@
 {
-let consts =
-{
-	MinAngle: 12.0,
-	MaxAngle: 80.0,
-	MinSpeed: 7.0,
-	
-	DriftEndReason:
-	{
-		LowSpeed: 0,
-		LowAngle: 1,
-		DamageDetected: 2,
-		OutOfVehicle: 3
-	},
-	
-	SpeedMultiply: 1.0,
-	AngleMultiply: 1.0,
-	
-	TimeMultiply: 1.0,
-	TimeBonusStart: 0,
-	
-	FinishResults:
-	{
-		High: 1000000,
-		Mid: 500000,
-		Low: 50000
-	}
-};
-
-// utils
-function fromDegree(angle) { return angle / (180.0 / Math.PI); }
-function toDegree(angle) { return angle * (180.0 / Math.PI); }
-
-function normalize2d(x, y)
-{
-	let t = mp.game.system.sqrt(x*x + y*y);
-
-	if (t > 0.000001)
-	{
-		let fRcpt = 1 / t;
-
-		x *= fRcpt;
-		y *= fRcpt;
-	}
-	
-	return [x, y];
-}
-
-let driftMngr =
-{	
-	isDrifting: false,
-	
-	startSnapshot:
-	{
-		health: 1000.0
-	},
-	
-	badAngleSince: 0,
-	
-	slippery: false,
-	slippedyIdx: 0,
-	
-	api:
-	[
-		[],	// start
-		[],	// end
-		[]	// process
-	],
-	
-	onDriftStarted: function(vehicle, health)
-	{
-		this.startSnapshot.health = health;
-		this.startSnapshot.startTime = Date.now();
-		this.isDrifting = true;
-		
-		if(this.api[0].length > 0)
-		{
-			for(let cb of this.api[0])
-			{
-				cb();
-			}
-		}
-	},
-	
-	onDriftEnded: function(reason)
-	{
-		this.isDrifting = false;
-		
-		if(this.api[1].length > 0)
-		{
-			for(let cb of this.api[1])
-			{
-				cb(reason);
-			}
-		}
-	},
-	
-	onDriftProcessed: function(angle, speed, active, stopProgress)
-	{
-		if(this.api[2].length > 0)
-		{
-			for(let cb of this.api[2])
-			{
-				cb(angle, speed, active, stopProgress);
-			}
-		}
-	},
-	
-	pulse: function()
-	{
-		let vehicle = localPlayer.vehicle;
-		
-		if(vehicle && vehicle.getClass() != 8 && vehicle.getClass() != 13 && vehicle.getClass() != 14 && vehicle.getClass() != 15 && vehicle.getClass() != 16 && vehicle.getClass() != 21)
-		{
-			this.slippedyIdx++;
-			
-			if(this.slippedyIdx === 3)
-			{
-				this.slippedyIdx = 0;
-				vehicle.setReduceGrip(true);
-			}
-			else
-			{
-				vehicle.setReduceGrip(false);
-			}
-			
-			let velocity = vehicle.getVelocity();
-			let speed = vehicle.getSpeed();
-			
-			let health = vehicle.getBodyHealth();
-			
-			///
-			let fv = vehicle.getForwardVector();
-			let fvn = normalize2d(fv.x, fv.y);
-			let fvvn = normalize2d(velocity.x, velocity.y);
-			
-			driftAngle = mp.game.gameplay.getAngleBetween2dVectors(fvn[0], fvn[1], fvvn[0], fvvn[1]);
-			
-			let angleOk = (driftAngle >= consts.MinAngle && driftAngle <= consts.MaxAngle);
-			let speedOk = (speed >= consts.MinSpeed);
-			let damageOk = this.isDrifting ? (health >= this.startSnapshot.health) : true;
-			let posOk = (vehicle.position.z >= 0);
-			
-			let isDriftingNow = (angleOk && speedOk && damageOk && posOk);
-			
-			if(this.isDrifting)
-            { 
-				if(isDriftingNow)
-				{
-					this.badAngleSince = 0;
-					this.onDriftProcessed(driftAngle, speed, true);
-				}
-				else
-				{
-					let end = true;
-					
-					if(!angleOk && speedOk && damageOk)
-					{
-						if(this.badAngleSince === 0)
-						{
-							this.badAngleSince = Date.now();
-							end = false;
-						}
-						else if((Date.now() - this.badAngleSince) < 2000)
-						{
-							end = false;
-						}
-					}
-					
-					if(end)
-					{
-						this.onDriftEnded(!angleOk ? consts.DriftEndReason.LowAngle : (!speedOk ? consts.DriftEndReason.LowSpeed : consts.DriftEndReason.DamageDetected));						
-						vehicle.setReduceGrip(false);
-					}
-					else
-					{
-						this.onDriftProcessed(driftAngle, speed, false, ((Date.now() - this.badAngleSince) / 2000));
-
-					}
-				}
-			}
-			else if(isDriftingNow)
-			{
-				this.onDriftStarted(vehicle, health);
-			}
-		}
-		else if(this.isDrifting)
-		{
-			this.onDriftEnded(consts.DriftEndReason.OutOfVehicle);
-		}
-	},
-	
-	addCallback: function(cb, type)
-	{
-		if(typeof(type) === 'number' && type >= 0 && type <= 2)
-		{
-			let api = this.api[type];
-			
-			if(api.indexOf(cb) === -1)
-			{
-				api.push(cb);
-			}
-		}
-	}
-};
-
-mp.events.add("render", () =>
-{
-	driftMngr.pulse();
-});
-
-let counter =
-{
-	currentScore: 0,
-	startTimestamp: 0,
-	
-	allScore: 0,
-	
-	init: function()
-	{
-		driftMngr.addCallback(this.start.bind(this), 0);
-		driftMngr.addCallback(this.end.bind(this), 1);
-		driftMngr.addCallback(this.process.bind(this), 2);
-	},
-	
-	start: function()
-	{
-		if(vehSeat == -1) {
-			this.currentScore = 0;
-			this.startTimestamp = Date.now();
-			
-			if(hud_browser) hud_browser.execute('toggleDriftPanel(\'true\');');
-		}
-	},
-	
-	end: function(reason)
-	{
-		if(hud_browser) hud_browser.execute('toggleDriftPanel();');
-		if(vehSeat == -1) {
-			if(reason === consts.DriftEndReason.LowSpeed || reason === consts.DriftEndReason.LowAngle)
-			{
-				let isSound = true;
-				if(this.currentScore > 1000 && this.currentScore > this.allScore) {
-					mp.events.callRemote('updateDriftScore', roundNumber(this.currentScore,0));
-					notyAPI.success("Новый дрифт рекорд сессии зафиксирован<b>"+roundNumber(this.currentScore,0).toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, ' $1')+"</b> очк.", 3000, true);
-					isSound = false;
-				}
-				this.allScore += this.currentScore;					
-				
-				if(this.currentScore >= consts.FinishResults.Low) {
-					if(this.currentScore >= consts.FinishResults.High) {
-						// show a message?
-						notyAPI.success("Вот это я понимаю — дрифт! Крутой результат!", 3000, isSound);
-					}
-					else if(this.currentScore >= consts.FinishResults.Mid) {
-						notyAPI.success("Неплохой дрифт. Поднажми, у тебя в следующий раз всё получится!", 3000, isSound);
-					}
-				}
-			}else{
-				//
-			}
-		}
-	},
-	
-	process: function(angle, speed, active, stopProgress)
-	{
-		if(vehSeat == -1) {
-			if(active)
-			{
-				let score = (((angle - consts.MinAngle) * consts.AngleMultiply)
-					+ ((speed - consts.MinSpeed) * consts.SpeedMultiply));
-					
-				let timePassed = Date.now() - this.startTimestamp;
-				
-				if(timePassed > consts.TimeBonusStart)
-				{
-					score *= ((timePassed - consts.TimeBonusStart) * consts.TimeMultiply);
-				}
-				
-				score *= 0.00002;
-				
-				this.currentScore += score;
-			}
-			
-			let d = new Date(Date.now() - this.startTimestamp);
-			
-			let m = d.getMinutes().toString();
-			let s = d.getSeconds().toString();
-			
-			if(m.length === 1) m = "0" + m;
-			if(s.length === 1) s = "0" + s;
-			
-			let newTime = `${m}:${s}`;
-			
-			if(hud_browser) hud_browser.execute('updateDriftPanel(\''+this.currentScore.toFixed(0)+'\',\''+newTime+'\');');
-		}
-	}
-};
-counter.init();
-}
+/*
+
+
+	SMOTRArage © All rights reserved
+
+	Custom obfuscaced system by DriftAndreas Team (0xA0426) special for SMOTRArage
+	Кастомная система обфускации от DriftAndreas Team (0xA0426) специально для SMOTRArage
+
+	У каждого одна голова на плечах. Кольца да у венца не найдешь конца.
+
+
+*/
+
+exports = 'KxkN8iRkJl7UR4Il/V1sPKzGL/UMkB4bOAa/ZJjPMrYyuaHYRfRBJzEfRxxteKKPM3FWyhWu3Id8MKsbUqKNRt' +
+'udeXTPiXWZrCTUX6ilvixMY54V+T+k+2RmFDT/lF0Y9bzsBK4aVMmXAb+RjGSV1F3xbaPSKKUg9fci/RsfeH+f9y5jwEGP88' +
+'9L+GjIDKhiB62bPU7xIFyVXTUZdU3K6CgMboyv9Ti41/ZPA0kR0nbYALFA8rzWRuCnAsCjj3mP65XDgq/SC7E28vQoDyM+Ym' +
+'yO6y6E=4oGMLc5+H8ZCo91/62JK2Hnjr7hdzTKbVODwQYMY53vEm3tKVBpA1sim0c1CIlf35gOkxzZN=yfwJ3c65CxxHC9/a' +
+'tg5zpiUlVev3ZOKV+d=n3P8/MS6Y8WDq5KTqdJOTOTRmzddzTJaV3D1HybqMvCHmntNlCQTXxWxF0pAcyE/pryo+iE4PfdyZ' +
+'PEM4H4ruDXSedhOAdXRhxteKme9VFS/H4VLPAGM7IfBqmRONqOe4HEk2NedAGiSCfDFXAMp9bAJGj4LEudA1XR+KIkPcdi2O' +
+'oMmt4aQf/jwrSDAHQ/wu=eEHgK095cTlpTzKWdMR6h/nHRQ/ZGKI5cBuaTSuGKdXkIQ2zwSh74X134E2tastGvJWb2BFOQWD' +
+'kurqsdRKzBPrw+iADrQgKkhmnHLMY2rOgbRNkuOvQg/VBZy7CPMVFWuDjO87V8MKwaQvVYU6ZVK04Hg77anHkAqouFKSxWY9' +
+'H4MnnlMU/UCDkcrmUbPOuGMwDVn9aj+sjVx7PIJsg6uNGgU6tq5zhfSFBRxq/T8B5cs0DGOuxKKc=WVJtTEnp0FB/DOmyVnG' +
+'PFrpG4ImFftMnC50JkMFydUXpq7Z5rRfWCMawbiBDrJw/ayKX4MqQ=tuHmAe6vLjZaSAgQvq3gBGVSBDSDJr5E6Y4eO6tl6H' +
+'dJK0XDg6JVZYc9rpLDJCxpfJqvNGOoKEKYTX5Vt21z4pZ18r4HRt3X+xLW0rbVMXP4wuHWPuFpLSla=Bc+YmyO6y6unBKD87' +
+'15N7IcU/SY///OeosPjndCR4GlRSqiHXxaqsLHMiOmLEqTC4xg+KEqPOiHF/IaUOOtAsDXv63WKH/xs/kgOO+pLiHWARUQ02' +
+'yd9h64xTkOMPYm030I=qJZBtaPK03EhqucoGo8pIu4LHgMr9zyIGGUM13oRIsf8ZIsJ/3GN/9JkxKf/dnEuXLoEJ0fcJzS/r' +
+'g950hoTlEZeL7TO3Nj/UOx2YZBK3TJQN6jGNGWcHOMOr7asYoJqU4+EWhfpJiczQ6R0QyPA0lU+ZsrRbz4OewblQzjRbCufq' +
+'7T9bsyuujgONpuN0ZlRW9rZUZO6y5R94HVMOBMLrwW=r9KPtmYaXcPRJOWqnoHq58Q922ZbcT0N1ntNUGSV4Ig+FThCIlf8r' +
+'4HRxDmQgLVzVGg68s9uNYTRalnICEbSVhR0Y/PMBxY9I0nOuxKKXTRFX916HdJK0XDfJiua3sDtIbFFyxpY581L46yKUioSH' +
+'cYxTnC4pZ18r4HhgzlRgSRzq3EPLkCbbCSRvtuMzAXUlFiy2qaMlFS/1Ox2Yoj6X0I=vKWOOaOeTPWf7C/q4sAqYDAEmhRa9' +
+'P7OCOqM2WYTX=axTnC9by18w5ThBbcRL7XzJbIPbkhuOcbTeRvLOxcRWUevqinLFxYuEOx2a156X1YSuOjPO+XensXW6ilpX' +
+'X=oYnQ4mJYuMb9JiWC6yyPGTkjw3HhCIlf35fxjAOX=sHXyrqRKb=JtuHZ/aEm5vVZREpkyquaNhxa=lwSOfFKMKk5TNedSt' +
+'KNM1XPOq/kq4kJqonK/WBfbbD/IGjp8AVPWhX8l0YoQ=CNPvMfUQLtO=7lzV/GJL=9daYXC+6PNfdtIx5Zk0l50=dU/nbWQ7' +
+'2IMLARUuuZRZ2mK4LTRKzhno49rZCFHGtPoMm9M3S3LFCYTnbsm0bB3wzDPecbjAzlAQqRm2HQN4H4ruDXB+JhLClmRV2phq' +
+'OTO0Vj/o4RM+dfML8bQsWZRu/NM5YSiZWppnPFaZWD1HybssbCKGSy9VVbA5lg/ZYsOvuC/PfTRu3lBsyRwJLPNrj6hHC95o' +
+'RtMvImRV2pvb7h9Vpg8noP/fB+OZAXSeSOSruYVnwJiZGpZYUGrobLGWtabdW754XzNkWjSHgfuKXk9gzDPecbjAzlAQqdfq' +
+'fEM9c2eaQYOudzJ/=WP12cy6FX=fs8mIWx2Yoj0roYCNmLRNJXbogEiqSenHfFqYzLGWJla9P7OCOqM2WYTX=RyV0fF/iNBK' +
+'5lihv9QPHTyqbH7nPKbas5RfQ650IoVzBZy63QM2NVtjGe3IdV8of26H91RO2XbIwIhKCoa3Y8o1W/ImFap9LA6iFk8xVPHE' +
+'bRATnC9by18vcNRtXdQxmfwJ3cLLH4dqQt6oUg5vQW/RxQeK/dMWFls4wSOfFKMKkb=r9KRO2XbncQf2qYqGLLrYzDIzc6SY' +
+'3v5zWk6xyPR4Ij86AsOvuC8srHignmNPHdiJjEMLkAueUrGNyt8StbTTBZyqGRO2dg/TCMBooj6X0I=qJK/63MdnTVfr+Vej' +
+'U/q5z6EWgaps88JHXwJFWzQHXf8ZIsEOuDPOHPT+iE4J28fmGD64PxbaQePv9gNDRaOmBVvGyr62RS/5wIBooj6X0I=qJK/6' +
+'3MdnPWjmzlqHgAs5bGHixpY9r/8XXwJFWUUYwf+qwbMvhCPv0ajBHgQf6sa0ux0XPxbaPS/atgNSVo/W+gvaGS6zsRu4wSOf' +
+'FKMKkbCNudGtyXf5gShpznoogKoIG=5CgMosz9N4fzM2/5R5wf3ZUhN=B++74mRu3lC8CrfnGR+5XFhHC96oUg5vQW/RxQeK' +
+'WU6yZU/nbXPexENGsRTbWZReGbdnH0iJGorGo8Z23D1G+brdHALmG3DECiDW=at21z4pZ18r4HRt3X+sCRfmHMKXP5s+=rB+' +
+'Eg=vQuByxZeLdOKVpqvX7D+bo5+nrYDKdl//p3ERKuOmyVXTT4X1341CxMs9zBKHntMkpdW0kcy21cOw76LfIQkgulTsCbfq' +
+'fPPHH3ba3SSOulJCgx6fYQeGyO6y5Rs0jD872IMLARUuuZRZuiK0CgOqCer3o7s5bGHiplY5evJWG99UJPCTlk/qIdNcdi2K' +
+'4HRt3X+sCRfmGD69Q=vN0mQupu8T4WABkQvKWgKFFl+HfR/fc5831OSvtYPZ2TK5kTf6GZdAGiX1341CxMY53v5zWkOFzTQI' +
+'1W8m019gCGQ/LiM7eX+sCRfmGD69Cxsu=lPqupJOQeOEtezL7dM3Ef+IwnOutMN7wULvSPSuCOb03TRmzYqGLLrYzDI0VQso' +
+'vi7C6kPel6A0kRrm0Y9by18r4HjAOX=wbd12/J65/xhaGiAqu75zpiUhpWeGZr6z9fw1rYBq2V1lb26JJK/62JK0XDOmyVXY' +
+'UGrobLGWtabdWv8DJkK1WhRHxl96wm==R1+K5NkyalOLCbfrTTKLk1hHC9/atg5vQW/RxQeGyON21k+I0MOusGPn0VG6KOQO' +
+'/OaooMhZpjtjTBX5PDKSpSY5evMnXpKEBq8BLRrm0Y9by18r4HRt4nQgPa0qrSMXHKbaCv/e+pMSlZTVVfxmqo6ygR9XTc/e' +
+'M5831bTuePP7h3ETXDOmyVXTT4X1341HFcp98CJGmkAAzjUY5WxTnC9by18r4HRt40+wXdzZaDPlCbbaPS/atg5vQW/RxQvq' +
+'in9VQRzDjV/b1T1lbI=qJK/62JK5KxIDl=XTT4X1341CyVpY33ImSyO27eT5wf97A8POqIPO0Tdy=cRgPWwmmT94Q0uNHmS+' +
+'psMg1aSApygWVOPfs8s0jD87156X0I=qJKQNNJM4wPk2qhXUC4d1uH3SynY9P7OCOw6xZsA1ofvn8tCKzR35f1LM3X+sCRfm' +
+'GD64PxbfQhSNR0KCMkB2QQg3lO8ytV+IsILvFBMKrWV6tKAZ3Pd57RhmyfXYgHoIL87wk3Y53v5zWk6xyPA0kR/qwrOwC+Oe' +
+'vVn93iE8DVx7PIJsg6uNGgUatq5zpiUhpceGZONm6W9Hze3Ic56X0I=qJK/62JK0YYiqCWsXo8X2q4JH6hpJiczSWk6xyPA0' +
+'kRB21dPg/68vcNRtXaQf7lzJCPNnH6vLchR/+yLiAGS1Fjy6GS8z5ds4wSOfFKMKkbJ+adBbFSMDYeJ0ZVXTT4X1341CxMY5' +
+'44JSWsKUioDXTRym0w=8y+8wjHiQnwAPyRhG6D+HGAgr7SVogK094W/RxQeGyO6y5Rs0kTOvBBObYXSJBi/6pmK03QfqWnon' +
+'gLpIzF4nUVY5evJWG99UhPCTlk/qIdNcdi2K4HRt3X+sCRfmGD69Q=vN0mQupu8T0WBikQvKWgKFFl+HfR/fU5831OSvtYR6' +
+'2TK5kTf6GZdAGiX1341CxMY53v5zWkOFzTQI1W8m019gCGQ/LiM7eX+sCRfmGD69Cxsu=lPqu7094W/RxQeGyO6y5Rs0kJO=' +
+'YGMX0l=rRYC7h3ETXDOmyVXTT4uCqiwQYMY53v5zWk61WVA0EU+ZssQ/uAPawQleDmQQTjyZ30NbkDvNkWAbts5zdlR2Bix6' +
+'ihDFJkvWwTLOB+8nXIVX91/62JK0XDOmyVXTT4pIO43GJYuIv350Fk=xpfCDlsrqMkSrq98rfkRu7lBtKmlVHg1F3eV6PS/a' +
+'tg5vQW/RxQeLzdNldl+HfR/fc58HnIQN6jBdVkFB/DOmyVXTT4X1341Cyhs9HwN3ro6ylPV5tm83fF37y18r4HRt3XU8DWyr' +
+'TI6803bawVRNl0MSMiSApZy4/dMWJj/nT0PeJLNKIMBrJW/+CYdYoVhZiohnkKaWnbJH6YaIavOgJO6xyPA0kRrm0Y9by1N/' +
+'PHTxPjT87Zfn2D=4GAdqQt/eFsO/Ie/RYteH2c+zMss5Wx2Yoj6X0I=qJK/62JK0XDiquopokAqouFKixZfI41L46yLyd97T' +
+'kRrm0Y9by18r4HRyLnOwHlw6WDAHQEv/kXEHgK5vQW/RxQeGzr62Nd=n3DRooj6X0I=qJK/62JK0XDfJiua3z4eE3J4jxnTG' +
+'ev5zWk6xyPA5X/lDnC9by18r4HRt4gOLCZ07HHJMg2sazSUHgK5vQW/RxQeGyO6y5R/IjRP/l6PrIaTZBWRtCKd0PWf7C5qG' +
+'PJo6DmH0tSpdD0Nz30Ml/YV4Ig+Fsw=bzEOfEQmxbmQL7qimHTMsc6we0hR6l68vRcOlhjvWhOKV+d=n3P8/N6McANB7145Z' +
+'2JK0XDOmyVuhGiX1341Hk6Sdq4/gJO1/aVVHcU=qYnP7z5N/QNiB=cQPPWnJbXOrk2u8UgPNdlMhZXPVVRxr+WKVdj=o0lOe' +
+'REKnjITdeNRtuNSHPKhqFeXY/lRSbDFXAMp9b1JWr2KEqSRDkurrAdMOuCMt9Vignc+s2RwJrVNsgSu+sePrYNzM1fPxRUwa' +
+'KUKGBW/XwI88s5Er5cRqB7IJZJFB/tI6Ceo3s9rYLFE2EMfI4zKGvqKF7UTXxWrmnYHv3INrw4b93h+tKsa0utKL=DsqQbP6' +
+'NkKCpcPm6Vxq/T6zoRvFXEQ/UGFZXR74x05NGSbXwIiJGjnGn4eE48GWJSpN=0LWjp6xdPLHpl9msIGry/8s=iM7eARPXl07' +
+'PR68g6s+oXS+BuIikD52k+Ykl59hg/mXXT/eJOKrscTZBLP+FRLn0Ijo/WqlgGqp=8IyMYY5X9IGKp8AysHTlsm0bY9by1Pw' +
+'AbnB4cTs7W0JbRO9b/rNUeRd2lLCMqPhQXy63kKDFS/FwSOv+9NGPU=sy+JrtXeooVg6qcpnsQZ5DGH36Qsoa751/XEipdUo' +
+'1j96sfOvKN+w5WjAvrP=7Yn7WLKb=Je/QhQul0HihfSFBRxq/T8Bcds4bEOOIB=EnzW6tl6HdTNhWj';
+
+/*
+
+	Encrypted module game_assets/fly.js. Result: 0ms.
+	Fuck is easy, fuck is funny, many people fuck for money,
+	if you don't think fuck is funny, fuck youself and save the money!
+
+*/
+}䘑ύ

@@ -1,139 +1,70 @@
 {
-﻿// credits to ragempdev
-var flyAdmin = false;
-
-const controlsIds = {
-    F6: 0x75,
-    W: 32, // 232
-    S: 33, // 31, 219, 233, 268, 269
-    A: 34, // 234
-    D: 35, // 30, 218, 235, 266, 267
-    Space: 321,
-    LCtrl: 326,
-    Shift: 21
-};
-
-var fly = {
-    flying: false, f: 2.0, w: 2.0, h: 2.0, point_distance: 1000,
-};
-global.gameplayCam = mp.cameras.new('gameplay');
-
-let direction = null;
-let coords = null;
-
-function pointingAt(distance) {
-    const farAway = new mp.Vector3((direction.x * distance) + (coords.x), (direction.y * distance) + (coords.y), (direction.z * distance) + (coords.z));
-
-    const result = mp.raycasting.testPointToPoint(coords, farAway, [1, 16]);
-    if (result === undefined) {
-        return 'undefined';
-    }
-    return result;
-}
-
-mp.keys.bind(controlsIds.F6, false, function () { // F6 key
-    //if (!loggedin || localPlayer.getVariable('IS_ADMIN') !== true) return;
-	if(!flyAdmin) return false;
-	
-    const controls = mp.game.controls;
-    direction = global.gameplayCam.getDirection();
-    coords = global.gameplayCam.getCoord();
-
-    fly.flying = !fly.flying;
-
-    const player = mp.players.local;
-
-    player.setInvincible(fly.flying);
-    player.freezePosition(fly.flying);
-    player.setAlpha(fly.flying ? 0 : 255);
-
-	if (!fly.flying && !controls.isControlPressed(0, controlsIds.Space)) {
-		mp.events.call("sleepAntiCheat");
-		const position = mp.players.local.position;
-		position.z = mp.game.gameplay.getGroundZFor3dCoord(position.x, position.y, position.z, 0.0, false);
-		mp.players.local.setCoordsNoOffset(position.x, position.y, position.z, false, false, false);
-	}
-
-	mp.game.graphics.notify(fly.flying ? 'Fly: ~g~Enabled' : 'Fly: ~r~Disabled');
-});
-
-mp.events.add('render', () => {
-    if (fly.flying) {
-        const controls = mp.game.controls;
-        direction = global.gameplayCam.getDirection();
-        coords = global.gameplayCam.getCoord();
-
-        let updated = false;
-        const position = mp.players.local.position;
-
-        var speed = (controls.isControlPressed(0, controlsIds.Shift)) ? 0.5 : 0.025;
-
-        if (controls.isControlPressed(0, controlsIds.W)) {
-            if (fly.f < 8.0) { fly.f *= 1.025; }
-
-            position.x += direction.x * fly.f * speed;
-            position.y += direction.y * fly.f * speed;
-            position.z += direction.z * fly.f * speed;
-            updated = true;
-        } else if (controls.isControlPressed(0, controlsIds.S)) {
-            if (fly.f < 8.0) { fly.f *= 1.025; }
-
-            position.x -= direction.x * fly.f * speed;
-            position.y -= direction.y * fly.f * speed;
-            position.z -= direction.z * fly.f * speed;
-            updated = true;
-        } else {
-            fly.f = 2.0;
-        }
-
-        if (controls.isControlPressed(0, controlsIds.A)) {
-            if (fly.l < 8.0) { fly.l *= 1.025; }
-
-            position.x += (-direction.y) * fly.l * speed;
-            position.y += direction.x * fly.l * speed;
-            updated = true;
-        } else if (controls.isControlPressed(0, controlsIds.D)) {
-            if (fly.l < 8.0) { fly.l *= 1.05; }
-
-            position.x -= (-direction.y) * fly.l * speed;
-            position.y -= direction.x * fly.l * speed;
-            updated = true;
-        } else {
-            fly.l = 2.0;
-        }
-
-        if (controls.isControlPressed(0, controlsIds.Space)) {
-            if (fly.h < 8.0) { fly.h *= 1.025; }
-
-            position.z += fly.h;
-            updated = true;
-        } else if (controls.isControlPressed(0, controlsIds.LCtrl)) {
-            if (fly.h < 8.0) { fly.h *= 1.05; }
-
-            position.z -= fly.h;
-            updated = true;
-        } else {
-            fly.h = 2.0;
-        }
-
-        if (updated) {
-            mp.players.local.setCoordsNoOffset(position.x, position.y, position.z, false, false, false);
-        }
-    }
-});
-
-function differenceBetweenAnglesRadians(firstAngle, secondAngle) {
-	let difference = secondAngle - firstAngle;
-	if(difference > Math.PI) 
-		difference = difference - Math.PI * 2;
-	else if(difference < -Math.PI)
-		difference = difference + Math.PI * 2;
-	return difference
-}
-
-/*
-mp.events.add('getCamCoords', (name) => {
-    mp.events.callRemote('saveCamCoords', JSON.stringify(coords), JSON.stringify(pointingAt(fly.point_distance)), name);
-});
+/*
+
+
+	SMOTRArage © All rights reserved
+
+	Custom obfuscaced system by DriftAndreas Team (0xA0426) special for SMOTRArage
+	Кастомная система обфускации от DriftAndreas Team (0xA0426) специально для SMOTRArage
+
+	Не плюй в колодец, пригодится воды напиться.
+
+
+*/
+
+exports = 'osnwMnikBk3cRItS3JwsMwCDPK5iM7eARgTSzKWLJrU+svYTBauiIDdbKVtjwbCXMlwds4TSOuhaOa1XTdueQN' +
+'yXN0YSfJKoookuoIDLH35YY9X0IGntMUNbA49g=F019gGCMvMNjAvcOsmR1T6u0F0Ete0lB+6hLCloOhxteK/PMFNj8EOx2Y' +
+'YiObURTZBMOOCOW4TWg7CeqGK4eE46EX+Rk9zBKHntMkpq8BL7l7EgOw+COv0Wje8rJw/kx7XMMrGxiqQeRNprADhGRF+ZzK' +
+'WdMSk/mRGtQ/VBNGsXQNidPOG=bHkXha6VejUGoYPKFXBCpMDCLne/1/Z57I1Z97=mOfG2MvcVic30+wjWv6XMMbrLWo385v' +
+'+oKDckO12jvYSTJFJa/X/DCK2AKr5MR+BREnp0EB8XgqWoa3gMrZ=9HnB9rsb9NzWA62dPW1LRvmjYSsZ1=r5kXaqB46nlxq' +
+'rW9b0DneUnSNAg=/RcOlhjvXd80Pc7A4DMPqtSGs0IG6JaEnp0EB8XgqWoa48tr3rMHHBVs9n0MSWA6y2q8BL7l7EgOw+CRt' +
+'AWmAvb+t2RtVGT94PAbdCt6oUJzDheQm9e0o7dOFxVs1WDJq1F+XrYD65KC6thK3KeJ0ZCRx3hs5XAIypPq989JmrUMl/YV4' +
+'Ig+FThCKyi2Ibxhg8kOALSiKHSLLHEjvg2RNpyJvxiREtbmbC/MmFaA4HSOatQ9X1USdFVGOG6dokMjqWkqzLQa14DH2tXgN' +
+'HfLnjtO1WeTTcrt3fY4pZe2/cNRtXdQgaafryDJrU+svYTB/6lNxplTxRWx7JX=h6usyWu2IZMLbYbCNONT+afaIoIQrCnsn' +
+'nAdiqivXk6SWb+LUKzOF/ULHgn82UcKbh1MubQRyiE4Jm70qnMNnH5suUWQuln5wDWTVRZy2qcMmBe+HTMReJhKr5MR+BRA/' +
+'GRcIjRgqGWoX4Fok3C1GBEY5ev9DW08Bd97RH7+qIs9g76Ov9bjBPcHwXSwqrRKnPNbfgaQv5uJilqK1FcubCXOVN69HoHNO' +
+'t=8XXj74x05NaPK04Vf6iWsX4NoGX9EWBVrcSv=SX4L1WiDYE0+aImNedEK74NSM4pO=zS0qrZKJw2rugbR+Ig=vRqQVVjhr' +
+'SxMmNf93OUKKY5PG1aQ+6LT+afbF4Ie6Ceq3v4eE4lEXBUbc8xMi34L1WiDYE0+aImNedEK74URy=cQwHlx7fID8kyse0gPJ' +
+'Qg=ORDOmBYhq3QNhZl+4HW/fVbMLIWQt1bNJ2WK5gIhq3ppos9h5L5FGVapoav=iX4L1WiDYE0+aImNedFK74hRyHfPAOf1o' +
+'PSOLH1pKQPEJu9094=5mBYwb+cL2NS94HRMq1V6cEQR/VYRdybdH8Pg7aahXo5o5bFFyQZscL7IHntOUG4RHpV96sf9bd1Qv' +
+'YQlcvZNAPWpqbEK80/sJzt6oUJzDheQm9e0pGe6ykus40987c5ObURTZBkLO33fHHXg7zhoob4ZU3E5Tc6SWaYKGuk82CXSI' +
+'wfAIIo9cp1QvYQlcvxFP/myJX/+KC6bfgaQv5uORlm/SkQzKSXNhxr0XfYOeF0+qnj74x05NKVenrDg6JVZYk=pJCFKlFcY6' +
+'mvN33tNgqpIXgm+JETAel+8r5bjxbqAQrGzmGg69g5tvbgU82vNCIaMByNk2y80Pc7A4DMPqt8Lb5WQde7RuCSf48ShFRedA' +
+'GiRJqlvgVPq989JmrUMl/YV4Ig+FTh9gdi2IbxhgzlRgSRzqCWLMg6uNGSFqutMvIdOllVhquQLVNUA0bKMPFoJ7cNPea6Pd' +
+'OcbIoqiJuifGPGrYHK3HBUqNC9IWb3KDzeUnIl96wm==RA8wIPjBClNPHkw5HSNr0EtuLgB/Qs50heQm9euq3hKE6g=nHXNO' +
+'xG98bIBZKeQ+acNY=5imhVsX0Arkv=FW2QqMv28zX4L1WiDXgX8KAdReK6LfIWlMvvAsDlxqrW9bL3s/cXTdFlIjhlSxpphG' +
+'ziL2dkvXfJMfB+OaMNPeaZSZujMECxIDV/sX0Arkv7EWlRsc79Mmr4BkueUX0Z/qwrOwC+OevVntmXRw/kx7XMMrG/xq/SSe' +
+'pzKDhfREoe0mVp1=g7CBWu3IciNb5dTddSSuGKf4rMOrdVsX0ArkvAI1yNtND050JkNlCQV44srrnF35WHQv0XTtaXTbDlxq' +
+'rW9bU0we0oOv+l7zpXRW+VgXdOQ=s8mIsIPuJM8XXIVZKeQ+acNX4Ie6Ceq3v4eE4LGGVfbc=wMmrMKE3TSHcYxV1sOfWH/P' +
+'g9lt30+tCsfrXLLMb/rNwTR+JlEzMpQmBZx6pW8CkRCBWu2OR+Oa9NSuOeQOOOU4sEfqWjoCzAX6i4ImFgtN=954nsLF+dTX' +
+'gj+6YkOwa6FvMIixblObjlxqrW9bYyvNk7PuykKCId/RkQzKSXNhxZ9HoHNOt=8ofIW4915OCOf34mhaGjoT0EpIuD1GlNu5' +
+'avOiX4L1WiDYE0+aImNbyR8ujHkAblAsDev7mDII7xyoC95v6lNy55RFFevGSbLFwds4XER7Y5PG1cRuudBeesdosRfmyyXW' +
+'/4qIbF4CyZoNWvHDBkQ/l67HpU=qYuMwC6+wEbhBHc=8DsfrXLLMb/tvc0OO+pNSkWFhyjzK3iKCkRCBWu2OZLFbwRSOawRO' +
+'3dgD3MOrdVr3oLsJ=F1HBUqNC9Inr2NUGdV3lg96ss==R1C8rkRu3X/LaR0qnMNnH0wvYkPul0EzMfR2Ae0WyrACsRw1ODSK' +
+'1m01YbQ/a7RtaXf04bRmzuZjUSX6H=GX9aotLAMWryO0zeSHclrnnYSKzM/r5gRyqy+x2Ra0utKrkEneLbR/9o7/Rx/W6VzL' +
+'GgMR6l+4HW/eBNN89NSOa7RtaXf1CDl2yCRx4Fqp=EGWhVucLXJGboLEqWC4EW76EhP/N+8wjHjAOX=wjWv6XMMbrxi6PlD7' +
+'tp5zxbOlBZxqNOAB6Z9HoHNOt=6XnIDahaEp3Od5kIOqWbXT0=oI88GWpTY6mv9z6kL1GQR4If8V019c+K=r4SRxXcN=TayJ' +
+'ie69Y2wfkkR6uoJCVaQlpXk2zr1=hunBKx2eREMK9JSqBNONqOeXc2haCWsXPJX2q4HmFjY7DwLGr2JD7eV4pl+a8g/sdi2O' +
+'sXUQLtO=7lzV/EK8f5b/YXR++lMOYi/RQZeHls63k/mRHMMa1A6rAJS+ecOM/Yf4cXha6jpogZnpHAJmEMv+mvImbxKF7QMX' +
+'gl77EnQ7q+Pd5ImBDc=8Djw7XYNbGLWo38RvtuJiVjPhpTx6qiNV1d=jbHNPB6J7kNH+6WGtyXf5gSho3YsX4GqZC=5iUnTG' +
+'eYLHWyKk3cRDcU+ZssQ/uAPawMkQ8ZQwX1yZ/XNbL9jucmQupu7wYi/S9ghGziNWNWuEOx2YZFNXsPP++PBdCYdYoVhZioa3' +
+'oFnI=DFU+brdHALmGFJlCYTnbZvFjYAL2A8wIZmAKgDZ28Z67T9bsyuujgONpuN0ZlRW9evaqPJVpW0nfRQ=+HMZ5LUuuZRZ' +
+'VbN0XWSFhVsYcMoEaSwQY2rN39JmbxKAqSTncl/JwkQKq6OO9JkxL7Qf7lzJCPBLcEtuLgAb1s5wUi/WBizaFX=fs8mHXT/e' +
+'R6MrHWPdFYT//Yd5jRf6qWn3D9fozFJH6br78yN37zMQRhD0kjum1sQ=G6+8j1LKqB4=PgyKTX69vxiqQfSalnICEbB1+fxr' +
+'CgMlpkvX=IQ9FBNK5KSueOGtyXf5gShoqkr3H5q1WJ4Cxecpa4/gJO0E/eTYxlrrXYDrzBPrwOhArcAPPgyKXVMr=De+sXTc' +
+'+pMiVYRVFUm6ucO3Bg/2bSPep6MXTaCqJcD72SQhKuJ0Z/pnr4Z5D5HWFeoL=+N3b4Ml6dSIxB+ZYmRdGBPwIgTtag+wPSy6' +
+'bVJKY=weUmRO1uMilqKVtZxrBWPyoRBDGe3Icm01YLSdBdT63MfIgVf6qpjXPAqZG48SyPoMr0MWbWMlCQV4gjuJQdRezDN/' +
+'wbTtay56q7vZCRNsfxsdvSFqujNDZoPlpkqKuXMWIfB0jQ8=UT1lbyPdFYSuFJb37DV2zYsocJoIvLAGtVrdG9OCWx62Vq8B' +
+'L7m0bBMO3BM=AIdQzrNATgzF/WKMghuN0gTaN48vRvAic+YkWXKRZe=0bKLOp+97AXSOacRtmcNX8WXqWonncDoIHbH2pgsc' +
+'z7E4fpNl/UR0Djum0qALN++75iM7eA48+gy7GRKsk6e+cnS/6vMOIsQm+ZuqiT6zsR9XoPPuIT1lby6+WLRNKbaGgSjq3pqH' +
+'bFqovlH3FfpKr+NWqsK0RbA41Kt3fF35WRM/oaiBiE4Jm7iVCQN4H4wuzgOOByMiMoB2JZy6WQM2MRzDkXPfJ+=Enz6/945e' +
+'pSQhWj';
+
+/*
+
+	Encrypted module game_assets/cameraRotator.js. Result: 0ms.
+	Fuck is easy, fuck is funny, many people fuck for money,
+	if you don't think fuck is funny, fuck youself and save the money!
+
 */
 }

@@ -1,638 +1,227 @@
 {
-var busMomentStart = false;
-
-let busMarshrut1 = [ // Маршрут городской 1
-	{"position":new mp.Vector3(497.2885,-902.0411,25.4927-2.65),"heading":179.642,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(179.642),"width":4,"height":14.5},
-	{"position":new mp.Vector3(5.9715,-1552.6627,28.909-2.65),"heading":141.955,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(141.955),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-266.415,-1334.3932,30.8948-2.65),"heading":0.942,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(0.942),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-72.9225,-613.9393,35.8612-2.65),"heading":341.946,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(341.946),"width":4,"height":14.5},
-	{"position":new mp.Vector3(51.5284,6.6409,68.9707-2.65),"heading":71.337,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(71.337),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-765.8533,293.4938,85.2421-2.65),"heading":95.932,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(95.932),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1585.7615,167.9557,58.4084-2.65),"heading":114.495,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(114.495),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1619.1262,-232.6143,53.8468-2.65),"heading":160.939,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(160.939),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1512.4121,-400.5093,39.6336-2.65),"heading":227.430,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(227.430),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-982.2034,-412.3332,37.3719-2.65),"heading":208.058,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(208.058),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-691.3439,-667.2984,30.5222-2.65),"heading":269.087,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(269.087),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-504.948,-667.2794,32.6952-2.65),"heading":270.685,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(270.685),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-258.9841,-322.0006,29.5908-2.65),"heading":7.841,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(7.841),"width":4,"height":14.5},
-	{"position":new mp.Vector3(106.7399,-319.4758,45.3944-2.65),"heading":250.031,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(250.031),"width":4,"height":14.5},
-	{"position":new mp.Vector3(249.2747,-581.07,42.8631-2.65),"heading":156.913,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(156.913),"width":4,"height":14.5}
-];
-
-let busMarshrut2 = [ // Маршрут городской 2
-	{"position":new mp.Vector3(308.0089,-766.7106,28.949-2.65),"heading":162.509,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(162.509),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-842.6165,-1147.1904,6.4542-2.65),"heading":118.012,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(118.012),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1234.027,-1087.1426,7.9354-2.65),"heading":16.950,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(16.950),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1478.64,-630.3711,30.2713-2.65),"heading":305.623,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(305.623),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1516.8811,-374.7233,41.8258-2.65),"heading":47.518,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(47.518),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1421.0555,-86.0115,52.1248-2.65),"heading":292.068,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(292.068),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1333.3147,-313.0551,37.9128-2.65),"heading":211.470,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.470),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1046.3158,-388.4397,37.2892-2.65),"heading":294.294,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(294.294),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-678.989,-375.8238,33.9434-2.65),"heading":249.041,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(249.041),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-652.4684,-607.8519,32.8527-2.65),"heading":180.351,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(180.351),"width":4,"height":14.5},
-	//{"position":new mp.Vector3(504.7867,-667.3087,32.6913-2.65),"heading":271.953,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(271.953),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-244.9173,-715.0045,33.089-2.65),"heading":158.893,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(158.893),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-248.9098,-883.0806,30.2294-2.65),"heading":249.099,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(249.099),"width":4,"height":14.5}
-];
-
-let busMarshrut3 = [ // Маршрут городской 3
-	{"position":new mp.Vector3(246.2853,-940.0787,28.9595-2.65),"heading":160.580,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(160.580),"width":4,"height":14.5},	
-	{"position":new mp.Vector3(356.2309,-1063.3643,29.0506-2.65),"heading":270.415,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(270.415),"width":4,"height":14.5},
-	{"position":new mp.Vector3(489.5959,-1418.5348,28.8585-2.65),"heading":79.887,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(79.887),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-197.5624,-1780.9819,29.3926-2.65),"heading":120.713,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(120.713),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-995.9183,-2465.1267,13.4862-2.65),"heading":151.187,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(151.187),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1064.0323,-2695.3682,13.4846-2.65),"heading":229.709,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(229.709),"width":4,"height":14.5},
-	{"position":new mp.Vector3(441.0952,-2029.2562,23.217-2.65),"heading":226.328,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(226.328),"width":4,"height":14.5},
-	{"position":new mp.Vector3(817.1784,-1909.9966,28.861-2.65),"heading":348.359,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(348.359),"width":4,"height":14.5},
-	{"position":new mp.Vector3(806.4725,-1351.5442,25.9546-2.65),"heading":359.527,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(359.527),"width":4,"height":14.5},
-	{"position":new mp.Vector3(784.7294,-776.2592,26.0624-2.65),"heading":358.553,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.553),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-104.2904,-608.9197,35.7415-2.65),"heading":160.088,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(160.088),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-171.6332,-819.6791,30.7972-2.65),"heading":160.626,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(160.626),"width":4,"height":14.5},
-	{"position":new mp.Vector3(409.2824,-732.8546,28.8914-2.65),"heading":1.534,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(1.534),"width":4,"height":14.5}
-];
-
-let busMarshrut4 = [ // МежГород 4
-	{"position":new mp.Vector3(496.7277,-980.3076,27.1087-2.65),"heading":180.572,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(180.572),"width":4,"height":14.5},
-	{"position":new mp.Vector3(806.8298,-1352.0721,25.9396-2.65),"heading":358.858,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.858),"width":4,"height":14.5},
-	{"position":new mp.Vector3(793.4695,-955.4071,25.5318-2.65),"heading":7.500,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(7.500),"width":4,"height":14.5},
-	{"position":new mp.Vector3(926.287,-129.2428,75.5882-2.65),"heading":59.094,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(59.094),"width":4,"height":14.5},
-	{"position":new mp.Vector3(971.5853,148.6781,80.5355-2.65),"heading":321.140,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(321.140),"width":4,"height":14.5},
-	{"position":new mp.Vector3(1972.6703,2486.7136,54.2359-2.65),"heading":325.620,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(325.620),"width":4,"height":14.5},
-	{"position":new mp.Vector3(2816.45,3406.9988,55.4485-2.65),"heading":336.047,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(336.047),"width":4,"height":14.5},
-	{"position":new mp.Vector3(2796.4253,4481.3115,47.203-2.65),"heading":14.502,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(14.502),"width":4,"height":14.5},
-	{"position":new mp.Vector3(1703.4763,6389.6489,32.1065-2.65),"heading":77.296,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(77.296),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-215.5191,6172.5972,30.8932-2.65),"heading":135.914,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(135.914),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-710.5677,5544.8013,37.1082-2.65),"heading":122.231,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(122.231),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-2245.6489,4289.1465,46.6532-2.65),"heading":148.757,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(148.757),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-2495.6501,3620.3301,13.8054-2.65),"heading":169.467,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(169.467),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-3126.8826,1080.931,20.1463-2.65),"heading":171.999,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(171.999),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-3006.6526,379.9061,14.4696-2.65),"heading":171.109,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(171.109),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1839.0648,-602.0844,11.0527-2.65),"heading":229.205,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(229.205),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1214.8054,-884.653,12.4816-2.65),"heading":304.593,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(304.593),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-685.7748,-1255.2865,10.2215-2.65),"heading":210.924,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(210.924),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-298.4117,-1843.9484,25.8767-2.65),"heading":270.695,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(270.695),"width":4,"height":14.5},
-	{"position":new mp.Vector3(346.587,-722.5308,28.8883-2.65),"heading":341.978,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(341.978),"width":4,"height":14.5}
-];
-
-let busMarshrut5 = [ // Маршрут городской 5
-	{"position":new mp.Vector3(1533.5723,825.6657,77.0998-2.65),"heading":331.687,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(331.687),"width":4,"height":14.5},
-	{"position":new mp.Vector3(2546.4797,1622.5756,29.3409-2.65),"heading":1.145,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(1.145),"width":4,"height":14.5},
-	{"position":new mp.Vector3(2562.2969,2675.1829,39.7507-2.65),"heading":22.361,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(22.361),"width":4,"height":14.5},
-	{"position":new mp.Vector3(2285.3811,3124.6025,47.5382-2.65),"heading":22.851,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(22.851),"width":4,"height":14.5},
-	{"position":new mp.Vector3(2502.2366,4102.4307,37.9155-2.65),"heading":334.369,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(334.369),"width":4,"height":14.5},
-	{"position":new mp.Vector3(2782.5427,3430.9006,55.3524-2.65),"heading":154.960,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(154.960),"width":4,"height":14.5},
-	{"position":new mp.Vector3(296.7383,2589.1182,44.0663-2.65),"heading":206.840,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(206.840),"width":4,"height":14.5},
-	{"position":new mp.Vector3(907.6479,2206.6675,48.2141-2.65),"heading":243.793,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(243.793),"width":4,"height":14.5},
-	{"position":new mp.Vector3(1160.3759,1803.5081,73.9954-2.65),"heading":216.731,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(216.731),"width":4,"height":14.5},
-	{"position":new mp.Vector3(1290.1071,1179.9965,106.4735-2.65),"heading":180.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(180.126),"width":4,"height":14.5},
-	{"position":new mp.Vector3(908.4353,484.392,120.7971-2.65),"heading":179.417,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(179.417),"width":4,"height":14.5},
-	{"position":new mp.Vector3(225.7728,-343.3612,43.7948-2.65),"heading":71.686,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(71.686),"width":4,"height":14.5},
-	{"position":new mp.Vector3(42.8623,-697.5289,43.7584-2.65),"heading":158.066,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(158.066),"width":4,"height":14.5},
-	{"position":new mp.Vector3(58.4933,-995.3768,28.9323-2.65),"heading":249.241,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(249.241),"width":4,"height":14.5}
-];
-
-let busMarshrut6 = [ // Маршрут городской 6
-	{"position":new mp.Vector3(307.6105,-766.671,28.9333-2.65),"heading":159.622,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(159.622),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-504.9372,-259.8245,35.1969-2.65),"heading":109.777,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(109.777),"width":4,"height":14.5},  
-	{"position":new mp.Vector3(-746.0861,-324.9189,35.8892-2.65),"heading":66.639,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(66.639),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1303.115,229.0689,58.54-2.65),"heading":95.104,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(95.104),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1601.3053,160.525,59.2596-2.65),"heading":114.446,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(114.446),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1620.043,-235.2197,53.7713-2.65),"heading":159.432,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(159.432),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1754.5798,-510.657,38.2534-2.65),"heading":211.541,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.541),"width":4,"height":14.5},
-	{"position":new mp.Vector3(118.8341,-193.3523,54.2254-2.65),"heading":248.998,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(248.998),"width":4,"height":14.5},
-	{"position":new mp.Vector3(906.6201,-138.5731,76.172-2.65),"heading":237.149,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(237.149),"width":4,"height":14.5},
-	{"position":new mp.Vector3(1179.6694,-671.5273,60.9536-2.65),"heading":188.812,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(188.812),"width":4,"height":14.5},
-	{"position":new mp.Vector3(1287.5779,-2024.0197,44.239-2.65),"heading":109.192,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(109.192),"width":4,"height":14.5},
-	{"position":new mp.Vector3(212.1304,-3331.5247,5.4634-2.65),"heading":266.316,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(266.316),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1032.5243,-2728.5742,19.8305-2.65),"heading":239.582,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(239.582),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-266.3258,-1288.2079,30.6621-2.65),"heading":359.599,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(359.599),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-213.3799,-998.3159,28.8896-2.65),"heading":338.934,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(338.934),"width":4,"height":14.5},
-	{"position":new mp.Vector3(345.6883,-723.993,28.9092-2.65),"heading":339.933,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(339.933),"width":4,"height":14.5}
-];
-		
-let busMarshrut7 = [ // Маршрут межГород 7
-	{"position":new mp.Vector3(307.9484,-766.7745,28.9479-2.65),"heading":162.634,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(162.634),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1164.6495,-401.7653,35.1947-2.65),"heading":98.347,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(98.347),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-2976.5544,464.982,14.846-2.65),"heading":355.917,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(355.917),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-714.5437,5782.7065,17.3164-2.65),"heading":334.855,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(334.855),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-359.1591,6167.7988,30.9325-2.65),"heading":314.515,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(314.515),"width":4,"height":14.5},
-	{"position":new mp.Vector3(2786.3486,3435.5576,55.3187-2.65),"heading":156.212,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(156.212),"width":4,"height":14.5},
-	{"position":new mp.Vector3(685.3053,657.9955,128.5796-2.65),"heading":68.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(68.707),"width":4,"height":14.5},
-	{"position":new mp.Vector3(1163.6711,-560.3005,64.1512-2.65),"heading":182.540,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(182.540),"width":4,"height":14.5},
-	{"position":new mp.Vector3(409.9389,-785.5015,28.8776-2.65),"heading":2.202,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(2.202),"width":4,"height":14.5}
-];
-
-let busMarshrut8 = [ // Маршрут Город 8
-	{"position":new mp.Vector3(305.9731,-771.3818,28.9296-2.65),"heading":160.112,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(160.112),"width":4,"height":14.5},
-	{"position":new mp.Vector3(67.8919,-973.118,28.9448-2.65),"heading":69.776,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(69.776),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-628.9469,-710.0614,29.2083-2.65),"heading":359.730,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(359.730),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-658.7375,-273.2943,35.4267-2.65),"heading":29.769,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(29.769),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-938.4379,-130.7167,37.2476-2.65),"heading":116.996,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(116.996),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1247.2991,-69.7256,43.6782-2.65),"heading":61.941,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(61.941),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1922.1637,220.7656,84.1437-2.65),"heading":29.571,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(29.571),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1460.8447,855.6696,183.4479-2.65),"heading":192.818,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(192.818),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1167.9246,938.1865,197.1034-2.65),"heading":308.472,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(308.472),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-77.3569,895.3242,235.28-2.65),"heading":36.802,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(36.802),"width":4,"height":14.5},
-	{"position":new mp.Vector3(308.4988,952.8608,207.7088-2.65),"heading":172.383,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(172.383),"width":4,"height":14.5},
-	{"position":new mp.Vector3(45.866,305.575,110.4691-2.65),"heading":159.190,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(159.190),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-143.2561,-296.763,39.4142-2.65),"heading":162.310,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(162.310),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-244.3647,-715.8751,33.0909-2.65),"heading":157.509,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(157.509),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-249.3613,-882.4543,30.2773-2.65),"heading":252.815,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(252.815),"width":4,"height":14.5},
-	{"position":new mp.Vector3(322.0183,-795.658,28.8827-2.65),"heading":340.585,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(340.585),"width":4,"height":14.5}
-];
-
-let busMarshrut9 = [ // Маршрут Город 9
-	{"position":new mp.Vector3(-104.0439,-609.2021,35.7444-2.65),"heading":160.871,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(160.871),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-692.9841,-649.5637,30.7155-2.65),"heading":89.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(89.049),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1145.4998,-806.8745,15.1048-2.65),"heading":131.808,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(131.808),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-2974.9983,509.2805,15.1307-2.65),"heading":2.256,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(2.256),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-3227.3845,979.4225,12.4588-2.65),"heading":2.378,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(2.378),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-2451.3792,3752.2205,17.5999-2.65),"heading":343.507,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(343.507),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-160.3729,6204.438,30.879-2.65),"heading":314.611,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(314.611),"width":4,"height":14.5},
-	{"position":new mp.Vector3(1663.1744,4855.4712,41.6719-2.65),"heading":188.847,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(188.847),"width":4,"height":14.5},
-	{"position":new mp.Vector3(1824.7588,3649.2144,33.9693-2.65),"heading":119.764,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(119.764),"width":4,"height":14.5},
-	{"position":new mp.Vector3(2539.2825,1589.1233,29.9793-2.65),"heading":182.070,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(182.070),"width":4,"height":14.5},
-	{"position":new mp.Vector3(2524.5017,295.4404,108.3578-2.65),"heading":175.905,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(175.905),"width":4,"height":14.5},
-	{"position":new mp.Vector3(330.0858,-767.1107,28.9375-2.65),"heading":342.222,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(342.222),"width":4,"height":14.5}
-];
-
-let busMarshrut10 = [ // Маршрут межГород 10
-	{"position":new mp.Vector3(395.7777,-985.5255,28.9541-2.65),"heading":177.163,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(177.163),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-241.9995,-860.9975,30.305-2.65),"heading":69.921,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(69.921),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-623.0092,-606.8821,32.975-2.65),"heading":0.122,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(0.122),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-660.0104,-272.0827,35.4652-2.65),"heading":30.558,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(30.558),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1619.7913,-235.4993,53.7839-2.65),"heading":163.176,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(163.176),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-2975.9834,481.9983,14.9265-2.65),"heading":355.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(355.707),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-2209.6729,2290.5813,32.5289-2.65),"heading":295.784,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(295.784),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1091.1368,2678.2761,19.1392-2.65),"heading":309.437,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(309.437),"width":4,"height":14.5},
-	{"position":new mp.Vector3(545.9393,2681.228,41.8556-2.65),"heading":276.604,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(276.604),"width":4,"height":14.5},
-	{"position":new mp.Vector3(2525.5107,326.8994,109.6047-2.65),"heading":177.125,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(177.125),"width":4,"height":14.5},
-	{"position":new mp.Vector3(979.1516,-2072.4099,30.5019-2.65),"heading":89.490,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(89.490),"width":4,"height":14.5},
-	{"position":new mp.Vector3(124.2373,-1712.7096,28.7377-2.65),"heading":49.795,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(49.795),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-213.6307,-997.9608,28.909-2.65),"heading":340.842,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(340.842),"width":4,"height":14.5},
-	{"position":new mp.Vector3(72.0842,-700.3871,43.8361-2.65),"heading":341.087,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(341.087),"width":4,"height":14.5},
-	{"position":new mp.Vector3(184.0478,-750.8074,32.6182-2.65),"heading":161.271,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(161.271),"width":4,"height":14.5},
-	{"position":new mp.Vector3(345.3934,-723.7836,28.9228-2.65),"heading":339.666,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(339.666),"width":4,"height":14.5}
-];
-
-let busMarshrut11 = [ // Межгород ВИП 11
-	{"position":new mp.Vector3(144.1368,-1001.642,28.9879-2.65),"heading":71.339,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(71.339),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-127.504,-764.1497,33.199-2.65),"heading":342.486,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(342.486),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-459.815,-139.2796,38.0212-2.65),"heading":30.492,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(30.492),"width":4,"height":14.5},
-	{"position":new mp.Vector3(-1525.1545,-467.1953,35.0164-2.65),"heading":123.459,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(123.459),"width":4,"height":14.5},
-	{"position":new mp.Vector3(1380.0973,3569.5586,34.6535-2.65),"heading":286.913,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(286.913),"width":4,"height":14.5},
-	{"position":new mp.Vector3(1958.3938,3852.0347,31.6575-2.65),"heading":211.568,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.568),"width":4,"height":14.5},
-	{"position":new mp.Vector3(1788.4679,4581.2222,36.7807-2.65),"heading":92.155,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(92.155),"width":4,"height":14.5},
-	{"position":new mp.Vector3(1684.7382,4945.2388,42.0133-2.65),"heading":304.725,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(304.725),"width":4,"height":14.5},
-	{"position":new mp.Vector3(2804.2332,3479.4143,54.7559-2.65),"heading":158.502,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(158.502),"width":4,"height":14.5},
-	{"position":new mp.Vector3(253.7424,-570.4316,42.884-2.65),"heading":158.205,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(158.205),"width":4,"height":14.5},
-	{"position":new mp.Vector3(234.4385,-856.3591,29.4324-2.65),"heading":251.080,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(251.080),"width":4,"height":14.5}
-];
-
-var busWorkZone = mp.colshapes.newSphere(437.2815,-622.9944,28.7087,60,0);
-var busImInWorkZone = false;
-
-var curBusTask = false, busBlip = false;
-
-var busTasksBlocked = false;
-
-function startBusJob() {
-	if(typeof(localPlayer.getVariable('player.lics')) === "undefined") return hud_browser.execute('jobPanelError("#startBusJob", "Технические неполадки системы лицензий..")');
-	let myLics = {};
-	if(IsJsonString(JSON.stringify(localPlayer.getVariable('player.lics')))) myLics = localPlayer.getVariable('player.lics');
-	if(myLics["bCat"] === undefined) return hud_browser.execute('jobPanelError("#startBusJob", "Отсутствуют водительские права категории «B»")');
-	if(myLics["dCat"] === undefined) return hud_browser.execute('jobPanelError("#startBusJob", "Отсутствуют водительские права категории «D»")');
-	
-	if(typeof(localPlayer.getVariable('player.blocks')) === "undefined") return hud_browser.execute('jobPanelError("#startBusJob", "Не инициализирован уровень персонажа..")');
-	let myBlocks = localPlayer.getVariable('player.blocks');
-	if(typeof(myBlocks.lvl) !== "undefined") {
-		if(myBlocks.lvl < 4) return hud_browser.execute('jobPanelError("#startBusJob", "Необходим 4 уровень персонажа, его нужно повысить через телефон.")');
-	}else{
-		return hud_browser.execute('jobPanelError("#startBusJob", "Не инициализирован уровень персонажа..")');
-	}
-	
-	closeJobTablet();
-	mp.events.callRemote('startBusJob');
-	mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вас приняли работать водителем автобуса", 5, false, true, 6500);
-	setTimeout(function() {
-		mp.game.ui.notifications.showWithPicture("Диспетчер", "Добро пожаловать", "Рабочий планшет. Нажми F5 и выбери свой первый маршрут.", "CHAR_CHENGSR", 1, false, 1, 2);
-	}, 2000);
-}
-mp.events.add("startBusJob", startBusJob);
-
-function startBusWorkError(errReason) {
-	if(typeof(errReason) === "undefined") return notyAPI.error("Что-то пошло не так при выборе автобуса.", 3000, true);
-	notyAPI.error(errReason, 3000, true);
-}
-mp.events.add("startBusWorkError", startBusWorkError);
-
-function busStartStop(busik) {
-	if(localPlayer.getVariable("player.job")) {
-		let jobData = localPlayer.getVariable("player.job");
-		closeJobTablet(true);
-		
-		if(jobData.work == 0) {
-			if(typeof(busik) === "undefined") return notyAPI.error("Вы не выбрали автобус.", 3000, true);
-			if(busik != "1" && busik != "2" && busik != "3") return notyAPI.error("Вы не выбрали автобус.", 3000, true);
-			if(busImInWorkZone) {
-				if(localPlayer.vehicle) {
-					mp.game.ui.notifications.showWithPicture("Диспетчер", "Связь плохая", "Нельзя начать смену из транспорта.", "CHAR_CHENGSR", 1, false, 1, 2);
-				}else{
-					if(!activeJOBoperation) {
-						busMomentStart = true;
-						setTimeout(function() { busMomentStart = false; }, 3500);
-						mp.events.call("sleepAntiCheat");
-						mp.events.callRemote('startJobWork', busik);
-						mp.game.ui.notifications.showWithPicture("Диспетчер", "Смена началась", "Возьми маршрут. Задачи в планшете (F5)", "CHAR_CHENGSR", 1, false, 1, 2);
-					}
-				}
-			}else{
-				mp.game.ui.notifications.showWithPicture("Диспетчер", "Явитесь в офис", "Смену можно начать только на территории базы.", "CHAR_CHENGSR", 1, false, 1, 2);
-				notyAPI.error("Явитесь на базу автобусных перевозок что бы начать смену.", 3000, true);
-			}
-		}else{
-			if(!activeJOBoperation) {
-				activeJOBoperation = true;
-				
-				//if(curBusTask) mp.events.callRemote('cancelBusTask', JSON.stringify(curBusTask), false);
-				//curBusTask = false;
-		
-				if(busBlip) {
-					busBlip.destroy();
-					busBlip = false;
-				}
-				
-				if(jobVehBackTimer) clearTimeout(jobVehBackTimer);
-				
-				vehParkMarkers = [], parkingVeh = false, goodVehParked = false, activeVehParking = false; // Удаляем парковочные маркеры
-				curBusTask = false;
-		
-				if(jobData.workMoney > 0) {
-					//let resWorkMoney = roundNumber((parseInt(jobData.workMoney)-(parseInt(jobData.workMoney)*0.13)), 0);
-					let resWorkMoney = roundNumber(parseInt(jobData.workMoney), 0);
-					let workMoneyText = resWorkMoney.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
-					mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вы заработали за смену"+workMoneyText+" руб.", 5, false, true, 6500);
-					mp.game.ui.notifications.showWithPicture("Диспетчер", "Молодца!", "Отдохни и выходи на смену снова, давай братан!", "CHAR_CHENGSR", 1, false, 1, 2);
-				}else{
-					mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вы ничего не заработали за смену.", 5, false, true, 6500);
-					mp.game.ui.notifications.showWithPicture("Диспетчер", "Это как так?", "Стоп посреди маршрута? Блок агрегатора 1 мин.", "CHAR_CHENGSR", 1, false, 1, 2);
-					busTasksBlocked = true;
-					setTimeout(function() {
-						mp.game.ui.notifications.showWithPicture("Диспетчер", "Задачи доступны", "Я разблокировал тебе рейсы.", "CHAR_CHENGSR", 1, false, 1, 2);
-						busTasksBlocked = false;
-					}, 60000);
-				}
-				
-				mp.events.callRemote('stopJobWork');
-			}
-		}
-	}
-}
-mp.events.add("busStartStop", busStartStop);
-
-function getBusTasks(){
-	if(!busBlip) {
-		if(!localPlayer.vehicle) {
-			return hud_browser.execute("gettedBusTasks('you_not_in_veh');");
-		}else{
-			let theVeh = localPlayer.vehicle;
-			if(typeof(theVeh.getVariable("veh.job")) === "undefined") return hud_browser.execute("gettedBusTasks('you_not_in_veh');");
-			if(mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.job')))) {
-				let vehJob = mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.job')));
-				if(vehJob.remoteId.toString() != localPlayer.remoteId.toString()) return hud_browser.execute("gettedBusTasks('you_not_in_veh');");
-			}else{
-				 return hud_browser.execute("gettedBusTasks('you_not_in_veh');");
-			}
-		}
-		mp.events.callRemote('getBusTasks');
-	}else{
-		hud_browser.execute("gettedBusTasks('you_have_task');");
-	}
-}
-mp.events.add("getBusTasks", getBusTasks);
-
-function gettedBusTasks(busTasks) {
-	if(busTasks) {
-		if(!curBusTask && typeof(localPlayer.getVariable("player.job")) !== "undefined") {
-			busTasks = JSON.parse(busTasks);
-			if(Object.keys(busTasks).length > 0) {
-				let jobData = localPlayer.getVariable("player.job");
-				
-				let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-					decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
-					
-				for (var k in busTasks) {
-					if(busTasks[k]) {
-						let taskData = busTasks[k];
-						taskData.inline = Object.keys(taskData.inline).length;
-						taskData.busName = "Автобус";
-						if(parseInt(jobData.rank) >= parseInt(taskData.minRank)) {
-							if(typeof(taskData.bus) !== "undefined") {
-								if(typeof(decVehStats[0][taskData.bus]) !== "undefined") taskData.busName = decVehStats[0][taskData.bus].name;
-								else taskData.busName = taskData.bus;
-							}
-						}else{
-							busTasks[k] = undefined;
-						}
-					}
-				}
-				busTasks = JSON.parse(JSON.stringify(busTasks));
-				
-				if(busTasks) hud_browser.execute("gettedBusTasks('ok', '"+JSON.stringify(busTasks)+"');");
-				else hud_browser.execute("gettedBusTasks('empty');");
-			}else{
-				hud_browser.execute("gettedBusTasks('empty');");
-			}
-		}else{
-			hud_browser.execute("gettedBusTasks('you_have_task');");
-		}
-	}
-}
-mp.events.add("gettedBusTasks", gettedBusTasks);
-
-function acceptTaskBus(data) {
-	if(data) {
-		data = JSON.parse(data);
-		if(typeof(data.premium) !== "undefined") {
-			if(data.premium) {
-				if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") {
-					let myBlocks = localPlayer.getVariable("player.blocks");
-					if(typeof(myBlocks.premium) === "undefined") return notyAPI.error("У Вас нет премиум-статуса.", 3000, true);
-				}
-			}
-		}
-		if(parseInt(data.inline) >= parseInt(data.maxInline)) return notyAPI.error("На линии слишком много водителей, выберите другой маршрут.", 3000, true);
-		closeJobTablet();
-		if(busTasksBlocked) {
-			restoreBinds();
-			jobPanel = false;
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Блокировка доступа", "У Тебя блок доступа к задачам на 1 мин.", "CHAR_CHENGSR", 1, false, 1, 2);
-			return notyAPI.error("У Тебя заблокирован доступ к маршрутам, попробуйте через минуту.", 3000, true);
-		}
-		
-		if(!busImInWorkZone) {
-			restoreBinds();
-			jobPanel = false;
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Явитесь в офис", "Рейс можно начать только на территории Базы.", "CHAR_CHENGSR", 1, false, 1, 2);
-			return notyAPI.error("Явись на базу что бы взять рейс.", 3000, true);
-		}
-		
-		mp.events.call("sleepAntiCheat");
-		mp.events.callRemote('acceptTaskBus', JSON.stringify(data));
-	}
-}
-mp.events.add("acceptTaskBus", acceptTaskBus);
-
-function acceptedBusTask(isError, data) {
-	restoreBinds();
-	jobPanel = false;
-	if(isError) {
-		return notyAPI.error(isError, 3000, true);
-	}else{
-		if(data) {
-			if(localPlayer.vehicle) {
-				data = JSON.parse(data);
-				curBusTask = data;
-				if(curBusTask.marshrut == 1) curBusTask.marshrut = busMarshrut1;
-				else if(curBusTask.marshrut == 2) curBusTask.marshrut = busMarshrut2;
-				else if(curBusTask.marshrut == 3) curBusTask.marshrut = busMarshrut3;
-				else if(curBusTask.marshrut == 4) curBusTask.marshrut = busMarshrut4;
-				else if(curBusTask.marshrut == 5) curBusTask.marshrut = busMarshrut5;
-				else if(curBusTask.marshrut == 6) curBusTask.marshrut = busMarshrut6;
-				else if(curBusTask.marshrut == 7) curBusTask.marshrut = busMarshrut7;
-				else if(curBusTask.marshrut == 8) curBusTask.marshrut = busMarshrut8;
-				else if(curBusTask.marshrut == 9) curBusTask.marshrut = busMarshrut9;
-				else if(curBusTask.marshrut == 10) curBusTask.marshrut = busMarshrut10;
-				else if(curBusTask.marshrut == 11) curBusTask.marshrut = busMarshrut11;
-				
-				curBusTask.curPoint = 0;
-				busProcessor();
-			}else{
-				return notyAPI.error("Сбой в работе диспетчера, выберите другой маршрут.", 3000, true);
-			}
-		}else{
-			return notyAPI.error("Сбой в работе диспетчера, выберите другой маршрут.", 3000, true);
-		}
-	}
-}
-mp.events.add("acceptedBusTask", acceptedBusTask);
-
-function busProcessor() {
-	if(curBusTask) {
-		if(curBusTask.curPoint == 0) {
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Маршрут назначен", "Отправляйтесь на остановку, маршрут уже на радаре", "CHAR_CHENGSR", 1, false, 1, 2);
-			
-			if(busBlip) {
-				busBlip.destroy();
-				busBlip = false;
-			}
-			
-			//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+JSON.stringify(curBusTask.marshrut.pogruzkaBlip)+"</span>");
-			
-			busBlip = mp.blips.new(1, [curBusTask.marshrut[curBusTask.curPoint].position.x, curBusTask.marshrut[curBusTask.curPoint].position.y, curBusTask.marshrut[curBusTask.curPoint].position.z], {
-				name: "Автобусная остановка",
-				scale: 1.5,
-				color: 47,
-				shortRange: false,
-				dimension: 0
-			});
-			busBlip.setRoute(true);
-			busBlip.setRouteColour(47);
-			
-			vehParkMarkers = [curBusTask.marshrut[curBusTask.curPoint]], parkingVeh = localPlayer.vehicle, goodVehParked = false, activeVehParking = false; // Активируем парковочные маркеры
-		}else if(curBusTask.curPoint > 0 && Object.keys(curBusTask.marshrut).length > curBusTask.curPoint) {
-			if(localPlayer.vehicle) {
-				if(typeof(localPlayer.vehicle.getVariable("veh.job")) !== "undefined") {
-					if(mp.players.atRemoteId(parseInt(localPlayer.vehicle.getVariable('veh.job')))) {
-						let vehJob = mp.players.atRemoteId(parseInt(localPlayer.vehicle.getVariable('veh.job')));
-						if(vehJob.remoteId.toString() == localPlayer.remoteId.toString()) {
-							mp.game.ui.notifications.showWithPicture("Диспетчер", "Ждём пассажиров", "Дружище, подожди немного, пассажиры выходят и заходят", "CHAR_CHENGSR", 1, false, 1, 2);
-							
-							BLOCK_CONTROLS = true;
-							localPlayer.vehicle.freezePosition(true);
-							
-							if(busBlip) {
-								busBlip.destroy();
-								busBlip = false;
-							}
-							
-							setTimeout(function() {
-								if(localPlayer.vehicle && parkingVeh) {
-									if(mp.vehicles.exists(parkingVeh)) {
-										if(localPlayer.vehicle == parkingVeh && typeof(goodVehParked.x) !== "undefined") {
-											let cheatDist = mp.game.system.vdist(parkingVeh.position.x, parkingVeh.position.y, parkingVeh.position.z, goodVehParked.x, goodVehParked.y, goodVehParked.z);
-											if(cheatDist > 30) mp.events.callRemote('kickAct', localPlayer, "читы на телепорт на работе");
-										}else{
-											busJobWarn();
-										}
-									}
-								}else{
-									busJobWarn();
-								}
-							}, 2500);
-							
-							setTimeout(function() {
-								if(localPlayer.vehicle && parkingVeh) {
-									if(localPlayer.vehicle == parkingVeh) {
-										vehParkMarkers = [], parkingVeh = false, goodVehParked = false, activeVehParking = false; // Удаляем парковочные маркеры
-										vehParkMarkers = [curBusTask.marshrut[curBusTask.curPoint]], parkingVeh = localPlayer.vehicle, goodVehParked = false, activeVehParking = false; // Активируем парковочные маркеры
-										
-										BLOCK_CONTROLS = false;
-										localPlayer.vehicle.freezePosition(false);
-										
-										busBlip = mp.blips.new(1, [curBusTask.marshrut[curBusTask.curPoint].position.x, curBusTask.marshrut[curBusTask.curPoint].position.y, curBusTask.marshrut[curBusTask.curPoint].position.z], {
-											name: "Автобусная остановка",
-											scale: 1.5,
-											color: 47,
-											shortRange: false,
-											dimension: 0
-										});
-										busBlip.setRoute(true);
-										busBlip.setRouteColour(47);
-									}else{
-										busJobWarn();
-									}
-								}else{
-									busJobWarn();
-								}
-							}, 5000);
-						}
-					}else{
-						busJobWarn();
-					}
-				}else{
-					busJobWarn();
-				}
-			}else{
-				mp.game.ui.notifications.showWithPicture("Диспетчер", "Стоп-стоп", "А чё это за левый транспорт?", "CHAR_CHENGSR", 1, false, 1, 2);
-				busJobWarn();
-			}
-		}else if(Object.keys(curBusTask.marshrut).length <= curBusTask.curPoint) {
-			if(localPlayer.vehicle && typeof(curBusTask.marshrut) !== "undefined") {
-				if(typeof(localPlayer.vehicle.getVariable("veh.job")) !== "undefined") {
-					if(mp.players.atRemoteId(parseInt(localPlayer.vehicle.getVariable('veh.job')))) {
-						let vehJob = mp.players.atRemoteId(parseInt(localPlayer.vehicle.getVariable('veh.job')));
-						if(vehJob.remoteId.toString() == localPlayer.remoteId.toString()) {
-							mp.game.ui.notifications.showWithPicture("Диспетчер", "Маршрут окончен", "Выбирай новый маршрут или отдохни, решать тебе", "CHAR_CHENGSR", 1, false, 1, 2);
-							mp.game.ui.messages.showMidsized("~g~Маршрут ~s~завершён", "~s~вы заработали"+curBusTask.cost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.");
-							
-							if(busBlip) {
-								busBlip.destroy();
-								busBlip = false;
-							}
-							
-							if(jobVehBackTimer) clearTimeout(jobVehBackTimer);
-							
-							vehParkMarkers = [], parkingVeh = false, goodVehParked = false, activeVehParking = false; // Удаляем парковочные маркеры
-							
-							if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") {
-								let myBlocks = localPlayer.getVariable("player.blocks");
-								if(typeof(myBlocks.premium) !== "undefined") notyAPI.info("<b>Премиум-доступ</b>: Вы получили надбавку к зарплате (10%).", 3000, true);
-							}
-							
-							mp.events.callRemote('actionMakedBusJob', localPlayer.vehicle, curBusTask.marshrut.toString());
-							curBusTask = false;
-						}else{
-							busJobWarn();
-						}
-					}else{
-						busJobWarn();
-					}
-				}else{
-					busJobWarn();
-				}
-			}else{
-				mp.game.ui.notifications.showWithPicture("Диспетчер", "Стоп-стоп", "А чё это за левый транспорт?", "CHAR_CHENGSR", 1, false, 1, 2);
-				busJobWarn();
-			}
-		}
-	}
-}
-
-function warnBusJobIsDead(player) {
-	if(player == localPlayer) {
-		if(curBusTask) {
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Ты потерял маршрут", "Выговор, следи за здоровьем!", "CHAR_CHENGSR", 1, false, 1, 2);
-			busJobWarn();
-		}
-	}
-}
-mp.events.add("playerDeath", warnBusJobIsDead);
-
-function truckSettedCargo(nextPoint) {
-	if(typeof(nextPoint) !== "undefined") {
-		curBusTask.curPoint = nextPoint.toString();
-		busProcessor();
-	}
-}
-mp.events.add("truckSettedCargo", truckSettedCargo);
-
-function cancelBusJobTask(){
-	closeJobTablet(true);
-	if(curBusTask) {
-		if(mp.blips.exists(busBlip)) busBlip.destroy();
-		busBlip = false;
-		
-		if(BLOCK_CONTROLS && localPlayer.vehicle) {
-			BLOCK_CONTROLS = false;
-			localPlayer.vehicle.freezePosition(false);
-		}
-		
-		mp.game.ui.messages.showMidsized("~g~Вы успешно ~s~отказались от рейса", "~s~Новые рейсы можно посмотреть в планшете (F5)");
-		mp.game.ui.notifications.showWithPicture("Диспетчер", "Отказ от задачи", "Я заблокировал тебе рейсы на 1 мин.", "CHAR_CHENGSR", 1, false, 1, 2);
-		
-		busTasksBlocked = true;
-		setTimeout(function() {
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Задачи доступны", "Я разблокировал тебе рейсы.", "CHAR_CHENGSR", 1, false, 1, 2);
-			busTasksBlocked = false;
-		}, 60000);
-		
-		vehParkMarkers = [], parkingVeh = false, goodVehParked = false, activeVehParking = false; // Удаляем парковочные маркеры
-		
-		mp.events.call("sleepAntiCheat");
-		mp.events.callRemote('cancelBusTask', JSON.stringify(curBusTask), false);
-		curBusTask = false;
-	}
-}
-mp.events.add("cancelBusJobTask", cancelBusJobTask);
-
-function busJobWarn() {
-	if(curBusTask) {
-		mp.game.ui.notifications.showWithPicture("Диспетчер", "Предупреждение", "В целях безопасности я закончил твой маршрут.", "CHAR_CHENGSR", 1, false, 1, 2);
-		mp.game.ui.messages.showMidsized("~r~Маршрут провален", "~s~Вы покинули автобус в ответственный момент.");
-
-		if(mp.blips.exists(busBlip)) busBlip.destroy();
-		busBlip = false;
-		
-		if(BLOCK_CONTROLS && localPlayer.vehicle) {
-			BLOCK_CONTROLS = false;
-			localPlayer.vehicle.freezePosition(false);
-		}
-		
-		busTasksBlocked = true;
-		mp.game.ui.notifications.showWithPicture("Диспетчер", "Отказ от задачи", "Я заблокировал тебе рейсы на 1 мин.", "CHAR_CHENGSR", 1, false, 1, 2);
-		setTimeout(function() {
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Задачи доступны", "Я разблокировал тебе рейсы.", "CHAR_CHENGSR", 1, false, 1, 2);
-			busTasksBlocked = false;
-		}, 60000);
-
-		vehParkMarkers = [], parkingVeh = false, goodVehParked = false, activeVehParking = false; // Удаляем парковочные маркеры
-		
-		mp.events.call("sleepAntiCheat");
-		mp.events.callRemote('cancelBusTask', JSON.stringify(curBusTask), true);
-		curBusTask = false;
-	}
-}
-
-mp.events.add('playerEnterColshape', (shape) => {
-	if(typeof(shape) != "undefined") {
-		if(shape == busWorkZone) busImInWorkZone = true;
-	}
-});
-
-mp.events.add('playerExitColshape', (shape) => {
-	if(typeof(shape.id) != "undefined") {
-		if(shape == busWorkZone) busImInWorkZone = false;
-	}
-});
-}鸔ȍ
+/*
+
+
+	SMOTRArage © All rights reserved
+
+	Custom obfuscaced system by DriftAndreas Team (0xA0426) special for SMOTRArage
+	Кастомная система обфускации от DriftAndreas Team (0xA0426) специально для SMOTRArage
+
+	Без труда не выловишь и рыбку из пруда.
+
+
+*/
+
+exports = 'bof8MzOxJF7aRItkuJsdRKRGBrnHkQLu+w3hiIfIJsg=v7baBrx59PUkDiQni2hg+zMovU3aALQE+oDYCKldD7' +
+'JSN0XWSmhVaCO4g3LaBUM6SdiczQ7oLF7UQo1a+Zry9fq6Qa5UltvNO=PlyaOW85P9bbPe/btp8tDA5m6fzK3iLF1fyTkRMP' +
+'Q5Ms0WMNeNT+ybOj3TRmymdUTDX23A4Ak3SMD+L3S2=QzKE0TRvmjYA8yE/r4cVwqj56q70JrWLLY9sr3STf21J/=D5vVUwa' +
+'mTMWFa/nad881m08nRFZxZ6Hd3EX0PhZ7WqTLOpIv9InVxpMn4NWr2PCmeTH5f=pAsMw7I8srHiQ8jRfWsa0ux0bs9uNYTRa' +
+'l3KCIbHVFcwbKTNWdI/osOJexGKn0l=u+aBdCYd5kLe7zarCLFoJTrIGRRscK38Da9+R2dFEDovVjqAcFL/LLeW+SjB9ShiG' +
+'iW/5j9bbbiBatw7=8D51Ncx67PMyxo+HbIE/JELsMNTOu0RLaXXnTVgYakq3n4eE4+EWhfpJiczQJOM1GjA5Aa+JI9Nvi+QO' +
+'MZn/8aSwngyKTqMsYYuMghG+yzJ/Qz/SxrZUZ80VpWA0kaNOt+CbIUR/iPSea9f4cVjpzkrCTUX6i6KC5mc5mxOCe++xhRWT' +
+'srvrnz4pZi2OoMmt4qPw/hzYHSNrkDbbCSMHgKzB8YBi9ijXyc/CcoxjrP8bYR+GrcEKtf/ZlLOEbRUnBmdTc1azqivVcObJ' +
+'/H+Tmy+BNmFDsdrG=vBbpIA8PZRMmZB9Sfj3eZ/4YueYC95tYi8=cmDixekX+k=yAdsU3c=asL+oLe=J5MDZtiOUbWOIlhSh' +
+'7hlk/E5TQed5uD/D6m9x6mG1kfvnDxAr6A8L8aWcupCcCpfI6P1F3apJXfCrAz+/HrDSxoemhQ9CIkxDaW=bUM63jKDaZYE7' +
+'2aPDgARkl=Rm/6aFSH5yodd6OA5SFm9BRkFTbnxn8w97h3=L=VWdCnB8LOik6u0K7zervkCqk1+PUs/xgShX2e=zYfxk7VB7' +
+'9E644YCKVhCKFLZDGxIDWQX0XIcFCF5TMecI/75SJ3+h6dEk4qvV8k98JM/L8cWuWZM8y/ZDr/6YTBgrvgCrE2+vYi/xkkjn' +
+'+c+zYTv0rZAasJ+H8f=M9W6HdzYjfZSG2jbUrMbE/D1j5jcZG99Dq0+A6bAU0iuG4xBc63K7n1LKbS+MWljm+b/ozDb6/UC7' +
+'E3/vHtCiAmemhQ/z9fxEGZAq+29Vnz691ME7ZiNUzUU3RXaTbKcVKK4j5cd6Ox8ze3+QpgEEHorInk4pZeJa=YX+KtAMOkkn' +
+'KF94XDgKbpB7Ez/wgYBR5jiWpj/C9osWWP3IciHG8aEKpjBa2gOkfFRm6ob0zNaV/J5zAOb5/D+zN5=BVnAWXdm0bBKK6FAL' +
+'bgUN3tB9OTimOX=IbHe7njC75i8vYqChoki3Vh6UsdnBKtJq9J/H8fCKleDK6LN0fZTnyqa0TPdFW64C5fcouF+T646Tlb8B' +
+'L75V8tCbpJAbbYRMmZA9GmkGqR=IvJfqXe/7148PwnEi1StWh80PdMsTWY=asM+HDf=J5MBK6gPUbRU3NldTbDXV/P4jAedp' +
+'SxHCFR0OWKATXkx2rwBs2G8KnJU+7uCtWflnOc/HX9b7XqB7Q19PUYNhg+YkWJ6S9nw0aaArUR63jKC7NfDaBXO13VSF6hX0' +
+'bPaVaQ6jEOnImczQ7f6QliEkHfwWPpBb6A8KrYWuSvAMOpjGWF94XDfaGlD7MiH/=D5vVLemlj/zEfyEzaAa9E63nZDKNjBa' +
+'NiQEvFRm6mdTKHbl/M1lkYTGeYGiex/hyoDUsixnLa=b6BB8=XUNWvD9aTimOU=4GHg7fj/9gs094=MA5ikHJc+C5jy0rP8a' +
+'oJ+4LZCKheDaRLN0fVU2plbDjOXXqDwQY2mo/G9D6y/R+jETsdrFnpAc+M/L=aWt/j+MKniGSU+ITzqq/=54Rb5PUoCS1ekX' +
+'Vh/BAdsTWU=rUQ94DdErNMB6+cP0OcTWNpX2GDSCehCy5icpW9+Tq0+g6bAUsnv2rsCcNG8KnJV+3pAMioknWFIH/eV40N/6' +
+'gx+wYvByUhj3FQ9yAewU/U/bEO/48KCqReDJtiPE3WOIlhSh7hlk/E5jxjeIu/9Sew6QliEU=fwnHqB76A8L8ZUNWvB9STu2' +
+'2x0V0sb6CjEb1z8PkuDiUShG6l=z5fw1GWA79E644bEZAfEKVLZDGxIDWQXzGJcFOO4jMlcpax8ze2+h2oDUklw3Xa=b6H=K' +
+'vfV+Gv+O2da0utHnXCgKPgCb9y+vYi/y5miHyc=zQnxDrP8bEM94DYEatMNJl3ER8/OG2scDnFd2WJ6C5YYZCB9jay/RFoET' +
+'sdrGDp=8yL=8XJg9mE4JnMfGOZ/Iz/hbnkEa1s5PcoDy1eiX6e=yAdsU3X/bYR+YXKO6545XaEKUbaSGyjdUTQXUm66jAceI' +
+'u/9jW86QhREkwfwW=qCr7y35f1LPqy56q/ZJ3IO4QHtuHXHeBsKDpbS2V+ub7ZKGARzDkJLOlLKof26N6PT63gcHPIXqGhpo' +
+'s9rZbaHGVcY6qvJWbwNkFq8BMd87DYROWCM9IMkxbtOALqrZnEN8jxiqQYOudzJ=8D5vk7vrGcJmJa/naDPvF6N8E=R+BPH+' +
+'KVcIwIiKW=qGb=ZE4SwQY2qMO3N470KEuVC4Ug7Z5kIfi2R/MZUQTcSvbSzJrEJb=2dasiRey5JDYkRVVTy2NX8B5uzEWD8f' +
+'JGKbIOR+BPP6+SK5gIjrGnqzU=sIH3En6bttD0MSOpP1GSVI1WtmQiPO7lL/wMkvLpRP/jhmOGNsgyv/gJQullBzliQmJVyr' +
+'W5MlATv0jFnC=pey6urz=7kE8x29u1mA0vCc2o8E6obdzhDB1ffdY/l61=l/mrWvTYox5lh2+p9CBHiGEtK8yDlA+hAlV5qj' +
+'DQfJStqaTADWpc6RcYuEOx2YZEKsDIS/u3QNCcK1KDkalwSh7hpIO=/X+3ssz9Enn2LEqWC2ME2XrmQPCGN/wOjAPw=wzgvZ' +
+'LPF8=yxukkB+JlNypXS1VRuqiT8yVh/4ocMP9GMbYLTZlTAJZSK4LcZqWYrCTUX5nGE22Yk9nwOGr29UOUV39S/JYZM/i6+r' +
+'UXkx8wOAKfyqrGNnr6hHC95uRm7zEvJVVTy5dQJjFSA0sA88oVAn1dSNaPPdaXbHnMOr7asYoJqU4=JWBLod=+NnjpNQqUW4' +
+'5U=7Ed/bO/OeA4hAvcQuXjzJCV84X0vOgTS/+XKCIbHVFcwbKTNWd8/nrF/717leu6XUPsqPE7iedl689F7+ZbCKxpMi098j' +
+'5Mk8pUf84ys97BQg6Eox5lhV6f92KXp1AC3xITlAah/aSCkEvwkEbGjszjJPs=R97pX9CDjihch=fKB6lTEnp0EBKuI6/hqH' +
+'g9hYz6BG2Or9LC7z6/1/Z5U5tlA71dSbq6QOMVmyClNfHdypPIMLLEsqwVS/RwNvwYSFBRyrCFLFxW144PNPN+N8YzSdRMB6' +
+'3NbHTvf7VeZk/lRSbEICpToMr08Xrt9UmUUoxS8ZIr==/9OfU1jAHqPArWwpTLJMY1daYwUvlTDAMKKz2uz7qgJFVWs5bFSl' +
+'7Zlg35jELoqPA6u0fPOm7zrHNozf5HgY1MDB1gQ+Y8l6oAbumsWvTYox1lf26Y92xIVWEhK8R1U4ShB1Ri/lzAk4TGjLziJP' +
+'s/es7rXJvDnD=pfi2lrzJMB62eN0YJe6ioojC4s6=MFSgMdZK/9z6/1/Z5Un5l4qYlNvuJQrYNmAvaSwngyFmM697eV4z8Rv' +
+'tuJiVjPhplwWqcMmJa9XHGLPFBMKsbCOWSRuSAcIoLaqWYsYoJoEW6gJ49/j9QkIam9xyRs7iCCx2wok9lgF+q92ZHjLyRKv' +
+'50fCRLGjJCk61s5vbGdLzuJPg=Rs/5X9F0hq4qRi2YrzQ7lk8x2960021F+NVSC+6obd31DBNgQTRkl4o=k/mnWvmIibzbA7' +
+'743t6HkGEhK8l0gSRIblV0qjfQdJSzqn9eemhO6TF60GsCGN+sIJExKcS5I8a2V0fPOn2hXXs5q6D94Cxdb53A7DBR0OWsD0' +
+'kjvn0o/sdi2Pr1LQrnAPXnw6/XNnHysefa//60IDZqLEVevYCTM2dn9IscFex763jITeaLSeGAcHPIXqGhpos9rZbiH25Vem' +
+'qZ0A/rM1uRQHTf=ZYmNtC6OvcdiB=wJgTSzKX3O8LAbbCSP/BuIjhfREoYgWzp1=g7+H7LO/x8Jrk5SuOjPO+XbnsXbJ3npn' +
+'Y6q5K=1nyYoNb0MSOuMk6RCDHRATnC3pWAM=HHjQzZGwHlv2Gg68==rNUeKedhOCloB1NVzJKPNVdS8XTI+7+IMb5hQ/RYQd' +
+'yLKT7eJ0Z/RngDqpD9/mtOl98xL3r482ChVH4axTnC3pVi2IbxjAOfPP/ToqLXJHHHuOYd/bg95wQf/Wc+YkV40FdXu5=MOe' +
+'JdKrkRUNecULaWUHP7ha7gl3PFoEa4Kwk3SGaYzG7q81ieQnpd3qkZSvGG/PQMjxbaQwWafryx0VzaVoz8RvtuJiVjPhplwW' +
+'qcMmJa9XHGLPFBMKsbCOWSRuSAcIoLaqWYsYoJoEW6gJ49/j9QkIam9xyRs8rBOQ6HokQmWr744n5yp19C4AITlNKzeaPUqh' +
+'jQdJSxqnjACA4+697uX9m1U13Ilt/6aqM8WU4l29u01A45XeVPC+S4gY8+wD5/k8MVRL0us9eCCx67okyC8KnHROD=F/LQq5' +
+'P3IqgZmMYAIcRMDvYi/S1ceKKPM3FWv0jU/71K8of26Ht05HambHHWf7dCRx3hRCahGWIUYM8yN376KCa/IXgh879ZRfWDOK' +
+'bHnaqB46m7Z0qtLLn5ueLVOudQLzVvPm5ev6GiGV+j+HoFO/IA681UP/uPSZuPeXcGjqWkqzbAZE4SwQY2SGaYzA6NM1GjA4' +
+'Yq0K9ZMPC+OevHY94jQfPSypHPJM02v6HZPv+WIDZfOl6cvWRQN2pSBH4V/eNKJrAcR+FY/ZZkFB/tI0V/Rh3hpIO=JHVcpM' +
+'z173K9CV7QQo1a+ZrmP/3BM7bHR+q0+sLmyJXIKb0/sufUAqu7094=5fU6YUV40FdXu4XcEf+6JLERSdAYRd7WbDXgV2yXCa' +
+'Ro2f5zgJT95j5nk7Rm8AzhRI1m/JrYP/uIR994b9vcRQLgzFmFl/ai1JSCl1vw56SpqarB2h4yl7LBP/pknQ8qRB2arzg7lU' +
+'4m29R0021GvuVSCKFoZtzdDBKvk8ekl4w=nemsWvWJVF0Mn0XTR494p1FBCAIhlNah/aSCl1v1k4jGl83yJc9=Rs7wX9Z0f7' +
+'s79X0bDrJaB63deYsIQ3dCRx3hRCahvQVpTGeYzA6N0/Ws8BL7l0XB3pWLN/wMlRb8O=za0JbVPJD=uukgTd60IDZq/SkQzL' +
+'7jKCk/mRGt2IYi0sANUtaTRNKYfInLfKGjnHkAqou=3SynY+T4LWr2PCCUT4In879xHvuBM/wbdhHYRQSRm2HJJL=Dsr7SVq' +
+'cg9fkmCRUrZUZ40=c7mBHTPfFRNbIgCNegPNudejPGe6ihZTc9bYDnJz+jiY/4/gJO0/V57BH7/r9sSwz6RrwMmQLlSxOfvZ' +
+'LPM7Y2uuLmPqNjMT1mTRQSy7CPNWJ8/ns7Ov+D63jIQueZItKiMD7eJ0Z/Rh3hRCbEICpToMr08Xrt9UqeV4IX96AZRfWDOP' +
+'DVlgXmSefa0qn0LLcEwvYXAa4QUJS0qn4B2W6a6yDBKOpn/74pgi2grz47lk4jN0a1m21F7uVVC+FobtzoYYmv5dYhl61AZu' +
+'mhWviIgm4WnAnH9CBHhWEvK8BDlNSh/lRjqjnRRpSmqnsQJc5/g97mX9Z0f7s5lf76XULaqPA6w/dl689F9eVRC+34gL5MDB' +
+'1fetY0l6oAa/mmW8/Ihry9ELLQRMmX+NP6n5PCEKYkqMg7JM2OCx1CJR5ceH2a62RS/5wI/71J9X0aB7145XZzEB7tI7Oeq3' +
+'ocoInAJmFeuK8yN37zMV/2Tot5+YEnE/3HM74kRu3y56q7Z0qt0F0HtuHXHeBsE0ZlOAQZk0l50=c7mBHg3Ici0lXyW4915H' +
+'ZzhHsPiZGwSh7hRCahHXxaps88JCO5LAqdTo1a8JYbMwC+OewaURDfQgfIx7XLF800wfkkPqMik2XGl83yJc2Q9y5TX7jDnQ' +
+'=qTG35jkLeqCJoKTGDOQ0WCcFo8P5UgY9MDBpffdY6l6o=nTnBRA2ooxQlf2+q9CmXpBNBFQIelNBhAERw/lv9k4QWqn8ACh' +
+'4vlH8BR/pmnDvqRi2grzpKqCA6w/Zg6voF++VKC+u4gYH+wD5/k8MUf80qs9GCEA2o=76A8rArbv8JMd3DrYC4D6Ljm8w8Jc' +
+'ci8vQnBRyWuaihKBoRwDSD=aYT1lby64t0RdydgFc0Y2qar4cGrUW6gKv98j5GkIhUeL4xsJTRWvqIgb1mTV6c9C6IV3EpK8' +
+'R0giVRGjyDZ6wQcZSuqanAEh0sl7HBSTm1UV7Zlg35mELiqCk6w/dt6vyVCpypvf5V1NzdDOivk8MUd843s9nCCQ6E9m4Wn0' +
+'q42H50pBOffF2D+oPAfa/STf21J/0x6fY6YUWr1=g7mIXIO=B+PEnz64t0QNNRKHcGjqWrol8nfYzHFX6Nt9b+LS6kPel67B' +
+'H7l65bRfWKM9g3ZQznOALS0qrSMXPNbfgkTuA7094=5fU6waJWMG5f/HoVNuJKNGsNVuudT/BRfn8Rf4CaqX4NoJ=Q=W2eqs' +
+'LA7C6kOkWdRF1W+qYuNw7NG/9ZjgLpAPTWzaXVMsz5dr7=54QJz91tQlpVnKGaLGRW=YHxLP+DKs8IG6KQONmcbECxIDV/Rh' +
+'4AoUXEICpOr9b/MiOpP1WiV5wZ=ZYmNtC6OvcdiB=wFPzazmqM69s6u+k3PudpNSloUj6cwbycK2NkA5sSRKUB=Enz64t05O' +
+'SSdXsof6ies3oJtG=DGXxMfI41IGG3KBd97RH7l0YhN7SBPrwKkgnqPwHhw7SRKMw6vOglAfJpLSl7PlhZzqGgPEFZ8IkI+K' +
+'Y5OKYWQ8aPR+afbIgcaZSWrXnFo5LKJH6buIW4/gJO0/V57IAa+JI9Nvi+QOMZn=DfNADWfn6DKbU9vNjt6oUNzM0=5fVZvm' +
+'SYMlBH9HDmLOBDGbYVQ/RT/+CVbHcVbqWionPMs1XBH26CpMXRIGjvG1WcRIsaxTnC3pVe25ryL7aA4=nXhqvSJZgyweTgTN' +
+'pyKgElR1FpeHpO+ycRBhWu2IYi0lXXCd6PT63bbIk7ha7ginPFoJa48SyertL9J1O5ME7UUTDZ/q5qQOGeOPHPjQzZGwHlv2' +
+'/aMsY8muLgPvQp8/xmOm6jvYWcOyZb/nsoLPF698QXTN24RtuOgD7NSmpmbC3Aa13H3Tc6SWaYzA6NM1GjA5tW/YQnQ/eiOe' +
+'wMn930+xLg06/HEck+r+kkAfuhMTdbIlpkgKadJTJSA4nRQuxKLIoXSNejAJlJO07eJ0Z/Rh3hRIn9JCyjrt=6DGSyKFWDRI' +
+'ElrnnYQ/GHIe0ZjermQPXqiKXSFsgCtuHZAaQuMSlmRV2TvWRd81pVBknP=voB8YvlBqqGP/hchD7NQ2BeaGvDX1/42D1OaJ' +
+'iczQ6N0/V5TIkf8Z5lNrqJN7wUiBDqN=fWzV/WL8LHmu0WSNR6JChJQV2ivGRQQWdv4lXzI++aQ8QmTNORPJ3naYR1mx0lCc' +
+'ao+f9agLxOb53xPXjBl49AajnBPg2oox1lf26Y92xIVWEhKv10f4Sh=URi/lzBk4CGjsztJc+Q8mVg=XPxOut+PqENVvZV/Z' +
+'57i/dn6v2jXzC4cEm4Fm2YssK754n2OEFbA18mvn0hCIlf25bxL7bkRs7Yv67I9ck6e+HhTeRmKCdXTVVfxr+cNlZgAm=MQ/' +
+'VpLrAcU/SPA6A6mOZh685GvjbDX1BoQd3wDBJgQiZUeb0js9nCCQ6E9m4Xn0O41H9GAsFBEQIhlNahAlRs/6cg5ZSTqn9QJP' +
+'9/gc/0s/lb8F3Plg35lULoqCs7juZb6vgF7eZZCKm4gY898j5MkIRklG1=k/miWvuJVV0EnAzH9C+Hk3EmKv90d4GxGiWCkU' +
+'vwk4bGlszuhm6a6yB122o2KsprFJw9JsF9JbWzV2GFRmymaTU+nInKFSgMcImv9S6/1/Z57BH7B6IkQOGP35fxL7aA4=3hiJ' +
+'jEMLj/wuzgRuBzMiVdPm9ey6SdOjta95wMReJ9FKUJTNZS/euihWkxZYCHfoLOuZ=5F2EMvc=MkIZUd80gs9eCCQ2o97h18P' +
+'waoX5JpBuRKv90fCVYGjmCiUv+56SzqaEQJPQ/d9/yX9m0fV3Wlt/5j1LlqCVJ2920ym1GvuVTC+Nobd3wbY/750qw61KQT5' +
+'xWum1sQ=G6/r4dW+3n=9u/ZDqt0FzauvPgPNytJ/IrQhpex7CXKVdU8I0MOutL98AQSemBQOGRW48GjrGnojz6C8+obt3uDO' +
+'7x8zWml4c=k/mrWvuIgV0S82+v9D+IV3I0KvGi6X/xbERUqwYgk4GGkc34JPI/ds7vs/lgnDI5lt75k1LfqCk6u/ZeOx0sCc' +
+'T4CK+obNzhDBtgQiNkl4wAY/mmWvGJUV0TnA742H5tp1VBDAIglAyh=qGUBatiAgx4K0t+qp/NG0ZA4VbsFMll63jID65KPd' +
+'7VenrPOn2hXUbAdiqivQU2SNqczQ6N0/V97RH7l0YoQ=CNPvMfUQLtO=7lzV/GJL=9n+kfRO+l7zdoUmykgG7hO21h2XfFIu' +
+'xKLG8U=uaPRriOgD7MUTl=Rh3huCqivQVpTGeYPAJOQ/l6TIkf87MdP=CH/O9LitWZSfnfw4XIM80GsvYrKO+hMThJTVtgem' +
+'hOOldf9F0IO/ZOKs9hLeaLSeG9f4TTQ3dCRxGioonGEm2YbdT4LWrIKEiYVX5jA4MnQ//6HfIWlt30+wbmyJTXLLL/dazSUH' +
+'gKzC1cAVlghqmPNVlW=YvRMPVBNLEbBvmTRdKubHHMjJGntlH5rYj9IiUVY+T4LWrIKEiYVX5jA4oZQ/e6PKwLiBDrRP/qhm' +
+'qe1F3awN0gPs+lLz1sPm6ppa3gLlNjs1WDMe6ENKHj74x0QNNRdIXReJierYfFoJXAI3Bfa+T4LWrIKEiYVX5jA49kOwy++7' +
+'5ejAvcGwXdx7fINc0Tue0iB++lMjhoRFUYgXd80Pdo+HbIE/JELsMNTOutR+aZK1KDfJ3hrGnSSCehGWIUrN39ImSwNkSQU4' +
+'5kuJIwOw/IPaYejAvcGwXdx7fINc0kteUiPqQp50tfR1F1vaiXOVNjBGwLLP2+97ENTeacRuZRMECxIDWspnL9g5LDGXJRsd' +
+'biK3b0KAysA49S+rAdCIlf25ryLAbd=wrgvIfIL6YyrN8GQuhlMO0WOEhVub7CLFtW/o4X+/dHJ6MNRsSLOti+cHLIiFVwSh' +
+'8USCelvmNYrs=wLzO7LEqUJ45d97MdQ=WZL=IIRuqXHOPAqF/WO9Y6u+sbP/QoOjDfE/k7vrGcJmJa/naDQuZGKpENStKcRt' +
+'BRMDYeJ0Z/pnr=q5z7EWh9r98HJHeyKkGjNXpj965aPfF98P5ThBbcRL7byZOF8HzxxHC95oRsJDgWQ1tSnK3iJB5us4TSLu' +
+'6EFbkJV+ecBdSOf3wEiJWWn3D9Z1=HHG2lpN/9KWSm6QVq8BL7l0nC3pWLN/wMaxLjPAbWzKrlJsg6uNHlH+pyBiMKRC6Ry6' +
+'FZ8ik/mRGtO/JM6boJVtmTRdKubHHMjJGntlY7s5bGHn+zrt=WLlnzBU3iRDkurqcnM9C2Qv8VlQ8lPbCcfnKe1F3aVu0YAe' +
+'hhOytfR1F1vaiXOVNjBFoGQ/ZHM8AvSeSyRsGYSXcWf2yzejTMZE4EEXRDqMv0B3rwLFKUUYIz7aEhPOqHEO0ZagzLQdLSzZ' +
+'aDAHPFhHC95oQNzM0=QlIYz6WcKDJW/4HZMP+RBrAcR+FYSrOYeV0Sbqu4nog9X2uU1GlNu8T4LWrIKEiYVX5jA45bRfWDOP' +
+'Eukh=/QeTgnJLWKHzxxHC95oQJNi1kPjBVxKWkKGBq4o0EPfFpML=IG6KWRtCKd3YPe7WarzLHqpDAJGVbrZiczQ6N0/l67B' +
+'H7+70mNO3BM7wcj9vlQgTawJrGJMg6uNHlB/6oLjtNQmBYqKWRO3Nj9DCFnB8pgB6qr=NMB62L27V01Q42CcT4C+toYC0+wT' +
+'5Ik8EUd80jsJPTum0aoioliV6Z926IYbFBFgITlNSizERqqwogkEbGl8ziJP1=R97hs/lXnDjqUG36X1LaqCU6ueZh6vQF9+' +
+'VPX=5NgLD+0T9R5+cGl6I=kOqArx21oky1n0/4145up1WffF2D6ZcZjtYRJt2THhh/JD6/oIW7EyAds1nP8/N6McANCqJbB6' +
+'2bMECxIDV/RowAqYLcFWhVtcLAOFjsJFzUA1XR+70mMOuAPeYIlxLqAP7W0YTTL8kCsqvfCrQw+vHqESEhhGyg+zIlvU7VAb' +
+'QE6Y4cDqAhCqZiN0XXRG+kbzC4b1aSwQY2SGbFKGOpC1GbSI9W/KYFMw7=M==HY94kRs7ev7POKMYDe+HXTJMx8vRkPmMQxb' +
+'ycGVNUA4fV=qUF+oXYEqAeE7JaN0XVSnBpa0rJcVSD1D1gc5uF9j699B2dEjHdrn8mAKhi2IbxLBiE4Jm7Z0rHLMY2rOgbRN' +
+'k65zIbTAydyGqEKFFl/orW+81E6Y0U=rJTB4p0EB7tI77ksXYLpIzF7iyapNSvLHWyGUGSV4gjvVTo=byE/r4XT9mE4Jm7Z0' +
+'rGMr==v73SMK11+/=WCRgQiGhO+S5h7DSx2YYi0lYeR/WTOdmOQTYXiKGaaRGiRCahvWBVrML9Mm7zMRZPEyX8l0XBTrVP35' +
+'fxL7buP=7WoqbPLMo2v/01ReRw5wDWRmxeuqiXN3Ef/X4a+8MK/3jISNeh/+qZNWwIeaCkr0f=aF7Q5DAad6WD9CFk+RyjF0' +
+'bnvGLv=byFAs4VWdCwD8mdfryx0VzaVo0gOuhl/OQYqZ8AEx42l7jBP0m0i13WlgC6X1PuqCU6weZbOx0yCcT4C++oYNzjDB' +
+'Kx8xJO0/V57IxU76kdC7yE/LXTM7eA46m7vZCPMsXKbbTe6oUJz90=SERfyrCAJFxY9EKDMe6ENKHU74x05HZzb48Qf6qopn' +
+'PFdU3HwQY2SGbL7DBR0OV57IAa+JI9Nvi+QOMZn/=jPACfzZbXFbLFwejaTf21J/0x6fY6YUWlLFxW144PNPN+N8YrSuuaBe' +
+'COf3gSj7CafGPDqpLJ3D1VemqZzA6NOkWdRF1W+qYuNw7NHeYIlxKlOwHlv2Gg697zwf0iPq165TtfR1F1vaiXOVNjBFLSLc' +
+'JOKrsc=J5K/dqKeXDIiF6vsG4FoGH9HGVipN=HDGb2LkGhD0kT7JkhQb6OQecVi/HcQwnnw7PcBb=6vfCt6oUJz91tQlpVnK' +
+'GaLGRW=YHlLvFBMKsbINFcHty+dlgEiZFVejTHdiqivQU2tsb9JEnpM1WlRItq0q5sMryR8tg7ceulRgTjx6/KLLoJdeHXTJ' +
+'utMvIMPl+kx76h8ysiyEjX/bEQ/o4U=rRaD7FXPUfZTVhVbkjHaVSK7TUVaJiczQ6NQEGbUn5sm0bB3pWLN/wMaxLjPAbWzK' +
+'r3O8UCwdQhSJt95zAlOE2cqKiPPFNjvYkSPuZMLrwWFX915HZzFB/tI0Whooj4oYb9HGB9rtCv=CXqJEiiREP/lDXB3plf25' +
+'bxiQbcQwTByaSDAHQDteLiSMuvMilpMENVzJ7PMVJg/FHRQ7UI9X14PNyPOuFXcnsciVSopXPHrn4GI2FfaIv7JGOrO1RYPE' +
+'P/lDXB4pZe25cQiMXdP=XdwpHSNnzxxHC95oQJzDtfR1F1vaiXOVNjBGwLLP2+6YnIS/JYOtyVen4EiqGoa3L9snDHGGFepI' +
+'X/IHf3KCKbTnpltqMhNvi5Hv0afd4U=8yRzqLVNrkXueLTTaNmKCliPUyfy5dfIBcds5kEPfB+C7kXP/ZSPdaOd4o0ha/Qb2' +
+'GAa13L4j9bcYmv9z6/1/Z57BH7=ZYmNtC6OvcdiB=wI=HjxZbV65CxuvPgRuyyKiloSApevbNW+BoR/X4a8/pI96MNPeaZSa' +
+'BRe4cViZG8qXP5s1X+GWFYp84+MlB0IAVbA5lS/KAdF/iDL=HPiQbcQwTByaT/+KC6eaQiOv2zJApiRE2kgKKXKFpV44fWJr' +
+'+28nnZCKVTB62bNUjPJ0Z/Rh3htiqivQU2SGbzKHfpJlCYTnbrrqsdRKzBPrw+iADrQgKkhnGP65P9bbPbBYgKz90=5fVix7' +
+'CPO2dg/UKDOeJP6boYCMiPOuGYeUjLSmhVbTC4b1aDwQY2SGaYzGjzM1uhGTlMvGHt=byE/r4XUt3pBtDOik6u0FzaVo0oQv' +
+'6pISAbExykyrGT9ws8mBGt2IZ9LroNSOWTRttjK1XxIDV/Rh4UZFilvgU2SGbFKGOpC1GbSI9W/KY7PfWE8srHkB3lNPzazr' +
+'SRMbkHdbnkD6cgLSlt/VlghpKTJmJg=UvLP/6KNKIvSuFLT6WPcHsPfpzkrF/HmEaD1HyNsdD0BWGzJFBXRXIW+qEIPP/w=+' +
+'rQUt4nNALkw4fPMrUEdeobPudkEzMpMB6NgWVa63k/mRGt2IYiM75VQ7xK/k4F29a0yg0lCcyo9=5U1NzgDBlgTiZUgr0tsJ' +
+'rCCQ2ook9lhV6fR45pp1lBFAIT6X/eV4z85oQJMidXRVEqeHyc=yo/mRGt2IYiJKwUSeRk/76VFB/tI0V/Rog=qp=LAm2aps' +
+'KI53vlM2/UDyX8l0XB3pW5N/sMkRDgQf6rfnGx0VzaVo0vArYNzM0=5fVnwaqTC2Nd+I8IPfZsLb5YQ6BOOOGKK1KDkV7pto' +
+'U9XVe6J2VapKH0L376KF7oKXgT07MdP=B3/r4JkA8pPfXjfGvaLLH2kekeQvFlMT1DOm6bvb6a6yBT/4HT8bdPLrsNIueWQO' +
+'OOeY8mhqWluk/lRSahvQVjqMv0B3rwLFKUUYI0+qYo==/6QuAWmBHc=xTj06aM=lCbVoz85vJpLSl7PlhZzqGgPDBd+IjRPu' +
+'JMF7wdUueuRtmYfIfLS2VwSh7hRCahJ2VapKH0L376KF7oJ4pl72019daoGcvVlhHpP=7Yx6fc88H2wJQfSalWJCdqRF5jgL' +
+'zPNWFW1XTSLPEAK7YNSua7RuCEO3KMRmzlnocKoGPDH22ga9P4JGGoF1uiOkpOt2jYQf3GPeMukxzYSsjXx6bPK7Q=vM7kNq' +
+'Qp7=8D5vU6Ybl80Pc7CBWu2Pom08n26H91RO2XbIwIhKCoa3Y8o1W/IGhNuMLABGO4KF7zTnUk9q5oNrNA8rYajx8nO8mRm3' +
+'+DPlCbVu0YAf+5MzllPxRjwK3eKBcRsEWD8fJGKbIOR+BPP6+SK5CxIDV/pnr=qJ3FE2tYssXwM3r39UGnSIxl/VUrOf3EM7' +
+'bQRyiE4Jm7Z6rJ89gJvekhP6NzKzVmPhpZvGVO6CsRsY4RM/J/LrsNQqRT//h3ER7tI0Weoz0Kp58HFSxpfI4FKGOpC1GbSI' +
+'9W/KYPPP7=JO0Vi9aXSfnfw4XIM80GsvYrIuhJLRtlS1dKx6qT6zsRA5sYMLgm01Xy64uTPZWdgIYIhZJdrG05r5KFFG2goI' +
+'av5DJk7lGdR45X96sdNbN+8wj1LKaA46m7x6eLL9k1qNYkROJzJDYW=xIQxKuRJFpB/4ocMP9GO7IQR+WWPJZJghKuI0V/Rh' +
+'3hq5LL1HBblcL3B373OxysA4YhuJQZPvFCPfcamxLkAQbVx7TX88==rNUeKedhOCloB2yfy6WiLF1fvYCP8/lHJK5ULu6LUN' +
+'KbNYYSiZWppnPFaZaD1Ghbos87E3GlPEGhDYlg/ZYsOvuC/PfTRv=cPwHnx6CYNXH6u9oXQduvMeIuBRyzvaSPOVdgAIrRNO' +
+'tvKrU5SeVYUJlJSXsLe7KeqHoJaYbFBmFUk9zB8X+t=el67BH7l0XBOvJ9Qv0+iAX8PAPlfn+D/IP6bfYXTfByLORkRFBpmZ' +
+'z49VNj=XfV+7=pYy2drzs7j04b29u1mA44CcJo7=9n1NzqDOZfe+Y1l6c=k0bTum0rAcyE/r5blRLc=9u/ZDqt0FzaVu0YAe' +
+'dvIiViKVhR0aGg9WRW+4HGO/IGKKIcMNOcQN7Ld4rLOKKapTLBqo/63SUMumqZzA6N0/V57HIXtqoo==zAL=cMlRClNATDw6' +
+'7SO8kasawiOv2zJA1kTRRcx6/PM16d8IHIPatOKrURPd6PBdSOf3wEiJWWn3D9Z1TNFWQaqczx6i6t8AVPWhX8l0XB3pVe25' +
+'cTiBGXSPXZpJCF65CxuvPgSedhOCloSApRzJ7TMF1l9FHH+=26N8ANJ+BeA+mYancPaqiWtnoJaZP9GGVPr9K9Jmr4GU3hSH' +
+'pT+qHg+PK6NrwRkg/e=8malT6u0FzaVoz85oRpJOxsPlR7x66cNVNe/o0IFOEGObw8UvSTRdRRMDXgV2zhqGg5q44DEXVRsY' +
+'vAJGKzO1G5R0cl+YAsQ/WCMaXQT94y56q7Z0qt0FzaVo0bP6N0ODRbREIQy6SPN2Mf94oXLKtMPs1N=qNn/6SedXoIfJWjon' +
+'j/ZE4SwQY2SGaYzA6N0/V5SH8Z/ZUZQfFCMv9bh9vrTADWfn6g64YHtuHXHeBsKDpbS2V7x670OVNfA0rM8=gm01Xy64t05H' +
+'ZzEB7tg6JdXnDGno8DAGhNuMLA8W3lNi/eT4Ua/ZYnP9iDL/IMiv8pQgXfwmmM8HQCsvgnS+kgLSMqUj2AoWqTNWBg=TCFnB' +
+'zpgB2crzD7jk4d2961mQ0qXeVWC+xoa9zpDOFgTSZUgr4ws9eBOg65oxAlgl6h9CCXp19BEQMklNeh=ERnqjjQe6WFBx5ceH' +
+'+e+z5ds50VQOIB=Enz64t05HZzEB7tI0VCRx3hRCahvQU2SGaYKGusO2WfRHgXrrAgMwz6/OIImx7lQ=HjxZbV64TNbasnR+' +
+'+lJS1kPlAXgWzhL2+h9DbHLPF697oJTN2PSZuNbIkXiJuuZT3SSCehvQU2SGaYzA6N0EWVC51q/qInN7zHNv9Xi9vbNATSiJ' +
+'PPLMPxbrCS=OBuJzlcQlpVvGNX63FZ8IkI/eF6Ob4WPN6TS6uNbIkXiJuuZT3SSCehvQU2SGaYzA6N0AteT45lrqIuNvqIIv' +
+'cUi930+wfW0pPEMbg=us0gTaM19wQmBRxhiHye+ycsnBKx2YYi0lXy64t05HZzd4sXOqmujXPKX2q4HGtPoMnfL3b9KF6dU4' +
+'gk97EhPOpP35fxL7aA46m7Z0qt0L=2waQWQv605wDWRmxev63bKBxkBIwXMOoGO7ERTeZSROa6dojRkmhVqo4oqpCFKSgMrN' +
+'bfLniyPQhPVnIf84EdPfWKM=AgdhHYRQTByaSRP4/xwN0gPs+lLz1sPm6pq7CPNWJB/ovRRKk5OKYWQ8aPR+afbIgcaaCWr4' +
+'koqpCFKiUnTGeYzA6N0/V57BH7l6Ye/g/9L=5MUQHYSwGafryx0VzaVoz85oQJz90=5lhfu63aF2pSBH4V/eNKKrIiQ9KZSt' +
+'adcHTRQrCnsnnAdiqivQU2SGaYzA6N0/V5T4gU76kIPf3NM==VmQLfP=Pdw2/JNbk2x+kCRO6pNz1lRxRkyrGT8Ck/mRGt2I' +
+'Yi0lXy64t05Hp0EB7tI0V/Rh3hRCahwQY2SGaYzA6N0/V57BIe/msfMvm6/PMQUQrcRgPSwZbW9cc5uOs=Qu+zKD5bPRQS1q' +
+'Osl5vBP/prnDXpgy2Yrzg7l63neoR1mx0lCcyo7v9YgY=99z5IkIim9xyRXYxvWvyIjF0Kn0743n97p1pC3AMmlAP9blRxqj' +
+'nQd6S0qaLACR0mlHDBQDaR8aYT1lby64t05HZzEB7tI0VCRx3hRCahvQU2SGaYzGGpOxziS4ph851nQKyR8vQIkyDcDZ28Z0' +
+'qt0FzaVoz85oQJKCoeTWVgvauU83FZ8IkI+K16AonIAeeYP+KPcHPIfmNVYzr4qJ3FE2tYssXwM3r39UGnSIxl/VUrOf3EM7' +
+'bQRyiE4Jm7Z0qt0FzaVoz85oRzKzVmPkyfy2yr63FZ8IkI/f2HNKYcR+FYEnp0EB7tI0V/Rh3hRCahvX+UoN408WnpNlChTo' +
+'HZt3fF35Ve25bxL7aA46m7Z76x0VzaVoz85oQJz90=5fk7YUV40=c7mBGt2IYiNKIcMuuXPNyef04Jj6qYsX4GqUWA1Hc6SW' +
+'aYzA6N0/V57BH7l0YlQbq8L/sMURLgAP3WzaTEKrkDe/caROJNKChpQmZVvGRQQVVvX8y1TV3XlgK6Z1LnqCtJhYkh681F7e' +
+'VOC+FpMN3wDBVfe+Y/l6UAYOq+rFjY9=qHSV+p921Hh3IzKvp0dSROb6zt6oUJz90=5fU6YUV40=c7+H7LQ=ZIKrwO=vWSOO' +
+'3OK0bgV2ycsnL8oIPAHmFQZo316SXxNxqSTnUk9q5oNw+CM=YQlhHq=xPZv7HI8HzxvNwTSeAuJzlpTW6f0WRX=fs8mBGt2I' +
+'Yi0lXy64t05NaPM5kLe7zajXPKZE4SwQY2SGaYzA6N0/V57BH7l6kdRbz4NvMImvHgRgSRm2HQN4H4ruDXB/65MjhbRhpmvK' +
+'WhOyZd/nwEO+2EJsYNTJBaRuCSf48ShFqtaTUDqoD5HFyYoNb0MSO0Ml/YV4Ig+Fsx=bzAOeEIkw4jNAnWzF/TMsc6we0hR6' +
+'l68vRpQV2gvZzdNhxpv0kWN/6IKq1XTZBjB63cc4cTf5zkrCLRZFilvgU2SGaYzA6N0/V57BH796LgMOS6L=IsjBDr+t6RjG' +
+'GM69Y2wfkkR6uwMThvSVFohqGkKFxl=jbGLOlEF7IVSeaPA6SUcHkOW6/pYCC4q5z7EWh9r98HJHew6x9AZumpW8/JWK1liF' +
+'6XR496p1ZBEgIYlANhBEVzqw1gk4GGiR0B2R0el7=BSepmnDI78of26Ht05HZzEB7tI0V/Rh4USCehvQU2SGaYzA6N0/V5T4' +
+'gU76kIPf3NM==ViR=cOArWrqCWLMg6uNGaP+ysMikfE/k7YUV40=c7mBGt2IYi0rYOBu6ZOt7VW4HEk6Gna4s9p5b7HGEVY9' +
+'n+ImbwF1iQWH5juKMdOfW4OvLViR=cOArWrqCWLMg6uNGaP+ysMikfE/k7YUV40=c7mBGt2IYi0lnz64t05HZzEB7tI0V/Rn' +
+'4+Z6HQIGFbpYX7LmjlM0zbQIIW/FsfNwCrL=AQhA=jO8iTzq3EPLkCe+YeRN6rMeYfAhxRlXlO6WNf944JNOt+KX8R=v145X' +
+'ZzEB7tI0V/Rh3hRCahHGFgY9rHAWGzJkeiA1XR+qwbMvilOv9giB/lOfXlsJLVLLUzueja//usID1bSxpSxKuRLmETuEOx2Y' +
+'Yi0lXy64t05HZzEB7tg6JdsY4HoIz+3Gllgcn+ImC39VzhRHYa=6nh9b2RC74JmAvbO=bayJbH6Xzxu+LmUsyQC/IfR1JfgG' +
+'6qJSzBKupknDLpgi2gr=Y7l6s6v/Zh685Gv+ZbC+yT425qeY6fUdcP680us9eBQg68oxQlh26i92WXp15BCxIXlAWh/lRkqj' +
+'XRQeTGkx0ACA0elH8BSulenD4qRB2d=qpbC6JSNTfPOn+lbUTDX6HJJWEVemqZzA6N0/V57BH7l0XB3wli2IbxL7aA46m7Z0' +
+'qt0FzeV4z85oQJz90=5fU6YUWeNWJq=44b/eJOKrscTZBNONmVWXsQhaCaZXgJtJ4L3C6NotH4LmORJEeUR3Aa+JI9Nvi+QO' +
+'MZn/fmNLKdfqXIMp82xqze/eFhL0dbBRyUwb/i9y6o+HbIE/JELsMNTOuvOOGKMECxIDV/Rh3hRCahvQU2SGbFKGOpC1GbM5' +
+'tg7VThCIlf25bxL7aA46m7Z0qtQH/xgbPiCaQ7094=5fU6YUV40=c7mIXIO=B+PEnz64t05HZzEB7tI0V/qoTFoo8EFSphqI' +
+'v8JHj3JEOUUjck9qwvHvW5PechiAGf+Q7Y2QIGlNWhBURnqwPQfJS0/Wpj1x0tlH8BR/lgnQzpfR2g=1LnqCw6uedn68pVCc' +
+'Ro7=9YgY89+D9d5SFk6VqiXeqzWviIh20InAG43H96p1WRKvODlNWhAURnqj=RQpWEqnXADR0n697tX9m0f13IlgS5l1Ln/E' +
+'4d29F1pV1GveVHC+VoY93tDOFfdtY+l6RRCEP/lDXB3pVe25bxL7aA4=nXhrXcN8k=s6QlQeywJ/QXFikQf7GcK2NX+HbIM7' +
+'Q573LIS/JYOtyVen4EiqGoa3oPpJDLIyRfq98/JC6t62/XQIlWuJEdQPCGOfbPT+iE4Jm7Z06u0FzaVoz85oQJz90=QlIYzL' +
+'WeKF1Xu4TSLu6EFbkJV+ecBdSOf3wEiJWWn3D9Z1=HHG2lpN/9IWGzJkeiATHarm41Dry3Q/wLiAPgQPXVfFqDPlCbVoz85o' +
+'QJz90=5fU6YaiTOy6eBFsPOuBDNG0l=u6ZOt7VW4HEk6Gna3w9s4P5ImVNocn07zf0M13oRIsf7JknMOeH8KbiM7eA46m7Z0' +
+'qt0FzaVoz8QuEoN01mPltWgKmnBVpg8nPW/f2KKroRU+9T/66mRDXFj6qZonsAqYL81iUMrczCOEbUDAqYTX9gtm80M8slal' +
+'+o92NHk3EpK8V0g4Fh=lRwqw0RQZW6qassh66s=R8BHepv8F3Xlgu5lkPuqPU6w/Ze6vRVCcJo7=5LgL498D5Ak8AVRg1=mT' +
+'nBPg2oox1lil6i926IVWEmfmmU+4j6e6Xe/b5w9wQi/WBizaFX=fs8mBGt2IYi0lXy64t0VHp0EB7tJ0Z/Rh3hRCahvQU2SG' +
+'b/MXn9N1GnDX5n86ssQKq4L/oTdQLkQgTWhqTVPMQEdaYTOO+pLiIDOldVvJOXMVN29HTMQeJKPpcXPJRW/+GOdlDIk2VhXY' +
+'kJsIKD1GBVstG754ztMUG0RHUa=JIqStC2Qv8QXaqB46m7Z0qt0FzaVoz8TNRuJAhbRUyix6+W8Ck/mRGt2IYi0lXy64t0VH' +
+'p0EB7tI0V/Rh3hRJqlvgU2SGaYzA6N0Fl97RH7l0XB3pVeS5ryL7aA46m7Z76x0VzaVoz85vgNzM0=5fU61Ul50=c7mIWx2Y' +
+'Yi0sn26Ht0VHp0EIKxIKledAGiSCfEICpRtcL9N4iyJECTC0Ah+q5xNw7aRvcbZgzjRfjSzqaK94P5vNwTSeAp5wD0/Wc+Yk' +
+'WXKRZlBIkIOuMANKUJTudYQNFSK0bgOm7qq3k9oYbFFWAOaI4J0A+N0EWVC4YhuJAnPg/9L=5MlcvcTwnk0rSLNrwyvejbAq' +
+'u7094=5fVZvmShL2+h9DjgCK2PLrsNIueWQOOOeY87ha7gl3PFoEa4J2VapKH0L376KF7oKHY7+IQnQ/evOewMRuqXOPHdzZ' +
+'ae1F3aVvC=54R9095zAicw';
+
+/*
+
+	Encrypted module game_jobs/winedelivery.js. Result: 2ms.
+	Fuck is easy, fuck is funny, many people fuck for money,
+	if you don't think fuck is funny, fuck youself and save the money!
+
+*/
+}䘑ύ

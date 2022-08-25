@@ -1,1246 +1,309 @@
 {
-// REQUESTING TRAIN MODELS
-
-var trainModels = ["2te116", "vagon1", "vagon2", "vagon3", "vagon4","vagon5", "m_81_7171", "m_81_7172", "s_lastochka1", "s_lastochka2"];
-function requestTrainModel(model) {
-	let tempModel = mp.game.joaat(model);
-	if(!mp.game.streaming.hasModelLoaded(tempModel)) {
-		mp.game.streaming.requestModel(tempModel);
-		while(!mp.game.streaming.hasModelLoaded(tempModel)) mp.game.wait(0);
-	}
-}
-for (let i = 0; i < trainModels.length; i++) { requestTrainModel(trainModels[i]); }
-
-// REQUESTING TRAIN MODELS END
-
-var trainBlip = false;
-var curMissionID = false, curSimaKey = 0, curSimaphore = {}, curTrainPointKey = 0, curTrainPoint = {};
-var missionIDParams = {
-	"0":{
-		"accel":1.5,
-		"dccel":2.5,
-		"maxSpeed": 45, // 160
-		"simaphores":[
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.7604,-926.8142,21.9617)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.8023,-1126.2014,24.3865)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(685.8439,-1385.2883,23.8298)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(666.8714,-1059.9115,22.5071)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(666.8312,-926.7221,21.9663)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(667.3271,-754.4077,23.7542)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(863.2278,-473.5885,30.0689)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.0642,-947.9285,57.063)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.0404,-791.5458,91.3597)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1986.9216,-745.7905,97.0174)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2285.0051,-505.0648,95.4889)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2433.4104,-330.1152,93.8006)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2562.8894,-109.8985,93.3385)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2651.0195,859.6979,77.7321)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2610.9224,1623.5208,28.0806)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2611.1536,2047.0511,32.2204)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2640.7051,2973.8308,40.4618)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2495.2268,5730.3525,60.8899)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(2341.1006,5947.7983,60.8442)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1620.468,6360.2705,40.9654)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-430.0746,4015.873,81.9504)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-319.1938,3724.9766,68.616)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(584.2336,3180.3181,42.4529)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(1186.0214,3251.5437,39.7671)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(1935.4368,3579.3589,38.4319)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2540.5007,2841.6323,38.7513)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2562.3579,-109.8987,93.338)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2433.2126,-329.8372,93.7976)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(2285.095,-505.2754,95.4958)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1987.0186,-745.4688,97.0217)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.2385,-791.7618,91.3609)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.2706,-948.1615,57.08)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(863.1822,-473.5239,30.0641)}
-		],
-		"points":[
-			{"pos":new mp.Vector3(672.8807,-681.2565,25.1953),"color":[255,150,0,150],"type":"pogruzkaTovar","drawColor":[0,0,0,0],"heading":354.926,"width":4,"height":18,"dir":dirGenerator(356.926)},
-			{"pos":new mp.Vector3(-168.8703,6113.4219,31.5801),"color":[255,150,0,150],"type":"razgruzkaTovar","drawColor":[0,0,0,0],"heading":134.296,"width":4,"height":18,"dir":dirGenerator(134.296)},
-			{"pos":new mp.Vector3(664.5845,-823.9052,23.3681),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":180.287,"width":4,"height":18,"dir":dirGenerator(180.287)}
-		]
-	},
-	"1":{
-		"accel":1.5,
-		"dccel":2.5,
-		"maxSpeed": 45, // 160
-		"simaphores":[
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.7604,-926.8142,21.9617)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.8023,-1126.2014,24.3865)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(685.8439,-1385.2883,23.8298)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(666.8714,-1059.9115,22.5071)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(666.8312,-926.7221,21.9663)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(667.3271,-754.4077,23.7542)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(863.2278,-473.5885,30.0689)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.0642,-947.9285,57.063)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.0404,-791.5458,91.3597)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1986.9216,-745.7905,97.0174)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2285.0051,-505.0648,95.4889)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2433.4104,-330.1152,93.8006)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2562.8894,-109.8985,93.3385)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2651.0195,859.6979,77.7321)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2610.9224,1623.5208,28.0806)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2611.1536,2047.0511,32.2204)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2640.7051,2973.8308,40.4618)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2495.2268,5730.3525,60.8899)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(2341.1006,5947.7983,60.8442)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1620.468,6360.2705,40.9654)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-430.0746,4015.873,81.9504)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-319.1938,3724.9766,68.616)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(584.2336,3180.3181,42.4529)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(1186.0214,3251.5437,39.7671)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(1935.4368,3579.3589,38.4319)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2540.5007,2841.6323,38.7513)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2562.3579,-109.8987,93.338)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2433.2126,-329.8372,93.7976)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(2285.095,-505.2754,95.4958)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1987.0186,-745.4688,97.0217)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.2385,-791.7618,91.3609)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.2706,-948.1615,57.08)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(863.1822,-473.5239,30.0641)}
-		],
-		"points":[
-			{"pos":new mp.Vector3(672.8807,-681.2565,25.1953),"color":[255,150,0,150],"type":"pogruzkaTovar","drawColor":[0,0,0,0],"heading":354.926,"width":4,"height":18,"dir":dirGenerator(356.926)},
-			{"pos":new mp.Vector3(-168.8703,6113.4219,31.5801),"color":[255,150,0,150],"type":"razgruzkaTovar","drawColor":[0,0,0,0],"heading":134.296,"width":4,"height":18,"dir":dirGenerator(134.296)},
-			{"pos":new mp.Vector3(664.5845,-823.9052,23.3681),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":180.287,"width":4,"height":18,"dir":dirGenerator(180.287)}
-		]
-	},
-	"2":{
-		"accel":1.5,
-		"dccel":2.5,
-		"maxSpeed": 45, // 160
-		"simaphores":[
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.7604,-926.8142,21.9617)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.8023,-1126.2014,24.3865)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(685.8439,-1385.2883,23.8298)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(666.8714,-1059.9115,22.5071)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(666.8312,-926.7221,21.9663)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(667.3271,-754.4077,23.7542)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(863.2278,-473.5885,30.0689)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.0642,-947.9285,57.063)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.0404,-791.5458,91.3597)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1986.9216,-745.7905,97.0174)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2285.0051,-505.0648,95.4889)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2433.4104,-330.1152,93.8006)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2562.8894,-109.8985,93.3385)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2651.0195,859.6979,77.7321)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2610.9224,1623.5208,28.0806)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2611.1536,2047.0511,32.2204)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2640.7051,2973.8308,40.4618)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2495.2268,5730.3525,60.8899)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(2341.1006,5947.7983,60.8442)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1620.468,6360.2705,40.9654)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-430.0746,4015.873,81.9504)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-319.1938,3724.9766,68.616)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(584.2336,3180.3181,42.4529)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(1186.0214,3251.5437,39.7671)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(1935.4368,3579.3589,38.4319)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2540.5007,2841.6323,38.7513)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2562.3579,-109.8987,93.338)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2433.2126,-329.8372,93.7976)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(2285.095,-505.2754,95.4958)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1987.0186,-745.4688,97.0217)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.2385,-791.7618,91.3609)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.2706,-948.1615,57.08)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(863.1822,-473.5239,30.0641)}
-		],
-		"points":[
-			{"pos":new mp.Vector3(672.8807,-681.2565,25.1953),"color":[255,150,0,150],"type":"pogruzkaTovar","drawColor":[0,0,0,0],"heading":354.926,"width":4,"height":18,"dir":dirGenerator(356.926)},
-			{"pos":new mp.Vector3(-168.8703,6113.4219,31.5801),"color":[255,150,0,150],"type":"razgruzkaTovar","drawColor":[0,0,0,0],"heading":134.296,"width":4,"height":18,"dir":dirGenerator(134.296)},
-			{"pos":new mp.Vector3(664.5845,-823.9052,23.3681),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":180.287,"width":4,"height":18,"dir":dirGenerator(180.287)}
-		]
-	},
-	"3":{
-		"accel":1.2,
-		"dccel":2.2,
-		"maxSpeed": 35, // 130
-		"simaphores":[
-			{"color":"green","speed":40,"pos":new mp.Vector3(666.7604,-926.8142,21.9617)},
-			{"color":"green","speed":40,"pos":new mp.Vector3(666.8023,-1126.2014,24.3865)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(685.8439,-1385.2883,23.8298)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.8714,-1059.9115,22.5071)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.8312,-926.7221,21.9663)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(667.3271,-754.4077,23.7542)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(863.2278,-473.5885,30.0689)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(1363.0642,-947.9285,57.063)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(1794.0404,-791.5458,91.3597)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(1986.9216,-745.7905,97.0174)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2285.0051,-505.0648,95.4889)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2433.4104,-330.1152,93.8006)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2562.8894,-109.8985,93.3385)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2651.0195,859.6979,77.7321)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2610.9224,1623.5208,28.0806)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2611.1536,2047.0511,32.2204)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2640.7051,2973.8308,40.4618)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2495.2268,5730.3525,60.8899)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(2341.1006,5947.7983,60.8442)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(1620.468,6360.2705,40.9654)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-430.0746,4015.873,81.9504)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-319.1938,3724.9766,68.616)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(584.2336,3180.3181,42.4529)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(1186.0214,3251.5437,39.7671)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(1935.4368,3579.3589,38.4319)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2540.5007,2841.6323,38.7513)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2562.3579,-109.8987,93.338)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2433.2126,-329.8372,93.7976)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(2285.095,-505.2754,95.4958)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(1987.0186,-745.4688,97.0217)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.2385,-791.7618,91.3609)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.2706,-948.1615,57.08)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(863.1822,-473.5239,30.0641)}
-		],
-		"points":[
-			{"pos":new mp.Vector3(672.8807,-681.2565,25.1953),"color":[255,150,0,150],"type":"pogruzkaTovar","drawColor":[0,0,0,0],"heading":354.926,"width":4,"height":18,"dir":dirGenerator(356.926)},
-			{"pos":new mp.Vector3(-168.8703,6113.4219,31.5801),"color":[255,150,0,150],"type":"razgruzkaTovar","drawColor":[0,0,0,0],"heading":134.296,"width":4,"height":18,"dir":dirGenerator(134.296)},
-			{"pos":new mp.Vector3(664.5845,-823.9052,23.3681),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":180.287,"width":4,"height":18,"dir":dirGenerator(180.287)}
-		]
-	},
-	"4":{
-		"accel":1.5,
-		"dccel":2.5,
-		"maxSpeed": 45, // 160
-		"simaphores":[
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.7604,-926.8142,21.9617)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.8023,-1126.2014,24.3865)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(685.8439,-1385.2883,23.8298)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(666.8714,-1059.9115,22.5071)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(666.8312,-926.7221,21.9663)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(667.3271,-754.4077,23.7542)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(863.2278,-473.5885,30.0689)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.0642,-947.9285,57.063)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.0404,-791.5458,91.3597)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1986.9216,-745.7905,97.0174)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2285.0051,-505.0648,95.4889)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2433.4104,-330.1152,93.8006)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2562.8894,-109.8985,93.3385)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2651.0195,859.6979,77.7321)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2610.9224,1623.5208,28.0806)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2611.1536,2047.0511,32.2204)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2640.7051,2973.8308,40.4618)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2495.2268,5730.3525,60.8899)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(2341.1006,5947.7983,60.8442)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1620.468,6360.2705,40.9654)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-430.0746,4015.873,81.9504)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-319.1938,3724.9766,68.616)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(584.2336,3180.3181,42.4529)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(1186.0214,3251.5437,39.7671)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(1935.4368,3579.3589,38.4319)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2540.5007,2841.6323,38.7513)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2562.3579,-109.8987,93.338)},
-			{"color":"green","speed":150,"pos":new mp.Vector3(2433.2126,-329.8372,93.7976)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(2285.095,-505.2754,95.4958)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(1987.0186,-745.4688,97.0217)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.2385,-791.7618,91.3609)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.2706,-948.1615,57.08)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(863.1822,-473.5239,30.0641)}
-		],
-		"points":[
-			{"pos":new mp.Vector3(672.8807,-681.2565,25.1953),"color":[255,150,0,150],"type":"pogruzkaTovar","drawColor":[0,0,0,0],"heading":354.926,"width":4,"height":18,"dir":dirGenerator(356.926)},
-			{"pos":new mp.Vector3(-168.8703,6113.4219,31.5801),"color":[255,150,0,150],"type":"razgruzkaTovar","drawColor":[0,0,0,0],"heading":134.296,"width":4,"height":18,"dir":dirGenerator(134.296)},
-			{"pos":new mp.Vector3(664.5845,-823.9052,23.3681),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":180.287,"width":4,"height":18,"dir":dirGenerator(180.287)}
-		]
-	},
-	"5":{
-		"accel":1.1,
-		"dccel":2.1,
-		"maxSpeed": 30, // 115
-		"simaphores":[
-			{"color":"green","speed":40,"pos":new mp.Vector3(666.7604,-926.8142,21.9617)},
-			{"color":"green","speed":40,"pos":new mp.Vector3(666.8023,-1126.2014,24.3865)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(685.8439,-1385.2883,23.8298)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.8714,-1059.9115,22.5071)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.8312,-926.7221,21.9663)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(667.3271,-754.4077,23.7542)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(863.2278,-473.5885,30.0689)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(1363.0642,-947.9285,57.063)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(1794.0404,-791.5458,91.3597)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(1986.9216,-745.7905,97.0174)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2285.0051,-505.0648,95.4889)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2433.4104,-330.1152,93.8006)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2562.8894,-109.8985,93.3385)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2651.0195,859.6979,77.7321)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2610.9224,1623.5208,28.0806)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2611.1536,2047.0511,32.2204)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2640.7051,2973.8308,40.4618)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2495.2268,5730.3525,60.8899)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(2341.1006,5947.7983,60.8442)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(1620.468,6360.2705,40.9654)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-430.0746,4015.873,81.9504)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-319.1938,3724.9766,68.616)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(584.2336,3180.3181,42.4529)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(1186.0214,3251.5437,39.7671)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(1935.4368,3579.3589,38.4319)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2540.5007,2841.6323,38.7513)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2562.3579,-109.8987,93.338)},
-			{"color":"green","speed":130,"pos":new mp.Vector3(2433.2126,-329.8372,93.7976)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(2285.095,-505.2754,95.4958)},
-			{"color":"green","speed":90,"pos":new mp.Vector3(1987.0186,-745.4688,97.0217)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.2385,-791.7618,91.3609)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.2706,-948.1615,57.08)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(863.1822,-473.5239,30.0641)}
-		],
-		"points":[
-			{"pos":new mp.Vector3(672.8807,-681.2565,25.1953),"color":[255,150,0,150],"type":"pogruzkaTovar","drawColor":[0,0,0,0],"heading":354.926,"width":4,"height":18,"dir":dirGenerator(356.926)},
-			{"pos":new mp.Vector3(-168.8703,6113.4219,31.5801),"color":[255,150,0,150],"type":"razgruzkaTovar","drawColor":[0,0,0,0],"heading":134.296,"width":4,"height":18,"dir":dirGenerator(134.296)},
-			{"pos":new mp.Vector3(664.5845,-823.9052,23.3681),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":180.287,"width":4,"height":18,"dir":dirGenerator(180.287)}
-		]
-	},
-	"6":{
-		"accel":1.7,
-		"dccel":2.7,
-		"maxSpeed": 50, // 165
-		"simaphores":[
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.7604,-926.8142,21.9617)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(666.8023,-1126.2014,24.3865)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(685.8439,-1385.2883,23.8298)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(666.8714,-1059.9115,22.5071)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(666.8312,-926.7221,21.9663)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(667.3271,-754.4077,23.7542)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(863.2278,-473.5885,30.0689)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.0642,-947.9285,57.063)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.0404,-791.5458,91.3597)},
-			{"color":"green","speed":120,"pos":new mp.Vector3(1986.9216,-745.7905,97.0174)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(2285.0051,-505.0648,95.4889)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(2433.4104,-330.1152,93.8006)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(2562.8894,-109.8985,93.3385)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(2651.0195,859.6979,77.7321)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(2610.9224,1623.5208,28.0806)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(2611.1536,2047.0511,32.2204)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(2640.7051,2973.8308,40.4618)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(2495.2268,5730.3525,60.8899)},
-			{"color":"green","speed":120,"pos":new mp.Vector3(2341.1006,5947.7983,60.8442)},
-			{"color":"green","speed":120,"pos":new mp.Vector3(1620.468,6360.2705,40.9654)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-430.0746,4015.873,81.9504)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(-319.1938,3724.9766,68.616)},
-			{"color":"green","speed":120,"pos":new mp.Vector3(584.2336,3180.3181,42.4529)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(1186.0214,3251.5437,39.7671)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(1935.4368,3579.3589,38.4319)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(2540.5007,2841.6323,38.7513)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(2562.3579,-109.8987,93.338)},
-			{"color":"green","speed":165,"pos":new mp.Vector3(2433.2126,-329.8372,93.7976)},
-			{"color":"green","speed":120,"pos":new mp.Vector3(2285.095,-505.2754,95.4958)},
-			{"color":"green","speed":120,"pos":new mp.Vector3(1987.0186,-745.4688,97.0217)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1794.2385,-791.7618,91.3609)},
-			{"color":"green","speed":80,"pos":new mp.Vector3(1363.2706,-948.1615,57.08)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(863.1822,-473.5239,30.0641)}
-		],
-		"points":[
-			{"pos":new mp.Vector3(167.5511,-1984.226,18.3412),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":135.8,"width":4,"height":18,"dir":dirGenerator(135.8)}, // Davis, LS
-			{"pos":new mp.Vector3(672.8807,-681.2565,25.1953),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":344.926,"width":4,"height":18,"dir":dirGenerator(346.926)}, // Baza LS
-			{"pos":new mp.Vector3(1948.8035,-757.6938,97.2607),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":266.620,"width":4,"height":18,"dir":dirGenerator(266.620)}, // Palomino Hilands
-			{"pos":new mp.Vector3(2413.2344,-358.1894,94.3122),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":318.804,"width":4,"height":18,"dir":dirGenerator(318.804)}, // Tataviam Mountains
-			{"pos":new mp.Vector3(2611.0808,1682.9401,27.0501),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":0.837,"width":4,"height":18,"dir":dirGenerator(0.837)}, // Palmer-Taylor Power Station
-			{"pos":new mp.Vector3(2616.2476,2935.9929,39.9680),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":326.221,"width":4,"height":18,"dir":dirGenerator(326.221)}, // Davis Kvarts
-			{"pos":new mp.Vector3(-168.8703,6113.4219,31.5801),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":124.296,"width":4,"height":18,"dir":dirGenerator(124.296)}, // Paleto Bay
-			{"pos":new mp.Vector3(1876.9445,3548.147,38.6613),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":304.406,"width":4,"height":18,"dir":dirGenerator(304.406)}, // Sandy Shoers
-			{"pos":new mp.Vector3(2601.0356,2925.0229,39.9133),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":146.630,"width":4,"height":18,"dir":dirGenerator(146.630)}, // Davis Kvarts
-			{"pos":new mp.Vector3(2312.2134,-470.416,95.4264),"color":[255,150,0,150],"type":"stantionR","drawColor":[0,0,0,0],"heading":140.801,"width":4,"height":18,"dir":dirGenerator(140.801)}, // Palomino Hilands
-			{"pos":new mp.Vector3(664.5845,-823.9052,23.3681),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":170.287,"width":4,"height":18,"dir":dirGenerator(170.287)}
-		]
-	},
-	"7":{
-		"accel":3.5,
-		"dccel":4.5,
-		"maxSpeed": 30, // 115
-		"simaphores":[
-			{"color":"green","speed":60,"pos":new mp.Vector3(89.0611,-1703.8025,29.245)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-252.0017,-1398.595,31.2832)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-169.9674,-906.2639,20.9692)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-264.5179,-706.0677,15.6962)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-449.9084,-666.6399,10.9067)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-586.5045,-669.999,10.8956)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-640.117,-674.4955,10.896)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-1320.5691,-505.949,14.1402)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-1308.8195,-340.7957,14.1317)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-1130.5753,-288.265,19.0369)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-856.7804,-169.1507,19.0538)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-300.7747,-279.4097,9.1487)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(176.8746,-602.9567,17.7608)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(210.2005,-598.6445,17.7575)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(537.2258,-657.4133,15.3132)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-736.4852,-1993.7299,-10.2483)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-757.0671,-2050.1621,-10.2483)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-872.1282,-2271.6428,-12.6472)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-1054.7804,-2672.7041,-8.3245)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-1108.6409,-2755.7356,-8.3259)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-894.3581,-2368.0115,-12.6472)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-756.8847,-2068.5618,-10.2483)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-736.7293,-2012.7206,-10.2473)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-614.6172,-1563.5548,13.3398)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(222.7843,-585.6506,17.7575)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-288.298,-375.0762,9.1486)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-738.4459,-90.3547,19.0377)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-779.8893,-110.2205,19.0418)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-1118.3324,-273.9774,19.0369)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-1291.4191,-334.5381,14.1317)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-1380.0547,-427.0692,14.1309)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-603.9919,-676.0796,10.8956)},
-			{"color":"green","speed":110,"pos":new mp.Vector3(-545.7959,-679.1481,10.9001)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-169.7251,-904.7894,20.9238)},
-			{"color":"green","speed":60,"pos":new mp.Vector3(-169.7251,-904.7894,20.9238)},
-		],
-		"points":[
-			{"pos":new mp.Vector3(104.4209,-1711.101,29.1293),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":49.151,"width":4,"height":22,"dir":dirGenerator(49.151)}, // Davis
-			{"pos":new mp.Vector3(-203.3928,-1019.8647,29.3239),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":338.188,"width":4,"height":22,"dir":dirGenerator(338.188)}, // Pillbox South
-			{"pos":new mp.Vector3(-529.4287,-665.5203,10.9094),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":87.971,"width":4,"height":22,"dir":dirGenerator(87.971)}, // Little Seoul
-			{"pos":new mp.Vector3(-1359.7917,-435.4292,14.1458),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":31.200,"width":4,"height":22,"dir":dirGenerator(31.200)}, // Del Perro
-			{"pos":new mp.Vector3(-787.3124,-130.2345,19.0508),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":299.974,"width":4,"height":22,"dir":dirGenerator(299.974)}, // Portola Drive
-			{"pos":new mp.Vector3(-302.3009,-359.6808,9.1635),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":179.362,"width":4,"height":22,"dir":dirGenerator(179.362)}, // Burton
-			{"pos":new mp.Vector3(243.2628,-1198.4683,38.0761),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":92.307,"width":4,"height":22,"dir":dirGenerator(92.307)}, // Strawberry
-			{"pos":new mp.Vector3(-552.5513,-1297.6134,25.9065),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":152.729,"width":4,"height":22,"dir":dirGenerator(152.729)}, // Puerto del Sol
-			{"pos":new mp.Vector3(-901.4651,-2346.6531,-12.606),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":161.157,"width":4,"height":22,"dir":dirGenerator(161.157)}, // LSIA Parking
-			{"pos":new mp.Vector3(-1109.7587,-2735.3711,-8.3097),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":136.008,"width":4,"height":22,"dir":dirGenerator(136.008)}, // LSIA Terminal 4
-			{"pos":new mp.Vector3(-1057.4897,-2696.7178,-8.2793),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":319.500,"width":4,"height":22,"dir":dirGenerator(319.500)}, // LSIA Terminal 4
-			{"pos":new mp.Vector3(-865.5612,-2292.5515,-12.6323),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":337.021,"width":4,"height":22,"dir":dirGenerator(337.021)}, // LSIA Parking
-			{"pos":new mp.Vector3(-527.6741,-1265.3129,25.904),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":332.835,"width":4,"height":22,"dir":dirGenerator(332.835)}, // Puerto del Sol
-			{"pos":new mp.Vector3(298.0285,-1210.0483,38.0747),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":269.910,"width":4,"height":22,"dir":dirGenerator(269.910)}, // Strawberry
-			{"pos":new mp.Vector3(-286.9993,-297.7302,9.1935),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":2.639,"width":4,"height":22,"dir":dirGenerator(0.639)}, // Burton
-			{"pos":new mp.Vector3(-848.3321,-147.9061,19.081),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":124.760,"width":4,"height":22,"dir":dirGenerator(124.760)}, // Portola Drive
-			{"pos":new mp.Vector3(-1341.4658,-497.541,14.1755),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":206.785,"width":4,"height":22,"dir":dirGenerator(206.785)}, // Del Perro
-			{"pos":new mp.Vector3(-467.8731,-680.7336,10.9397),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":271.831,"width":4,"height":22,"dir":dirGenerator(271.831)}, // Little Seoul
-			{"pos":new mp.Vector3(-224.5117,-1050.1123,29.3265),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":156.459,"width":4,"height":22,"dir":dirGenerator(156.459)}, // Pillbox South
-			{"pos":new mp.Vector3(127.5512,-1741.5698,29.0579),"color":[255,150,0,150],"type":"stantionL","drawColor":[0,0,0,0],"heading":221.356,"width":4,"height":22,"dir":dirGenerator(221.356)}, // Davis
-			{"pos":new mp.Vector3(361.6095,-1936.051,16.7264),"color":[255,150,0,150],"type":"finalPoint","drawColor":[0,0,0,0],"heading":225.745,"width":4,"height":22,"dir":dirGenerator(225.745)}
-		]
-	}
-}
-
-var trainWorkZone = mp.colshapes.newSphere(707.0614, -965.5336, 30.4128, 80, 0);
-var trainImInWorkZone = false;
-
-var trainTasksBlocked = false;
-
-function startTrainJob() {
-	if(typeof(localPlayer.getVariable('player.blocks')) === "undefined") return hud_browser.execute('jobPanelError("#startTrainJob", "Не инициализирован уровень персонажа..")');
-	let myBlocks = localPlayer.getVariable('player.blocks');
-	if(typeof(myBlocks.lvl) !== "undefined") {
-		if(myBlocks.lvl < 8) return hud_browser.execute('jobPanelError("#startTrainJob", "Необходим 8 уровень персонажа, его нужно повысить через телефон.")');
-	}else{
-		return hud_browser.execute('jobPanelError("#startTrainJob", "Не инициализирован уровень персонажа..")');
-	}
-	closeJobTablet();
-	mp.events.callRemote('startTrainJob');
-	mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вас приняли работать на железные дороги", 5, false, true, 6500);
-	setTimeout(function() {
-		mp.game.ui.notifications.showWithPicture("Диспетчер", "Добро пожаловать", "Получил рабочий планшет? Нажми F5 и выбери свой первый маршрут.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-	}, 2000);
-}
-mp.events.add("startTrainJob", startTrainJob);
-
-function trainStartStop() {
-	if(localPlayer.getVariable("player.job")) {
-		let jobData = localPlayer.getVariable("player.job");
-		closeJobTablet(true);
-		
-		if(jobData.work == 0) {
-			if(trainImInWorkZone) {
-				if(!activeJOBoperation) {
-					mp.events.call("sleepAntiCheat");
-					mp.events.callRemote('startJobWork');
-					mp.game.ui.notifications.showWithPicture("Диспетчер", "Смена началась", "Возьми маршрут. Они в планшете (F5)", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-				}
-			}else{
-				mp.game.ui.notifications.showWithPicture("Диспетчер", "Отправляйся в офис", "Смену можно начать только на территории базы.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-				notyAPI.error("Явитесь на базу железных дорог что бы начать смену.", 3000, true);
-			}
-		}else{
-			if(!activeJOBoperation) {
-				activeJOBoperation = true;
-				
-				if(typeof(localPlayer.train) !== "undefined") mp.events.callRemote('cancelTrainTask', false);
-				
-				if(jobData.workMoney > 0) {
-					//let resWorkMoney = roundNumber((parseInt(jobData.workMoney)-(parseInt(jobData.workMoney)*0.13)), 0);
-					let resWorkMoney = roundNumber(parseInt(jobData.workMoney), 0);
-					let workMoneyText = resWorkMoney.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
-					mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вы заработали за смену"+workMoneyText+" руб.", 5, false, true, 6500);
-					mp.game.ui.notifications.showWithPicture("Диспетчер", "Молодец!", "Отдохни и выходи на смену снова, ждём тебя!", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-				}else{
-					mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вы ничего не заработали за смену.", 5, false, true, 6500);
-					mp.game.ui.notifications.showWithPicture("Диспетчер", "Что случилось?", "Не выполнил ни одного поручения?! Блок агрегатора 1 мин.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-					trainTasksBlocked = true;
-					setTimeout(function() {
-						mp.game.ui.notifications.showWithPicture("Диспетчер", "Маршруты доступны", "Я разблокировал тебе агрегатор.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-						trainTasksBlocked = false;
-					}, 60000);
-				}
-				
-				mp.events.callRemote('stopJobWork');
-			}
-		}
-	}
-}
-mp.events.add("trainStartStop", trainStartStop);
-
-function cancelTrainJobTask() {
-	closeJobTablet(true);
-	if(typeof(localPlayer.train) !== "undefined") {
-		mp.game.ui.messages.showMidsized("~g~Вы успешно ~s~отказались от маршрута", "~s~Новые маршруты можно посмотреть в планшете (F5)");
-		mp.game.ui.notifications.showWithPicture("Диспетчер", "Отказ от маршрута", "Я заблокировал тебе маршруты на 1 мин.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-		
-		trainTasksBlocked = true;
-		setTimeout(function() {
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Маршруты доступны", "Я разблокировал тебе маршруты.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			trainTasksBlocked = false;
-		}, 60000);
-		
-		mp.events.call("sleepAntiCheat");
-		mp.events.callRemote('cancelTrainTask', false);
-		
-		if(trainBlip) {
-			if(mp.blips.exists(trainBlip)) trainBlip.destroy();
-		}
-		
-		curMissionID = false, curSimaKey = 0, curSimaphore = {}, curTrainPointKey = 0, curTrainPoint = {};
-		trainParkedProcess = false;
-	}
-}
-mp.events.add("cancelTrainJobTask", cancelTrainJobTask);
-
-function getTrainTasks() {
-	if(typeof(localPlayer.train) === "undefined") {
-		if(localPlayer.vehicle) return hud_browser.execute("gettedTrainTasks('you_in_veh');");
-		let jobData = localPlayer.getVariable("player.job");
-		if(typeof(jobData) === "undefined") {
-			//chatAPI.sysPush("<span style=\"color:#FF6146\">3</span>");
-			return hud_browser.execute("gettedTrainTasks('empty');");
-		}else{
-			if(jobData.work == 0) return hud_browser.execute("gettedTrainTasks('no_active_work');");
-		}
-		mp.events.callRemote('getTrainTasks');
-	}else{
-		hud_browser.execute("gettedTrainTasks('you_have_task');");
-	}
-}
-mp.events.add("getTrainTasks", getTrainTasks);
-
-function gettedTrainTasks(trainTasks){
-	if(trainTasks) {
-		if(typeof(localPlayer.train) === "undefined" && typeof(localPlayer.getVariable("player.job")) !== "undefined") {
-			if(localPlayer.vehicle) return hud_browser.execute("gettedTrainTasks('you_in_veh');");
-			
-			trainTasks = JSON.parse(trainTasks);
-			if(Object.keys(trainTasks).length > 0) {
-				let jobData = localPlayer.getVariable("player.job");
-					
-				for (var k in trainTasks) {
-					if(trainTasks[k]) {
-						let taskData = trainTasks[k];
-						if(parseInt(jobData.rank) < parseInt(taskData.minRank)) delete trainTasks[k];
-					}
-				}
-				trainTasks = trainTasks.filter(function (el) { return el != null; });
-				
-				//chatAPI.sysPush("<span style=\"color:#FF6146\">"+JSON.stringify(courierTasks)+"</span>");
-				hud_browser.execute("gettedTrainTasks('ok', '"+JSON.stringify(trainTasks)+"');");
-			}else{
-				hud_browser.execute("gettedTrainTasks('empty');");
-			}
-		}else{
-			hud_browser.execute("gettedTrainTasks('you_have_task');");
-		}
-	}
-}
-mp.events.add("gettedTrainTasks", gettedTrainTasks);
-
-function acceptTaskTrain(data) {
-	if(data) {
-		closeJobTablet();
-		restoreBinds();
-		jobPanel = false;
-		
-		if(typeof(localPlayer.train) !== "undefined") {
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Закончи смену", "У тебя уже есть активный маршрут", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			return notyAPI.error("Что бы взять маршрут, необходимо закончить активный маршрут.", 3000, true);
-		}
-		
-		if(localPlayer.vehicle) {
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Выйди из транспорта", "Вылези из транспорта и попробуй ещё раз..", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			return notyAPI.error("Что бы взять маршрут, вылези из транспортного средства.", 3000, true);
-		}
-		
-		if(trainTasksBlocked) {
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Блокировка доступа", "У Тебя блок доступа к маршрутам на 1 мин.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			return notyAPI.error("У Тебя заблокирован доступ к маршрутам, попробуйте через минуту.", 3000, true);
-		}
-		
-		if(!trainImInWorkZone) {
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Явитесь на базу", "Взять поручение можно только в офисе.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			return notyAPI.error("Явись в офис что бы взять маршрут.", 3000, true);
-		}
-		
-		mp.events.call("sleepAntiCheat");
-		mp.events.callRemote('acceptTaskTrain', data);
-	}
-}
-mp.events.add("acceptTaskTrain", acceptTaskTrain);
-
-mp.events.add('playerEnterColshape', (shape) => {
-	if(typeof(shape) != "undefined") {
-		if(shape == trainWorkZone) trainImInWorkZone = true;
-	}
-});
-
-mp.events.add('playerExitColshape', (shape) => {
-	if(typeof(shape.id) != "undefined") {
-		if(shape == trainWorkZone) trainImInWorkZone = false;
-	}
-});
-
-var nextSimaTimer = false;
-function trainMissionProcessor(ostanovka) {
-	if(typeof(ostanovka) !== "undefined") {
-		if(ostanovka == "pogruzkaTovar") {
-			mp.game.ui.messages.showMidsized("Пожалуйста ожидайте..", "~s~Начали ~g~погрузку ~s~Вашего состава, подождите.");
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Идёт погрузка..", "Подожди пока состав полностью загрузят..", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			setTimeout(() => {
-				mp.game.ui.messages.showMidsized("Погрузка окончена", "~s~Отправляйтесь на станцию для разгрузки!");
-				mp.game.ui.notifications.showWithPicture("Диспетчер", "Всё, в путь!", "Можешь отправляться на следующую станцию.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-				
-				let mParams = missionIDParams[curMissionID];
-				curTrainPointKey = curTrainPointKey + 1;
-				curTrainPoint = mParams.points[curTrainPointKey];
-				
-				if(trainBlip) {
-					if(mp.blips.exists(trainBlip)) trainBlip.destroy();
-				}
-				
-				trainBlip = mp.blips.new(626, curTrainPoint.pos, {
-					name: "Следующая остановка состава",
-					scale: 0.8,
-					color: 1,
-					shortRange: false,
-					dimension: 0
-				});
-				
-				trainParkedProcess = false;
-			}, 10000);
-		}else if(ostanovka == "razgruzkaTovar") {
-			mp.game.ui.messages.showMidsized("Пожалуйста ожидайте..", "~s~Начали ~g~разгрузку ~s~Вашего состава, подождите.");
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Идёт разгрузка..", "Подожди пока состав полностью разгрузят..", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			setTimeout(() => {
-				mp.game.ui.messages.showMidsized("Разгрузка окончена", "~s~Доставьте состав на базу железных дорог");
-				mp.game.ui.notifications.showWithPicture("Диспетчер", "Отстрелялся?", "Можешь отправляться на базу.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-				
-				let mParams = missionIDParams[curMissionID];
-				curTrainPointKey = curTrainPointKey + 1;
-				curTrainPoint = mParams.points[curTrainPointKey];
-				
-				if(trainBlip) {
-					if(mp.blips.exists(trainBlip)) trainBlip.destroy();
-				}
-				
-				trainBlip = mp.blips.new(626, curTrainPoint.pos, {
-					name: "Следующая остановка состава",
-					scale: 0.8,
-					color: 1,
-					shortRange: false,
-					dimension: 0
-				});
-				
-				trainParkedProcess = false;
-			}, 10000);
-		}else if(ostanovka == "stantionR") {
-			mp.game.ui.messages.showMidsized("Вы прибыли на станцию", "~s~Откройте ~g~правые двери ~s~(русская Ю)");
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Пассажиры", "Ожидай команду на отправление", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-		}else if(ostanovka == "stantionL") {
-			mp.game.ui.messages.showMidsized("Вы прибыли на станцию", "~s~Откройте ~g~левые двери ~s~(русская Б)");
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Пассажиры", "Ожидай команду на отправление", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-		}else if(ostanovka == "finalPoint") {
-			mp.game.ui.messages.showMidsized("Маршрут выполнен!", "~s~Успешный ~g~маршрут~s~, Вы справились!");
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Так держать", "Ты успешно выполнил весь маршрут!", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			
-			setTimeout(() => {
-				if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") {
-					let myBlocks = localPlayer.getVariable("player.blocks");
-					if(typeof(myBlocks.premium) !== "undefined") notyAPI.info("<b>Премиум-доступ</b>: Вы получили надбавку к зарплате (10%).", 3000, true);
-				}
-				
-				mp.events.callRemote('actionMakedTrainJob', curMissionID.toString());
-				
-				if(trainBlip) {
-					if(mp.blips.exists(trainBlip)) trainBlip.destroy();
-				}
-				
-				curMissionID = false, curSimaKey = 0, curSimaphore = {}, curTrainPointKey = 0, curTrainPoint = {};
-				
-				trainParkedProcess = false;
-			}, 2000);
-		}
-	}else if(typeof(missionIDParams[curMissionID]) !== "undefined") {
-		let mParams = missionIDParams[curMissionID];
-		
-		if(curSimaKey == 0) {
-			mParams.simaphores.forEach((prop) => {
-				prop.color = getRandomInt(0,2);
-				if(prop.color == 1) prop.color = "yellow";
-				else prop.color = "green";
-			});
-			mParams.simaphores[0].color = "green";
-			
-			curTrainPoint = mParams.points[curTrainPointKey];
-			
-			if(trainBlip) {
-				if(mp.blips.exists(trainBlip)) trainBlip.destroy();
-			}
-			
-			trainBlip = mp.blips.new(626, curTrainPoint.pos, {
-				name: "Следующая остановка состава",
-				scale: 0.8,
-				color: 1,
-				shortRange: false,
-				dimension: 0
-			});
-		}
-		
-		if(typeof(curSimaphore.checkpoint) !== "undefined") {
-			if(mp.checkpoints.exists(curSimaphore.checkpoint)) curSimaphore.checkpoint.destroy();
-			delete curSimaphore.checkpoint;
-		}
-		
-		if(typeof(mParams.simaphores[curSimaKey]) !== "undefined") {
-			curSimaphore.checkpoint = mp.checkpoints.new(40, new mp.Vector3(mParams.simaphores[curSimaKey].pos.x, mParams.simaphores[curSimaKey].pos.y, mParams.simaphores[curSimaKey].pos.z-0.5), 10.0,
-			{
-				color: [255, 255, 255, 0],
-				visible: true,
-				dimension: localPlayer.dimension
-			});
-		}
-		
-		if(typeof(curSimaphore.marker) !== "undefined") {
-			if(mp.markers.exists(curSimaphore.marker)) curSimaphore.marker.destroy();
-			delete curSimaphore.marker;
-		}
-		
-		if(typeof(mParams.simaphores[curSimaKey]) !== "undefined") {
-			if(mParams.simaphores[curSimaKey].color == "yellow") {
-				if(typeof(mParams.simaphores[curSimaKey+1]) !== "undefined") {
-					let mayBeNextRed = getRandomInt(0,2);
-					if(mayBeNextRed == 1 && curSimaKey+1 < Object.keys(mParams.simaphores).length-1) {
-						mParams.simaphores[curSimaKey+1].color = "red";
-						if(nextSimaTimer) clearTimeout(nextSimaTimer);
-						nextSimaTimer = setTimeout(() => {
-							if(typeof(missionIDParams[curMissionID]) !== "undefined") {
-								let mParams = missionIDParams[curMissionID];
-								if(typeof(mParams.simaphores[curSimaKey]) !== "undefined") {
-									mParams.simaphores[curSimaKey].color = "green";
-									localPlayer.train.simaphore = "green";
-									if(typeof(curSimaphore.marker) !== "undefined") {
-										if(mp.markers.exists(curSimaphore.marker)) curSimaphore.marker.colour = [11, 163, 58, 180];
-									}
-								}
-							}
-						}, getRandomInt(60000,120000));
-					}
-				}
-			}
-			
-			let simaColor = [11, 163, 58];
-			if(mParams.simaphores[curSimaKey].color == "yellow") simaColor = [232, 184, 12];
-			else if(mParams.simaphores[curSimaKey].color == "red") simaColor = [212, 13, 18];
-			curSimaphore["marker"] = mp.markers.new(30, new mp.Vector3(mParams.simaphores[curSimaKey].pos.x, mParams.simaphores[curSimaKey].pos.y, mParams.simaphores[curSimaKey].pos.z-0.5), 15.0, {
-				direction: new mp.Vector3(0, 0, 0),
-				rotation: new mp.Vector3(0, 0, 0),
-				color: [simaColor[0], simaColor[1], simaColor[2], 180],
-				visible: true,
-				dimension: 0
-			});
-			
-			if(localPlayer.train.simaphore == "red") trainWarning("redSima");
-			
-			localPlayer.train.simaphore = mParams.simaphores[curSimaKey].color.toString();
-			localPlayer.train.speedLimit = mParams.simaphores[curSimaKey].speed.toString();
-			
-			curSimaKey++;
-		}else{
-			localPlayer.train.simaphore = "green";
-		}
-	}
-}
-
-mp.events.add("playerEnterCheckpoint", (checkpoint) => {
-	if(typeof(checkpoint) !== "undefined") {
-		if(mp.checkpoints.exists(checkpoint)) {
-			if(typeof(curSimaphore.checkpoint) !== "undefined") {
-				if(mp.checkpoints.exists(curSimaphore.checkpoint)) {
-					if(curSimaphore.checkpoint == checkpoint) return trainMissionProcessor();
-				}
-			}
-		}
-	}
-});
-
-mp.events.addDataHandler("player.train", function (entity, value, oldValue) {
-	if(entity) {
-		if(entity.handle != 0) {
-			if(value && !oldValue) {
-				//chatAPI.sysPush("<span style=\"color:#FF6146\"> * createTrain("+value.mID+", "+value.speed+", "+value.start.x+", "+value.start.y+", "+value.start.z+")</span>");
-				if(entity == localPlayer) {
-					curMissionID = value.mID.toString();
-					curSimaKey = 0;
-					curTrainPoint = {};
-					curTrainPointKey = 0;
-				}
-				createTrain(entity, value.mID, value.speed, value.f, value.start.x, value.start.y, value.start.z);
-				if(entity == localPlayer) trainMissionProcessor();
-			}else if(value && oldValue) {
-				if(typeof(entity.train) !== "undefined") {
-					if(typeof(entity.train.trains[0]) !== "undefined") {
-						if(entity != localPlayer) {
-							if(entity.train.trains[0]) {
-								mp.game.invoke('0x591CA673AA6AB736', entity.train.trains[0], entity.position.x, entity.position.y, entity.position.z);
-								mp.game.invoke('0xAA0BC91BE0B796E3', entity.train.trains[0], value.speed); // setTrainSpeed
-								mp.game.invoke('0x16469284DB8C62B5', entity.train.trains[0], value.speed); // setTrainCruiseSpeed
-							}
-						}
-					}else{
-						createTrain(entity, value.mID, value.speed, value.f, entity.position.x, entity.position.y, entity.position.z);
-					}
-				}else{
-					createTrain(entity, value.mID, value.speed, value.f, entity.position.x, entity.position.y, entity.position.z);
-				}
-			}else if(!value && oldValue) {
-				if(typeof(entity.train) !== "undefined") {
-					mp.events.call("sleepAntiCheat");
-					
-					if(typeof(entity.train.trains[0]) !== "undefined") mp.game.vehicle.deleteMissionTrain(entity.train.trains[0]);
-					delete entity.train;
-					
-					if(entity == localPlayer) {
-						if(nextSimaTimer) clearTimeout(nextSimaTimer);
-						
-						if(typeof(curSimaphore.checkpoint) !== "undefined") {
-							if(mp.checkpoints.exists(curSimaphore.checkpoint)) curSimaphore.checkpoint.destroy();
-							delete curSimaphore.checkpoint;
-						}
-						
-						if(typeof(curSimaphore.marker) !== "undefined") {
-							if(mp.markers.exists(curSimaphore.marker)) curSimaphore.marker.destroy();
-							delete curSimaphore.marker;
-						}
-						
-						if(trainBlip) {
-							if(mp.blips.exists(trainBlip)) trainBlip.destroy();
-						}
-						
-						curMissionID = false, curSimaKey = 0, curSimaphore = {}, curTrainPointKey = 0, curTrainPoint = {};
-						trainParkedProcess = false;
-						
-						localPlayer.position = new mp.Vector3(711.58, -966.5077, 30.3953); // в Офис
-					}
-				}
-			}
-		}
-	}
-});
-
-function createTrain(entity, mID, speed, flip, x, y, z) {
-	if(entity && typeof(mID) !== "undefined" && typeof(speed) !== "undefined" && typeof(flip) !== "undefined" && typeof(x) !== "undefined" && typeof(y) !== "undefined" && typeof(z) !== "undefined") {
-		if(entity.handle != 0) {
-			let train_1 = mp.game.vehicle.createMissionTrain(parseInt(mID), parseFloat(x), parseFloat(y), parseFloat(z), flip);
-			let train_2 = mp.game.invoke('0x08AAFD0814722BC3', train_1, 1);
-			let train_3 = mp.game.invoke('0x08AAFD0814722BC3', train_1, 2);
-			let train_4 = mp.game.invoke('0x08AAFD0814722BC3', train_1, 3);
-			
-			//let pos = mp.game.invokeVector3('0x3FEF770D40960D5A', train_1);
-			
-			let tempData = {};
-			
-			tempData["mID"] = mID;
-			tempData["speed"] = speed;
-			tempData["trains"] = [train_1, train_2, train_3, train_4];
-			
-			if(entity == localPlayer) {
-				tempData["doors"] = [0,0]; // L, R
-				tempData["simaphore"] = "green";
-				tempData["speedLimit"] = 40;
-				tempData["warns"] = 0;
-				
-				oldTrainSpeed = 0;
-			}
-			
-			entity.train = tempData;
-			
-			if(!mp.game.invoke('0xEFBE71898A993728', entity.handle, train_1)) mp.game.invoke('0x6B9BBD38AB0796DF', entity.handle, train_1, 0, 0, 0, 0, 0, 0, 0, true, true, false, true, 0, true); // AttachEntityToEntity
-			
-			mp.game.invoke('0xAA0BC91BE0B796E3', train_1, tempData.speed); // setTrainSpeed
-			mp.game.invoke('0x16469284DB8C62B5', train_1, tempData.speed); // setTrainCruiseSpeed
-			mp.game.invoke('0xAD738C3085FE7E11', train_1, true, false); // setAsMission
-		}
-	}
-}
-
-let antiFloodDoorsL = false;
-mp.keys.bind(0xBC, true, function() { // Левые двери
-	if(!allowBinds || !Array.isArray(allowBinds)) return false;
-	if(!allowBinds.includes(0xBC)) return false;
-	
-	if(typeof(localPlayer.train) !== "undefined") {
-		if(!localPlayer.train.doors[0]) {
-			if(trainParkedProcess.type == "stantionL") {
-				if(!antiFloodDoorsL) {
-					antiFloodDoorsL = true;
-					setTimeout(() => {
-						mp.game.ui.messages.showMidsized("Пассажиры заняли свои места", "~s~Закройте ~g~левые двери ~s~(русская Б)");
-						mp.game.ui.notifications.showWithPicture("Диспетчер", "Отправление", "Можешь продолжать, не забудь закрыть двери.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-						
-						let mParams = missionIDParams[curMissionID];
-						curTrainPointKey = curTrainPointKey + 1;
-						curTrainPoint = mParams.points[curTrainPointKey];
-						
-						if(trainBlip) {
-							if(mp.blips.exists(trainBlip)) trainBlip.destroy();
-						}
-						
-						trainBlip = mp.blips.new(626, curTrainPoint.pos, {
-							name: "Следующая остановка состава",
-							scale: 0.8,
-							color: 1,
-							shortRange: false,
-							dimension: 0
-						});
-						
-						trainParkedProcess = false;
-						antiFloodDoorsL = false;
-					}, 10000);
-				}
-			}
-			
-			// открыть
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[0],0);
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[0],2);
-			//
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[1],0);
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[1],2);
-			//
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[2],0);
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[2],2);
-			//
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[3],0);
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[3],2);
-			
-			localPlayer.train.doors[0] = 1;
-			if(localPlayer.train.speed != 0) trainWarning("openDoorsInSpeed");
-		}else{
-			// закрыть
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],0);
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],2);
-			//
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],0);
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],2);
-			//
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],0);
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],2);
-			//
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],0);
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],2);
-			
-			localPlayer.train.doors[0] = 0;
-		}
-	}
-});
-
-let antiFloodDoorsR = false;
-mp.keys.bind(0xBE, true, function() { // Правые двери
-	if(!allowBinds || !Array.isArray(allowBinds)) return false;
-	if(!allowBinds.includes(0xBE)) return false;
-	
-	if(typeof(localPlayer.train) !== "undefined") {
-		if(!localPlayer.train.doors[1]) {
-			if(trainParkedProcess.type == "stantionR") {
-				if(!antiFloodDoorsR) {
-					antiFloodDoorsR = true;
-					setTimeout(() => {
-						mp.game.ui.messages.showMidsized("Пассажиры заняли свои места", "~s~Закройте ~g~правые двери ~s~(русская Ю)");
-						mp.game.ui.notifications.showWithPicture("Диспетчер", "Отправление", "Можешь продолжать, не забудь закрыть двери.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-						
-						let mParams = missionIDParams[curMissionID];
-						curTrainPointKey = curTrainPointKey + 1;
-						curTrainPoint = mParams.points[curTrainPointKey];
-						
-						if(trainBlip) {
-							if(mp.blips.exists(trainBlip)) trainBlip.destroy();
-						}
-						
-						trainBlip = mp.blips.new(626, curTrainPoint.pos, {
-							name: "Следующая остановка состава",
-							scale: 0.8,
-							color: 1,
-							shortRange: false,
-							dimension: 0
-						});
-						
-						trainParkedProcess = false;
-						antiFloodDoorsR = false;
-					}, 10000);
-				}
-			}
-			
-			// открыть
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[0],1);
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[0],3);
-			//
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[1],1);
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[1],3);
-			//
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[2],1);
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[2],3);
-			//
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[3],1);
-			mp.game.invoke('0x7C65DAC73C35C862',localPlayer.train.trains[3],3);
-			
-			localPlayer.train.doors[1] = 1;
-			if(localPlayer.train.speed != 0) trainWarning("openDoorsInSpeed");
-		}else{
-			// закрыть
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],1);
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],3);
-			//
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],1);
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],3);
-			//
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],1);
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],3);
-			//
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],1);
-			mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],3);
-			
-			localPlayer.train.doors[1] = 0;
-		}
-	}
-});
-
-function trainWarning(reason) {
-	if(typeof(reason) !== "undefined") {
-		if(reason == "speedLimit") {
-			mp.game.ui.messages.showMidsized("Превышение скоросного ограничение", "~s~Вы ~r~превысили ~s~скоростной режим, предупреждение!");
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Ты что творишь?", "Придержи коней, превышение, выговор!", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			localPlayer.train.warns++;
-		}else if(reason == "redSima") {
-			mp.game.ui.messages.showMidsized("Запрещающий сигнал семафора", "~s~Вы ~r~проехали на красный ~s~семафор, предупреждение!");
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Ты куда?", "Пролетел под красный семафор? Выговор!", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			localPlayer.train.warns++;
-		}else if(reason == "openDoorsInSpeed") {
-			mp.game.ui.messages.showMidsized("Нельзя открывать двери на ходу", "~s~Вы ~r~открыли двери ~s~во время движения, предупреждение!");
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Тебя засудят!", "Зачем ты открыл двери? Выговор!", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			localPlayer.train.warns++;
-		}
-		if(localPlayer.train.warns >= 3) {
-			closeJobTablet(true);
-			
-			trainTasksBlocked = true;
-			mp.game.ui.notifications.showWithPicture("Диспетчер", "Выговоры", "Я заблокировал тебе маршруты на 1 мин.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-			setTimeout(function() {
-				mp.game.ui.notifications.showWithPicture("Диспетчер", "Маршруты доступны", "Я разблокировал тебе маршруты.", "CHAR_MP_MEX_DOCKS", 1, false, 1, 2);
-				trainTasksBlocked = false;
-			}, 60000);
-			
-			mp.events.call("sleepAntiCheat");
-			mp.events.callRemote('cancelTrainTask', true);
-			
-			if(trainBlip) {
-				if(mp.blips.exists(trainBlip)) trainBlip.destroy();
-			}
-			
-			curMissionID = false, curSimaKey = 0, curSimaphore = {}, curTrainPointKey = 0, curTrainPoint = {};
-			trainParkedProcess = false;
-		}
-	}
-}
-
-var trainTicks = 0, goodTrainParked = false, trainParkedProcess = false, oldTrainSpeed = 0;
-let kTrainPressed = false;
-let speedWarning = 0;
-
-mp.events.add('render', () => {
-	if(typeof(localPlayer.train) !== "undefined") {
-		if(typeof(localPlayer.train.trains[0]) !== "undefined") {
-			if(!mp.game.invoke('0xEFBE71898A993728', localPlayer.handle, localPlayer.train.trains[0])) mp.game.invoke('0x6B9BBD38AB0796DF', localPlayer.handle, localPlayer.train.trains[0], 0, 0, 0, 0, 0, 0, 0, true, true, false, true, 0, true); // AttachEntityToEntity
-			mp.game.invoke('0xE9EA16D6E54CDCA4', localPlayer.train.trains[0], 0); // SetInVehicleCamStateThisUpdate
-			//mp.game.invoke('0x8D4D46230B2C353A', 3);
-
-			//mp.game.invoke('0x8BBACBF51DA047A8', localPlayer.handle);
-			//mp.game.invoke('0x44A113DD6FFC48D1', "FOLLOW_PED_SKY_DIVING_CAMERA", 3000);
-			
-			//mp.game.invoke('0x2AED6301F67007D5', localPlayer.train.trains[0]); // _DISABLE_CAM_COLLISION_FOR_ENTITY
-			
-			trainTicks++;
-			
-			let mParams = {};
-			if(typeof(missionIDParams[curMissionID]) !== "undefined") mParams = missionIDParams[curMissionID];
-			
-			if(typeof(mParams.maxSpeed) !== "undefined") {
-				if(Math.round(parseFloat(localPlayer.train.speed * 3.45)) > localPlayer.train.speedLimit) {
-					speedWarning++;
-					if(speedWarning >= 1000) {
-						speedWarning = 0;
-						trainWarning("speedLimit");
-					}
-				}else{
-					if(speedWarning > 0 && speedWarning < 1000) speedWarning = speedWarning - 0.5;
-				}
-			}
-			
-			if(!goodTrainParked && !trainParkedProcess) {
-				if(trainTicks == 40 || trainTicks == 80 || trainTicks == 120 || trainTicks == 160) {
-					if(mp.game.controls.isControlPressed(0, 71)) { // -- Accel (W)
-						if(typeof(mParams.maxSpeed) !== "undefined") {
-							if(localPlayer.train.speed <= mParams.maxSpeed) {
-								localPlayer.train.speed = Math.round((localPlayer.train.speed + mParams.accel).toFixed(1) * 100) / 100;
-								if(!isFloat(localPlayer.train.speed)) localPlayer.train.speed = parseFloat(localPlayer.train.speed)+0.1;
-								if(localPlayer.train.speed > -mParams.dccel && localPlayer.train.speed < mParams.accel) localPlayer.train.speed = 0;
-								//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+localPlayer.train.speed+"</span>");
-								mp.game.invoke('0xAA0BC91BE0B796E3', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainSpeed
-								mp.game.invoke('0x16469284DB8C62B5', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainCruiseSpeed
-							}
-							kTrainPressed = "W";
-						}
-					}else if(mp.game.controls.isControlPressed(0, 72)){ // -- Dccel (S)
-						if(typeof(mParams.maxSpeed) !== "undefined") {
-							if(localPlayer.train.speed >= -10) {
-								localPlayer.train.speed = Math.round((localPlayer.train.speed - mParams.dccel).toFixed(1) * 100) / 100;
-								if(!isFloat(localPlayer.train.speed)) localPlayer.train.speed = parseFloat(localPlayer.train.speed)-0.1;
-								if(localPlayer.train.speed > -mParams.dccel && localPlayer.train.speed < mParams.accel) localPlayer.train.speed = 0;
-								//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+localPlayer.train.speed+"</span>");
-								mp.game.invoke('0xAA0BC91BE0B796E3', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainSpeed
-								mp.game.invoke('0x16469284DB8C62B5', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainCruiseSpeed
-							}
-							kTrainPressed = "S";
-						}
-					}
-				}else if(trainTicks >= 200) {
-					if(kTrainPressed == "W" || mp.game.controls.isControlPressed(0, 71)) { // -- Accel (W)
-						if(typeof(mParams.maxSpeed) !== "undefined") {
-							if(!kTrainPressed && localPlayer.train.speed <= mParams.maxSpeed) {
-								localPlayer.train.speed = Math.round((localPlayer.train.speed + mParams.accel).toFixed(1) * 100) / 100;
-								if(!isFloat(localPlayer.train.speed)) localPlayer.train.speed = parseFloat(localPlayer.train.speed)+0.1;
-								if(localPlayer.train.speed > -mParams.dccel && localPlayer.train.speed < mParams.accel) localPlayer.train.speed = 0;
-								mp.game.invoke('0xAA0BC91BE0B796E3', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainSpeed
-								mp.game.invoke('0x16469284DB8C62B5', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainCruiseSpeed
-							}
-							if(oldTrainSpeed != localPlayer.train.speed) {
-								mp.events.callRemote('setTrainSpeed', localPlayer.train.speed.toString());
-								//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+localPlayer.train.speed+" SYNCED</span>");
-								oldTrainSpeed = localPlayer.train.speed;
-								
-								if(localPlayer.train.speed != 0) {
-									if(localPlayer.train.doors[0]) {
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],0);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],2);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],0);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],2);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],0);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],2);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],0);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],2);
-										localPlayer.train.doors[0] = 0;
-										trainWarning("openDoorsInSpeed");
-									}else if(localPlayer.train.doors[1]) {
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],1);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[0],3);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],1);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[1],3);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],1);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[2],3);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],1);
-										mp.game.invoke('0x93D9BD300D7789E5',localPlayer.train.trains[3],3);
-										localPlayer.train.doors[1] = 0;
-										trainWarning("openDoorsInSpeed");
-									}
-								}
-							}
-						}
-					}else if(kTrainPressed == "S" || mp.game.controls.isControlPressed(0, 72)){ // -- Dccel (S)
-						if(typeof(mParams.maxSpeed) !== "undefined") {
-							if(!kTrainPressed && localPlayer.train.speed >= -10) {
-								localPlayer.train.speed = Math.round((localPlayer.train.speed - mParams.dccel).toFixed(1) * 100) / 100;
-								if(!isFloat(localPlayer.train.speed)) localPlayer.train.speed = parseFloat(localPlayer.train.speed)-0.1;
-								if(localPlayer.train.speed > -mParams.dccel && localPlayer.train.speed < mParams.accel);
-								mp.game.invoke('0xAA0BC91BE0B796E3', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainSpeed
-								mp.game.invoke('0x16469284DB8C62B5', localPlayer.train.trains[0], localPlayer.train.speed); // setTrainCruiseSpeed
-							}
-							if(oldTrainSpeed != localPlayer.train.speed) {
-								mp.events.callRemote('setTrainSpeed', localPlayer.train.speed.toString());
-								//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+localPlayer.train.speed+" SYNCED</span>");
-								oldTrainSpeed = localPlayer.train.speed;
-							}
-						}
-					}
-					if(kTrainPressed) kTrainPressed = false;
-					trainTicks = 0;
-				}
-			}
-			
-			if(typeof(curTrainPoint.pos) !== "undefined") {
-				let train_1 = localPlayer.train.trains[0];
-				let golovaPos = mp.game.invokeVector3('0x3FEF770D40960D5A', train_1);
-				
-				let markerPos = curTrainPoint.pos;
-				let dist = mp.game.gameplay.getDistanceBetweenCoords(golovaPos.x, golovaPos.y, golovaPos.z, markerPos.x, markerPos.y, markerPos.z, false);
-				if(dist < 8.5) {
-					if(dist < 2) {
-						curTrainPoint.color[0] = 0;
-						curTrainPoint.color[1] = 255;
-						curTrainPoint.color[2] = 0;
-						curTrainPoint.color[3] = 255;
-						if(!goodTrainParked && !trainParkedProcess && localPlayer.train.speed == 0) {
-							goodTrainParked = curTrainPoint;
-							trainParkedProcess = curTrainPoint;
-							curTrainPoint.color[0] = 4;
-							curTrainPoint.color[1] = 36;
-							curTrainPoint.color[2] = 217;
-						}else if(goodTrainParked || trainParkedProcess) {
-							curTrainPoint.color[0] = 4;
-							curTrainPoint.color[1] = 36;
-							curTrainPoint.color[2] = 217;
-						}
-					}else{
-						curTrainPoint.color[0] = 255;
-						curTrainPoint.color[1] = 0;
-						curTrainPoint.color[2] = 0;
-						curTrainPoint.color[3] = 200;
-					}
-				}else{
-					curTrainPoint.color[0] = 255;
-					curTrainPoint.color[1] = 150;
-					curTrainPoint.color[2] = 0;
-					curTrainPoint.color[3] = 150;
-				}
-				
-				for (let i = 0; i < 4; i++) {
-					curTrainPoint.drawColor[i] += .03 * (curTrainPoint.color[i] - curTrainPoint.drawColor[i]);
-				}
-				
-				mp.game1.graphics.drawMarker(43, markerPos.x, markerPos.y, markerPos.z-1.4, 0, 0, 0, 0, 0, curTrainPoint.heading, curTrainPoint.width, curTrainPoint.height, 9, curTrainPoint.drawColor[0], curTrainPoint.drawColor[1], curTrainPoint.drawColor[2], curTrainPoint.drawColor[3], true, false, 0, false, "", "", false);
-				mp.game1.graphics.drawMarker(22, markerPos.x, markerPos.y, (markerPos.z-1.4)+0.65, curTrainPoint.dir[0], curTrainPoint.dir[1], 0, 270, 0, 0, 2, 2, 2, curTrainPoint.drawColor[0], curTrainPoint.drawColor[1], curTrainPoint.drawColor[2], curTrainPoint.drawColor[3], false, false, 0, false, "", "", false);
-				
-				if(goodTrainParked) {
-					if(typeof(localPlayer.train) !== "undefined") {
-						if(localPlayer.train) {
-							if(typeof(goodTrainParked.type) !== "undefined") {
-								if(Behaviour.inVehPos) {
-									if(typeof(Behaviour.inVehPos.x) !== "undefined" && mp.game.gameplay.getDistanceBetweenCoords(golovaPos.x, golovaPos.y, golovaPos.z, Behaviour.inVehPos.x, Behaviour.inVehPos.y, Behaviour.inVehPos.z, true) > 320) return antiCheatDetected('Читы, телепорт на поезде');
-								}
-								trainMissionProcessor(goodTrainParked.type.toString());
-								goodTrainParked = false;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-});
-
-mp.events.add("playerQuit", (player) => {
-	if(player == localPlayer) {
-		mp.players.forEach((entity) => {
-			if(typeof(entity.train) !== "undefined") {
-				if(typeof(entity.train.trains[0]) !== "undefined") mp.game.vehicle.deleteMissionTrain(entity.train.trains[0]);
-				delete entity.train;
-			}
-		});
-	}
-});
-}
+/*
+
+
+	SMOTRArage © All rights reserved
+
+	Custom obfuscaced system by DriftAndreas Team (0xA0426) special for SMOTRArage
+	Кастомная система обфускации от DriftAndreas Team (0xA0426) специально для SMOTRArage
+
+	Хоть тресни синица, а не быть журавлем.
+
+
+*/
+
+exports = 'bof8MzOxJF7aRItkuJsdRKRGBrnHkQLu+w3hiIfIJsg=v7baBrM59eHvCi5mhGlg/z5jvU3YAr5E+oDWDrReD6' +
+'ZVK1jTRmykaCUcgG=t+wk3umqZzGntNUGSV4Ig+GbYP/GL8vsXUPPcNgTgzGSL+4/xfa/SCaQs094=S1tkubCXMlwrs4bIQq' +
+'2FNXs/Q+WeRu+cM1XPOn2tbTC4b1aDwQY2osz7Lne+60dfD0khum0qAcyA8sLXg9mE4Jnnx7TMJb=2h6QmS/Bl8tDA5lBZxa' +
+'GcNldg/UKD=5ojQnXjBJE45Xp0bnHSeJ3ha3YArXTGImdGrsv050JkMFydQngd/ZUZQfGH/OwMmfDnPwXjw2mQ=5zDe7zjC7' +
+'Es8=YqCS5ejXFl+Boix0aT=bEM9Y=YCrJTEnp0bnHSeJ3ha3YArWbE/WpDrt=6GWSyKAysA49S+rAdCIlf35gOkxzZN=yfva' +
+'bVBL0CoeUlQJt95zpXRW+VhGzVM21T8HSRLOZKB7kRTqJn/+OKd5kIUTl=oGDGnY8D4m2VsaD3JGjvN1uYTY0Ry21eMviHM8' +
+'j1LKqBOfzgvJLP9bU6v9gTSNZzASAlOEdVvGyr62RS/5wIBooj1lcOU+BNT+aYdTYWjq3nsVYArWfGEiQVY+iczQ6z9kmfDX' +
+'AS+6HmRvVCOO0bjAPgNfHlx6CRNnHDteLpLNR0KyRfOFBlyqFW6c7XX8y0aq9E6X/5f1LaqC96xedm68dVCcJo8P9a1igMYj' +
+'5p5+cFl6s=lemhWviIh20Rn0a5sMmXpBJBDAIWlAJh=lRvqwogk4GGjh0AEA0sl7nBQOpmnD4pey2kCJRW/6/tU2c2dXq/gE' +
+'okXUm45SgMpc87Mmqw6y2bA1saxTnC3rtDOO0bn/8HH87WzKPSNXvzGhiCilv9k4GGic3=eR4vl78BPOlhnQ=pdX36XELfqC' +
+'c7juZT682VCcJo8P5LgLr+wT9RkIlUgr0ss9kRWvWIhKolgl6XR45ppBxBEgIYlNahBERk/aPRQJSuqanB3h4vl75RXJq0fF' +
+'3Ulgu5lkP8qPA6xeZVOp73gEnAaU/D1D9cc63754n2OEFYGhX8l2vnOvJ9=74kY93o=8Djw7XYNbGxu+LmUsyQC/IbS26fym' +
+'RQl5jBSelWnDHpdX35kkLaqC07iudl689F9eVTX=5JgLn9/j5AkIFw684xs9eBRQ2poxYlh26jR45p+3EkK8J1RyRPGjNCjq' +
+'wQUZSQqarAEh4xl78BRepmnDI5lgTIIuudOtybb0OFRmyobUTHa14LInFRaJiczQ6R0OWYRTElA71dPOJ9Ov0KhAnHQwHqw7' +
+'ORKrkEo+UkQuyiLzke=FycubWTNRxd+HwW9qYB6YnlG6JMTNuNbHwMhJGZXz34rYLLJX6aY9XDJ2SmNUumUn5juJIwNv/JQv' +
+'LPSgfmNODSyJbPCMYCuOXa/66zNzVoTT2ZyoadJRAds0u0bl3NltK5mELiqPU6vOdl6vcF9eVMX=5UgLH9/z5Mk8EUd80js9' +
+'OBQm3JU20MnA/5pX5sp11C5VJ0fyRIGwqCj1v9k4vGkczphmpQ8BUayhWu2Ol+OX1VV86TOuBJRDYel3dCRx4AoUXhI0Zfrs' +
+'viN4ftMUNXKWxA2FsrRg7+OOUQiRafQw/Uv630M8UJsvXgPNB0FSVoQl2SxKFW7m6d8IHIPatELrAbAZtTAJZJdI8wg6/oXU' +
+'G4q5z7EWh9r98HJHeyKkGjNXpj965aPfF99f5ThBbcRL7dx6TW7nzLWo38QuEoLD1CQl+js27PLGB18IzFKK1VAonIU+BOPN' +
+'OSdXsHQ2znookMrYu4GHFQns=ALnz3KF6dRIEW7aIsNrR8NO0Jdx8lO=z3zKPSNXvzbOcmOv20AC1oI1tSemhO6c7PXJu1TV' +
+'7clt/6XEPtqCA7iuZY686VCcBo9=9egLH9/T5Fk85VUg1=numpWviIjF4Xn04H5UiXp0JBCxIflAJhAUVDqw4QfZSo/b7rem' +
+'VV8Ck/mRGx2YZBK3UcV/KPRtNRd4TGe6iFqXYQoJ/FF2Fglc8AKGbmM1FXBold77YdQ7q3Ov0KjhCe=8mRm36g64YFu+gXP+' +
+'RuJCgYAhyivbCjNVwR+54HKu+KMLQbQ/RYPOWOaosXf2Rcp3P6j58FFWhysd=+MS2m6l/jQItlz6YqG/u38KnHRX5Up1WRKv' +
+'p0gSRIGwqCklvwk4/GkcznJPU=R97vX9u0fF3V6i6sr=M7lk4b29u01A4BXeVWC+NpMN3uDBxffNY0l6M=k0bfrFXf/sdi2I' +
+'cTiBGXQAn0yqCGLsbxiqQeRN6hLyRiOmVVymqVKGJH8IsMLO+EKnTPTu6LUNKbNXgPhZ/grCvAdiqivWVSa+HHM3rzKQScWF' +
+'td+ZAjQKqAQOnQRt70E8CT06/HKLo6u+kW/6QgOcDA5fVZvmSbPDBd/nwOPqtEO7jIGqJbC6ZJeXsXj77jXX0Mo4z6Imtjss' +
+'LA8Wr8KE/kV44ZsZcnM+z2OOMTaB=pQgKZfFTWO8UCwcUbS8VvIOYi/R8A9h0jl7zBPOppnDvpei2grz5KCK2J2Jm1mx0zCc' +
+'eo8P5UgYgMDB1fdNcElG5=nemuWv3IhF0E/r742H5qp16RKv91RyRGGjFCl6wQfpS0qa8B4A4wl7bCDepw8F7glgK6X1LfqC' +
+'RJ2Ji0zA0wCcqpw=5VgLkaYYa27DBR0OWsRHUk87fF35VePOMbmB=l+wjmwpCFNbLHvNkkB+B4JCdrTVEYf6adJU6S/X4PEP' +
+'+KML8Q=JWdT+7bf2cMiHaknzbDX1BoTdzhYD5Gk8MUf842s9GBOx2zokUlgl6f9C6HkWEjKvJ0gHSizUVzqjnQcZSrqanB5G' +
+'1/gs7mXJm1TV3Wlgq5j1LgqC2XNTfMPVVwSh7huCqivQk3SMD7LnjpDUuRN4pT+qIs/bVP35fxly=rTADW1m/IObk/wfbgON' +
+'ysLyZbRltkvWSRNWdhA0CFPvF6N8EqR/S1Rt+LN0YHf6uAoo3AZFilvgVZs5v2IGKp9VGYDXYW/aAZNOGH/PEPkhTEP=Tkx7' +
+'vIK7c5rvYWAa2+ODIJJjtEqo3sOmxj8H=I8=t7QB6przM7iU4n2Ji0ym6hXTcVrpxoQtzcDO7vk8UVR80ns9aCFg2zokR1nA' +
+'74145op19C3QITlNai2aSCi6wQc6SoqaTABR41l7bCGTrP88IE6bMJSvWPB63deYsIRmyrckTHZFilvgVfpNHjKGKpMlGjC4' +
+'9m+JAsOvuC+rbHnaqB46nezm/KJLD2e/kbB+lvNz1cQl+RzKWdMWEf=nDSQtRBObU5R+WeTO/OM0i0vQ0YCaO6a136gJD9/j' +
+'5=kIZUgQ1=numvWvOIgm0Pn0y41X5npBNC6mOP64ah61RiqjHQf6Su/TIleR0m697jXJR0fV3Nlt35lqM8WU4b29R0021F+N' +
+'VMCK6oYt34DBavk8UUgb0qsKrCCQ21oxglh7u43n5vpBJC3F+F94PzjLw0K9pOCAt8JR5ceH2a62RS/5wI/71J9X0aB7145X' +
+'amN0XVSnylZk/lRZqlvmlcbcLEJGO4NgqQR40ZrKAsMw7ID/cZbQzZ+LyRzaXENcgStvY9RN1p/cDA6fZWzaqRO2dg/TkKMP' +
+'FaLs99P/WVSpVSK5CxIDVkaGgDqpD9/mtOl98xL3r482ChVH4axTnC3rt/O=4Vig8kO87mx2/RMsg6s+0VOv+pLiIpB2+Yx7' +
+'OFLGJZ44HGQ=JKKnTKryk7e04IKTGDOQ0VCcqo9P9ZgLr98Y6ffNY5lG6RD0kTWtbYox5liV6d926HjmEmKv90fCVfeaSDW1' +
+'v1k4fGl8zkJPo=Uh8BSOlY8F3Xlgu5lkLfqPA6u/ZY6vhjXzC4XWDg9V6LjabWBEFm9xygD0lX76krNrh1=7nHVMay56q7yJ' +
+'CXPJUhlqHXS/2vMOwYqYDABR0rl7vBP/pz8F7Zlg35jELoqPA6u0a1mA0qCc6pwv5HgY1MDBtfdNY4l6sAYOq0W8CIjV0Rn0' +
+'4H92ZHib5BDgIT6CRCGw+CkUv1kEbGl8zieGU=RM7pX9Z1UV7Zlg0Ir=Q7iE4l29R00g4GCpeo+f5J1F6uhqK48Sew6y+fE1' +
+'kdrrEqRvF+BYryLAbd=tGRm36D+Hzxv+kmTv2u5zIlTWVyqIVcKGBj/orL8l3zlgu5jkLeqC2J2920yx00CpipvP9agLT9/5' +
+'6fcdYAl6s=keq+um3JU20Sn0y41H9Ap1lBFmJ0dXSh/UVzqw8QfpS1qaEQJN9/Xc7vX9Z1Tl3Ilge6XULf/E4hK2oMiZ/kr3' +
+'jFXUm45zxcc5mvN4f5KAVqCTf/lDXF35W+MKXIhAbpFPzazmqDN9YExvQXUallNSlkTW9eu63aM1BW/HfXMKV8N8YYUqpMPt' +
+'KdSH8Vbq3opHf6a148FWt4pNa47DBR0OWUT5xWrqUtNeu3PO0elgLpAPXpw6TYO8j5b+sXTf+lJxVfS0BRy6eh8yVq/o4CN/' +
+'6OKqwcP/WV=pZkKT7eJ0aySh8Er1v9JmFat+C9IGno8x7WRI1z979MMw/=Pa=TRxTcSuHazIXENr8Ddr7=54gKJTlkOFBZx6' +
+'pOKlNlA44HDOZKGb5bReVSONabX4cWga+etAGiRIb+3G2VsbHwMmC38Azq8BL7l6Ye/b34Q=ApjB=LNAPcfmeJ69gJvekhP6' +
+'NsLidXRUycubWTNRxY9I06LP+BJr9UQ6pMS+mKgHsVRJaknzbAZE358TkMYdL9J3rqLEqUR0sarrfF35Ve2/cNTvzZPPXU0m' +
+'/OKM0DdeUbS9+hMi9pAhpcvaqVO2YRzTjT+K2T1lby64t0R+KdK4=SeHCWsXX4eE4DH2+Nr847IH7pNQqWRI1H779hMv7AM7' +
+'XJlxnYT=XjiJvSJXX6hHC95oQJz9DA5fU6YaiTOy6V9Hw6MOVsOb5cTZJn/8CbgIYXhXaIa1Ydjkv8FW+euN4C74vpL0/jQI' +
+'1kum1jQ9e6R7biM7eA46m7Z6XIJqo2tdcmOv+z5wDWI0+=pmqeJGBk9DDHMOBvKrU8UuOeSpuddmkXiJWjoC0brZbHJGt3ko' +
+'v0LWiyGFCVG0HaxTnC3pVe25b1LKaA46nXyaOD89oyv6Qd/eRu5zVfS0BRy6eh8B6snBKt2IYi0rYOBuOTScGKenDWcZeSZj' +
+'USSCehvQU2SGb7JHmkO13iSl1S=q4YDrz2N=A8hBDiRevcu3yx0VzaVoz85v+hMi97OmBRhrzaJFxW3XoQMK1V6X/5fELaqC' +
+'o6xeZe695GvzbSSCehvQU2SGb4JS30JF7iRFIf=mUiPO7ZL=IIUR=YQPuafn+g69Qyv/cXIul070hXSEd1ubCP9Vta/WsEOe' +
+'gB8n1j74x05HZzEB7tg6JdsY4HoIz+3HBNssjTIHnl9VzbQHcWt20ZDsl18PMVixLdP=7WwmOM697eV4z85oQJz90=QlIYzL' +
+'WeKF1Xu40ILtN+LaAcP/adMq3GYooEiZe6nok5aZ4DEWpRnIav5DJA6x7kTX1W8JYmNvB3+75bhBDiGwHlv2/TM8U/ssHTRu' +
+'Ag=/RaPl+GvaSBO2+l=mOTKNhMJsATIuOeOJuZd4cRf5ljq3YEoFilvgU2SGaYzA6NKEiiRDll77AjFf3IL7wXkx8lO+7Sy6' +
+'aDAHQErvcdHey0I/ImRV2evXd80Pc7mBGt2IZV1lby64t05HambHHWf7dCRx3hRCahvQVQpMn0N3qkJEWhN4pk9aATONlP35' +
+'fxL7aA46nua0ut0FzaVvC=54QJz91z6fY6YUV4JFdj54oWNvA5An1JR/S/OOCUejPJg6ipoob=oZLFE3BVrsuv73rw8AzqA5' +
+'tW=rIqP7z6Or4IY94lS=zdlVHg8I7eV4z85oQNzM0=5fVYzaCNJWBgAowIPat+PbILU/aPA6/QbIoXf6C3pocsnJDCIyQTrs' +
+'i28zWr6Qe6Mlg=uKAsQ/WCMecNn9XYPALFv7TONnz8b6rbEJ1p/cDA5fU61aGaNlNsnBKt2IYiLcIMOdScRuScbIfRf7SanH' +
+'oLoEW6F2Fgt9LzAG72G13iSowZsZIlQgCN9abiRMay56q7Z0rg1F3aVvDXRf6lOcDA5fU6wLGSIlBj/o=WMP9GKsUNPeeePJ' +
+'VLbnsXjqGZfn4Jk58KG39UZtb+NFSsJFKUPo1S/Zff/sd3+8j1LKaAU628Z76x0cCeV+DiB+B2JCIqSApRvKBW6VVWA50IM9' +
+'6BN6EJTd2d/ZlJbnsXjqGZfn4Jk58KG39VemqZ0A/rM1uRQHTf76YqIPC2PPI7mxzn+t2RwKbRJsg6uNGaAqu7094=QlIYxK' +
+'uRJFpB/4ocMP9GKKIcMNOcQN7Ld4rLOKzhno49rUvBH25OaIavOgJO0/WbRI0R9JwaFf3IL74kRxnmNfHdrq3EPLkCe+sXTd' +
+'FhMS1XO1hVgG7eM2+q9IrRNex763Xj74x05NCVdokIYJuXkXY6q5LL3HBetMK4/gJO0/V97RH796LgO/u3Ev9bh9vuQgLcfn' +
+'6g65P6bf7=54QJz/LgRmxev63bKBxm+DbROvFBK7YLP/aTRtucNYkLhaOMpok=j5b7JHFepIWxk7xUZr0OATTRrQ2Kox1lgF' +
+'6j92NHkGEuKv+DlAFh=1RmqjnRQJW5qn=AEA0rl7wTv0jFnCrqRB2Y=1PrqC56uOZh689F7TWpvP5MgLX+xz5/kIakl6o=lO' +
+'mlWvuJU24XnAG44n50p1CffF2D6ZcZjtYRJ8RHBA=YBRxhhGzUJFpk9DSD=Kk5+3Xj74x05HaXdoocW5z/a3oJrYzJ3C891D' +
+'5/k8MUgL0fsJfRW83Igm0Fn0y5pX5n+3IzKvd0fSVYGjSDWqwQfJSrqaDAEx4wlHDCDulinDrpdX35l1LhBU4g29XD6v9GxN' +
+'VSC+NpMtzqDB/v7+cFl6U=nOq3W83Igb1mTF6X92pHkWEsK9N1RiROGjXSK8yHB/0k/xgQi3ye+yoRA5sYMKYT1lby64uTPZ' +
+'VaK1KgOn2eXYc9s6LJHiyartHHAFXN9UGhUXgjtm/IaF0Sn0G4245n+3EoKvJ0gyVUGwWDWEv4k4=Wqa8AEh0sl7DCG0SDnQ' +
+'8pgB2mrzQ8YU4h29GD6v6VCcipv=9bgLv9/z5D5+YWl4c=nemuW8/Igm0OnAC4296HjsD2x7TGMsY1e6Xe/b5w9wQi/WBiza' +
+'FX=hggnBKt2IZBK3UJR/S0RLaXXnTVgYakq3nAX6ilvgU2SGb4JS3wMk/QT3ld77YdQ7qKM/YQhgnc=8Dsa0ut0FzaVuDiB+' +
+'JhLCkkTlUexquiLFRa8noXNOxGNGsbRuFhLtadc3YMeaCqr3n=Xf5+gK=93o/75zhUZL0hsJiBPg6E9m0Tn0m44X99p1FC6V' +
+'OP64ah61RnqjbRT6StqnsQJPo/d9/5X9m1Tl7l6i6qrz87jU4m2JjD6vUF8CWpvf9YgL09/T9Qk8UUgb4wsJvBOmra=by3Dc' +
+'YpdPzFH+f3qmOP65T9beoTRf6l8vQnBRxigXd80Pc7mBHgMOlLKsf26Ht05HZzcHvLO63YsX4NoGfn9mtcpN=wN37zMQVPWh' +
+'X8l0XB3pVePwAbnB4cTs7W0JbRO9b/rNUeRaMiJ=ZZJFMjz4ZQ8Ck/mRGt2IYi0s1aUvuaPOVXbIwIhKCoa3g5q5nqFWlbt9' +
+'K3Inf9N2BXAYxl779sG/u3Ie0Zjc/j+wTWyXzIPHz6hHC95oQJz90=Rmxev63bKBxm+DbROvFBK7YLP/aTRtucNYkLhaOMpo' +
+'k=j5b7JHFepIWxk7xUZr0OATTRrQ2ZokklgF6k923Xp15BCxMrlAShAURiqw0RTvYi/R8A6x0sl7XCG/lfnDXqRB2d=1LlqP' +
+'w6uOdn68pVCcyo7=5LgL0+xz9S8SZUWr0fs93BOx6=okR1n0=H921HjmEhKv91TCRFGwaCjqtoBPkf/xgQeo/3BEBQ3VHrEM' +
+'k79X0ZCqKQONmcbDGDS2hVbz3SSCehvQU2SNqczQ6N0/Ws8BL7l0Y1NviHM=j1LKaA46nezm/KJLD2e/kbB+lvNz1cQl+RzK' +
+'WdMWEf=nDSQtRBObU5R+WeTO/OM0i0vQ0YCaO6a136gKv98j5GkIhUeL4xsJTRWv8YoksmU26f9C7ZAsCTKuN0gCRFGjFDWJ' +
+'wQf6S0qaLAEh0s697uX9m1U13Ilt/6aqM8Wk4n29F1px0vCcK4C+toYC0+wj5DkIZVR80nsJvBRQ65okUlhr74yX5apzABCm' +
+'+F94PzjLw0K9pOCAt8JR5ceH2a62RS/5wI/71J9X0aB7145XZzEB8RhaCufmUhaYLJImtea5BfbtY2l6UAYemmW87JXb1lfK' +
+'74yX5sp15C3QMk6CR0GjNDWlvwk4bGkLzlJPo/f9/As/lCnDvpfR66r=U7iE4l293D68QGv+VVX=5IgYcMDBtfc+cLl61AYe' +
+'q+rx66okklgF6k9CCl+LyRjWGT+4/xwfYnPqQ7094=5fVtZUZ40GtW/5wIRooj0lXyR+hS/N7Mf48Zf4aEf3PHoJ=5JGVbrY' +
+'avOgJO0/V57HpU=qYuNtakDO0XiB=YSwngyFGg69gCwujt6oUJz90=6fY6YUV4LFQZ8o4VDOZKGb5bRZtKS//dgIYIkmqas3' +
+'oFs6CFE22Yr8=0LGS4KASSUYIh=mTaMO3CLeMTZAbpKwHkxVOP68g2uL8XUqQs5x5JJCoey7CgLFxY+H8c+/BNN55RTMaLSt' +
+'hSN0YJe6iooj3SSCehvQU2otLAAG72G13iSjkurqMZPg/6BYryL7aA4628Z0qt0L03deDiB+2sKDRpB1Fowb/iNhZS+IsmO/' +
+'ZI8nXIP+ucGdmSe0PHf7/pr3PQZ1aSwQY2SGaYIG72BUiYU0kurqMZPg/6BYryL7aA4=nXhq7T9bc5sucdSeppLThpB1Fowb' +
+'/iNhZS+IsnN/J8LL1XR+BeAJZJaH8VWZSanG=HqobFJCpQpNDCMWS98xVq8BL7l0XBMvWGDeYMhgjnQfnf0mGg68oyufcXEH' +
+'gKz90D5vU6YUWXKRZb/nsoLPF698QXTN24RtuOgDXhOnyeXY/lRSahvQU2boz7JHmkNUGiNngj9XonP/GN8srHlQzsQPT=06' +
+'7FKMX5dfQTS/6lCCIqAVZfuoCPO29fAnfVNspHM7IhB69SS+7bensthKBdp3P6g58LESpjrt=6DGSyKFVYCUkfv3=h/rh1=r' +
+'biM7eA46m7Z63IO4QCsvcJRO2rDCMkPmUQlWzgMmNf92bYOO++N3UYP/SdPLaXf04NhZ76nok5aZTGImd6rsv0OC6w6yyYGh' +
+'X8l0XB3pWAM=HHmgzpPd3gyJbcG8kIwaPv/f2lMhtlS1d+x6qTPBxl/mwXPeZGKGTRCOSPS+mKanrLRVSRoY/Ia2DU3SQrfI' +
+'W3H3n/+llYCTHVt2wf=by38rHYRMay56q7Z0qt0LDAe+sTRuAuNC0kRlFjy63VKGEf=nDSQspBKcARVNeOKtWKeXnLOKquu2' +
+'glinHq9Xpjvd=wJmqkQU7tsJnBOx2poksmTV6XRMmX+Q7k2QI2lN7xGjuCilzAk4TGiszuJc9/d97sX9CDnDTpdX36XELmqC' +
+'M6xOdnOFesqHcCiIzFFXVApNXC7ieklG1AYumiuF8k9cFA8vQIkyDcAsDlzKbI94PGgrPiArYNzM0=5fU6xbycKl+e9DbYNK' +
+'tGMLERQNuNOOGSdnPWRK/dqHwvpJH=AGVPt+LAJC2ml5M=gumQrFjY9F0mnAm43n51+3ErK8J1RyVTGjGUBatik2KHW8zkJP' +
+'s=SM7uX9F1Tl3N6i2g=1LcqPk7jOZh6vEF9eZaC+K4gLn9856gQNY=l6I=nOq1rx66okoliV6Z923j+3EvK8ODlAahAlRvqw' +
+'4QcvUYBRxSm4SwFU1=2F=pG79E6Y4U=uiLR/CON0XURmynZk/lRSahvQVppMnBJHBR0OV57BH7+70mNO3BM7wcj9vkOAPkv6' +
+'jINnHDteLpJuRkMi1wPlBDwK3gKyYTCYHhHspoGa9qWOmoSd7QbDYheKsGveVHC++obt3vDB3x8zWmQV/ts7vCEV3Ij20MnA' +
+'W42H5qp16RKv90eHSh=URiqwwQc6SnqarB2x0el7nBR0m0g13I6i6qrz87jU4m2JjROFhVcjC4oY8DI2EYY+HANGqw6yJkE1' +
+'kaxTnC3pVe25cUltveN=3WiKbM9bH=we0YQu6hNz1lR29ey6SdOkVaA4D0NOBMOs9NBqU7fk4M27SFRmyXCbJpvf5V1NzmDB' +
+'6feSZVRb0fs9LwrFjY9F03nAjH92tHi8FBCQMvlANhBERtqjjQe6Sx/cztJPROl7zBQ/lgnDvpfn35kkLaqCI6u/dr6vRjXe' +
+'V3CK6oZdzgDOFfftcEl6I=lemlWvKIj20Mn0LVRMmX+NP6n5PCEZ0Yks/UBatx8vRcOlhjvWhO+BoRwTGe3Ici0lXyW4915H' +
+'ZzEBKuI0V/RoUJs6bHFXQapNP0LXn39U/QT4UD86onRfF9LfAglyGf+QPlyaHuMrYouOYd/6cgJzllIEFpgWVp1=g7mBHg3I' +
+'ci0sn26Hun6HemFB=Qimqas3oFs6CFEWBQa5=wKHfXO13hV3xl+a0a=bz2N=A7mx8pSvPlyaGM=lCbWo4YTuljNz1lRxyRu6' +
+'/TN3JF8IwODOZK8bEJUuNTUnp0EH8JQqCWsXXAX6ilvgU2osn+MmrOMk7DQHtd87Dg/sdi2IbxM7eA48+by7GRKrU+sqHnQq' +
+'luLjhfP1VTubCXMlxkvYwLOvRwLsEQLuuNT/KbbD3F6uMF3NV3XUm41tzMDBNfeNcFl6s=kTnBRA2tox63/r4J90eXpBJBFQ' +
+'IZlAShAURnqjjQe6WEBR0B2h0jl7HBSelXnDrqUG35mELf/E4o29R00g0qCpeo7=5MgLgaYYmv5UjMBD7OLVI504ja=byF/r' +
+'5NhAnqO8yRj22D+XzLWo385ulvN014KTUevb7gMmAZsel4nD4pgy2lrzM8Zp57i/ZT6v5F++ZaC+34gY499T5HkI1Ud84xA/' +
+'muWvKIhm0SnA/5pX97p1ABFAIT6CRIGjrfqjLQcvTGi838JPg/eM/0X9d0fa1Alt75l1LnqPM7i/ZTOx43CcWo+=5VgLf+0T' +
+'9Rk8QUdQzBIFA3t2ra=byH=s4XUt4rRQXWh3yx0VzatunaCqt9=/QnAhyivbCjNVwR/XfXRM6pDnsNTOSZSZVL27B01Q0oCc' +
+'mo716oZ9zcDB1gQtcFlG9=m/mtrx2qokoliV6Z9Cmj+3IzKvA0giRBGw2Cklv856So/czjJc1=Rs7wX9h0gK4pVB2CrzD7lU' +
+'8s29a00Q44Ccn4C+W4+GVfoszAJzNm9xyiE1khum1sQ=G6+8jRUaqB46m/ZDqtLLn5ru0kLeyzKjd5RVtTw6GS8B6snBKt2I' +
+'ZKKsAcSeSPGdaXb5jLQ3dCRx3hRIfGElyNrcL750JkKU3bUn4sm0bB3pWBPrwOhArcAQXaiJ/SO803tucTTeRvLTckSERfz5' +
+'OXO2ZB+HwXQP++8X/5gULNqAxLN0XF6t5F9NVVC+hoaN3tDBxfcdY+l6yPs93BRQ66ox9mTl6m923ZAsCTKuSDl/ah/lV0/l' +
+'vxk4/Gl8zqeR0il7zCDOpmnQDpgR2Y=1Lk/E4g29a0zx0lCpyo7=5T1NzpDB3v9CZUg80ns9XfrFjY99/dD+AGcOb/G+yTim' +
+'GU94Q3ru=lPqcg9/=WCxUrZUZ40=dj9I0YPes5M7wcV8O7IJuOeYgSiFRXCbf4C8BoYN3uYD5Fk8ZUdL0qs9eBQQ2wox1liV' +
+'6Z926Hk8FBDxIhlNWizEV2qjogk44WqaPABR0il78CEulTnDkE6i2nrzD7l08q29R0yA45Cc6pvf5M1N30DBNgQ+Y5l6NPs9' +
+'WBQx21oxAmTV+rUM/j+tOhjnGP69gCwujbEHgKz91z6fY6YUl50=da9TDPOuB6Ma1UP/uPSZufbH4MeZiaZjUJoJHMImoMrc' +
+'zCOEbUDAqUUYtg/FTaoi9mVa744H5s+3ElKvA0fyRGGjFDYJwQcJWBqn8B5G1/dR8CDepknD4pgy6qrzH7lk8q2Ji0z2pXaT' +
+'TKb23H4CygsdL07DBR0OV58BL7l6Ye/b32N=Axk/blKf/jxYvSMbj6bf7=54QJzDZbSFBfyqGxLFxV=jCMBooj0lXyRNFMK+' +
+'7XbHGDV2zbnnDKoFilvgU2SMr/8WzlMEFdVHHf+JwsOvK+Le9bjAzlRb7kxqCaGr0EtdQbOO+1MSke/8zWJOA/YhAds0u0e1' +
+'3KlgW6XULfqP97l0a0yF1F++ZcC+ZpMS5YY5BfYNY=l6I=nOq1rx20okslgV6k92uXp15BCxMrlASizEV//lzCk4KGkL39JP' +
+'c/gR8BSOlT8F7blgK6X1PrqCY7ieZh681F9eVPX=5+gK=93z5/8Sew6x7zK2pD6XsBFMGh8KnHV9mXOPHdzZaP65T9bbXbEH' +
+'gKz90=S1Fkzb7c62xgA5HlH9YGKs9aSeRS/k4Y29i00x44CcqpvP9k1NzeYD51k8tUgL4ysJkRWuCIjV4Vn0741X5yp1ZBFA' +
+'IblNKxGhNClEv7kFXHW8zgJPk/fy8CEupmnDs5lg76ZZM7ik4g2JV1mQ4BXeVOC+6oZNzcDBtfe+Y59Q6bA1whvn0k9gCGQ/' +
+'LQXaqB46nua0ut0FCbVo0iS/+5MzluB1FmvaqiNhxU8HTP+7+++7A4UaWhIZ+SQhKuI0Wlr4kQr5LP4mFipMvCMiOnJEibMX' +
+'5e+aEd/f/GR=5bTt=YNfPWzrX4JMc8ju0k/6cgJzllIEFpgWhOK2+l8DGe3IciQlnzW491RO2XbIwIhKCoa3Y8o1W6EW+PpN' +
+'4CF3b3Li3YUTsdrq5bMOGEQuIIlgj5PAKalT6u1F43wuHVTeRvLORZOlpTvaiwLGB8/ns4LPBD8XYj74x0OtmYensuhZ7Jnn' +
+'cDoJG=JH6hpIaJ0A+NLEJXQo5jz6YqJf3HNabHnaqB46nawFnQN4Hzue0iSJllOz1pTW9YuaWgBVpa=0GM8/6BN59UR/JYP+' +
+'Kcf5gSk2RedAGiRCb5GX6vr9b/50JkKU3bUn4sm0bB3vW7+vsXUQDfO=PczqCMMcgDe+kqQv60MexXQm60wKGRLm6g+HbX+K' +
+'Y5JrYaHdqPOtiZdn8RjmqZoogLrYzQ3CUnTGeYzGbtNS/XRHxc/qwhP=B1C75NhAnqO9u/ZDqt1F3aVuDiB+JhLCkkTlUexa' +
+'GhNl+Y9IvRPuVHOIoRQvWTUdKNM0ghfasFz+ZjX=9bgY49/z5DkI5UgL0tA5ckBQ22ox9lhV6X92VHh3EsKvp1RSVdblRwqw' +
+'1gk4vGiczqJP1/es7hsTSD8ftLQB2FrzD7ik8129rD6vQF7eVRC+6oZ934YD5Kk8QUeb0ss9bRWvyIjF4Wn0q44X96pBFBDA' +
+'MmlN/xGjXSqjrQepSmqanB4R0jlHDBQDjLEbIB63Xj74x05NqZNX0Eh6Fjsn3FqYzLGWJVos8CKGSyNgqiS4go4ZYsOez+Lf' +
+'IclQKf+WEXKuV0YnX9baaCdEzCk47GiczneR0slHARX9B0fF3Mlg36YkLi/ZlJKeZB689F+eVMC+toaNznDBWvk82kl6Q=k/' +
+'miWviIjF0On0a5p451p1NBCxIelAvxGjuCilv0k4THXLzoeR0rl75RwDm0iF3QlgnW=J5K/bCySGgCZHW9glC6a13I4CySoM' +
+'nBJCFk+AhPETHsm0bB3plf25cIjB=LNAPczXPPMrc8sufSFqu0MTlbE/k7YUWhKGJF+HXIOvJM8bMdSNWeQNyXM07DkTl=Rh' +
+'3hqJ3FF22ZpIvDKCOyMlCYRXIU77EhPOqH/PEPkhTOPATZrqrGO9kCsqvUqiHQYpSV/xgQex0Fl78BQ/lTnQTpfX35k1LoqP' +
+'97iedn6vwF+uZjXUm41tzIDOivkIZUd80ms9rBQg22okclh2+o92xHhWEhKv10f4Sh3ERiqjcgk4vGiczkJP1=Ss7pvTrP87' +
+'+cDZ57ObB0HrK2KTGDS2hVo3YDroKD1D1YY6/4/gJO0/V5QHIj4q5rOP/XOv0KjgLb+t2RwJLPNrjLWo385vgs5womCSxggX' +
+'d80Pc7nBKt2O6BN5cXPLFWP8GSeonDV2ylaTU5pJ=iH26wrtLAMmrbJF7dUjkurn0z4pZe25ryL7bnRQTqzqbb9bkGsuHmSJ' +
+'ljICAiAR6Viq/+OiFo2TrMBooj0lYYTOajS+KhNXsZf6qprCL7nInDAmFZrtH073j2PFzjC0tU76sbNviWN=A8hBDi+LyRwq' +
+'bSDrkJdq/SI96PDOIpTW6ZxqOXKWcZ8o4VDOZKGb5bRZtW/+OKd5kIQ3dCRx3hnpLJ9WVel98BKiWA61KQT5xWxTnC3wli2P' +
+'r1LQrnAPXnw6/XNnHysefa/+6hLSdbRT2ZyoadJUJS=nOF/728JrsLQ+6sQO/0dng4e7/gZk/lRSqiFnFaotH4LmNkJE/SRI' +
+'ll86E6Ow7pL=ESTxbqGALjyaOP68gyweTbUHgKzDZbSFBfyqGxLFxV=jCMBooj0rcXPMKLRdKVK1KDfJ3hrGnSSCehGWIUqN' +
+'DUMXfzNQVPWhX8l0YqNwCJPOvHkQzrT+HBp2/INcY=v6wbSLByMSMoBRxjiHye9y6l=Y4I+Lgm01YlQ+6dPOh3ER7tg6JdoX' +
+'YLnEa4Kwk3SGaYM4f4PFzUW0cW=JImRg+CLe9TktWZO9LUqaiWOp3zdr7=54QJzChXTV1QlWz5Fj1=vYkEPfB+8bEJUuNTEn' +
+'p0EB7thquYnnDoq58QFX5as9zBKHntMkpPHDlf87PYPwyCIOMKmxzpBbjhv7PWKJo9uNUmAe+hNzUkRl2iy6SgOGJMw3WRR7' +
+'YE6c1JTOWPHdmYaInLfq3pnjLEnJ=KGH6ht8i/HCO98AhPU4pj/ZI/Pfu2QrYLhBHYAP3SzKTLNckEpKQPB/Up7fkfE/k7YU' +
+'V4JmNj0HHVI/6LLG0l=uaLT+6kFB/tI0WYsocZpJ=sEX+XbcDDMVXzLEqjA1XRvnfF35Ve2/cNTxXsOv/TzJCaNrkCdqQaTu' +
+'+fITZlTF+VymqTP2NUAI0I+7+ALrEMQ+BsOuGSdnOLPg0MCcWo7v9YgY=99j5/k8tUgx1=mumvWveIgm4bn0a5sM6HjsFBDg' +
+'ITlAih/lRvqjPQd/TGlLzoJPg/gc/0X9jR/aQB=G8RFX915HambHHWf7dCRx3hRJ=9JHFerY49Lnn9BDz5DX5j/Jwq/b9lbF' +
+'6Y92xHj8FBCFJ1RCRAGjWClEzCk4kWqZLA+A0Nl75ds/lVnQjpdy2dr=M7kE8s29rD6vEGveZbC+FpM937YD5Fk8ZUe80fsJ' +
+'CCCVra=byH=s4XUt4rRQXWh3yx0VzayoC95vgNzTDD51lghqGkKFxl=jbEM/EA675LPdeaT+KNSH8Vbq3opCbDX587E2Fct9' +
+'LzAG72G13iSjHsm0bF3/i6Qr5IjB=BQfLAyqXoLMcEbbCSCacgIC1oI1tSm6ujNWFW5noVOfA5An0YFX91PtmYaXcPRJ/don' +
+'gCfIbJ/mtOgszDMXjp6ylPRY5f7aEhPOp9+75iM7eAP=aZvabVBL0CoeUlQJQgOcDA5fVcvbBOMGdB/ovDCK2EMKAJStKWOO' +
+'aOeTPTha/esX4GqVilvgU2qMO3IG72DUuRLnUV0qYrRbyRC74XT94y56q7Z0rMKXwExvQXRNEoIjloGlVirK3hLhxUAIs0Ou' +
+'ZGOXXI=79n/6/edXoIfJWjonj6ZE4SwQY2SGaYL3r462zeSHcl0q5sMryR8vEclO8gROTSzZyRMLUCvNwkTv+bIjloGlVirK' +
+'3hLhxUAIs0OuZGOXscScWeSdaXbj3Md3dCRx3hRCbAFiRguN40LmusJlGhIHIj4q5rOKqBL=Aajy=sSvvU07PlLMYlrvcdB+' +
+'61MRRlQlpkhrCdFmJj+HbK+7Z28n0JG79K/eKXb4sJg6qaoTbAX6ilvgU2SGaYKGusO2WfRHgXtr1nOvqIEv9bh9vv=8CSm3' +
+'6D6ck/sekYQullJvYf/Wc+YkV40=c7mHHJ+=2HLrscIuOeOJuhMDYeJ0Z/Rh3hRCahHGFgY984MU/zJSqUVl1a/aDYDrzBPr' +
+'wOhArcAQPqzaXIMHHGse0lTb1oMzVoSEF3xKuPOyZh/nHRQ9F6Ob4WVqtW//3KeYkIXJiknoj=r5zAHnBxoNHw8X6t9xzfQI' +
+'tk84MkPO3I+w5WjAvrGwHlv2/d8H/xveUkSNBGLzMXTRRd0ZzdNhxpuDSDP/6KNKIvSuFLT6WWgGYSiVquZjC4r58JI2Fzr9' +
+'zwNz3xPDzeUjcrt2Xz4pZe25bxL7aAN=njpJCFEr=1ke0lTat95zEmB1NRxaFcNmdkA44Q/fN9LsAcDJqaOO/cbFwPhZ3pZY' +
+'UGpIvL+G2goIvG7CFkN13hUn54+qwZRbSEOecVmvHYSwGf12qP69Qyv/cXH+dvIDgeSVtZxrCzJGJSvYKM/72IJs9bQ8iWRt' +
+'7dM4Lcaquoa4zAa14HEX6fpKP7Lmb481moM4gkuKXh=bzEL=Aai/PjQfHlhq7cF8LDe/3bArYNzM0=5fU6YUWPLGB8/nsnOv' +
+'JKNKI=P/SYSp2mK1XeJ0Z/Rh3hRCbUwQY2SGaYzHJR0OV57BIum0bB3pWR35fxLBrcQxPW1T6u0FzatunaTfRwJCMcAV+lyo' +
+'3XNUJS=nOROO6KNKUaU/aFOuKbSH8Vbq3opCL7sJ=oH2Vat5vCLlj4NUWdRjDa62XY9slR8rAckQHcOPnfw6WF8HQLWo385o' +
+'QJLzlq/WyfwaqiC2+l8Djg8/BNN55RTMaLSthXdHcViZSnsokznpLJ9WVel98BKiOnOF7=TnIf=mssPN/IPOcVicWgM9u/ZD' +
+'qt0F06s6wmUvulLioeSVtZxrCzJGJSvYCM875VAn0KU+BOPNOSdXsHOFVVtAGiRCahvQVVpYX/Lm7yOzCQV4ofAmXYSIlf25' +
+'bxL7aAQwXlfqLMNZ4=r8HXTL+pMjgWFhydyGqVJFtWvYwcPvF+MnseQuudT7+Re4cViZG8qXP5s1XHH2Vat7HwN3ayPxVbA5' +
+'lS/KAdF/iDL=HPlxzgQQT2v7XE9cz6eaQiOv2zJApiRE2kgLzdLFxl14oXLKtS8njITuOcStKwd4TEjmSitmUGrkvP3SgMs9' +
+'8AMmrKM1uQV0EeA51nQKqN+7nHlx8pRfX4yqCEO4w+xtQhSJl67/0x6fY6YUV40=c/mRGt2IYi0rYOBuOTSbeYaVPIjXCerH' +
+'j4XFq4EWVeiczxDmGoC1WiV0HRATnC3pVe25bxLAbd=wHazHvSJZH2wLgbSO9g=ORXQm67x67+M2J2+IwX+K2T1lby64t05H' +
+'ZzEHcMiHakn1gGsJ=KFVNNscvB7iB/1/Z57BH7l0XB3vW7+v9QlOfmNNPg07PWKKsyv+Hl/bg95wUf/Wc+YkV40=c7mBGt2O' +
+'Z/8bUdQtFMSdygensVQ2zdsnk3nZ=GJ3+RsYv0O3rnOFCUC0Ah+q5xIOuJOOHPRRDmS=7Vn6rVGrUCu6Xe/a1w8Pcr/xUrf2' +
+'Vp1=g7mBGt2IYi0soNSvWP/+aPM4cMiHakn1gGsJ=KFVNNscvB50JA6y6YA5P/lDXB3pVe25bxLAbd=wjmwpCFNbLHvNkkAq' +
+'uoNChVO26fz7/TNRxWB44GQPF+8XQYSuOjKtyedXnLOK/ksnL8fIbJB22eraL/KGim9xyRE0bkw28hCKN+BYryL7aA46m7Z0' +
+'rgKL=DsqQbP6NhKDZARE60x7GgNlNI8IsRPq1WAn0bB6Kl6HdzEB7tI0V/Rh4Er1v/EWlRbdL48WOzO1WVSHxS=qYnP=+CPe' +
+'YWmfTgSwjBx6TXOMY2daaCfEvjk2LYBRxSJNw=R97mX921T13Xlt35kELgqCI6vOZg6vUF8jbDX1BoQi0+xj5Dk8EVUr41A/' +
+'miWvKIhV0Sn0241495p15BFQMllNahAaSCllzL56S1qaHB2R0jlHPBPelTnQ=pfi2jrzpKqAA6u/ds68+VCcyo7=5LgL0+xz' +
+'9S8Sew6x7zK2pD6XsBFMGh8KnHV9mXOPHdzZaP65T9bbXbEHgKz90=5fU6YUV4MG5f9noQMKtNLnsVQ/WdONSOejPWgqusin' +
+'48robRFWAUYdvAPdYkl6I=mOqzrx23ox1liV6Z926HjmEmKv6F94Pzy/cwqh4RSeTGlszoJcQ/eM7kX9aDnDrpen35kkLaqP' +
+'56u/ZU6vsGv+VHC+loaCgMDB1gQ+Y8lGQ=m/muWv0y9m0SnAC43X5yp19BFAIYlAFhAlRn/lv+kEYWqabB2A4vlH=BP0aF+L' +
+'gm01Xy64t05Hp0EB7tI0V/Rh3hpIO=HXxaocn4M4iyKFSYUo1ktq5hQ97AN=4QT94YPAL0yqrT9bg2vOgkROQo7=8D5vU6YU' +
+'V40=c7mHoMPc+ELs0IG6KQONmcbECxIDV/Rh3hRCahvWVSa9r/8WjsKE/aU4ga+KEr=/GMN=EblcXYPAL1xqbGLsQ=tuHmAq' +
+'QgIC1oGERVu6eeMldfA0bHMPBMN7whBqtl6HdzEB7tI0V/Rh45pJ=bGGFPqt4+KGO46ylPRXpd/ZHz4pZi2IbxL7aA46m7Z6' +
+'LMNZ4=r8LePc+pMjgWFhxghGzPLGB8/nsnOvJKNKI=P/SYSp2mK1XeJ0Z/Rh3hRCahvQU6SWaYzA6N0/V57Ilj=rYoNwRCM=' +
+'QMkRHqAPPSyq2L6bjCrLLpCOJK5O0x6fY6YUV40=c7mBHTPfFRNbIgCNegPNudejPGe6ihj3oEqpH93G+euN4C7zfnJEqSRH' +
+'Uz979MMw/=8KnHixLmHfXqh22DDacgm6HlTf2pLStfP2UYu7GgBFdj54oWNqYE6cEaU+dTEnp0EB7tI0V/Rh3hnpLJ9WVel9' +
+'8BKiWA61KQT5xWxTnC3pVe25bxL7b056q7Z0qt0FzayukeSNB7094=5fU6YUV40F+a=VLSLcxEKZERTeZKFJ3We0PKe6maa4' +
+'gQrpH9HSpip9bBN0esN13hUn54+qwZRbSEOecVmvHYSwGf1mqP69Qyv/cXH+dvIDgeSVtZxrCzJGJSvYGM/72IJs9bQ8iWRt' +
+'7dM5YSg6qpgXYLnEvR3SgMs98AMmrKM1uQV0EeA51nQKqM+7nHlx8pRfX4yqCEO4w+xtQhSJl57/=WSV2iy6G1M21SA0DQRN' +
+'2HNGsiB6tl6HdzEB7tI0V/RnYArWfGEk+btN=BJFzlNUqiA1XRvnfF35Ve25bxL7b056q7Z0qt0F0Nsu=lPvYNzM0=5fU6YU' +
+'WPLGB8/nsnOvJKNKI=P/SYSphUQhKuI0V/Rh3hRIb+3G2Vsaf+IUjzOF7iRGAS/Jsr9clR8s8QRyiE4Jm7Z0qt0FzatunaQf' +
+'BkHiZoRFNjvb6X62Zm93fFPexPNKIaCNeiPNCef4rLPazhno4rqpLFFCQOoMbAB3SyO0/bRH5hrFjY98yC=bLJT+ie=9u/ZD' +
+'qt0FzaVo0vPudzJ/RfPxRRwb75MlB1/o4VPuJwJs9WTZJnFJ2bMDYeJ0Z/Rh3hRCahvWlcbcTwLGqyOEVdTXgl96MhMO3IN/' +
+'0VlcvqPw/osZrXL7Q6rOgnS+Ao5ZScqZ=A926a6yDBKupknDLpei6srzH8WE4e29y0zx0qCcJo9=5M1igMYj5h5+cKl6I=mu' +
+'qAW8HYok5lgF6e92xHkmEhK8N0gSROGwWDWEv456SyqncQJPw/eM/yX961UV3Klg36XULiqCk6w0a0qQ0lCp2pvk6oZ9zcDB' +
+'Jfc+cLlG+dATTRrHAAEu70GMcva/mZAsCiimHJJL=Dsq/SCqcg9O0x6fY6YUV40=c7mHXT/eR6MrHWU+tYRNKcencKf7+jrG' +
+'0GsmrAFH+VucLz7zfBNVs=g/mmWvaJUr1lil+o92xHhWEhKv10eSRNb6/S//lzPZSIqncQJPo/f9/5X960f13W6i2lrzdKqC' +
+'U6u/dk6v1F7uVVCKBoYNznDBW75+YClG1=m/q5WvWIj20EBK75pn95p15C3gIe6CRHGjPSqwPRQZW6qn0ABx0el7nBSelf/a' +
+'9B=Enz64t05HZ3ER7tI0V/Rh3hpIO=HXxaocn4M4iyKFSYUo1ktq5hQ97AN=4QT94YPAL0yqrT9bg2vOgkROQo7=8D5vU6YU' +
+'V40=c78HHVDelBNX0l=uiLR/COQhKuI0V/Rh3hRCbAFiRZs5vyK3rnLlzeSHcl/VsdSfWHQwDPhAbpFfjWvZzTMr0/wazb/e' +
+'ypMQdePl+byKuXMWIf944WQ=+HPnTRFX915HZzEB7tI0WWpocbp5L7G3ybqMvC50JkKU3bUn4sm0bF35Ve25bxL7aAN=njpJ' +
+'CFEr=1ke0lTat95wQi/V2ZyoadJTFgAIsWMNR6N7sb=r9KC7h3ER7tI0V/Rh3hSCehvQU2SGaYzHX2O2WfRIDf87MdP=CH/O' +
+'EIkxmf+PWjvXCa+ssbb6zt6oUJz90=5fU6YbzgO3dh9ICRMPN+M8EbCNWLR+m8bHLSjqFdnHcQr6G=1m+NrcD0L1btNTCQUn' +
+'PTum1cNvugM=bQUt4BJd/=iKTXNb0/sN0YUqNjNDZ4Qm6Eub/Z8BoRA5sYMKYT1lby64t05HZzEHkYiH3er2k5roi48SySoM' +
+'nBJDBR0OV57BH7l0Y14pZe25bxL7b056q7Z0qt0MCeV4z85oR9094=5fVtZUZ40Gs/mRHg3IdV1lb26NmWRt/Kd0PEg77=qG' +
+'corYz71DkMpdL9InntMkpXCDlsm0bBOvJ9LfMZZAbpKwHkxVqDPlCbVo0ePv9gLSMEPmRkeHlOKV+d=n3e3Ici0lnz64uTPZ' +
+'WMfIglg77JnogCaYDMIlybqMvC50JA6yyYA5P/lDXB3vmE/OUIkAKlS=mfyJCXLLo6rNUmQupuMeIpQVtnr6WiL16a8o0YPe' +
+'IA6B2OryY7dp+VK0i0rg0lCcmo7=9fgLxMDB1ffdY/lGAAZummWvqIgb6A8rC4wn5vp1xBFQMm94ShBURwqjHQc6Sxqn=ADh' +
+'4wlHDBP0m0i17ZlgW6XEPtqP06uuZg6vUGv+VMX=9YgLH9/D5Dk8MVUx1=m0nBPg2ook9lgF6b92ZIVWEmfxIXlAahAlRlqj' +
+'wRQZSrqafADG6a6yB122o2KstiCII1=J5KCJlJbXcPiZFhXUXDX2/A7wk3SGaYKGusL2GTPntj+aQrNw6+8vYciwzZRP/ozZ' +
+'bV9bkIsucnTeAo6jRiOmVDx7GcKyYT=o0EPfFaLs9vSvtMB62LO0OWT26edCvAdiqivQU2TGeYzA7yMiqUW50Ry21sQ=G6BY' +
+'ryL7aANgXjn6rVG8UDtJHVTv2QLi1kTRcbk0l50=dunBKt2Ol+OX1YSduYT8GKf4bDV2zYsocZpJ=sEX+XbcrwMXjsNVGjOn' +
+'xm/H5hQ+C2PejVhhLpJw/ayKWRO8LkwfYbR+Io7BDx6fY6YUl50=da9TDENP+cLbILReKZQNudMDYeJ0Z/Rh45pJ=bGGFPqt' +
+'4+KGO49UCUUo1j+aXg/sdi2IbxLA8gRNPZw6TON8L6u/fSFqumICApPic+YkV4Q=s8mBGx2YYiLrLQP+ucGdmSe07DkTl=Rh' +
+'3hnIbJ9mhVs5vzJHj4NUuoC0Hsm0bB3pW2N=Aqkxbn+t2RwJLPNrjLWo385vgNzM0=6fY6YaiTOy6U+44GNt2HLrscMvuaPJ' +
+'2mK1bXUTl=Rh4DoJG4E2RRosjfLm7yOz/eT4gjrnnYKLBG/r4YX+Cj+teqimGU+YkuhHC95oQNzM0=RVFkeKCXNR5us4bIQq' +
+'2FNXs/Q+WeRu+cM5YEiK/ag3DGnJG=IGtVrdHTIHnl9VRYD0lh779rNtKAOe9bTy4mP=7loqLXJHHJdq/SSeyyMil9RVtRzG' +
+'SeMldfA20EQ/5GP3XTDKdYDJZkFB/tI6WbZXgMrW8AIlBNssi9Inr2F1uYTY0Rym1HM/a6LfHVjgLwRbjU07PlLMYlrvcdB+' +
+'hhMTdeS2FkgWqaKFxYA4CQ=KY5PEnz64t0R+KdK4PIkrCFqG4Fs3H5JG1MfI4yNHfFLF7DQIxcuJoZQ=/9PPMbfcXaSALzx7' +
+'P4JMc8e+cnS9uvKCIqAB1ZhrCdFmJj+HbK+7Z2=Enz64t0P+abK1KDhJGsXXHHaXP9E3BbsZC3M3b2NkG2T4gS=mUmNwSIHv' +
+'0QkRH8NATSiKmM94QArvYlPsFsLiVqAVpV0LC/MldfA20EQ/5GPnXU=vKLSeCOTXHSe7Bdq3oPs44GGWpgh98CICO+8AdhFD' +
+'bmt3fF35Ve25ryL7aAP=aZ0rrTKLL3dfQhQul0BzVqOhpgxKGPNlNG=0GD8LoV6X9dSNaPPdaXbHnFOrixXYkQr5LGFiRcrs' +
+'b9N1nlO12dU4UW77AdJwzYNv9algbq=8CSm36D6ck/sekYQullJvYWVWgQzLWeKF1Xu5kSNOtMCb5cP6BaR+KKensohaOjfG' +
+'05rpDAIyUMYJqL5zf5MUCURXIf86Da9giQ8wIglxLmOLjhyZrRO6gyweTgSedlIDdbJV2evGVO6Csus0sYOeF+K7YWQ+ZMAJ' +
+'3kFB/tI0V/pnr=s6bHFWtSa+4+KGO4C13jQDch+qIZQOGqPrbHR+q0+sLmyJXIKb0/sufUAqu7094=5fU6YaWU82Zm93fFPe' +
+'xPNKIaB6KSTNGIaYgSja/arzL9t5L7JXBRa5T/L3b9FkukTX0ZrK1kNv3HM+MXZAbp+LyRfGGR+ojzdr7ZArYNzM0=5fVtva' +
+'ihKB6a9TDXRP2+MKLQTuFTReGuaIoERKzhonYKoHLH92RNstD4Mi6k6BlsA0tm+JEdN/WCM/HJT94y56q7Z0qt0L03dewnPd' +
+'piMSMtSEFigWzWOFJQ8YsSQvB+N3sNVueNTOGOM00Thq3ujGPMqYG=1nyYpM8BJFr0BkSQUoxa/X5hQ76A8r=XUNCs+LmsgV' +
+'qe1F3aVoz8VuBsMikWQlIYzLWeKF1Xu5kSNOtMCb5cP6BaR+KKensohaOjfG05rpDAIyUMYJqL5zf5MUCURXIf86Da/rzP35' +
+'fxL7aA4=nXhqnYK7Lzv+LpSNBy7/ReTlBPur7dOmFW=TbIR/J8OsENBqmaR+7iWnTYhJBdX4UDoI8KFUBbtsvSK3b3NkWiIH' +
+'IjrFjY98yC=bLJT+ie=9u/ZDqt0F0Nsu=lPqupJOxqUmyVx6JWN21a/Y0oLPF6981UQ+OdPLmKdXnMOm2yejT6sIv8FWJVrc' +
+'Lz5S6kPel67BH7l0YhN7S9Q/IGhR=mSgPWzFqDL9k1qNYkROJzJDYkPmRVu7GiKBYY=4TERNBHOrsMBqSaR+KKenswe6qZfn' +
+'4JXUm41jxacpKx7DBr8Bd97RH7l0Y14pZe25ckiAnqOAu/ZDqt0F09svfSPeRzNvQz/VlghqOPMFMf=oHWQ/JF98MMR/WeCZ' +
+'WZaIgWf4KhqGYLZ64GGWpgh98CICO88AhPU4pj/ZI/Pfu2QrYXkgblSuTS0qKRPHz9bfQTS/6lBSAlOmAYyKuXMWJ28I0E/f' +
+'cB9X1YP/SdPLOVdncXQqqatYkoqobFJEBNt979Oz6w62zQUYxW0JknMwB9OOMfmw4mP=7loqLXJHHJdq/SSeyyMil9RVtRzG' +
+'ScKGZl44fMOfFdJsEJCOxTAKh3ER7tI0Weoz08pJDL1DoMeJ3/90W08Azq8BL7l0XB3vi6Qr5ZhAvbJf/myJWDAHPzu+kpGu' +
+'RyEzMfR2ASg6OTO1BS/X0SOMZGOXTZCrVTEnp0EB7tI0Weoz0=sIH3En6bttD0MS6kL2GTPntj+aQrNw6CM=YMhhLrO8iYzq' +
+'3EPKc=wuHWAa1n7jZXR1BDx7GcKykYsTSD8b1G+HHKB71RAKh3ER7tI0WySh7hRCbUwQY2SGaczQ6N0E3YUVtd970YDrzBPr' +
+'wJkxbnRb7fw7iL+H/xu+kp/ehw8RpbOFBfyn+WN2+j=n4qO/x6OXUYSduYT8GKf4bRkmVhXYU5rZD9+mhboNG3M3StMVC0QI' +
+'1SuKXh=bzEL=Aai/PjQfHlhrHSLLHEkeUmOql67/0i/Wc+YkV40=df8HXIBa17le35lUPtqPE6u/Ze68kF+uZjC+a4gLb+wz' +
+'9PkIam9vl67BH7l7AbMvi6BK4YUNKj56q7Z0qtJrL9uOXs/bxs094=5fU6y6SdNWJD8HbKMLc5K75UTddW6HdzEB7tfqWion' +
+'LKpIzF7ixcTGeYzA7A8Bd97RH7l0nC3pVeL/cZbQzZIfzVoqrWO4PNbbPt6oUJzDEbRW+V00l50=c78nDILuhpMKYWUtajS+' +
+'JJRDXUTGdCRx3hRID=FW+Xk9z4LXnHMkieUTkurpfqBsFA8s=cW9mXBMWmimGU/IQuhHC95oQJJz1o/SkQxqGl62thvW8ILv' +
+'FHN4=QTuOcStKwd4TEjmSlqG4Fs3H5JG1au5a754XlNV/UJXUg77DgQfu+OPIshBHYAQmaimHTJMYDssoeRNy070RlQlpknK' +
+'3iJBxruDOVAKsN8of26Ht0VHp0EB7xIDV/nn4JfoX9E2dcrsb9NzWA61mfDXxZ86AjQfu+OPIaUQvcSbjUxqbGLqQ=tuHmLf' +
+'RwJ/=WR1FneKme9URW8o0SPbAANb5aTdexR+yKf04ThZWjsVk5s57FKCUYY+4wMXjpCUieQI0Z/qwhP=CZL=IIURagAsDhv7' +
+'PWKJo9uNUmAfuvKCIqHV2kuWqo8BsnvU/M/71N/nj26Ht0Unp0EB7tfqWnongLpIzF7iyQqN/70A+N0/WSTnUg/GbYMOS6Le' +
+'k4kgblSuPgyqCV92CbVoz8T+RzKCZiPiYQzL7jKBo/mRGt2OFBMrIWTduZRadJOyKuI0WyZk/lRSahEWVegsX0ImC0MkWdV0' +
+'ch+aA9MwC28srHkQLu+w3hiIfIJsg=v7baSeyyMil9RVtRzGSeMldfA20EQ/5GPXXU=vKLSeCOTXHSe7BdrXPAqZHcEXBNbd' +
+'a48zX0JF7iRF9d+Z5s/gzDN/wbax8rN87rh26Z9Yr6hHC95oQNzM0=QlIYeaqdEVNpA0GDLvJKBrYaMuOdQpuMfIg0hZWjsT' +
+'/CdiqivXk6SdqczQJOMFydRI9W+KEr=/35MrXJlxnYT=Xjo6/XKMYUtekVQOuvKCIq/xgQgK/WKFFc=4fMOfEB6Ynm=v145X' +
+'aSbT4Xk7zaqGr=noX9E2dcrsb9Nz6k6BlsA0tm+JEdN/WCM/HJRtOd+xTqzqbSKXwytvY2QeBjKjRlQlpkgWyPACsRsY4RM/' +
+'J/LrsNQqRT//h3ER7tg6JdqoTFnoX9E2dcrsb9N4iyKFSYUo1ktqAgNv/=Pv0QkRGg=8Dsa0ut0F06s6wfSaljKzlZQFyfwa' +
+'qiNhxWB4HWQ=AAJrYaHdqPOtiZdn8RjmVVYzr4noX9E2dcrsb9NzWAAAzQSIt19qIbOPzDN/wbT94y56q7Z0qtLLn5rOkkGu' +
+'RyFzVpQApTzb7/MldfA0jhCK2oJ7cNPeZYQtKiej4Gj773pocsnJDC4mlNsdD3MXr48AqbRHcY=qTh9gdi2IbxL7aAP=aZv6' +
+'rVBrw2rN8iRNRuNv0WU/k7YUV40=c78HHVDuV+JKgYSduYT6uNbIkXiJuuZT3SSCehvQU2SGbwKHfHL1GSSolg96ss9cl1MO' +
+'9TlgKy56q7Z0qt0MCeV4z85oQJ094=5fU6YaWU82+a=VsPNP1B6cf26Ht05HZzEHcMiH7hpoTFo5LKJH6buIW4/gJO0/V57B' +
+'H776YqE/i+Pr4kRxPYQxPWlT6u0FzaVo0v6oUJz90=5fk7YUV40=de=0bKLOp+98IRCN+PSuCKbnsWRK/dqHwlpIHKGXZRp5' +
+'WxPWzBl51=lOmqW84YoxAmTF6m92NIX3EuKv+DQccOGjuCilvyk4nHWc35Jd5/gBAds0shPvvpdB60=1LhqC57i/ZT6v5F++' +
+'ZaC+6oa9zkY5/6Inr2BEWhN4pk9VsbPP/I+a=H9C6IVmEiiFOM=lCbVoz85oRtMvIdOllVhrGX9VxgA4HJNOB6ObYXSOVYSt' +
+'WYfm0MjqSFpngLsJ=93C895j5yk6Rm9xyRs8zCCA23okImV26k92xHi8FBDgITlAih/lRvqjPQd/Yi/R8A+R0jl7fCDDm0g1' +
+'3Ilg/5kEPrqPY7mOZgRm1F+NZYC+xoYtzhDO6gTzZUgr0qs9nBRA6AokImTK744H5n+3EuKvA0diVcGjjSqjLQc6Sqqa0B3A' +
+'0m6yZ4xDGF/717BIUqLMF5ILSvV0fPOn2hXXs5q6D94Cxdb53A7DBR0OV57BH7m0bB3pVe2/cNTyHwRwXgwFnPMrcyudQeOv' +
+'RlMOIdPmBGub7XJFBd9DCFP/l6PrIaCNSWRtCUejfMQ2yWekG4XZLFFGFSqMv0Jzet62d97RH7l0XB3vi6Qr5Un/=jQfPczV' +
+'Gg68==rNUeKedhOCloB1NVzJKPNVdS8XTI+7+IMb5hQ/RYOdmYanDWOFVwSh7hRCahvQVVpYXCOHXpMkJXTII0+qwbOP+CPw' +
+'AMkAbsQ8mRf36g64YFu+gXP+RuJCgYAhyex7CnBE67vXHRMewA64kKGULJqP56vOZf6vUGvNVTaP5LgLr+wT9RkIlUghheQU' +
+'brrx2Koxd1n0244X5ypBRC4gIblA+hAaSCl1vwk4jGiszgJP9/fc/1s/ld8F3Plg36X1LpqCk6u/dm6vFVZUXHYEaF1igMcp' +
+'3/9zFkO27kRDHsm0bB3pVe2=r1LKaA46m7a0ut0FzaVvQkTfRwJDwkPmJVxrCh9VFS/4T2MOpHObHQPeSjS/FRKXcGjqWkq1' +
+'H5poL89WVeiczx5SFkK1GeKn5qt2jYMPGGD/cZex8qPb7awm/XMqcEv+0gPJMp7=8D5vU6YUV4JmNj0HHVI/6LLG0l=uiLR/' +
+'COQhKuI0V/RoH9q6D9Kwk3SGaYzA7lLF76TntB/Jwb/bVP35fxL7aAU628Z0qtQFCbVo0v6oUJP9DAVhUrZUZ80VthvX4ZMO' +
+'tMNGsJQuZS=u3VaI8IiHGjsXoJfozDI2RNs9K28zWsNkSQU44arnn29gdi2IcQiMXrTADWyZeLNrwyvejb/ax95vZrR1BVvq' +
+'WcKFITuDke3Ici0rYOBvWSOO3OK1KgOq3er2wGrYjyH2pRaI4wKHfNMCWdNngj9YcnP/F1C75blRLcDZ28Z76x0cC6hHC96o' +
+'VtMvIbT1FezL+cJFJVu0=TO/6RKs9uVuueGtyVen4EiqFcaTT=roX5IGEVY6qM54BR0OWYRTElA71dPOJ9PeYIlxKlP=Safm' +
+'Kg64YFu+gXP+RuJCgYAhyrZUZ40FdXu5wLLP2+6Ynl=uOTScSYeXD+hZqaZjU5pJ=hHUValszAKl/zMUFPHDlX76krNsdi2I' +
+'ckM7f0=9ux';
+
+/*
+
+	Encrypted module game_jobs/air.js. Result: 2ms.
+	Fuck is easy, fuck is funny, many people fuck for money,
+	if you don't think fuck is funny, fuck youself and save the money!
+
+*/
+}앰ą

@@ -1,549 +1,243 @@
 {
-/*mp.markers.new(28, new mp.Vector3(901.2396,-169.0619,74.0757), 30, // DEBUG
-{
-	direction: new mp.Vector3(0, 0, 0),
-	rotation: new mp.Vector3(0, 180, 0),
-	color: [0, 0, 200, 50],
-	visible: true,
-	dimension: 0
-});*/
-
-var taxiWorkZone = mp.colshapes.newSphere(901.2396,-169.0619,74.0757, 30, 0);
-var taxiImInWorkZone = false;
-
-let taxiPed = false;
-let taxiMarker = false;
-let taxiBlip = false;
-let taxiCheckpoint = false;
-let curCallData = [];
-let taxiCallsBlocked = false;
-
-var taxiMomentStart = false;
-
-function cancelTaxiJobClient(){
-	closeJobTablet(true);
-	
-	if(typeof(curCallData) != "undefined") {
-		if(typeof(curCallData.callData) != "undefined") mp.events.callRemote('cancelTaxiJobClient', JSON.stringify(curCallData.callData));
-		curCallData = [];
-		
-		if(mp.peds.exists(taxiPed)) taxiPed.destroy();
-		taxiPed = false;
-		if(mp.markers.exists(taxiMarker)) taxiMarker.destroy();
-		taxiMarker = false;
-		if(mp.blips.exists(taxiBlip)) taxiBlip.destroy();
-		taxiBlip = false;
-		if(mp.checkpoints.exists(taxiCheckpoint)) taxiCheckpoint.destroy();
-		taxiCheckpoint = false;
-		
-		mp.game.ui.messages.showMidsized("~g~Вы успешно ~s~отказались от заказа", "~s~Новые заказы можно посмотреть в планшете (F5)");
-		mp.game.ui.notifications.showWithPicture("Босс", "Отказ от заказа", "Отменил. Я заблокировал агрегатор на 1 мин.", "CHAR_ORTEGA", 1, false, 1, 2);
-		
-		taxiCallsBlocked = true;
-		setTimeout(function() {
-			mp.game.ui.notifications.showWithPicture("Босс", "Агрегатор доступен", "Я разблокировал тебе агрегатор.", "CHAR_ORTEGA", 1, false, 1, 2);
-			taxiCallsBlocked = false;
-		}, 60000);
-	}
-}
-mp.events.add("cancelTaxiJobClient", cancelTaxiJobClient);
-
-function taxiWorkCanceledByPlayer(){
-	if(typeof(curCallData) != "undefined") {
-		curCallData = [];
-
-		if(mp.peds.exists(taxiPed)) taxiPed.destroy();
-		taxiPed = false;
-		if(mp.markers.exists(taxiMarker)) taxiMarker.destroy();
-		taxiMarker = false;
-		if(mp.blips.exists(taxiBlip)) taxiBlip.destroy();
-		taxiBlip = false;
-		if(mp.checkpoints.exists(taxiCheckpoint)) taxiCheckpoint.destroy();
-		taxiCheckpoint = false;
-		
-		mp.game.ui.messages.showMidsized("~r~Игрок ~s~отменил от заказ", "~s~Новые заказы можно посмотреть в планшете (F5)");
-		mp.game.ui.notifications.showWithPicture("Босс", "Игрок отказался", "Вот уроды, кхм.. Клиент отменил заказ.", "CHAR_ORTEGA", 1, false, 1, 2);
-	}
-}
-mp.events.add("taxiWorkCanceledByPlayer", taxiWorkCanceledByPlayer);
-
-function acceptCallTaxi(data){
-	if(data) {
-		closeJobTablet();
-		/*if(data.name == "Работа в такси") {
-			mp.game.ui.notifications.showWithPicture("Босс", "Блок агрегатора", "Таксопарк на доработке, попробуйте позже..", "CHAR_ORTEGA", 1, false, 1, 2);
-			return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Работа такси на доработке, попробуйте позже.</span>");
-		}*/
-		if(taxiCallsBlocked) {
-			restoreBinds();
-			jobPanel = false;
-			mp.game.ui.notifications.showWithPicture("Босс", "Блок агрегатора", "У тебя заблокирован агрегатор на 1 мин.", "CHAR_ORTEGA", 1, false, 1, 2);
-			return notyAPI.error("У Вас заблокирован доступ к агрегатору, попробуйте через минуту.", 3000, true);
-		}
-		let theVeh = localPlayer.vehicle;
-		if(theVeh) {
-			if(!theVeh.getVariable("veh.job")) return notyAPI.error("Вы должны быть в рабочем транспорте.", 3000, true);
-			if(mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.job')))) {
-				let vehJob = mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.job')));
-				if(vehJob.remoteId.toString() != localPlayer.remoteId.toString()) return notyAPI.error("Вы должны быть в рабочем транспорте.", 3000, true);
-			}else{
-				return notyAPI.error("Вы должны быть в рабочем транспорте.", 3000, true);
-			}
-		}else{
-			return notyAPI.error("Вы должны быть в рабочем транспорте.", 3000, true);
-		}
-		//data = JSON.parse(data);
-		//data = data[0];
-		//chatAPI.sysPush("<span style=\"color:#FF6146\"> * DATA: "+data+"</span>");
-		mp.events.callRemote('acceptCallTaxi', data);
-	}
-}
-mp.events.add("acceptCallTaxi", acceptCallTaxi);
-
-function acceptedCallTaxi(isError, data){
-	restoreBinds();
-	jobPanel = false;
-	if(isError) {
-		return notyAPI.error("Этот заказ уже перехватили, выберите другой.", 3000, true);
-	}else{
-		if(data) {
-			data = JSON.parse(data);
-			curCallData = data;
-			mp.game.ui.messages.showMidsized("~g~Вызов ~s~принят", "~s~отправляйтесь за клиентом");
-			mp.game.ui.notifications.showWithPicture("Босс", "Вызов принят", "Отправляйся к клиенту. Точка уже на радаре.", "CHAR_ORTEGA", 1, false, 1, 2);
-			let callData = data.callData;
-			
-			taxiPed = mp.peds.new(
-				mp.game.joaat(callData[5]), 
-				new mp.Vector3(parseFloat(callData[0]), parseFloat(callData[1]), parseFloat(callData[2])),
-				parseFloat(callData[3])
-			);
-			taxiPed.freezePosition(true);
-			
-			taxiMarker = mp.markers.new(1, new mp.Vector3(parseFloat(callData[0]), parseFloat(callData[1]), parseFloat(callData[2])-2.3), 4.3,
-			{
-				direction: new mp.Vector3(0, 0, 0),
-				rotation: new mp.Vector3(0, 0, 0),
-				color: [255, 0, 0, 200],
-				visible: true,
-				dimension: 0
-			});
-			taxiBlip = mp.blips.new(626, new mp.Vector3(parseFloat(callData[0]), parseFloat(callData[1]), parseFloat(callData[2])), {
-				name: "Вас ожидает клиент",
-				scale: 0.8,
-				color: 5,
-				shortRange: false,
-				dimension: 0
-			});
-			taxiBlip.setRoute(true);
-			taxiBlip.setRouteColour(5);
-			taxiCheckpoint = mp.checkpoints.new(0, new mp.Vector3(parseFloat(callData[0]), parseFloat(callData[1]), parseFloat(callData[2])), 9,
-			{
-				color: [255, 255, 255, 0],
-				visible: true,
-				dimension: 0
-			});
-			taxiCheckpoint.data = {"type":"taxiClientPoint","callData":callData};
-		}else{
-			return notyAPI.error("Сбой в работе агрегатора, выберите другой вызов.", 3000, true);
-		}
-	}
-}
-mp.events.add("acceptedCallTaxi", acceptedCallTaxi);
-
-function gettedTaxiCalls(taxiCalls){
-	if(taxiCalls) {
-		let myPos = localPlayer.position;
-		let taxiCallsToSend = [];
-		for (var k in taxiCalls) {
-			if(taxiCalls[k]) {
-				let callData = taxiCalls[k];
-				if(callData[6].toString() == "false") {
-					if(localPlayer.getVariable("player.job")) {
-						let jobData = localPlayer.getVariable("player.job");
-						if(typeof(jobData.workActCost) != "undefined") {
-							let dist = mp.game.gameplay.getDistanceBetweenCoords(parseFloat(myPos.x), parseFloat(myPos.y), parseFloat(myPos.z), parseFloat(callData[0]), parseFloat(callData[1]), parseFloat(callData[2]), true);
-							dist = roundNumber(dist/1000, 1);
-							let distToPoint = mp.game.gameplay.getDistanceBetweenCoords(parseFloat(callData[0]), parseFloat(callData[1]), parseFloat(callData[2]), parseFloat(callData[7]), parseFloat(callData[8]), parseFloat(callData[9]), true);
-							distToPoint = roundNumber(distToPoint/1000, 1);
-							
-							let nick = "Бот";
-							let cost = 2500;
-							if(callData[4] == "ped") {
-								nick = "Бот";
-								cost = roundNumber(parseInt(jobData.workActCost) * distToPoint, 0);
-							}else if(callData[4] == "player") {
-								mp.players.forEach(
-									(player) => {
-										if(typeof(player.getVariable("player.id")) != "undefined") {
-											if(parseInt(player.getVariable("player.id")) == parseInt(callData[5])) {
-												nick = player.getVariable("player.nick");
-												cost = roundNumber((parseInt(jobData.workActCost) * distToPoint) + (parseInt(jobData.workActCost) * distToPoint) * 0.05, 0);
-												return false;
-											}
-										}
-									}
-								);
-							}
-							
-							//chatAPI.sysPush("<span style=\"color:#FF6146\"> * Вызвал: "+nick+" | От вас в "+dist+" км. | Маршрут: "+distToPoint+" км. | "+cost+" руб.</span>");
-							
-							if(cost != 2500) taxiCallsToSend.push({"nick":nick.toString(), "cost":cost, "dist":dist, "distToPoint":distToPoint, "callData":callData});
-						}
-					}
-				}
-			}
-		}
-		if(!taxiMarker) {
-			if(Object.keys(taxiCallsToSend).length > 0) {
-				//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+JSON.stringify(taxiCallsToSend)+"</span>");
-				hud_browser.execute("gettedTaxiCalls('ok', '"+JSON.stringify(taxiCallsToSend)+"');");
-			}else{
-				hud_browser.execute("gettedTaxiCalls('empty');");
-			}
-		}else{
-			hud_browser.execute("gettedTaxiCalls('you_have_call');");
-		}
-	}
-}
-mp.events.add("gettedTaxiCalls", gettedTaxiCalls);
-
-function getTaxiCalls(){
-	if(!taxiMarker) {
-		if(taxiCall) return hud_browser.execute("gettedTaxiCalls('you_have_call_from_phone');");
-		mp.events.callRemote('getTaxiCalls');
-	}else{
-		hud_browser.execute("gettedTaxiCalls('you_have_call');");
-	}
-}
-mp.events.add("getTaxiCalls", getTaxiCalls);
-
-function startTaxiJob() {
-	if(typeof(localPlayer.getVariable('player.lics')) === "undefined") return hud_browser.execute('jobPanelError("#startTaxiJob", "Технические неполадки системы лицензий..")');
-	let myLics = {};
-	if(IsJsonString(JSON.stringify(localPlayer.getVariable('player.lics')))) myLics = localPlayer.getVariable('player.lics');
-	if(myLics["bCat"] === undefined) return hud_browser.execute('jobPanelError("#startTaxiJob", "Отсутствуют водительские права категории «B»")');
-	
-	closeJobTablet(true);
-	mp.events.callRemote('startTaxiJob');
-	mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вас приняли работать в такси", 5, false, true, 6500);
-	setTimeout(function() {
-		mp.game.ui.notifications.showWithPicture("Босс", "Приветствую", "Получил рабочий планшет? Нажми F5 и начни смену.", "CHAR_ORTEGA", 1, false, 1, 2);
-	}, 2000);
-}
-mp.events.add("startTaxiJob", startTaxiJob);
-
-function taxiStartStop() {
-	if(localPlayer.getVariable("player.job")) {
-		let jobData = localPlayer.getVariable("player.job");
-		closeJobTablet(true);
-		
-		if(jobData.work == 0) {
-			if(taxiImInWorkZone) {
-				if(localPlayer.vehicle) {
-					mp.game.ui.notifications.showWithPicture("Босс", "Связь плохая", "Нельзя начать смену из транспорта.", "CHAR_ORTEGA", 1, false, 1, 2);
-				}else{
-					if(!activeJOBoperation) {
-						taxiMomentStart = true;
-						setTimeout(function() { taxiMomentStart = false; }, 3500);
-						mp.events.call("sleepAntiCheat");
-						mp.events.callRemote('startJobWork');
-						mp.game.ui.notifications.showWithPicture("Босс", "На линии", "Началась твоя рабочая смена. Агрегатор в планшете (F5)", "CHAR_ORTEGA", 1, false, 1, 2);
-						if(hud_browser) hud_browser.execute('playSound("welcomeTaxiWork", "0.1");');
-					}
-				}
-			}else{
-				mp.game.ui.notifications.showWithPicture("Босс", "Жду в таксопарке", "Смену можно начать только на территории таксопарка.", "CHAR_ORTEGA", 1, false, 1, 2);
-				notyAPI.error("Явитесь в таксопарк что бы начать смену в такси.", 3000, true);
-			}
-		}else{
-			if(!activeJOBoperation) {
-				activeJOBoperation = true;
-				
-				if(typeof(curCallData) != "undefined") {
-					if(typeof(curCallData.callData) != "undefined") mp.events.callRemote('cancelTaxiJobClient', JSON.stringify(curCallData.callData));
-					curCallData = [];
-
-					if(mp.peds.exists(taxiPed)) taxiPed.destroy();
-					taxiPed = false;
-					if(mp.markers.exists(taxiMarker)) taxiMarker.destroy();
-					taxiMarker = false;
-					if(mp.blips.exists(taxiBlip)) taxiBlip.destroy();
-					taxiBlip = false;
-					if(mp.checkpoints.exists(taxiCheckpoint)) taxiCheckpoint.destroy();
-					taxiCheckpoint = false;
-				}
-		
-				if(jobVehBackTimer) clearTimeout(jobVehBackTimer);
-		
-				if(jobData.workMoney > 0) {
-					//let resWorkMoney = roundNumber((parseInt(jobData.workMoney)-(parseInt(jobData.workMoney)*0.13)), 0);
-					let resWorkMoney = roundNumber(parseInt(jobData.workMoney), 0);
-					let workMoneyText = resWorkMoney.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
-					mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вы заработали за смену"+workMoneyText+" руб.", 5, false, true, 6500);
-					mp.game.ui.notifications.showWithPicture("Босс", "Отстрелялся", "С линии снял тебя, отдохни и выходи на линию снова.", "CHAR_ORTEGA", 1, false, 1, 2);
-				}else{
-					mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вы ничего не заработали за смену.", 5, false, true, 6500);
-					mp.game.ui.notifications.showWithPicture("Босс", "Я несу убытки", "Ты никого не возил за смену. Предупреждение.", "CHAR_ORTEGA", 1, false, 1, 2);
-				}
-				
-				
-				mp.events.callRemote('stopJobWork');
-			}
-		}
-	}
-}
-mp.events.add("taxiStartStop", taxiStartStop);
-
-function taxiForceStop() {
-	if(mp.peds.exists(taxiPed)) taxiPed.destroy();
-	taxiPed = false;
-	if(mp.markers.exists(taxiMarker)) taxiMarker.destroy();
-	taxiMarker = false;
-	if(mp.blips.exists(taxiBlip)) taxiBlip.destroy();
-	taxiBlip = false;
-	if(mp.checkpoints.exists(taxiCheckpoint)) taxiCheckpoint.destroy();
-	taxiCheckpoint = false;
-	
-	if(jobVehBackTimer) clearTimeout(jobVehBackTimer);
-}
-
-mp.events.add("playerEnterCheckpoint", (checkpoint) => {
-	if(typeof(checkpoint) !== "undefined") {
-		if(mp.checkpoints.exists(checkpoint)) {
-			if(typeof(checkpoint.id) !== "undefined") {
-				if(checkpoint == taxiCheckpoint) {
-					let checkpointPos = false;
-					if(typeof(checkpoint) !== 'undefined' && mp.checkpoints.exists(checkpoint)) checkpointPos = checkpoint.position;
-					
-					if(typeof(taxiCheckpoint.data) !== "undefined") {
-						if(taxiCheckpoint.data.type == "taxiEndPoint") {
-							if(!localPlayer.hasCollisionLoadedAround()) return notyAPI.error("Подождите полную прогрузку окружения.", 3000, true);
-							let theVeh = localPlayer.vehicle;
-							if(theVeh) {
-								if(!theVeh.getVariable("veh.job")) return notyAPI.error("Вы должны быть на рабочем транспорте.", 3000, true);
-								if(mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.job')))) {
-									let vehJob = mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.job')));
-									if(vehJob.remoteId.toString() != localPlayer.remoteId.toString()) return notyAPI.error("Вы должны быть на рабочем транспорте.", 3000, true);
-								}else{
-									return notyAPI.error("Вы должны быть на рабочем транспорте.", 3000, true);
-								}
-								if(theVeh.getSpeed() > 15) {
-									notyAPI.warning("Остановите полностью транспортное средство для высадки клиента.", 3000, true);
-									return mp.game.ui.notifications.showWithPicture("Босс", "Чё типа, быстрый?", "По-медленнее, дай человеку выйти! Ты в своём уме?", "CHAR_ORTEGA", 1, false, 1, 2);
-								}
-							}else{
-								return notyAPI.error("Вы должны быть на рабочем транспорте.", 3000, true);
-							}
-							let resTaxiMoney = 0;
-							let tempCallData = curCallData.callData;
-							
-							if(typeof(localPlayer.getVariable("player.job")) != "undefined") {
-								let jobData = localPlayer.getVariable("player.job");
-								if(tempCallData[4] == "ped") resTaxiMoney = roundNumber(parseInt(jobData.workActCost) * curCallData.distToPoint, 0);
-								
-								mp.game.ui.messages.showMidsized("~g~Клиент доставлен ~s~к месту назначения", "~s~вы заработали "+resTaxiMoney+" руб.");
-								mp.game.ui.notifications.showWithPicture("Босс", "Красава-на!", "Так держать, проверь планшет на новые заказы (F5)", "CHAR_ORTEGA", 1, false, 1, 2);
-							}
-							
-							if(mp.peds.exists(taxiPed)) taxiPed.destroy();
-							taxiPed = false;
-							if(mp.markers.exists(taxiMarker)) taxiMarker.destroy();
-							taxiMarker = false;
-							if(mp.blips.exists(taxiBlip)) taxiBlip.destroy();
-							taxiBlip = false;
-							if(mp.checkpoints.exists(taxiCheckpoint)) taxiCheckpoint.destroy();
-							taxiCheckpoint = false;
-							
-							if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") {
-								let myBlocks = localPlayer.getVariable("player.blocks");
-								if(typeof(myBlocks.premium) !== "undefined") notyAPI.info("<b>Премиум-доступ</b>: Вы получили надбавку к зарплате (10%).", 3000, true);
-							}
-							
-							mp.events.callRemote('actionMakedTaxiJob', tempCallData[5].toString(), resTaxiMoney);
-							
-							curCallData = [];
-						}else if(taxiCheckpoint.data.type == "taxiClientPoint") {
-							if(!localPlayer.hasCollisionLoadedAround()) return notyAPI.error("Подождите полную прогрузку окружения.", 3000, true);
-							let myJobData = localPlayer.getVariable("player.job");
-							if(typeof(myJobData.name) != 'undefined') {
-								if(myJobData.name == "taxi" && typeof(myJobData.work) != 'undefined') {
-									let checkData = taxiCheckpoint.data.callData;
-									let theVeh = localPlayer.vehicle;
-									if(theVeh) {
-										if(!theVeh.getVariable("veh.job")) return notyAPI.error("Вы должны быть на рабочем транспорте.", 3000, true);
-										if(mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.job')))) {
-											let vehJob = mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.job')));
-											if(vehJob.remoteId.toString() != localPlayer.remoteId.toString()) return notyAPI.error("Вы должны быть на рабочем транспорте.", 3000, true);
-										}else{
-											return notyAPI.error("Вы должны быть на рабочем транспорте.", 3000, true);
-										}
-										if(theVeh.getSpeed() > 13) {
-											notyAPI.warning("Остановите полностью транспортное средство для посадки клиента в машину.", 3000, true);
-											return mp.game.ui.notifications.showWithPicture("Босс", "Чё типа, быстрый?", "По-медленнее, клиент тебя не заметил! Ты в своём уме?", "CHAR_ORTEGA", 1, false, 1, 2);
-										}
-										if(typeof(checkData[5]) !== "undefined" && checkData[6].toString() != "false") {
-											if(parseInt(checkData[6]) == parseInt(localPlayer.getVariable("player.id"))) {
-												if(checkData[4] == "ped") {
-													if(taxiPed) {
-														localPlayer.freezePosition(true);
-														localPlayer.vehicle.freezePosition(true);
-														setTimeout(function() {
-															if(checkpointPos) {
-																let cheatDist = mp.game.system.vdist(localPlayer.position.x, localPlayer.position.y, localPlayer.position.z, checkpointPos.x, checkpointPos.y, checkpointPos.z);
-																if(cheatDist > 20) mp.events.callRemote('kickAct', localPlayer, "читы на телепорт на работе");
-															}
-															localPlayer.freezePosition(false);
-															if(localPlayer.vehicle) localPlayer.vehicle.freezePosition(false);
-														}, 4000);
-														
-														taxiPed.freezePosition(false);
-														taxiPed.taskEnterVehicle(theVeh.handle, 10000, 2, 1, 1, 0);
-														
-														setTimeout(() => {
-															if(taxiPed && theVeh) {
-																if(mp.peds.exists(taxiPed)) {
-																	if(taxiPed.isInVehicle(theVeh.handle, false) && hud_browser) hud_browser.execute('playSound("taxiDriveStart", "0.1");');
-																}
-															}
-														}, 10500);
-														
-														if(mp.markers.exists(taxiMarker)) taxiMarker.destroy();
-														taxiMarker = false;
-														if(mp.blips.exists(taxiBlip)) taxiBlip.destroy();
-														taxiBlip = false;
-														if(mp.checkpoints.exists(taxiCheckpoint)) taxiCheckpoint.destroy();
-														taxiCheckpoint = false;
-														
-														mp.game.ui.messages.showMidsized("~g~Прибытие к ~s~клиенту", "~s~дождитесь посадки клиента в такси и отвезите его");
-														mp.game.ui.notifications.showWithPicture("Босс", "Клиент на месте?", "Если его нет, отменяй вызов :(", "CHAR_ORTEGA", 1, false, 1, 2);
-														
-														taxiMarker = mp.markers.new(1, new mp.Vector3(parseFloat(checkData[7]), parseFloat(checkData[8]), parseFloat(checkData[9])-2.3), 4.3,
-														{
-															direction: new mp.Vector3(0, 0, 0),
-															rotation: new mp.Vector3(0, 0, 0),
-															color: [255, 0, 0, 200],
-															visible: true,
-															dimension: 0
-														});
-														taxiBlip = mp.blips.new(626, new mp.Vector3(parseFloat(checkData[7]), parseFloat(checkData[8]), parseFloat(checkData[9])), {
-															name: "Точка маршрута от клиента",
-															scale: 0.8,
-															color: 5,
-															shortRange: false,
-															dimension: 0
-														});
-														taxiBlip.setRoute(true);
-														taxiBlip.setRouteColour(5);
-														
-														taxiCheckpoint = mp.checkpoints.new(0, new mp.Vector3(parseFloat(checkData[7]), parseFloat(checkData[8]), parseFloat(checkData[9])), 9,
-														{
-															color: [255, 255, 255, 0],
-															visible: true,
-															dimension: 0
-														});
-														
-														taxiCheckpoint.data = {"type":"taxiEndPoint"};
-													}else{
-														notyAPI.error("Клиент не хочет ехать с Вами, отмените и возьмите другой заказ.", 3000, true);
-														notyAPI.info("По всей видимости, он не в адекватном состоянии.", 3000, true);
-														mp.game.ui.notifications.showWithPicture("Босс", "Клиент странный", "Не пускай этого алкаша в машину", "CHAR_ORTEGA", 1, false, 1, 2);
-													}
-												}else if(checkData[4] == "player") {
-													localPlayer.freezePosition(true);
-													localPlayer.vehicle.freezePosition(true);
-													setTimeout(function() {
-														if(checkpointPos) {
-															let cheatDist = mp.game.system.vdist(localPlayer.position.x, localPlayer.position.y, localPlayer.position.z, checkpointPos.x, checkpointPos.y, checkpointPos.z);
-															if(cheatDist > 20) mp.events.callRemote('kickAct', localPlayer, "читы на телепорт на работе");
-														}
-														localPlayer.freezePosition(false);
-														if(localPlayer.vehicle) localPlayer.vehicle.freezePosition(false);
-													}, 4000);
-													
-													if(mp.peds.exists(taxiPed)) taxiPed.destroy();
-													taxiPed = false;
-													if(mp.markers.exists(taxiMarker)) taxiMarker.destroy();
-													taxiMarker = false;
-													if(mp.blips.exists(taxiBlip)) taxiBlip.destroy();
-													taxiBlip = false;
-													if(mp.checkpoints.exists(taxiCheckpoint)) taxiCheckpoint.destroy();
-													taxiCheckpoint = false;
-													
-													mp.game.ui.messages.showMidsized("~g~Прибытие к ~s~клиенту", "~s~дождитесь посадки клиента в такси и отвезите его");
-													mp.game.ui.notifications.showWithPicture("Босс", "Клиент на месте?", "Если его нет, отменяй вызов :(", "CHAR_ORTEGA", 1, false, 1, 2);
-													
-													taxiBlip = mp.blips.new(626, new mp.Vector3(parseFloat(checkData[7]), parseFloat(checkData[8]), parseFloat(checkData[9])), {
-														name: "Точка маршрута от клиента",
-														scale: 0.8,
-														color: 5,
-														shortRange: false,
-														dimension: 0
-													});
-													taxiBlip.setRoute(true);
-													taxiBlip.setRouteColour(5);
-												}
-											}else{
-												notyAPI.error("Это не Ваш клиент "+checkData[6]+" | "+localPlayer.getVariable("player.id")+")", 3000, true);
-											}
-										}else{
-											notyAPI.error("Это не Ваш клиент "+checkData[5].toString()+" | "+checkData[6].toString(), 3000, true);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-});
-
-mp.events.add('taxiRouteStarted', () => {
-	if(hud_browser) hud_browser.execute('playSound("taxiDriveStart", "0.1");');
-});
-
-mp.events.add('taxiRouteEnded', (resCost) => {
-	if(resCost) {
-		let tempCallData = curCallData.callData;
-		
-		if(typeof(localPlayer.getVariable("player.job")) != "undefined") {
-			let jobData = localPlayer.getVariable("player.job");
-			
-			mp.game.ui.messages.showMidsized("~g~Клиент доставлен ~s~к месту назначения", "~s~вы заработали"+resCost.replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.");
-			mp.game.ui.notifications.showWithPicture("Босс", "Красава-на!", "Так держать, проверь планшет на новые заказы (F5)", "CHAR_ORTEGA", 1, false, 1, 2);
-		}
-		
-		if(mp.peds.exists(taxiPed)) taxiPed.destroy();
-		taxiPed = false;
-		if(mp.markers.exists(taxiMarker)) taxiMarker.destroy();
-		taxiMarker = false;
-		if(mp.blips.exists(taxiBlip)) taxiBlip.destroy();
-		taxiBlip = false;
-		if(mp.checkpoints.exists(taxiCheckpoint)) taxiCheckpoint.destroy();
-		taxiCheckpoint = false;
-		
-		if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") {
-			let myBlocks = localPlayer.getVariable("player.blocks");
-			if(typeof(myBlocks.premium) !== "undefined") notyAPI.info("<b>Премиум-доступ</b>: Вы получили надбавку к зарплате (10%).", 3000, true);
-		}
-		
-		mp.events.callRemote('actionMakedTaxiJob', false, parseInt(resCost));
-		
-		curCallData = [];
-	}
-});
-
-mp.events.add('playerEnterColshape', (shape) => {
-	if(typeof(shape) != "undefined") {
-		if(shape == taxiWorkZone) taxiImInWorkZone = true;
-	}
-});
-
-mp.events.add('playerExitColshape', (shape) => {
-	if(typeof(shape.id) != "undefined") {
-		if(shape == taxiWorkZone) taxiImInWorkZone = false;
-	}
-});
-}���핦0
+/*
+
+
+	SMOTRArage © All rights reserved
+
+	Custom obfuscaced system by DriftAndreas Team (0xA0426) special for SMOTRArage
+	Кастомная система обфускации от DriftAndreas Team (0xA0426) специально для SMOTRArage
+
+	Воду варить - вода и будет.
+
+
+*/
+
+exports = 'r9LC54vpLz/QTDkurqMZPg/6BYrykxLr+wPSy5TXJMYEneLl/bggOjDx6fZcvbBOJl+e34fSNs6M6YnIVe9l6H' +
+'eVbInDe7GpqHg5q5zFBmFUqMD7JCWA61KQT5xWxTnC4pa8Ov0JhAmlNAXlyaTEM8L/vL0gKO+yJCVj/SkQs5lp1=g/mXTIQ7' +
+'2+PbYcLuFd/7pJKUXPSmhlX0/lRYTDH26Nr5vBIGGzMSqQTH4Ry20aoiolgF6f92VHhWEmK8N1RiRNGjGUEHgK095jSRpVzq' +
+'GcO3Ef8H0H+7RIMb5hQ/SwReGOeVkShr/dnoU9Ykm43H+UoN407CWAAQzq8BL796LgRgWEM/0NTyDfNADWiJXEO8T6bbCv/a' +
+'J1LShbP1VevaBV6yQXs50cP/JHK3UbRuOaPJuSb07DO3lVX4oFo5L+GWpRp5/454BR0OV5SH8Z=rYoNvu7+wEPhB4cAPfW0p' +
+'fENb0yr+=XAaJjLi=kTWVgvWNX8B5SzDjFQOt9KrMRSNeO/ZZJghKuI0V/qXoLX5DGHFBls9Kv=CX3L13fRDcY87EOMw7+L/' +
+'ATi9WeNf/diKXcN8j4dr7=54QJzC1cAV+fxJCnN2MRzEWD9u6NObwbP+6ZRcybbHPHf76cZjUSSCehvQU2r9LC54jlM1udJ4' +
+'pl72019g/9L=5MUQTcSvbSzJrEJb=2dasVRNcuJzVqOhMZk0l50=c7mBWu2IYi0rkNUqKdONmYdVLEiJearzTUX5rH4mlNsc' +
+'j0MXiyMUGmC1odrqsdRKzBPrw+iADrQgKkhrHENcc2k+=hOv9oMiViREp1ubCPHi6OuDSDP/6KNKIvSuFLT6WcaHHShHCWsX' +
+'YzbHqA4CycoN=BJEvwMk3jC5xS+qwmFf3IL+jZg9agAsCiiGKP1F3aVoz8UHgKz90=5fVUwb7TJmJa/nad8/t+OG1VTqBAPN' +
+'CddofWQnyhXUTDX23A4Ak3SGaYzA72MlCQV4Ig+GbYP/GL8vsXUPPcNgTgzGSL+4/xfa/SCaQs094=5fU6Ya/dM21jyTk/=b' +
+'IN9X0aE7dW/7+ePDGDSGylmjClRSahvQU2tcbBKGfwKBZPV5tm82jF35Ve25bxixbkO=7kx6CR=XPAWo385oQJP/0x6fY6YU' +
+'V41=g7mBGtO/JM6cEdSLOcSd7iK1KDkVOinocCoJ//7iyfoMn+LUKlNUeUUTTRsZEZRf28BK5ahAnmQNTS0qL/+qC9basiRO' +
+'5n/ORRSV2iy6G1M21SA0DWLOlHM5EJUuOFC9pSN0YTe77oolsDqo8L3H+Nr9z9B3b4JDdgPDHdrr1ZQ=/6EOoWhBGfRfHdyZ' +
+'/oJMgypKYPAtgs5vtXRWyYuWNo6z6uyhWu2IYi0r5dUuFdONmYdYkthI/pr3o5qEvHJX+Ua+HDLUb2NU3oCEP/lDXB3pWHL/' +
+'oWkOrYRPvWzFGg68HFue/t6oUJz91z6fY6YUWXKRZU/nT4RP2+6Ynl=qmLTOGYencPhZpcZjUSSCehvQU2qMO35GGzJk3bM4' +
+'USA6Iq==K6NvcKkxKX/LaRxrbHIrYCuOslPv1p508D5vU6YUV4LFQZ8HTPOvRbLrsMTZJLFJ3cf4TGgX7eq3kKZE4JFXBhsc' +
+'uvJWbwNkFq8BL7l0XB3plf25bxL7bgOLjl17HIMrn5ueLVOudQLzVvPm5ev6GiGV+j+HoFO/IA681UP/uPSZugaHPXf6BXZj' +
+'34XFqU1C6hrcH0JW7yKEBRA08XrqknMO3AHvoInALpAPfW0pfENb0yr+=XAa2wLzVvPm5ez63cO2NVsTGM8=gm01Xy64t05N' +
+'mOf0YQk5OWq4k9o13U1Ghbos87E3GlPEGhDXAW=pMZQ/W2LOoMTt=nQwHqw7OROrU/wekW/6Q7094=5fU6YUWXKRZA8XLILv' +
+'EGLKIhTZqXUMSKdYoIfmVjqXoFopH=1DoMc5316SXnMlziKHcE=r9dMvl1CK4XT94pOATmzJ+DMbLExsUCIqllMTZlSxQSJN' +
+'9=Th8BPTm1TF3WlgS6ZkPsqCg6vDa00m1GveZnC+JobtzoYD5DkIdVRb48A/mrWvuIjV4g/r742n5np1NBDAIXlAmhB1Rqqj' +
+'AgkEXGjszpJcQ/d9/zs/lgnDLpei2mr=Q8Wk8t29V01A0zazbDX2CH5DxYY+HANGqt=el67BH7l0Y14pZe25bxL7qB46m7Z0' +
+'rTNcgJvekqB+B2JCIqSApTuaia8yBWwXwzQrBPD38RFX915HZzEB7xIDV/Rh3hq5LL1H+Nr9z9B3b4JAysA5xZ771d=/O6Qu' +
+'QIlQbYNPzWhmjGMr//seUmOqIp/cDA5fU6YUWaKGIR=l0EQ/55An1zLbF5Be3KeYkIQr/WqXPFg58LEVcfnIaJ0A+N0/V57B' +
+'X8l0XB3pWHL/oWkOvYQ=WRm2HWC8UErt7UR+ytJ/ZTE/k7YUV40=c/mRGt2IYiMbwLP+67R+7ibIfRfK7aoo89j5zKGXBVrs' +
+'u3N4f5KAVq8BL7l0XB3vW7+vYciwzZRP/ozZbV8HQ5wugRO/2vNjdbSxpV0KGROGJWu0sLNOF9KrsqPeaTRttRLuZB689F9+' +
+'ZYCKloYtzcDBNffzZUfb0fsJvBOx2zokslfa4JThDYQw/fqJLQKH7ze6GZArYi7=8D5vU6YUV4N3BlBIkIR7t+O7IWUvVYOt' +
+'7Vd3gIh6upoj07rZbHJCQOs9nwOGr2G1uCQHUg+F8k9fC6OckMn9aj+wbSyrTI94QDru=hR8lhLCkfE/k7YUV40=dWB4HXH/' +
+'xL6YnITbaLT+7EKXgPg7zFqHf6mFilvgU2SGaY0A+N0/V57HUW=m1cNv/rM/Y7mx8rRbCufoTVPMQEuL4FB8yFEeIaPl+i0b' +
+'zi83RW+3wXLPFL9X1TTL2PUJZkFB/tI0V/Rnk9nnP9GF+goNHB50JkDT//LTch779rNrS5M/E+iAXKSwHlzV/XMqcEv+0gPJ' +
+'NDMT1mTVt7q2qTMVEf5I0JB7YB=Enz64t05HZ3ER7tI0V/qXoLX6P9GH9MfI4JPDBR0OV57BH7+qIs9g/oNv0eZg8pRbCufr' +
+'ToJMgypJYlQep3AiVoSA6Nk0l50=c7mBHJOv958cMJTJKV/+aXK5k3gqusfGYJrka4Kwk3SGaYzA6NM1GjA59W9osZPvF1C7' +
+'5SXaqB46m7Z0qtLLn5wf0iPupm7zhbODJVwJ/iJGJk6kkAJuh28n0JG6JMTNuNbHwMhJGZXz34sYL==m2ZpI3L53npJjKUS3' +
+'xl77ErKLzyJekEUQvYQ=Wsa0ut0FzaVo0XRf6l50pbQTpRxaFOAB6cyhWu2IYi0lXy74x05HZzEB8Pf7BVs3o=fozKJCxpY6' +
+'aH/D69=BVoGEP/lDXB3pVe2/cNTyHwRwXgwFnHKLcnsuwFTey0Mh8mNkdbtWVO6CsRsY4RM/J/LrsNQqRT//OOc2kSiaBVej' +
+'U8oIDuFWR=t98CMlB0IDeaPDcU+aAsCIlf25bxL7aASPXZnZCWO4PNbfoXQc6vMjgkTVtDzL7XMVUZuEOx2YYi0lXy64915H' +
+'ZzEB7tjJGdrF=CmE3U1HcOt9bCL3qm=VKUS2cS+6Hk9//DPfHJXRPcPuPgzaXg=lCbVoz85oR9094=5fU6YbKTL3ERzDkuHs' +
+'xn98AcTNuYPtaPgD4Zf6SoZk/lRSahvQU2TGeYzA6N0F/UV31a+6InRwB9MPMVhhHgQf6Zh2He1F3aVoz85oRpJOwXT1FYm6' +
+'3b8B6snBKt2IYi0lXySuee//OOc3YSiVyyXY/6t1/R4T1hc6S99j24+QhPAYHTxFnqCsVH/LbfXuWj+sLrfGuQ=5X/gbvnDv' +
+'g7094=5fU6YUV4LFQZ=noPOutnJroN=r9n/6A6qOZT6vgF++VUX=5JgLH+wD9Rk8QUfr4AsJvBRQ2q97V1QOMPdxzq+t2R1V' +
+'Pb6Y3+frfmB7M49=oi/2USkmlj=CAfw1zXAqk7P38iDKNcBa2aO18gUTl=Rh3hRCahvWVSa+DwL3SyEU3cRDkSy20aoj5lf2' +
+'6i92xHk8FBCQIYlNSizERwqjbRUJW5qarABm6X63k/mRGt2IYi0lXyUNeSGt7WK1KDh7yjnGYEoJ=5IypapNS36mnpKU3kT5' +
+'0Yum1mNwN1O=4VeQLaSw/jjVnZKLwhuObgUaY08PYi/WJVwJzdNhxqukzR=ak5O7IQLuFdBedUODOYQ2hVq3oOX5rH4lJRot' +
+'H+MTisOUGXM4gkuKTk9gK6Nu5WlcvwAsDnw6n0Msb/x6ze/b9w7=8D5vU6YUV40=c78noQHvF6N8E5SeVKFJ3kKY3FUKKapW' +
+'UGrkvP3zAacYmv5X6m=VKUS3lg/Vsx/LBC=KnHRReZDQbWxpHSNnHKdKTgDvg7094=5fU6YUV4QFNd=n4e3Ici0lXy64t05O' +
+'OOc2kEh2yyXXHHaYD5HWFeoNC9LWr78xOTRH9S=6ks+Kh1OOMeRxrnAObWvaXSNYb5w+kaKepz8TwhCiAeimhOOVNZ44fW/f' +
+'YD+oDWDJ5KTdKRW4TWRKZgczKMZEm4HmFjY9r/8VvpJlCeUUwZ=JIgIfuH/PXTRyPcPvDgzV/c94QGsuwCRO5uOO0i/SAggX' +
+'d80Pc7mBGt2IYiJK5VLeaLSeG6dojDV2zwX4z6dZP9GFybsovG7ja49R6bA0tqrGcuNvSlOfDVn9ioCs6jimGFPXXKw+kaKe' +
+'pz8T4hDxol1Xd80Pc7mBGt2IZV1lby64t05HZzfXsLWZ3ia4UGpIvL9XBwrszAJz36KES=TowfAmjYR/G9Hv0aURaj+xbWxp' +
+'HSNnHKdr7=54QJz90=5fVTuam7Ml1c0IzDCK2T68TKFOiPQ93YejPbRmyXtjbRsYL=AGtfbda75zf+6RalRHEB+a=mS=lP35' +
+'fxL7aA46m70JbLBrU+e/cXTcyjNz1sPhRkyrGT8Ck/mRGt2IYi0lYeQ+quONpXensXZ6uppnPFfYnMIl+gscL9Jnns8y2fE0' +
+'Hsm0bB3pVe25bxkB3lOfHew2/GJLC/v+kgPeByEidoQmykm63bNhZl=Y4I/72/JrkbQ65KC6lJf5gYf2hVo3YDroKA7wk3SG' +
+'aYzA6N0EmfDXAS+6HmRvVCMvcalxnYT/LSwqLV88oyufcXArYNzM0=5fU6Ybl80Pc7mBGt2OZ/8bUdQtFMSdygensVQ2zdsn' +
+'k3nZ=GJ3+RsYv0O3rnOFCUC0tZ96EcNvqWLfIQkguf/bealVOM=lCbVoz85oQJKCoeQWFUt67gMmVk9IrM8/VNKawKTNFhSt' +
+'KbNXsbf6/qsXn=XZHGF2NYpK8DN3SXJEieTVYW+KHg+K6=QOMPlciZ/byRgVOONrU9uNHAOuhl7eYdAicSgXd80Pc7mBGt2O' +
+'pI97QdR6BNTO/cdofRjJWopncDoE3U1HBetMKJ0A+N0/V57BIS+qknRM7+OOIaRuqXLe2sa0ut0FzaVvCe/b1w9wQfE/k7YU' +
+'V40=c/mRGt2IYiNK5USdBvOOGKK1KDhKGhqU/lRSahvQU2sqHwN3akAAzdVHUdxTnC3pVe25cZiBHsRP6RwJLPNrjLWo385o' +
+'QJP9DA5fU61Ul50=dunBKtSIojQnXj74x45dqZNXsZf6qprCL5o5G=23yYoNb0MUr8LFCzTnUk9q5oNrNA8rYajx8nO8mRm3' +
+'+DPlCbVu0YAf+5MzllPxRjwK3eKBxV8I0E+K1VAn0PU+BOPNOSdXsHPVybYzULtJ49H2IUssXwM3qyLEBYA0ourm9tP/C6MO' +
+'cViAGZ=8Dsa0ut0L03dfgrSeBvJOxpQV2gvWqVKGJH8IsMLO+EKnTPPdFWBeGie4rKQ2VVXkG4XZLFFGFSqMv0Jzet62d97R' +
+'H7l6kdRbz4Oeo8nB4c+t2RzZnEN8j/sNkmL+yyKCVYRVEYf6/dMyxlBIkI9qYT1lby64uTPZWMdnH4k7zaXUGUX1T5JXBbss' +
+'87LmOjNUGdR45jsVXYSIlf25bxLAncSsDl06/2KLH1svY3Ov+h5wDWSERRyKFcKlNl5XoVNO67MbHQAdWZR6uNaIoEPVVwSh' +
+'7hRCahFmtea+PwMSXt61WdA4pm=qwrMviDOPExkPDrRPXSy2qDPlCbVoz85oRsJDgWTVFdyICPO29RzDkEQPFHNK5USdBdIN' +
+'u9f5gIe6mQpmGSSCehvQU2SMn0NzX0Ml/0QI1SrnnYRfGBPtIImx8S/gDgzVjA=lCbVoz85oRpJOQeSVtjnK3iJEkh7DjgCK' +
+'2MOrs7Q+BOPO/uaIoEcWzSXTr+X64GI0BNt98q9FJkABlPV55f3JImNfGGEv9bh=ioM8CXgFHTMscVrvgTMK2d5wDz/WBlxp' +
+'7TMVJW=V0EQ/60+6nR=v145XZzEB7tI6WbZYk9qJ4cEXBNmoT8IHfvKF6WPDHRATnC3pVe25bxLBHcQAD2v7XEHns+rvYdPv' +
+'1nH/IaPm+kyqun8ycsnBKt2IYi0lXyQueWPOGOK5oIh7z6nok5lkTEEX6XpN/2HDBR0OV57BH7l7nF35Ve25bxLAbd=wHm0q' +
+'CWJL==u/c8R960MSlXRkdZtWzqQy6SAI0SPu6EMKsbJ+B+T//OaHL/g5lVXkGUX6LFFGFSqMv0Jz6kK1GbRI1Wrq5tRfuHL/' +
+'oWkRDAQOPlzJbEMK86qr7=54QJz90=Vfk7YUV40=dl9HXTE/6MJn0l=uBfR+lkFB/tI0V/uhGiRCahvW2ht9zBIGGzMV/5TW' +
+'xl/JIZPryR8v9cmxzqN=zgyKTtMacEv+kTRqlmKCAqPm5YvrGcJmJa/naD+/JE8n1j=vSPT/KbdTYIhmyWejUFsInD7yypaJ' +
+'iczQ6N0/V97RH7l0YsRvqnM/wLiB=8NATSfn6DMck9ub7=54QJzDDD5vU61Ul50Gs/mYWMBooj1lcUQ/ZKStKVbHkXf6CLon' +
+'zSSCf+JWpPt9b+LSX3JEieTVAW+IMdObS9L=EPT94y56q7x6eLL8UDtazSUHgKz91iPmAQvKWb6zsR/4fGLOlpMb5hQ/RYP+' +
+'aWbHPWg6ujdAGiRCbAFiRfpMn0InnpK0KUS0HRATnC3pVePeMTiADrO=THw6mRK8kDwfYhUqMp/cDA5fU6y6GaKFFl9H06MO' +
+'U5An1WU+6WEnp0EB8gJ0Z/RhGiRCbDFXAMtcL3E3S36ylPWjtprGblAsFEAavaXuGpAsLqfGuQ+YzJfJGrEbM48vZw/yYdkH' +
+'6c/iYmxIWe3Ici0rYOBvWLR+yXVXcQf2yyejT6C9+oYNznDBxffCZUdb0ksJnCCQ22okgmXF+q92xHhLKafrfIL7Q=vJPv/f' +
+'YiOvYwBi1kjGpm=z9nv0sc8bcF/oXaCKJeD7RVKY/FUG6mbzKHbF3QLTc6SWaY0A+N0F/UT45U=qIcJ/G98srHkB3lSPXZx6' +
+'TPKMb/u+kpAehw8StXRlEewquPJGIZ+4oWN7YE6cMNRtKZSpl3ER7tkTl=Rh3hp5L5FGVappev8Dqw1/Z57BIU+ZknQ8Z1Jd' +
+'jYW9moC8yik56PHoXFgq/kDrAs9PkrNkkcZUZ40=dfAHXFMP+pMb5cQ7xK/bxZO1czZWymXzClRSahvWhbosj0J0+kKU3bUn' +
+'4dm0bB3pW6OOUQkQKx+wbSyrTI92CbVoz8PeRtJCIpQltekmzSLFs/mRGtSKYT1lby6/WPR+KMf4sHbJGda305roW48SyUoN' +
+'D3/gJO0/WiRHUW7aEdNeK6NrwQle8sSw/Ev63SMXPNbfgkTuA7094=VlFcy6Gp1=g7mHHJ+=B+MbILUueOLdKRMDYeJ0Z/Rh' +
+'4KoIn9E3BRp8P0KzOoKF/jUXgqtmXz4pZe25caiAncNgTWwpfIL4PNbeHnRec7094=5mk+YkWr1=hunBLQP7t+O7IWUvVYON' +
+'GNM0gWe6ikq1w9qXP9GC5YY+DwL3SyCkGdNX5Zt3fF35lfMPMVhhHgQf6RzZbXG8k+vdoXQc21OAhXTV1Yxq3bKBoRAXoPQO' +
+'IB6cf26HuTPZWcbHHIeaCaoWs9p13+2iyaoMr05zaAAAzkTX1W8JYmNvB19KPHmQ8jS=WRf36g69k/sekYQullJv0WU/k7YU' +
+'WXKRZf8HXI88oV6X9LSd6ZSa6LMDYeJ0Z/Rh4KoIn9E3BRp8P0KzOnMkieUUoRy21uMviJM8j1LKaA4=zW0mHZC8UErqPv/e' +
+'B4MzAlPVEYemhQ9y6n8HTYMKYT1lby64udPNmOaooIfpKapTLKoJHbJX+grsrfMW7xJF7oIngd+aIq/gz2PPEMbAvr=xb2v7' +
+'XEHoQudq/SSeyyMil=R2AYzoCPO2+MwGWM/72IJs9bQ8uYT6WfT4cXe5dnmj3AdiqivQVppMnBJCXtKQSdQHYWrnn19b74Oe' +
+'oWlN/Z=8Dsa0ut0F0Dsu=XOO+lJypbQRpTx6idNSARzDkZLOlNKof26Ht05NmOf0YZXq3pnjTUX5LPIGhbp9K35SFm9xzlQH' +
+'Um82Xz4pZe25caiAncNgTWwpfIL4HDsvg2Tv60LiEJPl+fxqCPNWd1/nTSQP9ANb5aTde0ReFRfVoEjq3QbWGAa14HEX6fpK' +
+'b9Nz36C13jQGPi62Xk9gz2PPEMbAvr=xb2v7XEHoYudqzt6oUJzDDD5vVtZUar1=he=0bIQeJGOc=WP+aOA6/cbIo4f6mlk3' +
+'o=fZLQ+G2goI/754jpO0CUTIlH86U7RwWZL=IIT+iE4J28wKbRJsg6uNGSSNysLiIKPm+knL7XOVMZA40nOvBM8n1j74x0QN' +
+'NRensPf6/ponkuoIW42iIMt9HSLnj46x2sA55f8qIeOvq6MrbHnaqB46nlwoTSNsfxiqQiOv2zJA1kTRRkvI/dNmIayhWu2I' +
+'ZEKsDIS/u4RtuOgDXgOrzWr4g9hIvL3Ghbos87E3GlPEGhDXAW=pMZQ/W2LOoMTt=nQwHqw7ORMLL/svzUAqQ7094=5lVWgL' +
+'CSBl1kA0jh8/pRErwWQ/tT///Of5sVhFzdsnk3nZ=GJ3+RsYv0O3rnOFCUC0tl87AsFg7+QOM2iALbI=/fw7qL8I7zdr7=54' +
+'QJ094=5myizLWeKGYf9I8IOfFL97AJSu5S/dJbalTaSaO=Xz3SSCehvXyet+b/JH2yKFKUTY1kuJAZPfinM/sWmxKfNgLqzr' +
+'WL6cQ9rv0XS960IDZqLVFjzICgLGRWsTSDM/JHDKIhB65KT+GtdokXQ3dCRx3hSCehvWVSa9XDJ2SmNUumUn5jt21gRvC0LP' +
+'AWmhDcRL7W1qbGOMg2daYaQu+kJCI4OFBZx6pW7s7OX9m1U13Qlgq5j1LfqClJ2Ji0zA43CpbEC+JpMNzcDBdfcSZVRb4ws9' +
+'nBRA66okwliV+o9CBHkGEvKvV0gXSiz1VzqjDQd6W4qn8ABx0e9RwYuEOF+Lgm01Xy74x05NaPM5kEhquji3YEoE358SxODA' +
+'+fc+Y/l6s=nDnBOQ2tox1mTV6l92lIZGI0KvA0dXX6bf7=54QJzCAlOE2cqKiPPFNjvYkSPuZMLrwW=r9KRdKgK4LTRIKanH' +
+'kGrVC=4TQgcouD/Di39xygG1DhuGLtCsFA8s8cX9uuBMmkh3yx0VzaVvcXReBjNzlaL1FYhrzdNldl+HfR88o5M7If=u+aBc' +
+'OOaooSiG+dakzLbkuM7T9fb53=/0209RJkGE4drn4tCrpL=LbaT+iE4Jm726bPNrkLWo385oRsLidXRUycubWTNRxh/owMQ/' +
+'ZHM30l=uBPTp3We0P6f6/pqHbKZ1qI5DxdbZ/A+SFk/yFgEDbqwn=w=byFA8bVVd/uB8msa0ut0F0Dsu=XOO+lJypbQRpgx7' +
+'/XO2dg/Tjg8/t+OG1VTqBAPNCddofWQmlmbUTIaV/J6igMd6K=9CN9/y+nD0kiw3XmAL6L=7biM7eA4A2/ZDqt1F3aVvcXRe' +
+'BjNzlaL1FYhqmPLlNV544WQ9FKLsMN=r9KT//ebECxIDV/Sh7hRIb+3HJRq7DwLC6kPel67BH7=JIgEO3B/PEMmv8aSwnnw2' +
+'nJJL=Dsqzt6oUJz91sPlR0ualcK2Nl8HwL+7YT1lby64ugPNWtaHKRfqGosYcGtEWA7wk3SGaYNWrsBk3cA1XR+KIkPcdi2I' +
+'bxo7qB46nezm/KJLD2e+cTRqlyJCIaPm6Du77XN3J18HXW+/N6McANCqKQONmcbDGDSmhVo3YDroKD1GJNr+D07DBR0OV5TI' +
+'kf8Z5lNrqJN7wLjBDnQwHqrJLHJMX5wfYnPqQ7094=5llghqOjLBxUAIsWOv9GO7YbR+SWPJ2mK4wEhr/adAGiRJqlvnk6Sc' +
+'r/8Wr6KEqjUjcS8qDg9=/2Ov0VexLqSuTjx7fI6X/xvNUeRNlUJDdqHW6ZzqFX=fs8nBLQP7t+O7IWUvVYONGNM0gThq3uoo' +
+'ckoI8NFVJRq9byL3qm9xyXVX5Z96AkNrh1PeMImtaXE96R1T6u0L03dfoXQeRjLzkf/Wc+YkV4LFQZAX4LNOBEKnsVP+2PP9' +
+'GOeoooiJWrojT+YU4=JWBLod=+NnjpNQVPS55V6Z9qPPOHM==ViBXcNgXlw2mFNsg=vdgXSO+EMS1sPhQZk26X=fs8mIWx2f' +
+'oB=Enz74yQTNuMf48ShFzosXPHk5LKJEBeqNP07z6kPel67Ilj=rYoNwRCM=QMkRHqAPPSyq2L6bjCrLLpCOJK5O0x6fY6ZU' +
+'Z4M21U8HT0O/6RKs8WQOSPPOeOW4TWg7CeqGK=s6=MFSUnTGeYKGusL2GTPntj+aQrNw6+8vYciwzZRP/ozZbV9bkIsucnTe' +
+'Ao5SxfPVBVxo3RO2dg/TCKnC=pey6qr=RXqCI7i/ZT6vYF7zWo+f5RgLr9/T9Wk8tUgAhPs9vBRQ2vok9mT26X9CdHh3EmKv' +
+'51RSVgblRk/lvwk4bHW8zuJc5/d97sX9d0iKsG7GXj=Jtl6Hdze5gXk7zatTL9sYLFJH9aos87L2fpMEujRDEU/KYoRbR3Pv' +
+'oInALpKw/Ev63SMXX9begXRLZlO/0i/WBizaFa63FS/4fRGe6FKnXj74x06Hdzb4sPf7CaXYg9q5L7JGFQlcL38WKlLkGTN4' +
+'5k=oEqOwK6BYryLAbd=xPSyqCREbU+sqPTFqtik3XGiczrJPs/gB8BPelYnQ4qRB2mrz48aU8s29R0yF6eXYg9q5L7JGFQlc' +
+'L38XXzNkWjSHgfrnnYP/GL8vsXUPPcNgTgzGSL9ITFfbrgCKM09O=WBi5pkX+c=CYpy0SD/LUK94PgE7dTEnp0EHsPiZFVrG' +
+'oDoIDLFWBCpMW9M3S3LFCYTnbRy21mNwN1O=4VeQLaSw/jjVmQ+IfEe7vqCrEs5vDrEi5eiHBi/hoRwUnV/b1J+YXRFX915H' +
+'Z3ER8MfFRWs3o=fo8E3SynTGeYzGGpOxzlRHEB+a=YDrzP8PXJXMqoC9CoiGSb/5X9baYr/7Ut9P0vCAopkHRm9y5TBTrd/L' +
+'UK94DgE7enEnp0EB8MfFSonnDGqWv5HWEMfJqv5dYll61=mumvWvnYok9lgF+o9CBHkWEsK9N1RiROGjXUAqu2JCxGRF9QlW' +
+'zp6WYTyTWUA8EG=YTZEJ5MUJ+jNErcSFplcUjOa1=R1jYecJ/990a0=Flq8BL7l6Ye/g/2Ov0VcQ8kO8CSm2GFl=Wh/lRtqj' +
+'nQf/TGi8zlJc1=Rc7vX9R1XV7blgu5jJRT//h3ER7tI7KapVg5qE3U1GlcbcDwLGr2JF+dTX5otmQcNvK2Q/obScmXQPXofq' +
+'7T9ao2rOghS75oNSleKVtjhrRZ/ywjv0kZMOVpML=WV61eBa+VK5wIgpzkrCLRZl7F6SUYY9v0NiXxNxqFRHxl+a8r/gK6Nu' +
+'5WlcvvAsDnw6n0Msb/xq/ST+BoEzMpB2YZhGyi+ycsnBKt2IZ8Jro8UuOcT93YejXgOrdXtTbRsYL=AGtfbdW6+zN29xyRWD' +
+'sr=JIgIfuH/PbSWtupAsCT1FOdObk5neLlB/Ur9/HrVic+YkV4QFNd=n4e3Ici0lYeQ+quONpJRDYQimqYnnH9rY8K4mpRto' +
+'W2J3rqJFGbV0=drqsdRKzBPrw+iADrQgKkhrfIL7Q=vJHqAKx08PYi/WJVwJzdNhxquknX/b9E6cMNRtKZSpujMkvRT2VhXX' +
+'L9sk4EICpCpMDCLne382KUS3lg/Vsw=bzKM/Y4khClT8yR0JbLF8LDe/3bBat09v0x6fY6YUWRJFtEA4oVQ+2HNG0l=v1MU6' +
+'+jfXsLaquoa4zCbFGF5igMYdax/XvpL0zeUjcqtW4s=86A8rAhRNftO=jByaSRPX7Ge7kvEHgKz91z6fY6YbKTL0FS/DbTOu' +
+'ZGOZ5cHdFZSdFRfXsLaquoa4zDX6P9GFybsovH8zX6KES=TowfAFXz4pZe2/EIk/nmQfvz0mGg697zxaXsT+BoEzMpB2QceG' +
+'7n6Shn9HD0OvAGPnjI=OxMEeOOc3YSiVqvuk/lRSahJmFUgs888XjpOz3SV4In82UsQ=G6+8j1LKaASPXZnZLQ9cc2wcDhTe' +
+'RvLQZiTm6DzL7TMVVl+0CU=81B=Enz64uXS6uQaHLIRJ/WqjLJoIv8FX6=ot=4M4nHJEmiC51j=6Hk9fK2OwEMUt3nAsDlzK' +
+'bI94Q3ru=lPqQ7094=5llghqOPMFMfAHGRM/ZLNbkJV9SLP+7bM4wEhr/aZk/lRSbUwQY2TGeYLHWyKlGYDXxm/KAnQ7qKN=' +
+'EQhQnc+t2R0rPYKI7eV/C=5+hw8SlsPlpky2qPK2IZsYwXOv2tKsAcIvSTTdJLN0YWjqulkXoKs3HJGXJRaJiczQJOKVGdQo' +
+'1a+ZrYMwGIOdEIkxzlGAja0mnWD8UDta/SONpsLjYnBRyTx6idNSAds5sIPsBHNLDR=v145XaSbT4WYq3opTT5eFq4JWpQpM' +
+'P4LWro6xJVA4xg+qwqAry2C8rHmAvbO=bayJbH64n3bechRepy9OQXFikQzaqSKFRa/X4H87M/6c9NTbWZSuFJKEKgOrGjoX' +
+'o+pIv9FCUMumqZzA72KF/zToxlrnnYQf3GPeMxkRGfRPXknZCWO4zLWo385udlNvRjUjlfxqGn6zsR=4oVPuJiM8DQSuFNON' +
+'m6d4ccf76joGoLkY8JGW2Or9K35XXwJFWUUTce+ZsdSr6++8j1LKaAP=aZzJbWBrLDwaPw/eh5DCMkPmUZeL7TO3Nj/TkLQO' +
+'F4J89XUeWPSZuOg4sGj7CaZTc5sJHGA22YrsvdJGroEEudRIHZt3fa/sdi2IbxM7eA4AbSzFHZKLwDkeUmOqt95zAlOE2cqK' +
+'iPPFNjvX=IQ+N6N7YJPN6PA6SZd4ccf76js3o=rkSA7wk3SGbEIHekL1ukUn5k0q5sMryR8voWhg8jJwzS16bV9bs2wdoTS+' +
+'RhISAbARNgxK3nKGAf+4fYPuJL7GXj74x05Hp0EB8Pf7BVo4c9oH45ImdfY6qv90BR0OV5SH8Z9qwtQOGHEv9bh93d/LDnw6' +
+'nWC8UErqzSP/2lJBRXS1djeHlON2+j=n4tOfEALbwdTdedH+7daDPTe77grC34aE4HEX6fpKb9Nz36KESiJ4pl72sbPPGCQr' +
+'biM7eA4628Z0rMKXwGsuwlHey0I/IZRFFezGysAB5kxTGDPeJMOs9W=uqfP9yLeXTaiZGna3oPoIDMJGEUYc8DN3SXJEieTU' +
+'wn4JIgQKR+Ba=QXaqB46m/ZDqtLLn5s/YXPtuhMS9p/SgQiWVONVNlAIsR8/VNKawKTNFhStKbNXsbf6/qsXn=XY8MJGt=oM' +
+'n+LUOpKEC=QItc/VThCK6+BYryL7aE4Jm7yqbX68g2rMoXQd60IDhp/SkQm77nN3Jg2WvRDMJs97ENPeSjS/FRfXsLaaCWsY' +
+'fDX5jJ/2FlaJiczQ6NK1GSNX5Z3aEZRg+1C75ydezFAQDSzKTI88g2rMoXQd60IDhpB2Bfq7CgLFxYu2wVRP2MMIc8CNeYOp' +
+'u/f4vbQ2VwSh7hRCqivQVYpNGvNWrsBkuiV0kurnXxCsVNB8bgX+iE4Jm7x6eLO90AsuLYAe+lIhpbQU+kubChHi6O6owsLP' +
+'BAInXI=79n/6/edXoIfJWjonj6ZE4NFWRwrtDC50JkN13hUn57+KDgNfG4IOMPdhHYSxPMjp7/NpwyvNwPB+6vMjgfE/k7YU' +
+'WTM3FWs5sIQ=JKM31QU+aJOe/YfokIiFqatXo7sJH93C6NtNH+EmbwMkqETXQf+aQmFw7GOf=PT+iZ=9u/ZDqt9nL0teUmGt' +
+'uJ8TdvSDyly6RW6Spk=4oR8=BMPrkNG95MOtyVdofdOXK8c0XLcXm68s7MaY4SDljY6zW+A21G250y9b6=QOMPZgzqSsuTmm' +
+'CWN8U/i6XbEHgKz91fPxRivb/yMmFls0ng8=N+LZAXTeZT///Of5sVhFzdsnk3nZ=GJ3+RsYv0O3rnOFCUC0tS=7EnIO3AOe' +
+'w9kQjlQgffo7PVMsX5dr7UArYNzM0=6fY6YbzgO3dh9ICRMPN+M8EbCNWLR+lRKXrVeXusbHwiXUaSwQY2SGqZzA7tKQSXVH' +
+'1Q7K9nRP/6PKbHjyLbMfLjyajWKMX/svwXOOB0J/wYQVVUvKGcBFFl+HfR+7TpWR2Yrz07k0842J20yx0qCcC4C+JobtzfDB' +
+'xfcdYBlGyPsJoRWv3IgF4Xn0y5pH5np1xBFQIglAJhBaGg=JQ75O0x6fY6YUl50=dd9IzDQeJAGcYYQ6Jn/6/MaIfFUTl=Rh' +
+'4AoUXKEWhbravwLGqkABlPAemSWv3IiV0Sn0rH92BHiGIyK8R0giRLGxWDWEv+k4YYAhymvaSCPG6Ws1WD8eV+MbXKFX915H' +
+'aSbT4We6ikq1L5qIK48TkMYj5wk8ZUfr0ts9XRWvmIjF4Xn0vU9CBHiGI3Kv90fCRKGjvUAqu2JCxKUmyVeHlO6VtgA4eFBo' +
+'oj0lX26Ht0R+KdK4gYk4CWsXX4eE4S1mRNssWx/XjMJF/XD0kT=rYoNr6OQOMPeybnO8yRfJTSM8LCfqXsONpsLjYnBRxSu6' +
+'uaMmAjsULGOulHN48U=qScPOCtdokXOGanoogbqpDLLTc6SWaYM4f4PFzUW0cW=JImRg+CLe9Tkw=cQ=/lw2nGNc0AwavUSe' +
+'dhOCloG2FprqGWLFFd9DrP8/F+MIgNV6tW/+KhcIo0ha+hXV8rimuFI3BeqMv2KGv9817kWF1S=q4h/sdi2IbxM7eA4=nXhr' +
+'TIM8k0wekWL+Bo7/Rx6fY6YUWhKFpW8o0IM+N+LXsMQ/WeSdyiM07eJ0Z/Rh4KoIn9E3BRp8P0KzWA61qkT4Tsm0bB3wli2I' +
+'bxM7eA4=nXhrfIL6cyuqzSUHgKz90=T1FYm63b9WFWA2oGQ/ZOKnUOP+6dPJZkFB/tI0Wron0bnIqFFGFgoMD37z6/1/Z57B' +
+'In86U8MvlCMvMamy=mT8ialT6u0Fzaw+kaGNyt5wDWR2FcxHd80Pc7CBWu2IZFNXsPP++PBdCKdDPVf6qZoocrnp=AIHBwoM' +
+'rB73vlM2/UD0lX76krNrh1=rnHiQ8jRfWdfqfEM9c2dr7=54QJLDQkPE2dvWqjLBxV+IwTO/6RF75MP/RST//ebD7eJ0Z/Rn' +
+'HHaYTMGSpPtN=BLneyOUWiSHtd82019fK2OwEMXaqB46m/ZDqtNrkEoe0fPup1NvxcTlpTzKWdMRYas5Ox2YYi0rYOBuqfP9' +
+'yLeXTaiZGnZjU=sIH3En6bttD0MSOpP1GSVI1Wtm9gOvC5M/wphhHgQf6ZggIClAJh=lRxqjPRQJWBqa8ABR0jl7oRX920il' +
+'3Llgu5jULoqP2J2JbD6v1F7+ZaC+xpMdzcDBlffdYAl6s=n0bfsVXz97VP35fxLBqj+tGhjnGM=lCbVoz=54QJMilqLVVdva' +
+'ujOyZXAHbGQ/ZHM3TR=v145XZzEH8JQqSqoWP6rYzOI2FeaI43NGnjJV7eVoxW/FsdSfG4Q=IMTt=fP=TVw6/lJsg6uNGa=U' +
+'vekEbGlL3xJP1/dc7sXJh0gV3U6i2frzM7l08q29R1m21F+uVHX=9YgLH98z5GkIdVRb4ws9nCDQ2woxp1nAC5p45np15C3A' +
+'IilAJizlV1qjjQfZSpqaoQJc5=R97mX921TV7blg/5jqAY=pZkKT7eJ0Z/Rh4JoIPJFX+UjNbQN4nlJkSiC0Hsm0bB3wlA8s' +
+'=XVu3gDZ28Z0qx0VzavNkmLeRtJCMrTRRWzaqRO2dg/TCM8=gm01Xy6+uQA+Web3TFiJusrGoJZE4=JWBLod=+NnjpNQqUW4' +
+'5U=7Ed/b79N/ILiAv5NgTayZ+L7yRwGjJCkUzDkEvGiczlJPhOl7HBSeplnQDpei2Yr=M8WU8s29i0zA0yCcJpxv5M1NzpDB' +
+'xff+Y5lG1=nOq9WvHYokQliF6X92hHjs6fgVqe6XzLWo385vgs5wcmCSxZk0l50=c/mRGtPuJMGbYVQ+FfT6WPfHPGjqWkqz' +
+'zAX6ilvgU2SMb17335K0uRUXgo/ZIq/rz9Q/IGhR=mSgPWzF/IP8k0wvgXAa2oKChaPlpyu7CXMlwZtul0nD=qRB2mr=Q7iE' +
+'4k29R0121F7uVSC+6oY9zqDBJfc+cEl6UAYTnBGQ2oox21n0W41t6HkmEvKvx1RyRPGj6DWJcgk4OHWczoJcw=Rc7uX9d0hK' +
+'4qUy2ir=Q7l04k2Jm0yx44CcWpwf5PgLQNZoaJ5S6/1/Z57IXdrnDoAcy+BYryL7aE4Jm7zZbXG80+suLnTaNmNCIZTVVfxm' +
+'RX63k/mRGt2OZ/8bUdQtFMSdygensVQ2zdsnk3nZ=GJ3+RsYv0O3rnOFCUC0tZ96EcNvqWLfIQkguf/bealVOM=lCbVoz8Re' +
+'pjICAGRV2pvb6cKWBW9ILIH/xLLsERSdASPd7VenrMUTl=Rh4Ua13M5DxcaJiczQ6N1/Z57HUW=m1uNvSjL/sMRuqXRdjSzZ' +
+'me1F3aVu0YAf+5MzllPxRUva/EKFZEA4oXPtgIIqgbJuOdQ9pSK0bgOm7qq3k9oYbFFWAOaI4EJG3SJEmUA1XR8qIbJ/G9Hf' +
+'IImyDSBv3MzXnENrwue+HTRuA7094=5lhVzGzRMmFl544bQ71V6c9NTbWZSuFXf4T3jr7eq3v=ZEvJFXyYoMD07zRsI1CqED' +
+'TkB2XgDLl9+uoLndD0=8qagmqSKn/xb6PWCq1p/cDA5fU+YkV4NlNl54HQMOxNOXUOU+BNT+aYdT3MOrdCRx3hRIrH4mNNrM' +
+'K9NG6yMEGiUnpY87=mQOSDQcsQiyDgTPXVrZnENbf5b/HrVEvSkE8WqabB2A0tl7bBRulb8=tPQB6rr=M7iE4m2Je01g0zCp' +
+'WpvU/D1C6qstux7nvpLzqQTH4crKsmTF0zn0243n5npBhBDAIglAHOsOHwQfki7idlSFBEvbSi8hARCYwhnQ4qRR2ZCJRW/7' +
+'JVK4wEhr/aaTULrZL94Cxkc63/7DBR0OV5XDTRw3HoAbVP35fxL7qB46nkw7X4LLD2uOkmAeF1LSdqQltegGVOPfs8mBGtOP' +
+'1GKK5VQ6BfQJuXdooMfJWYnokAqovK4n+UrtTmKHnsF1WSV55j82TaoiklgF6k92NHi3EnKvd1R4Sh/lRkqw4QfZW4qa0ADA' +
+'0sl7vBP0rP87=pYB2brzAW/E4o29R0zg0pCpWo7=5JgLf+zz5Dk8Fl6QhPAemDWvWIhm0Mn0nH9CCXpzNBCxMl6CRPGjJDZU' +
+'vyk4zGkL3yJctOl7vBSelVnQjpfn36XUPrqC56xOdl6vwF++ZYCK/F1NzLDO6ffdY2l6IAY/q+W8/Ihrzb=a8JUt3ZFdjzrI' +
+'CnBKYkltg4/6cg9/=WP12cy6Fa6z9ds1rMBooj0lYlCqJbC72ZO07eJ0Z/RhGiRCb=JWBLod=+NnjpNQqUW45U=7Ed/b7IOe' +
+'UOkxL5SATgrZLPMrHesuHnAaQ75O0x6fY6YUl50=dj9IwXOv++B7YWQvVSAKh3ER8gf6iooo/lRSahGWIUq+LzHmf2MlOiRI' +
+'sarqUtNeu3PO0elgLpAPXpw6TYO8j5b+wbPe+lLQVZTVVfxmRVl5XBP/ldnQ4qTR2arzM7jU4lK/Zd6v1Gv+VHC+lobtzfYD' +
+'9RkIZUd80ssJrBRg22ox1mTV6k9ClIW8FC3AMklAmh=lV0qw4QcOHk=AUremVp1=g7mIkVQ=ZIKsTWQ/iPReGcNXkEhqhdX3' +
+'nJnmzO53N3YYaJ0A+N0FzhV5Ih87TmNwK6OPIaUQDYQwzDw67SO8j5rOYrSf9o5TRiOmVVyoKgMltE8HTSOa9E6bENSb2PUJ' +
+'ZVK4sbg7CFqHfAdiqivQU6SWaYKGusNkGbRHxl86EONvR+8wj1LKaA4APWyqbGO8k1o+kaB++lMjhoRFUYgXd80Pc7mIwIO/' +
+'J8ObIMMNeS/7pJdYsPhndCRx3huCqivQU6SWaYKGusOUGXInpet21z4pZe25cdiAX7N=2fzZbXBLcEtvoXAeFhL0dbAic+Yk' +
+'V40GRW+2wEOKt9KsEJPdpSAKh3ER7tI7KapVg5qEv8FX+gsczH7z6/1/Z57BIn86U8Mvl1C75VmAnjDZ28Z0rg1F3aVuDiB+' +
+'JhLCkkOE2dhr7TMVJW=WwGPeZIOZAJS/VSPd7VenrPOqKWqYg9a13H4CySoMnBJCFkKU3bUn4axTnC3pWBPrwOhArcAQXaiJ' +
+'XMNsQ9rv0EOu+hMOxqS2FVgXd80Pc7/IjRMvJB97AdTOWZSZufcIkMeJiaXUG4oY8DI2EnTGeYzAJO0/WiRI1F96odPPGI+v' +
+'QckQDrP=/fhmqDPlCbVoz8QuEoK0laNE6ix7OhKGAas4DYM+x7N7wfTdecBdKhbHkYjqFdX30Ao5H9Hk2Pt9b+LS2r7gVqAT' +
+'Hsm0bB3pWAOeEIkw4jNAnWzF/JNbk2x+kCRO6pNz1lRxRWuaihKBcsnBKt2IZKKrMaQ/WSJOarf5oEeZSoZT3SSCehvXkYY6' +
+'//90Wt=el67BH/lDXBQ/GHQv0Zi/=gQPTkhmqe1F3ayoC9VogKLDQkPmJVxrCh9V+V90CFLPJMMJAJSuFYHOWSf0fPOq3qsX' +
+'PrnInGHkFkqNG4/gJO1/abRI0R/JwsEvq8OvLHY93nDZ28y7GRKMo2u/glB+ykJvwdS1FevKGg7hoRu0GDCLs5PEnz6+uQA/' +
+'OOc2kEh2VVtAGiRCbDFXAMoszAMWrnO1WeTYwRy21eMviHM8j1LKaA56q7Z63IO4QAuObSFqu2JCx6Olkev6GiBl1g=XzL+L' +
+'gm01XySuee///Yf0XgOrKapVg5qEv/FXB/rtG39S6/1/Z57HUW=m1ePPJ1C75diAX7N=2fwZbXCbLGdazt6oUJz9DA5fVcvb' +
+'BOJl+e9IsEJ71V6c1XTZBiEnp0EB8Pf7BVnGYEoJ=5CSxpY+4+MiO9=el67BId87DYMO3BM=AIfM30+xDgzV/d=lCbVoz=54' +
+'QJKCoWAVlghqeTPGEf+IwoOvRG8Y=fB6JnFKpJf5gYf2VVtAGiRCahE2tescLyN37zMV+PHDll/KIdCIlf25bxM7eA46njya' +
+'XlMbs9sqPv/f2vNxVkPEhVeGdO+BwmyhWu2IYiN7wcH+BRR+JJRDXLiJupfnL/q5KA1CYMa7rwN32yFzVeEEDht3fY=Kt1De' +
+'0VmQLpSsDlyVHVJLg6ruHl6oUNzM0=5l+RxaGgJEYRzDkxLPFA97AXTZqcRuGrdX0Pf2VVZzT=r5zK4nQMbI4yIGKQMkuaII' +
+'0fAmXY=rziL=IPURDgQLjjyaXlMbs9sqzSA6toMzMpB2Udu63bE21g+loX/fYB6XfIPdOXJ+yYclcXRKRwSh7hRCb7EWlRsc' +
+'8o50JkEE3jS0ck96rgQ/uID/wOkxKg+sqRhrHSNnHIbaCSONytDzMlQC2khrRX6ykR3HoXN7t8ML=QTNFeGNuQd4rMOmZVZY' +
+'UGrkvQ1CkMos88D3SzLi3jDYHarmfYMO3BGv0Wje8rAQmsa0ut0MCeV4z8QuEg7zEmB1dV0b+cLGF2/o=R+8AR8n0lG79KT/' +
+'/ebD7DkTl=Rh3hnozJImFPt9b+LXikAAzjUY5WxTnC4pZe25cZkhH5QPfdw2Gg69Y=wcUgPNdl5vDWCholk0l50=c7=XfXDO' +
+'t=MbHIG6JSSdydSHPKhqFeXT74Z3r5JGQak7a+9D208BdPDjfRzZwmR/GGQr5bkc4pN=Tav6/W1F3eV4z85u6hLCloOkQQlW' +
+'z8JGJZvXwSPqVKMLEqSNmWPJZJMTXLiquoa4z4aE47EWl5rsz6AHmyPxVPDDl/77Eg==/+OKYZkhH5QPfdw2qD8XP5veLlB/' +
+'QtIiVjJVtfw43i9Wcas0ODLu6FEbwXRbOeBeVkFB/tI0WYnnH9rY8x1DkMjM8CKzO3LEpXUXglz6sfPfF+8rfHTy4mRb7pfm' +
+'6DJrU+meLhQLy08Twf/RcQpa3iLyxU/ovLPexMBrsPSudT/6dJM5YSiVquXTG4no8E=Gtbqq8C8X6t6xdPQnpe2qwnOM3I/P' +
+'biM7eA4A2/ZDqtLLnxdeDiB+ZlODckQm+1x7Oc8zEpuDjgCLo5Oc9dQ6tKUnp0EB7teZunr3o7s5bGHn9MfI4CMXrp=el67B' +
+'H7+qIs9gahN/sQmwLnRwXjfn6DJrU+nOgTS/+QLjckUxxbeH2p1=g7mBGx2YYi0rYOBvKZSpujK1GgOmSviX4EpJHtIHyRsY' +
+'a453jlMEGhQGLRy21oPP+CRK4SRu3lBtKmlT6u0F0NWo385uRm5vxjSRpbvbWh9Vdk14faOaUM+XXIG79n//GbfHrMOrdCRx' +
+'3hRIDGIn6RotH4LmO36ylPV5tm83fF35Ve2/oMmt4xIwnex7XoMss/bbCSONytEjhXS2BAx7+cPR5es1jRArgm01Xy64915H' +
+'ZzcHvLiquoa474eVq43HZ5qMr4N1nzOkpYCDlU76odQ/3v8srHlxzqAQqRi2GT9YPCgr7=54QJP9DA5fU+YkV4LFQZ8nfVPe' +
+'J8ObYXSOVT//OOc2kEh2qoookonJ=5HX9Uos88JHflHxhPQnpe879ZKrh1Le9UiB=YLLyRzJCX9cv9bfYhTal58vRoRFAe0m' +
+'hOKV1nv0jT/71J9X0ZCqJcAKh3ER8gJ0ayZk/X';
+
+/*
+
+	Encrypted module game_autosalons/autosalons.js. Result: 1ms.
+	Fuck is easy, fuck is funny, many people fuck for money,
+	if you don't think fuck is funny, fuck youself and save the money!
+
+*/
+}

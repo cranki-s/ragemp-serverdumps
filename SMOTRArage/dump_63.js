@@ -1,176 +1,107 @@
 {
-var numchsInStream = [];
-var numchPanel = false;
-var activeNumch = false;
-
-function numchPanelClose() {
-	if(hud_browser) {
-		mp.game.graphics.stopScreenEffect("MenuMGHeistTint");
-		hud_browser.execute("toggleNumchPanel();");
-		mp.gui.cursor.visible = false;
-		numchPanel = false;
-		restoreBinds();
-	}
-}
-mp.events.add("numchPanelClose", numchPanelClose);
-
-mp.events.add('numchGo', (numchFrom, numchTo) => {
-	if(typeof(numchFrom) !== 'undefined' && typeof(numchTo) !== 'undefined') {
-		if(activeNumch) return hud_browser.execute("errorNumch('Пожалуйста подождите..');");
-		
-		numchFrom = JSON.parse(numchFrom);
-		numchFrom = numchFrom[0];
-		numchTo = JSON.parse(numchTo);
-		numchTo = numchTo[0];
-		
-		let myMoney = localPlayer.getVariable("player.money");
-		if(myMoney < 500000) return hud_browser.execute("errorNumch('Недостаточно средств для переноса номерных знаков..');");
-		
-		if(hud_browser && numchFrom && numchTo) {
-			if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
-				if(localPlayer.getVariable("active.deal")) return hud_browser.execute("errorNumch('У Вас есть активная сделка, завершите её..');");
-			}
-			
-			if(numchFrom.id == numchTo.id) return hud_browser.execute("errorNumch('Вы не выбрали транспорт для переноса');");
-			if(numchFrom.type != numchTo.type) return hud_browser.execute("errorNumch('Типы транспортных средств не совпадают');");
-			
-			numchPanelClose();
-			activeNumch = true;
-			return mp.events.callRemote('numchGo', JSON.stringify(numchFrom), JSON.stringify(numchTo));
-		}
-	}else{
-		if(hud_browser) return hud_browser.execute("errorNumch('Произошла неизвестная ошибка..');");
-	}
-});
-
-mp.events.add('numchResult', (numchRes, numchReason) => {
-	activeNumch = false;
-	if(typeof(numchRes) !== 'undefined') {
-		if(numchRes == "ok") {
-			return mp.game.ui.messages.showMidsizedShard("~y~Вы успешно ~w~перенесли номера", "~s~Потрачено ~g~~h~500 000 ~s~руб.", 5, false, true, 8000);
-		}else if(numchRes == "error") {
-			if(numchReason) return notyAPI.error("Ошибка: "+numchReason, 3000, true);
-			else if(numchReason) return notyAPI.error("Неизвестная ошибка во время переноса номеров.", 3000, true);
-		}
-	}else{
-		if(hud_browser) return notyAPI.error("Неизвестная ошибка во время переноса номеров.", 3000, true);
-	}
-});
-
-mp.events.add('playerEnterColshape', (shape) => {
-	if(typeof(shape) != 'undefined' && typeof(shape.data) == 'undefined') {
-		if(mp.colshapes.exists(shape)) {
-			if(typeof(shape.getVariable('col.type')) != "undefined") {
-				let colType = shape.getVariable('col.type');
-				if(colType == 'numch') {
-					if(allowBinds != stockBinds) return false;
-					if(!localPlayer.vehicle && hud_browser && !activeNumch) {
-						if(localPlayer.getVariable('player.id') && localPlayer.getVariable('player.money')) {
-							if(typeof(localPlayer.getVariable('player.vehs')) == "undefined") return notyAPI.error("Перенос номеров для Вас недоступен, попробуйте позже.", 3000, true);
-							if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
-								if(localPlayer.getVariable("active.deal")) return notyAPI.error("У Вас есть активная сделка, завершите её..", 3000, true);
-							}
-							
-							if(typeof(localPlayer.getVariable("player.tickets")) === "undefined") return notyAPI.error("У Вас более <b>50 000</b> руб. не оплаченных штрафов.", 3000, true);
-							if(parseInt(localPlayer.getVariable("player.tickets")) > 50000) return notyAPI.error("У Вас более <b>50 000</b> руб. не оплаченных штрафов.", 3000, true);
-							
-							if(vehPanel) closeVehMenu();
-
-							var tempJSon = localPlayer.getVariable('player.vehs');
-							
-							for(var k in tempJSon.vehicles) {
-								let vehHash = tempJSon.vehicles[k].hash;
-								let vehName = vehHash;
-								let vehType = "vehicle";
-								
-								let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-								decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
-								
-								if(typeof(decVehStats[0][vehHash]) != "undefined") {
-									vehName = decVehStats[0][vehHash].name;
-									vehType = decVehStats[0][vehHash].type;
-								}
-								tempJSon.vehicles[k].name = vehName;
-								tempJSon.vehicles[k].type = vehType;
-								
-								let vehNumber = tempJSon.vehicles[k].number;
-								if(vehNumber == "theMoto") tempJSon.vehicles[k] = null;
-								
-								if(tempJSon.vehicles[k]) {
-									if(tempJSon.vehicles[k].hasOwnProperty("params") !== null) {
-										if(typeof(tempJSon.vehicles[k].params) !== "undefined") {
-											let vehParams = tempJSon.vehicles[k].params;
-											if(typeof(vehParams.rent) !== "undefined") tempJSon.vehicles[k] = null;
-										}else{
-											tempJSon.vehicles[k] = null;
-										}
-									}else{
-										tempJSon.vehicles[k] = null;
-									}
-								}else{
-									tempJSon.vehicles[k] = null;
-								}
-							}
-							tempJSon.vehicles = Object.entries(tempJSon.vehicles).reduce((a,[k,v]) => (v == null ? a : (a[k]=v, a)), {});
-							
-							hud_browser.execute("toggleNumchPanel('"+JSON.stringify(tempJSon)+"');");
-							mp.gui.cursor.visible = true;
-							
-							allowBinds = [];
-							
-							mp.game.graphics.startScreenEffect("MenuMGHeistTint", 0, true);
-							
-							numchPanel = true;
-							
-							return false;
-						}
-					}
-				}
-				if(colType == 'numch_render') {
-					let numchColData = shape.getVariable('col.data');
-					
-					let numchMarker = mp.markers.new(1, new mp.Vector3(numchColData[0], numchColData[1], numchColData[2]), 2.0,
-					{
-						direction: new mp.Vector3(0, 0, 0),
-						rotation: new mp.Vector3(0, 0, 0),
-						color: [255, 255, 255, 200],
-						visible: true,
-						dimension: 0
-					});
-					
-					let numchArray = {'marker': numchMarker, 'pos': [numchColData[0], numchColData[1], numchColData[2]], 'alpha': 0};
-					numchsInStream.push(numchArray);
-					return false;
-				}
-			}
-		}
-	}
-});
-
-mp.events.add('playerExitColshape', (shape) => {
-	if(typeof(shape) != 'undefined') {
-		if(mp.colshapes.exists(shape)) {
-			if(typeof(shape.getVariable('col.type')) != "undefined") {
-				let colType = shape.getVariable('col.type');
-				if(colType == 'numch' && numchPanel) return numchPanelClose();
-				if(colType == 'numch_render') {
-					let numchColData = shape.getVariable('col.data');
-					for(var i in numchsInStream) {
-						let tempData = numchsInStream[i];
-						let posData = tempData['pos'];
-						if (posData[0] == numchColData[0] && posData[1] == numchColData[1] && posData[2] == numchColData[2]) {
-							if(tempData['marker']) {
-								tempData['marker'].destroy();
-								delete tempData['marker'];
-							}
-							if(numchsInStream[i] || numchsInStream[i] !== undefined) delete numchsInStream[i];
-						}
-					}
-					numchsInStream = numchsInStream.filter(function (el) { return el != null; });
-					return false;
-				}
-			}
-		}
-	}
-});
+/*
+
+
+	SMOTRArage © All rights reserved
+
+	Custom obfuscaced system by DriftAndreas Team (0xA0426) special for SMOTRArage
+	Кастомная система обфускации от DriftAndreas Team (0xA0426) специально для SMOTRArage
+
+	Воду варить - вода и будет.
+
+
+*/
+
+exports = 'r9LC53ftKimUUoxS8ZILMO3AM/QWlQqXE8Df063P=lCbuekm/e2pJgEpPCVewbBOAB5hyhWuO/JM6b9RQb+dPr' +
+'GeeXcXg6ujXUG4cF3H5Dc6Scn0NzXmLEO9UnAz+JYlMwC6Mt0cmt30+wbSyrTI=lCbWo4ePv9gLC1aSEVqvaC8KGFk8H=IHu' +
+'B6MbIOSeSX/7pJdYsPhndCR3D9s14EI2N2rcbC50Jk+yd97XUW=m1lQOOZQ=AImxbmQLCufnaT+5PLWo4ePv9gLDddGlpZxa' +
+'3iKFJAAIzDCK2/JrkbQ7145dmOf0YQiZO4oEgGq5zJ1DkMc6iczQJOJkiQUowR+6IrQO38M+EKhAncOP/jy2He1F3xbaPSON' +
+'puMjhoTl+kx76WNlFS/44JOv+FE75VQ6tKUnp0K0XDOmyVXTULp5bK4mRNrcH7JCWA61mfDXAS+6HmNP72PvYQhhClRPXi06' +
+'bWO7c0ru=XP+pyLAElT1VVgL/RJFpW9XfVOMt6MrHRFX91/62JK0XDOmzspX4DoE3=1WlcbcTwLGqyKl7QU4Ea7a=mOf3HHe' +
+'EIkxLdQgLeq6CZLLkduNUWPu9oNzxfSApYuaqSM2MauDkQP7t=JroNCOmLQOFRO07eJ0ZVXTT4uCqiwQYMY53v8iRkO1SQTX' +
+'QkrqgdPwz6PPAZM7eX+sCRvZLPM6oFu+cmQupu7zprR1+kwaucEV+e9DSD/asGJs9PTZtKUnp0EB8MfFSdsnk3nZ=GJ3+RsY' +
+'316SWlKVGdQo1a+ZsGMvm6/OcVhgnsOwXkhmPzGKfzdqzSUHgKz90=QlIYvrGcJmJa/nbyLOp+6Ynl=qS+I8yAZmksW576mE' +
+'Hhg4DhCkFxnqrUEljFCiFRCDlsm0bB3pVeNwMLgg=pQgfkw7ORKMw2rOkmPqMnMzAXUk+fzaqS8yBe8H=MLtxMMKsN=J5KC6' +
+'tZPD7ePVVwSh7hRCahHXxaps88JCOrNU3fS4IU/VsrRf3GQuEKlQLcQNXXwJbGO4vznOkVONBzMgIbTmBiuahQ9y5hv0kJLO' +
+'lLKnXj74x05HambHHWf2zeoz0+sIv7JGVbravwLGqkABlPAWx62YQXHtWZHccBa/HWI+XErXLrCHX6bf7=54QJz91eTlBPur' +
+'7dOmFW=TbIR/J8OsENBqmaR+7iWnTYhJBdX34+rZLAJFsdYYmv9zN1/AVqBjHsm0bB3pWR35fxLBqE4Jm7a0uD64PxbaPS/e' +
+'hw8StXRlEev77PN2Za8ovRP=JLLaALP+6PPdybdFLSjJWag4oFnpHAH2oUt9X4MiOsJEqTT44drqMtP//IN/0VcQ8kO8msa0' +
+'ux0XPxbaPS/atgIDZdSApWx770JFFZu4oVMq1VA31j74xK/62JK0XDOmyVXTUKsobLE2QUt+b/JGSq613hRjHRATnC9by18r' +
+'4HRt3X+sCRfmGD68cyvNjS//60MS1kPA5qeLd80R5Rs0jD87156X0I=qJK/62JK0XDh7yjoGYEoEv/Im2cq9byMiO0OF/XMn' +
+'xS+qIePP7BG/0djAL+S=7U0qrSMaQyv+UfPv+lMRdqS1Vev2SPNVUayhWu87156X0I=qJK/62JK0XDOmyVXTU6rYL5Gzc6SY' +
+'3v5zWk6xyPA0kRrm0Y9bzR35f1LM3X+sCRfmGD64PxbaPS/aujIDdb/R6Sx6uaKF+fsUKDRooj6X0I=qJK/62JK0XDOmyVXT' +
+'T4X14EICpToMr08Wz2JFzXSHxkuK1tQOSoLe9TiAPmRP3/yafMKJoFu+cmQupuEzVoOllVzKGgBV1g/0DEPeQB=Enz=qJK/6' +
+'2JK0XDOmyVXTT4X1341CyOscLwKjBR0QyPA0kRrm0Y9by18r4HRt4056q/ZFGD64PxbaPS/atg5vQW/RyTub/T6yBfAHXFMP' +
+'97=31j74xK/62JK0XDOmyVXTT4X1341CxMY9b171O5ME7UUTES/JPh9clRC75IlQSX/LaRv7PK64jxfqPTFrgg9v0WU/k7eG' +
+'yO6y5Rs0jD87156X0I=qJK/62JK0XDh7yjoGYEoEv/Im2cq9byMiO0OF/XMnxS+qIePP7BG/0djAL+S=7U0qrSMaQyv+UfPv' +
+'+lMQpiRE2kgK3gKhcsnBKD87156X0I=qJK/62JK0XDOmyVXYG4oInKFSynTGev5zWk6xyPA0kRrm0Y9by18r4HRt3X+sDezm' +
+'/KJLD2e+skOvuoKCdpB2yly6SBJl+d9H8SPepmMLMRQ8ifRdCdcHTRaq3nnnH9s5LJ/Wpga98AJi6/1/ZPA0kRrm0Y9by18r' +
+'4HRt3X+sCRfr6x0XPxbaPS/atg5vQW/RxQeGzr1=gRs0jD87156X0I=qKn6HdJK0XDOmyVXYGAdiqiwQYMY53v5zWk61mfDX' +
+'AS+6HmNP72PvYQhhClRw/hrZTEM8k3uOYfJup2KCl9TlpTzKWdMURg+HzL+Lgm030I=qKn6Hd3ETXDOmznonL8oJ=eJWhYss' +
+'DAJGry8xVPWhX8rm0Y9by18r5UltveN=3WiJjVJMQ5tuclB++yIDtJOE2cvaKdNVt//o8MMMNNMbkbPeSPPNtRf44MiVqdnn' +
+'L8q5KD1D5hdImv9Tq59xyhFE4drn8tBrh1MO9TlgKgDZ28fmGD69CeV4C9/atg5zhfSFyfy6FW8B6snBKD87156X0I=u+aBd' +
+'SKdHrRfa7WrX0AnpCFI2FgksDwL3rqMl7cLHgn96I6QMqDGv0VigLpIPXWwqbH89g5tvbgQeyuJzAbAic+YmyO6y6unBLg3I' +
+'cm07oYCNegPNudejPEfqBdX2g=qpTvFW2crsvfNHfnL13iRH1/87ArMvO68KnHTyHgSwzWimHaKLUAuNHAOuhl8vRtPl2gx6' +
+'q3JGFZv0kXNOp+6YnIE7JaC6ZJREODkTl=XTT4X5b+1CROqMTcJHj3JEOUMnxS+qIePP7B8srkRxvsQwyafqPMKpD2vOcTPN' +
+'BTIiViPlJfyqlOAB6f9I/DOOJLNK5PQ9WNONmObXTVh2RXqoU3nYb/D2lRstDwJmrjKV7URHYg8qHa/sdi2K4HRt4ZP=f/w7' +
+'TWJLs2nNcTReBmLjZjB1+RxKi1OFxUA4HSOaU7FIU4McFBHL76VlPCapGHfE0ZjmLc1igMt9bCL3qw62OUQIlg+HsZPvFA8w' +
+'UMhB4mQNjSzZmM=lCbWo3S/atgIS1dJm+XoaqXOy5us20EQ/IGM7wfBqtl6HdJK0XDeJWciog/g6LJEXBVrsuv=CX4LEmUGh' +
+'X8rm0Y9f7+Mcsaie8lP=3S0qbHEskEbbCSP+ysMikx6fZtgXd80Ps8/IjRMPN+M8EbCNOOP6VLWn4SjYzhnnL9iILKI22TpI' +
+'/75z34LFCbRDTR/qkZP/GjL/sMUt4nQwHfw4nENrv9bfgbRuAg=/QrCSxggWyrAR6snBKD8715LrLIBuSTPrqOeokEfZGInG' +
+'YDoIPGImkMfJqvLXrwMxVPQXIY26IrQO38M+EKhAncOP/jy2Gg68H2wJQfPv6zICtbKE+RxKGUMmBeu0sQP+x7LrQHS+edSt' +
+'7QbGTJiJGaqnP8oE/A7wk3Y53v53ftKimUUoxS8ZILMO3AM/QWlQqlNfHdyofYMbcEtuLgAa2TCxMNNDy9mYq0Ijt34mwlEs' +
+'I79X1cR/aWPJlJe4HEhJGDnnH9a14HHG2apKXwMm2t=el68BLRrm0YM/W8G=EObAvgSsCufoXEO8j/u+LpAaQ7094W/RxQuq' +
+'WVEGFY154VLPFBMKrIG6KeQNqOQhKuOmyVXXcAomrKF02aqMrwN3roElGjA1XR8J5kQOFP35gkT+iE4J28y7GRKMo2u/glB+' +
+'ykJvwYKERfz5/WJGBV3H4WPu6=Kn8U=qqeQOGVbDGDh6GorGY/oEm4JGVgr9LSLmGzNQhPQXA1+ZknQ7h1QvcUi930+tWhjn' +
+'GM65CObf7=56tg5vRfPxxYuqWVEFNk=noKMNB8JrkNQNFcRJ2mRDYRj6ihZjU6pITlFX+foMT0EmjlM1GVToternnYP/GL8v' +
+'sMlhDYOfXEvZLPKLo=v+Ca/+hwHiZfPDtdvb/hJFVW7n8VMOJFMKEN=Jtl6HdJK0XDeJWcinoKro8/FV+PoMn0JWS2MAqSQH' +
+'Ud0KImMPC+OevPRPD=IefQrXnlFZgwjLkALcBSBAhVJkyPpYGBFj+51DrP8=FBObkNCqKXPOCcaH0IRmzppokDoGDGHGteb5' +
+'4xJkjzM1uhCEP/lDnC9by18vAQierqOdnfx7WDAHQVrvgXB+lvNewfE/k7eGyO62Ba9lXWMsFNN75cR+FY/7pJf48Qf3dCRz' +
+'T4X146GWN6ssTQLW7xJFCUR2gm=m019fK2OwEMXaqBU8msa0ux0bDAe+koPul0MeIXPVAYep/WMmV/+H0WNPd+KZoNTeWLPt' +
+'JLN0XLjqWpqXnDX5r9I3+NpsK754ntMEFPHDkmvn0o/ryRCK5iM7eX+sCRx6eD88D6sfcbU+BkDClpSE2XvZ/RJFpW9XfVOK' +
+'1VAn1WU+6WAJ3WcHoWg7aaoVH9rpD5F2F=os87JGvzNUlPHDlf87PYPvGHPe9Oi=DaN=zWwJCVMHvzuu0WSNR6JChVRlFjy6' +
+'3VKBAayhWu87156boRQvWTUdKNVHsWiZ3comg7nIn9FmterIvyIGGwCVGdQo1a+Zrg9+/dGdUGc/b8JdnLo4XCEJkknLU6Hq' +
+'1s50hfTVhVhGzbKGFk8H=I+Lgm01nz=qJK/+qcbl8Rg7BVejUcnJH94mpbtoW4/gJO6xyPA4Yk8XEtQ/3IN/0VRuqXSwnew3' +
+'yx0XPxbaQfSNJBLS1jOmBVvIujOy5us48EO=B+=EnzW6tl6Hd3EXLTRJGronLLrkv5FGAUYbD3LnzRLECiSIMW8pAgMw75G/' +
+'Malg8eO8KdfmnXLMg9sq/SRuBzMiVdPhgQuqOyMlpg=TSDQPB+Cb5aRdecKtWKeXnPOq/kq3k9qZD9FCgMt9b8JCWA6yFfE1' +
+'karnn29gdi2K4HRt4gOLCZy6rHNr0Ksug=Pv6zICtbKE+RxKGUMmBes1Wg8/tNMbjR=u+TP/CSgXsHZ6GorGY/oHD7EWhRpc' +
+'zALCWA61qUVjle87ArMvO6HeEIkxLdQgLehmPQLLgDtv4XPdptJDdpOlNVemVp1=gRs0jDOOZ9NKYiQ+a4POCcaH0IaZ/WqX' +
+'o+qp=E4m+Nr9nVNGOnO1WeTTDT3XUHJNuoFt96awzEH+TEp5vpC7LektcFGsJF5O=WTVVkxKFa62tW=owEMuIE6b9PHdFWRu' +
+'+VK5sWf4CWr3=9rXD=EX6Qb54yLmOoKEqiRH0axTnC4pZ18r4HkBDeH=7a0mGg66gywejgR+p37v0x6fYQeGyOMGFY154VLP' +
+'FBMKrIG6KeQNqOQhKuOmyVXXHKom8FGWlNt9LzDnr46ylPRXpd/ZHz4pZ18r4HkBDeFPf1yZ3SNXPNbeYZGNpsLjYx6fZtgX' +
+'d80Ps8/IjRMPN+M8EbCNOOP6VLeXsRfqGnXzC4Z1a48ToMumqZ5zWk61WVA0Ee96ErOwa6MtsMlhDYOfXEvZLPKLo=v+CS/r' +
+'ggLTliRRUQ00l56y5Rs0jD872FLrEbR/yPP8qOeokEfZGInGYDoIPGImkascL9J3r2CVGbT5xU/JIdP7R+BYryM7eX+sCRfm' +
+'GD6803bawfSNJJLS1q/SoQiGyU7R628I0I/etHOGTR=q9KROCQUHPMjmyzXXHKomHMIm2gqMz97CX/1/ZPA0kRrm0Y9by18r' +
+'5QiM3f+=3kwXLRLLDywekWJOB07/Rx6fYQeGyO6y5Rs0jD87156X0IS+uOStajbHoxf7/onnw9joD5HGFSrt=88WjlM1i2VH' +
+'cU=qYnP7R3HcYpdOHWF+77q5CzGKfzeaQfSNJCJgdlRVtigXd80R5Rs0jD87156X0I=qJK/63Wen0lhJWinok9o3zMJCxpY+' +
+'HANGq/1/ZPA0kRrm0Y9by18r4HRt3XQAPYorbVJMg6uNGSAKgg+fkmE/k7eGyO6y5Rs0jD8715Qn1NSvWP//h3ETXDOmyVXT' +
+'T4X1341CxMY548MmzNMUWjA1XRvnfF37y18r4HRt3X+sCRfmGD64Q+tuglQvVlJxEbSF+Rv6GBJl+d9H8SPeoGKbYbTuFdPJ' +
+'VSQhKuOmyVXTT4X1341CxMY53v53KtK2/YWX5V26IrQO38M+EKhAncOP/jy2Gg68HFue/t6oUg5vQW/RxQeGyO6y6unBKD87' +
+'156X0I=v945Z2JK0YgJ0Z/Sh74X134GWIMa9=4JkKpNl/QRn5E7Z5kNvKDPOrHR+qXQQXdymqDPlCbbaPS/atg5vRYQlN+vb' +
+'/hJFVW4nwEO/J/ML9VCOSPRdGOeVwYhqionHc9oIu=3Tc6SWqZ5zWk6xyPA0la8F0gM/W8G=EObAvgSsCvfnGD7XnxkeUmPq' +
+'luLjseAhxdeK7XKjtk9lHRNPE5A31KR+m4StSufIgEjqWkqz34tiqi1CxMY53v5zWk6xyPSH8Rtm5aOvOiPeUpkQbkNATWwo' +
+'CYO4zxxHC9/atg5vQW/RxQeGyO6y5Rs4sMMsp+NLAJQde+Ot7VbHwSiJljnGYDq3PMHm+gqMz97zfYFS3+MlIF14wGLMuqIr' +
+'=QXaqB+sCRfmGD64PxbaPS/atg5zZfPCljv43cLFtSA44HGvJM6YnIUvSfPKh3ETXDOmyVXTT4X1341CxMY54xKGzRNkO0VI' +
+'tS=qYnP7y=C74eW+3y56qRfmGD64PxbaPS/au95zliSEEQ00l56y5Rs0jD87156X0I=qJK/+/SblLWfXWjpoj4eE3H7wk3Y5' +
+'3v5zWk6xyPA0kRrm0Y9f7+McsMlhDYOfXEvZLPKLo=v+CgPeRzMzMpPhQZk0l56y5Rs0jD87156X0I=qJK/+/SblLIia/WoG' +
+'orno8DFWJbscqv=CXyOEibGhX8rm0Y9by18r4HRt3XU628fmGD64PxbaQv6oUg5vQWVfk71WVp1=g/mXXT/eR6MrHWU+tYRN' +
+'KcencKf7+VejUSSCe41CxMssX+NljsJF7TGTkZ=qYsPfFA8vsMlhDYOfWdfrXMO8=2jNLeRO1s5zZdGEtcx76a63Ja/H3DCK' +
+'1N+Y0YB6JnFZ3ZeYociqGta3oNoIvLIypPoMn77zfXL1umMnES/JEFNw/HL/UMRMmXSwnlyqaP68D2vOcTPNAs50hfTVhVm6' +
+'uaMmAds4sKDuxEML8U=vaTRNJSNyKuOmyVXYg=qpTvFW2crsvfNHfnL13iRH0rrmUsOwCAM7nHmgLYRw/fqJLQKH/xwNkTSe' +
+'puCzVpQRgQzKWbKB5us13T=81B6Ynm=vKcT/aZbI3Rf7Kaq4kKaYD5HGgUYbD3LnzbKE3fTncB=79bOf3HM/I1iBDqN=fWfF' +
+'2DO80Eueje/fJlIDRlRzpRxaFa63VW8IkSOcV6NKTU=vaTRNJSNyKuOmyVXYg=qpToHG2apJev74ntO1iUD0lh+q5mNtq2O/' +
+'LTRy4jN=7WpqLWL4/xwe0fPqt95wkmCSxZeHls636jA5HTMPUGKsMNSOadBdCKd4GLOI/dqHwoq58FFUlRstDwJmqm9xzjSI' +
+'1d82jYQfi2OOM2hArcAsDhyqLRKJwyvNve/f+pLCkfBPk7eGyO63FZ/o=xNOFLLscNQrxKA/GSf4HIRmzioogKnIT94CygqM' +
+'r050Jk/ByfE0HRy3rYQg7IR=5MntvcSPXf0rSRJrU9uavUKNNvNgEfPW+Z0qGSEFNk=noKMK9E6cERUu6PB63WbIkWe6OaaT' +
+'ULpIr93Sg6SY3v5zX3L1umLHIV/ZYyNvCoNv9ZiueX=xTa0q3I94Q+svclOuJl8vRYPC+fxKug9y6m=n4oLP+DKs98RuOcP6' +
+'lJanTRfqGjrGo8a14LGWlRY6qv+DW0+xVPHEbR/r9sSwz6RrwMmQLlSxOfvZLPM4vznNwhTLhpJ0dfU1FUq6SPNVJ/9IwWLO' +
+'R+63jIUuueR+JVK4LIia/WoGnDX5=/92tYrt/754r3KCCQUXQW/IAgMw75/r5KkgvbO=7kw6WP69g6uujb6oV9/cP2';
+
+/*
+
+	Encrypted module game_assets/scaleform.js. Result: 1ms.
+	Fuck is easy, fuck is funny, many people fuck for money,
+	if you don't think fuck is funny, fuck youself and save the money!
+
+*/
 }

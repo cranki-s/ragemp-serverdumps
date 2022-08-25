@@ -1,592 +1,304 @@
 {
-let vehCam = false;
-let camStartPos = {};
-let camLookAt = {};
-var tuningVehicle = false;
-
-let oldColors = null, oldParams = null, oldTuning = null;
-
-var afTuningPanel = false;
-var tuningsInStream = [];
-var garTuningsInStream = [];
-var exitTuningsInStream = [];
-
-let exitTempData;
-
-mp.events.add('playerEnterColshape', (shape) => {
-	if(typeof(shape.data) == 'undefined' && typeof(shape.id) != "undefined") {
-		if(typeof(shape.getVariable('col.type')) != "undefined") {
-			let colType = shape.getVariable('col.type');
-			if(colType == 'tuning') {
-				let tunData = shape.getVariable('col.data');
-				if(localPlayer.getVariable('player.id')) {
-					tuningVehicle = localPlayer.vehicle;
-					
-					if(tuningVehicle && hud_browser) {
-						if(allowBinds != stockBinds) return false;
-						mp.events.call("sleepAntiCheat");
-						
-						if(typeof(tuningVehicle.getVariable('veh.params')) !== "undefined") {
-							let vehParams = JSON.parse(tuningVehicle.getVariable("veh.params"));
-							if(typeof(vehParams.rent) !== "undefined") return notyAPI.error("Арендованый транспорт нельзя тюнинговать.", 3000, true);
-						}
-						
-						if(typeof(tuningVehicle.getVariable('veh.own')) !== "undefined") {
-							if(mp.players.atRemoteId(parseInt(tuningVehicle.getVariable('veh.own')))) {
-								let vehOwn = mp.players.atRemoteId(parseInt(tuningVehicle.getVariable('veh.own')));
-								if(vehOwn.remoteId.toString() != localPlayer.remoteId.toString()) return notyAPI.error("Воспользоваться тюнингом можно только на личном ТС.", 3000, true);
-							}else{
-								return notyAPI.error("Воспользоваться тюнингом можно только на личном ТС.", 3000, true);
-							}
-						}else{
-							return notyAPI.error("Воспользоваться тюнингом можно только на личном ТС.", 3000, true);
-						}
-						
-						if(tuningVehicle.getClass().toString() == "15") {
-							if(tunData[4] != "heli") return notyAPI.error("Тут не обслуживают вертолёты, найдите другую станцию.", 3000, true);
-						}else{
-							if(tunData[4] == "heli") return notyAPI.error("Тут обслуживают только вертолёты, найдите другую станцию.", 3000, true);
-						}
-						
-						if(tuningVehicle.getNumberOfPassengers() > 1) return notyAPI.error("Высадите пассажиров, что бы попасть в тюнинг.", 3000, true);
-						
-						if(tunData[4] != "heli") {
-							if(!mp.game.streaming.isIplActive("imp_sm_15_modgarage")) mp.game.streaming.requestIpl("imp_sm_15_modgarage"); // ipl load
-						}
-						
-						if(tuningVehicle.getVariable("veh.colors")) oldColors = JSON.parse(tuningVehicle.getVariable("veh.colors"));
-						if(tuningVehicle.getVariable("veh.params")) oldParams = JSON.parse(tuningVehicle.getVariable("veh.params"));
-						if(tuningVehicle.getVariable("veh.tuning")) oldTuning = JSON.parse(tuningVehicle.getVariable("veh.tuning"));
-						
-						localPlayer.freezePosition(true);
-						mp.events.call('moveSkyCamera', localPlayer, 'up', 1, false);
-						
-						setTimeout(function() {
-							mp.events.call("sleepAntiCheat");
-							mp.events.callRemote('vehToTuning', tuningVehicle, tunData[4]);
-							mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~customs", "~s~Добро пожаловать в мир тюнинга.", 5, false, true, 6500);
-						}, 500);
-						
-						setTimeout(function() {
-							mp.events.call('moveSkyCamera', localPlayer, 'down');
-						}, 3000);
-						
-						setTimeout(function() {
-							mp.events.call("sleepAntiCheat");
-							mp.events.callRemote('vehToTuningComplete', tuningVehicle, tunData[4]);
-							waitForCamSwitch();
-						}, 5450);
-						
-						/*setTimeout(function() {
-							localPlayer.freezePosition(false);
-						}, 7600);*/
-						
-						if(tunData[3] !== undefined) exitTempData = tunData[3];
-					}else{
-						notyAPI.error("Чтобы воспользоваться тюнингом, необходимо использовать транспорт.", 3000, true);
-					}
-					return false;
-				}
-			}
-			if(colType == 'exitTuning') {
-				if(localPlayer.getVariable('player.id')) {
-					if(!tuningVehicle || tuningVehicle === undefined || !mp.vehicles.exists(tuningVehicle)) return false;
-					
-					if(mp.game.streaming.isIplActive("imp_sm_15_modgarage")) mp.game.streaming.removeIpl("imp_sm_15_modgarage"); // ipl unload
-					mp.events.call("sleepAntiCheat");
-					
-					localPlayer.freezePosition(true);
-					mp.events.callRemote('vehFromTuning', tuningVehicle, exitTempData);
-					tuningVehicle = false;
-					
-					mp.events.call('moveSkyCamera', localPlayer, 'up', 1, false);
-					
-					setTimeout(function() {
-						mp.events.call('moveSkyCamera', localPlayer, 'down');
-						mp.events.callRemote('vehFromTuning', false, exitTempData);
-						exitTempData = false;
-					}, 4000);
-					
-					setTimeout(function() {
-						localPlayer.freezePosition(false);
-					}, 6000);
-					return false;
-				}
-			}
-			if(colType == 'tuning_render') {
-				let tunData = shape.getVariable('col.data');
-				
-				if(tunData[4] == "car") {
-					let tunMarker = mp.markers.new(36, new mp.Vector3(tunData[0], tunData[1], tunData[2]-0.4), 2.5,
-					{
-						direction: new mp.Vector3(0, 0, 0),
-						rotation: new mp.Vector3(0, 0, 0),
-						color: [119, 195, 242, 200],
-						visible: true,
-						dimension: 0
-					});
-					
-					let tunArray = {'marker': tunMarker, 'type': tunData[4], 'pos': [tunData[0], tunData[1], tunData[2]-2.4], 'alpha': 0};
-					tuningsInStream.push(tunArray);
-				}else if(tunData[4] == "heli") {
-					let tunMarker = mp.markers.new(34, new mp.Vector3(tunData[0], tunData[1], tunData[2]-0.4), 2.5,
-					{
-						direction: new mp.Vector3(0, 0, 0),
-						rotation: new mp.Vector3(0, 0, 0),
-						color: [119, 195, 242, 200],
-						visible: true,
-						dimension: 0
-					});
-					
-					let tunArray = {'marker': tunMarker, 'type': tunData[4], 'pos': [tunData[0], tunData[1], tunData[2]-2.4], 'alpha': 0};
-					tuningsInStream.push(tunArray);
-				}
-				return false;
-			}
-			if(colType == 'garTuning_render') {
-				let garTunRenderData = shape.getVariable('col.data');
-				
-				let garTunColor = [255, 255, 255, 200];
-				if(garTunRenderData[3] == "paints") garTunColor = [253, 116, 0, 200];
-				else if(garTunRenderData[3] == "wheelsAndSusp") garTunColor = [255, 225, 26, 200];
-				else if(garTunRenderData[3] == "engineTrans") garTunColor = [190, 219, 57, 200];
-				else if(garTunRenderData[3] == "additional") garTunColor = [31, 138, 112, 200];
-				
-				let garTunMarker = mp.markers.new(1, new mp.Vector3(garTunRenderData[0], garTunRenderData[1], garTunRenderData[2]-0.5), 1.1,
-				{
-					direction: new mp.Vector3(0, 0, 0),
-					rotation: new mp.Vector3(0, 0, 0),
-					color: garTunColor,
-					visible: true,
-					dimension: -1
-				});
-				
-				let garTunArray = {'marker': garTunMarker, 'type': garTunRenderData[3], 'pos': [garTunRenderData[0], garTunRenderData[1], garTunRenderData[2]-0.5], 'alpha': 0};
-				garTuningsInStream.push(garTunArray);
-				return false;
-			}
-			if(colType == 'exitTuning_render') {
-				let exitTunRenderData = shape.getVariable('col.data');
-				
-				let exitTunMarker = mp.markers.new(1, new mp.Vector3(exitTunRenderData[0], exitTunRenderData[1], exitTunRenderData[2]-0.5), 1.1,
-				{
-					direction: new mp.Vector3(0, 0, 0),
-					rotation: new mp.Vector3(0, 0, 0),
-					color: [255, 255, 255, 200],
-					visible: true,
-					dimension: -1
-				});
-				
-				let exitTunArray = {'marker': exitTunMarker, 'type': exitTunRenderData[3], 'pos': [exitTunRenderData[0], exitTunRenderData[1], exitTunRenderData[2]-0.5], 'alpha': 0};
-				exitTuningsInStream.push(exitTunArray);
-				return false;
-			}
-			if(colType == 'garTuning') {
-				if(allowBinds != stockBinds) return false;
-				
-				let garTunData = shape.getVariable('col.data');
-				
-				if(!localPlayer.vehicle && hud_browser) {
-					if(!tuningVehicle || tuningVehicle === undefined || !mp.vehicles.exists(tuningVehicle)) return false;
-					
-					if(garTunData[3] != "additional") {
-						tuningVehicle.removeWindow(0);
-						tuningVehicle.removeWindow(1);
-						tuningVehicle.removeWindow(2);
-						tuningVehicle.removeWindow(3);
-					}
-
-					let vehColors = JSON.parse(tuningVehicle.getVariable("veh.colors"));
-					let vehTuning = JSON.parse(tuningVehicle.getVariable("veh.tuning"));
-					let vehParams = JSON.parse(tuningVehicle.getVariable("veh.params"));
-					
-					let vehNeon = 0;
-					if(typeof(vehParams["neon"]) !== "undefined") {
-						vehNeon = explode(",", vehParams["neon"]);
-						vehNeon = parseInt(vehNeon[0]);
-					}
-					
-					let vehLivery = -1;
-					if(typeof(vehParams["livery"]) !== "undefined") {
-						vehLivery = explode(",", vehParams["livery"]);
-						vehLivery = parseInt(vehLivery[0]);
-					}
-					
-					let oldTuning = {
-						"colorMat": parseInt(vehColors["material"]),
-						"color1": vehColors["color1"],
-						"bodyPearl": parseInt(vehColors["pearl"]),
-						"color2": vehColors["color2"],
-						"wheelsColor": parseInt(vehColors["wheels"]),
-
-						"engineStage": parseInt(vehTuning["11"] !== undefined ? vehTuning["11"] : -1),
-						"gearboxStage": parseInt(vehTuning["13"] !== undefined ? vehTuning["13"] : -1),
-						"brakeStage": parseInt(vehTuning["12"] !== undefined ? vehTuning["12"] : -1),
-						"turboStage": parseInt(vehTuning["18"] !== undefined ? vehTuning["18"] : -1),
-						
-						"suspStage": parseInt(vehTuning["15"] !== undefined ? vehTuning["15"] : -1),
-						"wheels": parseInt(vehTuning["23"] !== undefined ? vehTuning["23"] : -1),
-						"colorWheels": parseInt(vehColors["wheels"]),
-						"colorTyre": vehColors["colorTyre"] !== undefined ? vehColors["colorTyre"] : "255,255,255",
-						"tyresCanBurst": parseInt(vehParams["tyresCanBurst"] !== undefined ? vehParams["tyresCanBurst"] : 0),
-						
-						"tintTuning": parseInt(vehParams["tint"] !== undefined ? vehParams["tint"] : 4),
-						"ksenTuning": parseInt(vehTuning["22"] !== undefined ? vehTuning["22"] : -1),
-						"neonTuning": parseInt(vehParams["neon"] !== undefined ? vehNeon : 0),
-						"liveryTuning": parseInt(vehParams["livery"] !== undefined ? vehLivery : -1),
-						"colorNeon": "255,255,255",
-						
-						"exhaustsTuning": parseInt(vehTuning["4"] !== undefined ? vehTuning["4"] : -1),
-						"kitsTuning": parseInt(vehTuning["9"] !== undefined ? vehTuning["9"] : -1),
-						"spoilersTuning": parseInt(vehTuning["0"] !== undefined ? vehTuning["0"] : -1),
-						"fbumperTuning": parseInt(vehTuning["1"] !== undefined ? vehTuning["1"] : -1),
-						"bbumperTuning": parseInt(vehTuning["2"] !== undefined ? vehTuning["2"] : -1),
-						"skirtsTuning": parseInt(vehTuning["3"] !== undefined ? vehTuning["3"] : -1),
-						"hoodsTuning": parseInt(vehTuning["7"] !== undefined ? vehTuning["7"] : -1),
-						"fendersTuning": parseInt(vehTuning["8"] !== undefined ? vehTuning["8"] : -1),
-						"roofsTuning": parseInt(vehTuning["10"] !== undefined ? vehTuning["10"] : -1)
-					}
-					
-					if(oldTuning !== undefined && Object.keys(oldTuning).length > 0) {
-						//chatAPI.sysPush("Tesat: "+JSON.stringify(oldTuning).toString());
-						
-						let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-						decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
-						
-						let vehCost = 1000000;
-						let liveryMode = false;
-						if(typeof(tuningVehicle.getVariable("veh.hash")) == "undefined") return false;
-						let vehHash = tuningVehicle.getVariable("veh.hash").toString();
-						if(typeof(decVehStats[0][vehHash]) !== "undefined") {
-							vehCost = parseInt(decVehStats[0][vehHash].cost);
-							if(typeof(decVehStats[0][vehHash].liveries) !== "undefined") liveryMode = JSON.stringify(decVehStats[0][vehHash].liveries);
-						}
-						
-						let vehClass = tuningVehicle.getClass().toString();
-						
-						if(garTunData[3] == "paints") {
-							if(hud_browser) {
-								if(liveryMode) hud_browser.execute("toggleTuningMenu('"+JSON.stringify(oldTuning)+"', 'paints', '"+vehCost+"', '"+liveryMode+"');");
-								else hud_browser.execute("toggleTuningMenu('"+JSON.stringify(oldTuning)+"', 'paints', '"+vehCost+"');");
-								mp.gui.cursor.visible = true;
-							}
-						}else if(garTunData[3] == "engineTrans") {
-							if(hud_browser) {
-								hud_browser.execute("toggleTuningMenu('"+JSON.stringify(oldTuning)+"', 'engineTrans', '"+vehCost+"');");
-								mp.gui.cursor.visible = true;
-							}
-						}else if(garTunData[3] == "wheelsAndSusp") {
-							if(hud_browser) {
-								if(typeof(decVehStats[0][vehHash]) !== "undefined") {
-									if(decVehStats[0][vehHash].type == "moto") return notyAPI.error("Я не буду заниматься мото-техникой.", 3000, true);
-								}
-								hud_browser.execute("toggleTuningMenu('"+JSON.stringify(oldTuning)+"', 'wheelsAndSusp', '"+vehCost+"');");
-								mp.gui.cursor.visible = true;
-							}
-						}else if(garTunData[3] == "additional") {
-							if(hud_browser) {
-								if(typeof(decVehStats[0][vehHash]) !== "undefined") {
-									if(decVehStats[0][vehHash].type == "moto") return notyAPI.error("Я не буду заниматься мото-техникой.", 3000, true);
-								}
-								
-								let tuningData = {"exhausts":0,"kits":0,"spoilers":0,"fbumps":0,"bbumps":0,"skirts":0,"hoods":0,"fenders":0,"roofs":0};
-									tuningData["exhausts"] = tuningVehicle.getNumMods(4); // Exhausts
-									tuningData["kits"] = tuningVehicle.getNumMods(9); // Kits
-									tuningData["spoilers"] = tuningVehicle.getNumMods(0); // Spoilers
-									tuningData["fbumps"] = tuningVehicle.getNumMods(1); // Front bumps
-									tuningData["bbumps"] = tuningVehicle.getNumMods(2); // Back bumps
-									tuningData["skirts"] = tuningVehicle.getNumMods(3); // Side Skirts
-									tuningData["hoods"] = tuningVehicle.getNumMods(7); // Hoods
-									tuningData["fenders"] = tuningVehicle.getNumMods(8); // Fenders
-									tuningData["roofs"] = tuningVehicle.getNumMods(10); // Roofs
-								
-								hud_browser.execute("toggleTuningMenu('"+JSON.stringify(oldTuning)+"', 'additional', '"+vehCost+"', undefined, '"+JSON.stringify(tuningData)+"', '"+vehClass+"');");
-								mp.gui.cursor.visible = true;
-							}
-						}
-						
-						if(!vehCam) {
-							if(tuningVehicle) {
-								allowBinds = [];
-								let vehPos = tuningVehicle.position;
-								if(garTunData[4] == "car") {
-									vehCam = mp.cameras.new('default', new mp.Vector3(vehPos.x+4.2, vehPos.y+4.2, vehPos.z+2.5), new mp.Vector3(vehPos.x, vehPos.y, vehPos.z), 40);
-									camStartPos = {"x":vehPos.x+4.2, "y":vehPos.y+4.2, "z":vehPos.z+2.5};
-								}else if(garTunData[4] == "heli") {
-									vehCam = mp.cameras.new('default', new mp.Vector3(vehPos.x+7.2, vehPos.y+7.2, vehPos.z+2.3), new mp.Vector3(vehPos.x, vehPos.y, vehPos.z), 40);
-									camStartPos = {"x":vehPos.x+7.2, "y":vehPos.y+7.2, "z":vehPos.z+2.3};
-								}
-								vehCam.pointAtCoord(vehPos.x, vehPos.y, vehPos.z);
-								camLookAt = {"x":vehPos.x, "y":vehPos.y, "z":vehPos.z};
-								vehCam.setActive(true);
-								vehCam.setMotionBlurStrength(100);
-								mp.game.cam.renderScriptCams(true, false, 0, true, false);
-								mp.game.ui.displayRadar(false);
-							}
-						}
-					}
-					
-					garTunData = null;
-					return false;
-				}
-			}
-		}
-	}
-});
-
-mp.events.add('playerExitColshape', (shape) => {
-	if(typeof(shape.data) == 'undefined' && typeof(shape.id) != "undefined") {
-		if(typeof(shape.getVariable('col.type')) != "undefined") {
-			let colType = shape.getVariable('col.type');
-			if(colType == 'tuning_render') {
-				let tunRenderData = shape.getVariable('col.data');
-				for(var i in tuningsInStream) {
-					let tempData = tuningsInStream[i];
-					let posData = tempData['pos'];
-					if (posData[0] == tunRenderData[0] && posData[1] == tunRenderData[1] && posData[2] == tunRenderData[2]) {
-						if(tempData['marker']) {
-							tempData['marker'].destroy();
-							delete tempData['marker'];
-						}
-						if(tuningsInStream[i] || tuningsInStream[i] !== undefined) delete tuningsInStream[i];
-					}
-					tempData = null;
-				}
-				tuningsInStream = tuningsInStream.filter(function (el) { return el != null; });
-				
-				tunRenderData = null;
-				return false;
-			}
-			if(colType == 'garTuning_render') {
-				let garTunRenderData = shape.getVariable('col.data');
-				for(var i in garTuningsInStream) {
-					let tempData = garTuningsInStream[i];
-					let posData = tempData['pos'];
-					if (posData[0] == garTunRenderData[0] && posData[1] == garTunRenderData[1] && posData[2] == garTunRenderData[2]) {
-						if(tempData['marker']) {
-							tempData['marker'].destroy();
-							delete tempData['marker'];
-						}
-						if(garTuningsInStream[i] || garTuningsInStream[i] !== undefined) delete tuningsInStream[i];
-					}
-					tempData = null;
-				}
-				garTuningsInStream = garTuningsInStream.filter(function (el) { return el != null; });
-				
-				garTunRenderData = null;
-				return false;
-			}
-		}
-	}
-});
-
-function tuningExit(tempTuning, resCost) {
-	if(tempTuning !== undefined && resCost !== undefined) {
-		resCost = parseInt(resCost);
-		let myMoney = parseInt(localPlayer.getVariable("player.money"));
-		if(resCost > myMoney) return hud_browser.execute("tuningNeedMoney();");
-		
-		if(tuningVehicle) {
-			mp.events.callRemote('buyVehTuning', tuningVehicle, tempTuning, resCost);
-			let vehHash = tuningVehicle.getVariable("veh.hash");
-			let vehName = "Транспорт";
-			
-			let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-			decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
-			
-			if(typeof(decVehStats[0][vehHash]) != "undefined") vehName = decVehStats[0][vehHash].name;
-			else vehName = vehHash;
-			let costText = resCost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
-			mp.game.ui.messages.showMidsizedShard("~y~Тюнинг ~w~обновлён", "~s~"+vehName+"~n~К оплате~g~~h~"+costText+" ~s~руб.", 5, false, true, 5000);
-		}
-		
-		hud_browser.execute("toggleTuningMenu(false);");
-	}else{
-		if(tuningVehicle) reSyncVehicle(tuningVehicle);
-	}
-	if(vehCam) {
-		vehCam.setActive(false);
-		vehCam.detach();
-		vehCam.destroy();
-		vehCam = null;
-	}
-	mp.game.cam.renderScriptCams(false, false, 0, false, false);
-	mp.game.ui.displayRadar(true);
-	mp.gui.cursor.visible = false;
-	
-	restoreBinds();
-	
-	tuningVehicle.setFixed();
-}
-mp.events.add("tuningExit", tuningExit);
-
-function setTempTuning(name, value) {
-	if(tuningVehicle && name !== undefined && value !== undefined) {
-		if(mp.vehicles.exists(tuningVehicle)) {
-			let vehClass = tuningVehicle.getClass();
-			if(name == "color1") {
-				let vData = explode(",", value);
-				tuningVehicle.setCustomPrimaryColour(parseInt(vData[0]), parseInt(vData[1]), parseInt(vData[2]));
-			}else if(name == "colorMat") {
-				let vData = parseInt(value);
-				tuningVehicle.setColours(vData, vData);
-			}else if(name == "bodyPearl") {
-				let vehColors = JSON.parse(tuningVehicle.getVariable("veh.colors"));
-				let vData = parseInt(value);
-				if(vehColors["wheels"] === undefined) vehColors["wheels"] = 0;
-				tuningVehicle.setExtraColours(vData, parseInt(vehColors["wheels"]));
-			}else if(name == "color2") {
-				let vData = explode(",", value);
-				tuningVehicle.setCustomSecondaryColour(parseInt(vData[0]), parseInt(vData[1]), parseInt(vData[2]));
-			}else if(name == "colorNeon") {
-				let vData = explode(",", value);
-				tuningVehicle.setNeonLightsColour(parseInt(vData[0]), parseInt(vData[1]), parseInt(vData[2]));
-				tuningVehicle.setNeonLightEnabled(0, true);
-				tuningVehicle.setNeonLightEnabled(1, true);
-				tuningVehicle.setNeonLightEnabled(2, true);
-				tuningVehicle.setNeonLightEnabled(3, true);
-			}else if(name == "engineStage") {
-				let vData = parseInt(value);
-				tuningVehicle.setMod(11, vData);
-			}else if(name == "gearboxStage") {
-				let vData = parseInt(value);
-				tuningVehicle.setMod(13, vData);
-			}else if(name == "brakeStage") {
-				let vData = parseInt(value);
-				tuningVehicle.setMod(12, vData);
-			}else if(name == "turboStage") {
-				let vData = parseInt(value);
-				tuningVehicle.setMod(18, vData);
-			}else if(name == "suspStage") {
-				let vData = parseInt(value);
-				tuningVehicle.setMod(15, vData);
-			}else if(name == "wheels") {
-				let vData = parseInt(value);
-				tuningVehicle.setMod(23, vData);
-			}else if(name == "wheelsColor") {
-				let vehColors = JSON.parse(tuningVehicle.getVariable("veh.colors"));
-				let vData = parseInt(value);
-				if(vehColors["pearl"] === undefined) vehColors["pearl"] = "-1";
-				tuningVehicle.setExtraColours(parseInt(vehColors["pearl"]), vData);
-			}else if(name == "colorTyre") {
-				let vData = explode(",", value);
-				tuningVehicle.setTyreSmokeColor(parseInt(vData[0]), parseInt(vData[1]), parseInt(vData[2]));
-			}else if(name == "tyresCanBurst") {
-				let vData = parseInt(value);
-				if(vData == 0) tuningVehicle.setTyresCanBurst(false);
-				else tuningVehicle.setTyresCanBurst(true);
-			}else if(name == "tintTuning") {
-				let vData = parseInt(value);
-				tuningVehicle.setWindowTint(vData);
-			}else if(name == "ksenTuning") {
-				let vData = parseInt(value);
-				tuningVehicle.setMod(22, vData);
-			}else if(name == "neonTuning") {
-				let vData = parseInt(value);
-				tuningVehicle.setNeonLightsColour(255, 255, 255);
-				if(vData == 0) {
-					tuningVehicle.setNeonLightEnabled(0, false);
-					tuningVehicle.setNeonLightEnabled(1, false);
-					tuningVehicle.setNeonLightEnabled(2, false);
-					tuningVehicle.setNeonLightEnabled(3, false);
-				}else if(parseInt(vData) == 1) {
-					tuningVehicle.setNeonLightEnabled(0, true);
-					tuningVehicle.setNeonLightEnabled(1, true);
-				}else if(parseInt(vData) == 2) {
-					tuningVehicle.setNeonLightEnabled(2, true);
-					tuningVehicle.setNeonLightEnabled(3, true);
-				}else if(parseInt(vData) == 3) {
-					tuningVehicle.setNeonLightEnabled(0, true);
-					tuningVehicle.setNeonLightEnabled(1, true);
-					tuningVehicle.setNeonLightEnabled(2, true);
-					tuningVehicle.setNeonLightEnabled(3, true);
-				}
-			}else if(name == "liveryTuning") {
-				if(parseInt(value) < 0) {
-					tuningVehicle.setLivery(0);
-					tuningVehicle.setMod(48, -1);
-				}else{
-					tuningVehicle.setLivery(parseInt(value)+1);
-					tuningVehicle.setMod(48, parseInt(value));
-				}
-			}else if(name == "exhaustsTuning") {
-				let vData = parseInt(value);
-				tuningVehicle.setMod(4, vData);
-			}else if(name == "kitsTuning") {
-				let vData = parseInt(value);
-				tuningVehicle.setMod(9, vData);
-			}else if(name == "spoilersTuning") {
-				let vData = parseInt(value);
-				tuningVehicle.setMod(0, vData);
-			}else if(name == "fbumperTuning") {
-				let vData = parseInt(value);
-				tuningVehicle.setMod(1, vData);
-			}else if(name == "bbumperTuning") {
-				let vData = parseInt(value);
-				tuningVehicle.setMod(2, vData);
-			}else if(name == "skirtsTuning") {
-				let vData = parseInt(value);
-				tuningVehicle.setMod(3, vData);
-			}else if(name == "hoodsTuning") {
-				let vData = parseInt(value);
-				tuningVehicle.setMod(7, vData);
-			}else if(name == "fendersTuning") {
-				let vData = parseInt(value);
-				tuningVehicle.setMod(8, vData);
-			}else if(name == "roofsTuning") {
-				let vData = parseInt(value);
-				tuningVehicle.setMod(10, vData);
-			}
-		}
-	}
-}
-mp.events.add("setTempTuning", setTempTuning);
-
-let rotAngle = 0;
-mp.events.add('render', () => {
-	if(vehCam) {
-		let corrections = false;
-		
-		let pos = vehCam.getCoord();
-		let rot = vehCam.getRot(2);
-		let fov = vehCam.getFov();
-		
-		let cameraX = pos.x;
-		let cameraY = pos.y;
-		let cameraZ = pos.z;
-		
-		if (mp.keys.isDown(37) === true) {
-			corrections = true;
-			
-			rotAngle = rotAngle + 1.5;
-			rotAngle = (rotAngle) * (Math.PI/180); // Convert to radians
-
-			cameraX = Math.cos(rotAngle) * (pos.x - camLookAt.x) - Math.sin(rotAngle) * (pos.y-camLookAt.y) + camLookAt.x;
-			cameraY = Math.sin(rotAngle) * (pos.x - camLookAt.x) + Math.cos(rotAngle) * (pos.y - camLookAt.y) + camLookAt.y;
-		}
-		if (mp.keys.isDown(39) === true) {
-			corrections = true;
-
-			rotAngle = rotAngle - 1.5;
-			rotAngle = (rotAngle) * (Math.PI/180); // Convert to radians
-
-			cameraX = Math.cos(rotAngle) * (pos.x - camLookAt.x) - Math.sin(rotAngle) * (pos.y-camLookAt.y) + camLookAt.x;
-			cameraY = Math.sin(rotAngle) * (pos.x - camLookAt.x) + Math.cos(rotAngle) * (pos.y - camLookAt.y) + camLookAt.y;
-		}
-		if (mp.keys.isDown(38) === true) {
-			corrections = true;
-			let zLimitUpper = camStartPos.z + 1;
-			
-			if(pos.z <= (zLimitUpper)) cameraZ = pos.z + 0.025;
-		}
-		if (mp.keys.isDown(40) === true) {
-			corrections = true;
-			let zLimitDown = camStartPos.z - 0.7;
-			
-			if(pos.z >= (zLimitDown)) cameraZ = pos.z - 0.025;
-		}
-		
-		if(corrections) vehCam.setParams(cameraX, cameraY, cameraZ, rot.x, rot.y, rot.z, fov, 0, 1, 1, 2);
-	}
-});
-}꞊ø
+/*
+
+
+	SMOTRArage © All rights reserved
+
+	Custom obfuscaced system by DriftAndreas Team (0xA0426) special for SMOTRArage
+	Кастомная система обфускации от DriftAndreas Team (0xA0426) специально для SMOTRArage
+
+	Силен бывает тот, кто бывает мудрым.
+
+
+*/
+
+exports = 'psn+IWbw9U3jTFtj+aQrNw61C75VmAnjDZ28wZ3SJbU9e+UmRsRuEjhoPl2deHlOPmssnBLKO/x7JrjWP+itON' +
+'uUK1KDfJ3hrGnSSCf/HGtOoMm9IGj4LFKUIG1/+a1dQ/3IN/0VRuqXOPHdzZae1F3eV+seRN2hLvIbUVVkmbCb6zsR9Y4RLv' +
+'FBMKrQB6Kl6HdzcHvLe7Cif4cGspD9IiUMumqZzA72KF/jTotWzJYmNg+9+8j1LKaANATenKPSOsc2v6HWPv60MSMvARUrZU' +
+'Z40F+l/FsVOvRLKs8IG6KYTNmVQhKuI0WirTL/sIaFE3FesszA8XvtNkWRT44Ry21eMviHM8j1LKaAQw/Uv630M8UJsvXgP/' +
+'2lJD5bKVtjwbCXMlwZ9XoPPuIB=Enz6/945ep3EXLTRJGronLLrkv5FGAUYcLGKHnFO1lRD0lWAqYsEwCB+8j1LKqBOQXfva' +
+'XMMrGxseLgOv+lAiMkT1FizGSRMlxn9IsXIe6E8n1j74x0QNNRaIoQWK7ksHg9rUa4Kwk3SGb4JS3lJlCYVX5z4oonQfGGL=' +
+'IQkgug+xLW0rbVMXQyweD1S+p3MiloB1Fova/jO2MZsXXWMtx+N89XTJpRqBBJ27i0yx43XeVMCK+pMt35YD5Lk8qkl6Q=k/' +
+'mjWvKJUm4dnB/44H50pBxBD2J0giRPGjmDWlvwkErGkczohG1/gs7vX920il3OlgG5l1PtqCJXNTzMUV6edAGiRCbAFiRNpa' +
+'=wLWBt627UV55j+F1ZRfmXPO0elgLpAPXpw6TYO8j5b+DlPMplMTZlSxQXJO5/fs7pXJF0hl3WlgjIr=o7iE8r2Ji1og0qXe' +
+'VVC+1oZd3tDB6gRdY8l6RbA/mwWvuIhm0Sn0S4245vpBNBD2GY6CVSGjmCkEzDk4GGjRoXgXdQ8Ck/mRGtNOMAOcYYQ+FQA+' +
+'CYdYwIiKCLnnCAX17U1C6hrcH0JW7yKEBRCDlsm0bB3pW4OewdiB=rKPHdfn6DN8UCvNk8R/9oIiMkT1FizJKPMycsnBKt2I' +
+'ZEKsDITu6LUNKbT4TRe7CaXUG4r58JI2F2rdG3L3SnJEi=T4pq878mNOGIIO9ZjA8ZQwWZgaHPJM02v6HWRNlhNzkdAhUrZU' +
+'Z40=dd9IzDP/l6PrIaHNOYQp2mK5YEiK/ahnLLZ5nGE22Yk9nwOGr29UOUV39S/JYZM/i6+rUXkx8wOAKfvJLRLnr6dr7=54' +
+'QJzC1cAWycubWTNTJg/XoXMK1U6bAXSOiPSeG=aHGMOrdCRx3hRCbJFXBhscuvIHnxBV7eVoxW/FsdSfG4Q=IMTt=kRffQw7' +
+'PVMsX5cURPqjDQd6S0qn4B2x0elHDBSeprnDrpg335k1LoqCs6u/dmOx0qCcmo8P5UgLT+xY6fd+Y/lGtPs9OBRQ21ok9lgF' +
+'+o9CBHh3I4Kvp0f4r6hJXbEHgKz90=VlFcy6Gp1=g7mBGtNOMAJKwWUNecT9OKd0XfOn2lZjUJoJHMImoMoNH8AXfzOl/UUT' +
+'cWAqIbRwC6+rAUlgTWOALjyaOL7yRrGjJCl1vyk4nHWc3zJPU=R97vX9u0fF7bltjIrz87lk4f29N01F1F++ZaX2n68j1cf5' +
+'zx=SZUe80ts9aBOx679m0Jn0HVScay+Lmsa0ut0FzatunaONpuNSloTUJRxGys6zcqyEGc+K2KKsEdTNAKOOGWSYgSja/arz' +
+'L9t5L7JXBRa5=8MmzjKF7hTosZsg2SoksliF6Z92NIV3I0Kvp1RCROGjaCilzCkE=WqajAEx0kl7vBSTm0gF3W6YkKGKtj/7' +
+'ZiQEGSeGpVCcmo+f5UgL0+wY6fdNY49Q1=lumhrx65ok1lgaTQXc/gDZ28Z0qt0LU3j+UgQJt950hoTlErZUZ40=c7=n4XI/' +
+'ZFKrwdUqqQTNuMf48ShFReXY/4nIPaEWpXY6qvJWbwNkFPXDTRw30oAbVP35fxL7aAN=Plx7fIBKgeuOQXS+y0KCMk/SkQzL' +
+'7jKCk/mRGt2IZIN8EhTueiBdKfbHPXiVqYnnDDjYLEH3BRa9DAOHX48x7TTncS=qI8POqKM=AbRMmXOwXgpZbc8H/xv+LnR+' +
+'+ONCEYPm5Yu6ucOVNjA38EO7k5+XXRFX915HZzhBKuI0WySh7huCqiLQk3rN39JHvpMVCiDXpV8mTaNfuCL=IMZgzlSPXj0m' +
+'OP68g=u+UmPs6vLTpbS2AZk0l51=hXAHbGQ/ZHM31MSdBLT+KtdnPZf77pkoU8nJH9FCRZqMvDMknzMU3jRDTR/qktQM72OO' +
+'jTRxvcSdTgyJLXKH/xu+kpG+yuKe0WU/k7YaWU83Jq=44SMaVFLrsdTbaZRd7dbD7DO3lyXTcMqYH9FmVapMGx5zuq62CoU4' +
+'5g8FUoPgGHDO9VjcaX+92ufmPYMbg2s+0gPu9i5voc/WBpyKGdKRZf9I=oOut6ObHR=qNnFJ2LfHPHf6Keq3o8XU3+2iyguN' +
+'40LmusMUGmIXpf9VXY9slR8rAckQHcOPnfw6WF8HQLWo385uRm7zVqRj6ix7OhKGAas5kVQ=ZIKsTWQ/iPReGcNXkEhqhdX3' +
+'oPpJHZJGkOaJiczQ6NJkSQV2pB12smPPC+MPc4mBDf=sN0/muDl/ai1JSCkEv+k4GGi8zlJc1=Rc7pXJm0il3Klg35lkLi/7' +
+'mce4cROr/ptnD9eHm6E2tYrt/I5kvJBS+fE3TTyGkaD76=O/cVmBD8Qf7S0qaRO8LkwfYbR+Io7/IoPmycua/T8y0Z740e=K' +
+'kLQnXQGa9SA9mNgkkgQ2ZeYT3Gokm41ixQcI/47ie=9k6tH0gk/q5mD71lg26l92tHh3I0fxIYlAf/blRk/bdzMzVk/W+k0a' +
+'iTAEoT8nfPOv9S6IMuHLVaC9lLRUHFVF6grXDMrm=5Hmcat9ziN4ftMUNXCDcj871kMv/6+rzPgxHyB8yk22qLAoC5dd=WUK' +
+'697/4f=RUfv2hO6R5VwDrM+q9U9K8mGqFdS+7XRTa1mx45CcXFXUaSwQY2SMD3IHnFFzVdTXgl96MxIgGHNrXJ5U3h+3EFKv' +
+'A0gSRAGwXfqw0RRpWHqn5qeHihN2+fs5wXROl+AqjKPdFWRu+jKlwpWH+lbWC6eVn68i5XrcLFB3SyJFCUDY1g3aEqOvq8+r' +
+'bVlQLnQwHUw2mS87=1xKTeCOgp7wLzARRMvLdhQBcbuDzM/uQE6X8IArNMAJhLR0TFVGhkrHU5qVu4gLD9/j5Lk8ZVRQ1=lO' +
+'mluFjYok5lf26k92hHkWEjK8N0fiRIGjzSqw0RRpWHqn5qeHihN2+fs5wXROl+AqjKPdFWRu+jKlwpWH+lbWC6eVn68i5Xrc' +
+'LFAWbyLgqjTmxl/JYmNKR+/PAMlxnYNfWZiVn=K97BebcvAqM/=/weNVBri7lX8RcVuDfK/7176XDZ=JtV/alYaUOfRa/lnn' +
+'KVX=9YgY=98Iux7DBR0OV5TIkf8Z5lNrqJN7wUiBDqN=fWzV/WL8LHmu0WSNR6JChJQV2ivGRQQWVvX7u1Vq4pfB2mrz=7ik' +
+'4e2Ja1mQ0tCpWo+f5JgL09+z5G54O9Qb0js9eBRA2oox61SPUl92NHi3EmKv90fCVXGw7UBatiPTd0qY8B421/gs7vX9R1T1' +
+'7glgW5lkLi/ZiZd5sWWJ3jpCLLqnDLImVapoW48XfpN1iQQn4ZuVUUNgdF/sEkT9W2E8iZuqXe+sC6d6zWAqpn8vQY/RAhem' +
+'VZ6R8CD/pnnD5GQ7smrx=7i656uOZT6voF9+VVC+BpMdzmDBZfeCZVRL43sKrCCFjYox21nAG41X5np1dBDAIglAyh=1Ru/l' +
+'vxk4TGlszqeIidNhtE8HbXOvAG63jIE65KPd7VenrPOrCnsnnDX2WH5DxVemqZzHJR0OWQQo1a=JI6JdmDPvMZhBHgQf6Rm2' +
+'HJJL=Dsr7=5/gNzSEmB1FmvaqiNhxS94zL8eFHM75cQ8WZReOOeYo5iqCWsXo8XUm4FGtaoNH0AmSyOUGhV35h8q5sNvB+BY' +
+'ryM7fdS=7U0qrSMXQ1svQhSNR0ASVkQARUvbzdNldl5XoP+K2T1lbyR+hSOOGWSYgSja/arz34tiqivQVVpYXwInntOUGxN2' +
+'Yg/qIqMwC+OevQRy=cSxXjyFHEO8DTv+LpSNBy8SluPl+lzKFW6Vtk9mfIPf+HN3TPryVKqAA6u/dlOx0qCpapvf9k1NzpDB' +
+'Kvk81Ud80hs97CCx6Aoy5liF6k9ClHi8FBFQIilAmizlRiqwHQe6SuBR0AEA0sl7LBSelZnDHpfi6rrzdYBZRSQjfMUTl=Rh' +
+'4AoUX5Fk6Nrci454fpO2GhTTlS=qo7Q/uLPeMZUQLvO=Pm0qaL6bDDsMLXS/2vMOwdqZ4ADA0mlHbBRelhnDk5ltS5j1PsqP' +
+'A7kuZYOx0zCcRo8P9YgL0+xj5Gk82w680us9eBPx22okMlg26f9CBHi8CmfxMllAmhAEV2qjjQdvHdAicSgXd80Pc7+H7LQ=' +
+'ZIKrwOBuaPS+yccIo6e6heXTXUX1=MHmBRpcb9JGmm8Azq8BL7l0YcNwzDPecbeQ8j+t2RzqLVNrkau/faPeBwLjdfTUJRxG' +
+'Vp1=g7mBHPMPE5NbkJV+ecJNyXbI7DV2zlnocKoGbFJCRYrsDwL2XwJFWUUTcY87EOMw7+L/ATi9WeRwzS16bV9bD=u+kr=J' +
+'Qp/cDA5fU6xKGi636d8IHIPc+6M7fIG6KaOO/cbF8RjmShqGg5q44DEXVRsYv2JHnaJF7YQHtd82TfQfi2R/MZUQ=YQPuYh2' +
+'qe1F3aVo0bP6NwLzVvPm6+x6qTPB5ts40IP/xLLsE/P+5T//h3ER7tI0WnookMrYu4EXBZgd=+NnjpNQqUW45U=7Ed/b7BPe' +
+'UGiB=pQgKZggIAlAmh=lRwqw0RQZSmqn8AEx42l7vBSTm1TV7ZlgK5k1PsqPA6uTa0zx0wCpO4C+1obtzrDBxfetYAl6I=nO' +
+'mpW8vf/sd3+8j1LKaA4A3WyrTIPlCbVoz85uRm7zhbSVtjwbCEJFoRz0jU=81I8n1aQ/afSdtJaIoQWK7ksHg9rUv9KGFPtN' +
+'H07zfxNkOORItj+a8g+V00n0y44n51p1xBFAIblNai2aSCllv+k4rGlszueR0slHARz4rh=K1I+Y0kCdRo/E8q2Jm0y2pcZk' +
+'/6ZFilvgU2SGb4JS3oKFzeUnIl4J5k9cp1=84XVu3nBtChh2HVKMgFv+GSOv+tATZlTF+VymqTP2NUAI0I+7+FNKQHQ/ScRu' +
+'+RLuZC6vsF+NVVC+lobdzkDOBgTzZUg80ts9/BRA229m0In0vHYx/1B9ChfnGT+4PAfbPuBN1+56W3qn=ABWpOl7XBP0m1TF' +
+'3IlgPPB71MAKh3ER7tI0WWo1c5qYi48SygsdL0/gJO0/V57IxW=pEhPvGDQ=HPiRLlNgTayZ+L8HQLbeUYG+yuKeQz/VJRxL' +
+'/T63sds13T=81B=Enz64t05N7Mf48Zf43JinPHoJ=5JGVbrY3L54n2OEFq8BL7l0XBQg7IR=5MntvcSPXf0rSRJrU9udYXRu' +
+'p0J/xZS2VgzGRQJV+f+l0IP/xLLsDKCqKOPNy1bI7MRmznqHoFo3vMHW6RsYXzJHXzNkWjNXpdum0o/rVP35fxL7b056q7Z7' +
+'6x0V0NWo4v6oVtMvIbT1FezL+cJFJVu0sHMP2HNKYcHNOYQp+VK4oIiquopokanIvC3Tc6SWqZJXryJlCYTnbR7J5mONGEMv' +
+'9biAGfQPXoq6CRKMz9beHXTL2hLS8f/Wc+YkWXKRZSA4XmPexPNKIa=qhQ//Gie4sSfFSjoowlqov9KSUMYJqL5zf5MUCURX' +
+'If86Da9bJ78wIglxLmOLjfw7jmJLH8dqPTFrgg5TlkPVFWwaqTKyAas5Ox2YYiJsEVHOSZTuCOeTPIkqGYsok9Z1=6EWpXlN' +
+'4zIHnpKxRWATQf87QFPOq6R7jJScmX/bKcyJbaBbU/tJ7U=JQ75O0x6fY61Ul50F+UA4HZMM6tErwYQ/SLT+aYdTXgOqKWqY' +
+'g9diqiLQk3rN39JHvpMVCiDXpV8mTaM/3CNdMXix8rO=STimHFJLH8ovQWOv+lJv0x6fY+YqKjMVFl+HfR8=RBObUMTNOhGd' +
+'7Xcj4ag7CdoYc5snP5HCUMumqZzG7q813jTFtj+aQrNw6+8wj1LKaAP=aZv6TXLMo2jtg=ROulMSVqQltegWzgKGJm=XaDLP' +
+'FFB89XUeWPSZuOg4sGj7CaZTcEroT3FX6ert/36tYn680Bs9nCC23Ih24WnAC5st6HkGEmfxIalASh/ERnqwwRS6WHqanAEh' +
+'46l7MRX9d0i13Nlt35j1PxqCY6w0GD6vwF++VLC+xoZtzgDBZgQdY59QpWCEPTt3fF35VeN/PPhAP6N=7ch2HVKMgFv+GSOv' +
+'+tATZlTF+VymqTP2NUAI0I+7+FNKQHQ/ScRu+RLuZE6vgF9eZgC+hobtzoYD9Wk8ZVRL4ysJSBP23IjF0Tn0O5p45npBdBEx' +
+'Ib94ShBURwqj=QfZSsqaDADR4xl7MRxDm1TV3Nlge6XkLnqCFXLj7eOFVwSh7hRIb+3HBls9L+JS37LFCXR5tS=YMZPbV188' +
+'rHRRLlOwXXx6/IK4X6bf7=54QJzDtfTVRUyq3lGV+ds1WDP/6KNKIySOZSTtadc4oVe7OLnnCAdiqivQU2r9LC54XwJFWUUV' +
+'Yg+JIx9cl1Pv9ZlgLAQQSZyqCGJL=hueUrPv1uJilqL12iwa3QM2MZtokPLPZ+N3sVSdBPUJRSMECxIDV/RnD9s14HHG2lpN' +
+'=RIGOv6ylPU4pj/ZIBP=B9Ov0KhAnHQwHqw7ORKrkEo+UkQuyiLzke=FycubWTNRxT8HbO9qYB=Enz64t0QNNRe4HEk6Gnf3' +
+'YFpk3T1HNVt9XzMWb7GU3bCDlsm0bB3pVePOMbmB=l+wHly4PVMssDsvXgPvNlIjlqPhQSxb/VIlNj=XfV+7TpYy2drzc7lk' +
+'8r2Ji0yx44CcNpwv5UgLoMDO+gQ+Y5l6EAYOq0Wv8YokElhl+3R495p15C6gMmlAyi2JrbEJ1p/cDA5fU61aGaNlNsnBKt2I' +
+'YiLrLQUdueQ+GbaI06e6hVeTTIb23H3SyepNHDMWNkJFCcIYtg=aAdQ7q6RvMKmBHc=sLezZjCKMYCuOXa=Uvhk4GHZL3zJc' +
+'hOl7rBSelZnDrpg335mUPt/7mLRUbDSnyleTP6eU6pMN3wDB796i6/6QVq8BL7l0XBOvJ9QecbjxHpNAfHv62DAXPBfbPiCb' +
+'tw9wQf/W6VzLGgMR6SA4XmPexPNKIaCNeiPNCef4rLOJmooFP9rZ=GIiQTDA+ffNcTlG9Ab0nBRx22okMliF6lR45rp16Rmq' +
+'Oh+IPAbbPiCatw9wQyBE5ueR4vlHHBPDaDnDTpdX36X1LaqCRQMECFQ3dCRx3hRCb5Fk6Nrciv=CX4NVGUGhX8l0XB3w/6Qu' +
+'IQkALmSASZwKbRJsg6uNGaAqu75zVcG12ew2yr62RS/5wI8=oE6YHYDrJTEnp0EB7tI63YsX4NoG8s=WtcpN=wN37zMQysA5' +
+'1j=6Hz4pZe25bxly=rTADW1m/IObk/wfbgONysLyZbRltkvWSRNWdhA0CFLe6GLJQRUuqOSd7gKTGDfqGkhGoQZEm4Imthrc' +
+'HdNGKmKF6XVnIl9qEqMwOrL/nTRu3g=9u/ZDqt0MCeV4z8VogKzDDD52k+Yqme9VNn9HbXPqt6KbDQ=OmTT+WNeXcaWJ3jpC' +
+'bDX6TAJGRQsc8FAWbyLgVq8BL/lJMtP//IN/0VRxrYPfXFx6TOKMgDneUrAf+pIi9bTW+GuahX63k/mRHMMaV6OborTNFhSt' +
+'KbMDYeJ0Z/Rn4+Z587JGVipK8jDGS0KF7QV4Ig+FXYQ/GIQ=AVRx8rQ+LjyajWKMX/svwXOOB0J/wYRm+Xt6GgNV1ju0B0bq' +
+'4pVB2Yr=NKqCM7iOdm68hVCcJo8E6oZ9zcDBBfdNcElGUAcOmuWvqJWV0J826l921HiGIyKvJ1SiRIGjve/lv/k4KGjczuJP' +
+'M/e97pXJu0gKsG7GXj=Jtl6HdzEH8JQq3bf3YFpka4ImFgtN=953b4MC7hToAk878mNwS6LfMbi9WZQAPYuZbVNbLCdauCe1' +
+'v7k4zHYczqJPs/gy8CEulTnQ8qRB60rzdKqCw6xuZY681F7eZeC+ZoaCgMDB1ffdY4l6s=lemlWvWJUF0J8sLH9C+HiGErK8' +
+'V0gSREe6rbEJ1p/cDA5fVZvmSiPG6W/n7LQ/Z8LKIcTciLR6ZJKEKgOm7qq3k9oYbFFWAOaI4J0A+N0/WYRTDS=qYbOOGIPd' +
+'QIkt4zUsDlx6TOKMgDo+Ue/bg95vYm/xys1GziLFFc9I0WIe6E6Ynl=qRM//mlK5oMeZeasYgunIm48TkMYY3x7CX2KFCkUX' +
+'bR77ElE=7DQfEMlMvcTwXU07XI84Y+vNsRPv2yLjYe=LzCJcdOl7vBQDm0fl3KlgK5lkLi/E8r2Jm01x0xCpf/ZFi63Tc6SW' +
+'aYzHntJkeUV5xH76jYDrzEL=Aai/blSsjlx6TOKMgDo+UeArYNzM0=5lhVzGzeM2+q9Is4NOBDKsEb=r9KS+7bensthKBdqX' +
+'P7nInoHG2lpN/9Jmr4GU3hSHpT+qHg+PzAL=cMlMvrP=Pcw7XW7nz6hHC95oQJLzlq/WycubWTNTBS/XODCK2IJs9bQ8uYT6' +
+'WVdnkEhpzhno49rUv/FXBCoN=4IGfwKARWU4USA6Iq=/72OOjOT9ay56q7Z0rMKXwAueUrPv2CICIh/SgQzKWRLlNl=m8EO7' +
+'Y5PEnz64t05O/Of5sVhFzWsXHarYzOI2FebcLGJGj5O1FXAXYk8YwdQ=7DPKXO90tHiGElKvA1RSVTGjSDWEv+kEvGlszueR' +
+'4wlH8BQOlXnQ8qRB2a=1LeqCk7lja01Q00CcBo7=9agYcTaJix7DBR0OV57IYW+rAdSIlf25bxLAbd=xTavZzIO9cnru/SFa' +
+'tx9wQmAhyivbCjNVwR8I0QDf+HOLANTJBPU+KMfIoIQm7irGw3oJ=JH35UZz5tk8UUfr0fsJvBQx67oxh1n0q44X5tp15BFF' +
+'J0giVTbb=UF7xg9wQmFRtSlm1=R9/1X9nR9qYT63Xj74x05HZzcHvLjqWYpGoLrnP5HCxqY6aH/D69=BVYA5tW=rIqP7z2Qv' +
+'sqlQzuRfXjiJbbKLcFweja/+hzJhMbS26fymRVl5zBSulenD4qRB2gr=U8Z656x/Zh6vMF+uVVX=5LgLoMf9/M/CW9=BVPGE' +
+'HqymwaD71mT2+r927l+3EoKvGDlNSh/lRp=JQ75O0x6fY6YUV4LFQZsIkPLPZ+N6ERPd2PT/BJh5GDiqiWtnoJk5b7G2Fgso' +
+'3L=CW08AzhRI1m/JrYMwCBDPAWmhDcRL7W1qbGOMg2daYfSNJfJDZoRF5YfA0R697DX9m1TK4pgy2dr=RKqCs6vDa01Q00Cc' +
+'Bo7=9fgLH9/T5LkIEVSA1Aa/q0W83Igm4Zn0y41MSgDbKalT6u0FzaVu0YAfusID1bS0BZu6eTO3ERz0kXNOBDKsEbMNOWAJ' +
+'3bbIoYiJpVnokEfZ=GJ3+RsYv0O3rnOFCUC0te/ZQXNw7GOf=PSn5a+3EDKvJ1RHShB1Rnqw1gkEXHW8zuJPg=U97rX9aDnQ' +
+'XqRB6przM8XE4n29fKQ3dXZk/lRSahvQVNpa=wLWBkAAzjUY5WxTnC3pVe2=EMmwHgQ=Xg07WLKck/rOgbRNko7/Rx/V2Wmq' +
+'3cLh5us48EO=B+6cnU=rdaC72SQhKuI0V/RnY7s5bNFU2AjMz/JHflO1WeTTkurrEqRvFP35fxL7aARxLl17HIP4H2w+kgTf' +
+'5uIiViRU6VxauiKBZU=YHTQ7U7Mr5TQ9aTOtiOf5k0e7VXaTU8oIzjFXUVb54ALnryKzqkTHtW/FUsOv/=M=IaeQ8jAsChh2' +
+'qe1F3aVo0v6oUJzDDD5vVtZUar1=he=0bIQeJGOc=WP+aOA6/WaHDIbqWYpGoLrn45KS5YY9rwKmrYLE/aRI1k3q5x/sdi2I' +
+'ryiRLlNgTayZ+DMLU8stgbONZlN0dGOmVVvGSiLFFc9I0WIe6E8n1j74x0QNNRaIoQWK7ksHg9rUa4Kwk3SGb4JS34PFzUTn' +
+'8Z=qYbOOGIPdQIktaX+92ufmPYMbg2s+0gPu9i7/Rx6fY6YUWXKRZSA4XmPexPNKIaB6KaSeGie4sbRJGronLLrkv7EWhYa5' +
+'=0O374BFCcATHsm0bB3pW2LfIQmQL5Ku3gzqbVJMg6uNGSFqumICApPic+YkV40FFZ8I0lH9YGM7wcR+ijK/Kcc03F2NyfXe' +
+'VqCKi4gLr9/z5Jk8ZVRb0ns9SBQm3JWm4XnA741498pBuRKv90d4Siz1V2qjfQf6W6/ShjyK3c63FlBHTICNk7JKwUSeRk/r' +
+'OvSVjTSphXe0D6eU/CJGVPqsLCMlvlMxqjTmxl/JYmNKR+/PAMlxnYNfWZiVn=K97BebcvAqM/=/weNVBri7lX8RcVuDfK/7' +
+'176XDZ=JtV/alYaUOfRa/lnnKVX=9YgY=98Iux7DBR0OV57HYhuJQZPvFCQ/bVkALqRfHYw7SRNrw=wLDbPf6pOSlaKERRyq' +
+'BW6WxqCelGnQ8pgR2dr=s7lU4Z2JSDlKOzCcNo+v5SgL0+wj5/5+cMlG9AY/mhW8GIjF0G8KnHRRvqUWEDK8yDlAJhBURtqj' +
+'wRQZSuqafADG6ZO2dU+n4XPtN6MXscScWeSdaXbj3MRK7arXD5noK=4yRIp+i=80jA8ARuHDDZ6qEzAPl++KbLT9zeAsCTfm' +
+'WU6Xz8b6SDWlzDk4UkV1puJO2Ol7=BP/lgnDfpgB2ar=Q7kk4n29m01F1GvuZfCL+pMtzcb56gQCZVRr0hs9nBPQ2tokolh2' +
+'6c92mXp1JBCxIglA3xmeLlBt6hLThlSAoShGyj9y6X8HTWMKk5Oc9dQ65KE72ZO07eJ0Z/RoGlRSbUwQZpTGf8MzOpOUGdV5' +
+'wf76Ec/b7BL/kMexbaPfXlzYHEPLk1b6/SRuyrJBhfOEdVzL//JGdW90Ge3Icm07MdSNWeQNyXK4LEgZG3qXDspIDCFXBfk9' +
+'8H7z6kPel67HIXtqMqMv/eOOQWdx8lO=yafqTPMsc2k/YTOLRuJSMGOlpVxGRX=fs8mBWu2OZ/8bkXPdOWK+mKgHsVRJWogX' +
+'o5o1WA3SyepNHDMWNkKU3bUn4sm0bBOvJ9L/EbjBPcF/T/yaHINbUEtuLgAquyJDhrS1oQxquiPD+B2DbIPf+HN3TKryVKqA' +
+'A6u/dlOx0qCpapvf9k1NzpDBKvk81Ud80hs97CCx6Aoy5liF6k9ClHi8FBFQIilAmizlRiqwHQe6SuBR0AEA0sl7LBSelZnD' +
+'Hpfi6rrzdYBZ+VK1jTSnyhXYkJsIKA7wk3SMb173bqBU3dSjHR/JIsRw7C8vwWmyb5Jumfw7PVMsX5bERTqjbQe6W/qabAEx' +
+'0q69/5X9m1TV7blti5k6M7lk4o29u1mx0lCpuo9=5P4C09/z5Mk8pUgb0ls93BQx67okF1A775pH5sp1tC3gIglAf/b6/SCK' +
+'tw9v=WTW6lvWVp1=g7nBKtO/JM6c1UP/uPScGSanDIjr+VejUHnJ=KFUVat5X7LmjlM0zbQIIW/FsfNwCrL=AQhA=jO8iYzq' +
+'3EPLkCe/gbONZlN0cdAhUrZUZ4M2Nls5kPLPZ+N5oXSNej/7pJe4cViZG/q4j=q5z7EWh9r98HJHeyKkGjNXpj965aPfF99f' +
+'5ThBbcRL7eyZ/IPHr6dr7=54RpJOxmRV2pvb78MlxWBDjf8=2EJsYNTMaTOtiOf5jMOrdCRx3hrYLLJX6aY9v+N47FFzVdRI' +
+'tj+a8g9F0yn0O42451pBJC3QITlNahBEV6qjjQfOTHWs3xJPI/e9/zXJu0fa4pei2jr=EKqCw6xuZe6v1Gv+ZjaU/D1D9cc6' +
+'3754n2OEFYGhX8l7odPg/6RYryL7bgOLiSzq3EPLkCoe0VQNB0MeRyVRygxK3nKGBF+HwOMPFL6Ynl=rJT///Of5sVhFzjqH' +
+'kQfH4h4mFesczA7zhUZg1=cemhW84YokolgF+qR450p1WRKvA0gyRLGjSDXUv1k4GGls38JcFOlHbCDepknD4qSi2mrzRY/Z' +
+'lJOkXTSmhVsYcMoEaSwQY2SM81AWbyLgysA51j=6Hz4pZe2=EMmwHgQ=Xg07WLKck/rOgbRNko7/Rx/V2Wmq3cLh5us48EO=' +
+'B+6cnU=rdaC72SQhKuI0WWnHkAsYLZBElbs9LAIHntMkpPHDll/KIdCIlf25cXlRHwRwXpiJbZKLHEvJHVOudsESljRFBVgK' +
+'/gPG6lu0sQLOh+BrkUMuuNQtKdemYEk26hXXk9qmj9KSUVemqZzHJR0Vl97XYhuJIuNvqIPawIixGf+P3SxZblM8=ltucdPv' +
+'+zEzVv/xgQxa3ZKD+d/30MLuh+OcA5P/tTEnp0FB=Jj6qYsX4GqU4EEWdRgMn7F37nLkGjUmlSA6Ic/g76PfMTmtmXSwnUxZ' +
+'bXNqoyucLkK+BhMiMkAhyrZUZ4LFQZA5HTMOx/8c9NTeeWT6ZJKEKgOm7qq3k9oYbFFWAOY5O154n9N1GeRTEl96AjNwCHIO' +
+'9Tch=JO=HkyZ+M64TNiqPUTulkJCpfR1FUemVOPfs8mBHMMaVMPs1NSdhST+aMcnsXiYKWqVPJjYL5I2taaI3w=DJk6VGdR4' +
+'5X96sdNb6+8wj1LKaA4=HU0qrZKJUlmuLiPv2hNz1lRxxteKKPM3FWyhWu2IYiLrLQTNedTNmdMDYeJ0Z/Rh3hnoX5JE29iI' +
+'v9LnntKVW=VIxZtm/7cbZ1nyC5rc6HkWEwKv10dCVTGjyCkUv456W/qn8B2R0elHLCFjm0iV3I6i6qr=Y7lE4l2JjDVr/lnn' +
+'K4rpHQHGEpn5=yLmGzNRZSJV50zW0oLb6SCv=lRMjrP=Pcw7XWGbU9mOYEPuyzLiHkTVtDzL7XMVUZuDbVMP2EJrANBqESN+' +
+'GkODGWl2VdeDG=Z4n8Kz+paIe46z6zKghPATkVv28h/K6Q/e=lYtzqRwHfmFJ1RCVUGjTg/6Q7094=5fU6xbycKl+e9DbYNK' +
+'tFKsAbP+mPSpucc4TaZ6WZrG4RoIHrGG2ep5WxPX7Bl5AAYOmwWvKJWm0Rn075sc41Sg9BFQIilA+h/lV1qjtgkEzHW83xJP' +
+'1=S97vX9rF/717Q8AmrxU8Yp56xeZi6vgF7eZaC+Zoa9zkYYjCKGjvKFCiNXpd2a9KNv3HOevVmxzKSxLayJiL8HHCsvQeOu' +
+'6l7vLeNVBriWhhQBcZzkWL++l9PHAlB6xT=6ZYbjGDOFyZbjbAZk/4gY0+wz5=8XOyQb0Ms9nBQg2woxQliF+z92pHjsyRK8' +
+'KDlNeh/ERiqjHQdJSzqaTACh0q697iX9m0iV3S6ZkXTZ++ONuddojROFhVcjC4oY8DI2EYY+HANGqw6yRfE1kaxTnC3pVeS/' +
+'MTlgLy56q7Z0qtMbLExsUCIqllMTZlSxQSJN9=Th8BSOlY8F7algm5mULdqCk6w0a01Q00CcBo7=9agLT+wj9b5+Y2lG5=lD' +
+'nCEx67ox1lf2+s9Cij+sKc0qrGLrkEvMoTRcpyESlXSEteg26c6RoRwkjT=7k5Oc9dQ6tl6HdzEB8gJ0Z/RoGlRSbUwQZpTG' +
+'f8MzOpOUGdV5wf76Ec/b7BL/kMZAnjKwnUxZbXNqQyxukW/6cgLCVhPj2cxJCXJllWA5w0LPZ+KXXj74x45dOedXkXg6ujXX' +
+'w9s3zFHGVapL47IH7pNV+XCDlsm0bBOvJ9L=IUZR=mSgPWzFqDPlCbVo0ePv9gLiIiQlpVqKiPPFNj=jjg8=hV=Enz64uZRd' +
+'mSdXs0hq3uoocKlk=HHG2lpN=B5VJkAAzKPEP/lDXBPwyCPvoInALpRb7XyaPpJLc5dYC95oQJ70RiOmVVymhOLFIas1Wh8=' +
+'gm01Xy64uTPZWZd4ccf76VXkG4q5z7EWh9r98HJHet62d97RH7l0XBOvJ9QwcXiAzd=xDdv7rINXH4svgIOv2pICZiPhQSyK' +
+'iPPFNjvXHH8aYB6X4lG6JMTNuNbHwMhJGZXzT+YU4LKXyRrsO3M3GlPEGhDXAW=pMZQ/W2LOoMTt=nQwHqw7ORMb00tJXbAq' +
+'th==DW/2FevKGULFxW90rM8=gm01Xy64t05NyXd48Rf5zhno49rZCFIGhNuMLAMiO0OF/XC5PT96DaC=zAL=cMlMveOATHv7' +
+'PMJLY9sqvZSedhOCloB1VUf2Va6Vxa8nOFBf2EJsYNTJBRPOG=aIgMe67hojz/r5n5KWFebcv4ImBr8FlYGhX8l0XB3pWR35' +
+'fxL7aAU628Z0qtQFCbVozbEHgKz90lA1hVzGzX6zsRw1Ox2YYiOKURSudKA+ZJR0XYSmVVtAGiRCahH2pYqMv0E3GlPEGhUj' +
+'ch+q5xNw7H/P5clgWfTbLawmOd=IzJhrzrBa2uKCdh/yYSqKiPPFNjsTPMSKYT1lby64uTAphkFB/tI7lfaAGiRCb5JGlvsc' +
+'zFMmr29UGnRHxm=qHg9/O6QwIMivzlQwnfw5HPJM02v/ba=J1rCRdFJxpjzL7XMVVa9YGLOutELrsNLu6LUNKbej7OOFNedC' +
+'bAdiqivXk6SdqczWK09UGlRHcl/VsZNfB98OUMmvzlQwnfw5HPJM02v/bUBaunJDhFR1hZxqG/M2+q9IsW+Lgm01nzQOeYOu' +
+'GSdnODjr7Wq4g+oJ=aEWpXa+HAIGO3KUGhKF0drrEqMvqHMOMZeQ8j=8Dsa0utLLn5rvgfG/2vNjdbSxUQ00l50=da9TDELv' +
+'FBO7IqMs+ZS+KbaIoMhZpeXYc9s6LJHiyNt9rRMWS7NkGhDX5p86AtRfF98OsaifzcRQLgzFmKl=bxGhaCilzB56Srqn4B2x' +
+'47697uX93DnDTpdi2arzg8WE8y2Ke01A0yCpBo8E6obtzrDBNgQ+Y0lGM=m/mpum3IjV0Sn0K44X5tp1VBExMmlAj/e6rbEJ' +
+'1p/cDA5fVZvmSPKTBS/XOM8=++OcIaSJKLT+qseXTaiZGna3oPoIDMJGEUYcrBJlSpNV7eUTDYWu7IiV0MnAa43X51p1yRK8' +
+'l0dCVSGwaDYUv156S0qavACh4vl78CEelbnDUE6i2nrzD7jE4n29y0zx0tCpeo8E3M1N3uDBNfedcHl6o=l0bYt3fa/sdi2I' +
+'bxjAOf+=zgvZLPF8=yxukkB+JlNypXS1VRuqiT8yBh/4ocMP9GJ7kXPd2d/ZZSK5gIjrGnqzU5s5raImtjssLA8Wr8KE/kV4' +
+'4ZrJorNNu6PPAWlMWepzABDAMklAmh/ERwqj9gk4jGjsztJPI/dh8CDOlYnDbqSR2Yr=NKqCs6vOZX6vsGvuZaCKFob9zhDB' +
+'q98Syt=g6YGhX8l0XF35VeOvMbRx=jQfPczXXEO8TxiqQeRN6hLyRiOmVVymqVKGJH8IsMLO+EKnTKTu6LUNKbNXgPhZ/grC' +
+'bAdiqivQVVpYXCOHXpMkJXQXUg7ZgrFf3IL7wUjAvq=8Cum36D6ck/sekYQullJvYf/W6VzLGgMR6SA4XmPexPNKIaCNeiPN' +
+'Cef4rLOJmooFP9rZ=GIiQTD=JfetcT680fs9OCCQ2wok9lf2+u92ZHjsFBFgIYlNSh=1RkqjnQd6S0qa5ceR0rl7PBSelUnQ' +
+'LpgB2crzs7lE4nK/Zb6vkF8uZaCKm4gY4+wj5/k8u+680rs9GBRA2wokkmTl6jRuCXpBhBCxMllAPxGjFCiawRQJSrqn0ABx' +
+'0jlH8BQDaK+Lg78of26Ht0QNNRe4cViZG/q4j=nYnGE2dfh98CICOxLEqiCDktrn4wAbV1POMbmB=l+wHly4PVMssDsvXgPv' +
+'NlIjlqPhQSxb/VIlNj=XfV+7TpWi2jr=EKqC56wedm6vUF7+VHCKRoaNzkYD5Nk8tVR80ks9vBRQ2sokslfKnH92tHiGEvKv' +
+'N1SSROGjiCklv8k4HWqaTAER0jlHDCG0m1TV7blg35kKxKqCo6w/Zg6vUF+eZbC+m45y0+xz5/kIdUdx1=nOmhrx66okImT2' +
+'6Z92NIV3EmiFiM=nX6hHC95oQNzM0=QlIYzLWeKF1Xu50VLOtLK7IaJ8ZT/66mK0gYhJCao34FoIG61CISY+HHM3rzKQSjUX' +
+'pf/ZMdQ+K2OrbHR+qX+QXfwqbJLLH2saXb/fYNzM0=5mBiuaqhKVNj2FzDCK2IJs9bQ8uYT6WdeXcRiZKar14cZFilvgU2SN' +
+'HAIGO3KUGhNXpdrnnYQf3GPeMxkRGfSxLSyKTJKMYnru/bEHgKz90=RVFkeLzaJGdW=VsEOeg5An1YP/SdPLaXf04PhZ/WqW' +
+'UDnJb9IipTpNHlIHftJE7bRDDY/qkZSvGG/OAIkQie=8msa0ut0F06s6wiRey5JDZ5OlpbeHhOO3BS/YwJMP+vJrjR=v145X' +
+'ZzEB8Vf7Cqr3K4nJHE9n6bttD0MSOpP1GSVI1Wtm9lQOO0M=AZkh/f/mEOKvd0eCROGwWDWEvwkEbGl834JPo/gR8CDOpknD' +
+'Lpei6qr=U7iZ56v/Ze68tVCcRo8P9YgLH98j5Mk8pUdxNYGjsaxTnC3pVeS/MTlgLy56q7Z0qtLLn5wfYTR/6mJDZMOlgQlG' +
+'yf+z5huDkVMPFNN7rIP/aXGe/YfokIiFqatXo7sJH93C6ZssTuJHf2Ml6XBumQWvKJUm0Jn0C42H95pBNBEmJ0gCROGjqCl1' +
+'v+56S0qn5QlK6s+B5hw1jf/u9W6i6pr=Y7iJtQMECFQ3dCRx3hRCbAFiRgsc89MmvpNTKQT0kvrn4oAcyE=s4XVtaXRPXl07' +
+'PR68UEusYkROJzJDYkPmRVu7GiKBYT/IwKKuJKN7waBqo7d04e2Ja0zA0nCcqpvP9agLQMDBpffdY6l6o=nTnBPx229ci3CL' +
+'8XVt3nBtCRjnGTA4Lzi6SDWlzDk4Uk/cznJPyOlH8BP/la9qYT63Xj74x05HZzFB/tI0V/pnr=s6bHFWtSa9n+ImbwF1iQWH' +
+'5juJQdReK2POcIhQnc=sLhyqLcKMX/we0VQNB0MeYfAhxtlXlO6WNf944JNOt+KX8R=vSPT/KbdTYEjqm4r3POroLJ4mFkpM' +
+'DDN3qs6UmiRmgW/K9nQ7R8nzDH90BHh3IzfxIUlAJhAURnqjAg+=QWCSxgeR4vlHHBPDaDnQXqRB6przM8XE4n29fKQ3dXZk' +
+'/lRSahvQVVpYX/IHf3KCWdV0Ed+ZAZPezAL=cMlMveOATHv7PMJLY9sqvUSedhOCloB2BZu6eTO3ETuDGDCa1N+Y0YDqtKSd' +
+'KdfIgROq3pqlcJqpTKFX5apNX0Inr4KARRTIxY6ZIqQ/uG+rW4xc6HZWEhK8KDlAWhBERtqjDQd/QrCRxgiHyOlH8CDulU/a' +
+'4qTi6rr=M7iE8u29R0yFNedCbAdiqivQU2SGqZzA6N0EiUV0la/XMhP/C6Mr4kRxPYQxPWlT6u0FzaVuDiB/usID1bS29evq' +
+'ugCF+U+0Cx2YYi0lXyBvKWOOaOeTGDg6BeXUGVX6ilvgU2SGaYzG7q82CoU45g8FUoPf3NM==VigLrKPHjx6LFM8j5b/QeOv' +
+'RlMOIfPR5ZgWyPACsRsY4RM/J/LrsNQqRT//h3ER7tI0V/Rh4AoUXHEX6fpKb9Nz30M13oRIsf8ZIsJ/3GN/9JkxKf+QDdv7' +
+'rINXH6saXbAqt9=/RqS12ey6KTNTd2uDkMPsNBM7ENQqJn//3VaI8IiGdCRx3hRCahvXk6SWaYzA6NQ/l67BH7l2Xz4pZe25' +
+'bxM7eA46m7x6eL6L0Dk+0gPeBk7/RoPmBlyqpOJGJe0YsSQvB+N3sNVueNTOGOM0gQiZOUoocJqp/=29zADBlgTiZVUL4ys9' +
+'eBOg229m0Mn0G5p451p1tBCmJ0gSRFGjiClEzBkEbHWLzvJPI/gB8CDOlYnDbqSR2Yr=NKqC06vOdk6vIF7+VVC+G/3TcOaJ' +
+'iczQ6N0/V97RH7l0YZN972OOjHY94rRQXWlT6u0FzaVvcXTd+pLCllTmAYvrGcJmJa/naL+K2T6b5OHNOYQp2mK4wEhr/aXY' +
+'GDX2KH5DxVemqZzA6N0E3SV4In845MHvuEM=AImxbmQLCufrXVOLjLWo385oQJM0ZqUmyV0GqTOVNfA5vRLu6EMa9NS+FePJ' +
+'WMeY8TjmRXn3YFpnHJEWpfpcLA5SFkK1GeKn5qt2jYOw/bN/wLiAGj+xLg06/HEck+r+kkAf+yICIpP1Firq3a9y5huDGe3I' +
+'ci0lYl74x05Op3ER8gJ0aySh8Er1v9JmFat+C9IGno8x7jUXpf/ZMdQ972OOjJUt4rRPHfzZfINZYyu+7bEHgK095cTlpTzK' +
+'WdMR6T8HbOI=+6M8AOQ/SPP6WddlLIRmzWnHkAqovoHG2lpN/754j5MEmQD0la/XIqQ/uG+75iM7eAP=aZv6TXLLL/ne=TUu' +
+'By5voc/W+lxamP8B6snBKt2OZ/8bYbI/ScRu+SK5gIjrGnqzUFqpHQ9Vy2bcLAMWS28x9=fummW83Ih20Gn0y42t6HkGEmfx' +
+'MnlAih/lRtqw0RTe=WqavAEx0glHDBSepknDXqRB2d=1LpqCw6xudv689F9+ZbaU/D1D9cc63754n2OEFYGhX8l0XF35VeN/' +
+'PPhBHkFQLg0aTINXzxvfYmUvulOvIbT1FezL+cJl+d/0CFMPVBOZ5cS6RTEnp0EB8Pf7BVq347pk3U1C892D5Lk8AUgb0is9' +
+'aBQx67okp335fxLAncSsDawmGg65PLWo385ogKz91pPmBEwamTMmNlu48YOeBMLrwWBqtKUnp0EB7thqGpXXHQfY8FGyxpY6' +
+'3J0A+N0/WYRTElA71dPOJ9Ov0KhAnHQwHqw7ORKrkEo+UkQuyiLzke/2ycubWTNRxT8HbO8aYB6X4lG6JMTNuNbHwMhJGZXz' +
+'34qJbaEWpXY6qvL3SnJEi=T4pq878mNOGIIO9ZjA8ZQwWZfKHPJM02v6HUOulr5O0kTVtDzL7XMVUZuDbVMP2EJrANBqESN+' +
+'GkODGWl2VdeDG=Z4n8Kz+paIe46z6zKghPATkVv28hCIlf25bxkB3lOfHew2/YLHH/uOgbP+RjIDhfREpjhr/WMmVI+I0LH/' +
+'Z8OcIaQ6pMqAo6vOZg6vIF8eVNC+NpMCy=jKzjEUbmJEqaATTRrQ2VokslfV+z92aXp1JBCxIelAShB1V0/6cg5TItV8zRJP' +
+'s=RM/0X9d1W13VlgW5k7yoRutLMnLcWJ3jpC/6X6vOLt3tDOFfcCNm9xyRIlEz3Iw7EtqgKcA3ct/j+tGdfqfEM9c2eaPjBa' +
+'ty7=8D5vU61WhO+i5hw0Ge3Ici0lnz64uTPZWddlLIQ2zwSh7hRCbAFiRguN40LmusJE/jSHgf3qkZSvGG/OUMmwPYRPnSvJ' +
+'3I84YAueUrPv1uKCgYAhUQeXlO6WNf944JNOt+KX8R=uuO/7pJaHkXg6ujjXD5tILJ4mNRt8PwMW7lJUiUC0th+q5xNw6CN/' +
+'HJT+iE4Jm7Z6rJ89gJvekhP6NhIjhfREpAxK3nKGAf9n4XIe6KLr5KSudS/e3VaI8IiFqjpngCXUaA1C1pY5=DLWnpKUWdRH' +
+'0Tt21mOv/=8srHhADrP=/frq3EPLkCe+sXTdFhMS1XO1hVgG7eM2+q9IrROeZ8LG8RFX915HZzan4Ejo3FhjLFqpHAFnV9tN' +
+'D37zhGZxZPH5xh76rYQPCNOvLkgt=aQfzgzGuGCZkTjKPiNa1+=zY0/xdewa/Z8hAtvnrhC7xLNb5WGJJSF/CZaHODiaCuqX' +
+'nUm1=7H2hbsZeyBUrGBhyfP0svyq8297e+MrjJYtzZEMygzaHEMYG6blRxqjDRQ6Srqa8B6h0p697DX9m0i8lLNb5W=vWeUN' +
+'mORGGFeZuhqHbRXmPd9k9cc8mx=TGmAQ6aUo5e+64mRfuoQwAQkQSf=87jw7HPJLc2daKaNe+79/=pVhUYl3lW81pVBkwg+K' +
+'cB7XXXQZ5K/Z2NODfMQV6xaGbVe1zKIG2afY6gQ+cHl62dATHsm0bB3pWBPrwOhArcAQXaiJ7INscysNklB/6oLjtDQlBjwb' +
+'aTK1FZ8IsH+7+WPsu5ekLfqP56vOZV6vsF8TWo+f9a1HpjvY/6LW7nLgdRA5cqBFU2RPp3+ecLTc=1TA6afF2D6cHDyEREqw' +
+'Ygk4OGl8zrJcA=Ss7pX9R0h79DNLIVS+NYT+y9f5gMhJNdZjLJoJ4DEW+Ra5y3H3n/+AhiXDHZyWng/ei5RbEkT9eg/smgwV' +
+'2D6XP1fqXbAJ1gkETHWLzhhrqcQc7CX9m0iV3Slgu5jUPsqCg6w/ZfOx00Ccqpv=5MgL89/j5Ck8QUgxhPsJoRW8CIgF0En0' +
+'S42H50p1lBDAIf6CRBGjSCl1v65xAlSAlDuaqiMmEfsTSDAKk5K75UTddW//GbfHrPOnRlbUTAdiqivQVppMnBJHBR0OV57H' +
+'IXtrExQfGDMKYIhhHgQf7ByqLcKMX/sNkmL+yyKCVYRVEYerzaJGdW=TbMM79B8n0JG6JMTNuNbHwMhJGZXz34pIG48SyNot' +
+'H4LmOUM13oRIsf8ZIsJ/3GN/9JkxKf+QDdv7rINXH6saXbEHgKz90=QlIYzLWeKF1Xu4oGQ/ZHM61UP/uPSZuQbIo6e77enn' +
+'cDoEW6IGhNuMLA8WOtJkdRCDHRr3nY9=GCMvMNjAvcOsKafq/MJr7xiqQTOO+pLiIGRV2pvb6cKlNl5XoVNO67MbHQ=OKWOO' +
+'aOeTPRg6/gXz3SSCehvQVPq98CAFXN9UqeV4IXA51tQOR98UBHTM6HZWI9fxIilAmizlRnqj4QdJSxqaQQlL/eJFwR=o0cO/' +
+'IVIX9LSd6ZSadMTVsmWWylmTbVe5/V1idftMr8ICO4Mj/jUXIf8VTh==76PvoIhgKfAbjNwryU95cNdqvxFqMoHzhxCFkZgm' +
+'VS8B1Yv0jF87EJ63XT=K5ZOatlNokTe6pzXeZYCKFoYSoMf+D/IGNkNlCoT44u6m9bPOiDPLfKaOL6FcChumOhA8XOb68gQu' +
+'6r7eYyBE5ulGuhN2+fzTjLC=BIJrrITeajR+JmZ0gGhZikr077gWLa9zxcn5/M=3eB6QeYR0PTymwaD8hDPf5IkNugALKalT' +
+'6u0FzauvPgPNytJ/IrQhpdvb/hJFVW=jbWN/xPErYMTdukPNG9c4cVfmRXu44VC81oZd3tDBNfcdYBl6BPs93BQg6H9gqLSK' +
+'=SkQbaPbuTfr/cQXwOwOGUANRk7eZ0UmoZemhO6WxkCel2nQg5lgu6XULpqP56u/ZV6vUF9NVPXUjKJWlZoIvCLlj4NUWdRj' +
+'DauK9dQfi2LeLPUcXTOxuiinTg8HvPiqvaNe+79jDfAxUUgWuV9y5Ts0zU8aYD6336X1PuqC6XhXPh6t5F7eVUC+hobtzeDO' +
+'+fedY8l6hPs9iBPA65okIlfV6l92JHkWEtimJ1RHSizURkqjwQdZSrqanADR0jl7oRX9q0fF3VlgbIKuFdBMCKdYoSiVpXaT' +
+'TMa14+EWhfpImvN4f5KAhPG1khvmXz4pZe25cIhhHgSPXzso7SN8kCrvgbRNkg=/RcOlhjvXd80Pc7CBWu2Pom08n26N+aBd' +
+'KfbHPXiVqWoXj=XY=5HmdAsc89MmvpNUGTATTR7J5mONCGL/waiQLpO=SalT6u1F43wuHVTeRvLORYOlpbp7zTNV+l+HfREe' +
+'6BMbIMBqtKUnp0EH8JQq3pqlcJqpTKFX5VY+4AN470KFRdRI9W+KEr=//2OvnPRQLvPATz0q6F8I7eV40TOO+pNSl4LTlfyK' +
+'GgJGJa/naDCK2/JrkbQ7145XabbIoYiJpVq3PLtG8o/SpRsd=+MS2ml55=muq1WvOIg20E826Y92NHimEvKvE0dCVSGjFClE' +
+'zBkEbGkR0ABh0el7vBRelT8F3Wlt/5m1LfqCs6w/Ze6vyVCpepv=5HgLn99z5/k8AVSb0nsJbfrFjYALyE=rnHmy=sO8msa0' +
+'vg1F4+vaHXT+BuN0ckOlBUgG7QJFxc3okIPe6MLrwWINOTR+KNKTGDeJ3jpEPHoJ=5JGVbraPwKGGpKxVq8BL/lJoo=/GKM/' +
+'wblcvYOwSZfKHPJM02v8kgTeByAixbOEdgx6WcOyAds0DGN/J8LL1XR+BeAJ2mRTYeJ0Z/pnr=qJ3FE2RRosj/Lm7yO2+dRI' +
+'Ea/aEr/f/9M/ESlxzgQQSah2He1F3aVu0YAf+5MzllPxRTwKGRLm6g+HbX/e6MMpEJUuNT/66mRDXFj6qZonsAqYL81iUMum' +
+'qZzA6NLEJXV5Ih86we/fiDLe9TdxnYT=XjiJjIO7oyv+0TO+dl7vtmRV2pvb6cLFIYuDGD8Lo568IWQueQQNuOb0fDPFJVXn' +
+'DGno8DAGhNuMLA8XvpL1WST44RsFLYOgG5KeAZkhTqOAKafryx0VzaVo0bP6N0ODRbREIYxKuRJFpB/4ocMP9GKKIcMNOcQN' +
+'7Ld4rLPazhno49rUvEH2pRuIS47CWlAAyRVHcV86MhP/G58K4NSM4rTADWyZeLM8L0ru=CRey5JDYkPEFkrq3gLF+T/43L9v' +
+'2EJsYNTJBMONuULj7MOm2yXTcMqYH9FmVapMGx5zuq62CoU45g8FUkPO/2Ou5ThBbcRL7Yw7X6JMY6ruYePqMnMzAXUlFihq' +
+'CdMV+l9D/M+K16An0KU+BOPNOSdXsHOFybYzULtJ49H2IUr9zyIGGUM13oRIsf8ZIsJ/3GN/9JkxKf/gDdv7rINXHEtucdPv' +
+'+z6e0f/R1teG7jMVJW9XHRMOE78n1j74x05HZzEH8JOmRWnokEfZ=GJ3+RsYavOgJO0/V57BH796LgMviAOfUqjAvbRbCSm2' +
+'HWO8L0tLYbR++z7/RoPmBlyqpOKV+d=n3e3Ici0lXy64uTPZWKaooMjJG3kVHGr5LJEXBVrsu454fpO2GhTTlX76krNsdi2I' +
+'bxL7aA48+gzJbXOMY/becaOv+BEx0kR1tkwaKnF3Nk+0CFji1C6i29rzD7lU4Z2JfD6v5F7eVSC+6obd3uY6nBM3by62/jWH' +
+'UWy5jaMOuAOf=hReP9FNOhjp2FAY=zi6XdRepjICAGRV2pvb6cKlNl5XoVNO67MbHQAeKWOOaOeTPHhZqWsXn/ZEi68CtOfZ' +
+'m+MnXlMRpdATHsm0bB3pVe25cTkgDYQvDdv7rINXH3v+kXU+BQLjdfTVVfxmSiNWNWuEOx2YYi0lXy6+OeRL/bdo0Wf76Vej' +
+'UEr1v6ImtjssLAMiOyKFNXAYlS7ZgZNOFO/a0ra/OmNATeiZrRK8kIe+wmRuci7=8D5vU6YUV40GFWA30MOOJHOsDQQOeYOu' +
+'GSdnOLQ2zwSh7hRCahvQU2qMO3IHnxBV7eVoxW/FXYSIlf25bxL7aA46nSyq3SOpY6u+gl/bggGhDx6fY6YUV40=c7mHoXOM' +
+'+KMLQbQ/RYPOWOaosXf2RXpnLAs38s=UBNt9735SCwMk/QT3ld77YdQ7q8M=I+hB=gN=Ldw2mKN8=yxukkB+Rk6e0h/xgQf2' +
+'6ZM21U8HT0O/6RKs8WQdeeLd7bcHcFhqFdYHUDnJb9IipaqMD66i6v6QNbA0sc+qwbMvilOv9giB/lOfXlsJLVLLUzueja=O' +
+'usID1bSxpdx6qTPBUaujrP879DMbwLP+67R+7ibIfRfZGpk3YJpI86HGEUZt47IH7pNQqRQHccsVXj97h18KkTkgDYQvDdv7' +
+'rINXH4svgIOv2pICZiPhQXyKiPPFNjvX0SOe6MKnPRBZRW/6+Ud4TGe6iFqXYQoJ/FF2Fglc8AKGbmM1FXBold77YdQ7qIN/' +
+'ESiBHq/bmcfFqe6XzLWo385oQJz90=5llghqOjLBxUAIsWOv9GO7YbR+SWPJ2mK5oVj6FwSh7hRCahvQU2vGqZzA6N0/V5XD' +
+'TRv30o/sdi2IbxL7aAU628Z0qt0MCeV4z85oRyJDhrS1oQvq3aNlMsnBKt2IZV1lby6/945XZzcHvLjrWlonP+Z5D=FW+Xs9' +
+'z4LXmyKkGjNXpj965aPfF98OEPiADiRw/ayKWRO90AsqXbAqth==DW/2FevKGULFxW90rM8=gm01Xy6+6PT63Mc4sGgYzkpn' +
+'LLk6bHFSxpY9D3JGjvN1uYTY0f8ZIsJ/3GN/9JkxKf+PPZw6TON8L6u/fgTfRwJ/YfE/k7YUV4LFQZ8nDILuhpMKYWUtajS+' +
+'JJREKDOJ3pqmPJoIv8FX5OaI4J0A+N0/V5T45lrq5sPtC2Qv8HY94aPwXUxaHSLLHEe+sXTdFhMS1XO1hVgGORL2NU+okSNO' +
+'tM97EJUuNRAKh3ER7tI0VCRx3hRCbDFXAMoNH8DGb2LkGhA1XR+70mPv3GNeMZlcvlOAeZj22DMbkHbeDiB9FlIjhlSy9YyK' +
+'3gNlN4/4fEQ7V6ObotP/aLMq3GMDGDiq3nrGoeq5z5JCRNt9rTIHnlHh3MCDTR/q5qQOGbOv0ImtXYSw32v7XEHoYudqze/b' +
+'xu+v=D5vU6YUWp1=g7mBGt2OFBN7ILUuuZRadJdXsaOqmla2s9npHGIj9Uc5mv9zFk+xVb8BL7l0XB3w7DQv9bjAzlDLDfw7' +
+'iDMMP/o+kVTepy9ewmBRxghGye8Bo/mRGt2IYiJKwUSeRk/9haP1vPOn6ldTC4bFSH4Cxde6Ls8xJO0/V57BIn97AhM/i6BK' +
+'5blRLcAq28Z0qt0F01tuDXR/6pLiHw/Sx+YkV40=duuEOx2YYi0lX26Ht05HaVbInDe7CifG09noi48SyZs5vyK3rnLlzeSH' +
+'cl/VsmNwN9As4TRxvcSbDezm/6KLcEuOXlAfuhMTdbH1hfubBWJGJe14oXLNgIInXU=vKLSeCOTXHSe7BdnokEg58LEVcdnI' +
+'a754XlNV/UJXUg77DgMwCBEv9bh=ipM8mcj2+V8H/xfaGqBYgKz90=5mc+YkV40=c78nfPOv9S6afaE7dW/7+ePDGDSGFqaT' +
+'THmEmlvgU2SGaYNW73LE7bRELR=r9tNrhi2IbxL7aAOwnew6/WLLL/h6QeRN6hLyRiOmVVymqSLFtW/YwMOusm01Xy64unAK' +
+'h3ER7tI0WWsXHbp5L7GypNt9rTIHnl6ylPQI1e0q5sMsdi2IbxL7aE4Jm7Z0rEO8Dau9cmS+BhLB9ZQVFTw7zdLFxlvYsIOO' +
+'xMKpYMCOaZKuGbcHPKQmWSXUG4tkTEEX6XpN/2/Wb4MCmQUXQW/FshNbqIOdEblQblObiaimjGL8k0tJrsOv+tAixbOEcewa' +
+'BcO21EA5sMOeQA8njPTuFd=qeEe4cViZG8qXP5s1X5JGlxoNHwGjXh8AifQItk84MkPO3I+v9bk/HYSwHMj56M99Qyv/cXH+' +
+'dvIDgeOmBdnK3iJEkj7DHA/7R6Mc1QP6lkC/pkFB/tI0WySh7hRJqlvgVpTGfL7DBR0Ol6TIkf87MdP=CH/O9LitWZRwzS16' +
+'bVCMw6wccaPu6rMzMfR2AShGyWJlZW8nPTOuZGOXXIG7AKUnp0EH8JQqmla3g=oIDCIGtVrdHB8Wr8LF/jUjEU9qIbOPzDN/' +
+'wbT9aXTZ28Z0rMKXwExvQXRNEoIixbOEdgx6WcOyxSA4XoLPF68n0JG79K/eKXb4sJg6qaoTbAX6ilvgU2SN=0N4r2MQzfUY' +
+'1q/qIw=/GKM/wblcvaN=zdhmPIP80Ejvgf/6Q7094=5mk+YkV4LFQZA5HTMOx/8bAQQ+WVS+ySdYnRfZGpk3YJpI86HGEUYc' +
+'D3JGjvN1uYTY0f=rYoNr6++74IY+qX+QXfwqbJLLH2saXb/fYNzM0=5lhVzGzRL2NU+mkSNOtMGcYYQ6Jn/+CRbHkOiqueq4' +
+'jFooLLBm2eqM8xL3qs6U/XRHxc/qwhP=BCQwcXi9/gDZ28Z0qtLLn5rNwXONZQLi1kTUBpyKFOACsRsXoXONxKKrsMQ/RMAJ' +
+'3kFB/tI0V/qXoLX58LHUBNt97v=CXnL1GSSolg96ss=/O6QuQIlQbYNPzWhmjGL8k0tOQhQul08ShXTV1XgXd80Pc7mBGx2Y' +
+'Yi0lYRQJqeUO3OdnvLe7CigXYLnEa41TkpY5=DLWnpKUWdRH0Tt21z4pZe25bxLAbd=xTqzqbSKXwyweD8R960MSlXRkdTwK' +
+'GRLm6g+HbX/f++MrwcQ8uOBeGYWooVg6qcZT41ZE358TkMYdL9J3rqLEqUR0sarrfF35Ve25bxLAncSsDlw67TC8UErqPv/e' +
+'y0LA1kKFBiva3bHlFZ9HwOP/xBM8DWTNeXRuGOUHnRjquIsYcAqYS=3VknTGeYzA6N0/WbRI0R=qIlQdm2POkMlM30+w3hiJ' +
+'7ENb82v/bgOv9oMzVoSEF6xrBWO2Ne=20EQ/607KoJTN2PSZSGMD7eJ0Z/Rh3hRCbAFiRZs5v8IHfvKF7iDX5p97AsQKSIM/' +
+'sXcA8pPfXjh2qDO8k+vcDTS+ZlMOIaPm+kyqun8ycsnBKt2IYi0lYUQ/ZKT+KWe2kLf6/gXUG4qJ3FE2RRosj/Lm7yO2+dQI' +
+'0Z/q5qQOGeOPHPmxLkRuTS0qL/7rc5sucd=Mgp7=8D5vU6YUV40FdXu4XT/ep6N7gNTOVYPOWSeooWQrCaqoUbp5L7GyUVY+' +
+'H0LHXHL1GSSjcV87AsQ/uN+rbiM7eA46m7Z0rEO8Dau9cmS+BhLB9ZQVFTw7zdLFxlvYsIOOxMKpYMCOaZKuGbcHPKQmWSXU' +
+'G4sIv8FWJVrcLz/gJO0/V57BH777ElGvqoQwAMhAqXE8D8rXCy9cQyv/cXAcVTDgHkSFBiwaqVLFRqu4oXOMZGFLEaQ+OXAJ' +
+'ZkFB/tI0V/RoGlRSahvQVpTGeYzA7A1/Z57IX/lDY14paR+8jn';
+
+/*
+
+	Encrypted module game_atm/atm.js. Result: 1ms.
+	Fuck is easy, fuck is funny, many people fuck for money,
+	if you don't think fuck is funny, fuck youself and save the money!
+
+*/
+}䘑ύ

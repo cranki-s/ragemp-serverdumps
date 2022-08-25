@@ -1,1486 +1,420 @@
 {
-/*mp.markers.new(28, new mp.Vector3(-893.9126,-2402.5571,14.0244), 30, // DEBUG
-{
-	direction: new mp.Vector3(0, 0, 0),
-	rotation: new mp.Vector3(0, 180, 0),
-	color: [0, 0, 200, 50],
-	visible: true,
-	dimension: 0
-});*/
-
-let courierMarshrut1 = { // Органические удобрения, manure
-	"pogruzkaBlip":new mp.Vector3(2489.0747,4962.7329,44.4415),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(2489.0747,4962.7329,44.4415-2.9),"heading":314.47,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(314.47),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Органические удобрения","hash":"manure"},"marshrut":1,"startPoint":"Ферма в Грейпсид","endPoint":"Холмы Тонгва, виноградники","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut2 = { // Запчасти для картингов, cartparts
-	"pogruzkaBlip":new mp.Vector3(1729.1659,3713.0398,33.8853),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(1729.1659,3713.0398,33.8853-2.9),"heading":22.387,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(22.387),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(1724.3125,3711.4141,33.9416-2.9),"heading":21.742,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(21.742),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Запчасти для картингов","hash":"cartparts"},"marshrut":2,"startPoint":"Склад в Сэнди-Шорс","endPoint":"Del Perro, Магелан Авеню","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut3 = { // Компьютерные комплектующие, pcparts 
-	"pogruzkaBlip":new mp.Vector3(-1317.9438,-764.3234,19.9836),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(-1317.9438,-764.3234,19.9836-2.9),"heading":128.464,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(128.464),"width":2.8,"height":6.5},
-	    {"position":new mp.Vector3(-1326.6564,-756.3666,19.9726-2.9),"heading":127.906,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(127.906),"width":2.8,"height":6.5},
-	    {"position":new mp.Vector3(-1288.0803,-795.1234,17.2001-2.9),"heading":127.083,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(127.083),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Компьютерные комплектующие","hash":"pcparts"},"marshrut":3,"startPoint":"Del Perro, Шоссе Дель-Перро","endPoint":"Большая пустыня сеньоры","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut4 = { // Строй материалы, bmats 
-	"pogruzkaBlip":new mp.Vector3(922.6915,-1564.2578,30.3349),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(922.6915,-1564.2578,30.3349-2.9),"heading":90.099,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(90.099),"width":2.8,"height":6.5},
-	    {"position":new mp.Vector3(922.9113,-1557.0259,30.3818-2.9),"heading":90.841,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(90.841),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Строй материалы","hash":"bmats"},"marshrut":4,"startPoint":"Большая пустыня сеньоры","endPoint":"Зеркальный парк","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut5 = { // Запчасти для двигателя, engineparts 
-	"pogruzkaBlip":new mp.Vector3(-1139.8842,-2041.6906,12.8128),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(-1139.8842,-2041.6906,12.8128-2.9),"heading":314.261,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(314.261),"width":2.8,"height":6.5},
-	    {"position":new mp.Vector3(-1116.8625,-2011.6211,12.7866-2.9),"heading":313.959,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(313.959),"width":2.8,"height":6.5},
-	    {"position":new mp.Vector3(-1156.2112,-2035.9713,12.7668-2.9),"heading":226.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(226.499),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Запчасти для двигателя","hash":"engineparts"},"marshrut":5,"startPoint":"Аэропорт ЛС, Гринвич-парквэй","endPoint":"Бухта Полето","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut6 = { // Музыкальные инструменты, music 
-	"pogruzkaBlip":new mp.Vector3(-669.3297,-169.409,37.2817),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(-669.3297,-169.409,37.2817-2.9),"heading":121.008,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(121.008),"width":2.8,"height":6.5},
-	    {"position":new mp.Vector3(-667.5944,-172.4408,37.2812-2.9),"heading":121.411,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(121.411),"width":2.8,"height":6.5},
-	    {"position":new mp.Vector3(-681.2477,-166.5327,37.2815-2.9),"heading":209.602,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(209.602),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Музыкальные инструменты","hash":"music"},"marshrut":7,"startPoint":"Rockford Hills","endPoint":"Заподный Виноградник","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut7 = { // Одежда для мужчин, mancloth 
-	"pogruzkaBlip":new mp.Vector3(-314.3308,-2433.4819,5.6064),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(-314.3308,-2433.4819,5.6064-2.9),"heading":229.727,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(229.727),"width":2.8,"height":6.5},
-	    {"position":new mp.Vector3(-301.456,-2444.0522,5.6075-2.9),"heading":229.428,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(229.428),"width":2.8,"height":6.5},
-	    {"position":new mp.Vector3(-282.4127,-2460.3289,5.6079-2.9),"heading":230.082,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(230.082),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Одежда для мужчин","hash":"mancloth"},"marshrut":8,"startPoint":"Елисейский остров","endPoint":"Виноградное семя","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut8 = { // Запчасти для оружия, gunparts 
-	"pogruzkaBlip":new mp.Vector3(542.2912,-1943.3243,24.6337),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(542.2912,-1943.3243,24.6337-2.9),"heading":305.308,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(305.308),"width":2.8,"height":6.5},
-	    {"position":new mp.Vector3(537.4719,-1926.0278,24.5906-2.9),"heading":304.527,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(304.527),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Запчасти для оружия","hash":"gunparts"},"marshrut":10,"startPoint":"Форт Занкудо","endPoint":"Кипарисовые равнины","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut9 = { // Полицейская документация, policedocs
-	"pogruzkaBlip":new mp.Vector3(407.9963,-998.7802,28.9151),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(407.9963,-998.7802,28.9151-2.9),"heading":49.781,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(49.781),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(407.6729,-993.7795,28.8931-2.9),"heading":48.927,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(48.927),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Полицейская документация","hash":"policedocs"},"marshrut":11,"startPoint":"Ряд Миссии, Синнер-Стрит","endPoint":"Бухта Палето, Прокопио-Променад","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut10 = { // Корзины для сбора винограда, vinebags
-	"pogruzkaBlip":new mp.Vector3(1216.5874,-2978.959,5.5224),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(1216.5874,-2978.959,5.5224-2.9),"heading":90.916,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(90.916),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(1215.9684,-2972.1421,5.5044-2.9),"heading":89.091,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(89.091),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(1215.6521,-2965.1699,5.4924-2.9),"heading":89.588,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(89.588),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Корзины для сбора винограда","hash":"vinebags"},"marshrut":14,"startPoint":"Терминал, Буканир-вэй","endPoint":"Холмы Тонгва, Буэн-Вино-роуд","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut11 = { // Удочки для рыбалки, rodes
-	"pogruzkaBlip":new mp.Vector3(1699.632,4940.9224,41.7687),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(1699.632,4940.9224,41.7687-2.9),"heading":55.661,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(55.661),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(1695.6906,4936.3618,41.7048-2.9),"heading":50.323,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(50.323),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Удочки для рыбалки","hash":"rodes"},"marshrut":16,"startPoint":"Виноградное семя, Грейпсид-Мэйн-стрит","endPoint":"Каньон Банхам, Шоссе Грейт-Оушн","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut12 = { // Строительные каски, buildhats
-	"pogruzkaBlip":new mp.Vector3(-169.0535,-1038.3892,26.9274),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(-169.0535,-1038.3892,26.9274-2.9),"heading":249.440,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(249.440),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(-154.4162,-1043.6158,26.9227-2.9),"heading":253.065,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(253.065),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Строительные каски","hash":"buildhats"},"marshrut":17,"startPoint":"Бухта Палето, Бульвар Палето","endPoint":"Альта, Окьюпейшн-авеню","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut13 = { // Маскарадные маски, masks
-	"pogruzkaBlip":new mp.Vector3(1736.9617,3289.2932,40.7705),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(1736.9617,3289.2932,40.7705-2.9),"heading":207.062,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(207.062),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(1752.5793,3291.697,40.739-2.9),"heading":252.077,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(252.077),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(1722.0558,3277.6064,40.7425-2.9),"heading":294.342,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(294.342),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Маскарадные маски","hash":"masks"},"marshrut":18,"startPoint":"Большая пустыня сеньоры, Панорама-драйв","endPoint":"Пляж Веспуччи, Витус-стрит","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut14 = { // Верёвки и мыло, lolmilo
-	"pogruzkaBlip":new mp.Vector3(-3050.4609,597.3295,7.0692),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(-3050.4609,597.3295,7.0692-2.9),"heading":287.706,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(287.706),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(-3052.9983,602.9173,6.9078-2.9),"heading":287.214,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(287.214),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Верёвки и мыло","hash":"lolmilo"},"marshrut":19,"startPoint":"Каньон Банхам, Инесено-роуд","endPoint":"Bolingbroke Penitentiary, Шоссе 68","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut15 = { // Резиновые женщины, plasticgirl
-	"pogruzkaBlip":new mp.Vector3(165.1092,-2990.6106,5.5536),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(165.1092,-2990.6106,5.5536-2.9),"heading":269.830,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(269.830),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(165.0203,-2997.3511,5.5368-2.9),"heading":268.826,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(268.826),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(165.2674,-3004.0776,5.5237-2.9),"heading":271.930,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(271.930),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Резиновые женщины","hash":"plasticgirl"},"marshrut":20,"startPoint":"Елисейский остров, Сигнал-стрит","endPoint":"Форт Занкуда, Шоссе Грейт-Оушн","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut16 = { // Покрышки
-	"pogruzkaBlip":new mp.Vector3(-435.6181,-2854.7456,5.6062),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(-435.6181,-2854.7456,5.6062-2.9),"heading":134.976,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.976),"width":2.8,"height":6.5},
-	    {"position":new mp.Vector3(-444.4459,-2863.562,5.6058-2.9),"heading":134.987,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(134.987),"width":2.8,"height":6.5},
-	    {"position":new mp.Vector3(-453.581,-2872.7166,5.6063-2.9),"heading":135.047,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(135.047),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Покрышки","hash":"tires"},"marshrut":21,"startPoint":"Елисейский остров, Плэйс-плэйс","endPoint":"Бертон, Карсер-вэй","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut17 = { // Диски, wheels
-	"pogruzkaBlip":new mp.Vector3(-106.4339,-2410.573,5.6057),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(-106.4339,-2410.573,5.6057-2.9),"heading":89.627,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(89.627),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(-105.4611,-2415.8811,5.6063-2.9),"heading":90.854,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(90.854),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(-106.315,-2421.4609,5.6053-2.9),"heading":89.654,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(89.654),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Диски","hash":"wheels"},"marshrut":22,"startPoint":"Еслисейский остров, Чупакабра-стрит","endPoint":"Большая пустыня сеньоры, Шоссе 68","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut18 = { // Запчасти для Mercedes-Benz, mersparts 
-	"pogruzkaBlip":new mp.Vector3(-1856.6667,-313.9035,48.794),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(-1856.6667,-313.9035,48.794-2.9),"heading":347.482,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(347.482),"width":2.8,"height":6.5},
-	    {"position":new mp.Vector3(-1843.3722,-323.6466,48.7942-2.9),"heading":341.642,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(341.642),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Запчасти для Mercedes-Benz","hash":"mersparts"},"marshrut":23,"startPoint":"Текстильный город, Литл-Бигхарн-авеню","endPoint":"Плэйа-виста","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut19 = { // Запчасти для Subaru, subaruparts 
-	"pogruzkaBlip":new mp.Vector3(-15.5663,-1307.3196,28.847),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(-15.5663,-1307.3196,28.847-2.9),"heading":357.601,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(357.601),"width":2.8,"height":6.5},
-	    {"position":new mp.Vector3(-21.1224,-1307.9193,28.8726-2.9),"heading":0.333,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(0.333),"width":2.8,"height":6.5},
-	    {"position":new mp.Vector3(3.6722,-1306.5106,29.7775-2.9),"heading":268.803,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(268.803),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Запчасти для Subaru","hash":"subaruparts"},"marshrut":24,"startPoint":"Строуберри, Пауэр-стрит","endPoint":"Терминал, Буканир-вэй","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut20 = { // Запчасти для грузовиков, bigparts 
-	"pogruzkaBlip":new mp.Vector3(144.6373,-3326.3594,5.67),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(144.6373,-3326.3594,5.67-2.9),"heading":179.503,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(179.503),"width":2.8,"height":6.5},
-	    {"position":new mp.Vector3(115.2989,-3309.812,5.6603-2.9),"heading":94.579,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(94.579),"width":2.8,"height":6.5},
-	    {"position":new mp.Vector3(115.4039,-3291.2017,5.6612-2.9),"heading":90.136,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(90.136),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Запчасти для грузовиков","hash":"bigparts"},"marshrut":25,"startPoint":"Гора Чилиад, Шоссе Грейт-Оушн","endPoint":"Песчаные берега, Шоссе Сенора","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut21 = { // Комбикорм для птиц, combirds
-	"pogruzkaBlip":new mp.Vector3(489.1374,-3074.1355,5.6957),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(489.1374,-3074.1355,5.6957-2.9),"heading":0.439,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(0.439),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(489.1611,-3095.176,5.7095-2.9),"heading":358.862,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(358.862),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(479.7639,-3077.6692,5.6946-2.9),"heading":180.406,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(180.406),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Комбикорм для птиц","hash":"combirds"},"marshrut":26,"startPoint":"Елисейский остров, Вуду-плейс","endPoint":"Виноградное семя, Джоуд-лейн","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut22 = { // Доставка пиццы, pizza
-	"pogruzkaBlip":new mp.Vector3(150.7606,-1449.9133,28.7698),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(150.7606,-1449.9133,28.7698-2.9),"heading":108.133,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(108.133),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.1923,-1457.2263,28.7686-2.9),"heading":96.527,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(96.527),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(142.2128,-1457.6974,28.7534-2.9),"heading":51.700,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(51.700),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Доставка пиццы","hash":"pizza"},"marshrut":27,"startPoint":"Дэвис, Строберри-авеню","endPoint":"Большая пустыня сеньоры, Джошуа-роуд","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut23 = { // Деревенский самогон, samogon
-	"pogruzkaBlip":new mp.Vector3(2313.8396,4893.8628,41.4571),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(2313.8396,4893.8628,41.4571-2.9),"heading":11.367,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(11.367),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(2306.8337,4886.8364,41.4569-2.9),"heading":8.291,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(8.291),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Деревенский самогон","hash":"samogon"},"marshrut":28,"startPoint":"Виноградное семя, Юнион-роуд","endPoint":"Del Perro, Марафон-авеню","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut24 = { // Патроны для оружия, ammo
-	"pogruzkaBlip":new mp.Vector3(529.5402,-27.7215,70.2782),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(529.5402,-27.7215,70.2782-2.9),"heading":211.228,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.228),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(533.8938,-24.7643,70.2348-2.9),"heading":209.887,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(209.887),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Патроны для оружия","hash":"ammo"},"marshrut":29,"startPoint":"Форт Занкуда, Шоссе Грейт-Оушн","endPoint":"Кипарисовые равнины, Попьюлар-стрит","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut25 = { // Инструменты для чип тюнинга, chiptun
-	"pogruzkaBlip":new mp.Vector3(-184.3922,-1318.193,30.9465),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(-184.3922,-1318.193,30.9465-2.9),"heading":226.776,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(270.146),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(-183.8626,-1334.9502,30.9492-2.9),"heading":164.875,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(268.515),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Инструменты для чип тюнинга","hash":"chiptun"},"marshrut":30,"startPoint":"Бухта Палето, Бульвар Палето","endPoint":"Rancho, Литл-Бигхорн-авеню","cost":getRandomInt(35000,45000),"minRank":1,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut26 = { // Продукты (еда, напитки), products
-	"pogruzkaBlip":new mp.Vector3(2588.4026,443.3486,108.1057),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(2588.4026,443.3486,108.1057-2.9),"heading":92.216,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(92.216),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(2588.0322,449.884,108.1063-2.9),"heading":88.884,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(88.884),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Продукты (еда, напитки) #31","hash":"products"},"marshrut":31,"startPoint":"Горы Татавиам, Шоссе Паломино","endPoint":"База в Палето Бэй","time":3,"cost":getRandomInt(1000,1000),"minRank":6,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut27 = { // Секс-игрушки (фаллосы, куклы), fallos
-	"pogruzkaBlip":new mp.Vector3(-415.1041,287.8636,82.8795),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(-415.1041,287.8636,82.8795-2.9),"heading":353.705,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(353.705),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(-421.0677,288.3146,82.8609-2.9),"heading":353.001,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(353.001),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Секс-игрушки (фаллосы, куклы) #32","hash":"fallos"},"marshrut":32,"startPoint":"Лос-Сантос, Бульвар Эклипс","endPoint":"База в Палето Бэй","time":3,"cost":getRandomInt(1000,1000),"minRank":7,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut28 = { // Канцелярские товары, concil
-	"pogruzkaBlip":new mp.Vector3(-582.5562,-131.3993,34.4715),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(-582.5562,-131.3993,34.4715-2.9),"heading":202.653,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(202.653),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(-577.2797,-128.9458,34.4187-2.9),"heading":202.955,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(202.955),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Канцелярские товары #33","hash":"concil"},"marshrut":33,"startPoint":"Rockford Hills, Истборн-вэй","endPoint":"База в Палето Бэй","time":5,"cost":getRandomInt(1000,1000),"minRank":8,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut29 = { // Продуктовые корзинки, foodbags
-	"pogruzkaBlip":new mp.Vector3(1133.67,-290.5231,68.5419),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(1133.67,-290.5231,68.5419-2.9),"heading":277.059,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(277.059),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(1134.6982,-295.8253,68.5015-2.9),"heading":278.130,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(278.130),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Продуктовые корзинки #34","hash":"foodbags"},"marshrut":34,"startPoint":"Зеркальный парк, Миррор-Парк","endPoint":"База в Палето Бэй","time":5,"cost":getRandomInt(1000,1000),"minRank":9,"courierID":false,"courierPlayerID":false});
-};
-
-let courierMarshrut30 = { // Рыболовные снасти, fishsnast
-	"pogruzkaBlip":new mp.Vector3(-1500.6857,1502.2435,115.2638),
-	"pogruzkaMarkers":[
-		{"position":new mp.Vector3(-1500.6857,1502.2435,115.2638-2.9),"heading":255.281,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(255.281),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(-1499.5305,1506.2834,115.1338-2.9),"heading":257.011,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(257.011),"width":2.8,"height":6.5}
-	],
-	"endpointBlip":new mp.Vector3(186.0607,6396.0474,30.9858),
-	"endpointMarkers":[
-		{"position":new mp.Vector3(186.0607,6396.0474,30.9858-2.9),"heading":297.798,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.798),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(182.1913,6402.2988,30.8992-2.9),"heading":297.499,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(297.499),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(176.0228,6433.2715,30.8252-2.9),"heading":254.049,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(254.049),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(163.6434,6436.543,30.9019-2.9),"heading":73.624,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.624),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(159.5314,6451.7266,30.9138-2.9),"heading":213.067,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(213.067),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(156.2711,6449.0928,30.909-2.9),"heading":211.876,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(211.876),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(160.2616,6433.6455,30.9015-2.9),"heading":73.209,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.209),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(157.131,6431.1113,30.9016-2.9),"heading":74.102,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.102),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(154.6499,6428.3774,30.9021-2.9),"heading":73.548,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.548),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(152.4537,6425.4541,30.9028-2.9),"heading":74.542,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.542),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(149.3821,6423.2246,30.8938-2.9),"heading":75.126,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(75.126),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(148.3333,6419.7837,30.8704-2.9),"heading":73.707,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.707),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(146.8842,6416.7158,30.8557-2.9),"heading":74.141,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(74.141),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(143.9022,6414.0986,30.8568-2.9),"heading":73.938,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(73.938),"width":2.8,"height":6.5},
-		{"position":new mp.Vector3(131.2205,6422.8203,30.945-2.9),"heading":212.353,"color":[255,150,0,150],"drawColor":[0,0,0,0],"direction":dirGenerator(212.353),"width":2.8,"height":6.5}
-	]
-	//ПАРАМЕТРЫ: courierTasks.push({"id":courierTasksIDs,"courier":false,"cargo":{"name":"Рыболовные снасти #35","hash":"fishsnast"},"marshrut":35,"startPoint":"Тонгва, Тонгва-драйв","endPoint":"База в Палето Бэй","time":5,"cost":getRandomInt(1000,1000),"minRank":10,"courierID":false,"courierPlayerID":false});
-};
-
-var courierWorkZone = mp.colshapes.newSphere(-50.8892,6359.6006,31.4296,50,0);
-var courierImInWorkZone = false;
-
-var curCourierTask = false, courierBlip = false;
-
-var courierTasksBlocked = false;
-
-var courierMomentStart = false;
-
-function startCourierJob() {
-	if(typeof(localPlayer.getVariable('player.lics')) === "undefined") return hud_browser.execute('jobPanelError("#startCourierJob", "Технические неполадки системы лицензий..")');
-	if(typeof(localPlayer.getVariable('player.vehs')) === "undefined") return hud_browser.execute('jobPanelError("#startCourierJob", "Ваш личный транспорт не инициализирован..")');
-	let myLics = {};
-	if(IsJsonString(JSON.stringify(localPlayer.getVariable('player.lics')))) myLics = localPlayer.getVariable('player.lics');
-	if(myLics["bCat"] === undefined) return hud_browser.execute('jobPanelError("#startCourierJob", "Отсутствуют водительские права категории «B»")');
-	
-	if(typeof(localPlayer.getVariable('player.blocks')) === "undefined") return hud_browser.execute('jobPanelError("#startCourierJob", "Не инициализирован уровень персонажа..")');
-	let myBlocks = localPlayer.getVariable('player.blocks');
-	if(typeof(myBlocks.lvl) !== "undefined") {
-		if(myBlocks.lvl < 3) return hud_browser.execute('jobPanelError("#startCourierJob", "Необходим 3 уровень персонажа, его нужно повысить через телефон.")');
-	}else{
-		return hud_browser.execute('jobPanelError("#startCourierJob", "Не инициализирован уровень персонажа..")');
-	}
-	
-	var myVehs = localPlayer.getVariable('player.vehs');
-	if(typeof(myVehs.count) === "undefined") return hud_browser.execute('jobPanelError("#startCourierJob", "Ваш личный транспорт не инициализирован..")');
-	if(parseInt(myVehs.count) <= 0) return hud_browser.execute('jobPanelError("#startCourierJob", "У Вас нет личного транспорта!")');
-	
-	closeJobTablet();
-	mp.events.callRemote('startCourierJob');
-	mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вас приняли работать в курьерскую службу", 5, false, true, 6500);
-	setTimeout(function() {
-		mp.game.ui.notifications.showWithPicture("Логист", "Приветствую", "Получил рабочий планшет? Нажми F5 и выбери задачу.", "CHAR_ONEIL", 1, false, 1, 2);
-	}, 2000);
-}
-mp.events.add("startCourierJob", startCourierJob);
-
-function courierStartStop() {
-	if(localPlayer.getVariable("player.job")) {
-		let jobData = localPlayer.getVariable("player.job");
-		closeJobTablet(true);
-		
-		if(jobData.work == 0) {
-			if(courierImInWorkZone) {
-				if(!localPlayer.vehicle) {
-					mp.game.ui.notifications.showWithPicture("Логист", "Ты чё, пешком?", "Нельзя начать смену без машины.", "CHAR_ONEIL", 1, false, 1, 2);
-				}else{
-					if(!activeJOBoperation) {
-						let jobVeh = localPlayer.vehicle;
-						if(jobVeh) {
-							if(typeof(jobVeh.getVariable('veh.id')) !== "undefined" && typeof(jobVeh.getVariable('veh.own')) !== "undefined" && typeof(jobVeh.getVariable('veh.hash')) !== "undefined") {
-								if(mp.players.atRemoteId(parseInt(jobVeh.getVariable('veh.own')))) {
-									let vehOwn = mp.players.atRemoteId(parseInt(jobVeh.getVariable('veh.own')));
-									if(vehOwn.remoteId.toString() != localPlayer.remoteId.toString()) return notyAPI.error("Работать можно только на личном транспорте.", 3000, true);
-								}else{
-									return notyAPI.error("Работать можно только на личном транспорте.", 3000, true);
-								}
-							}else{
-								return notyAPI.error("Работать можно только на личном транспорте.", 3000, true);
-							}
-						}
-						
-						if(!jobVeh.getVariable('veh.num')) return notyAPI.error("Работать можно только на личном транспорте.", 3000, true);
-						let vehNum = JSON.parse(jobVeh.getVariable('veh.num'));
-						
-						if(typeof(vehNum.type) === "undefined") return notyAPI.error("Работать можно только на личном транспорте.", 3000, true);
-						if(vehNum.type == "ruMoto") return notyAPI.error("Мото-техника на этой работе недоступна.", 3000, true);
-						
-						if(jobVeh.getClass().toString() == "15") return notyAPI.error("На вертолётном транспорте эта работа недоступна.", 3000, true);
-						
-						if(typeof(jobVeh.getVariable('veh.params')) !== "undefined") {
-							let vehParams = JSON.parse(jobVeh.getVariable("veh.params"));
-							if(typeof(vehParams.rent) !== "undefined") return notyAPI.error("На арендованном транспорте работать нельзя.", 3000, true);
-						}
-						
-						courierMomentStart = true;
-						setTimeout(function() { courierMomentStart = false; }, 3500);
-						mp.events.call("sleepAntiCheat");
-						mp.events.callRemote('startJobWork', localPlayer.vehicle);
-						mp.game.ui.notifications.showWithPicture("Логист", "Смена началась", "Возьми поручение. Они в планшете (F5)", "CHAR_ONEIL", 1, false, 1, 2);
-					}
-				}
-			}else{
-				mp.game.ui.notifications.showWithPicture("Логист", "Дуй в офис", "Смену можно начать только на территории базы.", "CHAR_ONEIL", 1, false, 1, 2);
-				notyAPI.error("Явитесь на базу курьерской службы что бы начать смену.", 3000, true);
-			}
-		}else{
-			if(!activeJOBoperation) {
-				activeJOBoperation = true;
-				
-				if(curCourierTask) mp.events.callRemote('cancelCourierTask', JSON.stringify(curCourierTask), false);
-				if(typeof(curCourierTask.workTimer) !== "undefined") clearTimeout(curCourierTask.workTimer);
-				curCourierTask = false;
-				
-				if(mp.blips.exists(courierBlip)) courierBlip.destroy();
-				courierBlip = false;
-		
-				if(jobData.workMoney > 0) {
-					//let resWorkMoney = roundNumber((parseInt(jobData.workMoney)-(parseInt(jobData.workMoney)*0.13)), 0);
-					let resWorkMoney = roundNumber(parseInt(jobData.workMoney), 0);
-					let workMoneyText = resWorkMoney.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1");
-					mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вы заработали за смену"+workMoneyText+" руб.", 5, false, true, 6500);
-					mp.game.ui.notifications.showWithPicture("Логист", "А ты хорош!", "Отдохни и выходи на смену снова, давай братан!", "CHAR_ONEIL", 1, false, 1, 2);
-				}else{
-					mp.game.ui.messages.showMidsizedShard("~y~SMOTRA~w~rage ~b~работа", "~s~Вы ничего не заработали за смену.", 5, false, true, 6500);
-					mp.game.ui.notifications.showWithPicture("Логист", "Это как так?", "Не выполнил ни одного поручения?! Блок агрегатора 1 мин.", "CHAR_ONEIL", 1, false, 1, 2);
-					courierTasksBlocked = true;
-					setTimeout(function() {
-						mp.game.ui.notifications.showWithPicture("Логист", "Задачи доступны", "Я разблокировал тебе агрегатор.", "CHAR_ONEIL", 1, false, 1, 2);
-						courierTasksBlocked = false;
-					}, 60000);
-				}
-				
-				mp.events.callRemote('stopJobWork');
-			}
-		}
-	}
-}
-mp.events.add("courierStartStop", courierStartStop);
-
-function getCourierTasks(){
-	if(!courierBlip) {
-		if(!localPlayer.vehicle) {
-			return hud_browser.execute("gettedCourierTasks('you_not_in_veh');");
-		}else{
-			let theVeh = localPlayer.vehicle;
-			if(typeof(theVeh.getVariable("veh.id")) === "undefined" || typeof(localPlayer.getVariable("player.job")) === "undefined") {
-				//chatAPI.sysPush("<span style=\"color:#FF6146\">1</span>");
-				return hud_browser.execute("gettedCourierTasks('you_not_in_veh');");
-			}
-			if(typeof(theVeh.getVariable('veh.params')) !== "undefined") {
-				let vehParams = JSON.parse(theVeh.getVariable("veh.params"));
-				//chatAPI.sysPush("<span style=\"color:#FF6146\">2</span>");
-				if(typeof(vehParams.rent) !== "undefined") return hud_browser.execute("gettedCourierTasks('you_not_in_veh');");
-			}
-			
-			let jobData = localPlayer.getVariable("player.job");
-			if(typeof(jobData) === "undefined") {
-				//chatAPI.sysPush("<span style=\"color:#FF6146\">3</span>");
-				return hud_browser.execute("gettedCourierTasks('you_not_in_veh');");
-			}
-
-			let vehOwn = mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.own')));
-			if(vehOwn.remoteId.toString() != localPlayer.remoteId.toString()) {
-				//chatAPI.sysPush("<span style=\"color:#FF6146\">4</span>");
-				return hud_browser.execute("gettedCourierTasks('you_not_in_veh');");
-			}
-		}
-		mp.events.callRemote('getCourierTasks');
-	}else{
-		hud_browser.execute("gettedCourierTasks('you_have_task');");
-	}
-}
-mp.events.add("getCourierTasks", getCourierTasks);
-
-function gettedCourierTasks(courierTasks){
-	if(courierTasks) {
-		if(!curCourierTask && typeof(localPlayer.getVariable("player.job")) !== "undefined") {
-			courierTasks = JSON.parse(courierTasks);
-			if(Object.keys(courierTasks).length > 0) {
-				let jobData = localPlayer.getVariable("player.job");
-					
-				for (var k in courierTasks) {
-					if(courierTasks[k]) {
-						let taskData = courierTasks[k];
-						if(parseInt(jobData.rank) < parseInt(taskData.minRank)) courierTasks[k] = undefined;
-					}
-				}
-				courierTasks = JSON.parse(JSON.stringify(courierTasks));
-				
-				//chatAPI.sysPush("<span style=\"color:#FF6146\">"+JSON.stringify(courierTasks)+"</span>");
-				hud_browser.execute("gettedCourierTasks('ok', '"+JSON.stringify(courierTasks)+"');");
-			}else{
-				hud_browser.execute("gettedCourierTasks('empty');");
-			}
-		}else{
-			hud_browser.execute("gettedCourierTasks('you_have_task');");
-		}
-	}
-}
-mp.events.add("gettedCourierTasks", gettedCourierTasks);
-
-function acceptTaskCourier(data){
-	if(data) {
-		if(typeof(data.premium) !== "undefined") {
-			if(data.premium) {
-				if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") {
-					let myBlocks = localPlayer.getVariable("player.blocks");
-					if(typeof(myBlocks.premium) === "undefined") return notyAPI.error("У Вас нет премиум-статуса.", 3000, true);
-				}
-			}
-		}
-		closeJobTablet();
-		if(courierTasksBlocked) {
-			restoreBinds();
-			jobPanel = false;
-			mp.game.ui.notifications.showWithPicture("Логист", "Блокировка доступа", "У Тебя блок доступа к поручениям на 1 мин.", "CHAR_ONEIL", 1, false, 1, 2);
-			return notyAPI.error("У Тебя заблокирован доступ к поручениям, попробуйте через минуту.", 3000, true);
-		}
-		
-		if(!courierImInWorkZone) {
-			restoreBinds();
-			jobPanel = false;
-			mp.game.ui.notifications.showWithPicture("Логист", "Явитесь на базу", "Взять поручение можно только в конторе.", "CHAR_ONEIL", 1, false, 1, 2);
-			return notyAPI.error("Явись в контору что бы взять поручение.", 3000, true);
-		}
-		
-		if(!localPlayer.vehicle) return notyAPI.error("Вы должны быть в личном транспорте.", 3000, true);
-		let jobVeh = localPlayer.vehicle;
-		if(jobVeh) {
-			if(typeof(jobVeh.getVariable('veh.id')) !== "undefined" && typeof(jobVeh.getVariable('veh.own')) !== "undefined" && typeof(jobVeh.getVariable('veh.hash')) !== "undefined") {
-				if(mp.players.atRemoteId(parseInt(jobVeh.getVariable('veh.own')))) {
-					let vehOwn = mp.players.atRemoteId(parseInt(jobVeh.getVariable('veh.own')));
-					if(vehOwn.remoteId.toString() != localPlayer.remoteId.toString()) return notyAPI.error("Работать можно только на личном транспорте.", 3000, true);
-				}else{
-					return notyAPI.error("Работать можно только на личном транспорте.", 3000, true);
-				}
-			}else{
-				return notyAPI.error("Работать можно только на личном транспорте.", 3000, true);
-			}
-		}
-		
-		if(!jobVeh.getVariable('veh.num')) return notyAPI.error("Работать можно только на личном транспорте.", 3000, true);
-		let vehNum = JSON.parse(jobVeh.getVariable('veh.num'));
-		
-		if(typeof(vehNum.type) === "undefined") return notyAPI.error("Работать можно только на личном транспорте.", 3000, true);
-		if(vehNum.type == "ruMoto") return notyAPI.error("Мото-техника на этой работе недоступна.", 3000, true);
-		
-		if(jobVeh.getClass().toString() == "15") return notyAPI.error("На вертолётном транспорте эта работа недоступна.", 3000, true);
-		
-		if(typeof(jobVeh.getVariable('veh.params')) !== "undefined") {
-			let vehParams = JSON.parse(jobVeh.getVariable("veh.params"));
-			if(typeof(vehParams.rent) !== "undefined") return notyAPI.error("На арендованном транспорте работать нельзя.", 3000, true);
-		}
-		
-		mp.events.call("sleepAntiCheat");
-		mp.events.callRemote('acceptTaskCourier', data);
-	}
-}
-mp.events.add("acceptTaskCourier", acceptTaskCourier);
-
-function acceptedCourierTask(isError, data){
-	restoreBinds();
-	jobPanel = false;
-	if(isError) {
-		return notyAPI.error(isError, 3000, true);
-	}else{
-		if(data) {
-			if(localPlayer.vehicle) {
-				data = JSON.parse(data);
-				curCourierTask = data;
-				if(curCourierTask.marshrut == 1) curCourierTask.marshrut = courierMarshrut1;
-				if(curCourierTask.marshrut == 2) curCourierTask.marshrut = courierMarshrut2;
-				if(curCourierTask.marshrut == 3) curCourierTask.marshrut = courierMarshrut3;
-				if(curCourierTask.marshrut == 4) curCourierTask.marshrut = courierMarshrut4;
-				if(curCourierTask.marshrut == 5) curCourierTask.marshrut = courierMarshrut5;
-				if(curCourierTask.marshrut == 6) curCourierTask.marshrut = courierMarshrut6;
-				if(curCourierTask.marshrut == 7) curCourierTask.marshrut = courierMarshrut7;
-				if(curCourierTask.marshrut == 8) curCourierTask.marshrut = courierMarshrut8;
-				if(curCourierTask.marshrut == 9) curCourierTask.marshrut = courierMarshrut9;
-				if(curCourierTask.marshrut == 10) curCourierTask.marshrut = courierMarshrut10;
-				if(curCourierTask.marshrut == 11) curCourierTask.marshrut = courierMarshrut11;
-				if(curCourierTask.marshrut == 12) curCourierTask.marshrut = courierMarshrut12;
-				if(curCourierTask.marshrut == 13) curCourierTask.marshrut = courierMarshrut13;
-				if(curCourierTask.marshrut == 14) curCourierTask.marshrut = courierMarshrut14;
-				if(curCourierTask.marshrut == 15) curCourierTask.marshrut = courierMarshrut15;
-				if(curCourierTask.marshrut == 16) curCourierTask.marshrut = courierMarshrut16;
-				if(curCourierTask.marshrut == 17) curCourierTask.marshrut = courierMarshrut17;
-				if(curCourierTask.marshrut == 18) curCourierTask.marshrut = courierMarshrut18;
-				if(curCourierTask.marshrut == 19) curCourierTask.marshrut = courierMarshrut19;
-				if(curCourierTask.marshrut == 20) curCourierTask.marshrut = courierMarshrut20;
-				if(curCourierTask.marshrut == 21) curCourierTask.marshrut = courierMarshrut21;
-				if(curCourierTask.marshrut == 22) curCourierTask.marshrut = courierMarshrut22;
-				if(curCourierTask.marshrut == 23) curCourierTask.marshrut = courierMarshrut23;
-				if(curCourierTask.marshrut == 24) curCourierTask.marshrut = courierMarshrut24;
-				if(curCourierTask.marshrut == 25) curCourierTask.marshrut = courierMarshrut25;
-				if(curCourierTask.marshrut == 26) curCourierTask.marshrut = courierMarshrut26;
-				if(curCourierTask.marshrut == 27) curCourierTask.marshrut = courierMarshrut27;
-				if(curCourierTask.marshrut == 28) curCourierTask.marshrut = courierMarshrut28;
-				if(curCourierTask.marshrut == 29) curCourierTask.marshrut = courierMarshrut29;
-				if(curCourierTask.marshrut == 30) curCourierTask.marshrut = courierMarshrut30;
-				
-				curCourierTask.curPoint = "getCargo";
-				
-				courierProcessor();
-			}else{
-				return notyAPI.error("Сбой в работе диспетчера, выберите другой рейс.", 3000, true);
-			}
-		}else{
-			return notyAPI.error("Сбой в работе диспетчера, выберите другой рейс.", 3000, true);
-		}
-	}
-}
-mp.events.add("acceptedCourierTask", acceptedCourierTask);
-
-function stopCourierWithTimer(){
-	closeJobTablet(true);
-	if(curCourierTask) {
-		if(mp.blips.exists(courierBlip)) courierBlip.destroy();
-		courierBlip = false;
-		
-		if(BLOCK_CONTROLS && localPlayer.vehicle) {
-			BLOCK_CONTROLS = false;
-			localPlayer.vehicle.freezePosition(false);
-		}
-		
-		mp.game.ui.messages.showMidsized("~r~Вы опоздали ~s~при выполнении поручения", "~s~Задача отменена, взять новую можно в планшете (F5)");
-		mp.game.ui.notifications.showWithPicture("Логист", "Серьёзное опоздание", "Я заблокировал тебе поручения на 1 мин.", "CHAR_ONEIL", 1, false, 1, 2);
-		
-		courierTasksBlocked = true;
-		setTimeout(function() {
-			mp.game.ui.notifications.showWithPicture("Логист", "Поручения доступны", "Я разблокировал тебе поручения.", "CHAR_ONEIL", 1, false, 1, 2);
-			courierTasksBlocked = false;
-		}, 60000);
-		
-		vehParkMarkers = [], parkingVeh = false, goodVehParked = false, activeVehParking = false; // Удаляем парковочные маркеры
-		
-		mp.events.call("sleepAntiCheat");
-		mp.events.callRemote('cancelCourierTask', JSON.stringify(curCourierTask), false);
-		if(typeof(curCourierTask.workTimer) !== "undefined") clearTimeout(curCourierTask.workTimer);
-		curCourierTask = false;
-	}
-}
-
-function courierProcessor() {
-	if(curCourierTask) {
-		if(curCourierTask.curPoint == "getCargo") {
-			mp.game.ui.notifications.showWithPicture("Логист", "Рейс назначен", "Отправляйся в зону погрузки, маршрут уже на радаре", "CHAR_ONEIL", 1, false, 1, 2);
-			mp.game.ui.notifications.showWithPicture("Логист", "Обрати внимание", "На выполнение поручения максимум 10 мин.", "CHAR_ONEIL", 1, false, 1, 2);
-			
-			curCourierTask.workTimer = setTimeout(stopCourierWithTimer, 600000);
-			
-			if(courierBlip) {
-				courierBlip.destroy();
-				courierBlip = false;
-			}
-			
-			//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+JSON.stringify(curCourierTask.marshrut.pogruzkaBlip)+"</span>");
-			
-			courierBlip = mp.blips.new(1, [curCourierTask.marshrut.pogruzkaBlip.x, curCourierTask.marshrut.pogruzkaBlip.y, curCourierTask.marshrut.pogruzkaBlip.z], {
-				name: "Зона взятия прицепа / груза",
-				scale: 1.5,
-				color: 47,
-				shortRange: false,
-				dimension: 0
-			});
-			courierBlip.setRoute(true);
-			courierBlip.setRouteColour(47);
-			
-			vehParkMarkers = curCourierTask.marshrut.pogruzkaMarkers, parkingVeh = localPlayer.vehicle, goodVehParked = false, activeVehParking = false; // Активируем парковочные маркеры
-		}else if(curCourierTask.curPoint == "gettingCargo") {
-			if(localPlayer.vehicle) {
-				if(typeof(localPlayer.vehicle.getVariable("veh.id")) !== "undefined") {
-					if(curCourierTask.courier == localPlayer.vehicle.getVariable("veh.id").toString()) {
-						mp.game.ui.notifications.showWithPicture("Местный грузчик", "Начинаем погрузку", "Дружище, подожди немного, сейчас загрузим", "CHAR_BEVERLY", 1, false, 1, 2);
-						
-						BLOCK_CONTROLS = true;
-						localPlayer.vehicle.freezePosition(true);
-						
-						if(courierBlip) {
-							courierBlip.destroy();
-							courierBlip = false;
-						}
-						
-						setTimeout(function() {
-							if(localPlayer.vehicle && parkingVeh) {
-								if(mp.vehicles.exists(parkingVeh)) {
-									if(localPlayer.vehicle == parkingVeh && typeof(goodVehParked.x) !== "undefined") {
-										let cheatDist = mp.game.system.vdist(parkingVeh.position.x, parkingVeh.position.y, parkingVeh.position.z, goodVehParked.x, goodVehParked.y, goodVehParked.z);
-										if(cheatDist > 30) mp.events.callRemote('kickAct', localPlayer, "читы на телепорт на работе");
-									}else{
-										courierJobWarn();
-									}
-								}else{
-									courierJobWarn();
-								}
-							}else{
-								courierJobWarn();
-							}
-						}, 5000);
-						
-						setTimeout(function() {
-							if(localPlayer.vehicle && parkingVeh) {
-								if(localPlayer.vehicle == parkingVeh) {
-									vehParkMarkers = [], parkingVeh = false, goodVehParked = false, activeVehParking = false; // Удаляем парковочные маркеры
-									// GEN TIME OF DELIVERY
-									
-									curCourierTask.deliveryTime = moment(new Date(curYear+"-"+curMonth+"-"+curDay+" "+curHours+":"+curMinutes+":"+curSeconds),"DD-MM-YYYY HH:mm:ss").add((curCourierTask.time+2), 'minutes');
-									//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+curCourierTask.deliveryTime+"</span>");
-									
-									BLOCK_CONTROLS = false;
-									localPlayer.vehicle.freezePosition(false);
-									
-									curCourierTask.curPoint = "rideCargo";
-									courierProcessor();
-								}else{
-									courierJobWarn();
-								}
-							}else{
-								courierJobWarn();
-							}
-						}, 10000);
-					}else{
-						courierJobWarn();
-					}
-				}else{
-					courierJobWarn();
-				}
-			}else{
-				mp.game.ui.notifications.showWithPicture("Работник терминала", "Стоп-стоп", "А чё это за левый транспорт?", "CHAR_BEVERLY", 1, false, 1, 2);
-				courierJobWarn();
-			}
-		}else if(curCourierTask.curPoint == "rideCargo") {
-			if(localPlayer.vehicle) {
-				if(typeof(localPlayer.vehicle.getVariable("veh.id")) !== "undefined") {
-					if(curCourierTask.courier == localPlayer.vehicle.getVariable("veh.id").toString()) {
-						let dateFormater = moment.duration((curCourierTask.deliveryTime).diff(moment(new Date(curYear+"-"+curMonth+"-"+curDay+" "+curHours+":"+curMinutes+":"+curSeconds),"DD-MM-YYYY HH:mm:ss")));
-						let deliveryOstPeriod = dateFormater.minutes() + " мин. " + dateFormater.seconds() + " сек.";
-						mp.game.ui.notifications.showWithPicture("Логист", "Выполняй поручение", "Необходимо доставить за "+deliveryOstPeriod, "CHAR_ONEIL", 1, false, 1, 2);
-						
-						if(courierBlip) {
-							courierBlip.destroy();
-							courierBlip = false;
-						}
-						
-						courierBlip = mp.blips.new(1, [curCourierTask.marshrut.endpointBlip.x, curCourierTask.marshrut.endpointBlip.y, curCourierTask.marshrut.endpointBlip.z], {
-							name: "Зона доставки груза",
-							scale: 1.5,
-							color: 47,
-							shortRange: false,
-							dimension: 0
-						});
-						courierBlip.setRoute(true);
-						courierBlip.setRouteColour(47);
-						
-						vehParkMarkers = curCourierTask.marshrut.endpointMarkers, parkingVeh = localPlayer.vehicle, goodVehParked = false, activeVehParking = false; // Активируем парковочные маркеры
-						curCourierTask.curPoint = "cargoDrop";
-					}else{
-						courierJobWarn();
-					}
-				}else{
-					courierJobWarn();
-				}
-			}else{
-				mp.game.ui.notifications.showWithPicture("Работник терминала", "Стоп-стоп", "А чё это за левый транспорт?", "CHAR_BEVERLY", 1, false, 1, 2);
-				courierJobWarn();
-			}
-		}else if(curCourierTask.curPoint == "cargoDrop") {
-			if(localPlayer.vehicle) {
-				if(typeof(localPlayer.vehicle.getVariable("veh.id")) !== "undefined") {
-					if(curCourierTask.courier == localPlayer.vehicle.getVariable("veh.id").toString()) {
-						let dateFormater = moment.duration(curCourierTask.deliveryTime.diff(moment(new Date(curYear+"-"+curMonth+"-"+curDay+" "+curHours+":"+curMinutes+":"+curSeconds),"DD-MM-YYYY HH:mm:ss")));
-						if(dateFormater.minutes() < -5) {
-							mp.game.ui.notifications.showWithPicture("Логист", "Ты опоздал!", "Выбирай новое поручение или отдохни, решать тебе", "CHAR_ONEIL", 1, false, 1, 2);
-							mp.game.ui.messages.showMidsized("~r~Поручение ~s~провалено", "~s~ты ничего не заработал, опоздание на "+(dateFormater.minutes()*-1)+" мин.");
-							
-							if(courierBlip) {
-								courierBlip.destroy();
-								courierBlip = false;
-							}
-							
-							mp.events.callRemote('cancelCourierTask', curCourierTask.id.toString());
-							if(typeof(curCourierTask.workTimer) !== "undefined") clearTimeout(curCourierTask.workTimer);
-							curCourierTask = false;
-							
-							return false;
-						}else if(dateFormater.minutes() > 2) {
-							mp.game.ui.notifications.showWithPicture("Логист", "Подожди немного", "Ты сможешь сдать поручение через "+(dateFormater.minutes()-2)+" мин.", "CHAR_ONEIL", 1, false, 1, 2);
-							
-							setTimeout(function() {
-								if(localPlayer.vehicle) {
-									if(typeof(localPlayer.vehicle.getVariable("veh.id")) !== "undefined") {
-										if(mp.vehicles.exists(parkingVeh)) {
-											if(localPlayer.vehicle == parkingVeh && typeof(goodVehParked.x) !== "undefined") vehParkMarkers = curCourierTask.marshrut.endpointMarkers, parkingVeh = localPlayer.vehicle, goodVehParked = false, activeVehParking = false; // Активируем парковочные маркеры
-											else courierJobWarn();
-										}else{
-											courierJobWarn();
-										}
-									}else{
-										courierJobWarn();
-									}
-								}else{
-									courierJobWarn();
-								}
-							}, 5000);
-							
-							return false;
-						}
-						
-						setTimeout(function() {
-							if(localPlayer.vehicle) {
-								if(typeof(localPlayer.vehicle.getVariable("veh.id")) !== "undefined") {
-									if(mp.vehicles.exists(parkingVeh)) {
-										if(localPlayer.vehicle == parkingVeh && typeof(goodVehParked.x) !== "undefined") {
-											let cheatDist = mp.game.system.vdist(parkingVeh.position.x, parkingVeh.position.y, parkingVeh.position.z, goodVehParked.x, goodVehParked.y, goodVehParked.z);
-											if(cheatDist > 30) mp.events.callRemote('kickAct', localPlayer, "читы на телепорт на работе");
-										}else{
-											courierJobWarn();
-										}
-									}else{
-										courierJobWarn();
-									}
-								}else{
-									courierJobWarn();
-								}
-							}else{
-								courierJobWarn();
-							}
-						}, 5000);
-						
-						BLOCK_CONTROLS = true;
-						localPlayer.vehicle.freezePosition(true);
-			
-						mp.game.ui.notifications.showWithPicture("Местный грузчик", "Начинаем разгрузку", "Дружище, подожди немного, сейчас всё выгрузим", "CHAR_BEVERLY", 1, false, 1, 2);
-			
-						setTimeout(function() {
-							if(localPlayer.vehicle) {
-								if(typeof(localPlayer.vehicle.getVariable("veh.id")) !== "undefined") {
-									if(curCourierTask.courier == localPlayer.vehicle.getVariable("veh.id").toString()) {
-										vehParkMarkers = [], parkingVeh = false, goodVehParked = false, activeVehParking = false; // Удаляем парковочные маркеры
-										
-										mp.game.ui.notifications.showWithPicture("Логист", "Поручение выполнено", "Выбирай новое поручение или отдохни, решать тебе", "CHAR_ONEIL", 1, false, 1, 2);
-										mp.game.ui.messages.showMidsized("~g~Поручение ~s~выполнено", "~s~вы заработали"+curCourierTask.cost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.");
-
-										if(courierBlip) {
-											courierBlip.destroy();
-											courierBlip = false;
-										}
-										
-										if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") {
-											let myBlocks = localPlayer.getVariable("player.blocks");
-											if(typeof(myBlocks.premium) !== "undefined") notyAPI.info("<b>Премиум-доступ</b>: Вы получили надбавку к зарплате (10%).", 3000, true);
-										}
-
-										mp.events.callRemote('actionMakedCourierJob', curCourierTask.id.toString());
-										if(typeof(curCourierTask.workTimer) !== "undefined") clearTimeout(curCourierTask.workTimer);
-										curCourierTask = false;
-										
-										BLOCK_CONTROLS = false;
-										localPlayer.vehicle.freezePosition(false);
-									}else{
-										courierJobWarn();
-									}
-								}else{
-									courierJobWarn();
-								}
-							}else{
-								courierJobWarn();
-							}
-						}, 10000);
-					}else{
-						courierJobWarn();
-					}
-				}else{
-					courierJobWarn();
-				}
-			}else{
-				mp.game.ui.notifications.showWithPicture("Работник терминала", "Стоп-стоп", "А чё это за левый транспорт?", "CHAR_BEVERLY", 1, false, 1, 2);
-				courierJobWarn();
-			}
-		}
-	}
-}
-
-function warnCourierJobIsDead(player) {
-	if(player == localPlayer) {
-		if(curCourierTask) {
-			mp.game.ui.notifications.showWithPicture("Логист", "Ты потерял поручение", "Выговор, следи за здоровьем!", "CHAR_ONEIL", 1, false, 1, 2);
-			courierJobWarn();
-		}
-	}
-}
-mp.events.add("playerDeath", warnCourierJobIsDead);
-
-function cancelCourierJobTask(){
-	closeJobTablet(true);
-	if(curCourierTask) {
-		if(mp.blips.exists(courierBlip)) courierBlip.destroy();
-		courierBlip = false;
-		
-		if(BLOCK_CONTROLS && localPlayer.vehicle) {
-			BLOCK_CONTROLS = false;
-			localPlayer.vehicle.freezePosition(false);
-		}
-		
-		mp.game.ui.messages.showMidsized("~g~Вы успешно ~s~отказались от поручения", "~s~Новые поручения можно посмотреть в планшете (F5)");
-		mp.game.ui.notifications.showWithPicture("Логист", "Отказ от поручения", "Я заблокировал тебе поручения на 1 мин.", "CHAR_ONEIL", 1, false, 1, 2);
-		
-		courierTasksBlocked = true;
-		setTimeout(function() {
-			mp.game.ui.notifications.showWithPicture("Логист", "Поручения доступны", "Я разблокировал тебе поручения.", "CHAR_ONEIL", 1, false, 1, 2);
-			courierTasksBlocked = false;
-		}, 60000);
-		
-		vehParkMarkers = [], parkingVeh = false, goodVehParked = false, activeVehParking = false; // Удаляем парковочные маркеры
-		
-		mp.events.call("sleepAntiCheat");
-		mp.events.callRemote('cancelCourierTask', JSON.stringify(curCourierTask), false);
-		if(typeof(curCourierTask.workTimer) !== "undefined") clearTimeout(curCourierTask.workTimer);
-		curCourierTask = false;
-	}
-}
-mp.events.add("cancelCourierJobTask", cancelCourierJobTask);
-
-function checkCourierTaskAndStop() {
-	if(curCourierTask) courierJobWarn("запрещено выполнять поручение на вертолёте");
-}
-
-function courierJobWarn(reason) {
-	if(curCourierTask) {
-		if(typeof(reason) !== "undefined") {
-			mp.game.ui.notifications.showWithPicture("Логист", "Предупреждение", reason+".", "CHAR_ONEIL", 1, false, 1, 2);
-			mp.game.ui.messages.showMidsized("~r~Поручение отозвано", "~s~"+reason+".");
-		}else{
-			mp.game.ui.notifications.showWithPicture("Логист", "Предупреждение", "В целях безопасности я закончил твой поручение.", "CHAR_ONEIL", 1, false, 1, 2);
-			mp.game.ui.messages.showMidsized("~r~Поручение отозвано", "~s~Что-то случилось в ответственный момент.");
-		}
-		
-		if(mp.blips.exists(courierBlip)) courierBlip.destroy();
-		courierBlip = false;
-		
-		if(BLOCK_CONTROLS && localPlayer.vehicle) {
-			BLOCK_CONTROLS = false;
-			localPlayer.vehicle.freezePosition(false);
-		}
-		
-		courierTasksBlocked = true;
-		mp.game.ui.notifications.showWithPicture("Логист", "Отказ от поручения", "Я заблокировал тебе поручения на 1 мин.", "CHAR_ONEIL", 1, false, 1, 2);
-		setTimeout(function() {
-			mp.game.ui.notifications.showWithPicture("Логист", "Поручения доступны", "Я разблокировал тебе поручения.", "CHAR_ONEIL", 1, false, 1, 2);
-			courierTasksBlocked = false;
-		}, 60000);
-
-		vehParkMarkers = [], parkingVeh = false, goodVehParked = false, activeVehParking = false; // Удаляем парковочные маркеры
-		
-		mp.events.call("sleepAntiCheat");
-		mp.events.callRemote('cancelCourierTask', JSON.stringify(curCourierTask), true);
-		if(typeof(curCourierTask.workTimer) !== "undefined") clearTimeout(curCourierTask.workTimer);
-		curCourierTask = false;
-	}
-}
-
-mp.events.add('playerEnterColshape', (shape) => {
-	if(typeof(shape) != "undefined") {
-		if(shape == courierWorkZone) courierImInWorkZone = true;
-	}
-});
-
-mp.events.add('playerExitColshape', (shape) => {
-	if(typeof(shape.id) != "undefined") {
-		if(shape == courierWorkZone) courierImInWorkZone = false;
-	}
-});
+/*
+
+
+	SMOTRArage © All rights reserved
+
+	Custom obfuscaced system by DriftAndreas Team (0xA0426) special for SMOTRArage
+	Кастомная система обфускации от DriftAndreas Team (0xA0426) специально для SMOTRArage
+
+	Кто не умеет себя скрыть, тот не может мудрым быть.
+
+
+*/
+
+exports = 'bof8MzOxJF7aRItkuJsdRKRGBrnHkQLu+w3hiIfIJsg=v7baErtx8PYpEiIchX2k=BwhxUnc/8QM940fE7lTB6' +
+'2cO0GDRVtVgVoakGSlvnc6SWbzKHfpJlCYTnbrrqsdRKzBPrw+iADrQgKkhnGP65P9bbPbBYgKzDZlTV2kwauc=R6f9I/DOP' +
+'1GG7ILUuFcCpVZN0XUUnyhXUTAazqivW+br9zA/SXf+xhPE0TRvG0o=byJ=urTM7eASPnkx6PPKI3xwfYnPqcNzM1aQllVxr' +
+'/XMlwrs1jx2foB=GbX74x45dSVdngEhmqpno0AkozJG1ZbrcKv=CXxNxqSTnUk9q5oNw+COOMedh4fOALWhnqT+HGCfKzoBa' +
+'gx+P0kCSIhkWhl/ywhxk3a/71L+XjIDqtl6HeQd4TFe6hjsXYPpGbE/WpDrt=6GWSyKAysA49S+rAdCIlf35gTiBGXSwHpx5' +
+'HIK4PNbeoTRf6l/cDARVFkeLCPP2d/8IsOMP95An1OP+6dPKh3EXHIjmzpno0AfYnAICxpY9PwL4jp=el6T45lrrEZSfWYNv' +
+'MKjh4mP=7lfn6DKbU9vNjt6oVsJDgWOFFim63aM0JSA4nDCK20Iof26N6PT63daI4MWZ3hqYgaq5z7G2FQY6qvJWbwNkFq8B' +
+'L/lJQkPO72OrwbhBXgI=/ew6/XFsgyv/fSFqumICApPic+Ykl5KWNf8o0MOus5JK5WPdeWL+7hcF=SeH/hpnoFs1WAKwk3SM' +
+'D7LnjpDUuRN4pT+qIs/gCGQ/LQXaqB4628Z6rJ89gJvekhP6NjNDZ6OlhcnK3iJBcRsEWD8fJGKbIOR+BPP6+SK5CxIDV/pn' +
+'r=s6bHFWtSa9DDMUjlM1i0QI1SuJAZPfiZL=IIT93YE8CT06/HKLo6u+kW/6QgM0ZqUmyV0GqTOVNfA5vRLu6EMa9NS+FePJ' +
+'WMeY8TjmRXnGYFnoLDBG2kqKf+IUjwLEGdV0sdrqEdPMe6R7bTRvfKId6fzaXVLLH4tuorAe61MQdXRVh1ubCP9VFS/4ToLP' +
+'F68nXj74x05NCeeVkEhqi6nok5X2q4C1knTGeYzAJO0/WYRTEe/msoNvCH/OMfjBDrRbjlv7nMF8k1dqzSTey4KBRbPRpUvb' +
+'/iNV1qu0Ge3Ici0sEJVuu7PNFJRDYJe6iook/lRSahGWIUrN39LGb2LkGhUjcWAqYrRg+9Qv9fj/rYRPvWzFqM69gyxe0=Ov' +
+'2rJDYkPVFjzL7dPBYayhWu2IZMJsURK+OcQtKbK1KDfJ3hrGnSSCehvWVSa9r/8WfwLFziDX5p97AsQKSIL=YQZQngRsmafr' +
+'XEP80Tue0iB++lMjhoRFUYgXd80Pc7A4obNM+ELs0IG6KQONmcbECxIDV/pnr=qJ3FE2RRosj/Lm7yO2+dRIEa/aEr/gC2Rv' +
+'crjxLaPgDgx6/X8HzxweUqQs6oJCdhSVtZxrBcK2NkA5sSRKUB=Enz64ueOOWSSn4IeZelqG4Fs13U1GJNr+D0/gJO0/V97R' +
+'H7+70mNO3BM7wcj9vkOAPkv6jINnHDteLpJuRkMi1wPlAYerqVQc7DXJODnQDqRy2nrzg8YE4m29ODlK/zCcNpvf5RgL099z' +
+'5/k8EUf84xsJTRWvuJU71lgl6X92hHh3EoKvGF94Pzy/cwqhjQfZSoqnfACW1/es7hX9N0fF3PltfIrz87lk4f29N01F1F+N' +
+'VVCK+obNzqDOBgQ+Y5lG9Ab0nBOF3IjV0Pn0744H9=p1ZC3QIY64wXgqzUArYNzM0=Rmxev63bKBxm+DbROvFBK7YLP/aTRt' +
+'ucNYkLhaOMpok=j5b7JHFepIWxk6dUgb4xsJoTum0aoismTV6h926HibFBFQMm6CRHGjSCkEvwk4vGiR5ceG9/Yc/0X9V0gV' +
+'3VlgW5lZAKqBxJ2920yx0mCcBo+f5RgLT+wD5Mk8hUd80qA/mhWvCJUm0Jn0G41496p19C3mJ0gSRAbbTSqjfQe6SzBx5ceG' +
+'7yD0+D7lf2I9JgBn8U=rNW/+OKd5kIRmymaTTJZFilvgU2TGeYzHnlP1WzQHUd/X9kPO/=M/HHY94rRQXWlT6u0F0DsvgGQu' +
+'hlLjlqAVJlxq/iLF1fu0GDRooj0lXyS/JYPt7WbDPYg2qjqHkAoYb7EXBVrsvB8XjsMlOGSI1Z3qYbRgGGM7XJ90+HkWIzK8' +
+'KF94PzGhSCiUzAk4nGiLzgJc9/gc/ys/lXnDvqRy6rr=Y7l04e29KFRmyXCbO4CK6oYNzjDB+fetYBl6c=m/qyWvuIgF0En0' +
+'jH9CBHiGEiKvaDlASh/UVzqjDQcpSmqn8AEx4v9RAds0snF96rIIw7MseyGJ+VK1bPOqKWqYg9a13I4CxeaJiczQ6N0FCQW4' +
+'I176kkQM7AOeESiAGXE8DXv63WKI7eV4z8Vqcg+PQmCSxZk0l50Gs/mYWx2epI97IeQ+BeSpuKb4nLOJ/Wq3g9q4H5KGV3rs' +
+'=SL37pMVBRD0lU76sbNvipL=YQbQzZFfzaw6/X8I7eV4C9P/BuIjhfREoQzK3mLEVg=XPnLOt8KrkNQsSjK+mKgHsVQmWwSh' +
+'7hpIO=JHVcpMz173j5NS/QT4U277EZ/ry2C74JmAvbO=bayJbH6XzxxHC95oRjNDZ6OlhcnK3iJB5us3PABooj1lby6+uQA+' +
+'qZNYYIfr+joo0ArpHK3HBNu9bfJGmt8AzjQIEa3qIc=/C6PfIZkhaf=9u/ZDqtO8UIttQXPat95zpXRW+Vk0l50=da9TDQP7' +
+'tFJs9TQ/SdBdKhcIkXiVSpno0AiI8JG2FeaIavN3b8LCmQUXQW/FscNw/IPO0gTtay56q7Z7XEP80ervYdPv1g=/RcOlhjvX' +
+'d80Pc7+H7LOP1GJ7kRTvVYPOWSeooWQrCWtX4aq5bH3SUMt98GKEfwLFydR45k=r9nSrR+BYryL7brNAjanJ3MN4PNbeoTRf' +
+'6l/cDA5fVZvmSbNyxU+44GNv2HLrscTZBPU+acf5jLjq3tplg=oIDCIGtVrdG47CX4JFSYInEW7ZgoPOWCQrwLiBDrRP/qhm' +
+'qe1F3aVvgTUeRDKzlZQFyfwaqi6zsR9XoPPuIT1lby64915HaWe0PKe6maa4oAaYr9I3+NpsLB8XjsMlO9SH1k97cdNbR3SP' +
+'Al90ZHhmIyKvA0fXQOvOJClEzCk4CGjsztJPU/fh8BSepm8F3Plg35lULaqCRLN0XFlK/zCaJo+f5JgYf99I6fdtY0l6c=k/' +
+'moW8fYokkliV6d92tHkLFBFgIhlNWhBlRwqw4RQ6Srqn8B5G1/dR8BSulenD4pgy6xrzg8Wk4eK04qT2VXZk/lRSahHXxaps' +
+'88JCO5LAqdTo1a8JYbMwC+OewaURDfQgfIx7XLF800wfkkPqMik2XGl83yJc2Q9y5TX7F0f17Zlgu5lJM7lk8s29B0yx0sCc' +
+'Wo9v9ZgYsOb53xk6hUgb4yA/q1W83IjF0InAjTR45xpBZBFm+R6CRrGj+Cklv1k4GHWx0AEx4xl7rBQOlgnDXpfG35kkLaqC' +
+'g6u/ZaRF6hXTcbh38qD0t/l7LWACew6y2bA49S+rAd=byF/r4ZT+iE4Jnua0vg1F4+vaHXT+BuN0ckOlBUgG7iJGZa5nfVNs' +
+'B6M7ANSueOGea6d4ccf76XaTULnJXAB2teqqDwLWjpM1GTIYIB+q5xNw6+BYryM7fdS=7U0qrSMXQyrNcXSf+DICAiLV2owW' +
+'SSJGJSuIOx2YZBK3UMP/aLAJ3kFB/tI6/hqHg9hYz6BG2Or9LC7z6/1/Z57Dfb96LgNf3IL7wVhArc+t2ufmR0ZCRAGjWClE' +
+'zCk4QWqa5QJc9/d97rXJq0h79B6cf26Ht05NqZNX0Eh6Fjsn3FqYzLGWJVos8CKGSyNgqiS4go4ZYsOez+LfIclQKf+WECKv' +
+'A1RSVSb6/S/EvRk4/Gl8zqeR0el7HCD/lYnDDpdi6rrzD8WE4ZKTGDOQ0XCcWo9f9ZgLr9/z5/kIZUfQ1=nOmhrx2soksmT2' +
+'6X92+HkWI0Kvx0eH/xGjNClEv/kETGl8zhJcA/fM/0X93DnDzpgB2frzk7jJtXKTGDOH/+fmc3in=s+UNuYYmv9CFkKU3bUn' +
+'4drn4k9c6+BYryL7aARPXl07PR68c5rvg0KcQuMj1pKWFjwGRQA3Fh8HaDPvFRMbHlOqSNRtmYeU/GXHJrbkjNm1/VcqxWYD' +
+'5vk8ZUdL0tsJvBOm3JUF0En0i5pH5v+3EuKvGDlAihBEVzqjwQcJS0qn8ADx0j9y8BSulhnDzqRi2mrzQ8W04i2Ji0z21F+N' +
+'VVC+VoZtzhbZm+MnXlMRpRCEP/lDXBTrZD35fxLAbd=xTS1qrnJL=9vLYeRN6rJCgf/Wc+YkV40GBW=o0SPeJbLrsMTZpTEn' +
+'p0EB7tgJuXjXYFoIm48SySoMnBJDBR0OV57HYhuJQZPvFCQ/bVkQzrP=bavZLXLLL/vJHlQep3Fi1qQUyZu7CjNVMZsel1nD' +
+'vqRy6q=J5K/k4729F01Q0vXeVHC+FpMNzhDBFfc+cGl6sAY/mhrFjY9F0482+q92NHhGIAfxIalASh/1RtqjnQeZSuqn0AEx' +
+'0gl78BSDm0fF3Llt35kELdqC57ieZh68yVCcJo713I1NzoDBZffCNm9xyRIlEz3IwHI+CaEc8JUt3oAsDXv63WKH/xfq/SC6' +
+'Q7094=5fVivbCjNVwR/XfXRM6pDnsNTOSZSZVL28jD6t9F7eZZX=5OgL098T5Jk8QUfb0nsJnBRQ2qok1li7742451pBJC3Q' +
+'MnlAKxGj3SqjwQcpW3qaHABA0elHDBSepknQAE6i2nrzD7l08q29R0yA45Cc6pvf5M1N30DBNgQ+Y5l6NPs9WBQx21oxAmTV' +
+'+rUM/j+tOhjnGP69gCwujbEHgKz91z6fY6YaiTOy6l+446MOU5An1USdWLR93VaI8IiFqron0Anon97wk3SGb4JS34L1GFRH' +
+'DarrfF35Ve2/cNTt8rPwXHw6mRKrkEo+UkQuyiLzke/2JVwGqYMlATuDGDPeJMOs9W=uBZT/arW27Rf77nqHb=Xf5qgYcMDB' +
+'JffdY/l6M=nOq9rx2poxgmTV+0R45p+3IyKvJ0dSROGwuCj1v856W5qn0ABR0rlH=BSulhnQ4qRB2dCJRW/7BZO1XPOrCnsn' +
+'nAdiqivQU2qMO3LHWyN1iQWH5j/VsZRe76O/0bi/bb=xDSzKTIDLHEdfgaPtFlKvIdPmBGub7XJFBd9DCKQeJA97cXPJlTAJ' +
+'ZSK5CxIDV/Rh4DoJG4JmFUiczx50JkMFydU4USA6IqQKq2QuAMkAzrO+nVhrHENcc2luHmAf+oJBpbQRpXvbCEJGBa8HsPMK' +
+'U=O7IQCNyZOZRSMD7eJ0Z/Rh3hpIO=JmFUiczx8XfpMEujRFIVuKEnIPCGN/wOTtaX+92RyqCGJL=hueUrPv1uMSljRFBVoa' +
+'BcO21EA5sMOeQA8nXITNeeTO/XK4PSjrW3jV3FoJ=JH35UYj5hkIBkl6E=nemsWvOIj24g826Y9ClIVWI+fxIV6CVRGjSCi1' +
+'v+kEvGjszseR4xlH8BP/lgnQ8pgR2mr=M8Wk4eNTfPOn+lbUTDX6HJJWEVemqZzA6NQEGbUn5sm0bB3pVePOMbmB=l+w7g0r' +
+'rlF6z/svYkRO1o5ZSIqncQJPE/gc7sX9+0iV7k6i2Zr=48Wk82K/ZVOx42CcWo7P5VgYP99T5K5+cGlG1=k/muW87IjV0SnA' +
+'75pX5sALKdfnST+5P9bfgkTuAp/cDA5fU61Ul50=du9HTWMPgm01Xy6/SPT/KbdTYRhaCufmUhaYLJImtea5BfUdcP680js9' +
+'eBQg2uokomVa741H9CpBNC6mJ0dXSizlRiqj0QfZW+qaHAEG1=Rc/yX9m0iV7algy5mUPrqPA6vDOFRmyobUTHa14LInFRaJ' +
+'iczQ6NQ/l67BHguZEZRf21C75ydezFAQDSzKTI88gyweTbEHgKz90lBEBRzK2OAB6V8I0EJr22=Enz64tZBtCRaIolaoVjrH' +
+'4Kj6LKGCQOf+D/IGNkNlCoT44u6m9bPOiDPLfKaOOtB9SnumOhhfP7bcg0Lcx65vYhPV2kuWdQAy1k=4oRCa9B=Enz64uaSe' +
+'Gie4sbRJGronLLrkv7EWhYkcL8Lnnp81/hWIlltm9ZMO/6PwIrhAnjKwHpx2OP68g2uL8XUqQs5zhXTV1Zk0l50Gs/mYWx2e' +
+'pI97IeQ+BeSpuKb4nLOJ3YnGoHs3D5HGhAoNX45SFkJE/SRIllzZ5kPeC2RvbQXaqB56rYyqCFJL//weUqQs+hNzUWFhyr1X' +
+'d80VRm/XwXNOxG6b5LPdeaT+KNSncPhpCWtX3=pJDdIn6bsYmvJ3b4JAWq8BL7/JIrRfuGM9AQkQHq=smsa0utLbLzneUgPu' +
+'cg=/RcOlhjvXd80Pda9TDMPsJKN7waB6Kl6HdzEIgIjrGnqzUFqpHQ9Vy2bcLAMWS28x9=jOq0WvuJU71lgl6X92hHh3Eofx' +
+'MnlAqh=qSClUv1kETGjs32JP9/d9/0X9F0h13Q9X35jUP2qC96vOdk6vUGv+VMX=5LgY0+wz5Bk8QUfApRD0kkvn0o=bzIPP' +
+'MMT+iE4Jnuw63WKM7eV4z8QuEoJzVqOhUQ00l50=c794oXLK1V6Zc8KbAYS+7benrLfq3pnj3SSCehvQVPtN=SIGGwC13jQD' +
+'kurqEZRf2P35fxL7bkRs7Yv67I9ck6e+DXSO6hJilpB2+Yx7O8LFJk+ILIM7U7Q7QmrxU8Y04g29R0yFzzrHNo+v9YgLT9/T' +
+'9ekIem9xyRXYxvWvuJUF0TnA74145pp1xC6gIclNah=1V0qwcgk4vGiR0ADx0pl7bBQOlgnQ=pgB2k=Jtl6HdzEB8Qimqcnn' +
+'H9aZLA4mpbt9b1KGjlO1WeTYwf/ZUnRNO+QvY4jADrSALWhmR0VSROGwWDWq1s5vbGa838JPQ/gc7js/linQ4pfi2lr=H8WZ' +
+'+VK0i0tQ44CcRpv=5HgL89+z9ek89VRL4/A/mrrx2yokglh26c92tIVWI1iFJ0ZiROGwuCkEvw56W6qaLACW1/gM7hs/pknD' +
+'4pei2Yr=M7jJtLN0XFWXS3j2PnjXHd+01Ob53=8zXqJEiiRDTRv2jYA7VP35fxL7bjOASRvZLPM6gyweTSFqukIDhXB1+RxK' +
+'izJGJSyhWu2IYi1lby64ueOOWSW4sHOnlVqoTFr5L8IypapNS30A+N0/V5TIkf8Z5lNrq/Oe9ImtXaN=zdoqLXJK7Fqqze/Y' +
+'gKz90=5lpVz2zbNyxH9HwXOv9L8c1JTOWPHdmYaInLeZ3hqVk5s58z5FkVb54/IHf3KCKbTnpltqAZPfiZL=IIfd8U=8yRzq' +
+'LVNrkXueLTTaNjICAiHV2kuZdgIBcavyWu2IYi0s1JTOWPHdmYaInLeZ3hqVk5s58z51kVTGeYzA6t=el67BH7=q5wOuz6Mr' +
+'wNlQLcTPXByaTMO80=u6wmS/Bl7=8D5vU6YUl50=c7A4obNMp6N7gNTJJn/+qZNXLEiJear4fFqYLO3D1YY9v0NiXxNxqFRH' +
+'xl+a8r/gz2PPEMaQnmNASZvZLPM6gyweUNCdgp8vRmOm6jvYKaMl+lu4wEO/ldJsEJNaOHAJlJe4cViZG8qXP5s1X7EWhYh9' +
+'8CIFB2IAVcETbkt2jYBbpH/pryL7aATZ28Z0qt0Lg6v+kVTeRvLP4WR1FneKme9URW8o0SPbAA+XjIDq5KC6ZVFB/tI0V/r3' +
+'PLnJHAH2omY9v0NiXxNxqFRHxl+a8r/cyA8s4TRu3gAq28Z0qt0Lc=ueLkE6ub9PkrBRxghGye9y5jw1kA/5oj0lXy6/iTSt' +
+'aLd4rdOrCnsnnDSCehvQU2p9b8JGO3LEudGTkhm0bB3pWR+8j1LKaA4ATS1qrmM80AbbCSRvtuISAfSW9exqGl8zQjxTSDOe' +
+'JP6boYCMiPOuGYeUjLiq3nrGoeq5z5JCRPoMn7B3b4JDdfPDHdrr1ZQ=/6EOoWhBGfNfHdyoXEO8UsftCbBauwIDZpPjJcx6' +
+'3i82FS/4ToLPF6HH9FB6tW//h3ER7tI0WjnnH9dU36gJ898D9Q5+YBl6M=m/mlWv3Ih24X826h92lHj3EmKv91RXX9Wo385o' +
+'QJMidXRVEqeHyc=yo/mRGt2IZ8MKkXTKxKDJl3ER7tI0WopXPJs4=5HmNReY41IGG3KAh97RH7l0YcOvm6OPEQkgux+tC/ZD' +
+'qt0MC6hHC95oQJNzVuQj6cwbycNlNl4XfYQ/IAOc9dQ6tl6HdzEB8Xe7Sef3DAr1vKFXB/rtLCJEjzM1ukUTDmt3fF35Ve2=' +
+'IInxb7PwXUxaHSLLHEbbCSRvtuIixbOEdgx6WcO3Ef/X4a+81E6bsNUZKXS6u=bHkXha6oZYU5rZD9+mhboNG3ImbwMzCQV4' +
+'pMvpnh=bzEL=Aai/PjQfHlhqTEM8=VrvgTMKyd7/=WSV2iy6G1M21SA0DGLOlECb5cP91cNJZSN0XcRkl=Rh3htiqivQU2SM' +
+'D+L3S2=QzKEU4mum0qBsFA8s=cW9mXBv2da0ut0Fzaw+0lQu2sJ=4WTW6lvWh80Pc7mBHHNOp+M8ARSdAk/723ER7tI7ledA' +
+'GiRCahJG2kqKD3JGjvN1uYTY0f8q5sMryR8wjJmybnO8KrfKXEP80Uue0XR/+QLi1kTR5ceq/PM2p28I0E8bd8JrkUIuOeOO' +
+'pkFB/tI0Wpno0Ag58LEVcOstHwMXmmIAysA4cW=V1lQbqrM/Ebkh/q=xDSzKTICb==rvfaONysLxhXTV2LiJlX9y6h8IsWMM' +
+'NEMK5cBuWLR+muaIoEcW3SZjC4r58JI2Fzr9zwNz3nJEibJ4pl75fqLrV+BYryL7b0O=zkw7yx0VzaVvYXTfByLORkRFBpmZ' +
+'z49VNj=XfV+7=pZy2ZrzD7kJ56uTa1mx0lCcao+f9agLEMDB6fctcEl6I=kumhW8/IjF4Vn04TR45ppBxBCAIYlNShAlV1qj' +
+'Agk4jHWc30JPA/gc7qs/lVnQjpeR2mrzRY/ZlJOkXTSmhVsYcMoEaSwQY2SNqczQ7A1/as8BMe/msdR/GCQwDVhAHb=sLSvZ' +
+'TIN9g2sccTRedUIDxf/xgQua/RKG6l9H0nLOlEGb5gR6tl6Hd3EXwYhJ/ppnPFX5T9JHBRp8HwO37HJEibUjEl77UhEO3AOw' +
+'DQnaqB4=nXhrXEP80Uru=eSJQgOcDA5fVcvbBOMGdB/ovDCK2EMKAJStKWOOaOeTPTha/esX4GqVilvgU2r9LC54nlP1WzQH' +
+'Ud/YEnIOGCMr4kRwjUDZ28Z0rJMsXxdfoTS6ur5z1k/WBR0KWyJFpd=jGDRooj0lXyR+hST+7hcFkEhqiolG=1ZE4SwQY2SG' +
+'aYL3r461/QT4U277EZ9cl1Qv9fj/DYQwzktZzA=lCbVoz85uRm7zdXRVh1ubCPHiROvY0SHvFKLrsPBqtKFKpJKXwEhr/aXz' +
+'34tiqivQU2SGb4JS3wMk/QT3ld77YdQ7q8M=I+hB=gN=Ldw2mFN8=yxukkB+VvIOYfAhyrZUZ40=c7mBHPMPE5L7wKIuOeOJ' +
+'2mK4HSeZ3hjXD5tILJ4mNRt8PwMW7lJUiUC0th+q5xNw6CNO0JRMay56q7Z0qt0F06s6wmUvulLioeQ1tSnK3iJBxo/osODO' +
+'BMBKwbUqtK/KpJKYsRfqGbpnL9o1/A1Hc6SWaYzA6N0/WbRI0R8qYrRbyR8vsXUQTYQ=WfwZLQKMQ9rvzgPNB0Bz1pTV2eu6' +
+'GxKGJo9H4RDuxHN7EbBvKLSeCOTXHSe7Bdqo4oqpCFKCUYY+4wMXjpCUieQI0Z+7YIPP+CR7bTRy4YRQPWoJ3SJMf5uv0CRO' +
+'5uOO0i/WyRyr/TCVpg8IzLLu6EMZEJUuOFC9pSN0YTe77oolsDqo8L3G+Nr9nTIHnlHh3MCDTR/q5qQOGbOv0ImtXaN=zdoq' +
+'LXJK7Cqqze/f+yNCkfE/k7YUV40=c7mH0MPvE5An1aSeeYP8uedHgIiFSZpogLal7H5DxYY674/gJO0/V57BH7l6kdRbz5N=' +
+'EbexzHQfnf0mGg68DAe+sTRuAuJiVjPmycubVcKlNl14HWQ/6GJKIrQ/ahPNKXSnTSiJCoZYU5rZD9+mhboNG3ImbwMzCQV4' +
+'pMvpnh=bzEL=Aai/PjQfHlhqTEM8=VrvgTMKyd7/=WSV2iy6G1M21SA0DGLOlECb5cP91cNJZVK5YEiK/ag3DGnJG=E22Yr7' +
+'HwN3bf/jlYD0lh779rNtKAOe9bTxDYQwz2v7XEHowudq/SSeyyMil9RVtRzGSRJFpd14oXLNgRInXU=vacTNJSQhKuI0V/Rh' +
+'3hRIHAI3BArr4+KGO46ylPUXgm+JEGRvm3M==PixbqSvTgrqCMMcf=frPiCacg9/0x6fY6YUV40=c7nBKt2IYi0lXySuee/+' +
+'uSanCDV2yXCaao+f9a1jc6SWaYzA6N0/WbRI0R7ZwrRbyR8s=cVu3y56q7Z0qt0FzatunaONysLxhXTV2LjJlOACsRsYkIM7' +
+'9B6cf26Ht05HZzEB7thJWYpCTUX1BoQdzqDO/x/gJO0/V57BH7l0YbPP/I8srHlQzsQPT=067FKMX5veUkSNBJLTgeQ1tSnK' +
+'3iJBxo/osODOBMBKwbUqtKAZ3NcIkXbquFqG4Fs1m45CUnTGeYzA6N0/V5XH5d/ZHYOvJ9Le9TkvHYSwHMkp6DAICxb/QeOv' +
+'RlMOYf/Wc+YkV40=c7mBGtOP1GNbkJV+ecSpuPdogpe6/dZRGiRCahvQU2SGaY74XwJFWUUTHRy3rYSIlf25bxL7aA46m7Z6' +
+'rJ89gJvekhP6NwLzVvPm5ev6GiGV+j+HoFO/IA681UP/uPSZuSb0fMQ2yWejT6sIv8FWJVrcLz5S6kPel67BH7l0XB3pVe25' +
+'cQiMXnNALkw4rRO4wAueUrPv1uJilqL12iwa3QM2MZsYkPLPZ+N3sRQqRTAJ2mRDYTe77ool4Fs1X7EWhYh98CIFB5IAVYA5' +
+'P/lDXB3pVe25bxL7aA4=7avZyDAHQAueUrPv1uJilqL12iwa3QM2MZsYkPLPZ+N3sWR+WV/ZZkFB/tI0V/Rh3hRCahvQVPrt' +
+'DC50JkNUukTX1==6oaNw69+w5IlRDcH=7lhqvSJZgyweTgTNpyKgVZTT+fy7BX6ygR94HWQ+FHFbwRSOZT/6hJM5YEiK/ahn' +
+'LLZ5fGEkBNt979NmS2Li3SV2xg/aDh9bZ1MvcamwHmJw/ayKWM643xfaGiDqcg9v0x6fY6YUV40=c7mBGt2IZKKsEdTNAKPd' +
+'7VenreJ0Z/Rh3hRCahvQU2SNqczQ6N0/V57BH7l0Y14pZe25bxL7aA46nua0ut0FzaVoz85qQ7094=5fU6YUV4Q=s8mBGt2I' +
+'Yi0lnz64t05HZzEDSSeZSWsVYohEvKKX+9tND37ze=NlzQTTlk=rYkNsmx8OEWkxzpDLP4oGeU/5otb7J1eaUgk2bHYLznJP' +
+'9/d97syTjF+utBJKfT=JKm/E4H2JfD6v9F7eZZX=5J1C5Xp9bBNzBm680ps9TfrrjYoiklf2+o9CZIV3I1K8Od64X8se0lTd' +
+'+vEzMfR2Abem1/fc7tvTkf879DJKwbUq1M/E8q2Jm0y2pxaHgHnIuV1iUnTGeYzA6N0/V58BL7l0XB3pVeN/PPhgzqSsCSm2' +
+'GV/IPAdqQmOvNpAiViRW+Ex5/TMVIf=54WN7VT67sRPd1MEduSanCRjquIsYcAqYS=3SgMYcD+Mnmm=U/eUo0drm9cOw/I8L' +
+'gLjBDrAsCTwqrWO7g=neLbR/9i/ShfSFBEx5zdLFxlv0jFLu6EMZEJUuNMEdCKd4Hoe7CWuj3SSCehvQU2SGbL0A+N0/V57I' +
+'X/lDXB3pWR35fxL7b056q7Z76x0Vzatuna/v+hOz1DOm6bvb6X63k/mRGt2OZ/8ZwKRNeNT6uUbI8WQrCWtX4bnInDI1Bbks' +
+'L9Jz6yM1GdRo1ZrnrYAbV1RYryL7aA48+gvZnEO6UhlqHlUv6QNDdeAR5sy7zPMR6kA5HPMLp167AXSuFcEZCwTUvUTnKRX0' +
+'Na31e41id3kqzd8Xj4NUWdRnIXA2UsMwS+De9TkyDLQePWyJWM8nXMeOciOuk+5O0x6fY6YUV4L3NV7nsVOvRLKs8WQ/qPOu' +
+'KdbD3FfZGpsXo8k58PGU+Nr9nB7zzzLgNbA0=TtXcLHMpCPfIZjAveP=bqhrXEP80Uru=eSM+vEilkPRUbemNX=hAayhWu2I' +
+'YiQrIUTdel6HdzEB7tgrGZmGcJqpTKFX5apNX0Inr4KARRRn5l=qIcJf3MN9EIkxnq=sfWy7HXPHr6hJXbEHgKz90=Vfk7YU' +
+'WrKFpk9IOx2YYi0rUdQtFMSdygensVRJGtongMs5K=1mNRt+H0J2nlP1WzQHUd/VTfSvuJKeYImQLWNfHdymiM=nX6hHC95o' +
+'R9094=Vfk71Ul5MG5f9I8IOfFL975MQqpMPtKdf4sHbq3tplg5q5nK1igMpsLCN3roG13nSFxS+qkr/sdi2IryiRLlNgTayZ' +
+'+DKrkEoeUqQs6hLzApARVrZUZ4LFQZsI0ER/ZmJs9TQ/RT//h3ER7tg6JdsXYPpGD5HGgVY+=0N4r2MQzXVH1Q7K9nRP/6PK' +
+'wMnxLaSATWhmPKKMgEsugGOvNpAiViRW9Yf7WdOE1Z8I8IKuB6MbkHQOSZRMyZc4TRf2NedCbAdiqivQVcsdHHM3r89UGlRH' +
+'cl/VsbMviAHOMUkhHc=wPj17HX84Y4svgGOvNpAiViRW9ShGzSKF199IGM+Lgm01YlQ+6dPOh3ER7tgrGZmGcJqpTKFX5apN' +
+'X0Inr4KARRRn5l=qIcJf3MN9EIkxnq=sfqyabCL8UGstLVOuds6e0x/xUrZUZ4Q=s8CBWuOP1GKsMNSOadBd7Nb03FfZGpkX' +
+'YPpGD5HGhfYYmvJmr4G13nSFxS+qkr/sdi2IryiRLlNgTayZ+DNsgyv/gGOvNpCSMYARUQ00l50FdXu50cP/JHK3UUSdWLR9' +
+'3VaI8IiFqcookunJ=AEW6YpIW2M3GlPEGhDXUa7a=f/rV1C8rkRt=sQPTWwJrRKLfzdqQkPv+1MSHWQWFUt67gMmVk9IrRMP' +
+'V+JLIcQ6pRQdyLW4cRf6i7r4cGrUW613+goN=CF3b8LCaeQTsdrm/IcF0JnAO44H5vpBhBDAMllA6hAlRn/lv9k4nGlLzuJP' +
+'g/d97lX9N0h74qRy2gr=Q8Wk4e29J1oV1F9NVPCKRoZdzpDBVfe+Y99QpRCD=axTnC3vi6Qr5Un/ngNgORm2HeQI7eV40bP6' +
+'NJMg5pREpDzL7XMVUZ2WwzGatLOc9RSNmTPeZRd4TGe6iFqXYQoJ/FF2Fglc8AKGbmM1FXBold77YdQ7qAN/EaScag=8mRy7' +
+'rwLLcDbbCSRepjICAGRV2pvb6cKlNl5XoVNO67MbHQAeKWOOaOeTPPg6/oYC3SSCehGWIUrNbbKGj3Hg7RInplrInYDslR8w' +
+'MVixLdP=7WwmqDNbkEwvYg/eN1JyMYS1tny6Gg9VNp9HwYQ/IA7KcXPMKLRdKVTIgVha6dXzgKs58JJFBNu9bZLmem9xyRs7' +
+'eCCQ66oxAmTV+p9CBHhWI1K8A1RXSh/ERwqj=Qe6W5qaHADA47lH=BRelbnDI5lgy6X1LaqCA6u0a00Q0lCpeo8P5KgLr+wD' +
+'5Gk82khYeyocPTt2PhCIlf25ryLADjQgPWpJCFG8UzuekmAf+yNCkfE/k7YbzgO3dh9ICRMPN+M8EbCNWLR+m8bHLSjqFdnH' +
+'cQr6G=1n+goN=CF3b8LCaeQTsdrqEdPMe6R7bQXaqB4=3hiJjEMLj/wuzgRuBzMiVdPm9ey6SdOjta95wMReJ9FKUJTNZS/e' +
+'uihWkxZYCHfoLOuZ=5F2EMvc=MkIZUd80gs9eCCQ2o97h18PwaoX5Jp1FC32J0gyVRGjyCl1zPk4/GkR0B2R0el7=BSepmnD' +
+'4qRB61=1Lc/E8s29a00Q43Ccz6a13M4CySoMnBJCFkO27kRDTRwGHoAbVP35fxlgLrKwnew6CYO4w3wuHVTeRvLOwf/Wc+Yk' +
+'V4MG5f9noQMKtNLnsWSeaTPdaMaIoMhZqoa4g=qpTvGXBUk9byN4r2KARRs7rBRQ66ox23/r4J901IV3EpKvR0eSVTGwWDWE' +
+'vykEfHZx5ceG9/Ys7vX9R1T17glgW5lZM8WE4Z29e01Q49Cc2o9E6ob9znDB6ffNcMl6IAYUfRWtqIgm0Kn0q43t4+C8FBEm' +
+'J0gSRAGwuCl1v456W4qajACh0rlHEfsTSD8cBhBq9HKcS/HLSrKTGDS2hVo3YDroKD1D1YY6/4/gJO0FlbA1shvn0hCIlfS5' +
+'rykB3lOAbWyKXW9bU1savUSO+hMThKOmRZoquQ6RoR=o0EPfFtJsURJNFMAKh3ERKufZikn3YDaZH5KGV=t98AN2j4MlyPHD' +
+'lX=6sbRfWDOKXQRyiE4JnawFnPMrcyudQeOvRlMOIdPmBGub7XJFBd9DCFP/l6PrIaCNyZOZ+SMDYeJ0Z/RnD9s14BH26xoN' +
+'Hw50JkM1uSQHUB+q5xNw6CMeMbeQ8pP=HTyqaL6cQ9rv0XS6lqLiYYAic+YkV4Jlpg=n4uOu+tJr9UQ/ZST//ebD7eJ0Z/Rh' +
+'GiRCbAFiRWrs=TIHnl9VOeUXPRy3nYAbV1RYryL7aAP=aZ0qLbLJ0+luHJRO2rGSMkPhUQ00l50=c7mHHJ+/lHJK5ULu6LUN' +
+'KbNYwIgqWYqXnAX6ilvgU2SGaYLHWyKk3cRDcm92smPPC+MOcKhBHgQf7kiKTLMssotvgaKeRjN0loPhQSJN5/gc/zXJnF/7' +
+'17lf75jUP6qCU7l0a01g0wCcNpwP5HgYsOb53xk6MUeL0qsJWBPg6H9m0Rn075qn5npBNC6mJ1RSRMGjmCl1zD56SuqaMQJc' +
+'9=R97hX9Z1TV3Xlgu6X1PtqC2XKTGDOH/+fmc3in=s+UNuYYmv9CFkKU3bUn4drn4k9c6+BYryL7aA4A3WyrTIPlCbVoz85o' +
+'RpJOwXOl+kwbKTDT10/okIPe6MLrwWB6Kl6HdzEB7tI0Weoz0DqoD5HFyYoNb0MSOrKFCFQIta769kNrR3PvoInALpAPbjv6' +
+'TXLLL/b6zb/fYNzM0=5fU6YUWaKGIR/IHqPe68ObYXSJJn/+mYancPaqiWtnoJaYT9JFJNscbwIWGp8x7fT4pq878mN=72Lf' +
+'IQkguZ=9u/ZDqt0FzaVo0bP6N0ODRbREIYxbW1NV+UA4HSOatGJroNB6JLFKpJKYsRfqGbpnL9o1/A1Hc6SWaYzA6N0/V5SH' +
+'8Z+7Y/Q/34QvcWkMvlN=3Wfn6g64ah6URQqhbQW6ScqYTAA26X63BWA54VOa2GMLEhH9K0BdKbeXTVQm9Fz+ZjX=5UgLxMDB' +
+'FffdcFlGA=l/mhW83JU24Xn0C42H50p15BFQIc6CVSGj+DWUv2k4XGjh0ABm1/Ys7vX9R0hF7flgW5lq5KqP56u/ZU6vsGv+' +
+'VHX=5UgLH99D5MkIdVRb4zs9iBRA2o=76A8sDXVu3j+xTj06aM=lCbVoz85oQJzDDD5vU6YUV40Gs/mRGt2IYi0sEJVuu4Rt' +
+'qOdYo3jq3nsTTUX6HJJWEnTGeYzA6N0/WiRI1F96odPPGI+vQckQDrP=/fhmqDPnQErvwbJuptJCIqKFBRyrBOAB6X8HTWML' +
+'g5QnjIDadaC6ZkFB/tI0V/Rh4HrZHQIGFkbcLEJGO4NgqSQHUdtm9dA//kQbEebM/gDZ28Z0qt0FzavfYmUvulOvIbT1FezL' +
+'+cJl+d/3sIOOxMKnULTOuaT6VLeooEiKC=qGcvqp=C1igMp9L+Cmr98AVq8BL7l0XB3pWBPrwOhArcAQXaiJ/SO803tucTTe' +
+'RvLTckSERfz5OXO2ZB+HwXQP++8X/5bELoqP97iDfPOm9F2uVHX=5SgLT9/T5Gk82m9xyRs7aBOx6=ok1lhl6X9C+IYsFC3Q' +
+'IVlAJi2JSDWlvwk4XGl834JP1=Uh8CDOlfnDLpgy2YCJM7aE4c2Ja0zA0oCcWpvf5VgYxMDB/vk8UUfr0fs9aCEx2tox9lg7' +
+'4PaNKg+LyRfHTsBKYwmMYGHsJB5O=WChgQvq3aNlMds1nP889B=Enz64t05HZzcHvLgrGZmGcJqpTKFX5VY9XDJ2SmNUumUn' +
+'5juJIwNv/JQvLPSh4jNAnEyabRK4vzwNkeONptJBhXUVVHx77Z6RoRsUjR=K9B=GPRFX915HZzEB8gJ0Z/Rh3huCqivQU2vM' +
+'L7Mmr/1/Z57BH7+70mNO3BM7wcj9vlQgTawJrGJMg6uNHlB/6oLjtNQmBYqKWRO3Nj9DCFnB8pgB6qr=NMB62L27y0zx45Xe' +
+'VJX=9agL09+j9Qk8QUgr0fsJnBQQ2t97h18V6I92pHiGEuK8SDlABhBERoqjjQfOTGlszgJcQ/d9/0XJSDnQ=pgB2jr=87kk' +
+'4nK/Zg6vyVCpeo8P9YgY09+D9Rk8QVR80ns9DRW8/Igm0OnA/44X52p1FC3xIdlAP/b6/S/86IABZVJD6EnYOw6RoRwDSDMe' +
+'6ENKHU=rNW/7+SQhKuI0V/RnLGs6bZAEUapN=ALnes6b0es9vBQx67okImTF+0R45p+3I0KvJ0fiVSGjJClUvwkETGkx0B3A' +
+'4xl7wRX9q1Vq4pgy2Yr=o7iE8s2JGD685F+eVMC+tpMy098Y6gQdY0l6cAYOmpuF8k9c+E=s4TRyHpS=WalT6u0FzayoC95o' +
+'R9JCApPmc+YkV40FdXu0oELvFBO7IzKbSZS+KbaIoMhZpeXY/lRSahvQVNotH4NWrOEi7eU45j77EhPOp1C75blRLcDZ28Z0' +
+'qt0FCbVoz85uRm70hvSVFfvmSROGB18HTPE/6MJnXI=79K/eKXb4sJg6qaoTbAX6ilvgU2SGaYKGusO2WfRHgXtqAtQ9/2Ov' +
+'oshBHYAPPSyq3oJMgydqPTFqtiNCIaPlJZxqGS6RcR=5sXRP2+PXsNUNeYT/BXancPhp7aqnPLoEX7InVct5WxImbyJkGbN4' +
+'pp94cnM9/AN/MVmt/j+wTWyXzIPHz9bc4FJLkuMjhoQlpXwaKn82Fm=VwEO/ldJsEJCNWLR+muaIoEQ2VwSh7hRCahvW+hsa' +
+'DwL3GIJFCQA1XR5Ynz4pZi2IbxL7aAP=aZy7GRN8k1vJHXUeRzN0ceTV2owZzTKycas50ER/ZpKrDWQuedT//YgD3MUTl=Rh' +
+'3hRCbLEXRVk9Lz50JkKU3bUn4sm0bB3pVe2/cNTxrnAP3SzJzINcb/svwbSO+z70hXUVV+ub7ZKGAauDkXLPVBEr5aRdecBd' +
+'GOeooVhaVdZk/lRSahvQU2t98GKEKlNUeUUTkurqMZPg/6BYryL7aA46nawFnQN4Hzue0iSJllOz1pTW9YzK3mLDBd+IjM+K' +
+'2MJsURHN6TS6uNbIkXiJuuZT3SSCehvQU2SNHwO37GM1WfA1XR8J5kQOFP35fxL7aA4=nXhq7T9bc5sucdSeppLThpB1Fowb' +
+'/iNhZl8IDMDuV+JKgYSduYT6ZSK5oEkqW5pXo7pp4GGWpgbcH0Mnn2MlVXCEP/lDXB3pVeQv9fj/DfO=PczqCMMcfxiqQYOu' +
+'dzJ=8D5vU6YUWr1=g7mBWu2IYi0rYOBuyZOcOOc2gEeZeJpnH9rUa4E2hRoN=jKGKpMlGjC4Mg7IMdOd72Lek8jArcRLmsa0' +
+'ut0FCbVoz85uRm7z5lOzBRzK2cOl1j+lXSOeJR6YrIDqtKUnp0EB7tI0VkaGD9s14JFX+Drt=6DGSyKFVPHDlj+aImNdqJO/' +
+'AMlMWfRwHjzZbtMcf5t+LUHey0I/ItRF6bpaucKGcavDDTLP+LKpYWUqqURt/uaIoERKOkr3=lqov9KSUWc5u=9i6t9xyfCE' +
+'P/lDXB3pVeOvMbRy=cRefgzJzxMrH2xqPv/f2vNCIaJ2FduqGg836S=YwIFOtM8bcXPLaLT+6XfnTVgXmkq3oQZEm45CUnTG' +
+'eYzA6N0EiUV0lo+a9jHvuCM=c8iBXr+t2RzJbWGrLCtLDhR+B58ThlKFBiwaqV8ycf=X4TO/68KnTXBt6OUq6VOoKMQntyZT' +
+'00o6iKLSUWaIG48myw6x6PB1oTt3fF35Ve25bxkB3lOfHew2/YLHH+svclOuJlMeIpQVtnpaWSNldr9H03N/6KKXTKWOuoKr' +
+'q5X3gllKOzr3Y/oE4VEnr+wD5/k8dUgb4ys9kTum0aT=/SnyC5rc6HimEhK8J0dCRBGjJDWEvwk4/GkR0ACA0e69/zX9V0gV' +
+'3Vlt=KBemZSdi3dnPIk5CatYjCXU6pMN3wDB795SFk/AhPRXpd/ZHk9gCGQ/LTRuOsBtCalT6u0FzaVo0fSalnICEbB2FZhq' +
+'qdO2dX+HwEQ/ZHM8=WTdqZTsSSf440g6/psoc9Z1BoQdzqDO+gQCew6x9=feq0W87JUF4Vn0O43n9Gp1xC3AMz6X/xbERT/l' +
+'v7k4zGlszoJPROlH=BSOpznDg5lt/5kELbqPxVK/Zh689F8eVVCKNobdzkYD5G5+Y2lGgAZOmvWvGIib1liF6XR45yp1lBFA' +
+'IblNGxGwWCl1v+k4bGiRoShGyQBjZz4WfzHdFeCI4KCqJbB63PaHHWf2hVbjC4bUaSwQY2SGaYPGrwNkGq8BL7l0XB3vmE/O' +
+'UIkAKlS=mfy6bWNrU4svbgSNNvNgEfPW+Z0qGSFlZS=XzL8ftRQ6A2Kca9GOughYgEfZFVu3cVCK6oYNzdDBxgQdY06QhPAY' +
+'ckBQ2Koxd1n0u4349/p1ZBCgIh6CRNGjjSqjLQc6W3qa0ABh0slHDBP/lenDU5lgS5jqM8WU4l29u01A45azbDX2KD1GJNr+' +
+'D08zX4NVGUD0knw30o/sdi2IbxL7aAQACfwZLQKHHFtqHgRO+pJS1ZOmBZx6qh9WFZ/o=7NPFAFbYLUvecPJVL27e01Q43Cp' +
+'X6a136gKsMDBtfdNcFlG+PsJzBOA6Dox9lhV6fRMmX+WETK8yDlAFhAlRsqjnQcpS0/cztJPFOl7DBSelanDXpfG35kkLa/E' +
+'8r29J0zA0yCpfFX=53gY099T5CkIlUgr4ws97BPQ2sokIliF6f92Kl+LyRfHTsBKYwmMYGHsJB5O=WChgQvq3aNlMds1nP88' +
+'9B=Enz64t05Op3ER7tI0VCRx3hRCalvgU2SGb/MXn9N1GnDX5n86ssQKq4L/oTdQLkQgTWhqTVPMQEdaYlTepwCSMYLEtiw2' +
+'6a62JW/lPIRKYB=Enz64t0VHp0EB8gJ0Z/uhGiuCqiHXxapNP0LXn39U3TR0DT=q5wOu/IL=AbdhHmRsKdfrXEP80kweUkTd' +
+'60LjQfE/k7ZUaVM21T8HSRQ/6QLpMXTNWPKuGYe0XgOqKqq3gLpIzF3CUMumqZzG7q81mfDYlW8r=mNwS+PfIaTyHYTwnBw6' +
+'WM8HQErvwbKeBk8ShbSFBix7VW8Ck/mRHXLPVBFbIM=r9KPd7VenreJ0Z/pnr=qJ3FHW2eqsLAMiOpP1WiV5wZ=q5wOtm2PO' +
+'kMlMag+xTS1qrxJMY8svXgPeBzN0ZlUhQZk0l50GJSB4HxLP+DKs8IG6KQONmcbECxIDWeoz0Er1v6HGVcsov0O373O2+XV4' +
+'pp949kOwy++75bhBXgFPzazm/HKMcEv+LrAaQ7094=TV2owY7aLG5RzDkJLOlLKof26HuTPZWWe0PGgqGYpHUGpIvLIypRu9' +
+'bBN4isO13nSFxZ86AjQfu+OPHQT94rNAjanZnIJr8AuN0gTalkJDdqS1tpgGVp1=g7A4obNMBAKrATTuFTReFJRDYJe6iook' +
+'/lRSalvgVVpYX5LmfaKESyQHxc4qYlNw6+8vETiA8pKwnew6CYO4w7uNYIPuNCICdhLVVdvb6X=fs8CBWu3IdFNXsNUNeYT/' +
+'BXaHoHQm7lqXYQoJ=dHnBRsaD3JGjvN1uYTY0Tum0gMOS6LekXkgblSsmRm3+DPlCbVu0YAf+5MzllPxRTwKGRLm6g+HbX+K' +
+'16AonI=OeYP+KPcHPIfm6eXY/lRSahGWIUrN39Im3pJkefTnIf=r=mNwS+PfIaTxDfO=PczqCMMcf6dqQt6oUJz91fPxRk0b' +
+'zTMlQZ8nDILuhIMKYWUqBTP6ZJKEKgOm7qq3k9oYbFFWAOaI4J0A+N0/V5SH8Z7ZUdMOeEOecVmt30E8Dlv7nMBrw2rN8iRN' +
+'RuNv0WU/k7YUV40=dd9IzDLuV+JKgYSduYT93YejXgOqKWqYg9diqivQU2SGb4JS34PFzUTn8Z7ZUdMOeEOecVmtaX+92ufm' +
+'jYMbg2s+0gPu9n5voc/Vlghq/WKFFc=4fMOfFL97IgR/WeSpWMc4sGgazkpnLLZEa4E2RRosj/Lm7yO0zeUjkurqAgNv/=Pv' +
+'0QkRGlRw/kx7XMMrGLWo385oQJz9DA5fU6YUWXKRZlBIkIOuMAOb5gR8WSPNCUe4TMhKBjoXYLnEa41TkpY5=DLWnpKUWdRH' +
+'0Tt21z4pZe25bxL7bgOLjlv7nMBrw2rN8iRNRuNvIaOmBRhrCnN2MRzEWD8fF6PbYuSNa7RtaXf0fMOrdCRx3hRCahvQVVpY' +
+'WwL3SnJEi=T4pq878mOf3HDe0TkxbqP=/fqqCEK8k1jvYhTulk7v0f/W6VzLGgMR6f/o0cDN2i97IaTNFcA6A6puZh6vEF++' +
+'VNC+JoaN3vDBKvk8UUgb0qs9aCCg6G9m0TnA744X5qpBFC3gIalA6izJSClEv6kETHWLzmJPI/gM7pXJeR8ak5+H0YDq5KT/' +
+'/ebD7eJ0Z/Rh3hRCahHGFgY+H3JFvpLxysA4Ug7Z5kIfi2R/MZURPcPwnUyqae1F3aVoz85oQJKCoeTVRVrqGW8B6snBKt2I' +
+'Yi0lXy6+uQA67dc4s6f6RjoGoLkY8JGW2Or9K35XvpLxqZTnsTt2XYQ/GIQ=AVRxvmSxnzroqRKMYCuOXa/EvSkE8WqaDAEx' +
+'0pl7TBSOpv8F3Jlti6XUP3/E4m29XD681F7eVIC+xpN9zhDBmvkIhVR80fs9aCCA23oksmT2+q92Kl+LyRjWGT+4/xwfYnPq' +
+'Q7094=5fU6YUV40FdXu4XT/f2EJsYNTOVYOOG8bHLSjqG/oT0HnJ=KFUVat5XCK3raKERdRn5l4J5qOv33OvLPShPcPs7byZ' +
+'OK8Hz6dqQt6oUJz90=5fU6YUWaKGIRAX4LFex76YnIS/JYS+mKgHsViVqWsWc9qIzLFUVQa+4wMXjpDEqjC51Z85MdObq8M=' +
+'I+hB=gN=Ldw2mKObk5e+4hO6Ip7/0x6fY6YUV40=c7mBHMMaVOKrUzSdRYSdKWdooIY6BjsXPrs6=AHmMUaI3w=CXwMk/QT3' +
+'ld77YdQ7qGM/sWmxLAOs7lyYTXNb0/sJvbAquyJDhrS1oQxquiPD+B2DbIPf+HN3TKrxU8Yp56v/Zh6vgF8+VUCKi4gL4+yz' +
+'9RkIFkl6o=k0nCCx2ook5liV+v92NHksFC3QMklAShB1V0qjrQfZW3qn8ACWpQ9y5kw1jT/72MN8INB7145XZzEB7tI0V/un' +
+'oDroLSwQY2SGaYzA6N0/WhRI1m/JrYP/uIR994b9vcRQLgzFmFl/ai1JSCjlv+k4/Gj8ztJcdOl7=CFupmnQk5lgq5jqM8WE' +
+'4Z29e01Q49Ccqo+16pMt3tDB6ffNcFl6w=neqyW8/Ihrp3/r4aVu3nAsDlzKbI8I7eV4z85oQJz90=Vfk7YUV40=c7mBHMMa' +
+'VMLbI/Q+pYPtKdWoYIf6BdZjTVX27M3SynTGeYzA6N0/V57BIf+aExEuze/PUIlQvgQPeZfQIBlNWizERiqjjQfZSoqaTB2x' +
+'0j697wX9d0h13Vlgu6XEPtqPo7lTa1mQ42CcWo+P9ZgLv9/j9PkIhUgL0ts94RW87JUm0Jn0K5pH96p1NBFFJ0eCRLGwKSqj' +
+'4RSpW4qa0ACR0ol7YRX9N0h13QlgK5mEPtqC2XKTGDSWylbTC4s6=MFSUnTGeYzA6N0/V57BIj87EtQ/p1O=4Vig8kO87mx2' +
+'/RMsg6s+0VOv+pLiIpB2+Yx7OFLGJZ44HGQ=JKKnTKrxQ7lk8r2JbFRmyXCbypzE6pMtzkDB1fczFkl65AauqzW8/JUm4gn0' +
+'bmRMmX+WEQKv+QlABh=1RmqjbQdJSzqanACh0j9y8BQ/lTnDY5ltS5kELlqCw6ueZY6vcGvCWo7f9jgLX+wj5G5CZUZb47A/' +
+'mjrx66ok9liV+592mXpBRBFxIYAnX9baY2IcySHgMILTF4mW6a6z9ds48EO=B+9X0ZCqJcAKh3ER7tI0V/Rh3huCqivQU2SG' +
+'aYzHKpM2/UWhX8l0XB3pVe25cZiBHsRP6RyJCXPJUhlqHXS/2vMOwYqY8B421/e97vX9R0gl3VltfIrzQ8Y08s2JGD6voF7T' +
+'Wpv=5HgL49/j9Wk8tUgx1AYeqyWv3Ij24Wn0244X94pBNBD2+F94PDfbPiBau0MTlbAic+YkV40=c7mBHg3Ici0lXy64t0R+' +
+'KdK5gIiYCWtX4lqov9KSxpY63J0A+N0/V57BH7+qIs9gC6O=5rhAnjGwHlv2Gg68cFv8cTRedEIDhXB1+RxKizJGJSyhWu2I' +
+'Yi0lXy64915HZzEB7tI6WbZYkQr5LGFiRYrsDwL2XwJFWUUTcY87EOMw7+L/ATi9WZRwzS16bV9b4=r6XbAqth=/QYTlpUva' +
+'KXMVNVsTGDRooj0lXy64t05HaVbInDgJuXgXYLnE3U1Ghbos87E3GlPEGhDXAW=pMZQ/W2LOoMTt=nQwHqw7ORLbLzb6zt6o' +
+'UJz90=5fU6YaWU83JW/IknLOlECb5cP91eNJ2mRDXFiqGZXz34rYLKBG2kqKr+LWr96ylPUXgm+JEGRvm3M==Plx8pRfX7yK' +
+'WLLbLzkeUmOql3LjZhGl+km6uhOycRuTkGQP+cJrkUIuOeOJuNcIkXbquFqG4Fs1m45CUnTGeYzA6N0/V57BX8l0XB3pVe25' +
+'cUltveN=3WiKbM9bD2vOcTPNBz8TdeRFN+waChLGhW90CFSeRWlee5lkLiqCM6xOdmOx0pCcNpvP9agL098j5Jk8tUgAztUo' +
+'eBQF3Ijm0JnA/5pX97+3EuKvJ0eyRNGjSDXUv1k4GGkc3=emhO6WxkCelVnQg5lgS5j1PrqC56uOZh689F7eVSC+W41idepN' +
+'DjIH3tEEudRIHcrF3JUm4Yn08VRMay56q7Z0qt0FzaVuDiB+JhLCkkTlUexquiLFRa8noXNOxGNGsbRuFhLtadc3YMeaCqr3' +
+'n=Xf5pgLr+wT9Q5SFk6b0JsJnBOx66ok1lfV6XUH50p1CSfF2D6iRzGjSCk6wQd6Srqn0ACx0elHDCG0SDnDzqRi2mrzU7jU' +
+'8q2JGD6vwF9NVHC+tpONzhDO/vk8MUdx1=nOmvWv/JWV0J826e926HjWEhKvl1TnP5k7jb/6cg5Qd/Gk6Pp57CCDVzsTSD=K' +
+'k5K75UTddW/76VK1fMUTl=Rh3hRCahvXk6SWaYzA6N0/V97RH7l0XB3pW+MKYUltvnO=TkiJbbLMcEvJwmOvNpEzlaAhUQzK' +
+'3mLE6W90bHMPBMN7whBqtl6HdzEB7tI0V/sXYPpH49FCxpY9PwL4jp=el67BH7l0XB3vW7+vsXUQrYRPvWzKSRKMw6vOglAf' +
+'+hOz1DOm6bvb6X8B6l8IDMGO6KLKIaCNaPSuGbdo7LQ3dCRx3hRCahvQVgoNX4DGb2LkGhA1XR8J5kQOFP35fxL7aA46m7x6' +
+'eLMMP/r+=bSf5uJDxfSFBjgLCPP2d0/4HT+KY5Ob5gR8SWQO2Xb4sWjr7ktjzAdiqivQU2SGaYzHnlP1WyT4IhrnnYN/3APe' +
+'LiM7eA46m7Z0qtLLn5uvPgONNlIi9mREVezL+cKGZa=o0W+=F6PbYsRueNQu3YcHPXQ2VVsXYPpGD=FW+Xs9z4LXmyK1GiV5' +
+'tgA2ThCIlf25bxL7aA4ATS1qrnL8k0tOQhQul05wDWP12cy6Fp1=g7mBGt2IYi1lby64t05HZzcHvLjrWlonP+Z5nGE22Yk9' +
+'nwOGr29UOUV39S/JYZM/i6+rAXkx8wOAKfvJ3SJr8Db6zb/ax9=/QYTlpUvaKXMVNVsTGDRooj0lXy64t05HaVbInDh7W4qX' +
+'P7ppC48SyYrsDwL2XwJFWUUTcY87EOMw7+L/ATi9WZRwzS16bV9bY9uNcdSJ1p/cDA5fU6YUV40=da9TDXRP2+MKLQS/utR+' +
+'yMcojRir7aqn4MqEa41TkpY5=DLWnpKUWdRH0Tt21mPPCND+5xUQblOP+ZfG3FAiRwGwSCj1v8k4zHWLzshh0il7zCDOpmnQ' +
+'DpgHjXPKAk/E482JCD6vwF++VSCKFpN9zkDBlfezZUgL0fs93BOA2ook9lhV+rR45x+3EoKvJ1RCRPGj+CilzCk4kWAS1gfW' +
+'Vc6RoRwkjT=7k5Oc9dQ6tl6HdzEB7tI0V/uhGiRCahvQU2SGqZzA6N0/V57Ilj=rYoNwRCM=QMkRHqAPPSyq32KLD=wejaOO' +
+'25M0ge/12TzKWdMTtS+n4HI/6QLpcXPJRW/+GOdlDIk2VhXYk9qJ4bEWhYh98CIFB5IAqjTmxl/JYmNKR+/r5ZiBDLNAjaq6' +
+'CRKMz9bc4FJLkuMjhoQlpXwaKn83JSB4HoLPF68nXj74x05HZzEB7tJ0Z/Rh3hRCahE3Fegs87L1nlO12PHDlM63fF35Ve25' +
+'bxLBrcQxPWfqrJ89gyxe02QeBjKjRlQlpkhqCPO29fA5HTMK1VAn0KUuOiQLCVcHsRjpzkpnLLXUa4Kwk3SGaYzA6N0EWVC0' +
+'pd+ZAZPezAL=cMlMvfNAP1yZ3PLMc6uNH/RNykJCh4S1tlxqBW8BcR=X4XQP+G6bsXUvusK8ZXbIgVha6dX+V3C+xoZNzqDB' +
+'Rfd+Y8lG9=lDnBRg22okgliF+r9CuXp1AC3xIhlAeizlV2qjLQeZW6/czuJPc=R9/1X9+0gV3VlgW6aZAMB62cO1XTRmzpr4' +
+'o9ZFilvgU2SGaYzA7wKFBPTII8+Z99MwC28srHkxzaN=zByqLcKMX/sNkmL+yyKCVYRVEYerzaJGdW=TbNOu978of26Ht05H' +
+'ZzEB8MfFSptoU9qoO=HXV3rs=TIHnl9UqQTH4arm419bOJOOIMiQblO=SYh2He1F3aVoz85oQJzC1cAVlpoquQC2+l8DbRLO' +
+'p+6Ynl=qSeOOWSKTXJPFzptoU9qoO=HXV3rs=TIHnl9VOeUXParm419bOJOOIMiQblO=SYh2He1F3aVoz85oQJz91iPmAQu6' +
+'STJll28I0E88o5Ob5gR8WSPNCUe4TMhKBjoXYLnEv7EWhYh98CIDBR0OV57BH7l0XB3vi6Qr5bjxLNO=iRm2HPMrcyudQeOv' +
+'RlMOIsPlRZu6iT=fs8mBGt2IYi0lXyR+hST+WOXXsLQ2zwSh7hRCahvQU2SGaYKGus6FCXRG9W9msfNwCrL=AQhA=jO8iT0J' +
+'bL9b4=r6XbAquyJDhrS1oQxquiPD+B2DbIPf+HN3TKrxU8Yp56v/Zh6vgF8+VUCKi4gL4+yz9RkIFkl6o=k0nCCx2ook5liV' +
+'+v92NHksFC3QMklAShB1V0qjrQfZW3qn8ACWpQ9y5kw1jT/72MN8INB7145XZzEB7tI0V/Rh4AoUXEICpcr98HJHf39U3jMX' +
+'5e+aEdGvB9Pv9ZlgLAQQSZ0qnIGbk5e+sXTdFhMS1XO1hVgGOkKFYf+XfF9qYB8nXIVX915HZzEB7tI0V/Rh4DoJG4JmFUic' +
+'zx50JkMFydU4USA6IqQKq2QuAMkAzrO+nVhrHENcc2luHmAf+oJBpbQRpXvbCEJGBa8HsPMKU=O7IQCNyZOZRSMD7eJ0Z/Rh' +
+'3hRCahvQU2SMb174vpLzaeQTcj86onRfGeMrwbkfDrRPnfwVmM64TNbe=hONysEzAXUlFihr7TMF1l9FHH/fFHFLEaR+BRA6' +
+'ZSK5gIjrGnqzUFqpHQ9Vy2bcLAMWS28x9=ceq9rx2sokslhl6d92tIXbFBCAMvlNai2aSCl1vw56W3qa0ABh0slHXBQOlf8F' +
+'7blt35j1LnqP96xuZh681Gv+VMaU/D1D9cc63754n2OEFYGhX8l0XB3pVe25bxLBrcQxPW1T6u0FzaVoz85oQJz91oPmBlyq' +
+'pOMV1lBFo0FKt+N89XTJpMqAA7kja0zx0zCcBo8f5UgYcMDB+gStcGlGhPs9aBOm3JUm0En0/44X9/p1ZBFmJ1RiVRGjSCl1' +
+'zBk4OGl83xJc9/eBwTv0jW=81I9X1cTOePAKh3ER7tI0V/Rh3hRCbUwQY2SGaYzA6N0/V5SH8Z=qUdJ/G9/OUMmwDnO=XVhm' +
+'qDAXPBfJzSUHgKz90=5fU6YUV40=df/o0cDN2i98QJTNBTRdRRKeZB685Gv+VHC+tobtzeDBZgQdY5680us9eBQg21oksmTF' +
+'+q9CpIYLFC3QMklAShB1V0qjrQfZW3qn8AEh0sl7MRXJq1TF3NlgG6XEPtqCA6xTa0zx0wCpO4C+1obt3uDB6fd+Y+l6RPs9' +
+'OBQg2wokIliF+q923Xp1KRKv50dCVZGjyCl1zD8OYi/S9giHya63JjAH3MBooj0lXy64t05HZzEB8Vf7Cqr3K4qJ3FF22ZpI' +
+'vDKCOyMlCYRXIU77EhPOqH/PEPkhTOPATZrqrGO9kCsqvUqh0QfZW4qn1ShGyQl6XCHDm1Tl3Qlgy5jq5KqC97kudl689Gve' +
+'ZjC+aW1igMYj5uk8Nxl6k=lOmlWviIh20Rn0u42H5sAsFBEQIelAyh=1Rvqw1gkEbGjszhJctOl7vBQDm0g13Ilgm5kEPtqC' +
+'Y6wjbD6u9GxCWo7U6pMdzeDBxgUNY=684zs9WBP3va=by3DcYpdPzGJOT3oXKF94PBeaQYOudzJ/=WChgQimVp1=g7mBGt2I' +
+'Yi0lXyW4915HZzEB7tI0V/Rn4+Z6HQIGFbpYXyK3rnLiCQV4pMw5nh9b2RC74JmAvbO=bayJbH6XP3c6QVQeBjKghXTV2Ljp' +
+'lcO21EA5sMOeQA8n0JG6JMPd7VenrFQ2zwSh7hRCahvQU2SGaYzG7q82zQUYxW16ss/f/9M/ESax8rN/unu2qDAICxveUkSN' +
+'BJLTgeRVtTuai/M2+q9IrRMuJMG75aR+OMR+JRKYYPe7WarzLAo1/A3SUMumqZzA6N0/V57BH7l0XBOvJ9LeYMhgj8NATStW' +
+'XA65CNbaYiPu9i7/Rx6fY6YUV40=c7mBGt2IYiLrLQUuOiQM3Ob07DkTl=Rh3hRCahvQU2SGaYzA7wMk/QT3ld77YdQ7q7PO' +
+'MMnQLHQgPa0qrSMXwEv/kXArYNzM0=5fU6YUV40=c7mBGtO/x8Jrk5SuOjPO+XfXsLg6/hojL+rYL9KmF9rtD4N37zMQSjUY' +
+'5Wt3fF35Ve25bxL7aA46m7Z0qtNrkEoe0fPup1NvxcTlpTzKWdMRYas5Ox2YYi0lXy64t05HZzEB7tI6WbZXg=oIDCIGtVrd' +
+'HfLnit62d97RH7l0XB3pVe25bxL7aA46ndw7WDJrw2rvg3Qv605wDWRmxev63bKBxkBIwXMOoGO7ERTeZSR+yMaHH0hq3uoo' +
+'bFr5zKGXBVrsu9OzFkM1uSQHUB+q5xNw6CPv0ajBHgQf6f122DM8L0ru=CRey5JDYkSVtjwbCXMlwfBTSDLuV+JKgYSduYT9' +
+'3YejPbRmzYpXo7pp4GGWpgk9zB8X6w61/XRHxc/qwhP=ClOfDVnMay56q7Z0qt0FzaVoz85oQJz90=QlIYu6STJGJ2+IwX88' +
+'s5+40R=vKcT/aZbI3Rf7Kaq4kKaYD5HGh/pMr+N3qs7keYQnQz7aDf=bzAOeEIkw4jNAnWzF2D6iVYGjyDWEzL56SzqaxQJc' +
+'9/eM7sX960i13Wlt36XJM7lU4ZK/dk6v1F7uVVCKBoZS5VemqZzA6N0/V57BH7l0XB3pVeS5ryL7aA46m7Z0qt0FzaVoz8Re' +
+'pjICAGRV2pvb6cKWBW9ILIH/xLLsERSdASPd7VenrMUTl=Rh3hRCahvQU2SGaYzA6NLEJXT4gU76kIPf3NM==VmQLfP=Pdw2' +
+'qDM8L0ru=CRey5JDYkT1FYwa/aKBxX=X4IReJpMLARUuuZRZWPaHHWf2VwSh7hRCahvQU2SGaYzA6N0FlbA10hvn0hCIlf25' +
+'bxL7aA46m7Z0qt0FzeV4z85oQJz90=5fU6YUV4O2+p+GkIM7t/N7INVNe7RuCSf48ShFSbnnDKoEaSwQY2SGaYzA6N0/V57B' +
+'H7l7EZSfWlM/HVmx8qPdXf0qbVGbk5tucePqN0KzlMPlQewK3cK2pWv0jU=81I+XjIDJ5KCJlJODGDSmVwSh7hRCahvQU2SG' +
+'aYzA6N0/l67BH7l0XB3pVe25bxL7bqOATFx67IMskEdavb/bg+508D5vU6YUV40=c7mBGt2IYi0rYOBvaLU+a6bHnDPFJVsX' +
+'09kYL=3SynTGeYzA6N0/V57BH7l0XB3pVeN/PPkB3lRwXVzV/IP80DwfbaTey4KBRbPRUZeLd80Pc7mBGt2IYi0lXy64t05H' +
+'ZzcHvLjq3tpmU9o1vAI0ValcL3KGjwKASjS45H86TmOf3CMvoMUt4dN=zkw2qD7XnxtfkWNN2yLjtpPm5ZeKSjK11T=XfaPu' +
+'JK97IgQ+WfT+JRLoYPe7WIqHoFo1W6JG2kqKHAKHvpFlCQUY0Tum0aAbpF8KbiScay56q7Z0qt0FzaVoz85oQJz90=Vfk7YU' +
+'V40=c7mBGt2IYi0lXyW4915HZzEB7tI0V/Rh3hRCbU4Cxdc6K/9z6/1/Z57BH7l0XB3pVe25bxL7qB46m7Z0qt0FzaVoz85o' +
+'RpJOxjSRpdub7ZKGBkvX4bNPBMNGUcP/qTJN7bcnsVQ2VVsXYPpGr5ImdRsYvzJHj4NUuoC0Hsm0bB3pVe25bxL7aA46m7Z7' +
+'XEP80ervYdPv1g=/RcOlhjvXd80Pc7mBGt2IYi0lXy64t0QNNRdIXReJierYfFoJXAI3Bfa+HwO37GM1WfCDHR=q5wOt7AN=' +
+'4VixLqSxLg12mM=lCbVoz85oQJz90=5fU6YUWiJGZa0XTMP71V6bMJSvWPEnp0EB7tI0V/Rh3hRCahvQVVpYX8MzOnL1GSSo' +
+'lg96ssQKq6RvcamyCfSwHpx4TLKLc8veLbR/9p7/RqOmRZm6STJllh/nHRQ7t9KsAcTNFjA6ZkFB/tI0V/Rh3hRCahvQU2SN' +
+'HwO37HL1GSSolg96ss9cl1MO9TlgKy56q7Z0qt0FzaVoz85oQJz9DA5fU6YUV40=c7mBGt2IZFNXsPP++PBeKSNXLIia/WoG' +
+'oKaZD=H3N6qMHBKH/pKxRRXXAvWtyJUm0Mn0/5rn96p1lBD2J0fXQOvOJCkEv7k4zGjsztJc9=RhAds0shPvvpei2mrzk7jE' +
+'4h2Ji0zA43CpC4C+1obt3uDB6fd+Y+l6RPs9OBQg2wokIliF+q923Xp1KRK8R0dCRKGwWCkawQevTGl83zJP9/eM7oX9F1Tl' +
+'3N6i2drzY7lZ+SQhKuI0V/Rh3hRCahvQU2SGb8MzOrJEmUDY5auJsnRfW7N/EImxbmQQOfzZnSOqs6wewCQu60NDZbAR8A6h' +
+'0slH=CDDrP87=pXB2jrzs7jU4m2JfD6voF7TWo+=5MgY4+wj5D=iew6x9=dOqzWviIib1lgF6a92uXp15BDAMm94ShBEV1qj' +
+'fQdJSzqnvADW1/dc/9X9B0il3K6YbQ=J5K/bCySGgCZY7JglwZXUm45SgMpc87Mmqw6y2bA1saxTnC3pVe25bxL7aA46m7Z0' +
+'qx0VzaVoz85oQJz90=5fU6zK3mLDtS=XPIPa1V6boYCN+LSdiOeYjRhJGsZUXDX5v9JyyZs5vlJGj4Ml6iC5lS/KAdF/iDL=' +
+'HPhgXcNfv2v7XEHosudq/SSeyyMil9RVtRzGSRL2NU+l0EQ/60=anRCqKaOO/cbFwPhZ3pZXg=oIDC+G2goLiHHC6x+QpiCD' +
+'TRwmrr=Zlf25bxL7aA46m7Z0qt0F0LWo385oQJz90=5fU6YUV40=dV+IsILvFBMKri=uBPTp3We0P6f6/pqHbKZ23D1DxYY6' +
+'348xJO0/V57BH7l0XB3pVe25bxlQzrNATayZ+d68H2wJQfSalWJCdqRF5jgHya6z5ds1jM/5oj0lXy64t05HZzEB7tI0V/nG' +
+'PDqp/R1FcedJK750Ww6yybA1shvpnk4pZe25bxL7aA46m7Z0qt0F0GtvcbO+dl/ORqS2FVhEl50=c7mBGt2IYi0lXy64t0P+' +
+'aWbHPWg6ujdzTHSCehvQU2SGaYzA6N0/V57IXaxTnC3pVe25bxL7aA46m7Z0rXJMw6j+=bSat95zEmB16cwbzh9VxWAjCZ=b' +
+'ME6bsNUZKXS6u=bHkXha6oZYU5rZD9+mhboNG3Im3pJke0QI1S5WQV/rh1Pv9ZlgL+Qw/S0mnGL8k0tLgTTeyb/yDfBRygub' +
+'7hKDRd/noX+/BAKrATIuOeOMhiZD7MRmzwSh7hRCahvQU2SGaYzA6N0/WdQHYWxF0aoj9liV+v92hHhsFBFxITlNSi1lVzqw' +
+'8RQZSm/czuJc6Ol7jBRulbnDLpgy6rrzJMB4p0EB7tI0V/Rh3hRCahvQU2ssDwL3q+6yydG0T/lDXB3pVe25bxL7aA46m7Z6' +
+'TSM8LCh6PnBYgKz90=5fU6YUV40=c7mBGtPuVHN8E7P+BRPKdJbXcPiZFhSh7hRCahvQU2SGaYzA6N0/WTSHYW+KAhPOpO8s' +
+'41LKaA46m7Z0qt0FzaVoz8VqQ7094=5fU6YUV40=c7mBGt2PF6PbYrSuuaBeCOf3gSj7CaZYkJsIKA7wk3SGaYzA6N0/V57B' +
+'H7l0YsMwS+DOoQltvqOATDyabXKJc=ueLnS6M17=8D5vU6YUV40=c7mBGt2IYi1lby64t05HZzEB7tI0V/Rok5t5bbGGFPqt' +
+'4+KGO46ylPTIkf7ZUdMOeEOecVmyClQPXohnGP68H2wJQfSalWJCdqRF5jgLzPNWFW1XTSLPEAJKUNPd2vOOGKYk0AQ2hVrX' +
+'YJroLeHGtNt5XyK3rnLiCQV4pMxpnh=bzEL=Aai/PjQfHlhqTLKLc8keUmOtY5H/0fBRxphEl50=c7mBGt2IYi0lXy64ul6H' +
+'dzEB7tI0V/Rh3hRCahvQVPrsn+MT+kHh6kFDTRvGHt=byGA8LTRu4UAq28Z0qt0FzaVoz85oQJz90=T1Vjwa7aKCgRA5sYMK' +
+'km01Xy64t05HZzEB7tI0V/RnkAqILFI2VbrZev9xJO0/V57BH7l0XB3pVe25ckT+iE4Jm7Z0qt0FzaVoz85oQJ094=5fU6YU' +
+'V40=c7mBGt2PF6PbYsRueNQu3YcHPXRJCWsXX4eE4S1nBls9Kx/Sf4JFSYJHcV3qwhP=B3S8j1LKaA46m7Z0qt0FzaVoz8Te' +
+'y4KAhXTV2LeqGcKyBOs1WDOeJP6boYCMiPOuGYeUjLiq3nrGoeq5z5JCRPq9LyKknlO13KFmXaum1oMw7HM9QTkg8r=wPZw6' +
+'TOC8UErt7qNqQs50RXS2+VnqidJGIZ8nDILuhdJsEJNauHAJZkFB/tI0V/Rh3hRCahvQU2vML7Mmr/1/Z57BH7l0XB3pVe25' +
+'bxLAvmSxnzroqRKMYCuOXa/Evak4/GkczlJPo=RR8BSOlY8F7elgu6YkLfqP+J29u1nA0lCpepy16pMS090j5/k8IUfxhPs9' +
+'eCCQ20okIliF6f9CBHi8FBEmJ0diROGjuDZlv8k4zHW8zleR0ilH8CDulWnDvpfn35kkLaqCg6u/ZaRF6hXUfHb23D1HBetM' +
+'K4/gJO0/V57BH7l0XB3pVe25cVkhHwF/D7iJrRKbK5bERRqjkgk4bHWszlJPVOl7DBR/lXnDXpgi2mr=Q8Wk4hN0a01Q0yXe' +
+'VUC+K4gL5MDB6fd+Y5l6c=kemhW8/Ij20Sn0nH9C+HkWIzK8R0giVgGjFCklv48OYi/S9giHya63JjAH3MBooj0lXy64t05H' +
+'ZzEB7tI0WirTL/nIr94nFVbcv+N37qLE/QV4Ig+K=mQOSDQdUQmxXHP=Pl07PI84ah31Rwqw0RQ/Yi/R8A8x0pl7bBQOlgnQ' +
+'95lt76XUPrqC56xOZg68gF9jbDX1BoTdzhYD5NkIlVRL0ps9nBQ23JX24Xn0y41n51+3EhKv10fiRAGwyCiawQcOTGlczgJc' +
+'U/f97uXJvF/717BIUqLMF6KcGvTlbFRmymaTU+nInKFSgMcImv9S6/1/Z57BH7l0XB3pVe25bxo7qB46m7Z0qt0FzaVoz8Vu' +
+'BsMikWQlIYu6STJll28I0EJrF26Ynl=qSaR+7ibIfFQ2zwSh7hRCahvQU2SGaYzA6NM1uSQHUB+q5xNw6CMPAMiBfcJw/kx7' +
+'XMMrG5wfYnPqQ7094=5fU6YUV40=c7mBGtO/x8Jrk5SuOjPO+XfXsLg6/hojL+rYL9KmF9rtD4N37zMQSjUY5Wt3fF35Ve25' +
+'bxL7aA46m7Z0rWKMgltuDXROB07zprR1+kwauc8ycRBhWu2IYi0lXy64t05HZzEB8MfFSYpXo7pp4GGWpgk9zB7CX/1/Z57B' +
+'H7l0XB3pVe25bxL7bjOASRvZnIJMgVtvcm/bggLDQkPE2dvWqhPGFl9HWRQeFBNLDQSuFNONm6d4ccf76jrXPKpJHAH2oau5' +
+'mvL3SnJEi=T4pq878mQfuHN=IQkgulT8yRyqCGJL=hueUrPv1uMzMpQmBZx6pcPRoR8nDILuhIMKYWUtKZSpuhN0YGgqGYpH' +
+'UGpIvLAGtfbda753jsKE/aU4ga+KEIPP+CRKbiM7eA46m7Z0qt0FzaVoz85oRpJOxZQVFRzICXNmIRzTjV=7Y5Nc9cV/KPU6' +
+'uOfXsRjr+jnGYDq4=9HWtgpIW2Km7nLi3SV0=drqknMO3AHvoInALpAsCTK8l0fCVTGw7SqjjQcvTHW8zlJPg/eM7wX9d1TF' +
+'7b6i2lrzJKqP56u/ZU6vsGv+VMXUaSwQY2SGaYzA6N0/V57BH7l7nF35Ve25bxL7aA46m7Z0qtM8L0ru=CRey5JDYkP26Vvb' +
+'aTF21k+I0MOusAK75UTddTEnp0EB7tI0V/Rh3hRCahvQVVpYX7LmjlM0zbQIIW/FsuNvS+LeoMT94jQfPSypHPJM02v6HoPu' +
+'NpIiAbB1JivaGoKE6g=nHXNOxG8bMJSvWPAKh3ER7tI0V/Rh3hRCahvQVpb53C90W08Bd97RH7l0XB3pVe25bxL7aE4Jm7Z0' +
+'qt0FzaVoz85oRpJOxjSRpgvaCh9VNp+IwXPqVMJsURLueOAJZJf4cbg5zaoTL8oJDLImtla5aJ0A+N0/V57BH7l0XB3pVeQv' +
+'9fj=4cOsCufqfEM9c2hHC95oQJz90=5fU6YUV40FdXu4XT/ep6N7gNTOVYPOWSeooWQrCWtX4lnJ=CFX5VaI4CIH3tEE3hSn' +
+'5juJEdQPCGOfbPT+iE4Jm7Z0qt0FzaVoz85oR0IDxfJl2iw6Gg6zsR9XoPPuIT1lby64t05HZzEB7tI0V/pnr=qJ3FEmhVs+' +
+'C9JH3tNlCiC51SAqY7PfWE+7bHmx8vP+Ldx7GRK8kDwfYhUqMp/cDA5fU6YUV40=c7mBGt2PF6PbYrSuua/7pJbXcPiZFwSh' +
+'7hRCahvQU2SGaYzA6NLEJXTIkf7ZUdMOeEOecVmyClOAjazaXW89gyxe02QeBjKjRlQlpkgWVOO2+p+FwLMOBDNbwRSOZYP+' +
+'Kcf5gSk2RedAGiRCahvQU2SGaYzA6N0FCQW4I19qIbOPzDN/wbRuqXOPHdzZae1F3aVoz85oQJz90=5fU6ZUZ40=c7mBGt2I' +
+'Yi0lXyS/JYPt7WbDPYg2qioogKnIT9Iypfq9zFDG7oNkWpRH0ZrKsfTF00nA74345opBxC3QIblAjxGj3SV/6+k47GkLzoJP' +
+'I/gM/0XJvF/717Q8Amrzc7lk4f29q00x44CcqpvP9k1NzrDBxgQNY0l6E=memprx2yokglh26c92tIVWEhfxIV6CVTGjSCkE' +
+'zBk4wWqaQQJPs=Rc7jX960g13Qlt/5k6M7jU4c29OFQ3dCRx3hRCahvQU2SGaYzA7xNxqWQHYWuKIh=/qDQvcNjADYSwngyK' +
+'SRNrw=wMsbTeNQKCdqTm6VgG9/VM7vXJq1TK9E6X/5dULlqCY6vOZg686VCcJo716obNzhDO+gQdY5Ag6bA0vBHA66okglhr' +
+'742H5qp16RKv90eSVTeaSClEzCk4CGjsztJcw/fB8BPepvnDTpgB2a=rxS/ZlJKVksW57UiFcsgGTZ1igMcImvJWbwNkFbA1' +
+'odrn8hCIlf25bxL7aA46m7Z0qt0FCbVoz85oQJz90=5fU6YbCPP2d0/4HT88o5Ms0WPN6TS/BXdXsaQnJnczC4qYLO1Glcbb' +
+'P0InnzNR+XU4pj/ZI/Pfu2QrYKjxLaPdTS0qL//qC6eaQiOv2zJApiRE2kgK/WKFFc14oXLNgQInXU=vKLSeCOTXHSe7BdnG' +
+'09nojcEXBNmpbs7C6w62d97RH7l0XB3pVe25bxL7aAQPHew3uD6iRzGjJDXUv6k4QWqajABR4vlHbCD/pnnQ=pdX35mUPt/E' +
+'4j29F00x0qCcJpvf5H1ig6SWaYzA6N0/V57BH7l0XBQO/2OvLhRu3lDsy/ZDqt0FzaVoz85oQJz90=OEtcx76o6zMdnBKt2I' +
+'Yi0lXy64t05HZzEIkLha7pj3YFooKR1GJNr+D08xJO0/V57BH7l0XB3pVe25cLjArcQQPayZ+d65PeV4z85oQJz90=5fU6YU' +
+'Wr8Ck/mRGt2IYi0lXy64t05HadaI4MWJierTLKoJHqH3FgpIXCMXrp8Bd97RH7l0XB3pVe25bxL7brNAjanJ3MN4HDsvgERO' +
+'B0JAdlRVtlymRj8Ck/mRGt2IYi0lXy64t05Op3ER7tI0V/Rh3hRCahLWFYssLJ0A+N0/V57BH7l0XB3pWCOfIgZ=4AAPXjzJ' +
+'CV84ah+1V1qjkgk4GGjh0A6x0elHYRX9N0h13QlgK5mEPt/6+Uan4IeZe6nok5llP13y5Mv53x7mGzJk3bM4USA6Iq=/O6Qu' +
+'QIlQbYNPzWhmPTM8UJsvXgQu9i7/8YAh5ceH+e+z5ds50VQOIB=Enz64t05HZzEB7tI0WySh7hRCahvQU2SGaYPGrwNkGq8B' +
+'L7l0XB3pVe25bxLAvmSxnzroqRKMYCuOXa/EvtkEbGlx0AEh0j697DX9m1V74pfB2jrzs7jU4m2JfDOFeYpXo7pmH5JG2HdL' +
+'q9N3SXO27YTX=Zt2fa9gh18KkKjxLaPdTS0qL//aC/weLFTf2pLSseAhgQi3ye+yoRA5sYMKYT1lby64t05HZzEB7tl0l=Rh' +
+'3hRCahvQU2vGqZzA6N0/V57BIum0bB3pVe25bxo7qB46m7Z0qtQFCbVoz85oR9094=5fU61Ul50=c7CBWu2IZV1lbyW491VJ' +
+'ZkFB/xIJmla3oNoIvLIypNp9G36nnlP1WBTo5l85AsMw7IM/HOUt3f=8CumFHe1F3atunaQfBkHiZoRFNjvb6X62Zm93fFPe' +
+'xPNKIaCNeiPNCef4rLPazhno4rqpLFFCQOt98GKEn2LFKUMo1S/KDa=by3=rvYRMay/bmsa0vg8I7eV4C9RvtuJDpbR2Bjhq' +
+'3SKyYYA4obNN+HOsENI+BOPNFQN0XLiJGofGPKs1a48ToMumqZzG7q827UUlxg/aDh9gdi2IbxkxLr+xTWy7HnJL=9keUmOq' +
+'t95zdrSz+RxKizJGJSvXwEO/ldJsEJFX915HZ3ER7tg6JdsY4HoIz+3Ghbos87E3GlPEGhDXAW=pMZQ/W2LOoMTt=nQwHqw7' +
+'ORLbLzb6zb/ax95vZrR1BVvqWcKFITuDke3Ici0lYUQ/ZKQdyLT4cXe2yyXXDGno8DAGhNuMLA8WzpO0KQUXIS7Jkd/b7EOv' +
+'9giB/lPP/TfFqe1F3aVoz=54QJzCEmB1NRxaFcOFcf/H4WPu6=Ks=WTdqZTrqSb5kMkJGZZTcVopxoStznDBZfdNYAlG6Ps9' +
+'3BRQ66ox9lf26Z92lHiGEufr/WQiRKblRuqjDRQJW5qn9QJPo/d97oX9Z0fF7glgK5mELiqPxLN0XFlK/zCcepxk6oZ9zcDO' +
+'6fc+Y1l6sAYemhWviIib6=POMaZgzqSs7jw7HPJLc2daKaNe+79/=pVhUYl3lW81pVBkwg+KcB7XXXQZ5K/Z2NODfMQV6VCp' +
+'Wpvv5I4i5VemqZzA6NMFydRnpe82stOrqCOfIQiQbaNATayZ/W9cc5uOsJQv+oEz1ZTWFivWRQl5=BSeplnQ579X0Krx08WE' +
+'4Z2Je0yx0nCcTEC+toYC1Ob53xk7hUd80pA/mlWvKJUm0Kn075pX9DAsFBFgMklAJh/ERnqwwRTvTGlLzrJP1/gM/6X961Ta' +
+'4pgy2Y=1LnqCw6uedv6vFVCcyo7=5RgL099z9a5z3K/AVRD0kTzXU6I+ukHNItae7ZAsCiimHJJL=Dsq/SCqcg9O0x6fY6Yb' +
+'l80Pc7nBKt2OZ/8boYCOKPP/BXbI4MiaCoZYk5t5boFWAVaI4CIH3tF1GTDX1W/aEqPPV9+8j1LKaASwHpx5HIK4PNbeoTRf' +
+'6l/cDA5fVZvmSbNyxe8IsOMP+L97IgR/WeSpWdaI4MZ63npGoJZEa4JG2kqKrwMWCpNQqTRIxl/Jwx/bVP35fxLBHYTwn/v7' +
+'POKMXxiqQYOudzJ=8D5vU6waJWMG5f8XTMP=AGKsURTeadA/GKg48mhqWlZj34s58PGU6YqN39J3r3O27eWDDaxTnC3pWIL=' +
+'YQZQngRsCufqfEM9c2hHC95oRpJOxjSRpTwKGRLm6g+HbXPqt+PbYbUvVST+7hcFkLf6/grXPAqZGA3SygoNX4Am3pJkefTn' +
+'If=mscNw/IPO0gTtay56q7Z7XEP80UtekVQOuvKCIq/SkQvq3aNlMsnBKt2Ioj0lYRQJqeUO3OdnvLhquYnnDoq58QFX5aps' +
+'LCFWb2LE3RT44ZrK1kMwW6PKwJkxzaPgOTh2qD6ICNbaYnR++lJS1kPlASgWzp1=g7mBHPMPE5MsYrSuFNQuBJRDYPhZ/WqW' +
+'UDnJb9IipTpNHlIHftJE7bRDDT/qkZSvGG/OATkgDiRbKalT6u0FzatunaTfRwJCMcAVlpmqidJllkvYkVMOpBOrnR=qNnFJ' +
+'2LfHPHf6Keq3o8XUa4HmtguK8fCCOtMUKeC0st7GuIbV4Vn0O4445vpBRBFm90eCROGwWDWEzDk4LyBE5ukm1/Vc/9s/linD' +
+'vpfR6sr=o7kE4k293D6voF7eVLC++oYNzeDBhgQiZUfQ1=lumhW83IjV0Pn075pX5s+siijmaM9XX9bbbiCbts50hoTlEZk0' +
+'l50=dunBKt2Ioj0lYYTOajS+KhNXsZf6qprCL7nInDAmFZrtH073j2PFzjC0tS7aEhPOqiL/kMiwHYTwn8yZOF94Q1suL+Pv' +
+'Qp8vRcOlhjvWhON2+j=n4tOfEAN7IbHdFdT6ZVK2=3ZXpjrHkJpIv/GWJla+HwO37IJFCQCDHsm0bB3plf25cKmB=7N=zdoq' +
+'LXJHPNbd8PEHgKzDDD52kZk0l51=he=0bIQeJGOc=WP+aOA6SZd4ccf777q4k9rWDGHH+UoN406iFk82/XQIlWt201D7zP35' +
+'fxjAOfSxnhw6CJ89c5rvQXAqth=/QYTlpUvaKXMVNVsTGDRooj0lYRQJqdQ+7ZbDXgV2zpno0AkozJG1ZbrcK454nlP1W5TF' +
+'If4ZwqONaDOOLHY94rRQXWlT6u0MCeV/CbEHgK095jSRpVzqGcO3Ef8H0H+7RIMb5hQ/SwU+adSnTPiZSWrXn/a13=I2RNs9' +
+'K450JB62d97RIa8FUsSwz6OePPlgXYRwWfx6WM64TNbaYnR++lJS1kPlASgWzp1=g7mHHJ+=BAJs1N=r9n//GKg487ha7gl3' +
+'PFoEa4JG2kqKb8CGObMl7aOXgf82019fK2OwEMXaqB4A2/ZK6M=lOQ';
+
+/*
+
+	Encrypted module game_jobs/taxi.js. Result: 2ms.
+	Fuck is easy, fuck is funny, many people fuck for money,
+	if you don't think fuck is funny, fuck youself and save the money!
+
+*/
 }

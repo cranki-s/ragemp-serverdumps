@@ -1,2921 +1,1423 @@
 {
-mp.game.streaming.requestAnimDict("missheist_jewel@hacking");
-mp.game.streaming.requestAnimDict("amb@world_human_gardener_plant@female@idle_a");
-mp.game.streaming.requestAnimDict("mini@safe_cracking");
-
-var lootsInStream = [];
-var lootElement = false;
-var elementLooting = false;
-
-var dropsInStream = {};
-var putDrop = [];
-var dropPutting = false;
-var afInvPutting = false;
-
-var afInventoryPanel = false;
-var inventorySaving = false, invCEFUpdating = false, invCEFUpdatingVeh = false;
-var inventoryPanel = false;
-var slotInUse = "0", ammoInUse = "0", ammoInUseCount = CryptoJS.AES.encrypt("0", krKey);
-
-mp.game.streaming.requestAnimDict("mp_weapon_drop");
-mp.game.streaming.requestAnimDict("anim@heists@narcotics@trash");
-mp.game.streaming.requestAnimDict("amb@world_human_bum_standing@twitchy@base");
-mp.game.streaming.requestAnimDict("amb@world_human_bum_wash@male@high@idle_a");
-
-mp.keys.bind(0x49, true, function() { // I Меню (Инвентарь)
-	if(!allowBinds || !Array.isArray(allowBinds)) return false;
-	if(!allowBinds.includes(0x49)) return false;
-	
-	if(hud_browser) {
-		if(inventoryPanel) {
-			makeCloseInventory();
-		}else{
-			//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+inventorySaving.toString()+".."+dealerPanel.toString()+".."+sellingInvSlot.toString()+"</span>");
-			if(myVehSaving) return notyAPI.error("Транспорт Вашего персонажа сохраняется, попробуйте открыть инвентарь позже.", 3000, true);
-			
-			if(typeof(localPlayer.getVariable("player.inv")) === "undefined") return notyAPI.error("Ваш инвентарь не инициализирован, повторите ещё раз.", 3000, true);
-			if(typeof(localPlayer.getVariable("player.pers")) === "undefined") return notyAPI.error("Ваш персонаж не инициализирован, повторите ещё раз.", 3000, true);
-			
-			if(JSON.stringify(localPlayer.getVariable("player.inv")) == inventorySaving || JSON.stringify(localPlayer.getVariable("player.inv")) == invCEFUpdating) return false;
-			
-			if(!inventorySaving && !invCEFUpdating && !invCEFUpdatingVeh && !dealerPanel && !sellingInvSlot) {
-				if(typeof(inCasino) !== "undefined") {
-					if(inCasino) return notyAPI.error("В казино инвентарь недоступен.", 3000, true);
-				}
-				
-				if(afInventoryPanel) return false;
-				afInventoryPanel = true;
-				setTimeout(function() { afInventoryPanel = false }, 1000);
-				
-				if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
-					if(localPlayer.getVariable("active.deal")) return notyAPI.error("У Вас есть активная сделка, инвентарь недоступен.", 3000, true);
-				}
-				
-				if(typeof(localPlayer.getVariable("player.blocks")) != "undefined") {
-					let playerBlocks = localPlayer.getVariable("player.blocks");
-					if(typeof(playerBlocks.jail) !== "undefined") return notyAPI.error("Инвентарь в тюрьме не доступен.", 3000, true);
-				}
-				
-				if(fishingStartProcess) return notyAPI.error("Инвентарь во время рыбалки недоступен.", 3000, true);
-				
-				enablePedScreen();
-				
-				let persData = localPlayer.getVariable("player.pers");
-				//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+JSON.stringify(localPlayer.getVariable("player.inv"))+"</span>");
-				
-				let vehInv = false;
-				if(localPlayer.vehicle) {
-					let theVeh = localPlayer.vehicle;
-					if(typeof(theVeh.getVariable("veh.inv")) !== "undefined") vehInv = theVeh.getVariable("veh.inv");
-					if(vehInv && typeof(theVeh.getVariable("veh.hash")) !== "undefined" && typeof(theVeh.getVariable("veh.id")) !== "undefined" && typeof(theVeh.getVariable("veh.own")) !== "undefined") {
-						let vehOwn = mp.players.atRemoteId(parseInt(theVeh.getVariable('veh.own')));
-						if(vehOwn.remoteId.toString() == localPlayer.remoteId.toString()) {
-							let decVehStats = CryptoJS.AES.decrypt(vehStats, krKey);
-							decVehStats = JSON.parse(decVehStats.toString(CryptoJS.enc.Utf8));
-							
-							let vehHash = theVeh.getVariable("veh.hash");
-							
-							let vehName = vehHash;
-							if(typeof(decVehStats[0][vehHash]) !== "undefined") vehName = decVehStats[0][vehHash].name+" ("+theVeh.getVariable("veh.id")+")";
-							
-							let vehTrunk = 5;
-							if(typeof(decVehStats[0][vehHash]) !== "undefined") vehTrunk = decVehStats[0][vehHash].inv;
-							
-							vehInv = JSON.stringify({"name":vehName,"id":theVeh.getVariable("veh.id"),"trunk":vehTrunk,"inv":JSON.parse(vehInv)});
-						}
-					}else{
-						vehInv = false;
-					}
-				}
-				
-				let isPremium = false;
-				if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") {
-					let myBlocks = localPlayer.getVariable("player.blocks");
-					if(typeof(myBlocks.premium) !== "undefined") isPremium = true;
-				}
-				
-				hud_browser.execute('toggleInventoryPanel(\''+JSON.stringify(localPlayer.getVariable("player.inv"))+'\', \''+slotInUse+'\', \''+ammoInUse+'\', false, \''+persData.npGender+'\', \''+JSON.stringify(allStuff)+'\', \''+vehInv+'\', '+isPremium+');');
-				mp.gui.cursor.visible = true;
-				inventoryPanel = true;
-				
-				allowBinds = [0x49];
-				
-				mp.game.graphics.startScreenEffect("MenuMGHeistTint", 0, true);
-				
-				hud_browser.execute('playSound("openInv", 0.15);');
-			}
-		}
-	}
-});
-
-function makeCloseInventory() {
-	if(inventoryPanel) {
-		deletePedScreen();
-		if(hud_browser) {
-			hud_browser.execute('makeCloseInventory();');
-			hud_browser.execute('playSound("closeInv", 0.15);');
-		}
-	}
-}
-
-mp.events.addDataHandler("veh.inv", function (entity, value, oldValue) {
-	if(invCEFUpdatingVeh) {
-		if(entity.type == 'vehicle') {
-			if(typeof(entity.getVariable("veh.id")) !== "undefined") {
-				let vehID = entity.getVariable("veh.id");
-				if(invCEFUpdatingVeh == vehID) {
-					//chatAPI.sysPush("<span style=\"color:#fff\"> * VehUpd: "+JSON.stringify(value)+"</span>");
-					invCEFUpdatingVeh = false;
-					if(hud_browser) hud_browser.execute('invCEFUpdatedVeh();');
-				}
-			}
-		}
-	}
-});
-
-/*
-mp.events.addDataHandler("player.clothes", function (entity, value, oldValue) {
-	if(entity.handle != -1) {
-		if(entity.type == 'player') {
-			if(value) {
-				if(!oldValue) {
-					//chatAPI.sysPush("<span style=\"color:#fff\"> * oldValue: false</span>");
-					for(var i = 1; i <= 6; i++) {
-						if(typeof(value["f"+i]) !== "undefined") {
-							attachmentsProcessor(entity, value.npGender, "f"+i, value["f"+i]);
-						}
-					}
-				}else{
-					//chatAPI.sysPush("<span style=\"color:#fff\"> * oldValue: "+JSON.stringify(oldValue)+"</span>");
-					for(var i = 1; i <= 6; i++) {
-						if(typeof(value["f"+i]) !== "undefined" && typeof(oldValue["f"+i]) !== "undefined") {
-							if(value["f"+i] != oldValue["f"+i]) attachmentsProcessor(entity, value.npGender, "f"+i, value["f"+i]);
-						}else if(typeof(value["f"+i]) == "undefined") {
-							if(typeof(value["f"+i]) !== "undefined" && typeof(oldValue["f"+i]) !== "undefined") {
-								attachmentsProcessor(entity, value.npGender, "f"+i, false);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-});
-*/
-
-var scubaDiving = false;
-var fishingMode = false;
-mp.events.addDataHandler("player.inv", function (entity, value, oldValue) {
-	if(entity.handle != -1) {
-		if(entity.type == 'player') {
-			if(entity == localPlayer) {
-				if(value) {
-					if(typeof(oldValue) !== "undefined") {
-						if(value != oldValue) {
-							//chatAPI.sysPush("<span style=\"color:#fff\"> * SYNCED: "+JSON.stringify(localPlayer.getVariable("player.inv"))+"</span>");
-							if(inventorySaving) {
-								inventorySaving = false;
-								if(fastUseSlotsTiming > 100) fastUseSlotsTiming = 100;
-							}
-							if(invCEFUpdating) {
-								//chatAPI.sysPush("<span style=\"color:#fff\"> * PersUpd</span>");
-								invCEFUpdating = false;
-								if(hud_browser) hud_browser.execute('invCEFUpdated();');
-							}
-						}
-					}
-					if(typeof(value.instrument) !== "undefined") {
-						if(value.instrument.hash == "aqualang") {
-							localPlayer.setEnableScuba(true);
-							localPlayer.setMaxTimeUnderwater(10000);
-							scubaDiving = true;
-						}else{
-							localPlayer.setEnableScuba(false);
-							localPlayer.setMaxTimeUnderwater(20);
-							scubaDiving = false;
-						}
-						if(value.instrument.hash == "rod" || value.instrument.hash == "badrod" || value.instrument.hash == "spinning") {
-							fishingMode = {"rod":value.instrument.hash};
-						}else{
-							fishingMode = false;
-						}
-					}else{
-						localPlayer.setEnableScuba(false);
-						localPlayer.setMaxTimeUnderwater(20);
-						scubaDiving = false;
-						
-						fishingMode = false;
-					}
-				}
-				if(dropPutting) {
-					restoreBinds();
-					dropPutting = false;
-				}
-				updateFastInv();
-			}
-		}
-	}
-});
-
-function invLoadPlayersForSell() {
-	if(inventoryPanel && hud_browser) {
-		let tempPlayers = [];
-		let myPos = localPlayer.position;
-		mp.players.forEachInStreamRange(
-			(player, id) => {
-				if(player != localPlayer) {
-					let plPos = player.position;
-					if(mp.game.gameplay.getDistanceBetweenCoords(myPos.x, myPos.y, myPos.z, plPos.x, plPos.y, plPos.z, true) <= 5) {
-						if(!player.vehicle && player.getVariable("player.id") && player.getVariable("player.nick")) {
-							tempPlayers.push({"nick":player.getVariable("player.nick").toString(),"id":parseInt(player.getVariable("player.id"))});
-						}
-					}
-				}
-			}
-		);
-		hud_browser.execute("playersInventoryToSellLoaded('"+JSON.stringify(tempPlayers)+"');");
-	}
-}
-mp.events.add("invLoadPlayersForSell", invLoadPlayersForSell);
-
-var sellingInvSlot = false, sellingInvAmount = false, sellingInvCost = false;
-var invBuyingSlotData = false;
-function invSellDealStart(sellToNick, sellToID, sellValID, invSlotData, sellHealth, sellAmount, sellCost) {
-	if(inventoryPanel && hud_browser && !dealerPanel) {
-		if(inventorySaving) {
-			allowBinds = [];
-			return hud_browser.execute("invErrorNotify('#inv_sellSend', 'Инвентарь сохраняется, подождите..');");
-		}
-		
-		sellCost = parseInt(sellCost).toString();
-		
-		invSlotData = JSON.parse(invSlotData);
-		allowBinds = [];
-		
-		let isFinded = false;
-		let myPos = localPlayer.position;
-		mp.players.forEachInStreamRange(
-			(player, id) => {
-				if(player != localPlayer) {
-					if(typeof(player.getVariable("player.id")) !== "undefined") {
-						if(player.getVariable("player.id") == parseInt(sellToID)) {
-							let plPos = player.position;
-							if(mp.game.gameplay.getDistanceBetweenCoords(myPos.x, myPos.y, myPos.z, plPos.x, plPos.y, plPos.z, true) <= 5) {
-								isFinded = player;
-								return false;
-							}
-						}
-					}
-				}
-			}
-		);
-		
-		if(isFinded) {
-			if(invSlotData) {
-				let tempName = "Ничего", tempDesc = "Нет описания", tempImg = "none", tempCost = false;
-				if(typeof(invSlotData.sex) !== "undefined") {
-					if(typeof(allStuff[invSlotData.sex]) !== "undefined") {
-						let tempData = allStuff[invSlotData.sex];
-						if(typeof(tempData[invSlotData.type]) !== "undefined") {
-							tempData = tempData[invSlotData.type];
-							if(typeof(tempData[invSlotData.hash]) !== "undefined") {
-								tempData = tempData[invSlotData.hash];
-								if(typeof(tempData.name) !== "undefined") tempName = tempData.name;
-								if(typeof(tempData.desc) !== "undefined") tempDesc = tempData.desc;
-								if(invSlotData.type == "mask") {
-									tempImg = "mask";
-								}else{
-									if(invSlotData.sex == "male") {
-										if(invSlotData.type == "head") tempImg = "headMale";
-										else if(invSlotData.type == "glasses") tempImg = "glassesMale";
-										else if(invSlotData.type == "tors") tempImg = "torsMale";
-										else if(invSlotData.type == "watch") tempImg = "watchMale";
-										else if(invSlotData.type == "bracelet") tempImg = "braceletMale";
-										else if(invSlotData.type == "pants") tempImg = "pantsMale";
-										else if(invSlotData.type == "shoes") tempImg = "shoesMale";
-									}else{
-										if(invSlotData.type == "head") tempImg = "headFemale";
-										else if(invSlotData.type == "glasses") tempImg = "glassesFemale";
-										else if(invSlotData.type == "tors") tempImg = "torsFemale";
-										else if(invSlotData.type == "watch") tempImg = "watchFemale";
-										else if(invSlotData.type == "bracelet") tempImg = "braceletFemale";
-										else if(invSlotData.type == "pants") tempImg = "pantsFemale";
-										else if(invSlotData.type == "shoes") tempImg = "shoesFemale";
-									}
-								}
-							}
-						}
-					}
-				}else{
-					if(typeof(allStuff[invSlotData.type]) !== "undefined") {
-						let tempData = allStuff[invSlotData.type];
-						if(typeof(tempData[invSlotData.hash]) !== "undefined") {
-							tempData = tempData[invSlotData.hash];
-							if(typeof(tempData.name) !== "undefined") tempName = tempData.name;
-							if(typeof(tempData.desc) !== "undefined") tempDesc = tempData.desc;
-							//if(invSlotData.type == "weapon" && typeof(tempData.cost) !== "undefined") tempCost = tempData.cost;
-							if(typeof(tempData.cost) !== "undefined") tempCost = tempData.cost;
-							if(invSlotData.type == "mask") {
-								tempImg = "mask";
-							}else{
-								tempImg = invSlotData.hash;
-							}
-						}
-					}
-				}
-				
-				if(parseInt(sellAmount) < 2) {
-					if(tempCost && parseInt(sellCost) > tempCost+(tempCost * 2)) {
-						allowBinds = [0x49];
-						let maxCost = tempCost+(tempCost * 2);
-						return hud_browser.execute("invErrorNotify('#inv_sellSend', 'Дорого, макс."+maxCost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.');");
-					}
-				}else{
-					if(tempCost && parseInt(sellCost) > (tempCost+(tempCost * 2))*sellAmount) {
-						allowBinds = [0x49];
-						let maxCost = (tempCost+(tempCost * 2))*sellAmount;
-						return hud_browser.execute("invErrorNotify('#inv_sellSend', 'Дорого, макс."+maxCost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.');");
-					}
-				}
-				
-				if(typeof(isFinded.getVariable("active.deal")) !== "undefined") {
-					if(isFinded.getVariable("active.deal")) {
-						allowBinds = [0x49];
-						return hud_browser.execute("invErrorNotify('#inv_sellSend', 'У игрока есть активная сделка');");
-					}
-				}
-				
-				sellingInvSlot = sellValID;
-				sellingInvAmount = sellAmount;
-				
-				hud_browser.execute("inventoryToSellWaiting('"+sellToNick+"', '"+sellToID+"', '"+sellValID+"', '"+tempName+"', '"+tempDesc+"' ,'"+tempImg+"', '"+sellHealth+"', '"+sellAmount+"', '"+sellCost+"');");
-				mp.events.callRemote('inventoryToSell', isFinded, sellValID, tempName, tempDesc, tempImg, JSON.stringify(invSlotData), sellHealth, sellAmount, sellCost);
-			}else{
-				allowBinds = [0x49];
-				return hud_browser.execute("invErrorNotify('#inv_sellSend', 'Ошибка инициализации слота');");
-			}
-		}else{
-			allowBinds = [0x49];
-			return hud_browser.execute("invErrorNotify('#inv_sellSend', 'Игрок оффлайн или слишком далеко');");
-		}
-	}
-}
-mp.events.add("invSellDealStart", invSellDealStart);
-
-function cancelInventorySellTo() {
-	if(inventoryPanel && !dealerPanel) {
-		closeInventory();
-		/*if(sellingInvSlot) sellingInvSlot = false;
-		if(sellingInvAmount) sellingInvAmount = false;
-		if(invBuyingSlotData) invBuyingSlotData = false;
-		if(sellingInvCost) sellingInvCost = false;*/
-		if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
-			if(mp.players.atRemoteId(parseInt(localPlayer.getVariable("active.deal")))) {
-				let dealPlayer = mp.players.atRemoteId(parseInt(localPlayer.getVariable("active.deal")));
-				if(dealPlayer) {
-					if(typeof(dealPlayer.getVariable("player.id")) !== "undefined" && typeof(dealPlayer.getVariable("player.nick")) !== "undefined") {
-						let dealID = dealPlayer.getVariable("player.id");
-						let dealNick = dealPlayer.getVariable("player.nick");
-						
-						notyAPI.error("Вы отменили трейд для игрока <b>"+dealNick+"</b> (<b>"+dealID+"</b>).", 3000, true);
-						mp.events.callRemote('cancelInventorySellTo', dealPlayer);
-					}else{
-						mp.events.callRemote('cancelInventorySellTo', false);
-					}
-				}else{
-					mp.events.callRemote('cancelInventorySellTo', false);
-				}
-			}else{
-				mp.events.callRemote('cancelInventorySellTo', false);
-			}
-		}
-	}
-}
-mp.events.add("cancelInventorySellTo", cancelInventorySellTo);
-
-function canceledInventorySell(playerNick, playerID, isError) {
-	if(typeof(playerNick) !== "undefined" && !dealerPanel) {
-		if(inventoryPanel) {
-			closeInventory();
-			if(sellingInvSlot) sellingInvSlot = false;
-			if(sellingInvAmount) sellingInvAmount = false;
-			if(invBuyingSlotData) invBuyingSlotData = false;
-			if(sellingInvCost) sellingInvCost = false;
-			
-			if(!isError) notyAPI.error("<b>"+playerNick+"</b> (<b>"+playerID+"</b>) отменил предложение трейда.", 3000, true);
-			else notyAPI.error(isError, 3000, true);
-		}
-	}
-}
-mp.events.add("canceledInventorySell", canceledInventorySell);
-
-function cancelInventorySellFrom() {
-	if(inventoryPanel) {
-		closeInventory();
-		/*if(sellingInvSlot) sellingInvSlot = false;
-		if(sellingInvAmount) sellingInvAmount = false;
-		if(invBuyingSlotData) invBuyingSlotData = false;
-		if(sellingInvCost) sellingInvCost = false;*/
-		if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
-			if(mp.players.atRemoteId(parseInt(localPlayer.getVariable("active.deal")))) {
-				let dealPlayer = mp.players.atRemoteId(parseInt(localPlayer.getVariable("active.deal")));
-				if(dealPlayer) {
-					if(typeof(dealPlayer.getVariable("player.id")) !== "undefined" && typeof(dealPlayer.getVariable("player.nick")) !== "undefined") {
-						let dealID = dealPlayer.getVariable("player.id");
-						let dealNick = dealPlayer.getVariable("player.nick");
-						notyAPI.error("Вы отменили предложение трейда <b>"+dealNick+"</b> (<b>"+dealID+"</b>).", 3000, true);
-						mp.events.callRemote('cancelInventorySellTo', dealPlayer);
-					}else{
-						mp.events.callRemote('cancelInventorySellTo', false);
-					}
-				}else{
-					mp.events.callRemote('cancelInventorySellTo', false);
-				}
-			}else{
-				mp.events.callRemote('cancelInventorySellTo', false);
-			}
-		}
-	}
-}
-mp.events.add("cancelInventorySellFrom", cancelInventorySellFrom);
-
-function resultCanceledInventorySell() {
-	if(sellingInvSlot) sellingInvSlot = false;
-	if(sellingInvAmount) sellingInvAmount = false;
-	if(invBuyingSlotData) invBuyingSlotData = false;
-	if(sellingInvCost) sellingInvCost = false;
-	//chatAPI.sysPush("<span style=\"color:#FF6146\"> * ИНВЕНТАРЬ ТЕПЕРЬ ДОСТУПЕН.</span>");
-}
-mp.events.add("resultCanceledInventorySell", resultCanceledInventorySell);
-
-function inventorySellAction(sellFromNick, sellFromID, sellValID, tempName, tempDesc, tempImg, invSlotData, sellHealth, sellAmount, sellCost) {
-	if(typeof(sellFromNick) !== "undefined" && typeof(invSlotData) !== "undefined" && hud_browser && !dealerPanel) {
-		sellingInvSlot = sellValID;
-		sellingInvAmount = sellAmount;
-		invBuyingSlotData = invSlotData;
-		sellingInvCost = sellCost;
-		if(inventoryPanel) closeInventory();
-		allowBinds = [];
-		mp.gui.cursor.visible = true;
-		inventoryPanel = true;
-		hud_browser.execute("inventoryFromSellAction('"+sellFromNick+"', '"+sellFromID+"', '"+sellValID+"', '"+tempName+"', '"+tempDesc+"' ,'"+tempImg+"', '"+sellHealth+"', '"+sellAmount+"', '"+sellCost+"');");
-	}
-}
-mp.events.add("inventorySellAction", inventorySellAction);
-
-function acceptInventorySell() {
-	if(inventoryPanel && !dealerPanel) {
-		allowBinds = [];
-		
-		if(!sellingInvSlot || !sellingInvAmount || !invBuyingSlotData || !sellingInvCost) return hud_browser.execute("invErrorNotify('#inventory_sellAction', 'Что-то пошло не так #1');");
-		if(typeof(fishingMode.rod) !== "undefined") return hud_browser.execute("invErrorNotify('#inventory_sellAction', 'Нельзя во время рыбалки');");
-		
-		if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
-			if(typeof(localPlayer.getVariable("player.money")) === "undefined" || typeof(localPlayer.getVariable("player.inv")) === "undefined") return hud_browser.execute("invErrorNotify('#inventory_sellAction', 'Что-то пошло не так #4');");
-			if(mp.players.atRemoteId(parseInt(localPlayer.getVariable("active.deal")))) {
-				let dealPlayer = mp.players.atRemoteId(parseInt(localPlayer.getVariable("active.deal")));
-				if(dealPlayer) {
-					if(typeof(dealPlayer.getVariable("player.id")) !== "undefined" && typeof(dealPlayer.getVariable("player.nick")) !== "undefined" && typeof(dealPlayer.getVariable("player.money")) !== "undefined") {
-						let myMoney = parseInt(localPlayer.getVariable("player.money"));
-						if(myMoney < parseInt(sellingInvCost)) return hud_browser.execute("invErrorNotify('#inventory_sellAction', 'Недостаточно средств');");
-						if(sellingInvAmount <= 0) return hud_browser.execute("invErrorNotify('#inventory_sellAction', 'Что-то пошло не так #2');");
-						if(!IsJsonString(invBuyingSlotData)) return hud_browser.execute("invErrorNotify('#inventory_sellAction', 'Что-то пошло не так #3');");
-						
-						if(typeof(localPlayer.getVariable("player.blocks")) != "undefined") {
-							let playerBlocks = localPlayer.getVariable("player.blocks");
-							if(typeof(playerBlocks.jail) !== "undefined") return hud_browser.execute("invErrorNotify('#inventory_sellAction', 'Трейд в тюрьме не доступен');");
-						}
-						
-						if(fishingStartProcess) return hud_browser.execute("invErrorNotify('#inventory_sellAction', 'Трейд во время рыбалки недоступен');");
-						
-						if(dealPlayer.handle == -1) return hud_browser.execute("invErrorNotify('#inventory_sellAction', 'Игрок слишком далеко');");
-						if(mp.game.gameplay.getDistanceBetweenCoords(localPlayer.position.x, localPlayer.position.y, localPlayer.position.z, dealPlayer.position.x, dealPlayer.position.y, dealPlayer.position.z, true) > 5) return hud_browser.execute("invErrorNotify('#inv_sellAccept', 'Игрок слишком далеко');");
-						
-						let playerInv = localPlayer.getVariable("player.inv");
-						let emptySlot = false;
-						for (let i = 1; i <= 30; i++) {
-							if(typeof(playerInv[i.toString()]) === "undefined") {
-								emptySlot = i.toString();
-								break;
-							}
-						}
-						if(!emptySlot) return hud_browser.execute("invErrorNotify('#inventory_sellAction', 'Нет свободных мест в инвентаре');");
-						
-						let dealID = dealPlayer.getVariable("player.id");
-						let dealNick = dealPlayer.getVariable("player.nick");
-						notyAPI.success("Вы приняли предложение трейда <b>"+dealNick+"</b> (<b>"+dealID+"</b>).", 3000, true);
-						
-						mp.events.callRemote('acceptInventorySell', dealPlayer, sellingInvSlot, sellingInvAmount, invBuyingSlotData, sellingInvCost);
-					}else{
-						return hud_browser.execute("invErrorNotify('#inventory_sellAction', 'Игрок уже оффлайн');");
-					}
-				}else{
-					return hud_browser.execute("invErrorNotify('#inventory_sellAction', 'Игрок уже оффлайн');");
-				}
-			}else{
-				return hud_browser.execute("invErrorNotify('#inventory_sellAction', 'Игрок уже оффлайн');");
-			}
-		}
-	}
-}
-mp.events.add("acceptInventorySell", acceptInventorySell);
-
-function playerAcceptedInventorySell(playerID, playerNick, invSlotData, theAmount, theCost) {
-	closeInventory();
-	if(sellingInvSlot) sellingInvSlot = false;
-	if(sellingInvAmount) sellingInvAmount = false;
-	if(invBuyingSlotData) invBuyingSlotData = false;
-	if(sellingInvCost) sellingInvCost = false;
-		
-	if(typeof(playerID) !== "undefined" && typeof(playerNick) !== "undefined" && typeof(invSlotData) !== "undefined" && typeof(theAmount) !== "undefined" && typeof(theCost) !== "undefined" && !dealerPanel) {
-		invSlotData = JSON.parse(invSlotData);
-		
-		let tempName = "Ничего", tempDesc = "Нет описания", tempImg = "none";
-		if(typeof(invSlotData.sex) !== "undefined") {
-			if(typeof(allStuff[invSlotData.sex]) !== "undefined") {
-				let tempData = allStuff[invSlotData.sex];
-				if(typeof(tempData[invSlotData.type]) !== "undefined") {
-					tempData = tempData[invSlotData.type];
-					if(typeof(tempData[invSlotData.hash]) !== "undefined") {
-						tempData = tempData[invSlotData.hash];
-						if(typeof(tempData.name) !== "undefined") tempName = tempData.name;
-						if(typeof(tempData.desc) !== "undefined") tempDesc = tempData.desc;
-					}
-				}
-			}
-		}else{
-			if(typeof(allStuff[invSlotData.type]) !== "undefined") {
-				let tempData = allStuff[invSlotData.type];
-				if(typeof(tempData[invSlotData.hash]) !== "undefined") {
-					tempData = tempData[invSlotData.hash];
-					if(typeof(tempData.name) !== "undefined") tempName = tempData.name;
-					if(typeof(tempData.desc) !== "undefined") tempDesc = tempData.desc;
-				}
-			}
-		}
-		
-		chatAPI.notifyPush(" * <span style=\"color:#FFF\"><b>"+playerNick+"</b></span> (<span style=\"color:#FFF\"><b>"+playerID+"</b></span>) купил у Вас <span style=\"color:#FFF\"><b>"+tempName+"</b></span> за"+theCost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.");
-		mp.game.ui.messages.showMidsizedShard("~y~Успешный ~w~трейд", "~s~Продано: "+tempName+"~n~Выручка~g~~h~"+theCost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" ~s~руб.", 5, false, true, 5000);
-	}
-}
-mp.events.add("playerAcceptedInventorySell", playerAcceptedInventorySell);
-
-function imAcceptedInventorySell(playerID, playerNick, invSlotData, theAmount, theCost) {
-	closeInventory();
-	if(sellingInvSlot) sellingInvSlot = false;
-	if(sellingInvAmount) sellingInvAmount = false;
-	if(invBuyingSlotData) invBuyingSlotData = false;
-	if(sellingInvCost) sellingInvCost = false;
-		
-	if(typeof(playerID) !== "undefined" && typeof(playerNick) !== "undefined" && typeof(invSlotData) !== "undefined" && typeof(theAmount) !== "undefined" && typeof(theCost) !== "undefined" && !dealerPanel) {
-		invSlotData = JSON.parse(invSlotData);
-		
-		let tempName = "Ничего", tempDesc = "Нет описания", tempImg = "none";
-		if(typeof(invSlotData.sex) !== "undefined") {
-			if(typeof(allStuff[invSlotData.sex]) !== "undefined") {
-				let tempData = allStuff[invSlotData.sex];
-				if(typeof(tempData[invSlotData.type]) !== "undefined") {
-					tempData = tempData[invSlotData.type];
-					if(typeof(tempData[invSlotData.hash]) !== "undefined") {
-						tempData = tempData[invSlotData.hash];
-						if(typeof(tempData.name) !== "undefined") tempName = tempData.name;
-						if(typeof(tempData.desc) !== "undefined") tempDesc = tempData.desc;
-					}
-				}
-			}
-		}else{
-			if(typeof(allStuff[invSlotData.type]) !== "undefined") {
-				let tempData = allStuff[invSlotData.type];
-				if(typeof(tempData[invSlotData.hash]) !== "undefined") {
-					tempData = tempData[invSlotData.hash];
-					if(typeof(tempData.name) !== "undefined") tempName = tempData.name;
-					if(typeof(tempData.desc) !== "undefined") tempDesc = tempData.desc;
-				}
-			}
-		}
-		
-		chatAPI.notifyPush(" * Вы купили <span style=\"color:#FFF\"><b>"+tempName+"</b></span> у <span style=\"color:#FFF\"><b>"+playerNick+"</b></span> (<span style=\"color:#FFF\"><b>"+playerID+"</b></span>) за"+theCost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.");
-		mp.game.ui.messages.showMidsizedShard("~y~Успешный ~w~трейд", "~s~Куплено: "+tempName+"~n~Потрачено~g~~h~"+theCost.toString().replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" ~s~руб.", 5, false, true, 5000);
-	}
-}
-mp.events.add("imAcceptedInventorySell", imAcceptedInventorySell);
-
-function closeInventory(dataFromInv) {
-	if(inventoryPanel) {
-		if(typeof(dataFromInv) !== "undefined" && typeof(localPlayer.getVariable("player.inv")) !== "undefined") {
-			if(dataFromInv != JSON.stringify(localPlayer.getVariable("player.inv"))) {
-				inventorySaving = JSON.stringify(localPlayer.getVariable("player.inv"));
-				mp.events.callRemote('invSetData', dataFromInv);
-				//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+dataFromInv+"</span>");
-				//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+JSON.stringify(localPlayer.getVariable("player.inv"))+"</span>");
-			}
-		}
-		deletePedScreen();
-		if(hud_browser) {
-			hud_browser.execute('toggleInventoryPanel(false);');
-			hud_browser.execute('playSound("closeInv", 0.15);');
-		}
-		mp.gui.cursor.visible = false;
-		inventoryPanel = false;
-		restoreBinds();
-		
-		mp.game.graphics.stopScreenEffect("MenuMGHeistTint");
-	}
-}
-mp.events.add("closeInventory", closeInventory);
-
-function invUse(slot, data, isDead, fullInvData) {
-	if(typeof(slot) !== "undefined" && typeof(data) !== "undefined" && typeof(fullInvData) !== "undefined" && typeof(localPlayer.getVariable("player.inv")) !== "undefined") {
-		data = JSON.parse(data);
-		if(inventorySaving) return notyAPI.error("Инвентарь сохраняется, попробуйте позже.", 3000, true);
-		if(dealerPanel) return notyAPI.error("Идёт сделка с барыгой, попробуй позже.", 3000, true);
-		
-		if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
-			if(localPlayer.getVariable("active.deal")) return notyAPI.error("У Вас есть активная сделка, инвентарь недоступен.", 3000, true);
-		}
-		
-		//mp.game.ui.notifications.showWithPicture("Знакомый механик", slot, isDead.toString(), "CHAR_MECHANIC", 1, false, 1, 2);
-		
-		if(slotInUse != "0") {
-			let myInv = localPlayer.getVariable("player.inv");
-			if(typeof(myInv[slotInUse]) !== "undefined") {
-				if(slot.toString() == slotInUse.toString()) {
-					if(slot == "f1" || slot == "f2" || slot == "f3" || slot == "f4" || slot == "f5" || slot == "f6") fastUseSlotsTiming = 101;
-					inventorySaving = JSON.stringify(localPlayer.getVariable("player.inv"));
-					ammoInUseCount = parseInt((CryptoJS.AES.decrypt(ammoInUseCount, krKey)).toString(CryptoJS.enc.Utf8));
-					
-					localPlayer.taskSwapWeapon(false);
-					if(data.hash == "pistol") mp.events.callRemote('invHideWeapon', slot, ammoInUse, ammoInUseCount.toString(), isDead, fullInvData);
-					else if(data.hash == "revolver") mp.events.callRemote('invHideWeapon', slot, ammoInUse, ammoInUseCount.toString(), isDead, fullInvData);
-					else if(data.hash == "deagle") mp.events.callRemote('invHideWeapon', slot, ammoInUse, ammoInUseCount.toString(), isDead, fullInvData);
-					else if(data.hash == "microsmg") mp.events.callRemote('invHideWeapon', slot, ammoInUse, ammoInUseCount.toString(), isDead, fullInvData);
-					else if(data.hash == "smg") mp.events.callRemote('invHideWeapon', slot, ammoInUse, ammoInUseCount.toString(), isDead, fullInvData);
-					else if(data.hash == "tec") mp.events.callRemote('invHideWeapon', slot, ammoInUse, ammoInUseCount.toString(), isDead, fullInvData);
-					else if(data.hash == "pumpshotgun") mp.events.callRemote('invHideWeapon', slot, ammoInUse, ammoInUseCount.toString(), isDead, fullInvData);
-					else if(data.hash == "sawn") mp.events.callRemote('invHideWeapon', slot, ammoInUse, ammoInUseCount.toString(), isDead, fullInvData);
-					else if(data.hash == "dbshotgun") mp.events.callRemote('invHideWeapon', slot, ammoInUse, ammoInUseCount.toString(), isDead, fullInvData);
-					else if(data.hash == "assaultrifle") mp.events.callRemote('invHideWeapon', slot, ammoInUse, ammoInUseCount.toString(), isDead, fullInvData);
-					else if(data.hash == "carbine") mp.events.callRemote('invHideWeapon', slot, ammoInUse, ammoInUseCount.toString(), isDead, fullInvData);
-					else if(data.hash == "compactrifle") mp.events.callRemote('invHideWeapon', slot, ammoInUse, ammoInUseCount.toString(), isDead, fullInvData);
-					else if(data.hash == "sniper") mp.events.callRemote('invHideWeapon', slot, ammoInUse, ammoInUseCount.toString(), isDead, fullInvData);
-					else if(data.hash == "nightstick") mp.events.callRemote('invHideWeapon', slot, ammoInUse, ammoInUseCount.toString(), isDead, fullInvData);
-					else if(data.hash == "stungun") mp.events.callRemote('invHideWeapon', slot, ammoInUse, ammoInUseCount.toString(), isDead, fullInvData);
-					else if(data.hash == "fire") mp.events.callRemote('invHideWeapon', slot, ammoInUse, ammoInUseCount.toString(), isDead, fullInvData);
-					
-					slotInUse = "0", ammoInUse = "0", ammoInUseCount = CryptoJS.AES.encrypt("0", krKey);
-					if(inventoryPanel) closeInventory();
-				}else if(data.type == "health") {
-					if(localPlayer.isDead()) return false;
-					if(fastUseSlotsTiming > 0) return false;
-					if(slot == "f1" || slot == "f2" || slot == "f3" || slot == "f4" || slot == "f5" || slot == "f6") fastUseSlotsTiming = 101;
-					if(data.hash == "armykit" && mp.game.streaming.hasAnimDictLoaded("amb@world_human_bum_wash@male@high@idle_a")) localPlayer.taskPlayAnim("amb@world_human_bum_wash@male@high@idle_a", "idle_a", 8.0, 8.0, -1, 0, 0.0, false, false, false);
-					else if(data.hash == "bandage" && mp.game.streaming.hasAnimDictLoaded("amb@world_human_bum_standing@twitchy@base")) localPlayer.taskPlayAnim("amb@world_human_bum_standing@twitchy@base", "base", 8.0, 8.0, -1, 0, 0.0, false, false, false);
-					inventorySaving = JSON.stringify(localPlayer.getVariable("player.inv"));
-					mp.events.callRemote('invUseHealth', slot, data.hash, fullInvData);
-					if(inventoryPanel) closeInventory();
-				}else if(data.type == "weapon") {
-					if(typeof(inCasino) !== "undefined") {
-						if(inCasino) return notyAPI.error("Нельзя использовать оружие находясь в казино.", 3000, true);
-					}
-					if(typeof(localPlayer.getVariable("player.passive")) !== "undefined") {
-						if(localPlayer.getVariable("player.passive")) return notyAPI.error("В пассивном режиме оружее недоступно.", 3000, true);
-					}
-					if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
-						if(localPlayer.getVariable("active.deal")) return notyAPI.error("У Вас есть активная сделка, инвентарь недоступен.", 3000, true);
-					}
-					if(typeof(localPlayer.getVariable("player.blocks")) != "undefined") {
-						let playerBlocks = localPlayer.getVariable("player.blocks");
-						if(typeof(playerBlocks.jail) !== "undefined") return notyAPI.error("Инвентарь в тюрьме не доступен.", 3000, true);
-					}
-					if(fishingStartProcess) return notyAPI.error("Инвентарь во время рыбалки недоступен.", 3000, true);
-					if(localPlayer.isDead()) return false;
-					if(fastUseSlotsTiming > 0) return false;
-					
-					if(data.health > 0) {
-						if(slot == "f1" || slot == "f2" || slot == "f3" || slot == "f4" || slot == "f5" || slot == "f6") fastUseSlotsTiming = 101;
-						ammoInUseCount = parseInt((CryptoJS.AES.decrypt(ammoInUseCount, krKey)).toString(CryptoJS.enc.Utf8));
-						
-						let newAmmoInUse = false;
-						if(data.hash == "pistol") newAmmoInUse = "amLL";
-						else if(data.hash == "revolver") newAmmoInUse = "amLL";
-						else if(data.hash == "deagle") newAmmoInUse = "amLL";
-						else if(data.hash == "microsmg") newAmmoInUse = "amLL";
-						else if(data.hash == "smg") newAmmoInUse = "amLL";
-						else if(data.hash == "tec") newAmmoInUse = "amLL";
-						else if(data.hash == "pumpshotgun") newAmmoInUse = "amSG";
-						else if(data.hash == "sawn") newAmmoInUse = "amSG";
-						else if(data.hash == "dbshotgun") newAmmoInUse = "amSG";
-						else if(data.hash == "assaultrifle") newAmmoInUse = "amBL";
-						else if(data.hash == "carbine") newAmmoInUse = "amBL";
-						else if(data.hash == "compactrifle") newAmmoInUse = "amBL";
-						else if(data.hash == "sniper") newAmmoInUse = "amBL";
-						else if(data.hash == "nightstick") newAmmoInUse = "false";
-						else if(data.hash == "stungun") newAmmoInUse = "false";
-						else if(data.hash == "fire") newAmmoInUse = "false";
-						
-						let newAmmoInUseCount = 0;
-						for(let theSlot in myInv) {
-							if(myInv[theSlot].hash == newAmmoInUse) newAmmoInUseCount = newAmmoInUseCount + parseInt(myInv[theSlot].amount);
-						}
-						if(ammoInUse == newAmmoInUse) newAmmoInUseCount = ammoInUseCount;
-						
-						if(newAmmoInUse) {
-							inventorySaving = JSON.stringify(localPlayer.getVariable("player.inv"));
-							
-							localPlayer.taskSwapWeapon(false);
-							mp.events.callRemote('invSwitchWeapon', slotInUse, ammoInUse, ammoInUseCount.toString(), slot, newAmmoInUse, newAmmoInUseCount.toString());
-							
-							slotInUse = slot;
-							ammoInUse = newAmmoInUse;
-
-							ammoInUseCount = CryptoJS.AES.encrypt(newAmmoInUseCount.toString(), krKey);
-						}
-					}else{
-						notyAPI.error("Предмет слишком изношен, использование невозможно.", 3000, true);
-					}
-				}
-			}
-		}else{
-			if(data.type == "weapon") {
-				if(inventoryPanel) closeInventory();
-				if(typeof(inCasino) !== "undefined") {
-					if(inCasino) return notyAPI.error("Нельзя использовать оружие находясь в казино.", 3000, true);
-				}
-				if(typeof(localPlayer.getVariable("player.passive")) !== "undefined") {
-					if(localPlayer.getVariable("player.passive")) return notyAPI.error("В пассивном режиме оружее недоступно.", 3000, true);
-				}
-				if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
-					if(localPlayer.getVariable("active.deal")) return notyAPI.error("У Вас есть активная сделка, инвентарь недоступен.", 3000, true);
-				}
-				if(typeof(localPlayer.getVariable("player.blocks")) != "undefined") {
-					let playerBlocks = localPlayer.getVariable("player.blocks");
-					if(typeof(playerBlocks.jail) !== "undefined") return notyAPI.error("Инвентарь в тюрьме не доступен.", 3000, true);
-				}
-				if(fishingStartProcess) return notyAPI.error("Инвентарь во время рыбалки недоступен.", 3000, true);
-				if(localPlayer.isDead()) return false;
-				if(fastUseSlotsTiming > 0) return false;
-				if(data.health > 0) {
-					if(slot == "f1" || slot == "f2" || slot == "f3" || slot == "f4" || slot == "f5" || slot == "f6") fastUseSlotsTiming = 101;
-					slotInUse = slot;
-					if(data.hash == "pistol") ammoInUse = "amLL";
-					else if(data.hash == "revolver") ammoInUse = "amLL";
-					else if(data.hash == "deagle") ammoInUse = "amLL";
-					else if(data.hash == "microsmg") ammoInUse = "amLL";
-					else if(data.hash == "smg") ammoInUse = "amLL";
-					else if(data.hash == "tec") ammoInUse = "amLL";
-					else if(data.hash == "pumpshotgun") ammoInUse = "amSG";
-					else if(data.hash == "sawn") ammoInUse = "amSG";
-					else if(data.hash == "dbshotgun") ammoInUse = "amSG";
-					else if(data.hash == "assaultrifle") ammoInUse = "amBL";
-					else if(data.hash == "carbine") ammoInUse = "amBL";
-					else if(data.hash == "compactrifle") ammoInUse = "amBL";
-					else if(data.hash == "sniper") ammoInUse = "amBL";
-					else if(data.hash == "nightstick") ammoInUse = "false";
-					else if(data.hash == "stungun") ammoInUse = "false";
-					else if(data.hash == "fire") ammoInUse = "false";
-					
-					ammoInUseCount = parseInt((CryptoJS.AES.decrypt(ammoInUseCount, krKey)).toString(CryptoJS.enc.Utf8));
-					
-					if(ammoInUse != "0") {
-						let myInv = localPlayer.getVariable("player.inv");
-						for(let theSlot in myInv) {
-							if(myInv[theSlot].hash == ammoInUse) ammoInUseCount = ammoInUseCount + parseInt(myInv[theSlot].amount);
-						}
-						inventorySaving = JSON.stringify(localPlayer.getVariable("player.inv"));
-						mp.events.callRemote('invGiveWeapon', data.hash, slotInUse, ammoInUse, ammoInUseCount.toString(), fullInvData);
-					}
-					
-					ammoInUseCount = CryptoJS.AES.encrypt(ammoInUseCount.toString(), krKey);
-				}else{
-					notyAPI.error("Предмет слишком изношен, использование невозможно.", 3000, true);
-				}
-			}else if(data.type == "health") {
-				if(data.health > 0) {
-					if(localPlayer.isDead()) return false;
-					if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
-						if(localPlayer.getVariable("active.deal")) return notyAPI.error("У Вас есть активная сделка, инвентарь недоступен.", 3000, true);
-					}
-					if(typeof(localPlayer.getVariable("player.blocks")) != "undefined") {
-						let playerBlocks = localPlayer.getVariable("player.blocks");
-						if(typeof(playerBlocks.jail) !== "undefined") return notyAPI.error("Инвентарь в тюрьме не доступен.", 3000, true);
-					}
-					if(fishingStartProcess) return notyAPI.error("Инвентарь во время рыбалки недоступен.", 3000, true);
-					if(fastUseSlotsTiming > 0) return false;
-					if(slot == "f1" || slot == "f2" || slot == "f3" || slot == "f4" || slot == "f5" || slot == "f6") fastUseSlotsTiming = 101;
-					if(data.hash == "armykit" && mp.game.streaming.hasAnimDictLoaded("amb@world_human_bum_wash@male@high@idle_a")) localPlayer.taskPlayAnim("amb@world_human_bum_wash@male@high@idle_a", "idle_a", 8.0, 8.0, -1, 0, 0.0, false, false, false);
-					else if(data.hash == "bandage" && mp.game.streaming.hasAnimDictLoaded("amb@world_human_bum_standing@twitchy@base")) localPlayer.taskPlayAnim("amb@world_human_bum_standing@twitchy@base", "base", 8.0, 8.0, -1, 0, 0.0, false, false, false);
-					inventorySaving = JSON.stringify(localPlayer.getVariable("player.inv"));
-					mp.events.callRemote('invUseHealth', slot, data.hash, fullInvData);
-				}else{
-					notyAPI.error("Предмет слишком изношен, использование невозможно.", 3000, true);
-				}
-				if(inventoryPanel) closeInventory();
-			}
-		}
-	}
-}
-mp.events.add("invUse", invUse);
-
-function updateFastInv() {
-	if(typeof(localPlayer.getVariable("player.inv")) !== "undefined") {
-		let playerInv = localPlayer.getVariable("player.inv");
-		let emptySlots = true;
-		let f1 = {}, f2 = {}, f3 = {}, f4 = {}, f5 = {}, f6 = {};
-		for (let i = 1; i <= 6; i++) {
-			if(typeof(playerInv["f"+i]) !== "undefined") {
-				if(i == 1) f1 = playerInv["f"+i];
-				else if(i == 2) f2 = playerInv["f"+i];
-				else if(i == 3) f3 = playerInv["f"+i];
-				else if(i == 4) f4 = playerInv["f"+i];
-				else if(i == 5) f5 = playerInv["f"+i];
-				else if(i == 6) f6 = playerInv["f"+i];
-				emptySlots = false;
-			}
-		}
-		let sendData = {"f1":f1,"f2":f2,"f3":f3,"f4":f4,"f5":f5,"f6":f6,"slotInUse":slotInUse};
-		if(hud_browser) hud_browser.execute("updateFastInv("+emptySlots+", '"+JSON.stringify(sendData)+"');");
-	}
-}
-
-function invDrop(slot, data, dropAmount) {
-	if(inventoryPanel && hud_browser && typeof(slot) !== "undefined" && typeof(data) !== "undefined" && typeof(dropAmount) !== "undefined" && typeof(localPlayer.getVariable("player.inv")) !== "undefined") {
-		if(inventoryPanel) closeInventory();
-		if(localPlayer.vehicle || localPlayer.isDead()) {
-			if(hud_browser) hud_browser.execute('invCEFUpdated();');
-			return notyAPI.error("Что-то пошло не так, попробуйте позже.", 3000, true);
-		}
-		if(inventorySaving || invCEFUpdating || invCEFUpdatingVeh) return notyAPI.error("Инвентарь сохраняется, попробуйте позже.", 3000, true);
-		if(typeof(localPlayer.getVariable('player.passive')) !== "undefined") {
-			if(localPlayer.getVariable('player.passive')) {
-				if(hud_browser) hud_browser.execute('invCEFUpdated();');
-				return notyAPI.error("Нельзя выбросить предмет в пассивном режиме.", 3000, true);
-			}
-		}
-		if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
-			if(localPlayer.getVariable("active.deal")) return notyAPI.error("У Вас есть активная сделка, дроп недоступен.", 3000, true);
-		}
-		if(dealerPanel) return notyAPI.error("Идёт сделка с барыгой, попробуй позже.", 3000, true);
-		if(typeof(fishingMode.rod) !== "undefined" || typeof(fishingMode.bait) !== "undefined") {
-			if(hud_browser) hud_browser.execute('invCEFUpdated();');
-			if(slot != "mask" && slot != "head" && slot != "glasses" && slot != "tors" && slot != "shirt" && slot != "watch" && slot != "bracelet" && slot != "pants" && slot != "shoes" && slot != "instrument") {
-				return notyAPI.error("Во время рыбалки нельзя выбросить предмет(ы).", 3000, true);
-			}
-		}
-		
-		let myInv = localPlayer.getVariable("player.inv");
-		if(typeof(myInv[slot.toString()].amount) !== "undefined") {
-			if(parseInt(dropAmount) > 0) {
-				if(parseInt(dropAmount) > parseInt(myInv[slot.toString()].amount)) {
-					if(hud_browser) hud_browser.execute('invCEFUpdated();');
-					return notyAPI.error("В слоте нет такого количества.", 3000, true);
-				}
-			}
-		}else{
-			if(hud_browser) hud_browser.execute('invCEFUpdated();');
-			return notyAPI.error("Что-то пошло не так, попробуйте позже.", 3000, true);
-		}
-		
-		invCEFUpdating = JSON.stringify(localPlayer.getVariable("player.inv"));
-		inventorySaving = JSON.stringify(localPlayer.getVariable("player.inv"));
-		if(mp.game.streaming.hasAnimDictLoaded("mp_weapon_drop")) localPlayer.taskPlayAnim("mp_weapon_drop", "drop_lh", 8.0, 8.0, -1, 0, 0.0, false, false, false);
-		mp.events.callRemote('invDrop', slot, false, dropAmount);
-	}
-}
-mp.events.add("invDrop", invDrop);
-
-function createDropInWorld(colData, dropData) {
-	if(typeof(colData) !== "undefined" && typeof(dropData) !== "undefined") {
-		if(typeof(dropsInStream) !== "undefined") {
-			if(typeof(dropsInStream[colData.colID.toString()]) === "undefined") {
-				let dropObj = false;
-				switch (dropData.type) {
-					case "fish":
-						colData.pos.z = colData.pos.z - 0.95;
-						dropObj = mp.objects.new(mp.game.joaat("prop_bucket_02a"), colData.pos,
-						{
-							rotation: new mp.Vector3(0,0,0),
-							alpha: 255,
-							dimension: localPlayer.dimension
-						});
-						break;
-					case "mask":
-						colData.pos.z = colData.pos.z - 0.95;
-						dropObj = mp.objects.new(mp.game.joaat("prop_mask_test_01"), colData.pos,
-						{
-							rotation: new mp.Vector3(-90,0,0),
-							alpha: 255,
-							dimension: localPlayer.dimension
-						});
-						break;
-					case "bag":
-						colData.pos.z = colData.pos.z - 0.95;
-						dropObj = mp.objects.new(mp.game.joaat("p_michael_backpack_s"), colData.pos,
-						{
-							rotation: new mp.Vector3(-90,0,0),
-							alpha: 255,
-							dimension: localPlayer.dimension
-						});
-						break;
-					case "head":
-						colData.pos.z = colData.pos.z - 0.85;
-						dropObj = mp.objects.new(mp.game.joaat("prop_ld_hat_01"), colData.pos,
-						{
-							rotation: new mp.Vector3(0,0,0),
-							alpha: 255,
-							dimension: localPlayer.dimension
-						});
-						break;
-					case "glasses":
-						colData.pos.z = colData.pos.z - 0.98;
-						dropObj = mp.objects.new(mp.game.joaat("prop_cs_sol_glasses"), colData.pos,
-						{
-							rotation: new mp.Vector3(0,0,0),
-							alpha: 255,
-							dimension: localPlayer.dimension
-						});
-						break;
-					case "tors":
-						colData.pos.z = colData.pos.z - 0.95;
-						dropObj = mp.objects.new(mp.game.joaat("prop_ld_shirt_01"), colData.pos,
-						{
-							rotation: new mp.Vector3(0,0,0),
-							alpha: 255,
-							dimension: localPlayer.dimension
-						});
-						break;
-					case "watch":
-						colData.pos.z = colData.pos.z - 0.98;
-						dropObj = mp.objects.new(mp.game.joaat("p_watch_01"), colData.pos,
-						{
-							rotation: new mp.Vector3(0,0,0),
-							alpha: 255,
-							dimension: localPlayer.dimension
-						});
-						break;
-					case "bracelet":
-						colData.pos.z = colData.pos.z - 0.95;
-						dropObj = mp.objects.new(mp.game.joaat("v_res_mbathpot"), colData.pos,
-						{
-							rotation: new mp.Vector3(0,0,0),
-							alpha: 255,
-							dimension: localPlayer.dimension
-						});
-						break;
-					case "pants":
-						colData.pos.z = colData.pos.z - 0.95;
-						dropObj = mp.objects.new(mp.game.joaat("prop_cs_tshirt_ball_01"), colData.pos,
-						{
-							rotation: new mp.Vector3(0,0,0),
-							alpha: 255,
-							dimension: localPlayer.dimension
-						});
-						break;
-					case "shoes":
-						colData.pos.z = colData.pos.z - 0.95;
-						dropObj = mp.objects.new(mp.game.joaat("prop_ld_shoe_01"), colData.pos,
-						{
-							rotation: new mp.Vector3(0,0,0),
-							alpha: 255,
-							dimension: localPlayer.dimension
-						});
-						break;
-				}
-				
-				if(!dropObj) {
-					switch (dropData.hash) {
-						case "lockpicks":
-							colData.pos.z = colData.pos.z - 1.0;
-							dropObj = mp.objects.new(mp.game.joaat("p_car_keys_01"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "rod":
-							colData.pos.z = colData.pos.z - 0.9;
-							dropObj = mp.objects.new(mp.game.joaat("prop_fishing_rod_01"), colData.pos,
-							{
-								rotation: new mp.Vector3(90,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "badrod":
-							colData.pos.z = colData.pos.z - 0.9;
-							dropObj = mp.objects.new(mp.game.joaat("prop_fishing_rod_01"), colData.pos,
-							{
-								rotation: new mp.Vector3(90,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "spinning":
-							colData.pos.z = colData.pos.z - 0.9;
-							dropObj = mp.objects.new(mp.game.joaat("prop_fishing_rod_01"), colData.pos,
-							{
-								rotation: new mp.Vector3(90,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "aqualang":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("p_s_scuba_tank_s"), colData.pos,
-							{
-								rotation: new mp.Vector3(40,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "armykit":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("prop_ld_health_pack"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "bandage":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("prop_stat_pack_01"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "amLL":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("gr_prop_gr_bulletscrate_01a"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "amBL":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("gr_prop_gr_crate_mag_01a"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "amSG":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("gr_prop_gr_crate_pistol_02a"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "amRO":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("gr_prop_gr_missle_short"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "fire":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("prop_fire_exting_1a"), colData.pos,
-							{
-								rotation: new mp.Vector3(-90,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "pistol":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("w_pi_pistol"), colData.pos,
-							{
-								rotation: new mp.Vector3(-90,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "revolver":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("w_pi_vintage_pistol"), colData.pos,
-							{
-								rotation: new mp.Vector3(-90,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "deagle":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("w_pi_pistol50"), colData.pos,
-							{
-								rotation: new mp.Vector3(-90,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "microsmg":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("w_sb_microsmg"), colData.pos,
-							{
-								rotation: new mp.Vector3(-90,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "smg":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("w_sb_smg"), colData.pos,
-							{
-								rotation: new mp.Vector3(-90,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "tec":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("w_sb_smg"), colData.pos,
-							{
-								rotation: new mp.Vector3(-90,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "pumpshotgun":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("w_sg_pumpshotgun"), colData.pos,
-							{
-								rotation: new mp.Vector3(-90,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "sawn":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("w_sg_sawnoff"), colData.pos,
-							{
-								rotation: new mp.Vector3(-90,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "dbshotgun":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("w_sg_sawnoff"), colData.pos,
-							{
-								rotation: new mp.Vector3(-90,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "assaultrifle":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("w_ar_assaultrifle"), colData.pos,
-							{
-								rotation: new mp.Vector3(-90,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "carbine":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("w_ar_carbinerifle"), colData.pos,
-							{
-								rotation: new mp.Vector3(-90,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "compactrifle":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("w_ar_assaultrifle"), colData.pos,
-							{
-								rotation: new mp.Vector3(-90,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "sniper":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("w_sr_sniperrifle"), colData.pos,
-							{
-								rotation: new mp.Vector3(-90,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "scrap":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("prop_rub_litter_03"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "microchips":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("xm_prop_vancrate_01a"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "largeskin":
-							colData.pos.z = colData.pos.z - 1.1;
-							dropObj = mp.objects.new(mp.game.joaat("ex_office_swag_furcoats3"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "littleskin":
-							colData.pos.z = colData.pos.z - 1.1;
-							dropObj = mp.objects.new(mp.game.joaat("ex_office_swag_furcoats3"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "animalfat":
-							colData.pos.z = colData.pos.z - 0.98;
-							dropObj = mp.objects.new(mp.game.joaat("hei_prop_heist_drug_tub_01"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "animalmeat":
-							colData.pos.z = colData.pos.z - 1.05;
-							dropObj = mp.objects.new(mp.game.joaat("sm_prop_smug_crate_m_01a"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "animalbones":
-							colData.pos.z = colData.pos.z - 1.05;
-							dropObj = mp.objects.new(mp.game.joaat("v_res_smallplasticbox"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "gold":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("prop_gold_bar"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "bloodworm":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("prop_bar_beans"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "bread":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("prop_bar_beans"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "insects":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("prop_bar_beans"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "minifish":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("prop_bar_beans"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "worms":
-							colData.pos.z = colData.pos.z - 0.95;
-							dropObj = mp.objects.new(mp.game.joaat("prop_bar_beans"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "stecoil":
-							colData.pos.z = colData.pos.z - 1.0;
-							dropObj = mp.objects.new(mp.game.joaat("ng_proc_oilcan01a"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "roweoil":
-							colData.pos.z = colData.pos.z - 1.0;
-							dropObj = mp.objects.new(mp.game.joaat("ng_proc_oilcan01a"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "shelloil":
-							colData.pos.z = colData.pos.z - 1.0;
-							dropObj = mp.objects.new(mp.game.joaat("ng_proc_oilcan01a"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "lukoiloil":
-							colData.pos.z = colData.pos.z - 1.0;
-							dropObj = mp.objects.new(mp.game.joaat("ng_proc_oilcan01a"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "stecgasprem":
-							colData.pos.z = colData.pos.z - 1.06;
-							dropObj = mp.objects.new(mp.game.joaat("ng_proc_ojbot_01a"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "stecgasplus":
-							colData.pos.z = colData.pos.z - 1.06;
-							dropObj = mp.objects.new(mp.game.joaat("ng_proc_ojbot_01a"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "stecgassga":
-							colData.pos.z = colData.pos.z - 1.06;
-							dropObj = mp.objects.new(mp.game.joaat("ng_proc_ojbot_01a"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "oilfilter":
-							colData.pos.z = colData.pos.z - 1.06;
-							dropObj = mp.objects.new(mp.game.joaat("prop_coolbox_01"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "airfilter":
-							colData.pos.z = colData.pos.z - 1.06;
-							dropObj = mp.objects.new(mp.game.joaat("prop_coolbox_01"), colData.pos,
-							{
-								rotation: new mp.Vector3(0,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "nightstick":
-							colData.pos.z = colData.pos.z - 0.96;
-							dropObj = mp.objects.new(mp.game.joaat("w_me_nightstick"), colData.pos,
-							{
-								rotation: new mp.Vector3(-90,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "stungun":
-							colData.pos.z = colData.pos.z - 0.96;
-							dropObj = mp.objects.new(mp.game.joaat("w_pi_stungun"), colData.pos,
-							{
-								rotation: new mp.Vector3(-90,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "zhezl":
-							colData.pos.z = colData.pos.z - 0.96;
-							dropObj = mp.objects.new(mp.game.joaat("w_at_sr_supp"), colData.pos,
-							{
-								rotation: new mp.Vector3(-90,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "hunterknife":
-							colData.pos.z = colData.pos.z - 0.96;
-							dropObj = mp.objects.new(mp.game.joaat("prop_ld_w_me_machette"), colData.pos,
-							{
-								rotation: new mp.Vector3(-90,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-						case "parachute":
-							colData.pos.z = colData.pos.z - 0.96;
-							dropObj = mp.objects.new(mp.game.joaat("hei_p_parachute_s_female"), colData.pos,
-							{
-								rotation: new mp.Vector3(-90,0,0),
-								alpha: 255,
-								dimension: localPlayer.dimension
-							});
-							break;
-					}
-				}
-				
-				if(!dropObj) { // крайний вариант
-					colData.pos.z = colData.pos.z - 0.96;
-					dropObj = mp.objects.new(mp.game.joaat("hei_p_parachute_s_female"), colData.pos,
-					{
-						rotation: new mp.Vector3(-90,0,0),
-						alpha: 255,
-						dimension: localPlayer.dimension
-					});
-				}
-				
-				if(typeof(dropObj.id) !== "undefined") {
-					let dropCheck = mp.checkpoints.new(40, new mp.Vector3(colData.pos.x, colData.pos.y, colData.pos.z+0.5), 1.2,
-					{
-						direction: new mp.Vector3(0, 0, 75),
-						color: [255, 255, 255, 0],
-						visible: true,
-						dimension: localPlayer.dimension
-					});
-					dropCheck.colID = colData.colID;
-					dropCheck.dropData = dropData;
-					
-					//chatAPI.sysPush("<span style=\"color:#FF6146\"> "+mp.checkpoints.exists(dropCheck).toString()+"</span>");
-					//mp.events.call("sleepAntiCheat");
-					//localPlayer.position = dropCheck.position;
-					
-					let dropArray = {'object':dropObj.id.toString(),'check':dropCheck.id.toString(),'colPOS':colData.pos,'drop':dropData,'alpha':0};
-					dropsInStream[colData.colID.toString()] = dropArray;
-				}
-			}
-		}
-	}
-}
-
-/*
-mp.events.addDataHandler("col.data", function (entity, value, oldValue) {
-	if(entity.type == 'colshape' && entity.handle != 0) {
-		if(typeof(entity.getVariable("col.type")) !== "undefined") {
-			if(entity.getVariable("col.type") == "dropInv_render") {
-				//chatAPI.sysPush("<span style=\"color:#FF6146\"> * Опача: "+JSON.stringify(value)+"</span>");
-				if(value && !oldValue) {
-					let colData = entity.getVariable('col.data');
-					let dropData = colData.drop;
-					createDropInWorld(colData, dropData);
-				}
-			}
-		}
-	}
-});
-*/
-
-mp.events.add('playerEnterColshape', (shape) => {
-	if(typeof(shape.data) == 'undefined' && typeof(shape.id) != "undefined") {
-		if(typeof(shape.getVariable('col.type')) != "undefined") {
-			let colType = shape.getVariable('col.type');
-			if(colType == 'lootInv_render') {
-				if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") {
-					let myBlocks = localPlayer.getVariable("player.blocks");
-					if(typeof(myBlocks.lootBlock) === "undefined") {
-						let colData = shape.getVariable('col.data');
-						let lootData = colData.loot;
-						colData.pos.z = colData.pos.z - 0.95;
-						let lootObj = false;
-						lootObj = mp.objects.new(mp.game.joaat(colData.obj.hash), colData.pos,
-						{
-							rotation: colData.obj.rot,
-							alpha: 255,
-							dimension: 0
-						});
-						
-						let lootCheck = mp.checkpoints.new(40, new mp.Vector3(colData.pos.x, colData.pos.y, colData.pos.z+0.5), 1.3,
-						{
-							color: [255, 255, 255, 0],
-							visible: true,
-							dimension: localPlayer.dimension
-						});
-						lootCheck.colID = colData.colID;
-						lootCheck.thetype = colData.type;
-						lootCheck.lootData = lootData;
-						
-						let lootArray = {'object':lootObj,'type':colData.type,'name':colData.obj.name,'check':lootCheck,'colID':colData.colID,'colPOS':colData.pos,'loot':lootData,'alpha':0};
-						lootsInStream.push(lootArray);
-					}
-				}
-			}
-			if(colType == 'dropInv_render') {
-				if(typeof(shape.getVariable('col.data')) !== "undefined") {
-					let colData = shape.getVariable('col.data');
-					let dropData = colData.drop;
-					createDropInWorld(colData, dropData);
-				}
-			}
-		}
-	}
-});
-
-mp.events.add("playerEnterCheckpoint", (checkpoint) => {
-	if(typeof(checkpoint) !== "undefined") {
-		if(mp.checkpoints.exists(checkpoint)) {
-			//chatAPI.sysPush("<span style=\"color:#FF6146\"> 1</span>");
-			if(typeof(checkpoint.colID) !== "undefined" && typeof(checkpoint.dropData) !== "undefined") {
-				putDrop.push({"id":checkpoint.colID,"data":checkpoint.dropData});
-				//chatAPI.sysPush("<span style=\"color:#FF6146\"> * TEST: "+JSON.stringify(putDrop)+"..</span>");
-			}
-			if(typeof(checkpoint.colID) !== "undefined" && typeof(checkpoint.lootData) !== "undefined") {
-				lootElement = {"id":checkpoint.colID,"thetype":checkpoint.thetype,"data":checkpoint.lootData};
-			}
-		}
-	}
-});
-
-function lootOpened(data) {
-	if(data) {
-		lootMakes++;
-		//chatAPI.sysPush("<span style=\"color:#FF6146\"> * LOOT: "+data+"..</span>");
-		let jsonData = JSON.parse(data);
-		let isOpen = true, isNotOpenReason = false;
-		if(typeof(jsonData) !== "undefined") {
-			if(typeof(jsonData.thetype) !== "undefined") {
-				if(jsonData.thetype == "xmas") {
-					if(hud_browser) hud_browser.execute('playSound("xmas", 0.15);');
-				}else if(jsonData.thetype == "animal") {
-					if(typeof(jsonData.data) !== "undefined" && typeof(elementLooting.id) !== "undefined") {
-						if(hud_browser) hud_browser.execute('playSound("lootAnimalFinal", 0.35);');
-						jsonData.loot = [];
-						// Формируем лут-контент
-						
-						let lootData = jsonData.data;
-						
-						if(lootData.quality == 0) {
-							isOpen = false;
-							isNotOpenReason = "Тушка этого с признаками болезни, продолжайте охоту..";
-						}else{
-							let tempPed = mp.peds.atRemoteId(parseInt(elementLooting.id));
-							if(typeof(tempPed.getVariable("ped.data")) !== "undefined") {
-								let tempPedData = tempPed.getVariable("ped.data");
-								let deleter = 0;
-								if(tempPedData.age == "adult") deleter = 2;
-								else if(tempPedData.age == "old") deleter = 4;
-								
-								let resultLoot = JSON.parse(JSON.stringify(lootData.maxcomps));
-								for (var prop in resultLoot) {
-									let amount = resultLoot[prop];
-									if(amount > 0 && deleter) {
-										amount = roundNumber(amount / deleter, 0);
-										if(amount <= 0) amount = 1;
-									}
-									jsonData.loot.push({"type":"component","hash":prop,"amount":amount,"health":100});
-								}
-							}else{
-								isOpen = false;
-							}
-						}
-					}else{
-						isOpen = false;
-						isNotOpenReason = "Тушка этого животного протухла, продолжайте охоту..";
-					}
-				}
-			}
-		}
-		if(isOpen) mp.events.callRemote('lootOpened', JSON.stringify(jsonData));
-		else notyAPI.error(isNotOpenReason, 3000, true);
-		elementLooting = false;
-		localPlayer.clearTasksImmediately();
-		localPlayer.freezePosition(false);
-		return restoreBinds();
-	}
-}
-
-var dealerPanel = false;
-
-mp.keys.bind(0x45, true, function() { // E Key (LOOT) DOWN
-	if(!allowBinds || !Array.isArray(allowBinds)) return false;
-	if(!allowBinds.includes(0x45)) return false;
-	
-	if(!localPlayer.vehicle && !localPlayer.isDead() && typeof(localPlayer.getVariable("player.inv")) !== "undefined") {
-		// Проверка на убитого животного перед ебалом
-		let startPosition = localPlayer.position;
-		let farAway = JSON.parse(JSON.stringify(startPosition));
-		farAway.z = farAway.z + 2;
-		let isPedShooted = mp.raycasting.testCapsule(startPosition, farAway, 2.0, null, 8);
-		//if(typeof(isPedShooted.entity) === 'number' && isPedShooted.entity !== 0 && mp.game.entity.isAnObject(isPedShooted.entity)) { mp.game.shapetest.releaseScriptGuidFromEntity(isPedShooted.entity); }
-		
-		let pedShooted = false, pedData = false;
-		if(isPedShooted) {
-			if(typeof(isPedShooted.entity) !== "undefined") {
-				let tempPedShooted = mp.peds.atHandle(isPedShooted.entity.handle);
-				if(mp.peds.exists(tempPedShooted)) {
-					if(tempPedShooted.isDead()) {
-						if(typeof(tempPedShooted.getVariable("ped.type")) !== "undefined" && typeof(tempPedShooted.getVariable("ped.data")) !== "undefined") {
-							let pedType = tempPedShooted.getVariable("ped.type");
-							if(pedType == "animal") {
-								pedShooted = tempPedShooted;
-								pedData = tempPedShooted.getVariable("ped.data");
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		if(pedShooted && pedData && pedShooted.remoteId) {
-			if(typeof(localPlayer.getVariable('player.passive')) !== "undefined") {
-				if(localPlayer.getVariable('player.passive')) return notyAPI.error("Нельзя освежёвывать животных в пассивном режиме.", 3000, true);
-			}
-			
-			if(typeof(localPlayer.getVariable('player.inv')) === "undefined") return notyAPI.error("У Вас не инициализирован инвентарь.", 3000, true);
-			
-			let myInv = localPlayer.getVariable('player.inv');
-			if(typeof(myInv.instrument) !== "undefined") {
-				if(typeof(myInv.instrument.hash) !== "undefined") {
-					if(myInv.instrument.hash != "hunterknife") {
-						return notyAPI.error("Для освежевания тушки требуется охотничий нож, купите в 24/7.", 3000, true);
-					}else{
-						if(typeof(myInv.instrument.health) !== "undefined") {
-							if(myInv.instrument.health <= 0) return notyAPI.error("Охотничий нож слишком изношен.", 3000, true);
-						}
-					}
-				}
-			}else{
-				return notyAPI.error("Для освежевания тушки требуется охотничий нож, купите в 24/7.", 3000, true);
-			}
-			
-			localPlayer.taskPlayAnim("amb@world_human_gardener_plant@female@idle_a", "idle_a_female", 8.0, 1.0, -1, 1, 1.0, false, false, false);
-			
-			allowBinds = [0x45];
-			elementLooting = {"id":pedShooted.remoteId,"thetype":"animal","data":pedData};
-			return elementLooting.tick = 0;
-			//return chatAPI.sysPush("<span style=\"color:#FF6146\"> * Лутаем педоффку "+pedShooted.remoteId+"? :D</span>");
-		}
-				
-		if(lootElement && !inventorySaving) {
-			if(typeof(localPlayer.getVariable('player.passive')) !== "undefined") {
-				if(localPlayer.getVariable('player.passive')) return notyAPI.error("Нельзя лутать в пассивном режиме.", 3000, true);
-			}
-			
-			localPlayer.taskPlayAnim("missheist_jewel@hacking", "hack_loop", 8.0, 1.0, -1, 1, 1.0, false, false, false);
-			
-			allowBinds = [0x45];
-			elementLooting = lootElement;
-			return elementLooting.tick = 0;
-		}
-		
-		let myPos = localPlayer.position;
-		mp.peds.forEachInStreamRange(
-			(ped, id) => {
-				if(ped.isOnScreen() && typeof(ped.getVariable("ped.type")) !== "undefined") {
-					let pedType = ped.getVariable("ped.type");
-					if(pedType == "dealer") {
-						let pedPos = ped.position;
-						let distance = mp.game.gameplay.getDistanceBetweenCoords(myPos.x, myPos.y, myPos.z, pedPos.x, pedPos.y, pedPos.z, true);
-						if(distance <= 1) {
-							if(allowBinds != stockBinds) return false;
-							
-							ammoInUseCount = parseInt((CryptoJS.AES.decrypt(ammoInUseCount, krKey)).toString(CryptoJS.enc.Utf8));
-							if(slotInUse != "0" || ammoInUseCount > 0) {
-								ammoInUseCount = CryptoJS.AES.encrypt((ammoInUseCount).toString(), krKey);
-								return notyAPI.error("С оружием к барыге нельзя, уберите оружие.", 3000, true);
-							}
-							ammoInUseCount = CryptoJS.AES.encrypt((ammoInUseCount).toString(), krKey);
-							
-							if(typeof(localPlayer.getVariable("active.deal")) !== "undefined") {
-								if(localPlayer.getVariable("active.deal")) return notyAPI.error("У Вас есть активная сделка, барыга недоступен.", 3000, true);
-							}
-							
-							if(typeof(localPlayer.getVariable('player.passive')) !== "undefined") {
-								if(localPlayer.getVariable('player.passive')) return notyAPI.error("Нельзя совершать сделку с барыгой в пассивном режиме.", 3000, true);
-							}
-							
-							let myInv = localPlayer.getVariable('player.inv');
-							if(typeof(myInv.instrument) !== "undefined") {
-								if(typeof(myInv.instrument.hash) !== "undefined") {
-									return notyAPI.error("Нельзя совершать сделку с активным инструментом, уберите его.", 3000, true);
-								}
-							}
-							
-							if(typeof(mp.world.data.lootCosts) === "undefined") return notyAPI.error("Барыга не хочет с Вами взаимодействовать.", 3000, true);
-							let playerInv = localPlayer.getVariable("player.inv");
-							if(!allowBinds || !Array.isArray(allowBinds)) return false;
-							if(!allowBinds.includes(0x72)) return false;
-							if(inventorySaving) return false;
-							
-							if(hud_browser) {
-								allowBinds = [];
-								hud_browser.execute('toggleDealerPanel(\''+JSON.stringify(playerInv)+'\', \''+JSON.stringify(mp.world.data.lootCosts)+'\');');
-								mp.gui.cursor.visible = true;
-								dealerPanel = true;
-							}
-							
-							return false;
-						}
-					}
-				}
-			}
-		);
-	}
-});
-
-mp.keys.bind(0x45, false, function() { // E Key (PUT or ACTION) UP
-	if(!allowBinds || !Array.isArray(allowBinds)) return false;
-	if(!allowBinds.includes(0x45)) return false;
-	
-	if(inCasino) return false;
-	
-	if(elementLooting) {
-		elementLooting = false;
-		localPlayer.clearTasksImmediately();
-		localPlayer.freezePosition(false);
-		return restoreBinds();
-	}
-	
-	if(!localPlayer.vehicle && !localPlayer.isDead() && typeof(localPlayer.getVariable("player.inv")) !== "undefined") {
-		if(putDrop && !inventorySaving) {
-			if(typeof(localPlayer.getVariable('player.passive')) !== "undefined") {
-				if(localPlayer.getVariable('player.passive') && Object.keys(putDrop).length > 0) return notyAPI.error("Нельзя подобрать предмет в пассивном режиме.", 3000, true);
-			}
-			
-			let playerInv = localPlayer.getVariable("player.inv");
-			
-			let emptySlot = false;
-			for (let i = 1; i <= 30; i++) {
-				if(typeof(playerInv[i.toString()]) === "undefined") {
-					emptySlot = i.toString();
-					break;
-				}
-			}
-			
-			if(emptySlot) {
-				if(!inventorySaving && !dealerPanel && !afInvPutting && Object.keys(putDrop).length > 0) {
-					let tempPutDrop = putDrop[Object.keys(putDrop).length-1];
-					if(typeof(tempPutDrop.id) !== "undefined") {
-						let puttingDrop = mp.colshapes.atRemoteId(tempPutDrop.id);
-						if(puttingDrop) {
-							if(mp.colshapes.exists(puttingDrop)) {
-								allowBinds = [];
-								dropPutting = true;
-								
-								afInvPutting = true;
-								setTimeout(function() { afInvPutting = false }, 1500);
-								
-								inventorySaving = JSON.stringify(localPlayer.getVariable("player.inv"));
-								mp.events.callRemote('invPut', tempPutDrop.id);
-								
-								delete putDrop[Object.keys(putDrop).length-1];
-								putDrop = putDrop.filter(function (el) { return el != null; });
-								
-								return false;
-							}
-						}
-					}
-				}
-			}else{
-				return notyAPI.error("Нет свободных мест в инвентаре.", 3000, true);
-			}
-		}
-		
-		if(typeof(fishingMode.rod) !== "undefined" && typeof(fishingMode.bait) === "undefined" && !fishingStartProcess && typeof(localPlayer.getVariable("player.inv")) !== "undefined") {
-			if(localPlayer.isInWater()) return notyAPI.error("Вы не можете закинуть удочку вплавь.", 3000, true);
-			
-			let playerInv = localPlayer.getVariable("player.inv");
-			
-			let emptySlot = false;
-			for (let i = 1; i <= 30; i++) {
-				if(typeof(playerInv[i.toString()]) === "undefined") {
-					emptySlot = i.toString();
-					break;
-				}
-			}
-			
-			if(!emptySlot) {
-				return notyAPI.error("Нет свободных мест в инвентаре.", 3000, true);
-			}else{
-				if(mp.game.invoke("0x4805D2B1D8CF94A9", localPlayer.handle) != 0) return notyAPI.error("Вы должны находится в неподвижном состоянии.", 3000, true);
-				else return fishingStart();
-			}
-		}else if(typeof(fishingMode.rod) !== "undefined" && typeof(fishingMode.bait) !== "undefined") {
-			if(!chatActive) {
-				if(fishingMode.poklevka) {
-					if(!fishingMode.putting) return poklevkaOk();
-					else return false;
-				}else{
-					return fishingStop();
-				}
-			}
-		}
-		
-		if(theftVeh) {
-			if(mp.vehicles.exists(theftVeh)) {
-				let myPos = localPlayer.position;
-				let vehPos = theftVeh.position;
-				let tempDist = mp.game.system.vdist2(myPos.x, myPos.y, myPos.z, vehPos.x, vehPos.y, vehPos.z);
-				if(tempDist <= 4.2) {
-					allowBinds = [0x46, 0x0D];
-					if(hud_browser) hud_browser.execute('toggleTheftVeh(true);');
-					localPlayer.taskPlayAnim(
-						'mini@safe_cracking',
-						'dial_turn_clock_normal',
-						8.0,
-						1000,
-						-1,
-						2,
-						0,
-						false,
-						false,
-						false
-					);
-				}else{
-					mp.game.ui.messages.showMidsized("~w~Слишком ~r~далеко", "~w~Слишком далеко ~s~от ~r~замка~w~ транспорта.");
-					notyAPI.error("Слишком далеко от замка, попробуйте вскрыть ещё раз.", 3000, true);
-					theftVeh = false;
-				}
-			}else{
-				theftVeh = false;
-			}
-		}
-	}
-	
-	if(fastOpenSMS && !chatActive) return fastOpenSMSFunc();
-});
-
-function cancelVehTheft() {
-	if(theftVeh) {
-		theftVeh = false;
-		if(hud_browser) hud_browser.execute('toggleTheftVeh(false);');
-		localPlayer.clearTasks();
-		restoreBinds();
-	}
-}
-
-mp.keys.bind(0x46, true, function() {
-	if(!allowBinds || !Array.isArray(allowBinds)) return false;
-	if(!allowBinds.includes(0x46)) return false;
-	
-	if(theftVeh) cancelVehTheft();
-});
-
-mp.keys.bind(0x0D, true, function() {
-	if(!allowBinds || !Array.isArray(allowBinds)) return false;
-	if(!allowBinds.includes(0x0D)) return false;
-	
-	if(theftVeh) cancelVehTheft();
-});
-
-mp.events.add("dealerMakeDeal", (scrapCount, microchipsCount, goldCount, largeskinCount, littleskinCount, animalfatCount, animalmeatCount, animalbonesCount, amLLCount, amBLCount, amSGCount, deadfishCount, plotvaCount, krasnoperkaCount, ukleykaCount, peskarCount, karasCount, leshCount, zherekhCount, gusteraCount, golavlCount, sazanCount, forelCount, lososCount, tunecCount, scatCount, belugaCount, littlesharkCount) => {
-	if(typeof(scrapCount) !== "undefined" && typeof(microchipsCount) !== "undefined" && typeof(goldCount) !== "undefined" && typeof(largeskinCount) !== "undefined" && typeof(littleskinCount) !== "undefined" && typeof(animalfatCount) !== "undefined" && typeof(animalmeatCount) !== "undefined" && typeof(animalbonesCount) !== "undefined" && typeof(amLLCount) !== "undefined" && typeof(amBLCount) !== "undefined" && typeof(amSGCount) !== "undefined" &&
-		typeof(deadfishCount) !== "undefined" && typeof(plotvaCount) !== "undefined" && typeof(krasnoperkaCount) !== "undefined" && typeof(ukleykaCount) !== "undefined" && typeof(peskarCount) !== "undefined" && typeof(karasCount) !== "undefined" && typeof(leshCount) !== "undefined" && 
-		typeof(zherekhCount) !== "undefined" && typeof(gusteraCount) !== "undefined" && typeof(golavlCount) !== "undefined" && typeof(sazanCount) !== "undefined" && typeof(forelCount) !== "undefined" && typeof(lososCount) !== "undefined" && 
-		typeof(tunecCount) !== "undefined" && typeof(scatCount) !== "undefined" && typeof(belugaCount) !== "undefined" && typeof(littlesharkCount) !== "undefined") {
-			if(inventorySaving) return false;
-			inventorySaving = JSON.stringify(localPlayer.getVariable("player.inv"));
-			mp.events.callRemote('dealerMakeDeal', scrapCount, microchipsCount, goldCount, largeskinCount, littleskinCount, animalfatCount, animalmeatCount, animalbonesCount, amLLCount, amBLCount, amSGCount, deadfishCount, plotvaCount, krasnoperkaCount, ukleykaCount, peskarCount, karasCount, leshCount, zherekhCount, gusteraCount, golavlCount, sazanCount, forelCount, lososCount, tunecCount, scatCount, belugaCount, littlesharkCount);
-	}else{
-		restoreBinds();
-		if(hud_browser) {
-			hud_browser.execute('toggleDealerPanel();');
-			notyAPI.error("Барыга отказался от сделки, попробуйте ещё раз.", 3000, true);
-		}
-		mp.gui.cursor.visible = false;
-		dealerPanel = false;
-	}
-});
-
-mp.events.add("dealerMakeDealResult", (resultat, reasonOrMoney) => {
-	if(typeof(resultat) !== "undefined" && typeof(reasonOrMoney) !== "undefined") {
-		restoreBinds();
-		if(hud_browser) {
-			hud_browser.execute('toggleDealerPanel();');
-			if(!resultat) {
-				notyAPI.error(reasonOrMoney, 3000, true);
-				if(inventorySaving) inventorySaving = false;
-			}else{
-				mp.game.ui.messages.showMidsizedShard("~w~Сделка с барыгой ~g~состоялась", "~s~Вы получили"+reasonOrMoney.replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+" руб.", 5, false, true, 8000);
-				notyAPI.success("Вы получили от барыги<b>"+reasonOrMoney.replace(/(\d{1,3})(?=((\d{3})*)$)/g, " $1")+"</b> руб.", 3000, true);
-			}
-		}
-		mp.gui.cursor.visible = false;
-		dealerPanel = false;
-	}
-});
-
-mp.events.add("closeDealerPanel", () => {
-	if(hud_browser) {
-		restoreBinds();
-		hud_browser.execute('toggleDealerPanel();');
-		mp.gui.cursor.visible = false;
-		dealerPanel = false;
-	}
-});
-
-mp.events.add("invItemPutted", (result) => {
-	if(typeof(result) !== "undefined") {
-		if(result) {
-			if(mp.game.streaming.hasAnimDictLoaded("anim@heists@narcotics@trash")) localPlayer.taskPlayAnim("anim@heists@narcotics@trash", "drop_front", 8.0, 8.0, -1, 0, 0.0, false, false, false);
-			//chatAPI.sysPush("<span style=\"color:#FF6146\"> * RESULT "+result.toString()+"</span>");
-			result = JSON.parse(result);
-			if(typeof(result.hash) !== "undefined" && typeof(result.amount) !== "undefined") {
-				let dropName = result.hash;
-				if(typeof(result.sex) === "undefined") {
-					if(typeof(allStuff[result.type][result.hash]) !== "undefined") {
-						if(result.type == "ammo") {
-							ammoInUseCount = parseInt((CryptoJS.AES.decrypt(ammoInUseCount, krKey)).toString(CryptoJS.enc.Utf8));
-							if(result.hash == ammoInUse && ammoInUseCount >= 0) ammoInUseCount = ammoInUseCount + parseInt(result.amount);
-							ammoInUseCount = CryptoJS.AES.encrypt(ammoInUseCount.toString(), krKey);
-						}
-						let tempData = allStuff[result.type][result.hash];
-						if(typeof(tempData.name) !== "undefined") dropName = tempData.name.toLowerCase();
-
-						if(result.amount <= 1) notyAPI.success("Вы подняли <b>"+dropName+"</b>.", 3000, true);
-						else notyAPI.success("Вы подняли <b>"+dropName+"</b> в количестве <b>"+result.amount+"</b> шт.", 3000, true);
-					}
-				}else{
-					if(typeof(allStuff[result.sex][result.type][result.hash]) !== "undefined") {
-						let tempData = allStuff[result.sex][result.type][result.hash];
-						if(typeof(tempData.name) !== "undefined") dropName = tempData.name.toLowerCase();
-						if(result.sex == "male") notyAPI.success("Вы подняли мужскую одежду, <b>"+dropName+"</b>.", 3000, true);
-						else notyAPI.success("Вы подняли женскую одежду, <b>"+dropName+"</b>.", 3000, true);
-					}
-				}
-			}
-		}else{
-			if(dropPutting) {
-				restoreBinds();
-				dropPutting = false;
-			}
-		}
-	}
-});
-
-mp.events.add("playerExitCheckpoint", (checkpoint) => {
-	if(typeof(checkpoint) !== "undefined") {
-		if(mp.checkpoints.exists(checkpoint)) {
-			if(typeof(checkpoint.colID) !== "undefined" && typeof(checkpoint.dropData) !== "undefined") {
-				for(var i in putDrop) {
-					let tempData = putDrop[i];
-					if (checkpoint.colID == tempData.id) {
-						if(putDrop[i] || putDrop[i] !== undefined) delete putDrop[i];
-					}
-				}
-				putDrop = putDrop.filter(function (el) { return el != null; });
-			}
-			if(typeof(checkpoint.colID) !== "undefined" && typeof(checkpoint.lootData) !== "undefined") {
-				lootElement = false;
-				if(elementLooting) {
-					elementLooting = false;
-					localPlayer.clearTasksImmediately();
-					localPlayer.freezePosition(false);
-					restoreBinds();
-				}
-			}
-		}
-	}
-});
-
-function fullRemoveLoots() {
-	if(typeof(lootsInStream) != "undefined" && Object.keys(lootsInStream).length > 0) {
-		for(var i in lootsInStream) {
-			let tempData = lootsInStream[i];
-			if(tempData['object']) {
-				tempData['object'].destroy();
-				delete tempData['object'];
-			}
-			if(tempData['check']) {
-				tempData['check'].destroy();
-				delete tempData['check'];
-			}
-			if(lootsInStream[i] || lootsInStream[i] !== undefined) delete lootsInStream[i];
-		}
-		lootsInStream = lootsInStream.filter(function (el) { return el != null; });
-	}
-}
-
-mp.events.add('playerExitColshape', (shape) => {
-	if(mp.colshapes.exists(shape)) {
-		if(typeof(shape.getVariable('col.type')) != "undefined") {
-			let colType = shape.getVariable('col.type');
-			if(colType == 'lootInv_render') {
-				let colData = shape.getVariable('col.data');
-				//chatAPI.sysPush("<span style=\"color:#FF6146\"> * OUT "+colData.colID+"</span>");
-				for(var i in lootsInStream) {
-					let tempData = lootsInStream[i];
-					if (colData.colID == tempData.colID) {
-						if(tempData['object']) {
-							tempData['object'].destroy();
-							delete tempData['object'];
-						}
-						if(tempData['check']) {
-							tempData['check'].destroy();
-							delete tempData['check'];
-						}
-						if(lootsInStream[i] || lootsInStream[i] !== undefined) delete lootsInStream[i];
-					}
-				}
-				lootsInStream = lootsInStream.filter(function (el) { return el != null; });
-			}
-			if(colType == 'dropInv_render') {
-				let colData = shape.getVariable('col.data');
-				//chatAPI.sysPush("<span style=\"color:#FF6146\"> * OUT "+colData.colID+"</span>");
-				if(typeof(dropsInStream[colData.colID.toString()]) !== "undefined") {
-					let tempData = dropsInStream[colData.colID.toString()];
-					if(tempData['object']) {
-						if(mp.objects.exists(mp.objects.at(parseInt(tempData['object'])))) mp.objects.at(parseInt(tempData['object'])).destroy();
-					}
-					if(tempData['check']) {
-						if(mp.checkpoints.exists(mp.checkpoints.at(parseInt(tempData['check'])))) mp.checkpoints.at(parseInt(tempData['check'])).destroy();
-					}
-					dropsInStream[colData.colID.toString()] = undefined;
-					dropsInStream = JSON.parse(JSON.stringify(dropsInStream));
-					//chatAPI.sysPush("<span style=\"color:#FF6146\"> * RES "+JSON.stringify(dropsInStream)+"</span>");
-				}
-			}
-		}
-	}
-});
-
-function updInvPers(data, updatePers, vehData) {
-	if(typeof(data) !== "undefined" && typeof(localPlayer.getVariable("player.inv")) !== "undefined") {
-		if(inventorySaving || invCEFUpdating || invCEFUpdatingVeh) {
-			if(inventoryPanel) closeInventory();
-			if(hud_browser) hud_browser.execute('invCEFUpdatedVeh();');
-			if(hud_browser) hud_browser.execute('invCEFUpdated();');
-			return notyAPI.error("Инвентарь сохраняется, попробуйте позже.", 3000, true);
-		}
-		if(myVehSaving) {
-			if(inventoryPanel) closeInventory();
-			if(hud_browser) hud_browser.execute('invCEFUpdatedVeh();');
-			if(hud_browser) hud_browser.execute('invCEFUpdated();');
-			return notyAPI.error("Транспорт сохраняется, инвентарь недоступен, попробуйте позже.", 3000, true);
-		}
-		
-		if(localPlayer.getParachuteState() == 0 || !localPlayer.getParachuteState()) {
-			let myInv = localPlayer.getVariable("player.inv");
-			let tempData = JSON.parse(data);
-			if(typeof(myInv.instrument) !== "undefined" && typeof(tempData.instrument) === "undefined") {
-				if(typeof(myInv.instrument.hash) !== "undefined") {
-					if(myInv.instrument.hash == "parachute") {
-						if(inventoryPanel) closeInventory();
-						if(hud_browser) hud_browser.execute('invCEFUpdatedVeh();');
-						if(hud_browser) hud_browser.execute('invCEFUpdated();');
-						return notyAPI.error("Вы уже используете парашют, инвентарь недоступен, попробуйте позже.", 3000, true);
-					}
-				}
-			}
-		}
-		
-		let theVeh = localPlayer.vehicle;
-		if(vehData) {
-			if(!theVeh) {
-				if(inventoryPanel) closeInventory();
-				return notyAPI.error("Произошла ошибка синхронизации багажника транспорта.", 3000, true);
-			}
-			if(typeof(theVeh.getVariable("veh.id")) === "undefined") {
-				if(inventoryPanel) closeInventory();
-				return notyAPI.error("Произошла ошибка синхронизации багажника транспорта.", 3000, true);
-			}
-			let JSONvehData = JSON.parse(vehData);
-			if(theVeh.getVariable("veh.id") != JSONvehData.id) return notyAPI.error("Произошла ошибка синхронизации багажника транспорта.", 3000, true);
-			invCEFUpdatingVeh = JSONvehData.id;
-			//chatAPI.sysPush("<span style=\"color:#FF6146\"> * Сохраняем ИНВ тачки..</span>");
-		}
-		
-		//chatAPI.sysPush("<span style=\"color:#FF6146\"> * Сохраняем ПЕРСА..</span>");
-		
-		inventorySaving = JSON.stringify(localPlayer.getVariable("player.inv"));
-		invCEFUpdating = JSON.stringify(localPlayer.getVariable("player.inv"));
-		
-		mp.events.callRemote('updInvPers', data, updatePers, false, theVeh, vehData);
-	}
-}
-mp.events.add("updInvPers", updInvPers);
-
-var damagedList = [];
-function youDamage(targetEntity, isDeath, boneIndex, minusHP, position) {
-	if(typeof(targetEntity) !== "undefined" && typeof(isDeath) !== "undefined" && typeof(minusHP) !== "undefined" && typeof(position) !== "undefined") {
-		if(minusHP > 0) {
-			if(hud_browser) {
-				if(boneIndex == 20) hud_browser.execute('playSound("headshot", 0.15);');
-				else hud_browser.execute('playSound("hit", 0.15);');
-			}
-			damagedList.push({"isDeath":isDeath,"boneIndex":boneIndex,"minusHP":minusHP,"position":position,"count":0});
-			//if(isDeath) killCam(targetEntity);
-		}
-	}
-}
-mp.events.add("youDamage", youDamage);
-
-var imGodeFuckingMode = false;
-mp._events.add('outgoingDamage', (sourceEntity, targetEntity, sourcePlayer, weapon, boneIndex, damage) => {
-	let passiveChecker = true;
-	if(typeof(localPlayer.getVariable('player.fraction')) !== "undefined") {
-		let myFraction = localPlayer.getVariable('player.fraction');
-		if(typeof(myFraction.name) !== "undefined") {
-			if(myFraction.name == "ПОЛИЦИЯ") passiveChecker = false;
-		}
-	}
-	/*if(targetEntity.vehicle) {
-		let theVeh = targetEntity.vehicle;
-		if(typeof(theVeh.getVariable("veh.theft")) !== "undefined" || typeof(theVeh.getVariable("veh.grabTruck")) !== "undefined") passiveChecker = false;
-	}*/
-	if(passiveChecker && typeof(localPlayer.getVariable('player.passive')) !== "undefined") {
-		if(localPlayer.getVariable('player.passive')) return true;
-	}
-	if(imGodeFuckingMode) return true;
-	//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+weapon+" "+damage+"</span>");
-	if(targetEntity.type === 'player') {
-		let passiveTargetChecker = true;
-
-		if(typeof(localPlayer.getVariable('player.fraction')) !== "undefined") {
-			let myFraction = localPlayer.getVariable('player.fraction');
-			if(typeof(myFraction.name) !== "undefined") {
-				if(myFraction.name == "ПОЛИЦИЯ") passiveTargetChecker = false;
-			}
-		}
-
-		/*if(targetEntity.vehicle) {
-			let theVeh = targetEntity.vehicle;
-			if(typeof(theVeh.getVariable("veh.theft")) !== "undefined" || typeof(theVeh.getVariable("veh.grabTruck")) !== "undefined") passiveTargetChecker = false;
-		}*/
-
-		if(passiveTargetChecker && typeof(targetEntity.getVariable('player.passive')) !== "undefined") {
-			if(targetEntity.getVariable('player.passive')) return true;
-		}
-		
-		if(targetEntity.type == "player") {
-			if(typeof(localPlayer.getVariable('player.fraction')) !== "undefined" && typeof(targetEntity.getVariable('player.fraction')) !== "undefined") {
-				let myFraction = localPlayer.getVariable("player.fraction");
-				let sourceFraction = targetEntity.getVariable("player.fraction");
-				if(clanZones) {
-					for (var i in clanZones) {
-						let tempZone = clanZones[i];
-						if(typeof(tempZone.war.id) !== "undefined") {
-							if(tempZone.own.id == myFraction.id || tempZone.war.id == myFraction.id) {
-								if(myFraction.id == sourceFraction.id) {
-									return true;
-									break;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		if(weapon.toString() == "2725352035" || weapon.toString() == "1737195953") {
-			if(weapon.toString() == "2725352035") {
-				plusSkills = {};
-				plusSkills.str = 1;
-			}else if(weapon.toString() == "1737195953") {
-				plusSkills = {};
-				plusSkills.str = 2;
-			}
-		}else{
-			if(boneIndex == 20) {
-				plusSkills = {};
-				plusSkills.weap = 2;
-			}else{
-				plusSkills = {};
-				plusSkills.weap = 1;
-			}
-		}
-		//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+JSON.stringify(plusSkills)+"</span>");
-		
-		let myBlocks = {};
-		myBlocks["skills"] = {"str":1,"weap":1,"sta":1};
-		if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined") myBlocks = localPlayer.getVariable("player.blocks");
-		//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+JSON.stringify(myBlocks.skills)+"</span>");
-		
-		let minusHP = 0;
-		if(weapon.toString() == "2725352035") { // Кулаки
-			if(damage > 50) {
-				antiCheatDetected('Читы, убийство одним ударом');
-			}else{
-				minusHP = 1;
-				if(typeof(myBlocks.skills) !== "undefined") {
-					if(typeof(myBlocks.skills.str) !== "undefined") {
-						if(myBlocks.skills.str >= 1 && myBlocks.skills.str <= 10) minusHP = 2;
-						else if(myBlocks.skills.str >= 11 && myBlocks.skills.str <= 20) minusHP = 4;
-						else if(myBlocks.skills.str >= 21 && myBlocks.skills.str <= 30) minusHP = 6;
-						else if(myBlocks.skills.str >= 31 && myBlocks.skills.str <= 40) minusHP = 8;
-						else if(myBlocks.skills.str >= 41 && myBlocks.skills.str <= 50) minusHP = 12;
-						else if(myBlocks.skills.str >= 51 && myBlocks.skills.str <= 60) minusHP = 14;
-						else if(myBlocks.skills.str >= 61 && myBlocks.skills.str <= 70) minusHP = 16;
-						else if(myBlocks.skills.str >= 71 && myBlocks.skills.str <= 80) minusHP = 18;
-						else if(myBlocks.skills.str >= 81 && myBlocks.skills.str <= 90) minusHP = 20;
-						else if(myBlocks.skills.str >= 91 && myBlocks.skills.str <= 100) minusHP = 22;
-					}
-				}
-			}
-		}else if(weapon.toString() == "1737195953") { // Дубинка ментовская
-			minusHP = 10;
-			if(typeof(myBlocks.skills) !== "undefined") {
-				if(typeof(myBlocks.skills.str) !== "undefined") {
-					if(myBlocks.skills.str >= 50) minusHP = 20;
-				}
-			}
-		}else if(weapon.toString() == "453432689") { // Colt 911
-			minusHP = 10;
-			if(boneIndex == 20) minusHP = 25; // Голова
-			else if(boneIndex == 10) minusHP = 15; // Шея
-			else if(boneIndex == 8) minusHP = 10; // Торс
-			else if(boneIndex == 16) minusHP = 10; // Правая рука
-			else if(boneIndex == 18) minusHP = 10; // Правый кулак
-			else if(boneIndex == 12) minusHP = 10; // Левая рука
-			else if(boneIndex == 14) minusHP = 10; // Левый кулак
-			else if(boneIndex == 0) minusHP = 10; // Остальные части тела
-			else if(boneIndex == 2) minusHP = 10; // Левая нога
-			else if(boneIndex == 4) minusHP = 10; // Правая нога
-			else if(boneIndex == 6) minusHP = 10; // ХЗ
-		}else if(weapon.toString() == "3249783761") { // Револьвер
-			minusHP = 50;
-			if(boneIndex == 20) minusHP = 65; // Голова
-			else if(boneIndex == 10) minusHP = 50; // Шея
-			else if(boneIndex == 8) minusHP = 50; // Торс
-			else if(boneIndex == 16) minusHP = 50; // Правая рука
-			else if(boneIndex == 18) minusHP = 50; // Правый кулак
-			else if(boneIndex == 12) minusHP = 50; // Левая рука
-			else if(boneIndex == 14) minusHP = 50; // Левый кулак
-			else if(boneIndex == 0) minusHP = 50; // Остальные части тела
-			else if(boneIndex == 2) minusHP = 50; // Левая нога
-			else if(boneIndex == 4) minusHP = 50; // Правая нога
-			else if(boneIndex == 6) minusHP = 50; // ХЗ
-		}else if(weapon.toString() == "2578377531") { // Deagle not -1716589765
-			minusHP = 25;
-			if(boneIndex == 20) minusHP = 35; // Голова
-			else if(boneIndex == 10) minusHP = 30; // Шея
-			else if(boneIndex == 8) minusHP = 25; // Торс
-			else if(boneIndex == 16) minusHP = 25; // Правая рука
-			else if(boneIndex == 18) minusHP = 25; // Правый кулак
-			else if(boneIndex == 12) minusHP = 25; // Левая рука
-			else if(boneIndex == 14) minusHP = 25; // Левый кулак
-			else if(boneIndex == 0) minusHP = 25; // Остальные части тела
-			else if(boneIndex == 2) minusHP = 25; // Левая нога
-			else if(boneIndex == 4) minusHP = 25; // Правая нога
-			else if(boneIndex == 6) minusHP = 25; // ХЗ
-		}else if(weapon.toString() == "487013001") { // Pump Shutgun
-			minusHP = 3;
-			if(boneIndex == 20) minusHP = 12; // Голова
-			else if(boneIndex == 10) minusHP = 9; // Шея
-			else if(boneIndex == 8) minusHP = 6; // Торс
-			else if(boneIndex == 16) minusHP = 3; // Правая рука
-			else if(boneIndex == 18) minusHP = 3; // Правый кулак
-			else if(boneIndex == 12) minusHP = 3; // Левая рука
-			else if(boneIndex == 14) minusHP = 3; // Левый кулак
-			else if(boneIndex == 0) minusHP = 3; // Остальные части тела
-			else if(boneIndex == 2) minusHP = 3; // Левая нога
-			else if(boneIndex == 4) minusHP = 3; // Правая нога
-			else if(boneIndex == 6) minusHP = 3; // ХЗ
-		}else if(weapon.toString() == "2017895192") { // Sawn Off Shutgun
-			minusHP = 3;
-			if(boneIndex == 20) minusHP = 12; // Голова
-			else if(boneIndex == 10) minusHP = 9; // Шея
-			else if(boneIndex == 8) minusHP = 5; // Торс
-			else if(boneIndex == 16) minusHP = 3; // Правая рука
-			else if(boneIndex == 18) minusHP = 3; // Правый кулак
-			else if(boneIndex == 12) minusHP = 3; // Левая рука
-			else if(boneIndex == 14) minusHP = 3; // Левый кулак
-			else if(boneIndex == 0) minusHP = 3; // Остальные части тела
-			else if(boneIndex == 2) minusHP = 3; // Левая нога
-			else if(boneIndex == 4) minusHP = 3; // Правая нога
-			else if(boneIndex == 6) minusHP = 3; // ХЗ
-		}else if(weapon.toString() == "4019527611") { // DB Shutgun not -275439685
-			minusHP = 3;
-			if(boneIndex == 20) minusHP = 12; // Голова
-			else if(boneIndex == 10) minusHP = 9; // Шея
-			else if(boneIndex == 8) minusHP = 5; // Торс
-			else if(boneIndex == 16) minusHP = 3; // Правая рука
-			else if(boneIndex == 18) minusHP = 3; // Правый кулак
-			else if(boneIndex == 12) minusHP = 3; // Левая рука
-			else if(boneIndex == 14) minusHP = 3; // Левый кулак
-			else if(boneIndex == 0) minusHP = 3; // Остальные части тела
-			else if(boneIndex == 2) minusHP = 3; // Левая нога
-			else if(boneIndex == 4) minusHP = 3; // Правая нога
-			else if(boneIndex == 6) minusHP = 3; // ХЗ
-		}else if(weapon.toString() == "324215364") { // UZI
-			minusHP = 10;
-			if(boneIndex == 20) minusHP = 25; // Голова
-			else if(boneIndex == 10) minusHP = 20; // Шея
-			else if(boneIndex == 8) minusHP = 10; // Торс
-			else if(boneIndex == 16) minusHP = 10; // Правая рука
-			else if(boneIndex == 18) minusHP = 10; // Правый кулак
-			else if(boneIndex == 12) minusHP = 10; // Левая рука
-			else if(boneIndex == 14) minusHP = 10; // Левый кулак
-			else if(boneIndex == 0) minusHP = 10; // Остальные части тела
-			else if(boneIndex == 2) minusHP = 10; // Левая нога
-			else if(boneIndex == 4) minusHP = 10; // Правая нога
-			else if(boneIndex == 6) minusHP = 10; // ХЗ
-		}else if(weapon.toString() == "3675956304") { // Tec 9 not -619010992
-			minusHP = 10;
-			if(boneIndex == 20) minusHP = 25; // Голова
-			else if(boneIndex == 10) minusHP = 20; // Шея
-			else if(boneIndex == 8) minusHP = 10; // Торс
-			else if(boneIndex == 16) minusHP = 10; // Правая рука
-			else if(boneIndex == 18) minusHP = 10; // Правый кулак
-			else if(boneIndex == 12) minusHP = 10; // Левая рука
-			else if(boneIndex == 14) minusHP = 10; // Левый кулак
-			else if(boneIndex == 0) minusHP = 10; // Остальные части тела
-			else if(boneIndex == 2) minusHP = 10; // Левая нога
-			else if(boneIndex == 4) minusHP = 10; // Правая нога
-			else if(boneIndex == 6) minusHP = 10; // ХЗ
-		}else if(weapon.toString() == "736523883") { // SMG 45 Pistol
-			minusHP = 12;
-			if(boneIndex == 20) minusHP = 27; // Голова
-			else if(boneIndex == 10) minusHP = 22; // Шея
-			else if(boneIndex == 8) minusHP = 12; // Торс
-			else if(boneIndex == 16) minusHP = 12; // Правая рука
-			else if(boneIndex == 18) minusHP = 12; // Правый кулак
-			else if(boneIndex == 12) minusHP = 12; // Левая рука
-			else if(boneIndex == 14) minusHP = 12; // Левый кулак
-			else if(boneIndex == 0) minusHP = 12; // Остальные части тела
-			else if(boneIndex == 2) minusHP = 12; // Левая нога
-			else if(boneIndex == 4) minusHP = 12; // Правая нога
-			else if(boneIndex == 6) minusHP = 12; // ХЗ
-		}else if(weapon.toString() == "3220176749") { // Штурм. винтовка not -1074790547
-			minusHP = 15;
-			if(boneIndex == 20) minusHP = 27; // Голова
-			else if(boneIndex == 10) minusHP = 22; // Шея
-			else if(boneIndex == 8) minusHP = 15; // Торс
-			else if(boneIndex == 16) minusHP = 15; // Правая рука
-			else if(boneIndex == 18) minusHP = 15; // Правый кулак
-			else if(boneIndex == 12) minusHP = 15; // Левая рука
-			else if(boneIndex == 14) minusHP = 15; // Левый кулак
-			else if(boneIndex == 0) minusHP = 15; // Остальные части тела
-			else if(boneIndex == 2) minusHP = 15; // Левая нога
-			else if(boneIndex == 4) minusHP = 15; // Правая нога
-			else if(boneIndex == 6) minusHP = 15; // ХЗ
-		}else if(weapon.toString() == "2210333304") { // Afford. Carabine not -2084633992
-			minusHP = 13;
-			if(boneIndex == 20) minusHP = 28; // Голова
-			else if(boneIndex == 10) minusHP = 23; // Шея
-			else if(boneIndex == 8) minusHP = 13; // Торс
-			else if(boneIndex == 16) minusHP = 13; // Правая рука
-			else if(boneIndex == 18) minusHP = 13; // Правый кулак
-			else if(boneIndex == 12) minusHP = 13; // Левая рука
-			else if(boneIndex == 14) minusHP = 13; // Левый кулак
-			else if(boneIndex == 0) minusHP = 13; // Остальные части тела
-			else if(boneIndex == 2) minusHP = 13; // Левая нога
-			else if(boneIndex == 4) minusHP = 13; // Правая нога
-			else if(boneIndex == 6) minusHP = 13; // ХЗ
-		}else if(weapon.toString() == "1649403952") { // АК-47 Компакт.
-			minusHP = 11;
-			if(boneIndex == 20) minusHP = 26; // Голова
-			else if(boneIndex == 10) minusHP = 21; // Шея
-			else if(boneIndex == 8) minusHP = 11; // Торс
-			else if(boneIndex == 16) minusHP = 11; // Правая рука
-			else if(boneIndex == 18) minusHP = 11; // Правый кулак
-			else if(boneIndex == 12) minusHP = 11; // Левая рука
-			else if(boneIndex == 14) minusHP = 11; // Левый кулак
-			else if(boneIndex == 0) minusHP = 11; // Остальные части тела
-			else if(boneIndex == 2) minusHP = 11; // Левая нога
-			else if(boneIndex == 4) minusHP = 11; // Правая нога
-			else if(boneIndex == 6) minusHP = 11; // ХЗ
-		}else if(weapon.toString() == "100416529") { // Снайп. винтовка
-			minusHP = 50;
-			if(boneIndex == 20) minusHP = 100; // Голова
-			else if(boneIndex == 10) minusHP = 80; // Шея
-			else if(boneIndex == 8) minusHP = 50; // Торс
-			else if(boneIndex == 16) minusHP = 50; // Правая рука
-			else if(boneIndex == 18) minusHP = 50; // Правый кулак
-			else if(boneIndex == 12) minusHP = 50; // Левая рука
-			else if(boneIndex == 14) minusHP = 50; // Левый кулак
-			else if(boneIndex == 0) minusHP = 50; // Остальные части тела
-			else if(boneIndex == 2) minusHP = 50; // Левая нога
-			else if(boneIndex == 4) minusHP = 50; // Правая нога
-			else if(boneIndex == 6) minusHP = 50; // ХЗ
-		}
-		//chatAPI.sysPush("<span style=\"color:#FF6146\"> * WEAP: "+weapon.toString()+"</span>");
-		
-		if(targetEntity != localPlayer) {
-			if(!targetEntity.isDead()) youDamage(targetEntity, false, boneIndex, minusHP, targetEntity.getWorldPositionOfBone(boneIndex));
-			else youDamage(targetEntity, true, boneIndex, minusHP, targetEntity.getWorldPositionOfBone(boneIndex));
-		}
-    }
-});
-
-var rechargeTimer = false;
-var godModeCheckerTimer = false;
-var lastHPdata = false;
-mp._events.add('incomingDamage', (sourceEntity, sourcePlayer, targetEntity, weapon, boneIndex, damage) => {
-	//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+weapon+"</span>");
-	if((sourceEntity || sourcePlayer) && targetEntity && weapon && damage) {
-		if(targetEntity.type == "player" && targetEntity == localPlayer) {
-			//chatAPI.sysPush("<span style=\"color:#FF6146\"> * sourceEntity: "+JSON.stringify(sourceEntity)+" | sourcePlayer: "+JSON.stringify(sourcePlayer)+" | targetEntity: "+JSON.stringify(targetEntity)+"</span>");
-			//chatAPI.sysPush("<span style=\"color:#FF6146\"> * CUR: "+weapon+" | "+boneIndex+"</span>");
-			//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+sourceEntity.type+"</span>");
-			//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+sourcePlayer.type+"</span>");
-			
-			if(imGodeFuckingMode) return true;
-			if(sourcePlayer.type == "player" || sourceEntity.type == "player") {
-				if(!rechargeTimer) {
-					rechargeTimer = setTimeout(function() { rechargeTimer = false; }, 10000);
-				}else{
-					clearTimeout(rechargeTimer);
-					rechargeTimer = setTimeout(function() { rechargeTimer = false; }, 10000);
-				}
-				let myHP = localPlayer.getHealth()*2;
-				if(localPlayer.getHealth() <= 100) myHP = 100 + localPlayer.getHealth();
-				let minusHP = 0;
-				
-				//chatAPI.sysPush("<span style=\"color:#FF6146\"> * HEALTH: "+localPlayer.getHealth()+" | myHP: "+myHP+"</span>");
-				
-				//chatAPI.sysPush("<span style=\"color:#FF6146\"> * CUR: "+weapon+"</span>");
-				
-				//weapon = weapon.toString(2);
-				//weapon = parseInt(weapon.substring(0, weapon.length - 8) + '0'.repeat(8), 2);
-				
-				//chatAPI.sysPush("<span style=\"color:#FF6146\"> * CUR: "+weapon+"</span>");
-				
-				let playerBlocks = {};
-				playerBlocks["skills"] = {"str":1,"weap":1,"sta":1};
-				if(typeof(sourceEntity.getVariable("player.blocks")) !== "undefined") playerBlocks = sourceEntity.getVariable("player.blocks");
-				if(typeof(sourcePlayer.getVariable("player.blocks")) !== "undefined") playerBlocks = sourcePlayer.getVariable("player.blocks");
-				
-				if(weapon.toString() == "2725352035") { // Кулаки
-					if(damage > 50) {
-						antiCheatDetected('Читы, убийство одним ударом');
-					}else{
-						minusHP = 1;
-						if(typeof(playerBlocks.skills) !== "undefined") {
-							if(typeof(playerBlocks.skills.str) !== "undefined") {
-								if(playerBlocks.skills.str >= 1 && playerBlocks.skills.str <= 10) minusHP = 2;
-								else if(playerBlocks.skills.str >= 11 && playerBlocks.skills.str <= 20) minusHP = 4;
-								else if(playerBlocks.skills.str >= 21 && playerBlocks.skills.str <= 30) minusHP = 6;
-								else if(playerBlocks.skills.str >= 31 && playerBlocks.skills.str <= 40) minusHP = 8;
-								else if(playerBlocks.skills.str >= 41 && playerBlocks.skills.str <= 50) minusHP = 12;
-								else if(playerBlocks.skills.str >= 51 && playerBlocks.skills.str <= 60) minusHP = 14;
-								else if(playerBlocks.skills.str >= 61 && playerBlocks.skills.str <= 70) minusHP = 16;
-								else if(playerBlocks.skills.str >= 71 && playerBlocks.skills.str <= 80) minusHP = 18;
-								else if(playerBlocks.skills.str >= 81 && playerBlocks.skills.str <= 90) minusHP = 20;
-								else if(playerBlocks.skills.str >= 91 && playerBlocks.skills.str <= 100) minusHP = 22;
-							}
-						}
-					}
-				}else if(weapon.toString() == "1737195953") { // Дубинка ментовская
-					minusHP = 10;
-					if(typeof(playerBlocks.skills) !== "undefined") {
-						if(typeof(playerBlocks.skills.str) !== "undefined") {
-							if(playerBlocks.skills.str >= 50) minusHP = 20;
-						}
-					}
-				}else if(weapon.toString() == "453432689") { // Colt 911
-					minusHP = 10;
-					if(boneIndex == 20) minusHP = 25; // Голова
-					else if(boneIndex == 10) minusHP = 15; // Шея
-					else if(boneIndex == 8) minusHP = 10; // Торс
-					else if(boneIndex == 16) minusHP = 10; // Правая рука
-					else if(boneIndex == 18) minusHP = 10; // Правый кулак
-					else if(boneIndex == 12) minusHP = 10; // Левая рука
-					else if(boneIndex == 14) minusHP = 10; // Левый кулак
-					else if(boneIndex == 0) minusHP = 10; // Остальные части тела
-					else if(boneIndex == 2) minusHP = 10; // Левая нога
-					else if(boneIndex == 4) minusHP = 10; // Правая нога
-					else if(boneIndex == 6) minusHP = 10; // ХЗ
-				}else if(weapon.toString() == "3249783761") { // Револьвер
-					minusHP = 50;
-					if(boneIndex == 20) minusHP = 65; // Голова
-					else if(boneIndex == 10) minusHP = 50; // Шея
-					else if(boneIndex == 8) minusHP = 50; // Торс
-					else if(boneIndex == 16) minusHP = 50; // Правая рука
-					else if(boneIndex == 18) minusHP = 50; // Правый кулак
-					else if(boneIndex == 12) minusHP = 50; // Левая рука
-					else if(boneIndex == 14) minusHP = 50; // Левый кулак
-					else if(boneIndex == 0) minusHP = 50; // Остальные части тела
-					else if(boneIndex == 2) minusHP = 50; // Левая нога
-					else if(boneIndex == 4) minusHP = 50; // Правая нога
-					else if(boneIndex == 6) minusHP = 50; // ХЗ
-				}else if(weapon.toString() == "2578377531") { // Deagle not -1716589765
-					minusHP = 25;
-					if(boneIndex == 20) minusHP = 35; // Голова
-					else if(boneIndex == 10) minusHP = 30; // Шея
-					else if(boneIndex == 8) minusHP = 25; // Торс
-					else if(boneIndex == 16) minusHP = 25; // Правая рука
-					else if(boneIndex == 18) minusHP = 25; // Правый кулак
-					else if(boneIndex == 12) minusHP = 25; // Левая рука
-					else if(boneIndex == 14) minusHP = 25; // Левый кулак
-					else if(boneIndex == 0) minusHP = 25; // Остальные части тела
-					else if(boneIndex == 2) minusHP = 25; // Левая нога
-					else if(boneIndex == 4) minusHP = 25; // Правая нога
-					else if(boneIndex == 6) minusHP = 25; // ХЗ
-				}else if(weapon.toString() == "487013001") { // Pump Shutgun
-					minusHP = 3;
-					if(boneIndex == 20) minusHP = 12; // Голова
-					else if(boneIndex == 10) minusHP = 9; // Шея
-					else if(boneIndex == 8) minusHP = 6; // Торс
-					else if(boneIndex == 16) minusHP = 3; // Правая рука
-					else if(boneIndex == 18) minusHP = 3; // Правый кулак
-					else if(boneIndex == 12) minusHP = 3; // Левая рука
-					else if(boneIndex == 14) minusHP = 3; // Левый кулак
-					else if(boneIndex == 0) minusHP = 3; // Остальные части тела
-					else if(boneIndex == 2) minusHP = 3; // Левая нога
-					else if(boneIndex == 4) minusHP = 3; // Правая нога
-					else if(boneIndex == 6) minusHP = 3; // ХЗ
-				}else if(weapon.toString() == "2017895192") { // Sawn Off Shutgun
-					minusHP = 3;
-					if(boneIndex == 20) minusHP = 12; // Голова
-					else if(boneIndex == 10) minusHP = 9; // Шея
-					else if(boneIndex == 8) minusHP = 5; // Торс
-					else if(boneIndex == 16) minusHP = 3; // Правая рука
-					else if(boneIndex == 18) minusHP = 3; // Правый кулак
-					else if(boneIndex == 12) minusHP = 3; // Левая рука
-					else if(boneIndex == 14) minusHP = 3; // Левый кулак
-					else if(boneIndex == 0) minusHP = 3; // Остальные части тела
-					else if(boneIndex == 2) minusHP = 3; // Левая нога
-					else if(boneIndex == 4) minusHP = 3; // Правая нога
-					else if(boneIndex == 6) minusHP = 3; // ХЗ
-				}else if(weapon.toString() == "4019527611") { // DB Shutgun not -275439685
-					minusHP = 3;
-					if(boneIndex == 20) minusHP = 12; // Голова
-					else if(boneIndex == 10) minusHP = 9; // Шея
-					else if(boneIndex == 8) minusHP = 5; // Торс
-					else if(boneIndex == 16) minusHP = 3; // Правая рука
-					else if(boneIndex == 18) minusHP = 3; // Правый кулак
-					else if(boneIndex == 12) minusHP = 3; // Левая рука
-					else if(boneIndex == 14) minusHP = 3; // Левый кулак
-					else if(boneIndex == 0) minusHP = 3; // Остальные части тела
-					else if(boneIndex == 2) minusHP = 3; // Левая нога
-					else if(boneIndex == 4) minusHP = 3; // Правая нога
-					else if(boneIndex == 6) minusHP = 3; // ХЗ
-				}else if(weapon.toString() == "324215364") { // UZI
-					minusHP = 10;
-					if(boneIndex == 20) minusHP = 25; // Голова
-					else if(boneIndex == 10) minusHP = 20; // Шея
-					else if(boneIndex == 8) minusHP = 10; // Торс
-					else if(boneIndex == 16) minusHP = 10; // Правая рука
-					else if(boneIndex == 18) minusHP = 10; // Правый кулак
-					else if(boneIndex == 12) minusHP = 10; // Левая рука
-					else if(boneIndex == 14) minusHP = 10; // Левый кулак
-					else if(boneIndex == 0) minusHP = 10; // Остальные части тела
-					else if(boneIndex == 2) minusHP = 10; // Левая нога
-					else if(boneIndex == 4) minusHP = 10; // Правая нога
-					else if(boneIndex == 6) minusHP = 10; // ХЗ
-				}else if(weapon.toString() == "3675956304") { // Tec 9 not -619010992
-					minusHP = 10;
-					if(boneIndex == 20) minusHP = 25; // Голова
-					else if(boneIndex == 10) minusHP = 20; // Шея
-					else if(boneIndex == 8) minusHP = 10; // Торс
-					else if(boneIndex == 16) minusHP = 10; // Правая рука
-					else if(boneIndex == 18) minusHP = 10; // Правый кулак
-					else if(boneIndex == 12) minusHP = 10; // Левая рука
-					else if(boneIndex == 14) minusHP = 10; // Левый кулак
-					else if(boneIndex == 0) minusHP = 10; // Остальные части тела
-					else if(boneIndex == 2) minusHP = 10; // Левая нога
-					else if(boneIndex == 4) minusHP = 10; // Правая нога
-					else if(boneIndex == 6) minusHP = 10; // ХЗ
-				}else if(weapon.toString() == "736523883") { // SMG 45 Pistol
-					minusHP = 12;
-					if(boneIndex == 20) minusHP = 27; // Голова
-					else if(boneIndex == 10) minusHP = 22; // Шея
-					else if(boneIndex == 8) minusHP = 12; // Торс
-					else if(boneIndex == 16) minusHP = 12; // Правая рука
-					else if(boneIndex == 18) minusHP = 12; // Правый кулак
-					else if(boneIndex == 12) minusHP = 12; // Левая рука
-					else if(boneIndex == 14) minusHP = 12; // Левый кулак
-					else if(boneIndex == 0) minusHP = 12; // Остальные части тела
-					else if(boneIndex == 2) minusHP = 12; // Левая нога
-					else if(boneIndex == 4) minusHP = 12; // Правая нога
-					else if(boneIndex == 6) minusHP = 12; // ХЗ
-				}else if(weapon.toString() == "3220176749") { // Штурм. винтовка not -1074790547
-					minusHP = 15;
-					if(boneIndex == 20) minusHP = 27; // Голова
-					else if(boneIndex == 10) minusHP = 22; // Шея
-					else if(boneIndex == 8) minusHP = 15; // Торс
-					else if(boneIndex == 16) minusHP = 15; // Правая рука
-					else if(boneIndex == 18) minusHP = 15; // Правый кулак
-					else if(boneIndex == 12) minusHP = 15; // Левая рука
-					else if(boneIndex == 14) minusHP = 15; // Левый кулак
-					else if(boneIndex == 0) minusHP = 15; // Остальные части тела
-					else if(boneIndex == 2) minusHP = 15; // Левая нога
-					else if(boneIndex == 4) minusHP = 15; // Правая нога
-					else if(boneIndex == 6) minusHP = 15; // ХЗ
-				}else if(weapon.toString() == "2210333304") { // Afford. Carabine not -2084633992
-					minusHP = 13;
-					if(boneIndex == 20) minusHP = 28; // Голова
-					else if(boneIndex == 10) minusHP = 23; // Шея
-					else if(boneIndex == 8) minusHP = 13; // Торс
-					else if(boneIndex == 16) minusHP = 13; // Правая рука
-					else if(boneIndex == 18) minusHP = 13; // Правый кулак
-					else if(boneIndex == 12) minusHP = 13; // Левая рука
-					else if(boneIndex == 14) minusHP = 13; // Левый кулак
-					else if(boneIndex == 0) minusHP = 13; // Остальные части тела
-					else if(boneIndex == 2) minusHP = 13; // Левая нога
-					else if(boneIndex == 4) minusHP = 13; // Правая нога
-					else if(boneIndex == 6) minusHP = 13; // ХЗ
-				}else if(weapon.toString() == "1649403952") { // АК-47 Компакт.
-					minusHP = 11;
-					if(boneIndex == 20) minusHP = 26; // Голова
-					else if(boneIndex == 10) minusHP = 21; // Шея
-					else if(boneIndex == 8) minusHP = 11; // Торс
-					else if(boneIndex == 16) minusHP = 11; // Правая рука
-					else if(boneIndex == 18) minusHP = 11; // Правый кулак
-					else if(boneIndex == 12) minusHP = 11; // Левая рука
-					else if(boneIndex == 14) minusHP = 11; // Левый кулак
-					else if(boneIndex == 0) minusHP = 11; // Остальные части тела
-					else if(boneIndex == 2) minusHP = 11; // Левая нога
-					else if(boneIndex == 4) minusHP = 11; // Правая нога
-					else if(boneIndex == 6) minusHP = 11; // ХЗ
-				}else if(weapon.toString() == "100416529") { // Снайп. винтовка
-					minusHP = 50;
-					if(boneIndex == 20) minusHP = 100; // Голова
-					else if(boneIndex == 10) minusHP = 80; // Шея
-					else if(boneIndex == 8) minusHP = 50; // Торс
-					else if(boneIndex == 16) minusHP = 50; // Правая рука
-					else if(boneIndex == 18) minusHP = 50; // Правый кулак
-					else if(boneIndex == 12) minusHP = 50; // Левая рука
-					else if(boneIndex == 14) minusHP = 50; // Левый кулак
-					else if(boneIndex == 0) minusHP = 50; // Остальные части тела
-					else if(boneIndex == 2) minusHP = 50; // Левая нога
-					else if(boneIndex == 4) minusHP = 50; // Правая нога
-					else if(boneIndex == 6) minusHP = 50; // ХЗ
-				}
-				
-				//chatAPI.sysPush("<span style=\"color:#FF6146\"> * CUR: "+myHP+" | "+weapon+" | "+boneIndex+" | "+minusHP+" ||| "+(myHP-minusHP)+"</span>");
-				let newHP = myHP - minusHP;
-				
-				if(sourcePlayer.type == "player") {
-					if(myHP > 100 && minusHP > 0) {
-						if(!localPlayer.isDead()) {
-							if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined" && typeof(sourcePlayer.getVariable("player.blocks")) !== "undefined") {
-								if(fastUseSlotsTiming >= 0) fastUseSlotsTiming = 100;
-								//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+newHP+"</span>");
-								if(newHP <= 100) {
-									localPlayer.setHealth(0);
-									mp.events.callRemote('killStatMachine', sourceEntity, weapon.toString());
-									isAlreadyDead = true;
-									//killCam(sourceEntity);
-								}else{
-									minusSkills = {};
-									minusSkills.weap = -1;
-									//localPlayer.setHealth(newHP);
-									mp.game.weapon.setCurrentDamageEventAmount(minusHP);
-									/*lastHPdata = myHP;
-									if(typeof(Behaviour) !== "undefined") {
-										if(typeof(Behaviour.oldHP) !== "undefined") Behaviour.oldHP = newHP;
-									}
-									if(!godModeCheckerTimer) {
-										godModeCheckerTimer = setTimeout(function() {
-											if(lastHPdata) {
-												let resultHP = localPlayer.getHealth()*2;
-												if(localPlayer.getHealth() <= 100) resultHP = 100 + localPlayer.getHealth();
-												//chatAPI.sysPush("<span style=\"color:#FF6146\"> * Было: "+lastHPdata+" | Стало: "+resultHP+"</span>");
-												if(lastHPdata <= resultHP) {
-													imGodeFuckingMode = true;
-													tryChatMessage("forall", "Я юзаю год-мод проверьте меня");
-													mp.game.graphics.startScreenEffect("DrugsMichaelAliensFight", 0, true);
-													mp.game.graphics.setBlackout(true);
-													mp.game.graphics.setFarShadowsSuppressed(true);
-													mp.game.graphics.setNightvision(true);
-													mp.game.graphics.setNoisinessoveride(true);
-													mp.events.call("sleepAntiCheat");
-													localPlayer.position = new mp.Vector3(localPlayer.position.x, localPlayer.position.y, localPlayer.position.z+1500);
-												}
-												lastHPdata = false;
-											}
-										}, 80);
-									}else{
-										clearTimeout(godModeCheckerTimer);
-										godModeCheckerTimer = setTimeout(function() { 
-											if(lastHPdata) {
-												let resultHP = localPlayer.getHealth()*2;
-												if(localPlayer.getHealth() <= 100) resultHP = 100 + localPlayer.getHealth();
-												//chatAPI.sysPush("<span style=\"color:#FF6146\"> * Было: "+lastHPdata+" | Стало: "+resultHP+"</span>");
-												if(lastHPdata <= resultHP) {
-													imGodeFuckingMode = true;
-													tryChatMessage("forall", "Я юзаю год-мод проверьте меня");
-													mp.game.graphics.startScreenEffect("DrugsMichaelAliensFight", 0, true);
-													mp.game.graphics.setBlackout(true);
-													mp.game.graphics.setFarShadowsSuppressed(true);
-													mp.game.graphics.setNightvision(true);
-													mp.game.graphics.setNoisinessoveride(true);
-													mp.events.call("sleepAntiCheat");
-													localPlayer.position = new mp.Vector3(localPlayer.position.x, localPlayer.position.y, localPlayer.position.z+1500);
-												}
-												lastHPdata = false;
-											}
-										}, 80);
-									}*/
-								}
-							}
-						}
-					}
-				}else if(sourceEntity.type == "player") {
-					if(myHP > 100 && minusHP > 0) {
-						if(!localPlayer.isDead()) {
-							if(typeof(localPlayer.getVariable("player.blocks")) !== "undefined" && typeof(sourceEntity.getVariable("player.blocks")) !== "undefined") {
-								if(fastUseSlotsTiming >= 0) fastUseSlotsTiming = 100;
-								//chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+newHP+"</span>");
-								if(newHP <= 100) {
-									localPlayer.setHealth(0);
-									mp.events.callRemote('killStatMachine', sourceEntity, weapon.toString());
-									isAlreadyDead = true;
-									//killCam(sourceEntity);
-								}else{
-									//localPlayer.setHealth(newHP);
-									mp.game.weapon.setCurrentDamageEventAmount(minusHP);
-									/*lastHPdata = myHP;
-									if(typeof(Behaviour) !== "undefined") {
-										if(typeof(Behaviour.oldHP) !== "undefined") Behaviour.oldHP = newHP;
-									}
-									if(!godModeCheckerTimer) {
-										godModeCheckerTimer = setTimeout(function() {
-											if(lastHPdata) {
-												let resultHP = localPlayer.getHealth()*2;
-												if(localPlayer.getHealth() <= 100) resultHP = 100 + localPlayer.getHealth();
-												//chatAPI.sysPush("<span style=\"color:#FF6146\"> * Было: "+lastHPdata+" | Стало: "+resultHP+"</span>");
-												if(lastHPdata <= resultHP) {
-													imGodeFuckingMode = true;
-													tryChatMessage("forall", "Я юзаю год-мод проверьте меня");
-													mp.game.graphics.startScreenEffect("DrugsMichaelAliensFight", 0, true);
-													mp.game.graphics.setBlackout(true);
-													mp.game.graphics.setFarShadowsSuppressed(true);
-													mp.game.graphics.setNightvision(true);
-													mp.game.graphics.setNoisinessoveride(true);
-													mp.events.call("sleepAntiCheat");
-													localPlayer.position = new mp.Vector3(localPlayer.position.x, localPlayer.position.y, localPlayer.position.z+1500);
-												}
-												lastHPdata = false;
-											}
-										}, 80);
-									}else{
-										clearTimeout(godModeCheckerTimer);
-										godModeCheckerTimer = setTimeout(function() { 
-											if(lastHPdata) {
-												let resultHP = localPlayer.getHealth()*2;
-												if(localPlayer.getHealth() <= 100) resultHP = 100 + localPlayer.getHealth();
-												//chatAPI.sysPush("<span style=\"color:#FF6146\"> * Было: "+lastHPdata+" | Стало: "+resultHP+"</span>");
-												if(lastHPdata <= resultHP) {
-													imGodeFuckingMode = true;
-													tryChatMessage("forall", "Я юзаю год-мод проверьте меня");
-													mp.game.graphics.startScreenEffect("DrugsMichaelAliensFight", 0, true);
-													mp.game.graphics.setBlackout(true);
-													mp.game.graphics.setFarShadowsSuppressed(true);
-													mp.game.graphics.setNightvision(true);
-													mp.game.graphics.setNoisinessoveride(true);
-													mp.events.call("sleepAntiCheat");
-													localPlayer.position = new mp.Vector3(localPlayer.position.x, localPlayer.position.y, localPlayer.position.z+1500);
-												}
-												lastHPdata = false;
-											}
-										}, 80);
-									}*/
-									/*await mp.game.waitAsync(20);
-									let curHP = localPlayer.getHealth()*2;
-									if(localPlayer.getHealth() <= 100) curHP = 100 + localPlayer.getHealth();
-									chatAPI.sysPush("<span style=\"color:#FF6146\"> * oldHP: "+myHP+" | "+curHP+"</span>");*/
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-});
-
-mp.events.add("playerDeath", (player, reason, killer) => {
-	if(player == localPlayer) {
-		mp.events.call("sleepAntiCheat");
-		if(slotInUse != "0" && typeof(localPlayer.getVariable("player.inv")) !== "undefined") {
-			let antiDrop = false;
-			if(typeof(localPlayer.getVariable("player.fraction")) !== "undefined") {
-				let myFraction = localPlayer.getVariable("player.fraction");
-				if(imInZone && typeof(clanZones) !== "undefined") {
-					if(typeof(clanZones[imInZone]) !== "undefined") {
-						let tempZone = clanZones[imInZone];
-						if(typeof(tempZone.war.id) !== "undefined") {
-							if(tempZone.own.id == myFraction.id || tempZone.war.id == myFraction.id) antiDrop = true;
-						}
-					}
-				}
-			}
-			
-			if(heistIsland) antiDrop = true;
-			
-			if(typeof(reason) !== "undefined") {
-				if(reason.toString() == "2741846334") antiDrop = true;
-			}
-			
-			let myInv = localPlayer.getVariable("player.inv");
-			if(typeof(myInv[slotInUse.toString()]) !== "undefined") invUse(slotInUse, JSON.stringify(myInv[slotInUse.toString()]), !antiDrop, false);
-		}
-	}
-});
-
-let afSavingAmmoFlood = false;
-var savingAmmoSyncTimer = false;
-mp.events.add('playerWeaponShot', (targetPosition, targetEntity) => {
-	if(!localPlayer.getVariable("player.id")) return antiCheatDetected("Читы на оружее", true);
-	let getWeapon = mp.game.invoke(`0x0A6DB4965674D243`, localPlayer.handle);
-	//chatAPI.sysPush("<span style=\"color:#FF6146\"> * HASH: "+getWeapon.toString()+"</span>");
-	if(getWeapon.toString() == "453432689" && vehAdmRemover) {
-		let hitData = mp.raycasting.testCapsule(localPlayer.position, targetPosition, 0.2, localPlayer, 2);
-		if(hitData) {
-			if(typeof(hitData.entity) !== "undefined") {
-				if(typeof(hitData.entity.remoteId) !== "undefined") {
-					//chatAPI.sysPush("<span style=\"color:#FF6146\"> * Entity: "+hitData.entity.remoteId+"</span>");
-					if(mp.vehicles.atRemoteId(hitData.entity.remoteId)) {
-						let theVeh = mp.vehicles.atRemoteId(hitData.entity.remoteId);
-						if(typeof(theVeh.getVariable('veh.id')) !== "undefined" && typeof(theVeh.getVariable('veh.own')) !== "undefined" && typeof(theVeh.getVariable('veh.owners')) !== "undefined" && typeof(theVeh.getVariable('veh.hash')) !== "undefined" && typeof(theVeh.getVariable('veh.fuel')) !== "undefined") mp.events.callRemote('vehRemover', hitData.entity.remoteId.toString(), theVeh.getVariable('veh.id').toString());
-					}
-				}
-			}
-		}
-	}
-	if(getWeapon.toString() == "375527679" || getWeapon.toString() == "1752584910" || getWeapon.toString() == "324506233" || getWeapon.toString() == "375527679" || getWeapon.toString() == "-1090665087" || getWeapon.toString() == "-821520672" || getWeapon.toString() == "-123497569") return antiCheatDetected("Читы на RPG", true);
-	/*let getAmmo = mp.game.invoke(`0x015A522136D7F951`, localPlayer.handle, getWeapon);
-	chatAPI.sysPush("<span style=\"color:#FF6146\"> * "+getAmmo+"</span>");
-	if(getAmmo <= 1) localPlayer.taskSwapWeapon(false);*/
-	//chatAPI.sysPush("<span style=\"color:#FF6146\"> * Damage: "+targetEntity.toString()+"</span>");	
-	//if (Behaviour.active) {
-		if(!localPlayer.isDead() && !heistIsland) {
-			if(ammoInUse != "0") {
-				ammoInUseCount = parseInt((CryptoJS.AES.decrypt(ammoInUseCount, krKey)).toString(CryptoJS.enc.Utf8));
-				if(ammoInUseCount > 0) {
-					if(fastUseSlotsTiming < 30) fastUseSlotsTiming = 30;
-					/*if(targetEntity) {
-						let shotFrom = localPlayer.getBoneCoords(64016, 0, 0, 0);
-						//chatAPI.sysPush("<span style=\"color:#FF6146\"> * SHOT FROM: "+JSON.stringify(shotFrom)+" SHOT TO: "+JSON.stringify(targetPosition)+"</span>");
-						mp.events.callRemoteUnreliable('trasserLink', JSON.stringify(shotFrom), JSON.stringify(targetPosition), targetEntity.remoteId.toString());
-					}*/
-					ammoInUseCount = CryptoJS.AES.encrypt((ammoInUseCount-1).toString(), krKey);
-					
-					if(!afSavingAmmoFlood) {
-						afSavingAmmoFlood = true;
-						setTimeout(function() { afSavingAmmoFlood = false }, 1000);
-						if(!savingAmmoSyncTimer) {
-							savingAmmoSyncTimer = setTimeout(function() {
-								ammoInUseCount = parseInt((CryptoJS.AES.decrypt(ammoInUseCount, krKey)).toString(CryptoJS.enc.Utf8));
-								if(ammoInUseCount > 0) mp.events.callRemoteUnreliable("invSyncAmmo", ammoInUseCount);
-								ammoInUseCount = CryptoJS.AES.encrypt((ammoInUseCount).toString(), krKey);
-								afSavingAmmoFlood = false;
-								savingAmmoSyncTimer = false;
-							}, 2500);
-						}else{
-							clearTimeout(savingAmmoSyncTimer);
-							savingAmmoSyncTimer = false;
-						}
-					}
-				}else{
-					if(ammoInUse != "false" && myAdminStatus == "player") return antiCheatDetected("Читы на патроны", true);
-				}
-			}else{
-				if(myAdminStatus == "player") return antiCheatDetected("Читы на оружее", true);
-			}
-		}
-	//}
-});
-
-/*
-var trasserLinks = {};
-let trasserLinkIDs = 0;
-mp.events.add('strasseredLink', (from, to, fromPlayerID, toPlayerID) => {
-	if(from && to && fromPlayerID && toPlayerID) {
-		if(fromPlayerID != localPlayer.remoteId.toString()) {
-			trasserLinkIDs++;
-			from = JSON.parse(from);
-			to = JSON.parse(to);
-			let content = {};
-			content["from"] = from;
-			content["to"] = to;
-			content["lifeTime"] = parseInt(Date.parse(new Date()))+10000;
-			trasserLinks["tr"+trasserLinkIDs.toString()] = content;
-			if(trasserLinkIDs >= 1000) trasserLinkIDs = 0;
-			//chatAPI.sysPush("<span style=\"color:#FF6146\"> * TRASSER: SHOT FROM: "+JSON.stringify(content.from)+" SHOT TO: "+JSON.stringify(content.to)+"</span>");
-		}
-	}
-});
+/*
+
+
+	SMOTRArage © All rights reserved
+
+	Custom obfuscaced system by DriftAndreas Team (0xA0426) special for SMOTRArage
+	Кастомная система обфускации от DriftAndreas Team (0xA0426) специально для SMOTRArage
+
+	Кто не умеет себя скрыть, тот не может мудрым быть.
+
+
+*/
+
+exports = 'psn+IWbw9UKhQHxB76sdPbyR8vQIkyDcDZ28wZ3SJbU9e+UYH/2hIhRXR1FceHlOKV+d=n3e3Icm07QUSdSLR6' +
+'uKbVLEjr/4sokLqou48SySoMnBJDBR0UKkTXxl96wm9fO6QtsImyDEPAPkx6CR84zxxHC95uRm7zxrPUtSyqulNlNjuDke3I' +
+'ci0rkNUqKXULObaHkXg6ujXUG4tpqlvgU2qMO3N470KEuVC4Ug7Z5kIfi2R/MZUQTcSvbSzJrEJb=2daYiRey5JDYkQlASgW' +
+'VO6Csus0sYOeF+K7YWQ+ZM/6NPK5ociqGkoz0DqoD5HFyYoNb0MSOrKFCFQIta769kNrR3PvoInALpAPbjv6TXLLL/b6zb/a' +
+'x9=/QYTlpUvaKXMVNVsTGDRooj0lXyR+hSR+yMaHH0hq3uoobFooLLBm2eqM8xL3qs6VzbQIIW/FseQ/34QvcWkM/g=8Dsa0' +
+'ut0Fzauv05S+yjNz1lRxxteKidJl+d44TEROJK97QNUtiLSdaKaXHIQm7lqXYQoJ/FFn6NotH4LmNm8Bd97RH7l0YhN7SIR=' +
+'5MkgOfQAn4zJLGO80=u6HbPaQg==Dz/R6lxqCTKVdf9HzF8=lU6cEhTueZPZWWgFwVe6/ppnPFaYv5HWEVY6qL=CWmOEqTRH' +
+'9a+JIc97zQSr5bnB4cQfaZy7rqNbU0we0hR6lyICIhAhxtlXlO6WNf944JNOt+KX8R=vSPT/KbdTYLj6CUn4cGspD9IipRu9' +
+'LyNHnp8xOVUXpU=qYnP+z2OOMTleLpRP/jhp2K6rs2wcDTTf6NKDdpQltetGNa61oYX7u1Vq4pgy2d=1LmqCw6veZY689F8j' +
+'WpyP9agLr98z5M5+cFl6E=lOmsWv3JUF4hKrTQXcSgDZ28Z0qt0FCbVoz85uRm70hvSVFfvmSbNyxo/osPM7t9JsEJCNicON' +
+'CdcHTRiYeitlsJnIDLGWtabcbzHC6kABlsA0tm+JEdN/WCM/HJT94pOATmzJ+DL9k1qNYkROJzJDYkPmRVu7GiKBYY9YsELv' +
+'FBMKs5P+BPR/CveYgSiFSRYCg/oJHlEXBfjMbBMm7zMThWD0lNsg2Uok1mTV6c9C6Hj3EhKv11TnShB1Rn/lv4k4GGkc33JP' +
+'U/d97sX9F0g13Qlt35mULcqC56xOdvdmNedCvAdiqivQU2SMb174n9N1GeRTEe/msvPP7AMrwLhBHYAPbjv6TXLLL/vM8fUs' +
+'FyICdqQltehqWSIBxk9I0XNOt=NGXIG79n/6/edXoIfJWjonj6ZE4JFXBhscuvK4roIk7hToAk878mNwS6LfMbi9WeOQLSva' +
+'XMMrHhruHXRf6FMTZlSxRMf2/VKGJ/8I0WGOZLNKYXSM5RB63FLuZ=6v1Gv+VMCK6oaNzcDBlgSiZUgL0kA/mpWvqIim4bn0' +
+'a4145yp1lBDgIblNShBERkqjwQfJWBNRMZk2NX=fs8mBGt2OZ/8cEhTueZPZWWe0Paha7hoTL8nJH54mJeoMDCKGSyNjecWF' +
+'9j76AsOvuC/OcLg9vkNATWzJrEM9b6bbCvFqtiNCIaPlJZxqGS6RcR=X4XQP+G6bUdQtFMSdygensVRJGtongMs5K=22JeoM' +
+'DCKGSyF13dRHUk079qPP69KrTKigLrI=HlzX7MNsc6uNHO=JcgHvvGdczgJc9/eM/yX9F0fF3TltfIrz=7jJ56w/Zg6vUGw+' +
+'VPC+6oa9zkDBVfe+cEl6s=kemhWvqJWNh8+8jOT+iE4Jm7Z0qx0VzaVo0ePv9gJTZXOFBZx6qzJGJSs1WDOP1GOKwaSuZYP+' +
+'7daDPJiJ3YsX4GqZDzHXVzsc8yN37zMQqYR3Xsm0bB3pVeOvMbRxPpN=PEw7XXLLH4vJPv/ehw8TtlS1hUhqCPO29f9YsELv' +
+'FBMKsbNd+jHe/KaooMhZpjpnk1aZD9JHBVrcTB/gJO0/V57HUW=m1eQ/34G/9biB=gN=zkfn6DMMP/wNLkRe9uJzVqOhpWyq' +
+'3RO2dg/Yw/OPZfN75LUuuZRZuSb3KRh63poocAnInK7wk3SGaYzAJO0/V57Dfg96LgRgWEM/0NTxPpN=PEw7XXLLH4vM8fUs' +
+'FyICdqQltehr7PMVkfA4f3Q=+BM7PQB99YOt7Zf20EhJOoZjTUeFq41nFap9L1KGOpKx6YA4Em8pwaQ/uLPeMZUQLvO=Pm0q' +
+'aL7roCrucmQupuEzVkPlhjnb7gMmAZ70/GMuJMEr5cTb+TSuCSdnP=PVhVmTyozf5HgYT99T5KkIiklG1=k/muWvCJUK1liF' +
+'6c92JHkWIzK8R1RyRPGjFCl9cn7=8dAic+YkV40=da9TDXRP2+MKLQQOSLOsCOf5oMhJOoa3H5t5r5JH9VY6qL=CWmOEqTRH' +
+'9a+JIc97V1POMbmB=l+wjmwpCFNbLHvNkkB+B4JCdrTVEYf6KgJFFl+HfRH/6GKrkbI/ScRu+RZ0zGfZGpinYLrmrAI3+Vrs' +
+'vr6iFkIxQ=fOmhW87JUF4Vn0y43H5xp1iRKv90eHShAlRvqjPRRZSuqa0ADA0ml7XBR/pknDvpdB2Yrz=8YslQMECKQ3dCRx' +
+'3hRCalvgU2SGb4JS30JF7iRFIf=mUeQ/34G/9biB=gN=zkh2GhAHQArvYlPsRuNvxcS12Tq6GiO2df9ovROO6QMr5cTZtT//' +
+'/Of5sVhFzdsnk3nZ=GJ3+RsYv0O3rnOFCUC0AX/J5bRfWDON5IkQLjRdXjzJCV87/4bNsXTchhN0dDQm+jwaucIyUds3SKnC' +
+'8pfB2jrzM7j656xuZY681F8uVWC+xoa9zpDBNffFFr8BdWCEP/lDXB3pVi2IbxL7bgOLiSyqCGJL=hueUrPv1uNSleQl+cvW' +
+'VONVNlAIsR8/VNKawKTNFhStKbNXsbf6/qsXn=YoPJEW+gqMz9E3byKEiiJItj+a8gLbN4MeMbcA8rRd3azaTMMrHtcJ/SNa' +
+'LQUZWB/czkJPs/fs7nX9Z1Vq4pdy60r=U8Z656xOZTOomar3g9o5LK1FIZgsnwMnikl6U=mumprp96HrzpHNYDScay/bmsa0' +
+'ut0Fzauekm/f+oJBpbQRxteKidJl+d44TEROJK98MNRuuNR+JkFB/tI0V/pnr=XJH=FVJRq5v2JHnaJF7YQHtd82TaR/G9/O' +
+'YIlgWZ=8mRzJbXOMY/bewnPdpiMSMtSEFihqGmKFFmA43L9uNKJrAcR+FYK+7XbHHWX77nqHb=m1S7F2FgjM8CMkKtNl/YTn' +
+'cNsVjYLbQlXV+zR45rp19BEgIZlAFi1JSCi1zLkEbHZR0AEh0e60tW=XwIM/JL6aLVHd6LSuBJ29600g0tXWcZiE4sAlRIZo' +
+'aJ6i6/1/Z57BH796LgRfS6IOMPUQTcSvbSzJrEJb=2daYoPuMuKzVpQR5ZeG2r6yBe8WfaA8EP630OAJKeQ+K=bH3RfZGpk3' +
+'YJpI86HGEUYdP0KzOsJF/XATHRr3nY9/C0PO9UghHpTsKafrPIO9kCu6QaTu+fITZlTF+VymqTP2NUAI0I+7R/N75LUuuZRc' +
+'3KdXsPiXGnr3PJZ4m/12NRt7rwN4jRLF/iSHgf6mPk9eh8nyC5rc6Hi3EvKv10eiRNGw7Sqj0RSpW5qngQJPo/dy6/9IsGMO' +
+'F+NG1/C8WWOOCcK/Zb6vgF9TUqfGq4BF6En5S4/iyt=el67BH7l0nC3pVe2/cNTx8dI=HlzXPYO9g=u6zSS+B0NDZk/VRlvJ' +
+'uQNV1o=n4V/eJQKrAdUudS=tObaHkXg6ujjXYFoInK+X6ert/3HzynKkGjLHpl/XohQP/+OewDScmXMshB/AIelAyi1lRsqj' +
+'nQfvTHXLzgJc5=Rc/9X93DnDrpdi2erzM8Wk4h2JSPOx0rCcmo913M1N3uDBNfeSOg7gVqBjHsm0bB3pVeL/Q1hBHqFQXl0q' +
+'CR65CxwfYnPrYNzM0=5fVjvbCCLFtW/o4X+/NNM7AcR+FYA6ZJgjYEfHmWsYgasJHLH2oMfI41IGG3KAzsD0kmvn0o/sdi2I' +
+'bxL7aE4Jm7Z0rMKXvys/YTOO+pLiI4OFBZx6pX63k/mRGt2IYiNc9cV/KPU6uOfXsRjr+jnGYDq4=9HWtgpIXyMX70OxRRRn' +
+'5l265sQMm+PfEQkguZAsDVw6CvKMz6dr7=54QJz90=P26Ru7CXMlxz8o0MOus5An1cTOePEnp0EB7tI7maqYg9tiqivQU2SG' +
+'bAJHn5NUpPS55V6Z9qPPOHM==ViBXcNgXlw2mKKcYyrOgbRNlQICIbRW+2yr7dNRZNtjwKMPFmJsEbK+udStaYdWGKRmzRYN' +
+'VtCK+pMt35YD5/k8AVRb0ns9vBRA22okF1n0K42H5wpBJC3QIVlAyh=t/ZArYn7=8D5vU6YUWr1=g7mBHg3Ici0sn26Hun6H' +
+'emFB=Qimqas3oFs6CFEWBQa5=2JHnRJFCiLHIk/ZYnP76A8vUMmvrYSxP/x7TWLLL/dr7=54gKJiAlO12chqmPO3F/+IwWNO' +
+'xG6YnIVe9l6HePfHPGjqWkqzU/oJHlEXBfjMbBMm7zMT7UUo5d=mUqNw/JOwHTRy=cNAPgyHCVDacgm6zSUHgKzC1cAWBpyK' +
+'GdKRZj9IwYO=EB6X4lG6JMTNuNbHwMhJGZXzT+YU4LKXyRrsO3MWrlNkudLot83XwG/ry2C8rHRRLlOwXXx6/IK4X6bf7=54' +
+'QJJTZXOFBZx6qwJmJa/naDCK2/JrkbQ7145XZzcHvLgrGZmGcJqpTKFX5VY9XDJ2SmNUumUn5juJIwNv/JQvLPSgPpN=Plx6' +
+'CRCLHyr+=XLNpyKh5lR1FjgGVp7hcsnBKt2Ioj0lYRQJqcPOCed5nMOrdCRx3hRIr5JH+6qNDBKGSy6ylPKWxA2FsoMw7HM7' +
+'YZiA8qQf7AzHv3EpG6hHC95oQJKCoeTWVgvauU82tSA5wxNPBLLrwWCOWeOO/dMDXEV3lVX4oFo5L+GWpRp5/v6SukO2WfRH' +
+'gXtqoZRg/iN=EajAzlAPXfwmqD6ICNbaYnR++lJS1kPlASgWzp1=g7mBGtOO6MNIoRTeWTRttXeooEiKCQX3kArYL7JGVbrY' +
+'=s50JkK1WhJn5f879ZRfuG+w5IlRDcGPzgv7WLMLUEvLDbSO6pLiHkSFBRyrBcL2NS94HRMqYB=Enz64t05NqKf5kxg7/opn' +
+'PFaYLFFFcOp9bAJGj4LEudAWXRy21cOw7cM/wMlQ8rQgKZzqLVNrkXueLTTaNtIDhpJlVjy6WdMRxW/XzRN/J6KbYWQZtTEn' +
+'p0EB7tI0l=Rh3hRIn9JCyZoN=6JHf3CkGdA1XR5afaQfuHN=IQkguZDP7W0VHQN4HnsucmRO1z7zEXTW++wb/hLF1fvYwXLP' +
+'+M98TUS+OeSrqSeokMhZpjrHk5rZGFKShZoNHBDG73NkWeTTck=q5qRbqO/8DVV9aj+PjWv6XMMbrzh/QTS/6lBSAlOmAYxa' +
+'3iNjta=owMOusGNLEJTOZYQ+KKb48RfVVhX3gGq5zJ1jZHcZKD80a5+xhfD1omvpnk9/CGL=UrkgnmRLKrtWGP+4/AebQPBa' +
+'2kKDZbOFBZx6pQ=VtSA5wxNPBLLrwWCOWeOO/dNXoMiJGYsX4GqUm6J2VQt9Wx/Tey=xhRS45a8ZUs98ZK/LMkg+iE4Jm7Z0' +
+'rZKLwhrvYdJuyyKiloSAxteKmPNVlW=YwrMOsE6c1JTN2TRdS=bH3DV2zhqGg5q44DEXVRsYvEJG3tJkiUD0lY+ZwcJ/G9Hv' +
+'9ZjgLb+t2RwJLPNrj9beUVTeR2JBpbQUyRyqeXMVURzDkJLOlLKofICZEKqA56wedm6vUF7+VPCK6pM9zhDBmvk8UUd84ws9' +
+'OBRQ2qoksmUl6k9ClHi8FBFxITlNShAERnqwwRScDA5fU6YamPO3F/+IwWNOxGHG9LU/S7RtaXf0gAOnlVX3H5s6DfFXAOem' +
+'qZzA6N0/l67BH7l6Ye/fm2QwE1jBDqP=/fiJPPLMP6bf7=54QJz90=Rl2ky4mXNmFa/naRLelBNXsMQ/WeSdyiM07eJ0Z/Rh' +
+'3hRIr5JH+6qNDBKGSy9U7bSIkRy21eMviHM8j1LKaA46nua0ut0FzaWo385oQJLCVqSClZy7/XMlxMsXsPNP17In0l=u+aBd' +
+'/VcIYWRJqasCzIa14zHW2gsqr4MnjtMkpdUo1S/KDmSbh1O/9blergRgPayZ+RNsgyv/fgUqcgLCVqSClZy7/XMlwf=o0EPf' +
+'EGP6nU=v145XZzEB7thJ3iok74Xf53gY=9/T5IkIekl69AaumlWv3JVV0M826j926IVWEmK8J0fCRAGj+ClEvy5O=D5vU6YU' +
+'V4NlFS/43d885G/nj26Ht05HZzanTPha6vXUjOazqivQU2SGbBK3S2O07QTXAWxF1eMviHM7n1LKaA46m7wqrQKLHDtuLgE6' +
+'tw094=5fU61WVp1=g7mBGtOO6MNIoRTeWTRttXaXHMimqoookqqpLLFSRgsdL07DBR0OV57BIe77ErHvWHPecWkMvZQwnhiK' +
+'TIO7Y=wvgXGNpsLjloASAngXd80Pc7mBGx2YYi0lYRQJqQSd7MW4cRf6heXXgDqpD9+n6Noqr0LXqs8Bd97RH7l0XF35Ve25' +
+'cVkhHwF/D7iKTYJrc2vOba/EvfkEfGlszqJc6Ol7DCFulXnD4qSR2g=r6MFk4l29a1mQ0qCpWo9=5HgLf9/j5A=zSmAQ1=ne' +
+'mnWvWIhm0En0O5pM6HZWEhK8KP6CRMGjSDWlzIkETHWL3zeR4yl7TBQDm0iV3I6i6przM7jE4Z2Ja0z2pXaTTKb23H4Cygsd' +
+'L07DBR0OV57BIj87EtQ/p1O=4Vig8kO87mx2/QKMcDrusXSJlzKzMtJlVUy6WoKFJE+4oVM7U7Q8QmrxD8Wk4o2Ja0yx0nCc' +
+'Bpyv5QgY899T9QkIFkl6Q=k0lvA7uIjm0EnAC42H94p1lBCxIelAShBlRq/6cg5TItV8zPJcA/gM7rXJrDnD=qTR2crzM8X0' +
+'4hK/Zf6v1Gv+VMCK6oaNzcDBlffdY2684zs9/BP23JUK1lXV6X9C7Xp15BCmJ1RCRAGjiCilzAk4kk/xgQjWhOKV+d=n3P8=' +
+'FKOrHU=rpaC72SQhKuI0V/unoDroLSwQY2SGaYMWr4OF7dA4Em8pwaQ/uLPeMZUQLvO=Pm0qaL7roCrucmQupuEzVkPlhjnb' +
+'7gMmAZ70/GMuJMEr5cTb+TSuCSdnP=PVhVmTyo2P5MgLT99z5Ak8tVRL4ys9aCEg2x9m4Wn0/44X5wAsFBFgIYlNSh=1Rpqj' +
+'wQeJSqqaTB2x0jIyUayj/MBooj0lXyW4915HambHHWf7dCRx3hRJ=9JHFerY43NGnjJV7eVoxW/FsdSfG4Q=IMTtTdRPHU0q' +
+'rSMaQyu+keSLByMSMoAUgXe6OTO0tSA5wxNPBLLrwWOqlW/9lQLjDVf63oqGLnrWfr=0oXZrm27DBr8Bd97RH7B0nC3wli2P' +
+'r1LQrnAPXnw6/XNnHysefa/+JlNxEXTW++wb/hLF1f4X4WQOlM63jIQdeeJN7delLMia/eqGLqoJDMHHAVemqZ0A/rM1uRQH' +
+'Tf+65sQMm+PfEQkgvHRP/Ufn6DKck/rOgbRNko7/Rx6fY6waJWO3dh9HfJ+/p6OcA2R/WdQNyXNXkYiIzkpnLLZE358TkMYd' +
+'L9J3rqLEqUR0sarrfF35VeN/PPkA8rRd3azaTMMrG/rOkkKeppLTgWFikQeqmPO3F59IzF+K2T1lby64uXOOGcVH8WiZWkq2' +
+'/6npLJAGtVrdGxHCWA6x7cQI1k0r9nQb6P35fxL7aE4Jm7Z63IO4Q+rvYdPv2zBilk/SkQs7dQN21k+I0MOus7=7sNUZKXS6' +
+'u=bHkXha6oZXH5s6DlGX+fqMz98WryKxqnD4YS=rAFOw/HN/0VUQLlOs7qiq7EO9cetvclQupu8SlkPRpqhX+c+BcdsXDILO' +
+'FBM7PKFOKLSeCOTXHSe7BdqnYLrmrAI3+Vrsu9JGOo9USUQH1a+JPh=b74OeoWlM/xLcKmk22U/IP9fa/jDrud8vZaS12nm6' +
+'uaMmATyWOT/81E+XjYO65MP+abbHkXg6ujX08EnJHK=WVfssb+LSOpMUBdR4Ij86AsOvuC/rAejAHrPsKrjF+b94Y5su0ZQf' +
+'9i/PokDmlNk0l50=c7AX4LH/6KLIoJTN2PSeBJRDYQe77goocKgoLF4CycoN=6KGOrGUGXA1XR+qwbMvilOv9giB/lSPXZx6' +
+'TPKH/xsNLhPdFlKyRXS1dVvGyr62RS/5wI/726JLERUNeAPNW6aIgOg6qcXUG4oY8DI2EnY5y+5+YUl6cAYempWv/Iim4VnA' +
+'G42H5z+3EwKvJ1RCRKGjJCiEv+kEvGls38JPFOl7rBP/pknDfpey6pr=145XZzFB/tI0Weoz0EnJHK=WVfssb+LSOmM1WfCD' +
+'lsm0bB3pVeO/9blergRgPayZ+RJb=6vaHWPv60MSMvARUrZUZ40=c7/HoXPspBNLARSdAYOdmSe0XgOqKWqYg9diqivQU2vG' +
+'qZzA6N1/Z57BIe77ErHvWHPecWkPiZNPzazmPA65CxuvPgO+dpM0ckR1FngH2a61le8I0WGOZLNKYXSJBPRdFXg0GDh63prE' +
+'HArpDAH2oapMvz8X6w61mQV5x/97ArOvuC/OMVitvxM8yR1T6u0FzaVuHTRuA65vbGdL30JPo/fc/0s/lXnDvqRy6rrzM7ik' +
+'4j293D6vkF7eZaC+NpMNzkDB6fetYBl66RDyX8l0XB3w/4L/oMXM3oAMWda0ut0FzarNLeRO165wgtBPk7YUV40GFZ/osXHe' +
+'6GKKHi=uiLR/CONyKuI0V/RnkAqILFI2VbrZev9xJO0/V5XDHsm0bB3pWBL=IacAbqRfngyF/FM80Ae/cXTd2vNDhbAWBiza' +
+'FX=fs8mBGtOO6MNIoRTeWTRttXaXHMimqoookqqpLLFU+br9zDMS24/gVq8BL7l0XF35Ve2/EPhBH5JumfzarWF9kDtavUmB' +
+'tq56SIqncQJPw/gc7sXJy1U13Qlgi5lqM7j04Z29q0yx0yCc2o8E6obdzcY6nBM3by62/jWHUWy5jaMOuAOf=hRd7uF9L4nW' +
+'zXKMwEevcaOu+vNf4mSWQQiLzm6zAh=5CD8r2e/YQuI72G/atlaUR01g0qCpWo8P5JgLr99z5IkIikl6k=k/q0WvKJUm0Mn0' +
+'743n51p1KtiZOhA4LDveUgF6xi7=8D5vU6Ya/WJGJz42GRPvZLFcIbRqpMmh2TK/ZA6vFVCcRo+f5RgLT99D5/k89VRb0kA/' +
+'q0W83Igm0RnA/44n51pBFC3FJ0f4ShB1Rn/lzDk4CGjs3xJP1/fM/0X93D/K1UNL1JSJKdT/aVbEL=OJ/kqXPJdUCI601eha' +
+'CJN3r8OxmiS4pV+aPyAgzM8s5Xnt3pBxDpfmSTCIfHksjtNa1+=zY0qajADR4wlH=BR/pz8F3JltC5k1LfqP+J29V1mx0zCc' +
+'eo7=5SgLH9/T5/=zSmARheUolS+Grm97VP35fxL7aE4Jm7Z6/SO90SnczgSOBjIilpSAQSJNw=Rs7uX9N1Ta4pei2mr=Q8Wk' +
+'4Z29i00Q0tXUD6ef5TgL0+wj5DkIZUf80fs9SBRQ2qDbu3CK744X5tp1lBDxITlAmiz6SCaEvwkEUi/czsJP1=R9/6XJm1T1' +
+'7b6i6srzk7jJ56xOZTOx42CcWo8=5HgY099Iux8zW3+yyfD0ll/KId/sdi2IbxLB=cSxXjyFHQN4H4ruDXB/Bp8SEbSF+Rv6' +
+'Gh9WFZ/o=xNOFLLscNQtWSOO/NM0ghjasF2+ZaC+1pMNzcDBBfetcTl6YAYemmW87JXb1mT75lnBxHk3EhK8R0eSVRGjyCil' +
+'v7k4TGlczoeLqlQc7js/linQDpgy2ir=RKqCI6xedl689F7eVJC+hoaC5YY5=MNnQUYr4zs9aBQQ679m0In0y5pH96p1FBCQ' +
+'IdlAvxGjBCilzCk4nHWczoJP1/fs7vX9rDnQDpeB2d=1Pu/E4829a1m21F+uVHX=9YgL099D5/kIZUeApRD0kmum1eMviHM7' +
+'nHmy=sO8yRlnGT+4zLWo385vhlL0db/VVWgKmPO3F/+IwWNOxG97AdTMKZQNudK1KgOm7inokKg6=GIC5VY+iczQ6N0FKUS3' +
+'lS/JgFMw7=M=AaRuqXLe2dfrHENb86u+sIPuMg=/RcOlhjvWhOKl1g938IN+26N7gNQqJn/+OKd5kIRmzWnHkAsYLuFWR9oN' +
+'=6KGOr6ylPRXpd/ZHz9btD826K92JHh3EsK8E0eSRMblRxqjwRQ6SwqarABx0slHXBSOpvnDI5lgm5j1PrqCg6vOdk68dCRx' +
+'3hRCqivQU2qMO3LGb4NimYUoxa+ZrmM/i+PrbHnaqB46m7Z67EO9cetvclQupu8SZiQmxevKGhO3BgBDCMBooj0lXy6++LT/' +
+'C3cIkWg6uja3cDpJ348SySoMnBJDBR0OV57IX/lDXB3plf25bxjAOfPxXVuZPVMssDsvXb/fYNzM0=5fVcvbBOMGd4=XoGQ/' +
+'ZHM30l=u6ZOt7VW4HEk6Gna3w9s4P5ImVNocn07zf0M13oRIsf8K9ZMPC+OevJT+iE4Jm7Z0rMKXwExvQXRNEoLD19S12TzK' +
+'WdMRxa90GD8LoV6X9dSNaPPdaXbHnFQ2zdsnk3nZ=GJ3+RsYv0O3rnOFCUC0Ak86scF=72LcoWicXT/becy7rqNbU0we0hR6' +
+'lpJv8dNRMctGNV8lpg8noPH/l6PrIaCNmPT9OKeX8EeJiaZTcHq58QFX5aqMGx7CBrQQNaT4gU76kIPf3NM==VigLrKPHjx6' +
+'LFM8j5b/QeOvRlMOIkQl+bemVZ7koYv3SK9qhjFIw3COWeSdaXbn8Jk2SwX4kQr5K67i6hs7rwN4im9x7QTHgm+KDaC/m2Qw' +
+'E1jBDqP=/fiJ7EO9cNdq7ZNaIp/esfE/k7YUV4Q=s8mBGt3Ici0lYYTOajS+KhNXsZf6qprCL7nInDAmFZrtH073j2PFzjC0' +
+'te77ErHvWHPecWkODmQADdw7XI6X/xsekhINB57/0x6fY6YUWcMmJq0Gkt/fBNJKANTeVS/k482JCD68AGvuVWC+NpONzpDB' +
+'uvk8pUgb4xsJvBOx2qokUlhl6fRunZEWEtKvJ1RiRFGwSCklvwk4/HYBgfunpOl7ARX9N0il3T9y2arzdKF++nKTDQe7Coin' +
+'4KrobGHipZoNHB8XnzFlChSHcYtmXmQ/GEOv9Ki9XlOAeRrJbKCMwAdaKaNe+79/=pVhUYl3lW81pVBkwg+KcB7XXXQZtW/6' +
+'RNODXKQ2dXeTP6ef9ggY5ab56ffdcEl6A=k/muWvWIhV0EnAS4349G+3EDKvJ0g4Sh/1RtqjwQcpS0qaDABR4vl7vBP0nF/7' +
+'1L+Y0YCqKeSeKOMECxIDV/RnHHaYT5HWEatMa9LGr3Nk3WRIwf/ZUnRMm+MwEQnQLbJfjSzJWL6cHHyEREqwYgkEfHWszvJP' +
+'I=T97uX9aDnDHpgB6qr=U7iE4b29600g0tXYLQuf5TgL0+wj5DkIZUf80fs9SCEV12RPp9SPclRMjkNATkq6rWNr0=u6HfOv' +
+'+z8ThlKFBiwaqV8ycf=X4TO/68KnUWQ/lKKdKQTI4TQmtdmXkSbEmKLSUUfpq372GoPh/sCDLasmXnNKVA8rTLV93e=8uT2K' +
+'jhlNyiz6Gb/6cg5TItV8zNJPs/dc/9X93DnDzqRR2lrz08Wk81K/ZV68gF8eVHCKVoaC09/z5MkIUUdb0qsJiCFQ67ox5mWa' +
+'75p45np1eRKvOD+oPxGjBCklv9kEfHWxgQJPw=R97pXJh1Tl3Vlgu5l6M7kE4c2Ja1oV2XaTTMa14+EWhfpImvN4f5KAhPG1' +
+'khvmXz4pZe25b1LKaA4=3S0rTxLMcDtuLg/bggOjDx6fY6Ybl80PdunBLg3Icm07QUSdSLR6uWaIoWZ6WorG4GqWP5GWhRp5' +
+'3L53v5MU/jSHgftmXYSIlf2/cNTyHwRwXgwFnQJMgDmu0lSNRvLOIZTm6Ax6WcOycRsEWg87+NM7ENQNuYPNFLMDYeJ0Z/Ro' +
+'s9p445Imd6oN=6JHf36ylPOmXdrr1ZQ/e+OOU+iAWXE8DXv63WKH/xsNLhPdFlKyRXS1dVvGyr62RS/5wI/726JLERUNeAPN' +
+'W6aIgOg6qcXUG4oY8DI2EnY5y+5+Ynl6E=k/msW8yIh20Q826m926IV3ErKvA0diROGwuCl1zLk4kWqajABR4vl7jBQOpknQ' +
+'gm01Xy74x05NaPM4LEjr/CpogKpIzF4m6YqN3454BR0OV57HYS=rAFOw/HN/0VUQ=jPACfwqbWO9Y=xqvbEHgKz90=Rl2ky4' +
+'mXNmFa/naRLelBNX0l=uiLR/COQhKuI0WySh7hRCqivQVVpYX3NGnjJV7eVoxW/FXYSIlf25bxkxLr+w3qoKPEJsg6uNGSFq' +
+'usLidXRUycubWTNRxY9I06LP+BJr9UQ6pMS+mKgHsVRJKnnngLpIzF1iUnTGeYzA7tKQSjWIlW+ZLgPwWbPO9KmxbmQL7awm' +
+'qD6ICNbaYnR++lJS1kPlASgWzWOFJQ8YsSQvB+N3sNVueNTOGOM00Wf6qZg4c5nmnGFyRIZoS6LH7KNU3SV4Ig+FshNbd8Kr' +
+'TTgtSe=fzgvZLPF8=yxukkB+JlNypXS1VRuqiT8yBh/4ocMP9GLrDKB61RVZRUd4TGe6iFqXYQoJ/FF2Fglc8AKGbmM1FXAY' +
+'ld77YdQ7qCN/ESRMai/eyYip2K7n8bnLLAB/60MS1kPEVW0WSp6WJq=43FBa+FJsEbINOTR+KNKTGFe6mksnLLXVfEEXBfjM' +
+'bBMm7zMQqcQI1kB2Xj+Nh8+8jOT+iE4Jm7206u0FzeV4z8Sf20ODRbURpVzqGcO3Ef8noPO+++MrwcQ6qNSeaZf03Fh63prE' +
+'HArpDAH2pzoMb7JGmm9xzTRHg987Xh/sdi2IbxkB3lOfHew2/YLHH+svclOuJlMeIpQVtnpaWSNldr9H03N/6KKXTKWOmoqA' +
+'o6w/dl685F9eZnX=9Z1NzoDB6gQdY5lG1=m/mhWviIgm0Qn0XHoR=1p1AC3xIhlAah/lRtqjDQfJSmV2NuhG1/gs7vXJu0gV' +
+'7Zlty5mELo/6WngIOFQZmWsYglpJDKGWtabcrwN4iyO1uCV5ta+JPg/rqGM=5ThADc=w7W0VH2KLsWxfPaBJNcJ08nBS+tgW' +
+'RtABYZ740e=voB83XMB6FRAJlJLjnUOmNeZCcVspxpON3vbYax8zWmQVOts7aBRQ2qoxglg7744n97p15BEQMmlN7xGjaDYU' +
+'v0k4THXLzoeR0tl7zCGulVnDjqUR63r=U8WU85K/dk6v1F8CWo7U3K5C09/D5Gk8MVRr4yD0nBRg65okUmWl+q92tHkWEqfx' +
+'IblAeizlV+/q1s5wki/VJRxL/T9y6l=Y4I/71Q+Y0YB7145XZzFB/tI6mWsYglpJDKGWtaY6qvOnJ/1/Z5XBX8B0nC4pa8Ov' +
+'0JhAmlN=Plx7fIDLH0tugXR/+z5wDWUFkrZUZ80VthvX4ZMOtMNGsJQuZS/dmYaHothJ/eoXoFs6C64CxUqMvyKGnpMVCiCD' +
+'kuyF1z4pZeN/PPmybnO=/XhqrRJr01suHmSJQg5=Dz/R6lxqCTKVdf9HzF+K2T1lby6+uYOtaNbHPXiVyyXV8rimuFIG2ess' +
+'K3KGOnLECUTY1kt3fF35VeN/PPcg=hO=PliJzIPMb5tuHVQu+lLThpAhpcvaqVO2YRzTjT+K2T1lby64uQRu+JM5wEiFzlqX' +
+'YQoJ=qFWlbt9LYBzXtMQzYTXxa8qImRg++8wj1LKaA46nawFnXPMQ2uNnaOu60KDpbIlpTwaCTMWJk6okPLPZ+N69NS+FePL' +
+'auZD7DV3lyXTcMqYH9FmVapMGx7CX/1/Z57BH7l6Ye/fmE/P5ThBbcRQOfv7X2KLD=wek8PaNwIDZpPjVezGSeM2+q9Is2MO' +
+'pHObIyIqtTAJ3kFB/tI0V/Rh4DoJG4JGRRk9nwOGr26ylPTIkf/qkZSvGGPawImw=cQ=/lw4rH89Qyv/cXIul070RiOmVVyp' +
+'7TMF1l9FHo+KYT1lby64t05HZ3ER7tI0V/RnD9s14AHm+Vp9L9N1OlMEFPHDkTWt/JWV0Ln0y41M6HkmEvKv10fCVXGjyCka' +
+'1s50ZXPVVly2yr6z9hw0SDLelBNZYWQNF0H62mK1nZT2hVo3D5roX9IyxpY9PwL4jp=el67BH7l0XBOvJ9N/wKjAHcQQTkta' +
+'HPJM02v9YXRup0JA17Nhpk0bzT6zsus0sTOulBJKHKB6Kl6HdzEB7tI0V/r3Y8pJLK1DkMcJ3//gJO0/V57BH7l69kOwzeOO' +
+'QWb/GXE8ClkGae1F3aVoz85oQJJSAXSERVy2yr62RS/5wIBooj0lXy64t05NaXan8Hf6qpi3YEoE3U1C890j9ak81Ugb0hA/' +
+'mwWvuIiV0MnAS4345v+Mu/ZDqt0FzaVvDXRf6l5z1cAVVeu6WSKFxl=mPTO/6RKs97Q++ZT+KzT3KRjrWlojTUeE36IGtYqM' +
+'D0BWS2JkFRCDlsm0bB3pVe25bxlQ8bPAXkfn6D+IXAhHC95oQJz90=5l6cwbz4MVRg2FzDCK1L/oDj74x05HZzEB7tfJiWrG' +
+'09rk3U1HBetMKJ0A+N0/V57BH796sbOvC6OPI2hArc+t2RfQI2lN+h=URwqj1gk4OGl8zkJPc=R97mX9h0h13Nlgq5l1P6/a' +
+'h3ER7tI0V/RoH9q6D91GVSa9b9Im7oKEqjUmQh+q5xNw7nM/sWmxLAGv2f0rrTKHPNiqPUPO2hIOYf/Wc+YkV40=c7mBHVLO' +
+'FBOs=IG6JbCa2kFB/tI0V/Rh3hnYnAIEVapczYBzWA6y+kF1P/lDXB3pVe25cNkx8qPwXkfn6DO9YFsr7=54QJz90=5fVZxq' +
+'/XK2NfA2bEOOI5An0KrxD7i08q29a0yA0wCcqo+P5PgLEMcZG++ie/1/Z57BH7l0Y14pZe25bxL7bgQPPawqbRO7Q=vJPv/e' +
+'RuIi1aPlpky5eeM2+q9Is2MOpHObIyIt9YS+ycQhKuI0V/Rh3hSCehvQU2SGb7JHmkJUiYU0kurqoo=/7AN=5aUQvcSbiqim' +
+'HMMbc6sekgTduvMe=D5vU6YUV40Gk/mRGt2IYi0lYbPdOWPKdJODGxIDV/Rh3hRCb7H2hbsZev9j2w1/Z57BH7l0XBMviENv' +
+'8hRuKnAq28Z0qt0FzaVvcaRO20ESVkPEEqeLCgOFMdnBKt2IYi0lXyTNFeOOGSdnOdOnyhSh7hRCahvQU2p9b8JGO3LEudGT' +
+'khuknC3pVe25bxLB=YOwnmzWuDNbU1tvkl6oUJz90=5fVtgXd80Pc7mBGt2OZ/8bMUP/WSPOBSK4gPg7yjrGoLgYn5I2RRso' +
+'XCMXrp8Bd97RH7l0XB3plf25bxL7aAQwXlfqPPLMQau+oh/bggLDQkO1hZyL+cMVNou4sPNP2iM7MXJ8ZW/+aXan8Hf6qpjX' +
+'PKazqivQU2SGaYOgJO0/V57BH7l6sZPvFO8vcVhgbbO=7lqJLQKH7zblRwqw1g5O9qQVFAxK3nKGAf9n4XIe6KLr5KSudS/e' +
+'3VaI8IiFqjpngCXUaC1ixUYYjCK3rUM13oRIsf8ZIsJ/3GN/9JkxKf+QDdv7rINXH6saXbAJ1p5O=D5vU6YUV40=dk8noPML' +
+'c5+nrhCo915HZzEB7tI6/kqXPJdU3K7Cg6SWaYzA6N0/WQT5lZ73bYAsyE/pryL7aA46m7Z7TLMsYEn+UgPNA65zpXRW+VhE' +
+'l50=c7mBGt2OFBMrIWTduZRadJOyKuI0V/Rh3huEaSwQY2SGaYzA7mM1WfKHcX+VsrNwCYL=IMigzpT8ilh3yx0VzaVoz85o' +
+'gKz90=5fU6ua/iLGRW2HbGNOF+M8EbNeKWOOaOeWgIh6upol4cmE3U1HdpemqZzA6N0/V5QHxl97MdGvq4N/IMkRHqLgDdv7' +
+'rINaY2uuLmPsREHB8YSVtjeplOAB6a/XwMM/JGOa1XTa145XZzEB7tI63YsX4NoGbFE2VQpMvCMlC0M13oRItD86onRfGeEu' +
+'sCRQ=jPACTu2Gg68Y9tvPgQu97094=5fU6YUWPJmJaAX4tOeBBKbIWUvWFS+mKgHsVaJGiqHk9hGH1Cy6Or9b/CGOqMg7MA1' +
+'XR7JkhQdWCMOzVjAGy56q7Z0qt0F0yrOgbT+BJLSdfPVFezL/JN2pSBH4VHeJFMLENJ8aHMp/XaHLIOIlVejUAqYDAFGFat7' +
+'vwLGq/1/Z57BH7l7nF35Ve25ckM7eA46nua0ut0MCeV40v6oV97=8D5vk7xbycKGRW/Y0W/e69KXTKPeSPOOGOUHPGg6Caq4' +
+'j6a13=IGhNuMLAEWrxMlCUKF0drr1kMwW6PN5WlcmXP=7Ux6XIMcgfruDXAqt9=ORx6fY6waJWO3dh9HfJ+=2EJsYNTMSPRN' +
+'ydbF8oQ2yWekG4XZLFFGFSqMv0Jzek7QJPV5Ih86we/gzAL=cMlP4mRbmRf36g64YFu+gXP+RuJCgY/RIWeLCnN2Ng9TDMOe' +
+'BBKbIWUsBLRNJSK0bgV2yXsnL8oIPAHmFQYYavOgJO0/WYRTElA71dPOJ9L/EbjBPcH=7Ux6XIMcgDpOQeOvRlMRZbRltkvY' +
+'WzIBcRzEWg87+NM7ENQNuYPNFLMDYeJ0Z/Rh4AoUXEICpcr98HJHf39U3jMX5e+aEdGvB9Pv9ZlgLAQQSZzq3EPLkCn+kfRO' +
+'+lCAgfAhUQ00l50=c7mHTIQ72MLbI5SuOjPO+JRDYQimqlqXYQoJ=K4m2gkcL8LnnpDEBXU4pj/ZIBP=B9PvoInALpJPXeya' +
+'XIDJf6dr7=54QJz91fPxRkwKG/M2+q9IrRMuJMG75aR+OMR+JRKYYPe7WarzLAo1/A1CISY+H3JFXwJFWUUTcY87EOMw7+L/' +
+'ATi9WZRwzS16bV9bH6rN7UAqQgOcDA5fU6YUWaKGIR+HbGNOF+M8E5SeVKFJ30WlTyRKzWr4g9Z64DEXVRsb4+Mi6/1/Z57B' +
+'H7l0nC3pVe25cTiBGXRPHVx7bW65CxfrPiBauiLz1mIlpWx4Wz6zsRx17Y/72/Mb5bRued/7pJbXcPiZFwSh7hRCahvWVSa9' +
+'b9Im7oKEqjLXpe8201Dry3nyC5rn5up19BCFJ0gyROGj+CklzGk4zGkR5ZeLd80Pc7mBGt2P+6KbYdTZJn/76ZO1CxIDV/Rh' +
+'3hRI=DGXy2rcP+CEmkAAyjFU4sm0bB3pVe25cNkx8qPwXkfn6DKbU9vNjt6oUJz90=5mlVxL/T62dXu4HRLuZ9KrscKNOXPJ' +
+'2mRDXF6t9GxNVOC+xoYi09/z5Mk8pUfb4ws97BRg2zokIliF6f9CyZ=8Dsa0ut0FzaVo0kOu+pNDcWFhxhinyp1=g7mBGt2I' +
+'Z7MbYYJ+BQRrauK1KDSWFpdAGiRCahvQU2pcnwMm3pNgysA51j=6Hz4pZe25bxLBrcQxPWfqrJ880/rN0WPul0DSVjPhxtlW' +
+'yQl5zBPupknD4pdy2jrzg7lU4h29rDSGBkcCbAX6ilvgU2SGaYzHflK1WkUjkurn4qAcdi2IbxL7aA4=Ldx7HtMbo=lsfSFq' +
+'tz+=gx6fY6YUV40=dX/4oWN/JL6YnIUvSfPKh3ER7tI0V/uhGiRCahvQU6SWaYzA6NM1GjA4td970YDrzBPrwJkxbnRb7fw7' +
+'iL=H/xu+kp/ehw8RpbOFBfyn+WLFxU+H0IOfFpML=WVq5KQNuMcHoIhKCFqHfFtEm4GWpPqMH0LXnUMl+dWTHdm0bB3pVe2=' +
+'j1LKaA46m7Z7TGJL=2h6PjBYgKz90=5fU6u6uaMmArs1vb/5oj0lXy64t0ONmZc4bdOnFlaRGiRCahvQU2ssX+MXnWJEqWRE' +
+'LR=r9tNrhi2IbxL7aA4ALg0qLXLLL/h6PiBYgKz90=5fU6vKWbKFxk+HfRBa1I9Vnz64t05HZzeXcHg7GodzUJnIHAJX96SW' +
+'aYzA6NQAVq8BL7l0XB3vW7+vQThBDfOAOafqPPLMP/vNkmH+dhMixbSARkyrGT8Ck/mRGt2IYi1lby64t05NmOf0YFhqWlhn' +
+'L+qk3U1Glcbc=7KHX39UqUVjET+qYoGvq7OccsUt4lOAeRy7GRGbk0weLkCJNpLSdfPVFezJzdNhxpv0kMOeBBKbIWUtKZSp' +
+'uiN0YMhJ/eoXoFs44GIypmaImczQ6N0/V5WhX8l0XB3pVeOO9Ui+eXP=7Ux6XIMcgfruDXAJ1gk4KHWxxSg7CWKE6d8IHIPa' +
+'t=KsE/P/STON/VbD3FiqiWtnoJaYvAE2cOaIix5z2m8lCXRGld77YdQ7q8M=I+hB=gN=Ldw2mFN8=yxukkB+Rk5O0h/xUShE' +
+'l50=c7mBGtPuB6MbHi=rNYEJl3ER7tI0V/RngGq5zJ7ixfe5mczQ6N0/V57Hpd/qUZC7yF=s4TM7eA46m7Z0rWL8LCwdYTR+' +
+'Jl/ORcOlhjvWh80Pc7mBGt2OFBMrIWTduZRadJOyKuI0V/Rh4UZFilvgU2SGaYIWGtNzWdRXff/ZIsEO3IM/UWlRafCsmsa0' +
+'ut0FzaVoC95oQJz91XOFBZzqG4MVFa944RQ=B0NbkJV+ecKdKWdooIY4CSXUG4tpqSwQY2SGaYzGbnO1WlRFIf7ZYcNvqIPd' +
+'kXkx8wOALDw67SO8kakdDN//uvMeZT/SkQwaqRLFJW/Y00OvAT1lby64t05N7Mf48Zf4WjnG48oIvLI1dcr98HJHfWKEmeV4' +
+'570poT9/7AN=4Jg930+wLdx7GRLLfLWo385oQJzCVZTVVmvYWcJldV9HbXPthIMb5hQ/S9PNqYf4stXpmQX3cDpJ4hHmJbYb' +
+'qv=CXmM1WfKHcX+VshNcdi2IbxL7aAN=Plx7fIDLH0tugXR/+zGjRiOmVVyp7TMF1l9FHoKNg7M75VQ6SH/7pJcHPGg6Caq4' +
+'kmnIr97wk3SGaYzA6R0OV57BH7+qIs9g76L/oBkgvcIPHew2Gg64YkruGSGulkMSlXSA5rZUZ40=c7mBWu2IYi0lYUQ/ZKUd' +
+'yXbFPEh6FVejUEr1v/EWlRbdf+LWqyKkGjLXpe84weK/uCM7YQkQDgOwXf0pHSNnHIeaQbR+6pJzlkTUyfy2qn9y6a/XwMM/' +
+'JGOa1XTZBkAKh3ER7tI0V/pnr=tYzFFUpNrMLBEm3zNVBdSHcU+rIcNw+9RO0Vi/vYQ=Wah2He1F3aVoz85oRsJDgWU1tevY' +
+'Wz6zsRBXfRMMt6MrIbLdqZSeFXcHPHf7SEoz0Rqov9=m2ZpIaJ0A+N0/V57BIj865kK/uCM9wIkAKXE8DryZ/IEbU+svcNU+' +
+'puJA17Nic+YkV40=c7CBWu2IYi0lX26Ht05HZzd4sXOqOasWgLrYL9JCxpY9r/8WzlMEFdU4pl9qMhP/BCMeMbdhHpO=XlqJ' +
+'LQKJUEjNLhS+9oKCIZQlBVxrC/MmEfB0SDNOt8LrENSOa7RuBXgDGDg6qYpnk9qZHoH39auYmv9zFk+xVq8BL7l0XB3vi6Qr' +
+'5amy=cOASRm2HQN4H4ruDXB/Bp8StbTU+kyqGTO0xS/H4qPexFDb5bRs2PUJWQbIo3jr7aoojFrpHJFWFgjc88JC6/1/Z57B' +
+'H7l0nC3pVe25cKjx8rF/D7iKjENbH6u+sCTv6o7vb5eRYQJN9/ZM7GX7SDnBzpYB2JryU7aE4FKDa0tg0zCpapvf9bgLv9+D' +
+'5J5+YAl6s=keq9WvXYDg/EL/vHlhHwQwWuumPGMr==v73VCrJB9Qp6EFBV0LBbNlZS94faBb2IPX0YTvpKCa3Zg0XGSoFpcE' +
+'oddnm68jhOfY/6KGOnLECUTY1=76od/K6Q/e=lYtzqRwHfmFJ0giVTbb=lSeyu50dqUlhVlZhQJl1d/ord8r5PBo9vHa2ePO' +
+'WdNIkLe6CksD7Hr6W45HykY6//M42k6hz1F1A303gU98pQLLvJThHfO/Ddv7rINXH4svgIOv2pICZiPhQSyKiPPFNjvXbMLu' +
+'g78nfKGqFMFalYeoYEhGpVZUDKr58F1H+guMn0=FFmJkubTosrrW4vEs7bDbkbiBXrAAPZv6XSOo3AvfvSCfu45wYmSWQQe3' +
+'z0/zV31EP=8bsUJ4rKBeaSPM3VaI8IiFqcookunJ=AEW6YpIWxM3GlPEGhDXIVrFXj98hDLLvjUhDnN=6vh2+F8I7eV4z85o' +
+'QJIixXTT2AoWqlJGBf+HbKH=JLLXTKnRJU/E4E29R00Q0lCpuo9=9n7ixost4wLSX3O2WbREYNrJAnPfuGBKDYWe7pGNOs0q' +
+'bbO4DDteUWROI690Ru/Syg0Gyg+36ps0vTELEPCpHjOqRoF++nKTDVf63hl3PFoGv5HWEXYYmv5SC3O27URI0crGjnM8pQ/f' +
+'EXhAu1ALKalT6u0FzaVo0gRO+5ABR=B1VevqtW6c7QX9d1TV7bltC5mkLiqChJ29N01Q0nCpBo9E3632VaosbzJGO4EU3cRD' +
+'PTr23Ic20Gn0y41H51p1VBFAMvlAjxGjNCilzCkETHWLzrJPRa69/zXJm0il7glgq5mJM7lU4ZK/ZV68gF8NVVC+/51igMcp' +
+'3/9zFkO27kRDHsm0bB3pVeS5ryL7aAU628Z0rg1F3ayoC9VqQ7094D51lghqGkKFxl=jbEM/EA67ENSueePLaXan8Hf6qpXz' +
+'C4Z64DEXVRsb=0LGS4KCW0D0la/XAkPP/6+74kYM4y56q7x6eLO90AsuLYAfusID1bS06VxauiKDd2uDjECLo568IWQueQQN' +
+'uOb0fDPFJVsY4HoIz+3GVfgsn+Mmqt6x2sHDkT=6scNvK+OOMLRMaXTZ28Z0rMKXwExvQXRNEoICdqQmJVoaqRLFJW/Y0WJv' +
+'2EJsYNTMSPRNydbF8od2VVXkGUX1=MHmBRpcb9JGmm8Azq8BL7l0YhN7S2LfIQmQLAQPPawqbRO9csve=TUuByESljRFBVoY' +
+'CL9VBd+IjD9aM5Ms0WPN6TS/BXaInLe6/ppos9hIv7GWBRrdHBGnXwJFWUUWtW+6wsNtWZK7wJkxbn=8mR1T6u0FzaVu=XTa' +
+'u0JCEmG1hZyGyr62thvXsPNP2L975cBuONT+afbF8ReZWZonLLrnjHHG2lpN=hJGKzO1G5J3Xf7JkhQbVP35fxL7aAP=aZy7' +
+'GRJb=6vfbgPvNpMjhpAWBVxbzxM2dhuDGDQ/JFNZ9UR/JYP+Kcf5gSk2RedAGiRCahLQk3SGaYKGusJE/jSI9W16sbOvC6OP' +
+'Iafh4jNAnWzIPIMLLEss03NqliLz1mIlpWx2yU7R6e=0bFO/ZINGsJUqqLOuGSfXsthJ/eoXoFs6DzIGhNuMLAEWrxMlCUKF' +
+'1OuJ9kOwzeOOQWT9aXTZ28Z0qt0L=2waQmPuhwASAfSRxteKme9VBd+IkW/e6M8b5LUuugPLaXan8Hf6qprF=Hq58QFX6/pM' +
+'r+N3rNC0ldQXUa/oYmN/t+BYryL7aA4=nXhq7T9bY9tvQlB+B4KDdqSARkvameBVpa=0GM8=F+Ms1rSuuaBdGOeooVhaVdZk' +
+'/lRSahvXk6SWaYzG7q81mfDYld77YdQ=+CL=I6iArmSwX7wmnTJMYDss0gTaNwLzVvPm6CvamdO2N710GM+K2T1lby64t0R+' +
+'KdK5oLf5zhno49rU3U1Glcbd47IH7pNV+dQI1D86onRfGeMrYXhB=qO+nf0mnTM8UJsvYEPuhvNzl=HRUZk0l50=c7mHHJ+=' +
+'FAKq1UP/uPSZuQbIo6e77enncDoEW6IGhNuMLA8W7o6QVPBT8R=qUdIfi2R/MZUQTcSvbSzJrEJb=2daYiRey5JDYkR1VTw2' +
+'6X8B6snBKt2IYi0rkNUqKTRdCSb4sRjoqWqnn4eE45E3BVtcLYLWjtK1GdV5xM/qkZSvGGHOMUkhHcH+TOiJ/EMLjLWo385o' +
+'QJzCAbTRyZxq/XK2NfA3kSPq1V6b5LUuugPLaXan8Hf6qprF=Hq58QFX6/pMr+N3rNC0ldU4gkxTnC3pVe25b1LKaA46m7yq' +
+'bX69Y2ru=MRNllDSVjPhxteG7BJFwR0HbHPeJ6NG8j74x05HZzEBKuI0V/Rh4DoJG4KmtapKvwLGqkAAzcU0cY76od==aDOO' +
+'LVigLrIPHew4CJHbL/sqwbR+6pJzlkTUyfy2qm9y6a/XwMM/JGOa1XTZBjB63SdXkMfqGjsWUGrkvR3Tc6SWaYzA6NLEJXWX' +
+'gf84sZPvGHHeYWlRGlP=7UyrbHKMb5x+LgPslhLCkfAhyrZUZ40=c7mBHPMPE5P7wWQ8uv/7pJgXTRf4qWqnoKjoXGInAaqM' +
+'vzJH3TKQSpTncW2J5lNrVP35fxL7aA46njw6LPHbL/ssHTRuAg=/RwREpVpq3bKGFMBXfRMMZdIof26Ht05HZzhBKuI0V/Rh' +
+'3lRSahvQU2r9LC53zpO0/jUX5W=m019fmE/OUIkAKlRwHlxqfMMbf/sNkmKO+yJClqJ12dvY3iBl1g=XzLNOt8LrENSOa7Ru' +
+'BXg0GDg6qYpnk9qZHoH39auImvKGOnLECUTY1B+a=mS7h1=rnHVtay56q7Z0qt0L=2waQlTf2lJDgWFhydyGqVJFtWvY4M/e' +
+'R+OaAcTNePT8uKdHsqiJuihXYKp3j9KSRTpNHiN4fpKFBdUo1j86IsH/3BM7biM7eA46m7Z06u0FzaVo0bP6MhKDd6RVtjvW' +
+'VOPfs8mBGt2IYiJKUJUsO7IJugaIgRg6qcjYoKp1W6cqxWY6nBM3by62/jWHUWy5jaMOuAOf=hRd7uF9L4nWzXKMwEevcaOu' +
+'+vNf4mSWQQiLzm6zAh=5CD8r2e/YQuI72G/atlaUOFQZWjnG48oIvL=m2ZpIix=zSmARheUolS+GrYoksmTK4jlh4YQLDk0r' +
+'rPKIDtb+chRepy/OcnDC1ino+pO2NpA0XWN/69MLPiDvKi/73Zg0XVSrztXTfHgFGO+UEnn5/M=3eB6QejS45B+q5xNw6CMe' +
+'MbeQ8pP=HTyqaL6cQ9rv0XS6luKCdh/xUbenhdJSwtvowTLOsW6XTkTeKLRZ3cf58Pf3mRX3gGq5zJ7i9ddq7ABUi/O1GnV0' +
+'Yk9q5cPPNO=w5fRu4nTsCjjrHb64bAkrfpHsA7HvY0FV5uemeiL2NB/4ocMP9GKKIcMNOcQN7Ld4rLOKzhno49rUvAFC5Vao' +
+'/K8meBAxuiU4pfyFXYoksmTV6j92NHkGICKv6R6CRsGjJCkEvwkErGkc3=kmyqNm6S/TkWQ=ZEKooE=NWZR+ybQTjUTX2ng1' +
+'fSs5LPJClfq98zLny++2znA1lhAm0qAgzM8rDXa+GuG+WsumOhA8XOb68kPuysGSMkPjpRxaFZ6RoRsTPWQ=++KsDT=K5ZOa' +
+'tlNokTe6pzazbAdiqivQU2SGbLJGG3KFd97RH7l0XB3vW7+vsXUR4jNAnWzKSRJMgjsuDhTeBJJvxmOm6jvYWcOyZa=lwPOv' +
+'B+8nXR=v145XZzEB7tI0Whooj4s5X9+GFYpNH0MSWA61mfDYld77YdQ=+CL=I6iArmSwX7wmnTJMYDss0gTaNpMgdiRF+VgW' +
+'Vp1=g7mBGt2IYiLrLQUuqPH+KVbIoIiFqcookunJ=AEW6YpIWxM3GlPEGhDXIVrFXY+7J1QvYMaxLjOATWzF/KKMgnrvYbOu' +
+'2sJ/wYSVhR0aGg9Vxa8nOF+KY5PEnz64t05HZzEB8Ggq3pfmUhaZT5ImpVrcTfNHjs8x9yg0LRyrAoMvp1PfIgkxK0MsLUyZ' +
+'3SNY30frs0C8FD/jhbUWAdy6SPK21oyUkTR71INcTIDKKaU62MO2rXTXG7dFC6eVn68i5XqMvyKGnpMVC+QHYWtV80=O6SCr' +
+'0alx8lELFBFQMm65=DveUg/f60OCAbFkgSu6uaMmArsknaDL+fBHgcQ/qeBOCRaHoSjWZlrYz4b64P1D5cs+Wv5jXJ/yO1JE' +
+'QNrGr0M8p3+fIPi=4jNAnWzF/KKMgnrvYbOu2sJ/wYSVhR0aGg9Vxa8nOF+Kg7AXwKGK5ZSu3KdUODQniorXYFX6DLKWhRfL' +
+'mxImSwMl6pAkooz39/ELeIM=YbUBDfN=Tg0WuTN9vxffQq/b1wM0wW/By2jHO0CClNsUafLbs78LEQQ9KWOOaOeTPKf7CLno' +
+'cAnI=DFSQOs9nwOGr29UWTATHcrGjnM8pQ/fEXhAu1=8FBDgITlA6izlV+qw1g=0dmOloQy7CnM2Mu70sGOulHN4bLD7msCb' +
+'OtQooIkrBirG05o5zO7jycu53/M42k+RzfW0kUvoHsBMGaBdnJYNnZELKc0qnIC8k9svgXS6lnJDhMOm6Zua7aKBYT=4TERO' +
+'JK97sRPd1MAJhLR0TFVGhkrHU5qVu43Dhfs98954j4PEiUHGTT7ZwkPP6O8b8eZ+=+Fcvlw7nX9Mc5rughTKUwM0wWCWyoeH' +
+'6eN3YRskkpA8ReCogE=KAmOatLMooLf4CaqXoLoJ/FF2Fglc8AKGbmM1FXAYld77YdQ7q+Mr=QTc/zAfKvmmCWN8U/i6zg/6' +
+'Q7094=5fU6YUV40FFZ8I0lH9YGOK5aSNuYPs3een3LOP8VZzWo1v5VgLb98D9Vk85VUhZPH5xh76rYQPCNOvLkgt=aQfzgzG' +
+'uG+IsSf8o2EO+lO0gjSERRvKul=S6hB0jTP=U5+41YVqJNC8JdPlspUYhXe0D6eU/CImFNr8f+LWrSJEmUCjsdrm8jQPCGM/' +
+'MbTc/zAfKvmmCWN8U/i6GUArYNzM0=5fU6YUWr1=g7mBGt2IZV1lby64t05Op3ER7tI0WySh7hRCbUwQY2SGbwInntOUG5TX' +
+'xa8qImRg/wPvoInALpJPXeyaXIDJgubbCSTulkJCpfR1FUk0l50=c78HwXNPN+DrsLR+aPReGcK1KDYI/EizLHnJ=KFSR3kq' +
+'zd8Xj4NUWdRnIXA2UZMPC+QOMxkQDgOwXf0rSM8I7eV4z8VogKzDDD52kZk0l51=gguRWuOP1GKsMNSOadBd7Nb03FeZikrG' +
+'ohqYDAFGFat5/75z2t6yltA5P/lDYhN7SIR=5MkgOfN=Plx7fIDLH0tugXR/+zGjRiOmVVyp7TMF1l9FHoKKY56onl=qSfRd' +
+'GObX8Rf6BXZjUSSCehvWVSa9r/8XXwJFWUUYwf77EKNvmDQvMxitXnNALkw4rRO4wAueUrPv2SJCElTVF6nGVX8B6snBKt2I' +
+'ZEKsDIUuqPK+mKgHsVOnlVqoTFr5n5KWFesovwN2fpMEujRFIVtr1ZQ=/6F/wbTy4jNAnWzIPIMLLEss03AqQ7094=5fVZvm' +
+'SiL2NB/4ocMP9GKKIcMNOcQN7Ld4rLOKzhno49rUvAFC5VY5O154nsKDzbQIIW/FsfNwCrL=AQhA=jO8iTzq3EPLkCe+HbON' +
+'Yi7/0WU/k7YUV40FpWA0kMOeBBKbIWUsBLRNJJRDYEeaCes3ohqYDAFGFat+DqM3GlPEGhMX5e+aEdGtCy/OwIkAKy56q7Z0' +
+'qtM8kEbe0gONRkJCIqKVtjeHlOJFFl+I8IFOt8LrENSOadMu3VaI8IiI7aqnPLoGbcDSpcrtCJ0A+N0/V58BL7l0XBPfGI8w' +
+'AMhAnRQf7WqJLQKHPNbaYFOukgACIaS1FRy26p1=g7mBGt3Ici0lXySuee//eYdXsye6maXUG4qJ3FF22ZpIvILmOp9UOUV2' +
+'cS+6IHN+aDOOLPjAvaP=TWyKX0Msb/xa/SQuljKChbR2BAx7+cPBoR+HbGNOF+M8E5SeVYUZZkFB/tI0V/pnr=tYzFFUpNrM' +
+'LBEm3zNVBdSHcU+rIcNw+9RO0Vi/vYQ=Wah2He1F3aVoz85udlNvRwREpVoYBOAB6r/nbIGe6FKsA8RuFcT6uSdXoIkoubZY' +
+'8GqYLmEWlRaJiczQ6N0/V5UX5S+pcnP/GjL/sMRuqXTP/fw4/EMLkDpO4hR+BJByDx6fY6YUV4Q=s8mBGt2Ioj0lXy6+6PT6' +
+'3QbIo3jr7aooj4eE4EICpToMr08XXlO1SVSHcVuJQdRe/IPOMMmvvYQ=Xz0oTSMsY1de0gONRkJCIqKVtjhrRa62df8nHHMO' +
+'tMFbwbCOtW/+aXan8Hf6qpjXPKaZeD1DxYY634/gJO0/V57HUW=m1rRg76M=HHY94kRs7Yv67I9ck6e+sXTd60MSlbTTpRxa' +
+'G1NV1e24oWN9h+PnUPQ/a+T//ObInRiaCnonoLiY8EFSUnTGeYzA6N1/Z57BH77ZUZRd3lF7wehB=lP=7YrrbWL4vzCBPc/b' +
+'dzMzVk/W+k0aiTAEoT8nfPOv9S6H4fH7SxGqidbI4XR7/dnnkGsleHIHQMc+4G50e0N2RPAkl3wnQ+Fsex8LvjhNuZ=fnfvZ' +
+'rHKLHEm+UfPqYi=vMYFygfy7zPMSwRX9d1Ta1UNL1JSJKdT/aVbEL=OJ/kqXPJdUCI601ehaCJN3r8OxmiS4pV+aPyAgzM8s' +
+'5Xnt3pBxDpfmSTCIfHksjtNa1+=zY0/xdkwKG/M2+q9IrRMuJMG75aR+OMR+JRKYYPe7WarzLFpIDC1iUXYZm+ITN=9l/fQH' +
+'bvrmT0QPz2OK5amybjO93NfJTSM8LCh6bjDLxyBQcxTVFozGmhL2+V/o/d==2Q6Y1YVqJcC/3hK0jTX3BsglnSm1/V8G5qYY' +
+'jCK3rUM13oRIsf8ZIsJ/3GN/9JkxKf+QDdv7rINXH6saXbAJ188iY0FRtjyK3cARcRX9d1Tl3UlgK5mEP8qCpXK/Z/6vsF9+' +
+'VHCKRoaN38eY3KMnXlMQziV5Id83oU9//DOv0ZXMCoCdGjoHSeO8kIwaDlQeykLjswCWyoeHzePy5jw5kb87AICoDfI8dlN6' +
+'+nR4fhOFenonYDlYzFFUpNrMK65SFk6QeiV5tW87Dj98hDLLvjUhDnN=6viFOM=lCbVoz8VogKz91z6fY6Ya3RO2dn9FHRLu' +
+'Z9KrscTc2aR+7ibIg2f6mksXohg4q48SyhrcH0JW7yKEBq8BL7l65bRfWKM9cVhgbbO=7lzVGg664kmLGgSeyyMikeI0+=pm' +
+'qhO3Ba/X=MMfYAJrAcR/iPINuMcHoIhKCoZj3SSCehLQk3vIaJ0A+u9el68BMX=6sbRfWDOK5ZiAPpOAPZoKPEJsg6uNHlAe' +
+'llNhpXRWFVgWzp1=g7/44X8=F+Ms1vTNONT+aYdYjDV2zirTLOqp=DFCpQoNHw8Wv2JE/jSHgf/WfF35WBPrwXkx8wOALkiJ' +
+'fSNZkyrNw8R960MSlXRk6RxqOT8ws8mBGLP/l6PrIaCqKTP6ZJREODkTl=Rh3hpIO=JHVcpMz174XwJFWUUTcX3J5mOMq2O/' +
+'LQRt70E8CT06/HKLo6u+kW/6QgOcDA5fU6YaWU83Jq=44SMaVIMb5hQ/RYPtKdXXcVg63XqXn=XZ4DEXVRsYv1MWbnO1WeTT' +
+'sat20ZDsl18PMVixLdP=7WwmOM697eV4z85oQJLzlq/Wycnr7PJmJa/naDCK2IMb5hQ/RYPtKdXXcVg63XqXn=XZ4DEXVRsY' +
+'v1MWbnO1WeTTsaxTnC3pVe25cQiMXrTADWyZeLN8=Xv+UVTeRvLOIfPRUQeXlr6yBm/X0IMeZGKrDKB6Kl6HdzEB7tI0Whoo' +
+'j4oZ=5E1+Rt+H4LWz36ylPV45e/oMqMv/IN/0VlfjnQubjv6TXLLL/e+0WNqlzJDhqQlpXy3d80Pc7mBGt2OZ/8cEhTueZPZ' +
+'WPeXcGaZGpsX4FopDzIGhzsc8yN37zMQqhQHccuKEnIPCGN/wOTtbU=8CSm36D6ck/sekYQullJvYf/Wc+YkV40=c7mBHMMa' +
+'VMPs1NSdhSPe/KamkIjrCeq3wKlp4D+n6NotH4LmNyNU3dSjcl+YAsQ/WCMaXQg9vlN=3Wh2GEAICxb/kgPeBmKCIbPR5ZeL' +
+'zaJGdW=TbJHe6GLIsJS+dKFJ3PeXcGaZGpsX4FopDzIGhzsc8yN37zMQqhQHccuKEnIPCGN/wOTtbUAP7Sy6ae1F3aVoz85o' +
+'R9094=5fU6Ybl80Pc7mBHg3Ici0lYl74x05Op3ER7MUTl=uhGiSCfEICpRtcL9N4iyJECTC0to+a9kNdC2Qv9rjx8lOfXVfF' +
+'2D8882xq/SRNdkFSViTlEceKqTOkRS/54I+K1VA31j74x0QNNRcnscOnlyXTc+rY87JGVbrdCx7CX2KEKhRIxZ0K9ZMPC+Oe' +
+'waTtay56ruh3yx0VCbsN=hO+ys8SpoOl+kwaucBFFl+HfR88o5K75UTddl6Hd3EX0PhZ7WqTL5oWPJEW+=s98FLSWA61KQT5' +
+'xWxTnCNOiDLO9TUQDmQPbazJ7qNbU0we0hR8dlIDpb/SkQiHd80Ps8/IjRNuJRNGsKR+BOA73hPkbPOrCnsnnDX5PMHm+gqM' +
+'z97z6kPgyeDjl4vF3IbV0En0u42H5ypByRKvA1RCRDGjSCl1v4k4vGic33JPU/fws8mHHJ+766MbkXUbSTRdGcK5HfOm33r4' +
+'c5tEvAI02esc8H73bwM1umIXIf8r=h/rzGM=IclQuXOPHdzZae1F3atuna/uysLzMtG1VevL+cLFxU/54HMPAA+cTfD6tT//' +
+'/Of5sVhFzbnnDKoFilvgU6SWb4JS3sOECOQYtg=aAdQ7V1RYryL7bgOLjXzJLGF8U/su/b/fYNzM0=5lVWgG3UNV+UA4HSOc' +
+'68ObYXSJtKOtmYensqiJ3YinoFsEWA7wk3SGbLJGG3KFd97RH7l6Ye/gCNPvMWiMXjQfPSypHPJM02v6HZPv+WIDZfOl6cvW' +
+'RQJFFl+I8I/eF+JrjKB6tK/KpmK0gYhJCao34FoIG63SynTGeYzA6NLEJXT4gU76kIPf3NM==VigLrKPHjx6LFM8j5b+UVTe' +
+'R2J/IaPl2cemVX63BWA54VOa2GMLEhH9K0BdKbeXTVQm9F3CWozf5HgY1MDBNgQNcGlGhPs9nBQQ67okUlfV6k926IYbFC3A' +
+'IXlAmhAURsqjts56S1qa0AEh0jl7nCG0k/88l7A5LaGqFMFZ3GK/Zg6vIF8eVVCK+pMt3wDB1ffNY09Q6bA1whvn0k9gCGQ/' +
+'LQXaqB46m7206u0FzatunaTfRwJCMcAVhfu63aF2pSBH4V/eR+OaMJTNuLOdmOM0gThq3uoobFnYnGE2dfYYa45zaA6x7kTX' +
+'1W8JYmNvB3+75iM7eA46m7yqbX69Q9rv0XS82sLidhSAxteKidJl+d44TEROJK97QNUtiLSdaKaXHIQm7lqXYQoJ/FEmhbos' +
+'jB5S6/1/Z57BH796LgRgWEM/0NTy4jNAnWzHPPMrc8vJHcOuRs7/QXFikQerGcK2NX+HbIM79B6c9NUvecRZ3XdoocW5z/a3' +
+'oJrYzJ3C893z5/k8MUeL0qsJTRWvuJUm0Hn0744H5vp1hBCxMqlAyhAaQN/bdi=QooFRtSlmzL697js/pmnQvqRi61rz87jJ' +
+'56xOZYOx0pCcNpvP9agY=9/z5Lk8Wm9xyiE1khum1sQ=G6+8j1LKaA4A2/ZDqt0L=2waQfUsFyICdqQlteeHlOPmssnBKt2I' +
+'ZBK3UcV/KPRtNRd4TGe6iFqXYQoJ/FF2Fglc8AKGbmM1FXAYld77YdQ7q7PO9KmxbmQLKah2GEAICxb/kgPeBmKCIbPR5ZeL' +
+'d80Pc7mBHMMaVEMKAJStKWOOaOeTPKf7CLnocAnI=DFSQOs9nwOGr29UKhQHxl96wm97V+8wj1LKaA46m7y7rqNbU0we0hR6' +
+'t95zAlOE2cqKiPPFNjvX=IQ+N6N7YJPN6PA6/Zd4ccf76jo4c5npHAH2oOaJiczQ6N0/V5SH8Z=rYoNvu7+vsgaR=YNgTayZ' +
+'+RMbU+sqzSFrg95vZrR1BVvqWcKFITuDkVMPFNN7rISNFeUL76UDPIiK7krzz6C8BpOy09/T5D5+cFl6sAYOq0WvuIim4Xn0' +
+'LH92/Xp19C3xIWlAShB1RqqjLQc6W9qaTADGhOl73BP/lgnDLpfR61=t1KF++nTUffRZ6zXWG4C+toZdzgDBxgQNcGlGA=nu' +
+'muWv0m97h1=b4XVtmXSxLmw2qe1F3aVoz8VogKz90=Vfk7YUV4LFQZA5HTMOx/8boYCOmZSdmNNXoEjq2jo4c5npHAH2pfms' +
+'rHBXflJlCYTnbf96EV/ryRC8rHRRLlOwXXx6/IK4X6bfYXTfByLORkRFBpmZz49VNj=XfV+7=pVB2Yr=s7i656xedk6vAF7e' +
+'VUC+ZoZ9zcDORfe+cT680ss94RWvWIj20MnAS4345np1xBExIalAyizlRwqj4Qc6SzqaxceR0tl78BSOlYnDjqUX1D=r6MFb' +
+'NbR0TFVFzSXeVUC+NoZNzqDO+gQdcHl6w=nOmhuF8k9c+E=s4TRyHpS=WalT6u0FzaWo385oRpJOxXPzJiua//JFxW/0GDPe' +
+'JMOs9W=uiLR/COQhKuI0V/nnserY87AG2apMmv=CX4NVGUGhX8l0XBQOGIIvcUiAzsSsjX06/GO80=u6vb/fYgICp9S12TqK' +
+'3cKFoRzDkJLOlLKn1lCqJbC72ZMECxIDV/RhGiRCah4yZVpYX7LmjlM0zbQIIW/FsfNwCrL=AQhA=jO8iYzq3EPLkCe/oXQf' +
+'5n7/0WU/k7YUV40GRS=TkXMOpID6AXSJJn/+mYancPaqiWtnoJaYT9JFJNscbwIWGp8xOfT4pq878mR/G9PaTQXaqB46m7Z0' +
+'6u0FzaVuohS6N2IDYWQAyZxmziKFth2WwSOatOKrURPd6PSpZJghKuI0V/Rh4DoJG4JmFUi98BKzWA62CUTIl83Zwm==K6Nv' +
+'cKkxLqLfvOiJnENrvLWo385oQJzCAbTRymvaS9JFtWs1WDQeJADb5bRr145XZzEB7tg6JdsY4HoIz+3GBRorP0K2j4JFCiOk' +
+'lO5aMdOdS2PeYET93YE8CT06/HKLo6u+kW/6QgNSleJ12dvWyr62JW8m8IN+BMJsEbNaKHMuOOc24EiZSSa3L5qIKSwQY2SG' +
+'aYzHnpMFz6MngfuKMdOfW4OvMafgjUAP7Sy6aDAHQGsuwAOuhl/cDA5fU6Ybl80Pc7mBGx2YYi0lYRQJqWRtCKd3YPe7Warz' +
+'L/oJHuEX6VoM=7JC2rN1iQWH5juJUnRw/6PaTQT94y56q7Z0qt0LwFsdLUS+p3MiloB1Fova/jO2MZsYsIMf++NKU/Q+q7ON' +
+'uOd03KOFe=jEPmaZDLImVapsb1OC34KEmfKWxg+FXj97NA8rTJTefKId6fzaXVLLH4tuorAedvIiViKVhR0aGg9VVWA38EPe' +
+'Z6J7kNBqmaR+7ibIfRgquqrGoKYkaA3y5TaJix7DBR0OV57BIu86krNwdi2IbxL7aAPxXVuZPVMssDsvXgPvNlIjlqPhQSyq' +
+'GUNVNk+38IN+26M7IUBqlMAre9VlORiaCnpnL/pIPQ3HBRrN4ZEmSy8AdRBjHsrFXz4pZe25bxo9em56q7Z0qt1F3aVoz8Re' +
+'B05zpoOl+kwaucEFNe8X4VPq1V6boYCOmZSdmNNXoEjq2jo4c5npHAH2pfmsrHBXflJlCYTnbf96EV=/m6O/AMlRCy56q7Z0' +
+'qtKbLCbawoOv1gKeRfRxyWyq3RO2dg/VXIOO++N8=R=v145XZzEB7tfK7WnHkAqovlFWlOpN=BGmByO1uCV5ta+JPg/umw8O' +
+'0VkxblO8LOfn6DKbU9vNjt6oUJz90=5lJiua/iLF1f3H4QLeJKNJgTCOaZKuGbcHPKQmWSlCcGqWHMJHUOnI3L53vlM2/UGh' +
+'X8l0XB3wli2IbxL7bkRs7hyqLcKMYDe+ohS8BhIiwe6fY6YUV40BZh/4ocMP9E6bYMB6JnFZ3kFB/tI0V/Rh4AoUXLKXyRrs' +
+'O3M3GlPEGhDXAW=pMZQ/W2LOoMTt=nQwHqw7ORLLfzdqzS/rg95vZrR1BVvqWcKFITs07J8=FRNbIXQJqaR+7ibIfRfZGpk3' +
+'YJpI86HGEUYd47IH7pNQqVUXpU=qYnP76++74IY+qX+QXfwqbJLLH2saXb/fYNzM0=5fU6YUWaKGIR=4TEROJKC89JPeaTRt' +
+'tJRDYThq3uoobFooLLBm2eqM8xL3qs6VzbQIIW/FseQ/34QvcWkM/gDZ28Z0qt0FzaVu0YAf+5MzllPxRgxK3nKGB4=XoGQ/' +
+'ZHM3sRQqtK/KpmK0gYhJCao34FoIG61CISY+HHM3rzKQScU0co+a9kNbq5L=IIUQPpN=Plx6CRNq8+xsokOu60KCMkB1VUtW' +
+'qbKFtT9IsW+K16AonI=OeYP+KPcHPIfm6eXY/lRSahvQU2SGaYJWS26xSlQIsR9V1hP7z7PO9KmxbmQN3Wy6PINcb6bf7=54' +
+'QJz90=5fU6YaWU82kfA4f3Q=+BM7PQB6JnFJ3Zd4ccf76joGoLkY8JGW2Or9K35XXwJFWUUTca8m8h==CDHfIZjAve=smafr' +
+'yx0VzaVoz85oQJz91cS12TzKWdMTtW/HsIPfB0LGscScWeSdaXbj3Md5dXqGLDpIv91lkMfI4CMXrp=el67BH7l0XB3pVe2/' +
+'cNTy4jNAnWzF/KKMgnrvYbOu2sJ/wYSVhR0aGg9V1f154XRK9B8n1OTNONT+aYdVLIh67ar4gzpkvLH1+gscb9Ji2tIDdRTn' +
+'c2=7Ex9+l1C75blRLcDZ28Z0qt0FzaVoz85u2yJCVhE/k7YUV40=c7mBGtSIoj0lXy64t05HamFB/tI0V/Rh3huCqivQU2SG' +
+'aYPAJO0/V57BIum0bB3pVe+8j1LKaA46m/ZDqt0F05wugRO/2vNjdbSxpV0KGROGJWu0=XOuR=MbIvTNONT+aYdWYEhJGhZW' +
+'C/YkjiA0t7bdDCMW7yKkWVWDEe/msvPP7AMrwLhBHYAPbjv6TXLLL/vM8fUsFyICdqQltehqWSIBcctmSK/+k=7GgUSdWLR9' +
+'3VaI8IiFqcookunJ=AEW6YpIWxM3GlPEGhDXgf0rIsSr6++aUDScnT/becy7rqNbU0we0hR6lyICIhAANMf2Vp7hcsnBKt2I' +
+'YiMs0WQeeTBdCeeYkSiFqrpogAnYn91DkMt+=DJDBR0OV57BIX/J5bIf3CM/nHY94rRQXWlT6u0FzaVoC95oQJzCViRVtnmq' +
+'WcK3ERzDk/==UP+qnj74x05HZzFB/tI0V/qoTFoo8EFSpTsc8/K37nNgqjUXpf/ZYsOvuCIv0qkyLpRPXVhnGM=lCbVoz85u' +
+'hw8StXRlEev77PN2Za8ovRPvF6N8E8PeSPPNuvbXwIeaBdX1H9qZLl+0RRqNDCF37yOx6bA1kdrrEqRvF+BYryL7aAAbruw6' +
+'3WKM7eV4z85oRjKzVqGky6hr/nNk6m=nCL8blLNb5W=vWeUNmORGGFeZuhqHbRXmPe6j1gdbmx=cgk8Q1=cemhW8TYox9mT2' +
+'6X92tIVGEwKvA1RCVTblRvqjAgk4zGlszoJcM/f97hX9R0hF3PlgW6X1LoqCA6u/ZgRm1F+NVVC+BpMtzqDO6fe+cGl6FPs9' +
+'7CEA6J9m4Vn0742culEs/kzqLRAXX6hHC95oQJP/4l6fY6Ybl80PdunBLg+Lgm01nzQd6ZOd7VNXkPha/ag4c5nmr9HnEMfI' +
+'41NGOnO1WeTTDarrfF35W+MKYNlQ8aJwHfw62D7XnxtfkWNN2yLjtpPm5ZeLd80Pc7+54HKu+KMLQbQ/RYPOWOaosXf2RcsX' +
+'P/oon9+n6NotH4LmOUJEqUT0EX76krNrVP9abiM7eA4=3hiJjYLHH0wvYlRO1uNS1pQl6cvWyr62RS/5wIBooj0lYOTNONK+' +
+'7XbHGDV2zbnnDKoFilvgU2scLBN3S2KC7YTX1ktmXz4pZe2/sXUQTYQ=WfwaPEN8w6rObgTf2hLTdfTVVfxoKgMlt0/54VPe' +
+'J98Y0RFX915HaWe0PKe6maa3wJnJ4=GW+fbdDCLnXXJl7URHc38JMdMPB98MsMkRLEGdjWx7TXG80/waXbEHgKzDDD52k+Yq' +
+'me9VNn9HbXPqt6KbDQ=NWWRuCOTYgEeXmaq4n6a147HGtfpKPAIGjRKEqkCEP/lDnCN=GCLfIQkguXQgDWyHzMO9chruHXRa' +
+'Mp508D5vVZvmSWOFJQ8YsSQvB+N3XIVX915HaSbT4Xk7zaqGr=q5z7EWh9r98HJHeyKkGjNXpj965aPfF98P5ThBbcRL7awm' +
+'OM8HPyirCS//BuJzlcQlpVvG6O7RQRA5HTMOx/8bkXPdOWK+mKgHsVRJOasWs5rYb5EmhRa5=/L3b9KF6dRYtS7aEhPOp3+7' +
+'bHR+q0+sLmyJXIKb0/sufUAqu7094=5fVZvmSaMlFS/3kPLPZ+N3sPQ/aAOO/SaHgPf2RXrXD5tILJ4mJeoMDCKGSy6QVYA5' +
+'P/lDXB3pWAM=HHkBb+RPHU0qrSMXPNbe=hONysEzAXUlFihqOTO1RS=XHELel+8X9YSuOjPO+XbYgEeaCeqGK6ZFilvgU2SG' +
+'b4JS34PFzUTn8Z+7Y/Q/34QvcWkMvgOsmRm36g64YFu+gXP+RuJCgY/WhseLCnN2Ng9TDQRMNKJrAcR+FYBduKdHrMOnlyej' +
+'T6sIv8FWJVrcLz5SX=QxzjWIlW+ZLgPwWbPO9KmxbmQL7jv6/O8HPNirCS//BuJzlcQlpVvG6X63BWA54VOa2AOrEHPOSZTu' +
+'COeTPIkqGYsok9Z1T+Im2Pt9b+LVXlMUGbUl5j/Jwq/eh88eQZhADCPATkumiP67/4GhFCilvxk4KHWRnADx0mlHDCFjm1TV' +
+'3Nlga6YkLaqP6J29N0zA0pCcNpvP9agY=9/z5LkICg7gVqBjHsm0bB3pVe35fxL7aAP=aZ0rrTKLL3deDiB/JvMSAaB1BRzK' +
+'2cKWBS8o0MOutLHKohIOSLOuGSdnORg6CSZjTUeFq41nFap9L1KGOpKx6YA5tW=rIqP7z9Q/IGhR=mSgPWzF/IP8k0wvgXAa' +
+'JmMSVZTVVfxpzPMVNd=l4VPexK8ajP=dicONC1cIoWdmNhXWC/C9Fob93tDB6fcdY/l6I=nOmpWvHYox1lf26k92FHh3EtKv' +
+'mDlAFh=qSCklv9k4zHX8zoJP1/fs7pX9B0hF7Zlgu5jULaqCs6xWGKQ3dcZk/lRSahvQVVpYXCOHXpMkJXTIkf=ZwqPfBCMv' +
+'9bh9vdRPHU0qrSMccsuv05S+yjNz1lRxpZvJlcNlNlA4HRMvAB6YnlG6JMTNuNbHwMhJGZXz34rYLLJX6aY9XDJ2SmNUumUn' +
+'5juJIwNv/JQvLPSgPpN=Plx6CRF8U/su=lHv2yLjYeNRMTvr7PJjlaA5w=9qk5IXS5fkLpqP56u/ZV6vgF8uVUC+ZoZS0+wD' +
+'5/k8MUdr0fs9WBQm3Ij20J826f92tHj3I4Kvp0dCRLGjyCjUv4kETGl8ziJP1/gM7v70/MBqQB=Enz64t05Hp0EB7tI6iasT' +
+'U+rY87JGVbraHwN3akAAzcU0co+a9kNbq5L=IIUQPpN=Plx6CRNq8+xsokOu60KCMkB1VUtXd80Pc7mBHPMPE5K89JPcWPT/' +
+'GSdX0WOnlVqoTFsozJHGAap98CICOqNU3SV4Ig+KATPwWbPO9KmxbmQL7awp6RNrkEwe0gPO57094=5fU6ZUZ40=c7+H7LMf' +
+'+6JLERSdBvOOGKNYociqFVekGUX1=MHmBRpcb9JGmm8AzhRI1m/JrYOgG5KeAZkhTqOAKfw7nIJskEsqvZP/2hIjhfREpAua' +
+'qTM3F3=YsSPaV17GAOTNONItademGKRmzRYNV7C+1pMNzcDBBfetY5l6o=m/mmrx65ok1liF6a926Hk3EpfxIglAjxGjyCl1' +
+'v4kErGkczgJPg/f97oX9F1TF3Wlg/5j1LnqCuFLj7ePVVwSh7hRCahwQY2SGaYKGusO2WfRHgXtqMqMv/oM=IbjAveReve14' +
+'fVJLcEtuLgB/2hLS8kTVtDzL7XMVUZuGWM875VAn0KU+BOPNOSdXsHOFVVtAGiRCahvQVVpYX1MWbnO1WeTV1S=q4mRgWEM7' +
+'4kY93ZNgLay6aF8HQLWo385oQJz91fPxRk0bzTMlQZ9YsELtB+OcERSNmdMtqiTYgEeaCeqGKFrY8FGypgrrDCMW7yKgRYPD' +
+'cS/aAZRviIEe9VihCg+t2um2GFOLH1suobR+Bk5OQc=xyk0bzTMlQZ9YsELtB+OcERSNmdMtqiTYgEeaCeqGKFrY8FGypgrr' +
+'DCMW7yKgRYPDco865oPOqHEe9VihCg+t2um2GFOLH1suobR+Bk5O0WS1Fkzb7c62Zm93fFPexPNKIaCNeiPNCef4rLPZKnnn' +
+'gLpIzFAG2apMnBBHf2Ml6XP0=U8K9ZMMe+QwEDScmXMshB+AIYlNXxGjiClEzBkEbHWLzvJPzK7hcstjGe3Ici0lXy6/+PR/' +
+'COK48JQqKnnngLpIzF+G2goIvCOHXp6ylsA0tY+aLa/rzP35fxL7aA46nawFnQPJoCrucmQupu8SIXRlEQlXlO6c7QX7d0Z1' +
+'3xlfO5d1LZ/ZZJghKuI0V/Rh3hRIb+3HBls9L+JS3qNU3SMn5l=qYmNP/wO=culQ8aSwngyF/VJLH8e/ghKO+yKCIdARVNhr' +
+'OTJG6g/Yw0OulBJKI9P+SPR6ZJREKgOm7qq3k9oYbFFWAOY5O154n9N1GeRTEX/J5bIOGIQvcVihDSQAn4zJLGO80=u6HkOu' +
+'lr8ThlKFBiwaqV8ydOvXHRPvFKOroNSOadJMOuT3Y3Q2yyekG4XZLFFGFSqMv0Jzek7QJPV5Ih86we/fKGL/E7iBHrP=7YzY' +
+'zQPJoCrucmQupu8TZXR1cezKuBO3Ba/X/L+NoGOKIJTuFYSrq=T2o0aVVVekGUX1=MHmBRpcb9JGmm8AzhRI1m/JrYOgG5Ke' +
+'AZkhTqOAKfw7nIJskEsqvZP/2hIjhfREpAuaqTM3F3=YsSPaV17GAOTNONItademGKRmzRYNV1C+NpMi099D5MkIdVRb4zs9' +
+'iBOpjf/sd8+8j1LKaA46m7Z76x0VzaVoz8VogKz90=5mk+YkV40=c/mRGt2IZAOrEHPOSZTuCOeTPIkqGYsok9Z1=LH2NTr9' +
+'LaKHn3F13dRHTZ=r9tNrh1Kr=JTgPpN=Plx6CRC8UErqHmUvul7eZS/xgQtG6Q8ltq1YsELvFBMKrWSNOXPJhLZ0fMUV6edA' +
+'GiRCahLQk3SGbL0A+NQ/l6XBX8+70mNwK6OPIaUQ8bOsiTyaHIMZ86wfcCOullLvYi/Vtgvaq6LGJk44oRMOkB=Enz74yWPO' +
+'FJaHwvg7CKrGn4eE4cEXBRbcv+Ni2t9BJfE1khxTnCN=GCLfIQkguXRfXdw6TXDr0EdeokRNhFLzljPlpkhGziL2N1/owXI=' +
+'ZIKnjIUuqPGtycf07DkTl=Rn4+Z6HQIGFbpYX1MWSxCEiUTH5f=mXY9slR8rAckQHcOPnfw6WF64n3bfgrSeBvJOxqQVF0x7' +
+'/iG3dh9DGD8LoV6X9dSNaPPdaXbHnFOmJbXYkQr5LGFiRgq9LSLnj48AyQHEXRrKImNfG7N/wMit/g+xu/ZDqtLLn5tfkWNN' +
+'2yLjtpPm5ZeLd80Pc7mHHJ+=FRNbIXQJqWRtCKd3YPe7WarzL/oJHuEX6VoM=7JC2mN1iQWH5juJYc97V+8r8kY93ZS=7Vw6' +
+'fMMbk1b6PY=6u0ODRbREIYxKuRJFpB/4ocMP9GKKIcMNOcQN7Ld4rLOKzhno49rUv+Im2Pt9b+LSet8AyQHEXRrKImNfG7N/' +
+'wMit/g+xu/ZDqt0F06s6weRN6hLyRiOmVVymqVKGJH8IsMLO+EKnTKTu6LUNKbNXwVe6/ppnPFXUaA1Hc6SWaYzA6NM1GjA4' +
+'Yq0K9ZMPC+OevHY94jQfPSypHPJM02v6HZPv+WIDZfOl6cvWRQN2pSBH4V/eNKJrAcR+FY/ZZkFB/tI0V/Rn4+Z6HQIGFbpY' +
+'X8OEv2JE/jSHgfuJYc/ryRC8rHRRLlOwXXx6/IK4Xxyf/STfRwJCMcAVlpnr7PJmJa/naROe6FKnXIG79n/6/edXoIfJWjon' +
+'j6X6nT1HBls9L+JS3xPCKhQHxl96wm==72OOjQRuq0E8CT06/HKLo6u+kW/6QgMSlqTm6eeKSjK11T=XfaPuJK97IgQ+WfT+' +
+'JRLnwVe6/ppnPFj58FFWhfhN=ALnesIxNSBjQX/JwlFvi6O/MVmtieMsedfp2Kl/Fh/lRjqjnRQvGGk8zoJc9=Th8CDOlYnD' +
+'bqSR2Yr=NKqCs6vOZX6vsGvuZaCKFob9zpDOjr6i6/7gVq8BL/lDXB3pVeN/PPax8rO87fyaiL8HP+beUYINR0FDdb/SgQjn' +
+'ye+z5as5sIQ=JKM31QU+aJOe/YfokIiFqatXo7sJH93CNSsc8yN37zMTzQTX5d/XIqQ/uG+unORcSiOQLgy4bPKLD2u/fd=M' +
+'cn8vRS=LzKJPU=RRvBSOlTnD8pgB6pr=1KqCI6xedl689GvNVWC+tpOy0+wD5/k8ykl66Ps9WBQx21oxAmTV+rUt6HkmEvKv' +
+'Z0giRGGjiCklzCk4kkB0gXgXdV8Ck/mRWu2IYi0lYRQJqTReOOdYoSiKWFnnL9q1a4ImFgtN=95335K0uRUXgo/ZIq=/GMM/' +
+'EcmxKf/fbjv6TXLLL/neUgPudzBDZoRF5YtGNR7hlX=XfQEOl+MrIWUq1RN6RVK3GK6tQF7eVRCK6obtzlDOBfdCZUf80ss9' +
+'vBPA21ox9lf2+o9CmXp1ABDAMklAmh=aSCklzBk4OGl8zrJck/es7vX9u0fF3VlgW5kELmN6RSQjzMUTl=Sh7hRCahvWVSa+' +
+'HHM3rzKQScU0co+a9kNbq5L=IIUQPpN=Plx6CRNq8+xsokOu60KCMkB1VUtWVOACsus0sYOeF+K7YWQ+ZMAJ3bbIoYiJpVpY' +
+'o8mo=JH3NfpN/9JH3pJlGjRDDY8K9ZMPC+Oew4hAvcQxP3zKPSNXwtcJbZANFyLiE8RVFdvaqi8hVNtjSDK7TpXB2gr=RXqC' +
+'s6u/ZU6vsGveZjX=5UgLEMDBZffNY8lGM=m/mhWviIim0Ln0a5p451p1NBCxIglN8tcJzt=JQ7094=5fU6YaWU83Jq=44SMa' +
+'VFNXsfSeSWP6uNaIoERJKnnngLpIzFI1dZuKPAIGj4LEudDXIV62srNwCIN/wOlcaXE92ufmPYMbg2s+0gPu9i7/RoPmBlyq' +
+'pOL3NV7nsVOvRLKs8WQ/qPOuKdbD3KfK7WnHkAqovoEWpRr+DUMXfzNQSLBjwYtZMqPOmaOvMUiAvr=bfNgV2DI4uh5ERqqw' +
+'1tk4GGiczhJPs=R9/9s/lgnDI5lgW5mELiqPQ6w/ZT6vgF9eVOC+ZpMNzqDBBfc+YAlGeLBjHssVXz4pZe25bxL7qB46m7Z0' +
+'rPKMfxs/YTOO+pLiI7OmBReHlOMG5fAnfVO/EGKb5cP6BQSd7Mf48ShK/Qqo4erY87JGVbrYv4J2J/1/Z57BH7l6kdRbz7PO' +
+'9KdgLrSwnfwaSDAHQ+vaHpRO2sJvIaOmBRhqKgJFFl+HfRPthFPpMaP+WeQNyXNX8Hd2qoookLpIv/Izc6SWaYzA6N1/Z57B' +
+'H7l6Ye/fKGL/EbjAzlGwHlv2/XPMQ2bbCvFqtiNCIaPlJZxqGS6RcR=X4XQP+G6bUdQtFMSdygensVRJGtongMs5K=22JeoM' +
+'DCKGSyF13dRHUk079qPP69KrTKScjdRP/eo63IMLk/wa7ZNaIs5y=dqZ=AEA4vl78BPelenDLpgy2grzdKqP56u/Zg6vAF7e' +
+'VTC+W4gLn99I6fe+YAl6UAZempWv3IiV0Mn0W43494p19BCQITlAFhB9/ZArYn7=8D5vU6YUV41=g7mBGt2OZ/8cEhTueZPZ' +
+'WPeXcGaZGpsX4FopDzHXVzsc8yN37zMQqhQHccuKEnIPCGN/wOTtbU=8CSm36D6ck/sekYQullJvYf/Wc+YkV40=c7mHHJ+/' +
+'NKJrAcR+FYH+7daDPXk7zaXUGUX1=7ImVZpI/454BR0OV57BH7l0YhN7R9MPAWk/LjO=3WyKWDAICxb+okOu6QKDdqREgSeL' +
+'iq62Rj/nXpO/JFKrsc=r9n/6/PeXcGZ6WYr3O6X6nT1GJersrUL3rxKEqjA1Xurm9eQ/34FwMVmxLp+LDt2mHJNbL+ku=XRu' +
+'BuNvQzFhxSvr7PJj+k=noYO=E78n0OAJKeUO3OdnvLfK7WnFg9s6HAHmNfmsrHBXflJlCYTnbf/J5mOKqIOdEblQblObiau2' +
+'/ENscywu=mHNyuJjcf/SktlWyQOFxV9H8MOeJ963XITNeeTO/XK44YfpuXr3POroLJ4mFkpMDDN3qs7kKhQHxl96wmIf3CM/' +
+'oaaB=pQgKZumiG7n83v+LfHudlLClkTRcXtGNa61oYX7Z0gV7b6i2crzD8WU8s2Jm01g0lmTvAdkSA7wk3SGaYzA6N0EWVC0' +
+'EX/JwlFvi6O/MVmt30E8CTwKPEJqY2w+Ll/6u8PvRcS1tdnaiTMFNfA0jgCK17K89JPcKTSuGYd5jFOrixXXsJqordHGFZpM' +
+'vC50JA6x7VUXpU26YbQ/uH8K5jot4dRP/eo63IMLk/waPvFqtiJTZXOCRlxrCTNWETs5Tf8/NKMKouSueXPNudK1KgOm7br3' +
+'Y7fJDKEXFYt+Cx7CWq7QzjWIlW+ZLgN=72LdEMmyHgQPfktZ7cCcYyrOgbRNkuMSVkQApkx5/iNVdf9jCMKKtPKr5YSdBdHt' +
+'7XbojMOnlyejT6sIv8FWJVrcLz5S6kNUGjVItfrqUtNeu3PO0elgLpAPXpw6TYO8j5cNokOu60KCMkKV2evaihCGBj/orLK7' +
+'Q87GgOTNFXHNmOdHsRjmdcmTvDX4m/gJn99T9R5+Y4l6sAYOq0W8CIjV0EKrTQXcSgDZ28Z0qt0FzaVu0YAaNmMSMjHlhVxa' +
+'GcOy5uzDjFMf+6JIoJUtKZTtGOeTfDlrhVo4cGqGLDFWlRrdGv=DJk6UKhQHx/77ELMP72Pr=HoymXOQLgy4bPKLD2u/fSFr' +
+'gg5SpoOl++ubC8LFFj/nwLNP2L631kWqKQSdyWTHHIh6GjsTTUeE36Fn6NoqrwN2j0NUWdRowTrrk09fKGOestkxLkO=7lfn' +
+'6g64Y3v+UVJuy0BilXS29SeLiq62Rj/nXpO/JFKrsc=r9n/6/PeXcGZ63pjX4Ks5zDEmtQuI/vP4FkKV7eTF5d86odP=B1C8' +
+'rHRQPpN=P/v7X3MLszuNgr/6u8PvRcS1tdnaiTMFNfA0jgCK17K89JPb+LT9/SbXHIeJuZtjbAX1O+1HBls9L+JS3qNU3SMn' +
+'5l=qYmNP/wO=culQ8aSwngyF/VJLH8e/ghKO+yKCIdARVNhqeXO0tSA5vM88oVAn0KU+BOPNOSdXsHOFVVr3oLsJ=F1GRhp8' +
+'zxMWS7NkGhDX5p86AtRfF99eQZhADrP=/frqLRKL=DkvYkRO1oHvsZ=AdWyqubCFpW/H4RQ7g=IXPU=t5RqAs6vOdmOx0pCc' +
+'NpvP9agY=9/z5/Hzyt=gNYGhX8l0XB3pVe2/cNTtXdRP/eo63IMLk/waPvFqtiJTZXOC6AqKWhO21dsTkfS72/N7wVI+6PRN' +
+'KXf0XgV2yXo4c5nm=o+GFNpsn05SX=QxzVUXge06kdPvGCQr4kY93ZOQLSvXP0FbkGuN=oPv1i50Ay/VJix6m0M2Ne9HbX88' +
+'oV6X9OTNONGc33cHkVha/ioCb4u6m4Fn6brKL7JGKpMVBPHEXRrJMqMv/XHuIMhc/XUxyRwKPSMJk9suDXR/9g==DW/1Jiua' +
+'/xF1Fe9jrDS=k5K89XS8eWPNqOdYnDV3lVX3sJnIDaAE2fss8DL4n2LEKbRDsRBrjYN=7DO9MTiArcQQSRm36D6boCruc1Kc' +
+'6hMSZfR1ESgWyU7R6lBIkIOuMAK89JPcWPT/GSdX0WcZmug4c5npHAH2oasc89KiO4Mj/jUXIf8VThLrq=N=I1hBHq=8Cum3' +
+'6D6ck/sekYQullJvYf/W6VzLGgMR6ZAH0CLf+HOLANTJBPU+KMfIoIQmObr3Y7s5bGHlyNrcL7Mkr2NUuhC3TYrVPjN=7DO9' +
+'MTiArcQQScgY2K94QtcURPqjDRQOTGjczuJc5=Rc/1X9h0f+k=8ofPB7145XZzEB7tI7maqYg9X5b+3GJeoMDCKGSyC13jQD' +
+'clA71d9clR8rAOkhOZ=8Dsa0ut0FzaVoz8QuEoLD19S12TzKWdMRxf8HXI88oV6X/5ekLIqAk6o/ZJ6tUF6CbAX6ilvgU2SG' +
+'aYzA6NLEJXC49j+Zo+PfGBM/wbRuq0+sLhyZ3MJrkhtvcmRNci50Ay/VJix6m0M2Ne9HbX88oV6X9YSd6TOtK9VFzFOrixXX' +
+'sJqordHGFZpMvC50JA6x7fTnUa7ZI6Htih8K5jot4dRP/eo63IMLk/waPvFqtiMzMiQl+VmYmxEyAas07J8=FRNbIXQJqQSd' +
+'7MWnsXjqWjoHgzqJbeIm2Pt9b+LSO2JEqaDY1g3aEqOvq8+rcEURTcNADgyKT0Mr=6rNkGOu2lLv0WFikteG7jMVJW9XHRMO' +
+'E78n1aQ/afSdtJc5sHdZ7nqHwKoJ/FFXRRotLCJC2rKV7QQo1a+ZsIMvq6OwEtlR=mRLjNgVSK8roCuND4ReBtJCIqAANMf2' +
+'hOIyXBKOlYnQ95lgG5mUPsqPA7iuZi6vzRYC3SYkaSwQY2SGaYzA6N0EWVC0EX/JwlFvi6O/MVmt30E8CTzqCPLLc2m+0ZQf' +
+'+zNz1ZQA5Q1LhOKWBg/F4PMOp+M8DIG79K/e3Yd48Gf5/psnL/sIu61HhoY9PALmKJM1GcRHclrnn19b7EOeoQhgLRPwXrym' +
+'ODQ9/xs/YhRsBsJCEbR2AQlXlO6W6g/4HGMM6KMrwdTJRT/6NPK5ociqGkoz0+rY87A2Fgt9b9JnjfMFW2UXpU=qYnP7qGL/' +
+'wSURHmJgTjx6/K840ue+0gSO+yNCEbR2BjpZKzC16EuDjgCLo568IWQueQQNuOb0fMOr7asYoJqU4=JWBLod=+NnjpNQqUW4' +
+'5U=7Ed/bO7PO9KmxbmQODSyJbPNpkCv+LkAdcn5eshP26fxYGaKFtW/YzO9tk=9X1EAkLHqCM7iTa0zx0zCpapvf9bgLv988' +
+'m27DBr8Bd97RH7l0XB3pVeN/PPTxPpQf33yqbQKLHEbbCv/a2wLiAfOEF5zaqiKGATs5Tf8/NKMKouSueXPNudK1KgOm7lqG' +
+'DAnoLZI3+NtMnC5SX=QxzVUXge06kdPvGCQr4kY93ZRw/dx6TIBrUCruYbR+Ai7/Qc=xyk0bzTMlQZ9YsELtB+OcERSNmdMt' +
+'qiTYgEeaCeqGKFrY8FGypgrrDCMW7yKgRYPDco865oPOqHG+Qsaw4K=8Cum36D6ck/sekYQullJvYf/W6VzLGgMR6ZAH0CLf' +
+'+HOLANTJBPU+KMfIoIQmObr3Y7s5bGHlyNrcL7Mkr2NUuhC3TYrVPjN=7DO9MTiArcQQScgY2K94QtcURPqjDRQOTGjczuJc' +
+'5=Rc/1X9h0f+k=8ofPB7145XZzEB7tI0WySh7hRCahvQVpTGeYzA6N0Fl97RH7l0XB4pZe25bxLAbd=xTqzqbSKXw+vaHpRO' +
+'2sJvIaOmBRhqKgJFFl+HfRPthFPpMaP+WeQNyXNX8Hd2VVekGUX1=MHmBRpcb9JGmm8AzhRI1m/JrYOgG5KeAZkhTqOAKfw7' +
+'nIJskEsqvZP/2hIjhfREpAuaqTM3F3=YsSPaV17G=PBdicRtqvd4sQf6qpZCw0Ykm4DCP92j5GkIekl69AY/mmWvmIh20Rn0' +
+'u44M6HkGEmKvZ0giVSGwaDWUv/k4nGlkgXgXdV8Ck/mRGt2IYiMbIc=uicONCuaIoEOnlVqoTFsozJHGAap98CICOqNU3SV4' +
+'Ig+KATPwWbPO9KmxbmQL7awp6e1F3aVoz85ogKz90=5fVZvmSiL2N1/owXI=ZIKn0lG6JMRNyXbI7FQ2zwSh7hRCahvQVVpY' +
+'XCOHXpMkJXRYtS7XEZRf2CLO9ThAvaO8mRm36g64YFu+gXP+RuJCgYAhyivbCjNVwR+54HKu+KMLQbQ/RYPOWOaosXf2Rco4' +
+'c5npHAH2p9oMv0L4jJNV7eUTENsV=f/OKGOestkxLkO=7lhVj=7n/xqauCcEv4kEYWqa8B2R0jl7rBQOlgnDrpg335mELfqC' +
+'I6xedl689GvNVWC+NobVgTaJi27DBR0OV57BH7l6Ye/gz2PPEMbAvr=wbjv6ToJMgye+YTReyuIikf/SgQyK3gNlN7/YzLQ/' +
+'V+BKwbUqtT///Of5sVhFzdsnk3nZ=GJ3+RsYv0O3rnOFCUC0AX/J5bRfWDON5IkQLjRdXjzJCV87/4bJrdP/2vLAliPllVxr' +
+'BZ7koYv0k=9132lgK5k1LoqP97ieZT689F++ZfC+tobi099D5Dk8MUeL0iA/muWv0Yok5lf26i926HkGIzKvb=7nzLcJzt6o' +
+'UJz90=5mlVxL/T62dXu50LMMBHNLE9V/KP/7pmK0gQe7CoXz34tiqivQU2SGaYKGusO2WfRHgXtqMqMv/ZL=IIUQrYSwXjx6' +
+'LPNnzxirCv/a21LShbP1VevaBQ8B6j9I0YPes5LcIMOdScRuScbIfRf7SanHoLoEW/Fn6NotH4LmOUJEqUT5x3/K9nQ7Sx9a' +
+'DOTgPpQf33yqbQKLHEdJsO=JcgHvvGc8zoJc6Ol7DCD/lYnDnpey2lrz=7lZ56xOZY6vEF++ZZCKBpM9zrDBNffFFr8BdWCE' +
+'P/lDXB3pVe2/cNTy4YRQPWp6/X88oCruc3Ov+h8SEXTVFiwa3aNhcRz0kTLP+LKpYWUqqeQ+KtdokXQ2VVr3oLsJ=F1GRhp8' +
+'zxMWS7NkGhDX5p86AtRfF99eQZhADrP=/frqLRKL=DkvYkRO1oHvsZ=AdWyqubCFpW/H4RQ7g=IXPU=t5RqAs6vOZX6vsGvu' +
+'ZaC+6pMtzqDOVffNYB680rs9nCCQ2tox1lh26X92lHkWEjfxIglAPxGwWCkEv7k4TGjczltGNX=hUayhWu2IYi0lYl74x05H' +
+'ZzEBKuI0V/Rh4DoJG4EnFliNH0LHikAAyiGhX8l0XB3pW+MKYNlQzkG=zWy6bRO4PNiqPUSepsKCdbGjl9pG6OQ3oR9YsSOM' +
+'JEKroNSOZKFKpJKYYShqWYolYlfWm63SyOtNbYN3rxNgysA1osm0bB3pVe2/MTlgKXP=aZwKPSMJk9suDXR/9g==DW/2yfxK' +
+'WRKDxa9nDXPvFBJKfKB6KMTOazf4sQiVyyXUXSSCehvQU2SML7MmqkLEJXRYtg+4IkNvm6OPHHY+qX+QDgyqrGKKcEwuHZTu' +
+'ki7/RYTmV6zKGbNh5us1ne3Ici0lXy6+eWStJJcHvLfK7kqloDoIr9HnAMfJqv5XXzM1WSRGMZ87ck97V1LPMgbBHcQAORm2' +
+'GU=lCbVoz85oRlL0db/VVWgKKgMlt3/44QMOtM6Ynl=qSaRtmSansliJmksob6ZE46JXV2t9L8MiWA6y2q8BL7l0XB3vGAPe' +
+'LHjAOfOQLgy4bPKLD2u/fSFrgg5SpoOl++ubC/MmVV9IrF8=lU6bMaSd+wR+KWbHPXOnlyXTc+rY87=W2gksDAIHWm62irA4' +
+'9j+Zo+PfGBM/wbRuq0+sLXzJLGELUEmu0VS+pjKz1mSA5Q1LhOKWBg/F4PMOp+M8DIG79K/dObaHkxe7CIrYcAqYTK1iyov5' +
+'41MWSxCEiUTH5f=m01Dry3MPAIherYSufWv7PW6XQMyaQYS+ptBCAbRlFezGyrAB5T9YsELsp6Oa1RTeaZR+/Yb57FOrixXX' +
+'sJqordHGFZpMvC50JA6x7VUXpU265sIOm8LO0Ln9/XUxyRwKPSMJk9suDXR/9g==DW/1Jiua/8JGJD+H8PMO+HKcXKB6KMTO' +
+'azf4sQiVyyXUXSSCehvQU2SML7MmqkLEJXRYtg+4IkNvm6OPHHY+qX+Pbjv6TmF7Q6vOghRa1gP0=WP26fxYGaKFtW/YzDCL' +
+'o567MaP+WtK8GOaH0Pf26VuYC4oZ=GHUFYpMr0LXmkABlPAX9j76A7Ie76QO0TmQLp+LDt2mHJNbL+ku=XRuBuNvQzFhxSvr' +
+'7PJjBB3HHGPexLMrPK=v6m/+ObdnLphqGionLLX2qU1C6Ssc8yAVXYKE+RA5UtrqMqPOmaOvMUiAvr+t2ufmPJNbU0j9QFRu' +
+'Ii50Ay/VJix6m0M2Ne9HbX88oV6X9OTNONGc3reokEj6ipr34+q5K61HhoY9PALmKJM1GcRHclrnn19b77PO9KZP47NALTx6' +
+'/I6XQMyaQYS+ptBCAbRlFezGyrAB5T9YsELs+pBs9VSeecCJ+SK4gYk4WponHKX2q45Tc6SWaYzA6N1/Z57BH7l6kdRbzEOv' +
+'9giB=AQQaRm2HPMrcyudQeOvRlMOIdPmBGub7XJFBd9DCFP/l6PrIaCNuYTZ+SQhKuI0V/Rh4DoJG4FWlct+biL3S4NgysA1' +
+'ksm0bB3pVe2/QWlM3fQwXlfqqDAHPBhJQb/bc95wcmEAyZg2dX63k/mRGt2IYi0rYOBvajS+KYbT4Thq3uoochqZPzGSpgrr' +
+'DCMW7yKgRYPDHRy3n19b7JOOIMiQblO=STh2HIMMQExtceRO+z7e8x6fY6YUV40Gs/mRGt2IYi1lby64t05NaPM4sQirCujG' +
+'DGs6C48CyOtNbYN3rxNgVPUX5l=79m9fSJMu0JlQzuRfXjiJbbKLcFweja=NFyICdqQlteqK3cKFpk1IsVOv9AIXPLAZ2QSd' +
+'yWTHHIh6GjsT//m1SD1FgTD=tfdNY4l6sAYOq0Wv3JUF0SnAW44H51+3EtKvd1RSVTblRk/lv4k4GGi8zlJPo=Rc7hXJm0gN' +
+'k=8ofPB7145XZzEB7tJ0Z/Rh3hRI8+/2VglND050JkC13jRDcf+aPg/sdi2IbxL7aAP=7nw6/XMsYJnNUoQuln5wDWI0+=pm' +
+'qhO3Ba/X=MMfYAMbwLP+67R+7ibIfRfZGpk3YJpI86HGEUYd47IH7pNQqYTY8Tt2Xz4pZe25bxLB4pSxnhw7mRKMo2u/glB+' +
+'6hLzAIPllfzKFWJmBq=5zL8fB+MbILUs2TT6+VK4oIhXeatj3DX5rQ+n6NotH4LmNyLEBbA49j+Zo+PfGBM/wbUt4rPwX1ya' +
+'TXG90Asq/STeNlAiMpTRUrZUZ40=c7mBWu2IYi0lYRQJqQSdyWTHHIh6GjsTTUeE36Fn6Nor44MnnzMx6YA4YhuJQZPvFCQ/' +
+'bVkALqRfHYw7SRNrw=wLDbPf6pOSlaKERRyqBW6WxoCel2nQg5lgW6XELpqCw6wudw6vQF++VJC+6oa9zkY+vHPdY+l6UAYT' +
+'nCC23IjV0MnA/5pX51p1xBDAMmlAJhBaXe/a2+MjI0TFrA+h0tl7bCDOlTnDrpg31mTOAMAuGRbFkSiaBgXzUVspxpMN3wDB' +
+'795+cF680Bs9nCEx2tokV1n0y5p45qp1FBFAIblAuh/lV5qjPQevYi/SEceKKPM3FWv0kXPfJ+9X0gDrJaAKh3ER7tI0V/on' +
+'DKoE4AFiRSscz8BGGpMEGdV0kuy20aN=72LcsQhh=m+LmRy7GRKrU+sqHnQqltJDdpOlNVy2qhL21o3HHHPuZSKrE8RuOcP6' +
+'VLhY0h6t9GxCWo9=9ZgLv9/j5JkIIUer0ts9vBOx2zokR1SPcl92hHj3I0fxMl6CRPGjyDW1zCk4KGkLzlJc9/gc7tvOlTnD' +
+'=qRB2mrz87iE8s29R01m6hXTcVrpvVJ3r94T5Nk85VRL0fs9aBRF12Q=p3+fIPi/DmRgScfFHhOsJizlV2qjxu56W4/czCJP' +
+'1=T97mX9GDnDvqRi2brzM7lU4h2920yx48Cc2o91/D1DEYY9PwL4jp9xzjUY5Wum0wAcyE+8j1LKaA46m7w63WKHQ6s6wYS+' +
+'ptBCAbRlFezGyrAB5T9YsELsVNM8ENTJRT/+qZNX0Eh6Fjsn3FqILKI22TpNC9Mm3zOimYR5xaAJIcIOS2POHPRRvuUWEDK8' +
+'yDlAyiz1RxqjnQepWCqaPAEx0gl78BRulb8=tRQB2irzs8WZ57iDa0zx42CcNo7P5VgL89+D5Ik8QUgx6bA0tv/as2RPslbF' +
+'6m92ZIVGEhKv90gXQOv/GUAO+oJAdlSFAbemzsOmzCD/pnnD5G6i6q=1L9qC57k/ZY6vVVCcNpv=5KgL09/T5Gk81Ud842s9' +
+'GBQm8k9cFA8vQIkyDcAsDlzKbI94PIfbPiArYNzM0=5fU6vaihKB6a9TDJPexFCrkNS+eYT62mRDXFfK7WnEYKro8MHHAOaI' +
+'48MzOrJEmUDY5auJodQP/2MeMaURDfQgf/x6XWLM42sdcaOv2k7vZ0TFrA6x46697pXJq0i13Wlgi6a1LhqCw6ueZT6vgF9T' +
+'UVtJxoatzkDO/vkIaklGUAYeq1W83Ijm0Sn0C44X5w+3EjKvp0gSVTGjJCiEv6k4KGkh5ceG7sNmxvAod0bV3XlgW6XELaqC' +
+'s6xTYhiKpXZHk=oGDGI3AXYY4MNnQVR84zs9ofrx669m0nn075r45sp1mRKvA1RCRDGjSCl1v4k4vGic33JPU/fyAds13P8/' +
+'N6McANCqKeSeKON0XbSnylZk/lRSahvQU2pMnBJCXtKQSVUXge06kdPvGCQr4kY93ZOQLSvYPIObLDb6zSRvtuJiVjPhplwW' +
+'qbKGFk8H=IPqtLLbwfK+uOStajbHo3gq3noTz6uZTVgJ8+yo6fe+cFl6w=nemsW8mIhV0Sn0C4145yp1iR2KrhlA6hAlV1/l' +
+'zB56W3qaHABx0sl7nCG/lVnDLqRi2Yrz87k6+VK0ghiaqzsHNo3P5WgLT+wT5/k8MUgQztUYbTtaEgNt/DPfHSRM41Sg9C3x' +
+'MnlAT/blV0/lvSk4THYczlJPVOl7zCD/lWnD4pgy2grzo7iE8w29600m6hXUnDX5P5HH+Rb54CMXrp9xynE1kht3fF35Ve25' +
+'bxiAnqO8DawFnJNbL+ku=XRuBuNvQzFhxSvr7PJk6a=o0SO=A78n1VTqBRONqONYsMRJmarHg5ooLK4n+UrtTcKGn3LFaUR3' +
+'xZ779c/b7SQfy4tX9C+3EpK8N0gyROGj+DZlv3k4KGi8zgJPg/fy6vBId0hl3Qlt8Ir=NKqC06w/dl689F++VSC+NpMtzcDB' +
+'pfezew6x7tUocv=auIc20Tn0a5pH5np15BFFHhNcGzdOgaPs6vMjgh/xyuz7s=R9/1X9nR8F7a6i27rzM8YE4e297D6vsGve' +
+'VKC+6obdzkDBVfc+cKl6U=m0sdrnHk9fK2OwEMUt4rRQXWimGb+5PAdr7=54QJz90=PlhjvWzXKRZX=XfQEOl+MrIWUqJnFJ' +
+'2LbYgEeXmenHcGrk/A1GlcbcTwLGqyOEVdTH5k/Z5fNw+CPeYWmergOxPa1JbHFrwyv+fa//l3PZSIqncQJPU=RM7wX9d0h1' +
+'7llgS5mULcqC56wuZbOrquu+VRC+ZpMi0+wI6fftY8lG5AYemvWviIh24Xn074445vAGEhKvR1RiROGjBCilzCk4TGlczoem' +
+'hO6WxkCYbaSl36lgy5l1PsqC56xOZhOrqnuzbCs5X992tft5ix54O7Qb4wsJzBO2rYox21nyC4149=p1ZBE2J0giVRGjeCil' +
+'v9k4zGjLzgJcM/f97psTSDAKk5K75UTddW//GbfHrPOnRlbUTAdiqivQU2SGb0L4jp61WVC49j+Zo+PfGBM/wbRuq0+sLXzJ' +
+'LGD9k/wekkSJ1p5zEmB1NRxaFcOFcf/H4WPu6=Ks=WTdqZTrqSb5kMkJGZjG05rYG=1npjvj5hkIBkl6UAYOmwWvuIiV4hn0' +
+'W44X5pp1FBEgIb69HJyERsqjPRQOTHWh0ACR4vl7zBPOlhnD=pfi2irzM7lE4hKTGDOKqou4LOuf55gLv9+D9Qk8ZUgL0tA5' +
+'cjBF8jRfS6De0amtiZ+x7o2QMklNeh/qGSqwxgk2bGic35JPI/fB8BSepknDDpdi2lrzs7j04Z2Jy00x0tXzC4cEm4Fm2Yss' +
+'K754n2OEFbA1Dhvn0hCIlf25bxL7bcQxPWfqrJ88oCuND4ReBtJCIq/SkteG7UNV+U0IwWLPJEOc=KB6KXS6uQaHLIRKGea3' +
+'H9rpD5F2FfbdD3LnzRLECiSIMW8pAgMw75+rAlmhxHZWI9fxIblNWhBURwqjbRT6StqarABx0el7nBR0khRPvpfB2gr=RKqP' +
+'96xTa1ox44Cpipv=5TgLr98j9ak8IUfx1=kempWvqJUF0Sn0C43X5np11BEmOP64YOvOHwTOnQYJS1qaTB2h0el7vBSTkhPf' +
+'s78LEQQ8WZSuFUKTYhjasGveZbC+7F1N3uYD5hk8ZVT80ks9HRWvuJUm0Hn0744H5vp1hBCxMqlAyhAaXe/bAs5zpXRW+VhG' +
+'ziNWNWv0jb=81I8of26Ht05HZzFB/tI0V/Rn4+Z5PJH2lyr9L8JGO46ylsA0tX/J5bHv3IHv0eixLp+LmRy7GRKrU+sqHnQq' +
+'ltJDdpOlNVy2qhL21o3HHHPuZSKrE8RuOcP6VLhY0h6t9GxCWo9=9ZgLv9/j5JkIIUer0ts9vBOx2zokR1SPcl92hHj3I0fx' +
+'Ml6CRPGjJDWlv+kEnGl8zsemhO6WxkCYbaSl36lgy5l1PsqC56xOZhOrqnuzbCs5X992tft5ix54O7Qb4xs9bRW87IiF0Pn0' +
+'74245n+3EtKvJ1RiRFGwSCklvwk4/Gl8zieR0Al78CF/lYnDY5lgu6X1LdqC56xOZb6vQF7eZeC+ZoaC5YY6K753vlM2/UD0' +
+'ll/KId=byM=s4XT+iE4Jm7Z0qtKL=DsqQbP6NmMSMjHlhVxaGcOy5uzDjFMf+6JIoJUtWNSd7ZKT7Dh7yjoGYEoEvMGSpZpN' +
+'DBIGzpNgqiS4go26YcQOWOM/I7jx8pOsiT2Kjhl/ai1JSCklzBk4OGl8zrJck/es7vX9u0fF3TlgTIWOuoqCg6w/dmOx43Cc' +
+'K4CK+oat3tDB6fftYBl6hRD0kTBKA2T=OSnz/44n5vpBJBCxIglAGxy/Yw/6Z0Kzl6RF+kg26OQWVvXJq0ia4qRy2irz47iE' +
+'4d29XD6vkF7eZaC+NpMNzkDB6fetYBl66Ps7vBOx6AokIlh7744X94p1RBCxIglAyh=URiqwHQe6Su/xgQjWhOKV+d=n3P8=' +
+'FKOrHU=rpaC72SQhKuI0V/Rh49q6D91GVSa9PALmKJM1GcRHclrnn19b77PO9KcA8rI=nUzJCGL80AvJXb/ehw8StXRlEeza' +
+'VcMFNk=noKMPAGNKUXUb+TP/CSgXsHaZSWr3j=XZvOLtz/DOivk85VRL0us9eBQg6EokQliV6Z926HjmEpfr/cQiRKGjyDW6' +
+'wRQ/TGlczoJPc=R97vXJB0hF3Xlg35m1Li/ZlJKYPWlKqsu+V5C+1oaN3uDB6ffNYB62qhXTsc=qUdEOuHQrjJRyvuUWIzKv' +
+'+DlNWhAERtqjwQd6Sm/czsJP1=Rc7mXJm0hF3Ilgi5mULc/E4829a1ox0qCc34C+xpMNzfDB6ffNY8l6Q=k/q4WvWIib6A8s' +
+'LTRxPYQxPWimHXNck2eaPqCbtw7=8D5vU6YUV4KFpk9DkMMaV/N7wVI+6PRNKXf0XgV2yXo4c5nmr5JF+cscb9Jnim8AzcU0' +
+'cY76od==G+/OsMlhDYOfXkiKTLMssetuglQvVlJydeOm6UgG7sOmzBHepv8F3Qlt75mkLoqCk7l/Za6vsF7+VHC+loaCyquN' +
+'xfedY8lG6PsJoRWvyJUm4Yn0S43450p1tBCxIflAvzeaPUV/6+PTt0qZ4AEA0mlH=BP/lgnDs5Q89m=J2eQ+KtdokXQV6Vu4' +
+'wVCK+obi0+wT5Ik8EUd80js9kRWvmIgm4Xn0O5p45vp1FBEgIhlAXxGhaCilzIk4nGkh0AEx4vl7HBP/lgnDXpeR2Yr=k7kE' +
+'4hKTGDT2hVo3YDroKD1HBetMK75020+yyYGhX8l0XB3pW6OwEMRxbd=wbjyZ7pM8k+suHm/bg95vZcS12Tpa3iClNS=YvF+K' +
+'2FNXsPP++PBeKSNXLIia/WoGoKaZD=H3N6qMHBKH/pK0/XQItVtm92RPslXV+zR45vpBJBFgIhlA+i2lRpqjnQcZSmqafADG' +
+'zsPGzBRelbnQ95lt4Ir=s7jU8r2Ji0zA42Cqao+P5RgL09/D5G5SFk6VqiXYcoBQ2Zokwlh2+p926HkGEvfr/VQXX8wewXGN' +
+'pzNv8Y/Wpn1x4wl7wRXJq0hl3Tlg35k1La/E4l29a1mQ0qCpWo9=5HgLf9/j5A5+YWl61Aa/mmWvXYoksmT26a926HkGEpKv' +
+'l0dCVXGjyCka1s5wki/VJRxL/T9y6l=Y4I/71Q+Y0YB7145XZzEB7tf6ioojUAoUX+ImtZhMn0LGryOxysHDkT8K9ZMMm2Qu' +
+'5QlhHmQwLgwrqF8HQ+vaHZOuhl8TlfB1lVy7/PKlNkvYwLOvRmLrEbR/yPP9CRaIgHQm7zsHNozf9j1NzkDO+fftYBl6gAb/' +
+'moWvuIgF0En0m43t41TA9BEQIblNXxGwTSqjXQfZW3qaseeR0tl7bCDOpmnDvpfR2dr=U7lk4bKTGDOKqou4LOuf55gLv9+D' +
+'9Qk8ZUgL0tA5cjBF8jRfS6De0amtiZ+x7o2QMllAGxGwWCkEv7k4TGjczgeR0ql78CDelYnQ4pfi2Yrz47lk4bK/Z26v1Gxe' +
+'VMC+a4gLr+wD5Bk8ZUgL0ns9CBOx6/okUlhr=TRuKj+wbSyrTI94QEv/kXBat49wQmAic+YkV40=c79HTWMK2BK3UOTNFXHN' +
+'mOdHsRjmyyejT6oZ=5E0lNt8D8JmfzK2VRCDle/msfMvm6/PMQUQrcRgPSwZbW9cc5uOs=Qu+zKD5bPU+Yub7S8yBvAod0Xl' +
+'7k6i2gr=Q7l04n29F1px0sCcNo7f5HgLf9+54MOHQUfb0nsJsRW84YokcliV+o92yl+vP/oVOP64YOvOHwTOnQYJS1qaTB2h' +
+'0el7vBSTkhPfs78LEQQ8WZSuFUKTYhjasGvuVVX=9ZgLb9+z5/k8pUdx1=n/mhW8/Ih24Vn0a4145yp19BCFJ0ViRAGwyCj1' +
+'v556S0qn0ABA0el7vBR/lanD4qSB2grzpMB62eN0YJe6ioojC4s6=MFSgMe63/9z6/1/Z57BH7l6IkQOF1N/PPiR=mQ+Xdw6' +
+'7IMcfxirCS/+FyICdDOmBCwaKaKFBg95GF+K2FNXsPP++PBeKSNXLIia/WoGoKaZD=H3N6qMHBKH/pK0/XQItVtm92RPslXV' +
+'+zR45vpBJBFgIhlA+i2lRpqjnQcZSmqafADGzsPGzBRelbnQ95lt4Irz07lk8q29SROx0nCc2o+P9agLr98j5Mk8+m9xyRXY' +
+'xvBKQ2oj5lil6f9C+Hh3EuKv+DQcYOb68mQeBDLjdqAA5Q1rOslH=BSTm1TV3Slgi5j1LeqC2J29J0yx44Ccqpv=5PgL09+z' +
+'5Mk8ekl49=k/q6WvKIir1liV+o92FHh3EuKvp0eyRAGwqCklv45O=WDhgQvq3aNlMds50VQOIE6YTYDrJTEnp0EB7tI0VCRx' +
+'3hRCahGWIUpd=+LErwKEmUTY0Ry3nY9/KGL/Eqdw4gRgTgymOM68DAe+sTRuAuNC0kRlFjy63VKGEf=nDSQspBKcARVNeOKt' +
+'WKeXnLOKqsu+VqCKi4gLT+wT5Nk8QUfr48s9CBRQ2qok1lhl6fRyvwUWErKvp1RXSizqSDXUv1kETHW8zlJPM/d97tX9CDH/' +
+'ZLObwU=J5K/euchYPalQ0WCcRo9=9ZgL09/T5M54O2QQ6aV4EWzZwrRbd38wweoX95p16RK8N0fiRLGjSCjlvw56Syqa0B2x' +
+'0jlH8BR/lTnDjpgB2a=1L9qC57k/ZY6vVVCcNpv=5KgL09/T5Gk81Ud842s9GBQm8k9cFA8vQIkyDcAsDlzKbI94PIfbPiAr' +
+'YNzM0=5fU6vaihKB6a9TDJPexFCrkNS+eYT62mRDXFfK7WnEcog5L5F2hRYYavLHWyKk3cRDcm92slNw/HL/UMlcvqPw/oq6' +
+'rHNr0KsugFQeyyJvwYV2NuJN9=Th8BR/plnDzpgB2jr=87j04n29i0yx0wCcz4uZbVgLb9+D9R5+cF6843s97CCx67okIlgV' +
+'6X92pHjsD2w6LKM8jzeaPUV/6+PTt0qZ4AEA0mlH=BP/lgnDs5Q89m=J2eQ+KtdokXQV6Vu4wVCK+obi0+wT5Ik8EUd80js9' +
+'kRWvmIgm4Xn0O5p45vp1FBEgIhlAXxGhaCilzIk4nGkh0AEx4vl7HBP/lgnDXpeR2Yr=k7kE4hKTGDT2hVo3YDroKD1HBetM' +
+'K75020+yyYGhX8l0XB3pW6OwEMRxbd=wbjyZ7pM8k+suHm/bg95vZcS12TmpzAKGRg/58IPa9B6boYCNmLRNJXfH7Rh6GorG' +
+'Y/oJCFI2Rbtqr4J4jtPUGTMnES/JDg9=qLSV669CiXp1lC3AIilAJhAUV/qjLQfZSoqa0ADA0m63xqCeldnDXqR336X6M8X0' +
+'4e2Ja1mQ0qCcuo7=5TgLQMkcLELmG6KF6RD0kTBKA2T=OSnz/44n5vpBJBCxIglAGxy/Yw/6Z0Kzl6RF+kg26OQWVvXJq0ia' +
+'4qRy2irz47iE4d29XD6vkF7eZaC+NpMNzkDB6fetYBl66Ps7vBOx6AokIlh7744X94p1RBCxIglAyh=URiqwHQe6Su/xgQjW' +
+'hOKV+d=n3P8=FKOrHU=rpaC72SQhKuI0V/Rh49q6D91GVSa9PALmKJM1GcRHclrnn19b77PO9KZP4EP=PjyaTQKnX6beDiB+' +
+'JhLCkkTlUexaGhNl+Y9IvRPuVHOIoRQvWTUdKNWn4EiJBdX4LOuf5qgYcMDBZgQNYCl6s=muq+WvSIjF0Gn0743n5v+x7q2Q' +
+'IdlAyiz6SDWqwRRpSrqn0B2x0jl7TBP/lfnDU5ErYLTNFdRNRLN0XFlK/zu4wVC9+ob9zkDO+fc+YAl6pPXYtvrFgsOfGYOf' +
+'EbTc/XUQfvK8N0gXSiz1RsqjbQc6SqqaxQJPk/d9/0X961TF3Qlg35lkLoqC+J27i0yx4+Ccqo9E6obt3tDBFfc+YAl6U=lu' +
+'mhW8OIim0M8KnHW9mXOPHdzZaP69gCwuje/bMw9wQfE/k7YUV40=dW/5wI8/Z/8bMaSd+wR+KWbHPXOnlyXTc+rY879lyApM' +
+'Cx7CXxNxqWQHYWuKIh=/m6PfEIigLqAQPZyajxLLgDtv4XPd6oIDZaAR6uz7s/Vc/9s/lbnQ8pgR2mrz48ZE4g29R0yQ0lCc' +
+'Bo914VKXr9+j5GkIeklG2PsJCBPA65ox9lgF6d926Hk3EpfpXIJnX9baYwSOl+NjKGeszvJPU=RM7hX9Z0ia2WN8rKBeaSPL' +
+'CYeonOOFzzsHNpvP5V1N3uDBhfetY0l6E=k0nBRx2oox9lgF+o92ZHh3EsKvA0dXSh3ERiqwPQdJSv/czuJc1/ds7hX9Z0hF' +
+'3Plg36YULiqCVLN0XYRmzbnnDKoEm4JH6hpImv/0W0+xVq8BL7l0XB3vGAPeLHjAOfOQLgy4bPKLD2u/fSFrgg5SpoOl+zqJ' +
+'/bKhAas4XT/eR6MrHWU+tYRNKcencKf7+jrG0GsmrAFH+VucLzEm3lNUBXAYcoBQ2Koxd1n0a5pH52p19BEgMwlAuhBERkqj' +
+'wQepSu/Wpp1x0ol7bCDTm1TK4qSR2dr=M8Wk4e29y0yx0xCcz4jmrf1igMYdvBPXO7Qb0Qs9iBQx66ok1liF6lRyvpULKc0q' +
+'nIBrLDwa7U/fl3PZW4qaoQJc5/fc7sX9m0gF3I6i2krzM8Wk4e2Ja00x0lCcBo+f5J1Nz/DB6gS+Y5l6VPs9eCCx2rok1liF' +
+'6f92VHh3I4Kvp0f4X9bbje/eFhL0dbBRykyrGT9y5pw1jT+Lgm01Xy64t0PNmcbDYMfFSbr3PEgIn9HWFat53L=CWmKV7QQl' +
+'tBz7ArMwGAQwAQiQnc+LmRy7GRKrU+sqHnQqltJDdpOlNVy2qhL21o3HHHPuZSKrE8RuOcP6VLhY0h6t9GxCWo9=9ZgLv9/j' +
+'5JkIIUer0ts9vBOx2zokR1SPcl92hHj3I0fxMl6CVYGjmDWlzCk4nGj8zgJPk/fy8CF/pmnQDqRi2kCJM7ik4h29N1mQ0zCc' +
+'eo9f5P1igMYdvBPXO7Qb0Qs9iBQx66ok1liF6lRyvpULKc0qnIBrLDwa7U/fl3PZW4qaoQJc5/fc7sX9m0gF3I6i2krzM8Wk' +
+'4e2Ja00x0lCcBo+f5J1Nz/DB6gS+Y5l6VPs9eCCx2rok1liF6f92VHh3I4Kvp0f4X9bbje/eFhL0dbBRykyrGT9y5pw1jT+L' +
+'gm01Xy64t0PNmcbDYMfFSbr3PEgIn9HWFat53L=CWmKV7QQltBzZ5qM/WCM7=QRxrnAPfSy6aROLz/uuklSNynJDckSERfz4' +
+'mXK3FaBX4HHuV6N7DQ=OBhVk482JCD6vUGvuVWC+xoa935DBVffdY2l61=mumprrsxTF0On0a5pM6IV8FC4gIYlNSizERnqj' +
+'HQc6SyqaQQmaKUMmBVvTknLP+7LrsN=J5K/euchYPalQ0WCcRo9=9ZgL09/T5M54O2QQ6aV4EWzZwrRbd38wweoX95p16RK8' +
+'N0fiRLGjSCjlvw56Syqa0B2x0jlH8BR/lTnDjpgB2a=1L9qC57k/ZY6vVVCcNpv=5KgL09/T5Gk81Ud842s9GBQm8k9cFA8v' +
+'QIkyDcAsDlzKbI94PIfbPiArYNzM0=5fU6vaihKB6a9TDJPexFCrkNS+eYT62mRDXFfK7WnEcofJ=EH3FecI/453K09UOQTH' +
+'4f=6XmPvGHPe9OiBClRfjg0X7MK9c6x+kWKNNhMSge/2pn1x0AlHkRX9F1TV3Xlgu5lkP3qCU6xeZV6v1F9NVPX6vQLtzmDB' +
+'ZgQSZVRA1AZummW83JUF0Jn0S4145zp1iRKtN1RCROGjFCj1v2k4zGkLzlJc9/dyAds0shPvtWOLu5fELpqCY7iOZT6voF+z' +
+'UVrZu633BUpKD+Mnmv6QztVoeCCA229m4Wn0i43n5np1VBCmJ0gCRAGwaCj1zAk4zGiczrJPs/dR8BHelTnQXpey2h=1LoqP' +
+'56uuZT6voF9eVOC+6pNtzkDBWx8zW59xzVQHUk82jYRg7JM7nHXu3nBsmsa0ut0FzaVoC95oQJz91fPxRWyqubCFpW/H4RQ7' +
+'1VAn0KTuFWQNCOW48WjquhXz34qJ3FF22ZpIvDKCOxKF/iQHAW/VsrOfuLG/cLlgbxO=TExqLVK4vzy/swqh4RSeTGkc3yJP' +
+'w/gc7sXJV0g13Wlg/5j1LlqCVJhY8h6vcF9eZaX=9Z1NzrDBZgQNcGl6s=mummW8/IjF0Q8KnHRRvqUQ7o2QIElANhAlV0qj' +
+'wQfJS0/Wpi1m6ZO2ZW0nfWQ7g76csfWUPrqPE6uDOD682VCaeo7=9ggLH9+I6ffdcEl6A=k/muWvWIhV0EnAS4345v+LyRk2' +
+'2DKbU9vNje/f+yNCki/SQgiHyX=fs8mBGt2IZ+McAN=uuQA+ObdnLphqGionLLX2qU1C6crsn4ImrXECNRCDle/msfMvm6/P' +
+'MQUQrcRgPSwZbW9cc5uOs=Qu+zKD5bPU+Yub7S8yBvAod0Xl7k6i2gr=Q7l04n29F1px0sCcNo7f5HgLf9+54MOHQUfb0nsJ' +
+'sRW84YIMmc8KnHRRvqUQ7o2QIElANhAlV0qjwQfJS0/Wpi1m6ZO2ZW0nfWQ7g76csfWUPrqPE6uDOD682VCaeo7=9ggLH9+I' +
+'6ffdcEl6A=k/muWvWIhV0EnAS4345v+LyRk22DKbU9vNje/f+yNCki/SQgiHyX=fs8mBGt2IZ+McAN=uuQA+ObdnLphqGion' +
+'LLX2qU1C6crsn4ImrZHSVRCDle/msfMvm6/PMQUQrcRgPSwZbW9cc5uOs=Qu+zKD5bPU+Yub7S8yBvAod0Xl7k6i2gr=Q7l0' +
+'4n29F1px0sCcNo7f5HgLf9+54MOHQUfb0nsJsRW84YJuae8KnHRRvqUQ7o2QIElANhAlV0qjwQfJS0/Wpi1m6ZO2ZW0nfWQ7' +
+'g76csfWUPrqPE6uDOD682VCaeo7=9ggLH9+I6ffdcEl6A=k/muWvWIhV0EnAS4345v+LyRk22DKbU9vNje/f+yNCki/SQgiH' +
+'yX=fs8mBGt2IZ+McAN=uuQA+ObdnLphqGionLLX2qU1C6crsn4ImrFECi8ATHR+70mNO3BM7wcj9vkOAPkv6jINnHDteLpJu' +
+'RkMi1wPlBDwK3gKyYTCY=hnB=qTG35l1PsqC06xeZe68kF8NVVC+BoYNznDBWvPX7Bl6c=m/q0rx669m0Tn0a5pH96p19BEg' +
+'IYlNahB1V+qjfQevTGlLzgJc9=R97vX9Z0fF3UlgTKCqJMVeCnhY0h6u5F+NVPCK+oYNzpDBuvPXfB6QejS451+aAs/K61SP' +
+'Ul9C6IVmEiiFJ1RHSh3ERiqwPQdJSv/czuJc1/ds7hX9Z0hF3Plg36YULiqCVLN0XYRmzbnnDKoEm4JH6hpImv/0W0+xVq8B' +
+'L7l0XB3vGAPeLHjAOfOQLgy4bPKLD2u/fSFrgg5TRlRVVTvY38BToTuDkQP7t=JroNCOeTBdqOeokEfZGoa4g=qpTlGWBfqN' +
+'f0J2jsJF7TC0tv=auIYF4g826f9C+HkmEvKv11UCRHGjJCiEvwk4/GkRyu0bs/fc7pXJrDnQ55lge6X1PuqC06xOZh6vcF7e' +
+'VSC+ZoYdzhDO6ffNcPl6k=m0nBRg2oox9mT26l92tHh3EtKvmF94Pzy/cwV/J+k3XGlLzoJc5/d97uX9aDSf+W63gcRueuRu' +
+'CdMjfDlKOzCpWpvv5I4i0+wI6fUdY0lGU=lOmqrx22ox1lfl6X92tHj3EoKvJ1SiRIGjvUBat18vRcOlhjvWhOO3Bm9DSDB8' +
+'1I+XXj74x05HZzEHsPiZFVpnr=oZ=GHUFYpMr0LXmkABlPAYlg+qYbNtq+MeYblhHgNfuTh2HQN4H4ruDXB/Bp8SEbSF+Rv6' +
+'Gh9WFZ/o=xNOFLLscNQtWSOO/NM0ghjasFz+ZjX=5PgY49/z5Mk8EVU80ms9eBOQ2ookglhr5lnBxHjWEpK8ODlNTxGjiDWU' +
+'vxk4zGlszqJPs/fBAds0shPvtWOLu5fELpqCY7iOZT6voF+zUVrZu633BUpKD+Mnmv6QztVoeCCx68ok2C82+pR45Jp1FC5x' +
+'IYlAzxGjJDWlvzk4TGlszoJPQ/d9/4X9F0h79E6YHU=uiLR/CON0YXiKGaaTTPb23H3Tc6SWaYzA6NKEiiRDla8FUeQ/uBE/' +
+'oMkALlSsCum2GFN8L9tucXKO+1LStrRx5ZeKme9VVS/H3RQOYGMrIbTdORPOBXen4SjXmeoYgAtYL8A2RNscG35XO7Qb0BsJ' +
+'PRWvWJU20Tn0y43n9Dp1hBFQIVlAShAURq/fl5PZSwqaTB2m1=RB8CDelTnDTpey6przD7l6+VK0ghiaqzsHNo3P5WgLT+wT' +
+'5/k8MUgQztUYbTtaEgNt/DPfHSRM41Sg9C3xMnlAT/blV0/lvSk4THYczlJPVOl7zCD/lWnD4pgy2grzo7iE8w29600m6hXU' +
+'nDX5P5HH+Rb54CMXrp9xynE1kht3fF35Ve25bxiAnqO8DawFnJNbL+ku=XRuBuNvQzFhxSyKuaLFFW6XDIRek78n1VTqBRON' +
+'qONYsMRJmarHg5ooLK4n+UrtTcKGn3LFaUR3xZ779c/b7SQfy4tX9C+3EpK8N0gyROGj+DZlv3k4KGi8zgJPg/fy6vBId0hl' +
+'3Qlt8Ir=NKqCQ6vOZa6vgF++VTX=5sgJv94I/75zfBNlqtVoeBKA23okUmTF6X92tHkLDvzK+F8sg5sschSO9r5OR0TFrB2R' +
+'4yl79fs/pl8F3rlg36Z1LfqCZJ29R1mx0oCcWo+P5PgLP98D9Vk85Ufx6bA14drqMZPg/6/r5blRLcAsCpjnGT8I7eV4z85o' +
+'QJJCApPhyZvmSUNV1e1HTIOOJGOX0lG6JMS+yVcHkIYrGjsXoJXUa4HXxaps88JCO5LAqcRIxk76QdQKqHNv0ecAbbRfnrw6' +
+'X3L8UCsavUV/J+k2bHYA0ADR4wl73BSelenQnpeR2mrzU7iE4k293DlKWzCc+o9=9a1N3uYD5CkIZUgb0gs9eBOQ2wokcliV' +
+'6jRMmX+Q7k2K/aQiRyGjNCklzBk4TGlszueLqgQRAcA4DIDuxLOXfK=vBhVk8q2Jm0y2pVCpX4C8BoYN31DBNfeCZUgb4ws9' +
+'zBOx21okUlgl6X9CRHj3EpfF2D/H/xs+UeSNAs50hoTlEceHRe+z5ayhWu2IYi0lYNSvWP/+aPM4wVhZm7qXoEoIvL1DkpY5' +
+'=/LmGtJkGxUoxS=6ks97V1O=4Vig8kO87mx2/QKMcDrusXSJlzKzMtJlVUy6WoKFJE+4oVM7U7Q8QmrxU8Yp56w/dl6vwF++' +
+'VSCKpoZ9zqDBBfc+Y/l6RPXYIvWveIim4X82+pR49=pBNC3gMklABhBERkqjnQe/TGi8zoJPo=Rc7vX9u0hl3WlgXKCqJMVe' +
+'CnhY0h6u5F+NVPCK+oYNzpDBuvPXfB6QejS451+aAs/K61SPUl9C6IVmEiiFJ1RHSh3ERiqwPQdJSv/czuJc1/ds7hX9Z0hF' +
+'3Plg36YULiqCVLN0XYRmzbnnDKoEm4JH6hpImv/0W0+xVq8BL7l0XB3vGAPeLHjAOfOQLgy4bPKLD2u/fSFrgg5TRlRVVTvY' +
+'/PNV+T+HbI8aY5Ms0WQdOXPJuecDPQf7/onnw9rkvKGGtjjMbzMm7+KECCS4pj8mTaT=OSnyC5rc6Hj3IzKvE0giRLGwBCjU' +
+'v+k4bGiczrJPROQWdvX9N0hF7b6i6q=1LkqC57i/ZT6v5F9eVUC+xobC5YY5=MMnOBOls=gOmwWvWJU20En0u44M41RQ6Tha' +
+'XLKJc=vOfd/6u+NjKHWc30JP2c69/zs/l2nD4qTi2drztKqCw7i/ZW6v1F+uVPC+VoYN3zDBZfezew6yFbA49S+rAd=bzIPP' +
+'MMUt3vBtChh3yx0VzaVoz8PudzJ/RfPxRWyqubCFpW/H4RQ71VAn0KTuFWQNCOSIgQhaGnXz34qJ3FF22ZpIvDKCOxKF/iQH' +
+'AW/VsrOfuLG/cLlgbxO=TExqLVK4vzy/swqh4RSeTGkc3yJPw/gc7sXJV0g13Wlg/5j1LlqCVJhY8h6vcF9eZaX=9Z1NzdDO' +
+'6ffdYAl6I=lempWviIh24Xn0y44t/j+sLvza/hOsJh71RxqjPRQJSmqanAEmzsNWwTuo0LMMBHNLDT=JKoTuw7i/dn6v2jXe' +
+'ZZX=5qgL0+yD5Dk86kl6sAY/mkWv3Ij20Mn0W4149+p1lBEmOP65j9beoTRf6l8vRqS2FVhGym+z5huEOx2YYi0lXy74x05H' +
+'ZzEH8JQqSqoWP6rYzOI2FeaI43NGnjJV7eVoxW/FsdSfG4Q=IMTtTqO=7VoKPEJp==sJwO=JIrLD19S12TzKWdMRxa90OKK7' +
+'QEIXPPBd6ZOt7VW4HEk6Gna3w9s4P5ImVNocn07zf0M13oRIsf96Da/rd8SKTSkxzaN=zByqLcKMX/sNkmL+yyKCVYRVEYer' +
+'zaJGdW=TbRNOBD63XTAc5RB9lQLjDuaXuDa4gLrYbFF2VSuIXJ5Xn9N1FRGTtm/ZIDOwB3/rASjBHAGsKrwKPSMJk9suDXR/' +
+'9s5SdlSFASkrCWKDFg=o0g+Kg=IXPRFZlTEnp0EB7tI0VCRx3hRCahFn6NotH4LmOFJlCYTnbRy21eMviHM8j1LKaA46m7x6' +
+'eLKcYyrMQTR+Bs7/RZRVtjvYKgJFF/9HbY+7YT1lby64t05NqZNX0Eh6FjoHc5r5XAE39astH+M2jnNUGUTV5X8JIbRbR3G/' +
+'MVm/r/HwXazaX4LLHEb6zt6oUJz90=Vfk7YUV4Q=s8mBHg3IciQlnzW491RO2XbIwIhKCoa3Y8o1W6I2FYpMDCCm746QhPUn' +
+'5d86AsGOWI+8j1LKqBOQXfvaXMMrGxs/YTOO+pLiIDREpV0ZOXO2ZV=Xoa+=RBObUMTNOhLd7VMDYeJ0Z/pnr=s6bHFWtSa+' +
+'T4N33oNU3mNXpdt20ZDsl18PMVixLdP=7WwmOM697eV4z8QuEoNi1qQVBiubOEJFoas5Ox2YYi0sQRUuqOSd7gXXcPOnlVrX' +
+'YJroLhHnAUtsbCK3n2JFOFQHTaxTnC3pVeN/PPjyLbMfLjyajWKMX6bf7=54QJz91fPxRk0bzTMlQZ/4fGLOlpMb5hQ/RYPt' +
+'KdXXcVg63XqXn=XZ4DEXVRsYv4Jzet8AyQHEXRrKImNfG7N/wMit/X/LaR0rrTKLL3de=hONysEzAXUlFihqOTO1RS=XHELe' +
+'l+8X9YSuOjPO+XbYgEeaCeqGK6ZEa41TkpY5=DLWnpKUWdRH0Tt21z4pZe25bxLAbd=wzgvZLPF8=yxukkB+JlNypXS1VRuq' +
+'iT8yBh/4ocMP9GK89JPeaTRttLMD7DkTl=Rh3hRCahHGFgY9rHBXflJlCYTnbRy21kPO/2Ou5ThBbcRL7Yw7X6JMY6ruYePq' +
+'MiMzAXUlFihqKgJFFl+HfR8aYT1lby64t05HaSbT4Xk7zaqGr=qJbeIm2Pt9b+LSOtKxVPHEXurm9tP/C6MOcViAGZ+xztfr' +
+'XcN8k=s6wfUsFyICdqQltehqqPMFMas1WgCK17OrsMQ+iTRdKNKTYflmzptoU9qoO=HXVzsc8yN37zMQqhQHcct201Dsl18P' +
+'MVixLdP=7WwmOM69Y2wfkkR6uoNChVO26fz7/TNRxWB44GQPF+8XQOTNONT+aYdWYEhJGhrEoJrYzJ3FgTYsPAIGj4LEudLH' +
+'gf87YPOwC9MwAImfmeAsDNggI2lN+h/ERwqj9gkEXGjszpJcQ/d9/zs/lgnDLpei2mr=Q8Wk8t29V0zA0ymTvAdkSA7wk3SG' +
+'aYzA6NLEJXU4pj/ZIBP=B9O=culQ8aSwngyF/VJLH8dqPTFqt55voc/WyRyr/TDFxlu4XcEf+6JLERSdAYSd7Xcj7DO3lVbk' +
+'TAX6=9JHFerY43NGnjJV7eVoxW/FsdSfG4Q=IMTtTdRPHU0qrSMaQyu+keSLByMSMoAUgXe6KgJFFl+HfRGOxGKsY=R/aSP/' +
+'/KfmGKRmzRYNVqCKloYtzqDBGvk8pUgb4xsJvCCg23okIli775pX51p1xC6xIdlAGxGjJDW1v9k4KGi8zgJc9/eM7sXJh0i7' +
+'4pfX35l1Pw/E4g29a01x0qCpapvf5PgY899T5JkIUUg0hWCEPYt3fF35Ve25bxL7qB46m7Z0qtLLn5wf0iPupm7zEmB2Nfyq' +
+'iS9VJSA4nRMf+6JLERSdBdMtqiTYgEeaCeqGKFpIH13SxpfJqv5XryK1GVSHcW8m8h9g76QwMZkM4fS=TQvKPSOsc2v6HXUe' +
+'BjNDhbARNWyq3RO2dg/WkEOeJENIIaTNFcA9lQKnwVe6/ppnPFiIzFFXVDqNH3J4flOjhWD0lNsg2KoxglfV6l92GXp1NC3x' +
+'IYlABh=1RvqjjQfOTGlszlJPE/gc/zXJu1T13XlgK5m95RAKhQMECxIDV/Rh3hRIn9JCySsc8yB3b4JAysA4YhuKQnQ/i5/O' +
+'IImx7lOQLSvaXMMrHDpNDrH/2hIjhfREoewaCL=fs8mBGt2IYiLrLQUvuaPNyPM4wVe6/6nok5aY=5HG2aosK450JAAAyRVH' +
+'cV86MhP/G58KbHlQLrSALffqnYK7Lzv+LpSNBy8SluPl+lzKFW7lRj8HwXNOxGFb5WQ+6dHO/bdofLdmNYo4c5npHAH2p6rs' +
+'v0OFztO1STUXpo6mPk9eh8nyC5rn5pp19BDmJ0diVRGjmCllv1k4GGlszueR0rl7PBQ/lhnQ8qRB6srzH7jU4mZ0zMUVNedA' +
+'GiRCahvQU2qMO3M3b2NkG5TY0Z8K9ZMMC2Qv8VhQ8jN=7Uw2qDA4QHtvgaPf2hNhpXRRUQyqGiOGBfs4DYM+x7N7wfTdecBd' +
+'KhbHkYjqFdYGsJnIDLGWtak989JGG3CF7hTosZ6mPbN=72LfIQkgvEQf7W15jMO8w1v+UpNaIs5y=dqYnABG1/dM7hX9R0fF' +
+'3Vlt75k6M7lU4e2JfD685Gv+VVC+lpPNzmDBuvk8pUeL0ss97BOYjf/sd8+8j1LKaA46m7Z6rJ89s6wewWS+y3FSVi/SgQiX' +
+'ye+z5as5sIQ=JKM31QU+aJOe/YfokIiFqatXo7sJH93CNSsc8yN37zMTzQTX5d/XIqQ/uG+unORgPpN=Plx6CRELL/sv0JQv' +
+'+oJ0ZXTDgXhGzK7s7OX93DnDnpey2lrzg7jJ2aO0XTSnzRYC3SYkaSwQY2SGaYzA6R0OV57BH7l6MqMv/IN/0VZADrP=/ffn' +
+'6DO9YFsr7=54QJz90=5myizLWeKGYf9I8IOfFL97AJSu69PNqYf4rLea7urYj=XYPJEW+gqMz9DGSyKFWGSI1Z8r9ZRK6A8v' +
+'IMkejcT8mdfq7cCcYyrOgbRNkuKCgi/WNZzKSSNV+o5XoP+Lgm01Xy64t0VHp0EB7tI7lCRx3hRJqlvgU2vGqZzHJR0Vl97X' +
+'YhuJIuNvqIPawIixGf+Pbjv6TXLLL/muLgPvRXKDhePW6Rz26a62Rj8HwXNOxGErwWQ/uBQOGRb5gEjVVwSh7lRYPMHm+gqM' +
+'z954j5Jk/UUox4/J5bRfWDOMsWkQLwKfnlxqXVJMr5s/YTOLlhLCki/VJiua/yMlpg=TSDQuZMLbEaP/mAONlSK5CxIDWeoz' +
+'0LtJ49H2IUpd=wIkOlMEFYA0ouy20aRvq5M/QQkQLb+LCXgFHXPMQ2uNnaP/2hIgdlRVtigWyPACsRsY4RM/J/LrsNQqRK=Z' +
+'NJf58Tf6ubZYwAs5X8Im2jlc877CWlABlPAY5f8qIeOvq6Mr=QRyiE4Jm7x6eLKcYyrOgbRNlBIjhfREoZeKKgJFFl+HfRDO' +
+'BMLrwW=r9KPd7VenreJ0Z/Rn4+Z5PJEW+9oMv0Lz6kJkieUn54/J5bHvGCQ7XQXaqB46nfyaXcBKQae/cnON6lMjce/8zRJP' +
+'w/f9/zX9m0iV3QlgHIr=Q8WE4e29q1mA44Ccb4e5/V1idSsc8yDWbxKAdRH0gTyFjYok9mVa75pH52p1lC3AITlA+hAb=UF6' +
+'1rNi1qQVBiubOEJFof=X4TO/68KnUWQ/lKKdKQTI4TQmtdmXkSbEmKLSUUfpq372GoPh/sCDLasmXnNKVA8rTHSu7e=8uTmm' +
+'CFAXSizlV2qjxu5O=WCBxgiGhOO3Bm9DGe3Ici0roYCNmLRNJXfH7Rh6GorGY/oJCFI2Rbtqr4J4jtPUGTMnES/JDg9=qLSV' +
+'6I921Hj3IzKvJ0gSRIGjjSqw0RQ6SrqaDB2h4xl7ARCYHh8ah/N75LKNOXPJlJKYPWlKqsu+V5C+1oaN3uDB6ffNYB684xA/' +
+'miWv3IiV0En0u5pH5nUQLvfFzaLMg5sfYTTMFhLvIoPmycua/T82xWAjk2MORePc0QCZqGP/haN1kgQ2R0ejz=m5HS53kVaY' +
+'az7CSr8AhPBjkVv2Ph/K61SPUl9C6IVmEiiFOP65j9beoTRf6l8vRqS2FVhGym+z5huEOx2YYiLrLQRveONt/bdo0Wf76eXY' +
+'/lRSahvWRhp8zxMWS7NkGhDX5p86AtRfF99eQZhADrP=/fo6/EJb=2oNLkQMVvLSlpARUrf2Vp1=g7mBHPMPE5MsYvTNONT+' +
+'aYdTXgOqiknGYDj5n5KWFebcT0N2vlNUWQQXUWtm9oPf3NM==ViR=YNgTayZ+F8I7eV4z85uRm70hvSVFfvmSbPDRj8HwXNO' +
+'xG97YMB6JLFKpJKYsRfqGbpnL9o1/A1GRhp8zxMWS7NkGhDX5p86AtRfF99fEMkQH+RPHUqqCK87/4cJ8fUsFyICdqQltehq' +
+'WS8hVNtjT=9qQDMbwLP+67R+7ibIfRfZGpk3YJpI86HGEUYd47IH7pNQqYR0satVQ2+KeAOeEIkw4jNAnWzF/KKMgnrvYbOu' +
+'2sJ/wYSVhR0aGg9Vxa8nOF+Kg=IXPUOqlRAre9VlORiaCnpnL/pIPQ3HcOt+b/JCe+6VOYV4EV/J5vHvuCM=bJUt=YQ=/myK' +
+'WF=cs6wewWS+y3FSViVhUbf5hV8CkYuEOx2YYiQlnz6/945ep3EXLTRJGronLLrkv5FGAUYdDDImjpNl/2UXpU=qYnP9mDOO' +
+'MgegbrPwTjv7iF94QDwucVPv6zBTZXOFBZx6q8MlxWBG=MQ/V9N75fB7145Xp0bYsReaCeqGK4pJHK9U+Ns+HjKGKpFlCQUY' +
+'1W8mTh9gdi2IcUltveN=3WiKbM9bD2vOcTPNBz8TdeRFN+waChLGhW93wLLP+98X9mUeD7b04Z2Ju0yQ0lCpb4CKBoZd3tDO' +
+'6fe+cGl6sAY/mpWvXYT/OSn0K44X95pBNC3gIilAmhBqXe/a2+MjI0TFrA9A4vlH3BS/lh8F7algK5lEPyqC57iDa0qQ0lCp' +
+'2o716obt3tDBFfc+YAl6U=lumhW8OIim4k826j92xHiWEmK8ODlAFh/lV6qjwRQZWC/czqJP1/gs/0sDrP88IE6bMJSvWPB6' +
+'3deYsIRmytbUTHZFilvnk6Scr/8Wr6KEqjUjcS8qDg9/WIPc9rhB4rKwnew5TXJMYEsufUBaupN0d4GE2gzJCXMFNEA4oVQ/' +
+'J98of26H91PeKXaooMhZpVoocJqp=eIm2Pt9b+LUKzMUGoNnIl9qEqMwN9M=AZdQLYRf/fh2He1F3atunaTfRwJCMcAVFiyp' +
+'7TJGFg/TGD8LoV6X9dSNaPPdaXbHnFQ2zwSh7hRIb+3GJeoMDCKGSyBE/jSHgft21eQ/34QvcWkO8aSwngyFGg68oyufcXEH' +
+'gKz91fPxRYzaCNJWBgAowIPaY5LcIMOdScRuScbIfRf7SanHoLoEW/Fn6NotH4LmOJMU3RT45I+a9jK/uCM=DPT+ie=9u/ZD' +
+'qtNbkEwvYg/eN1JyMYS1tny6Gg9VNp9HwYQ/IA7KMaP+WeQNyXW4cRf6iogocJqp/=DCMPpd=wInntMkq9TncWA5QhRfS5PO' +
+'9egtSj+vyYgVzINcYjsuUlRNkr6h=dAicXgXd80PdunBLg3IdFNXsNUNeYT/BXaHoHQm7ar4cGrWPJEW+gqMz9DGSyKFWGSI' +
+'1Z8r9ZRK6A8vMZlQzpGQLSvaXMMrHeuNHXUtJpNzxaS12ngXd80Ps89Y4RLvFBMKrITNeQSdKcc2wVe6/ppnPFhIvNGXBRk9' +
+'nwOGr2NgRYA5P/lDYhN7S9Q/IGhR=mSgPWzFqDPlCbVo0ePv9gLD19S12TzKWdMR5us5Pg3Ici0rYOBvajS+KYbT4PhZ/WqW' +
+'UDnJb9IipTpNHlIHftJE7bRDDT/qkZSvGG/OcLRMag+sGum2GFOLH1suobR+Bk5OQc=xyk0bzTMlQZ/4fGLOlpMb5hQ/RYPt' +
+'KdXXcVg63XqXn=XZ4DEXVRsYv1MWbnO1WeTTsat20ZDsl18PMVixLdP=7WwmOM697eV4z85uRm7zAlOE2cqKiPPFNjvX=IQ+' +
+'N6N7YJPN6PA6/Zd4ccf76jo4c5npHAH2oOaIavOgJO0/V57HYq0K9ZMPC+OevHY94jQfPSypHPJM02v6HZPv+WIDZfOl6cvW' +
+'RQN2pSBH4V/eNKJrAcR+FY/ZZkFB/tI0V/pnr=s6bHFWtSa9rHBXflJlCYTnbf96Dh9clRC74JmAvbO=bayJbH6XQMyaQmUv' +
+'ulLioeRmV3yq3RO2dg/TbRLOp+8n0lG79K/eKXb4sJg6qaoTb4u6m4JHVcpMz173K9CV7QQo1a+ZrmQ/3CNabHY+q0+sLmyJ' +
+'XIKb0/sufUAquyJDhrS1oQvq3aNlMsnBKt2IYiMbIc=vaPRO36d4ccf77oXUG4lnqSwQY2SGaYL3r461moM4gkrnnYPfu4L/' +
+'o4kx8wOAKfzqCWLMg6uNGt6oUJz90=RVFkeK/dOFxl9IrDCK1I=Enz64t05NqZNYYPe7War4fFoYzJ+W2Pq7b9Enn2KE3cMX' +
+'pf8ZHg4pZe25bxL9XnQwHqw7OP6801dqPvF6u7094=5fU6YUWXKRZh/4ocMP956onISuFNONm6d4ccf76eXY/lRSahvQU2SG' +
+'b7JHmkN1i=TowRy21oPf3NM==VlxzqPATayZ+e1F3aVoz85oQJKCoeRmxev63bKBxY8HXIP/l6PnsPQ/avQOCdaHPGf47asY' +
+'w9oIvbH2tep+C3LH7UMl+dW0TR+7YIPP+CR7nHkBbHQgOf1F2DN8=huObgUacgMzAGRF9e0WhON2pB/ovRRak5Oc9dQ6tKF7' +
+'pJOEXMOrdCRx3hRCahvQU2qMO35HXwJFWUUTcn86UhMOi68rPNRy4jNAnWzF/KKMgnrvYbOu2sJ/wYSVhR0aGg9VdVsTGD9a' +
+'M5NbkJV+ecBdSOf3wEiJWWn3D9Z1=HHG2lpN/9LW7nLg6YCDlsm0bB3pVe25bxL7brO=3hrq3EPLkCvJHiTv6o708YR1VTw2' +
+'6oN2pSBH4V/eR+OaMJTNuLOdmOM0gThq3uoobFqYb7Gy5VbdH+Enn2LEqWC0HdrJYc98aEL=Aai/blSsjhyqLcKMX/sNkmL+' +
+'yyKCVYRVEYerzaJGdW=TbMM79B8snRFX915HZzEB7tI0V/nGPMqZH9IicXemqZzA6N0/V57BIum0bB3pVe25bxo7qB46m7Z0' +
+'qtQFCbVoz85oR9094=5fU6gXd80Pc7mBHMMaV8MLIWUuec/7tJO07DgrGZmGcJqpTKFX5apNX0Inr4KARWSHcn97EdF=72Lf' +
+'IQkgvHQwHqw7PWFbk3v+klQeBk7y=d=Ad7q4u99WFl=XHRMuZ/PnUcQ++aK+mKgHsViVVgYFC/ZFi/3Tc6SWaYzHJR0OV5XB' +
+'X8l7nF3=li2OsXUQLtO=7lzV/EK8f5b/YXP/2lMix9S12TzKWdMTdfAXHXMN2EJsYNTOVMB63bbHwVf7/dg4c5npHAH2p2rd' +
+'P4N3rUM13oRItkt3fF35lfMPMVhhHgQf6RzZbRK6oCrucmQupuCCIsQmBVgKKhDDIds48WGeZ8LGXIVX915NaPM44YfpuXr3' +
+'POroLJ1CISY+HHM3rzKQSVUlI2t20ZDsl18PMVixLdP=7WwmOD7Xnxwf0iPupm7zppJ1VTw2VO6Csus0sYOeF+K7YWQ+ZMAJ' +
+'3kFB/tI6iasTUEtGPJEW+gqMz950JkPll97RH796LgRgWEM/0NTxnmNfHdrq3EPLkCe+sXTdFhMS1XO1hVgG7eM2+q9IrRNO' +
+'E78nXI=79n/6/edXoIfJWjonj6X1O+1HBls9L+JS3wMk/QT3ld77YdQ7q8M=I+hB=gN=Ldw2mFN8=yxukkB+FyICdqQlteem' +
+'VX6y9uzDjFQOt9KrMRSNeO/ZZJghKuI0V/pnr=q5z7EWh9r98HJHeyKkGjNXpj965aPfF98P5ThBbcRL7XzJLGO80=u6XbAq' +
+'u7094=5fU6xbW1NV+UA4HSOa1V6bkXPdOWK+mKgHsVRJOasWs5rYb5EmhRa5=/L3b9KF6dRYtS7aEhPOp3+8j1LKaA46nawF' +
+'nXPMQ2uNnaRvRGMSVZTVVfxmqXKycRzEWg87+NM7ENQNuYPNFLK5HfOrCurXoGoUXEKUJeoMDCKGSy9UqQTH4arnn1Dry3Q/' +
+'wLiAPgQPXVfFHfQ4QExvQXRNEoLD19S12TzKWdMRxj8HbO+K1VAonI=OeYP+KPcHPIfm6eXYc9s6LJHiyUtMHuIXfzOl/UUT' +
+'cWAqIbRwC6+rUNlQ8aSwngyIHEMbk9vLkkS+py7y=d/F+VxqC1NV+UA4HSOcZGO7YcQ95RB63FLuZC681F9eVKC+loYN31DB' +
+'NffNY8l6FPs9aBPA2soksmTF+q9CFHkmEuKv/=7nzLcJzt6oUJz90=QlIYvr/4Cy5uzDkPOuB6Ma1UP/uPSZuQbIo6e77enn' +
+'cDoEW6IGhNuMLA8W7o6QVYA5tW=rIqP7z9Q/IGhR=mSgPWzF/IP8k0wvgXAaJmMSVZTVVfxpzPMVNd=l4VPexK8ajP=eWPRd' +
+'GweXcGjqWkq14FsYbLFVgTb54r6tYWlGdPs9aBP23Ijm0Sn0S42H96p1WRKvE1RCRIGjeCkUvwkEXGkc3zJchOlH=BQOlUnQ' +
+'x17GXjAZtl6HdzEB7tJ0Z/Rh3hpIO=JHVcpMz173K09VOeUXUVuJEZRf2CMPAIhhHgQf7ktZ7cCcYyrOgbRNkuKChTAhxtlX' +
+'lO6WNf944JNOt+KX8R=vSPT/KbdTYLj6CUn4cGspD9IipRu9LyNHnp8xOVUXpU=qYnP+z2OOMTleLpRP/jhp2K6sc2u+g5S+' +
+'yjNz1lRzVezqWiKEoYv0k=91386i27rzM8WJ56xOZY686VCcRpv=5HgL89856fftcEl6U=kumsWv3JWm0EnAC5st6IVmI5Kv' +
+'J1RSVTGjFCklv6k4KGi0gXgXdV8Ck/mRGt2IZBK3UcV/KPRtNRdIXRjZunqXjFo58LESpSsc8yN37zMV/KTII4/J5bRfWDOK' +
+'wQiwqlRfXl0qrRKsb6bbCvFqtiNCIaPlJZxqGS6RcR=X4XQP+G6bUdQtFMSdygensVRJGtongMs5K=22JeoMDCKGSyF13dRH' +
+'Uk079qPP69KrTKlgLlOubjv6TXLLL/luHoQv+lHvsi/UgXJO+Ol5DBP/pl8F3VlgK6XJM7l08q29a0yQ0lXeVWCK6oaNzfDB' +
+'lfc+cMl61AYeq+rx68oxQlf2+p9CBHkGEpKvx0giRCqarbEJIp/cDA5fU6YUl50=c7mHTIQ72/N75LUuuZRbGKf4bDV2zirT' +
+'LOqp=DFCpQoNHw8Wv2JE/jSHgf/YglStKGL/EbjAzlAPnVu3yx0VzaVo0ePv9gJTZXOD+VzLCXMVVks1WDOP1GOKwaSuZYP+' +
+'7daDPJiJ3YsX4GqZDzHXVzsc8yN37zMQqYR3Xf/ZIsRfWCMfDiM7eA46m7a0ut0FzatunaP/2hIjhfREp1ubCP9WJq=43DCL' +
+'oV6X9dSNaPPdaXbHnFQ2znookMrYu4GHFQns=ALnz3KF6dRIEW7aIsNrR8MPAIhhHgQf7Bv6/IM9cWv/YhS6Nc6edpPlpUnr' +
+'7PJmJa/nbtOfNBObIEAZ5KN6U6pudk6vUF7NVSC+6pONzhDBtfe+cT680ss94RWvWIj20MnAS4345np1xBExIalAyizlRwqj' +
+'4Qc6SzqncQe33K7hcstjGe3Ici0lXyR+hST/aZbHTJQqKnnngroJHLGWpTsovBL3S4NgVPHEXurm9tP/C6MOcViAGZ=8Djw7' +
+'XYNbGxtfkWNN2yLjtpPm5evbSTJmNl9DCKMf+6JLERSdB7ONuOd5kpiK7krz00YkDKFWpQhd=wInntMkq5TY9a=qIU+Kh1Kr' +
+'W4wn94p1lBCgIelASi1lRnqjjQe6WF/cztJPFOl7bBSOlbnQPpfi2Yrz47kE4g2961mx0zCceo7=5UgYcMYp=r6i6/7gVq8B' +
+'L7l0XB4pZe25bxjAOfSxnhw6CJ88oCrucFPv+0KCIdSDdd0YKgJFFl+HfR/f+6M7fWUuF+T//SdXzLQ5leXTXUeE36JWpQpM' +
+'P4LWro6QVPWhX8l0XB3pW+MKYNlQ8aSwngyHXEO8T/wf0iPqt9=/QYOF6ZxaFQ8B6snBKt2IYi0lYRQJqeUO3OdnvLfK7WnF' +
+'g9s6HAHmNfmsrHBXflJlCYTnbf/J5mOKqIOdEblQblObiau2/MMco6wek6OulnMe0WFikteG7jMVJW9XHRMOE78n1aQ/afSd' +
+'tJc5sHdZ7nqHwKoJ/FFXRRotLCJC2rKV7QQo1a+ZsIMvq6OwEtlR=mRLjNgVTWKLH1k/YTOO+pLiI=R2JZzKGK7hoR70B0aV' +
+'3Nlt8Irzc7lk8r2Ji1mg00CcU0YkaS2yUnTGeYzA6N0FmUT5xWrqYe/fKGL/EbjAzlGwHlv2/XPMQ2bbCv/a2nLjoYAhyrZU' +
+'Z40=c7mBHMMaVFPpMaP+WeQNyXNXPEh6FVekG4Xf53gJr92z5nk7xUX80eATHRATnC3pVe25bxLAbd=xTqzqbSKXw3v+UVKN' +
+'B0Nz1kPF+LxbW1NV+UA4HSOatKJrsTCOaZKuGbcHPKQmWSa34FsYbLFVybr9byJC6kABlsA0tm+JEdN/WCM/HJT94pOATmzJ' +
+'+DL9k1qNYkROJzJDYkPmRVu7GiKBYY9YsELvFBMKs5P+BPR/CveYgSiFSRYCgKoIv8+n6NotH4LmONMVKYV45NsVjYLbQlaF' +
+'6c9C/Xp1VBFQMllNaizURxqjuc6e0x=AUrZUZ40=c7mBHg3Ici0lXy6/945XZzEB8gJ0Z/Rh3hSCehvQU2r9LC5373EkqbSH' +
+'cWrnnYN/3APeLiM7eA46m7y7GRN8=yxukkSJlmLjZ8Ol+YgEl50=c7mBGLP/l6PrIaCqKTP6ZJREODkTl=Rh3hRCahGWIUs9' +
+'nwOGr29UOUV39S/JYZM/i6+rAXkx8wOAKfx6WF8HP3c6QiRey5JDYkPEFkrq3gLF+T/43L8f2EJsYNTJBYQNCUKT7MOrdCRx' +
+'3hRCahvQVVpYX/L3b9KF6dRn5l4J5qOv33OvLPRR4jNAnWzF/MK4X6e/ghKO+yKCIdARUQlXlOKWF710bXOtBMN7YWQZpTAJ' +
+'3SelTRhqWjojTUX64DEXVRsZiczQ6N0/V57IX/lDXB3pVeS5ryL7aA48msa0ut0Fzatuna/uRzDiIiQlpVgWzgKGJm=XaDN=' +
+'J9IK9aSemdPO+XbI4IeaGpojz/oZ=5E3BVrsvfIGOpM2/1UYtg/FUU+K/HM/wLaR=YNgTayZ/tMco6wekO=JcgHvvGcczjJc' +
+'1/gc7rs/pnnDPpen35mUPvqPI6wuZT6vYF+mC/ZFi/3Tc6SWaYzA6R0OV57BIa8FUsSwz6OePPjBDGQPzayJaRKrkEo+UkQu' +
+'yiLzke/12TzKWkKBxV9HoP8aYB6X4lG6JMTNuNbHwMhJGZXz34tiqivQU2SGb4JS3tNiudT4If82sfNwCrL=AQhA=jO8iTv6' +
+'TXLMo2e+gXOuci7/0WS1Fkzb7c62Zm93fFPexPNKIaCNeiPNCef4rLPZKnnngLpIzFAG2apMnBBHf2Ml6XP0=U/ZImNdKGL/' +
+'EbjAzlH=7nx7XII4r9bd/Zqi5gk4zGiL3xJPs/fc7hs/lYnQ8qRB61=1LaqCg7ieZb6v9F+uVHCKy4gY499D5Dk8EUfb0fP0' +
+'=axVPhCIlf25bxLBqE4Jm7Z0qx0VzaVo0bP6N0ODRbREIYwb/+MVpa/X3RMuJMG75aR+OMR+JRKYYPe7WarzL+rY87JGVbrY' +
+'/47CWlABlPAY5f8qIeOvq6Mr=QRyiE4Jm7Z0qtLLn5tvcBR+dpLSkkPEFkrq3gLF+T/43L8f2EJsYNTJBQSd7Mf48ShF6eZj' +
+'USSCehvQU2SGb7JHmkLF//TXUa+JI/Q/34QvcWkM30+wnkqZ/PLLH2e+sXTdFhMS1XO1hVgG7eM2+q9IrRMf+6JLERSdAMAK' +
+'h3ER7tI0V/Rn4+Z6HQIGFbpYX4MkSyM1WdRF9j76AsOvuC/OcLT93YE92RfKbRK8k3tuHXPa1p50ZbTWFixmzWOFJQ8YsSQv' +
+'B+N3sNVueNTOGOM00JiJ3YsX4GqX45HmFYsqLAMWS280hWAoxW+JE/Q/34QvcWkOblSPnlw52K94QtcURKqj8RQ6S0qaYQJc' +
+'A/ec7ms/plnDvqRy6rrzD7kE8sK/ZVOx0zCpWo7v5HgLn9+D5Fk8ZVSb0ns9ENsVXz+KVP35fxL7aA4A2/ZDqt0F0NWo385o' +
+'QJ094=5fU6waJWO3dh9HfJ+/pI98QXTN6OBdGKf4bRfK7WnHkAqovKC2llhd=wInntMkpdSH1Ot20ZDsl18PMVixLdP=7Wwm' +
+'OM697eV4z85oQJLzlq/VJiua/iLF1fs1WDOP1GOKwaSuZYP+7daDPJiJ3YsX4GqZDzHXVzsc8yN37zMQqYR3Xsm0bB3pVe2/' +
+'cNTyHwRwXgwFnJNbU0we0hR6ltJCEYPm6jgWyPACsRsY4RM/J/LrsNQqRT//h3ER7tI0V/Rn4+Z3z6GmFPt5v6JH7381KhQH' +
+'xl96wm=/m6O/AMlRCgAPzWyJjXL4POiqQYS+yjEilqTVVev7+cNlpgA5vM8=++OcIaSJKSTNGIaYgSja/arzL9t5L7JXBRa5' +
+'T1MWbnO1WeTWlS+JIkQMGGPO0ZTwme+gPWyJXqNbU0we0hR8RuNS1qPkgXhGzK7s7UX9+0gK4qRy2mr=Q8Wk4n2961mFycZG' +
+'sJnIDrFXBgqMv2MiO3M1ujUjPYrx6=okIlhl6l92BHiGErumiM=nr6hHC95oQJz90=6fY6YUV40=dX=XoGQ/ZHM55LUuuZRZ' +
+'2mK5oVj6FwSh7hRCahvQVNr9n+NkftMUCiA1XR5Ynz4pZe25bxL7aE4Jm7Z0qt0LwFsdLUS+p3MiloB1Fova/jO2MZtokPLP' +
+'Z+N5MaP+WeQNyXUHPZg7CaoTzAdkSA7wk3SGaYzA6NN27jWIlWAmsdR/GCQwDVhg8jQvLWy6CXKHw0v/0iTaMiMilkPTJiua' +
+'/iLF1f2HbZNPF+63jIQueZItKiMDGDh7W8r3Y7s5bGHipVp5mvJXjNCxhPRYx=96Aj/sdi2IbxL7aAU=XdzZbe1F3aVoz85o' +
+'RyJDhrS1oQwLGSIlBj/o=WMP9GKsUNPeeePJVQbYgEeaCeqGLonIv9HH+ysd=+MS3g7g/iRHcV0K9ZMPC+OewxkRPgSwXNgV' +
+'2DI4uh6EV7qjPQcJSwqaxQJPU/gM7pXJ+0hF3Ilgi5l1LhqC57jeZb6vSRYC3SYkaSwQY2SGaYzHJR0OV57BIum0bB3pWR35' +
+'fxLBqE4Jnua0vg1F4+vaHXT+BuN0ckOlBUgG7hKFxV1YsELvFBMKsySOiTT+JLN0YWf6qZg4c5npHAH2p2rdP4N3qt=el68B' +
+'MX=6sbRfWDOK5KhAvaO=z7yKfMO8kXv+UVTeRvLOwf/Wc+YkWXKRZZAH0CLf+HOLANTJtKUnp0EB8Pf7BVqo4erY87JGVbrY' +
+'3L54CA1/Z57HIXtrExQfGDMKYTkgDYQvDdv7rINXH4svgIOv2pICZiPhQSyKiPPFNjvXHH8aYB6X4lG6JMTNuNbHwMhJGZXz' +
+'T+YU4LKXyRrsO3L3SnJEi=T4pq878mNOGIIO9ZjA8ZQwWZfJLGO80GsqHWPuys5O0f/R1tlWyQOFxV9H8MOeJ963XIVX915H' +
+'ZzcHvLhquYnnDoq58QFX5apsLCFWb2LE3RT44ZrJ5bRfWKM7wLiA8j+Lmafryx0VzaVo0bP6NtMvImRV2pvb7h9V+l4X4QOv' +
+'F+DrDQTuOcStKzdYnLhquYnnDoq58QFX5apsLCFWb2LE3RT44ZrJ5bRfWKM7wLiA8j+Lmah2qDPlCbVoz85oRsJDgWSVhR0a' +
+'GgC2NS/0jg8/pI981UP/uPSeBXaIo2f6mksXoho1XHEX6fpKb9Nz3wMk/QT3ld77YdQ7q8M=I+hB=gN=Ldw2mFJLcEtvoXB+' +
+'+lIC=YAhUZk0l50=c7mBHMMaVIMb5hQ/SvPN7VMDYeJ0Z/Rh3hRCb+Im2Pt9b+LUbnO1WeTTkurqMZPg/6BYryL7aA46m7v6' +
+'3PMssTtuHWSJt95y8mUSMhtXd80Pc7mBGt2P2KOcYYQ/pYPOOOdYoWRJ/WqXDqoIrGJGEUot=HM4ms6U/QTXxW+oYmR/WIM9' +
+'QZhADrP=/ffF2DK8k=lNkrAqcgMzAXUlFinKGPMycsnBKt2IYi0sn26Ht05HamFB/tI0WySh7hRJqlvgVpTGfL0A/xNxqUVX' +
+'5f=r=mMvC5+rAKhAvaO=z7yKfMO8kXv+UVTeRvLOYi/V+Rxq/TM0dfAXHXMMNKJrAcR+FYAKh3ERKufKGjnHkAqou4E22aos' +
+'L7JGnNMVKYV454/J5bRfWDOKYQkRPFP=PcimHMMcoakazSUHgKzC1cAVRlvJuQNV1o=n4V87M/6cEhTueZPZWSdYwyg6/gZj' +
+'T5eFq41nFap9L1KGOpKx6PBT8R=rYoNvu7+vcVmOb8=8CSm36D6ck/sekYQullJvYf/Wc+YkV4M2Nls4XcEf+6JLERSdAKFJ' +
+'3khBKuI0Weoz0LtJ49H2IUr9zyIGGUM13oRIsf8ZIsJ/3GN/9JkxKf+QDdv7rINXH6saXbAqth==DW/2FevKGULFxW90rD9a' +
+'M5OcYYQ+FQA+mYancPaqiWtnoJaYT9JFJNscbwIWGp8x7fT4pq878mN=72LfIQkguZ=8mRf36g64YFu+gXP+RuJCgYAhyrZU' +
+'Z40=da9TDPOuB6Ma1UP/uPSZuQbIo6e77enncDoEW6IGhNuMLA8Wv2JE/jSHgfrFXh9gdi2IbxL7bkT+bjv6TXLLL/bbCSRe' +
+'pjICAGRV2pvb6cKlNl5XoVNO67MbHQ=OKWOOaOeTPJiJ3YsX4GqU/A7wk3SGaYzG7q82CoU45g8FUlStKGL/EbjAzlAPnVh2' +
+'GgAICxb/kgPeBmKCIbPR5ZeLd80Pc7mBGtMf+6JLERSdBsOuGSdnODV2zbnnDKoFilvgU2SGaYKGusKV7QQmlS+JIk/rz4Ov' +
+'0ai/PpN=P/w6/Y84zLWo385oQJP9DA5fU61Ul50=dunBKtSIojQlnzS/JYPOOOdYoWRJ3ZoTz6no8FE2FYpMHYLXvtO1G2UX' +
+'pU=qYnP76A8vEIkQDcQwXVp6/ZLMg2k/YTOO+pLiHfE/k7ZUaUOFxUA4HSOa29LsAJPdWPS/GzdYwMjqG8r3Y7s5bGHiQVY+' +
+'iczQ7tKQSXVH1Q7K9nRP/6PKbHnaqB46ndw7WDMM0Xv+UVTeRvLOQz/WdtZUZ40FdXu50cP/JHK3UUSdWLR93VaI8IiFqcoo' +
+'kunJ=AEW6YpIWxM3GlPEGhDXIVrFXh9b2RC74JmAvbO=bayJbH6XP3c6QmUvulLioeRVtTuai/M2+q9IrRMuJMG75aR+OMR+' +
+'JRKXcGjqWrojL8oI8D1iUVY57L=CWmOEqTRH9a+JIc97V1RYryL7aAP=aZyqCGJL=hueUrPv1uJilqL12iwa3QM2MZsXoGQ/' +
+'ZOKnsMQ+OW/ZZSK5CxIDV/Rh4AoUXEICpcr98HJHf39U3jMX5e+aEdGvB9Pv9ZlgLAQQSZyqCGJL=hueUrPv1uJilqL12iwa' +
+'3QM2MZsXoGQ/ZOKnsMQ+OW/ZZSMD7DkTl=Rh3hRCbDFXAMs9nwOGr2C1GQT0kurqoo==zAL=cMlRClNATDw67SO8kasawiOv' +
+'2zJA1kTRRcx6/PM16d8IHIPat=KsE/P/STON/VbD3Fe6/ppos9aYH9EWgOaIa4/gJO0/V57BIa8FUoPf3NM=AsiA8j=8Dsa0' +
+'ut0FzaVo0bP6NmMSVZKV2evahX62Fd/owIEf+6JIoNSOdSAKh3ER7tI0V/RoUJs6bHFXQapNP0LXn39U/QT4UD86onRfF9Lf' +
+'AglyGf+PTazZLGJrkAwc0gT+R0JApoOl+kwauc6RoR944SFuJR8njITu6LUNKbT4sEhmVwSh7hRCahvXk6SWaYzA7A1/Z57B' +
+'Ium0bB3wli2IckM7f056rezm/IObk/wfbgOu+k7vZaQm+Ru6/TN3J7/Y8MQ/JfN75LUuuZRZ+VK4oMiZ3YnGoHs3bFJmVgpK' +
+'PAIGj4LEudCEP/lDnCN=GCLfIQkguXOwnkv6TGKMQEsug8R/FpNzl9S12TzKWdMRZa/Y8yNOBD9X1RSOi0H6ZJghKuI6WbZX' +
+'0Mo4z6ImtjssLA5zuq62CoU45g8FUhP=KjN/EST93YE92RfKbRK8k3tuHXPa1g6OoWTWVgvauU82dfAVHo+K16AonI=OeYP+' +
+'KPcHPIfm6eXY/lRSahHGFgY9rHBXflJlCYTnbRy21zTplf25cQiMXrTADWyZeLM8L0ru=CRey5JDYkPEFkrq3gLF+T/43L8f' +
+'2EJsYNTJBTP6+SMDXEV3lVX4oFo5L+GWpRp5/v6SukO2WfRHgXtqknMO3AHvoInALpAPfW0pfENb0yr+=XAa2wLzVvPm5evr' +
+'7PJmJa/naF+KY56onl=qSfRdGObX8Rf6BXZjUSSCehvQVVpYX7LmjlM0zbQIIW/FsfNwCrL=AQhA=jO8iTzq3EPLkCe+okOu' +
+'60KCMk/xUZeLd80Pc7mBHQRMNKJrAcR+FY/7pJd4TGe6iFqXYQoJ/FF2Fglc8AKGbmM1FXAYld77YdQ7q7PO9KmxbmQLKalT' +
+'6u0FzaVu0YAf+5MzllPxRd0YKgJFFl+HfR/eZ98n0JG79K/eKXb4sJg6qaoTbAX6ilvgU2SGaYJXflJlCYTncz7aEhPOp1C7' +
+'5NhAnqO9u/ZDqt0FzatunaP/2hIhRXR1FcgWzRM21k9F8VLOBmKrsdBqtl6HdzEB7tl0l=Rh3huCqivQVpTGeYPAJOQ/l6TI' +
+'kf87MdP=CH/O9LitWZOwnkv6TGKMQEsug8R/FpNzl9S12TzKWdMRAds40MPu68JKIYUueOINufcIoIXK7WnHkAqouA7wk3TG' +
+'f1NGOnO1WeTTlq+aI6Q/GeOPQQmxLbKw/4zJLGO80=u6wYJ+ytJ/=WPz+fxKug9y6a/Y8yNOBD9X1RSOi0H6ZJghKuI6WbZX' +
+'0Mo4z6ImtjssLA5zuq62CoU45g8FUeH/3BM7bHR+q0+sLmyJXIKb0/sufU/aEm50hvSVFfvmSUBl1d/orM875VAn0KU+BOPN' +
+'OSdXsHOFybYzULtJ49H2IUqMvEDW7nLgVPAEXurm9tP/C6MOcViAGZ+saXfrXcN8k=s6wbR/FJBv0W/ikteG7jMVJW9XHRMO' +
+'E78n1j74x05NmOf0YQk4KnnngLpIzF1DkMutqczQ6NLEJXV5Ih86we/fiDLe9TdxnYT=XjiJjIO7oyv+0TO+dl7vZmRV2pvb' +
+'6cLFITuDGD8LoV6X9dSNaPPdaXbHnFOmJbXYkQr5LGFiRYrsDwL2XwJFWUUTcY87EOMw7+L/ATi9WZRwzS16bV9boCrucmQu' +
+'pu5O0f/R1tlWyQOFxV9H8MOeJ963XIVX915HZzcHvLhquYnnDoq58QFX5apsLCFWb2LE3RT44ZrK1kMwW6PKwNlQ8aSwngyF' +
+'OM8HQLWo385oQJLD19S12TzKWdMR5us4TSLu6EFbkJV+ecBdSOf3wEiJWWn3D9Z1=HHG2lpN/9JXflJlCYTnbTt3fF35Ve25' +
+'cQiMXrTADWyZeLMM0Xv+UVTeRvLOIfPRUQlXlr6yBm/X0IMeZGKrDKB6Kl6HdzEB7tI6KnnngLpIzF9W+gqMz950JkO27kRE' +
+'P/lDXB3pVeMPAIhf4YQPXdfn6DO9YFsr7=54QJz90=Olhcx7OxLFxV=jjg8+h2=Enz64t05HaRfHoCeK7ksHg9rUv9KGFPtN' +
+'H07zz9MlGxUX57+KMhRfG5Iv0ulQ8aSwngyFn=7nr8s8HTRuAr6h=dBRyMf2NZKTFg/4fV+qR17GjIOqlRAtaXfVPMeZdgYF' +
+'C/a1402yMXqMvECEmv7jhWCEPYt3fF35Ve25bxkB3lOgXaiJTYNcc=v6HoQv6pISAb/SkQzL7jKCk/mRGt2IZV1lby64un6H' +
+'dzEIKxIDWySh8USCfEICpRtcL9N4iyJECTC0tq+aI6Q/GeOPQQmxLbKw/4zJLGO80=u6Xe/fRvNAVoPjVezqWiKFJF/l8VLO' +
+'BMLrwWB7145Xp0bYsReaCeqGK4nID7FXygiMvEKHnpCV7QQo1a+Zrg/rzP35fxjAOfPxXVuZPVMssDsvXb/fYNzM0=RVFkeK' +
+'mnCWBS8o0MOus5An1jW4915HaSbT4Xk7zaqGr=q5z7EWh9r98HJHeyKkGjNXpj965aPfF98P5ThBbcRL7awmOM8HPyirCS//' +
+'BuJzlcQlpVvG6O7RQRA5HTMOx/8bkXPdOWK+mKgHsVRJOasWs5rYb5EmhRa5=wInntOUFdR45S+m8h/ry2C8rHRRLlOwXXx6' +
+'/IK4X6bf7=54QJzC1cAVhfu63aF2pSBH4V/eR+OaMJTNuLOdmOM0gEeaCes3nFo5L5HC5VaI4J0A+N0/V5SH8Z+70mQfi2R/' +
+'MZlcvYSvLWy6CXKJ01dfQTS/6lCCIqAVhfu63aF2pSBH4V/eR+OaMJTNuLOdmOM0gEeaCes3nFo5L5HC5VaIa454BR0OV57B' +
+'H7+qIs9gzAL=cMlOHcN=yRm2HQN4HAueUrPv2z8SVqK1Fdx7CTDFIZ=4oVPuJiM8DQSuFNONm6d4ccf76joGoLkY8JGW2Or9' +
+'K35WbnO1WlRDcV865k97V++8j1LKaA46m7x6eLN8=yxukkHeBhLv0WU/k7YUV40=c7+H7LMf+6JJ1JSNeWAJ3Md4TWf4Knnn' +
+'gloIvM3CUnTGeYzA6N0/WfUY1q/qIw=/GKM/wblcvaN=zdrJbQMsg2deckUvu07vZXOE+VyLC4MWRaA44qPe68ObYXSJRW/+' +
+'GOdlDIk2VhXYUDnJb9IkBRoMm4/gJO0/V57BIum0bB3pVeS5ryL7aAU=XdzZbe1F3aVoz8S+B0NDZk/VRlvJuQNV1o=n4V/e' +
+'JQKrAdUudS=tObaHkXg6ujjXYFoInK+X6ert/3HzynJE/SRIll16suOwC6EPAIhhHgQf7NgV2DI4uh6UVzqjPQcpSxqa0B2h' +
+'0mlHDBQOlenQk5ltC5kULf/E4n2Jq1nx0wCcWo9P5UDCMVeoS4/gJO0/V5XBX8l0Y1NviHM=j1LKaA4ALW0rbVMXQ5wugRO/' +
+'2vNjdbSxpV0KGROGJWu0=JPe68ObYXSMKLRdKVelsViJunZWC/Xo87E2Fct7b9NW74KCKhQHxl96wmLbNA8unO90tHiGEpKv' +
+'l0diRFGwWDWEv9k4THZA0AEx43l7bBPOldnD217GXjAZtl6HdzEIKxIDWySh8USCfEICpRtcL9N4iyJECTC0tS7ZAdQgCeOP' +
+'QQmxL+RPHU0qrSMXX9beUVONBwNx1kT1VkvYKgJFFl+HfR+Lgm01nzQOeYOuGSdnODg6m3nGg9r6H9FEVatcbCJEv2JE/jSH' +
+'gftqMqMv/jL/sMUt4gQQba0qbVEb00tJ/SQul2KDhbSzV1gWzp1=g7+H7LQ=ZIKrwOBuicONC4aHLIQ2yWekG4XZLFFGFSqM' +
+'v0Jzek7QJPV5Ih86we/fWCQOcbiB=FP=Pch2GEAICxb/kgPeBmKCIbPR5QfmJOO3dh9HfJ+/ZGO7YcQ/S0H6ZJKEKgOm7qq3' +
+'k9oYbFFWAOaI4J0A+N0EWVC49j76AsOvuCD/EbjAzl=8DXzJLGO80=u8UVTeRvLOQz/VJRxL/T=fs8mBHROvFRBq1yCOWfOt' +
+'COeojLOQ0HCp/4C+BpMd3vDOFfftY8l6g=m0nBOF00M8p3+eQZhADFN=3WhVOf9rXOeaSClUzAk4zGiLzrJP1=RM7pX9ODC/' +
+'9W63gRSOiTT+KbVX8GgVdXeTP6eU3=8G5qYYj4LXvtO1GhKF0crGjnM8p+/K=TRuCnBtCdfrXVOLj6hHC95oRtMvIdOllVhr' +
+'GX9VtW=owEMuJL98AQSem4QNGccI=Ifp/dnoc8Z1=VJ3r90j9a5+Y2lG5AYeq1WvyIim0Pn0XH92/XUQnvfFzJNbU0m+UfPq' +
+'cg5TIpV8zCJP1=RB8BSupknDXpgy64rz1K/ZiSdYwMjqGni347pki61CQOasb9NW74KF75J0PTt28k9cFA8vQIkyDcAsDlzK' +
+'bI94PIfbPiArYNzM1z6fZtZUabNyxWAX4RQ=AGJrEMBqSTRL7MansTjqGZhnLNpJH9+n6NotH4LmNm9xzYTFpU7ZIoRfG5F/' +
+'wdjBHcGQLSvaXMMrG6hHC96oVmNCIZTVVfxmzPJlFW=50IM9ZGO7YcQ8icONCdcHTRQqKnnngmnIr94CyVrdP4N3roEUWSSj' +
+'TR96suOwC6MtcsT94y56q7x6eLO90AsuLYAeFyICdEOllVgWyPACsRsY4RM/J/LrsNQqRK=ZNJf58Tf6ubZX4FsYbLFWB7qM' +
+'D67CWlABlPAY5f8qIeOvq6Mr=HSMOXSxnhw6CJ880/w+0mPu+JBv0W/ikteG7jMVJW9XHRMOE78n1j74x05NaPM4wVe6/ppn' +
+'PFfIDLGWtaaI41MWbnO1WeTVpU=qYnP7yR8vQIkyDcDZ28Z0rMKXw3v+UVKeyuJC=f/V+cx7/TCWBS8lXIOfIA8of26Ht0Ot' +
+'WKf2c0Y2qsnocFpIv/AHFfq5WxgaWu680Ms9eBOQ6DokV1nAG5qn5npBJC3QIglAyhA6SCi6t8MjRXRxyjzLWaKCtNsXwSO/' +
+'xK=3AvI8SuC73FKUOfeGpXZGsJnIDmEWlRao/K8meBAxuiU4pfyFjYDg/EL/vHlhHwQwWuumPGMr==v73VH8BCAfQmNR5ulK' +
+'6s6Rla/Y8MQ/J9E7YLRZ1MF6yLRUGSiazWq0K4Z2nKIG2aY+DCOGGpADhRQngd+a8y9MKaDMDXVwmZEMzTmFOOLLHGtvgXPc' +
+'RE7eYyBE5ulGuhN2+fzTGF+Lgm01XyS/JYPt7WbDPYg2qioogKnIT9Iypfq9zFDG7oNkWpRH1E9q5qNbR3SPUl90tHkWEjK8' +
+'10fHSizUV6qjwRQJW5qanADR0o697js5bcSa9DK89JPbBLRNJVK0ghiasFz+ZjX=5WgY09+D5LkIUUfr0nA0sc96suOwC6Mt' +
+'wQhgii+LCZfFzMMco6wekWIs9r5O0YBRxlhGzUJFpk9DSDQ=+NKnjIFrJaC6ZkFB/tl0l=uhGiqJ3FFXJRrdHB8WboKxRRQH' +
+'xU871sNvCeOPQQmxL+RPHU0qrSMXX9beUVONBwNzlaIlpmwbCTCWBS8o0MOusB=Enz74yQTNuMf48ShFzbr3Y7s5bGHlFaiM' +
+'vEKHnp81KiKF0drqMrH/W4NanHiRDJN=7ch2He1F3atunaQfBkHiZoRFNjvb6O7RQRA5HTMOx/8bMbJ8ZT/66mRDXFj6qZon' +
+'sAqYL81ixSZY4COHXpMkJXRYx=96Aj/ry2C8rHRRLlOwXXx6/IK4Xxc6nSTfRwJCMcAVJjqq3cLhcRsEWg87+NM7ENQNuYPN' +
+'FLMDYeJ0Z/RnD9s14EKUJeoMDCKGSy6ylPWoX/lDXBOvJ9QwcXiAzd=wzgvZLPF8=yxukkB+JlNypXS1VRuqiT8yBh/4ocMP' +
+'9GLrDKB6tK/KpmK0gYhJCao34FoIG61CISY+HHM3rzKQSbTnxS+p1kMwW6PKwOiBHNNALav6PPKHvzve=TUuBy8SpoOl+kwa' +
+'uc6Rcas0ngCK17OrsMQ+iTRdKNKT7DkTl=Rh3hpIO=HGtPoMnfL3b9KF6dRn5l4J5qOv33OvLPRR4jNAnWzF/JNbU0we0hR6' +
+'1p7/Rx6fY6YUV4MGd4=XoGQ/ZHM30l=u6ZOt7VW4HEk6Gna3w9s4P5ImVNocn07zf0M13oRIsf8K9ZMPC+OevJT+iE4Jm7Z0' +
+'rMKXwExvQXRNEoLD19S12TzKWdMRxa90GDCLoV6X9dSNaPPdaXbHnFOrixXYkQr5LGFiRZuKPAIGj4LEudDXcS+6Hh9clRC7' +
+'4JmAvbO=bayJbH6XQMyaQmUvulLioeRmV3yq3RO2dg/TbVLOtD8n0lG79K/eKXb4sJg6qaoTbAX6=9JHFerY43NGnjJV7eVo' +
+'xW/FsdSfG4Q=IMTtTdRPHU0qrSMaQyu+keSLByMSMoAUgXe6KgJFFl+HfRIOtiM8MRUueG=plJZ020sx43Cc+o9v9mgYP99T' +
+'5Lk85UeA1=nOmmWvGIjF4WnAC5pn52p15BFI2K8I74dr7=54QJz91fPxRWy4Wz6zsus4TSLu6EFbkJV+ecBdSOf3wEiJWWn3' +
+'D9Z1=HHG2lpN/9KGmm8AVPUX5l=79m9fSJMu0JlQzuRfXjiJbbKLcFweja=NFyICdqQlteqK3cKFpk1IsVOv9AIXPLQOSLOu' +
+'GSdnP5hHWjs34LoHm/4CyIZz5hkIBkl6o=lDnBRx22okMlgF+q92KXp1lC3AIdlA+i2EV6qjPRQZWC/c3yJPI/dM/A70/MBq' +
+'QB=Enz64t05Hp0EB7tI6WbZYkQr5LGFiRZs5vFLnfwKxqTQI1SuJMqMv/IN/0VlfjkT+bjv6TXLLL/e+0WNqQg==Dz/R6lxq' +
+'CTKVdf9HzF+K2KKsEdTNAKQ/KNZngVhaOooobFoJX9E3FgpIW2JXflJlCYTncB76sdPg/aPPAWlMXT/bPXzJLGO80=u9kgIu' +
+'l2KDhbNRMceJhVl6ERX7u0fF7a6i2lrzg8WZ56xudk6v1F7+VHX=5PgY49+j5JkIQVSr0ks9aBQx6H9m4YnAW41495pBNBFA' +
+'IblA6hBERkNaIp/esfE/k7YUV40FdXu50cP/JHK3UVTqBhRu/Vb0PHe7CWa3sJnIDLGWtasrj8OEv2JE/jSHgfuJYcLrqHM=' +
+'IbjAveRbmRm36g64YFu+gXP+RuJCgYAhyivbCjNVwR+54HKu+KMLQbQ/RYPOWOaosXf2Rco4c5npHAH2p9oMv0L4jJNV7eUT' +
+'ENsVAeQ/34QvcWkPLlH=7nx7XII4r9bd/Zqi5gk2bGic3yeR0rl7PCDTm0i17Zlg35jULa/E4h2Je00Q0wCpNpwv5MgLn9+D' +
+'9e5+cHlGQ=k/qzW8/Ij20Mn0i44X5pMsealViM=lCbVoz85ogKz90=5lhVzGzUNV+UA4HSOcF6Ob4IG6KXS6ugdogPfmqZno' +
+'k5aYPJEW+gqMz9MlCxPCKhQHxl96wm=/W5K8j1LKaA46ndw7WDKcYyrMcXTf+pLStp/SkQxbycOl1j/4zRM/6MJnsOTNONT+' +
+'aYdYk/h7W8r3Y7s5bGHipVp8q9Mmr4O1WdRowsm0bB3pVe35fxL7aAP=aZwKPEJsg6uNH3Ov+h8ThvSVEQlXlr6yBm/X0IMe' +
+'ZGKrDKB6KcPOGeeXODgrGZmGcJqpTKFX5apNX0Inr4KARWRYtS7aEhPOqlL/wMkyD9RQLgzFn=7nc3v+UVTeRvLRlkIlpmwb' +
+'CTIyUds3SKnCDpgR6przM7ik4k29u01A0tCcn4C+ZpMdzmDBlgTdcLl6I=nOmpW8yIjm0M826k92KXp1lBFAIblNqhAlRiqj' +
+'bQe6StqaTB2R0sl7DBP/lgnDt17GXjAZtl6HdzEB7tJ0Z/Rh3hpIO=JHVcpMz173v2JE/CRI1l96sfQNeBR9QZhADrP=/fiK' +
+'PEMb7/weLFTf2pLSseAkkZeG2rAB5TAHbHMONBM7IM=JtKUnp0EB7tI0Weoz0+rY87JGVbraHwN3ayO2WfRDkuy20aMP7+O/' +
+'LJT94y56q7Z0qt0F06s6wmUvulLioeP26Ru5/TO3Ja/X=WJupRC89JPeaTRttXeXcRgVqpqFgLrYbFFyQVnIv4LXvtO1G3QH' +
+'cY/VXYDslR8rAckQHcOPnfw6WF8HQCsvgnS+kgK0laNE6ix7OhKGAf9IDILvJMKnTPQOSLOuGSdnP0e6qaqYgdrZ=GIiRIZo' +
+'D1MWbnO1WeTW5f16suOwC6KrTTRwmepz5BDAMm6CREGjJDW1zCkEfGlLzgtGNX=hUayhWu2IYi0lYlQ+6dPJ3SbT4JiJ3YsX' +
+'4GqWH5JG1at+b/JCWAAAyRRngnrFXYSIlf25bxL7aAP=aZy7rqNbU0we0hR6luICEb/SkteG9/Ys7PX7R0ZF3/leW5iZRT//' +
+'h3ER7tI0V/Rh4AoUXLKXyRrsO3JXflJj/UV51a+JQrKOmNEPAIhhHgQf6fzJLRLnHEuMcmS+RuJewfNhpZxrKXO2NB/nTMLu' +
+'IB6YnlG6JMTNuNbHwMhJGZXz34rYLLJX6aY9XDJ2SmNUumUn5juJIwNv/JQvLPSgPpN=Plx6CRF8U/su=lHv2yLjYeNRMTvr' +
+'7PJmJa/nb5OcZGO7YcQ95RB63FLuZA6vIGvzWo8=5VgY4+wj9Sk8UUd0hWCEPYt3fF35Ve25bxLBqE4Jm7Z0qtQFCbVoz85v' +
+'gNzM0=5fU+YkV40=da9TDTLP+LKpYWUqqQSs/KdXCMOnlyXUXHZE4JFXBhscuvK4roIk7hToAk878mNwS6LfMbi9WeOQLSva' +
+'XMMrHhruHXRf6FMTZlSxRMf2/UNV+UA4HSOdJGDrseR/aPN6RVK3GK6t9GxCWo+P5M1NzoDBxfddY5lG9=lDnBQx66okclhl' +
+'+29CVHj3I0K82DlAJiz1RvqjnQcZSmqn8ACh0plH1NtjGe9qYT1lby64t0QNNRf58Tf6ubZXHHaZTGImhQbcHwN3ayKV7QQo' +
+'1a+ZsrKOmNEPAIhhHgQf6fx6XA8HPyirCS//BuJzlcQlpVvG6X63k/mRGt2IYiK89JPeaTRturaooMhZpVejULrZL97wk3SG' +
+'aYzA70NVCoU45puJIuNvqIPawKhAnjJPXeyaXI88cCxvQmAa2mMSVZTVVfxpGcDFxn+I0I8ak5KbIXJdejAJlJdI8qiJ3YsX' +
+'4GqUvAFCgMpdDYBzFkKV/+SHxcum1eQN72OOjQXaqB46m7Z76x0VzaVvC=54QJP9DA5mk+Yrl80VthvX4ZMOtMNGsJQuZS/d' +
+'ObaHkXg6ujknLhqZPAJGEOb541MWbnO1WeTW5f16suOwC6+8j1LKqBOQXfvaXMMrGxs/YTOLyjIilmTVVfxoKPLFpW90DJPe' +
+'68E75VQ65KQOCrankIirCarzC4r5n5KWFejcbyKiFkN1iQWH5j14Dk9g76L=EWkMaXTZ28Z6rJ89gJvekhP6NmMSVZJ12dvW' +
+'VO6Csus0sYOeF+K7YWQ+ZM/6NPK5ociqGkoz0Arm87E2Fct9LA7CWlABlPAY5f8qIeOvq6Mr=HSMOXSxnhw6CJ89Q9rv0XS8' +
+'lpIi8f/R1tlWyQOFxV9H8MOeJ9630OAJKeUO3OdnvLiqiWtnoJhGGA1C1pfI3xNGOoKEKYTX5VrF0e+7zIR=5MkgOfRPXSzZ' +
+'CR8HPyirCS//BuJzlcQlpVvG6X63k/mRGtNOMAK89JPeaTRturaooMhZpeXXsJnIDLGWtagMDCKGSy6yl5RXpd/ZHz4pZe2/' +
+'cNTxPpN=PBv6/IM4zxrN=hSNBGMSVZJlFezWRX=fs8mBGx2YYiLrLQ=+udGNCMbIYXf76eXXLGs6bZAEUapN=ALnes6b0BsJ' +
+'PRWvqIhr1mTF6j92xHhmEsKvmDlANizlRqqjjRTpW5qngQlK6s6Rlh/4ocMP+nLrATBZRmBt+nK03feGpXZHUDnJb9IkVxao' +
+'/K8meB8ApRD0kkvn0o=bzIPPMMT+iE4Jm7w63WKHQ/uOgrGtuJ8SloS1tigG9/Vc/9s/lgnDI5lt75m1LoqCE6wuZbOx0nCp' +
+'apvf9bgLv9+D9RkIFkl66PH4svrFgeQ/34GO9Ui9iZEs/TmF+F94PDfbPiBau0MTlbAic+YkV4MV1lBFo0FKtPJs9WR+BRA/' +
+'/OaIkShFhVbDTHb1m4Fm2YssK4/gJO0Fl97YX/lJoo=/GKM/wblcvYOwSZfJfVJLcSrNcXSf+pLiI9OlVcvaBQ9y6X=XoGDO' +
+'B8Ks1cR+FYHd7Sd4sHQ3dCRxGiSCf+JWpPt9b+LSX9MlGxUX5996AjNvCbPO0UaR=YNgTayZ+LKcYyrLHTRuAs5z9fOEdVyo' +
+'qXJlkds4PMLuh+N5YtB6Kl6HdzcHvLjrWlonP+Z5PJEW+7oMr07CWlABlPAY5f8qIeOvq6Mr=HSMOXSxnhw6CJ8886rN8XS8' +
+'lpIi8f/R1tlWyQOFxV9H8MOeJ9630OAJKeUO3OdnvLgZWYpGoJhGGA1C1pfI3xNGOoKEKYTX5VrFXYSIlf25cQiMXdRPHU0q' +
+'rSMZU0we0hR6QgJTZXOFBZx6qwJmJa/naDCK2/JrkbQ7145XZzcHvLgrGZmGcJqpTKFX5VY9XDJ2SmNUumUn5juJIwNv/JQv' +
+'LPSgPpN=Plx6CRCLHyr+=XLNpyKh5lR1FjgGVp7hcsnBKt2OZ/8bMaP+W7ONuOd07DeZikrGoerY87=WFatIW4/gJO0/WdTo' +
+'1qz51B==/JLeEMlhCf+WEDK8yDlAyiz1RsqjbRTZW+qaHAEh46697pX9/DC/9W63gOTNONJd7WbDCFVmuXezC4C+ZpMdzmDB' +
+'lgTdcLl6U=mjkt7Gra/Oe+LekMlOvgNfucfG2SJYGxdb=UF61rKi1ZQEFioYBZ6Sog8UaM8ak5+H0YDq5KT//ebD7eJ0Z/Rn' +
+'HHaYT5HWEatMa9LGr3Nk3WRIwf/ZUnRMm+MwEQnQLbJfjSzJWL6cHHyERKqw0QeZSxqnrB3A0jl7vBR/lY8F3QlgPIWOuo/Z' +
+'iPeXcGZJ3iojC4XZvKLtz/DB6gQCZUf84xs9OBQg6GoxQlh26iRt/iPfnUxZbVEb00tJ7U/aMi7i9fOEdVyoWz8hAasTSDAK' +
+'k5K75UTddW//GbfHrPOnRlbUTAdiqivXk6SdqczWK09UGlRHcl/VsZNfB98PcWm/8pO+vavZzIK6oCuND5S+yjNz1lRx5ceL' +
+'WdOD+j9FPMLuh+KZMaSd+xSd7Mf48ShFVwSh7lRYPMHm+gqMz9547zOC3hRFQa7Zg/Q/uBEPAIhhHgQf6ZwKPEJpHyuuje/e' +
+'ZpIi9EQl+bhGzZLFFc2FzM8=gm01YRQJqeUO3OdnvLfK7WnEL5qIKA1C1pfI3xNGOoKEKYTX5VrF0e+7zIR=5MkgOfPfnUxX' +
+'/MJr76baTvFqtiNCIaPlJZxqGS6R5XtTkXRP2+MKLQRduNQrauMDXEV3lVX4oFo5L+GWpRp5/454BR0OV5SH8Z9rIcLO7GOf' +
+'UaiB/g+wjmwpCFNbLHvNkkB+B4JCdrTVEYf6KgJFFl+HfREOt6J7kNMdFcQseYdXsWQmVwYC3SSCehvWVSa9PAIGjUJEqUT0' +
+'HR7ZknQOGbPO9KcALlS8ialT6u0F06s6wYS+yjNz1lRz2TzKWdMRcR9YsELvFBMKsqPeaTRttJRDYJe6iook/lRSahHmtguK' +
+'8fCCO3OE/SRIxktm/IYF4g826f9C+HjWEsK8A1SyRIGj+CkawQe6St/ShSlm6ZKWBS8lbEOOID64jXPKAW/E4h29m1mx0zCc' +
+'+o713TEjoOasj4ImCSLE/aCjstuZ829bRQLLvJTgjgNfv7omyFA4Lzi6zg/6cg9fQmCRgQzL7jKBcsnBKt2OpI97QJS+dYTN' +
+'ZXdHsWiZ3coofFroXGJ0lVp+D4OWroFkSQUX0ZrKsvTF0tnA/43X5ypB9C4gIYlAFhAlRn/lv4k4sWV2VuemeUNV+U3XoQMK' +
+'k568sbWUL9qPhJ2961mA0vCcBpyf9fgLT9+z5G5zevLkWSSlca7Zfj97y98KkSjADiH+ScfFqF94PFeaQYOudzJ/=WTW6lvW' +
+'hO=z5hw0Ge3IciQlnzW491RO2XbIwIhKCoa3Y8o1W6KWthgN=0Cm7nLiKhTnY4/J5bRfWDOK=TRybmS+Hjw4zMJr8Xv+LfH/' +
+'2hIjhfREoZk0l51=hXAHbGQ/ZHM31OTNONT+aYdWkIjp7Wq3/=oZDh+CgMpdDdKGjv9xzVUmtS+Jfk9fq6QdAIkQij+w7W0Y' +
+'PEMb8ltvgePqQgOcDA5lVWgKSjK11T=XfaPuJK6XLO=vajS+KYbT4JiXW6ZjT5eFq41nFap9L1KGOpKx6PBT8R=rYoNvu7+v' +
+'QacQbaPbmRf36g64YFu+gXP+RuJCgY/RIWeLCnN2Ng9TDJPt+6M7fR=qNnFJ2LfHPHf6Keq3o8XU3+2iyguN40LmusMUGmMX' +
+'pf9VXY9slR8rAckQHcOPnfw6WF64n3bfgrSeBvJOxkPmNCuaqZG2dl/43M875VAn0KU+BOPNOSdXsHOFVVtAGiRCbDFXAMrN' +
+'bVMWbnO1WeTTkurrg14pZe2/cNTyHwRwXgwFnPMrcyudQeOvRlMOIdPmBGub7XJFBd9DCFP/l6PrIaCNuO/ZZSK0bgV2yXsn' +
+'L8oIPAHmFQYY316SX4PFzUTn8Z+qwbMvilOv9giB/lOfXlsJLVLLUzueja//usID1bSxpWyq3RO2dg/TrM+K16AonI=OeYP+' +
+'KPcHPIfm6eXY/lRSahvWVSa9n+ImbwF1iQWH5juJQdReK2POcIhQnc=sLhyqLcKMX/s/YTOO+pLiHYAhUQ00l50=c7mHXcEf' +
+'+6JLERSdAKFJ3VdnkEhpzhno49rUv/FXBCoN=4IGfwKARRU4USA6Iq=/KGL/EbjAzl+Lmsa0ut0FzatunaTfRwJCMcAVlpnr' +
+'7PJmJa/naRNOEB6YnlG6JMTNuNbHwMhJGZXzUTu14LKXyRrsO3LH7KNU3SV4Ig+FsmMvm6+74kY+qX+QXfwqbJLLH2saXSVf' +
+'cgN01mPltWgKmnCWBS8o0MOusGN75WRZtKFKpmK0gYhJCao34FoIG63SyepNHDMWNkL2GTPntj+aQrNw6CM=YMhhLrO8iYwK' +
+'PEJsg6uNHCOullL0d8S26fymSK7hFX=XoGQ/ZHM6ANUtSLRdiFLjGDdmQF1eVOC+poZdzpDBNffNY8l6FPsJnBOx21okAliV' +
+'6ZR450p1ZBDxIhlNWizEV2qjrQfJS0NRMZk2NX=fs8mBGt2OZ/8bMbJ8ZKFKpJd4TGe6iFqXYQoJ/FF2Fglc8AKGbmM1FXAY' +
+'ld77YdQ7q+Mr=QT94pOATmzJ+DL9k1qNYkROJzJDYkPmRVu7GiKBYY9YsELvFBMKs5P+BPR/CveYgSiFSRYCg+rY87JGVbrb' +
+'D0N2flMUeLBjTR6mSIYF4g826k92KXp11BFQIZlAmizERn/lv4k4vGlczlJPo/f9/0XJSDnQ4pdi2lrzVKqP96vOZU6vGRYC' +
+'3SYkaSwQY2SGaY0A+N0/V5SH8Z=rYoNvu7+vsXURTmRPzViJXEO8T/s/YTOO+pLiIpMElpnr7PJmJa/naRNOF28n0lG79K/e' +
+'KXb4sJg6qaoTbAX6=9JHFerY43NGnjJV7eVoxW/FsdSfG4Q=IMTtTdRPHU0qrSMaQyu+keSLByMSMoAUgXe6KgJFFl+HfRHu' +
+'JMF75WRc5RB63FLuZGOx0HCcWpvE6obdzhDO/vk8UVR80fs9vBOm3Iim0Ln0q42H50p1ZBFAIblNKxGwSCilv9k4fGl8zitG' +
+'NX=hUayhWu2IYi0rYOBvajS+KYbT4QimqsqHcDo1v8EXBNbcPAIGj4LEudUmQeA4MqMv/IN/0VUQbbM87kw7XXLLH4vJzSFr' +
+'g95vZrR1BVvqWcKFITuDkVMPFNN7rIRveONt/bdo0Wf76joo09npLLFSQTpd=wInntMkq=QHcW+rA+Q=7DPKYDScDdRPHU0q' +
+'rSMac2wdYTR+Zc6e=WNRPA+21/Vc7hXJnDnDrpey6r=1LpqP56u/ZV6vyVCc2o8v5TgLH9/T5Dk8MUf84/A/qyWv3Ij20Hn0' +
+'y41Pme=9uYh3yx0VzaVoz=54QJz91iPmAQvr7PJmJa/nboLPF66YnIS/JYTtybd4nRfq3pnjL+rY87JGVbrdDqLH7KNU3SV4' +
+'Ig+FshNelP35fxL7aAQwXlfqfVJLcksvgmQulnMeQz/VlghrOdNVpVvX0EQ/5GK89JPeaTRtucYnLcXK7WnHkAqouFGWBJbd' +
+'D0N4ntMUOiGhX8l0XB3plf25bxLAbd=wbjv6TXLLL/keUmOql0ODRb/SktlWyQOFxV9H8MOeJ963XITNeeTO/XK44YfpuXr3' +
+'POroLJ4mFkpMDDN3qs7kKhQHxl96wmIf3CM/oaaB=pQgKZumiGKcYyrOgbRNlTJDhIOlpbtGNa61oYX8y0i17Zlg35jULlqC' +
+'M6xOZb6vFVCpWo7=5UgL=98D5Kk82kl6o=lDnBQx21okUmUV6f926HjmEpKvl0fCVRGjJCiEvwk4GGl0gXgXdV8Ck/mRGt2I' +
+'Ym01Xy64uTPZWdgIYIhZJdo4c5nnD9JHBVrcTBGmK9CV7QQo1a+ZrmQ/3CNawbkfDrRPnfwVmMIHzxbrCv/a21LShbP1Veva' +
+'BQ8B6snBKt2IYi0rYOBuicONCdcHTRXq3pnjLLtJ491DkpY5=yMW7xKA6YA5P/lDXB3pVe2/cNTyHwRwXgwFnJNbU0nNkmTe' +
+'RuJjdRRmV3yq3RO2dg/TbVLOtD98EXLeacQNuQM08ARK7Wq3=Kgo8FF39VY6qL=CWmOEqTRH9a+JIc97V1POMbmB=l+wjmwp' +
+'CFNbLHvNkkB+B4JCdrTVEYf6KgJFFl+HfRH/6GKrkbI/ScRu+RZ0zGfK7WnHkAqovrFXB/oMv6Hzyw60hWs7aBPA679m0In0' +
+'y5pH96pBRBFgITI4r6hJrbEHgKz90=5fVtvaihKB6a9TDJPe68ObYXSLaLT+6Xf58Tf2yyejT6oozN1iUMumqZzA6N0/V5SH' +
+'8Z+7Y/Q/34QvcWkMvlN=3Wfn6g64ah6URQqhbQW6ScqYTAA26X63k/mRGt2IYi0lYRQJqeUO3OdnvLfK7WnFg9s6HAHmNfms' +
+'rHBXflJlCYTnbf/J5mOKqIOdEblQblObiau2/VJLH8vMQhReRjJ/0WFikteG7jMVJW9XHRMOE78n1aQ/afSdtJc5sHdZ7nqH' +
+'wKoJ/FFXRRotLCJC2rKV7QQo1a+ZsIMvq6OwEtlR=mRLjNgVTJNbU0we0hR96lNyZXR1dMf2hOIyXBKOlYnQ95lgG5mUPsqP' +
+'A7iuZi6vzRYC3SYkaSwQY2SGaYzA7A1/Z57BH7l7nF35Ve25ckM7eA46m7a0ut0FzatunaSeyyMil=R2AYvr/AJFxcuDjgCK' +
+'1J+XXITNeeTO/XK44YfpuXr3POroLJ4mFkpMDDN3qs7kKhQHxl96wmIf3CM/oaaB=pQgKZumiGKcYyrOgbRNlTJDhIOlpbtG' +
+'Na61oYX7u1Vq4pgy2d=1LmqCw6veZY689F8jWo9=5OgLj99T5Lk85VRb48A/qyWv3Ij20H826l9C+HkGEvKvR0dCVTGjmCkU' +
+'zOHvsfEAMZk0l50=c7mHHJ+=FRNbIXQJqXS6ugdogPfmqZnok5aYPJEW+gqMz9MlCxPCKhQHxl96wm=/W5K7bHR+q0+sLmyJ' +
+'XIKb0/sufUAqu7094=5fU6YaKgJFFl+HfRDOBMLrwW=r9KT//ebECxIDV/Rh3hr6=LKXyRu5v0NWryO2+dQnpd+p9dPvuIM7' +
+'YKlRbnSsiTwKPEJsg6uNHFPv+SICIh/xgQvKGdDlNquDSDOPZfN75LUuuZRZuSb0GDfK//gTC4oZDmGW+Xb549JHzWJEqaD0' +
+'lf87QKMvq=IvcbkxKgDZ28Z0qt0MCeV4z85vgNzM0=Vfk7Ybl80Ws/mXXT/eJOKrscTZBLP+FRKXwVe6/ppnPFjoLLAm2aqo' +
+'/753v2JE/jSHgf3ZIsI/3CNabiM7eE4PbmyJTXLLL/bf0hTsyyJAdeOlpXvaCAJFxc1YsELvFBMKrQQOSLOruKdHrPOq/dnn' +
+'L/oJ=mGW+Xb54yK3byKkGhKF0drqsdRN72OOjTRxvcSeLSyJz4LMg9sqzSUHgKzC1cAWBpyKGdKRZX=XoGGe6FKnXI=79n/6' +
+'/edXoIfJWjonj6X1O+1HBls9L+JS3nL13dRn5j2JYbOKV188rkRt=sQPTWwJrRKLfzbanY/f+5MzllPxRTwK3cKlNj2FzM87' +
+'5VAn0KU+BOPNOSdXsHOFybYzULtJ49H2IUrcLFEWbyLgVPAEXurm9tP/C6MOcViAGZ+saXfrXcN8k=s6wgPvJSICIhLVVkxK' +
+'FX6y9uzDjFQOt9KrMRSNeO/ZZJghKuI0Weoz0+rY87JGVbra8yN37zMQVPRYtS7aEhPOqWLfIQkguXE8DXv63WKI7eV4z8Qu' +
+'EoK0laNE6ix7OhKGAas4DYM+x7N7wfTdecBdKhbHkYjqFdYGsJnIDLGWtahMvwIWGpGkuhSmMg+JIr/bVP9abiM7eA4=nXhq' +
+'fVJLchruHXRaQgIiAlSEF3yq3REFNfADCMBooj0lX26Ht0RdydgFc0Y2qosng7oJDK3C890j5/kI2kl6o=nemjW8iIir1mT2' +
+'6X92tHhbFBCFGfJYGzdNokOu6OICEbAA5sh66s=R5t8UaF+ut+OJ9JSN2/QOGVbDCFVmuXezT=e5/V1idapNThIGOv8g6rDn' +
+'svt2ra=byH=s4XUt4rRQXWh3yx0Vzau+LmUsyQC/IfR1JfgG9/X97oX9V0gV3VlgW5lZM8WE4Z29N0yVyxn0K6ZoD=EWpTpN' +
+'=dKGjv8g6rDnsvrmT0M8p3+eEPhAveOAL7omyFA4Lzi6zg/6cg9fQmCRgQvq3aNlMayhWu2IYm01XyS/JYPt7WbDPYg2qioo' +
+'gKnIT9Iypfq9zFDG7oNkWpRH1E9q5qNbR3SPUl90tHkWEjK810fHSizlRiqjjQceTGixyu0bpQ8lRj8HwyLOp+9X0KWOWoqB' +
+'56u/Zg6v+VCc2o8v5TgLH9/T9gk8Jkl6o=k0kTtZsdRN72OOk8jBHjO8uTfmmF8rH2wMYTR+Yr5O10R2rA8R0ll7rBQOlgnD' +
+'XpfHbI=J2NQ+7XbnsVZJWYpC/6X1W632+UoMv2JHfNCxdRCDsdrnHk9fK2OwEMUt4rRQXWimGb+5PAdr7=54R9095z6fZdyG' +
+'qTOVNfA5vRLOF98X9hSeesSdKtc4cRfZGZj3YFpmPJEW+gqMz95SFkPEukIItWzZUZP/O6MuAIkQj+RPHU0qrSMXzLWo3=5+' +
+'F1LSdqQlteeLWdOD+j9FwLLOt=Kq9JSN2xSd7Mf48ShFSbr3Y7iY8EFSgMosXwLWzpEUWSSjTR7ZUZP/O6F9HTRxvcSeLSyJ' +
+'yP68H2wMYTR+ZUKDhiPhUQ00l50FdXu50cP/JHK3UOTNONJd7WbD7DO3lyXTcMqYH9FmVapMGx5zuq62CoU45g8FUbOf3CMe' +
+'M2jADi=8CSm36D6ck/sekYQullJvYW=xIQzLWeKF1Xu4wLLOt=KpYtB6JLFKpJKYsRfqGbpnL9o1/42iIMt+b/JGSq81qUVm' +
+'tS+Jfh9b2RC74JmAvbO=bayJbH6XP3c6QmUvulLioeR1Fnqq3cLkJaA4TI+K16AonI=OeYP+KPcHPIfm6eXY/lRSahGWIUq+' +
+'LzHmf2MlOiRIsarqUtNeu3PO0elgLpAPXpw6TYO8j5cNokOu60KCMkHlpRuqiTGl1j+mLSOeJL8XXjAZtl6HdzEH8JQqKnnn' +
+'gonIv9HCUMosn+MmrKNU3SLH5f=2ThCIlf25cQiMXdRPHU0qrSMZU0we0hR6QgJTZXOFBZx6qwJmJa/naDCK2/JrkbQ7145X' +
+'ZzdXTXk43FhjLKsID7FX+fa5BfY+Y0l6o=kjnBPx2zoxt1Cv=lRMjaPwHfwZbyLLc8dJXuBN1+5vwyOyoSg6/WJFxY9FHo+q' +
+'9U9K8mB6M7kE4g29J0zA0yCqao+E6obdzcY6nx=SevMUGmMXpf9YEhRfi6+a=jUg/1+sitvG+F8rH2wMYTR+Yr5P=lOyoZhm' +
+'6a6zEhw1jP8=FKOrHRFX915HZ3ER7th7yjoGYEoEvMGSpZpNDBIGzpNgqiS4go26YcQOWOM/I7jx8pOsiT2Kjhl/FhBERkqw' +
+'bQe/THWczgJPo/dh8BPTkhRPs78KMaP+W5ONqON0XFlK/zCbWo7=5UgL9MDBZfdtY=l6I=nOqCWvnYokolfr4JTgvcSeLSyJ' +
+'z4LMg9sq7U/aMi7iIbTD6RxqdZ6Rdv/Yd0YF3Tltvi=qRVOtWKdX0IZJWYpC/6X1W632+UoMv2JE7I8g6YATTRw2jYN/3APe' +
+'LTRyHpS=WdfnmT+5P6hHC95vgNzTDD51lghqGkKFxl=jbEM/EA68YXU8OcPLCRaHPKf57Wq3=erY87JGVbrY/7547zOC3hRF' +
+'xZ76sfNu72OOkulQ8aSwngyFqe1F3eV+onR+60KCMk/VJiua/7KF+n9DCM8=gm01YRQJqSTNGIaYgSja/arz34tiqivQVYpN' +
+'GvLH7KNU3SV4Ig+F019geR35fxLAbd=xTqzqbSKXw9uNcTRdusID1bSxpXvbCEJGBa8HsPMKU7NbkJV+ecBdaNKT7MOm2yej' +
+'T6sIv8FWJVrcLz5SWq7QzjWIlW+ZLgPfu4L/o4kx8wOAKfwZbXGbUCtuUUReAo5TRiOmVVymqUNV+UA4HSOa9B8n0JG79K/e' +
+'KXb4sJg6qaoTbAX6ilvgU2SMb173GzJk3bM4USA6Iq=/O6QuQIlQbYNPzWhmPTM8UJsvXgP/2hIjhfREoSgWVOPfs8mBGt2O' +
+'pRC89JPeaTRttJRDYPhZ/WqWUDnJb9IipTpNHlIHftJE7bRDDT/qkZSvGG/OQZhADrP=/ffFqe1F3aVoz8QuEoN01mPltWgK' +
+'mnCWBS8o0MOusGLrDR=r9nFJ2LfHPHf6Keq3o8XU4TLCyguN40LmusMFW2UXpU=qYnP7qCL/sMT930E92RfKbRK8k3tuHXPa' +
+'1gP0=WTWVgvauU82tq1YsELvFBMKrWTNOYQpZJREKgOm7qq3k9oYbFFWAOaI4AJHn5NUpPS55V6Z9qPPOHM==ViBXcNgXlw2' +
+'mKKcYyrOgbRNlQICIbRW+2yr7dNRZNtjwJPe68EbIJUNeG=plJZ020qQ4AXeVUC+K4gLj9/j5Ek8tVRb0kA/mwWvuIiF0Mn0' +
+'u5pn96pByRKvA1RCRDGjSCl1v4k4vGic33JPU=UUoYuEOK+Lgm01Xy64uTPZWZaIgWf4WjsT0EtGPJEW+gqMz98XflMUdYA1' +
+'Xurn4o/rzGM=IclQuXPxXVuZPVMssDsvXgPvNlIjlqPhQXvr7PJmJa/nb0LOt+McAuTOSZSZWFLjkJiJ3YiXo5sYL02ygMn5' +
+'VfUdcP680ss94RWvmIjF0Kn0O5pX5s+3EwKvA0fiRIGjFDWUzCkE=Wqn4ABx0slHwRX9d1TF3Llg35mELiqCU6u/dq6vUGy2' +
+'C/ZFi/3Tc6SWaYzA7tKQSjWIlW+ZLgPwyCQe0ZkxGlOwHlv2/JNbU0we0hR/6bLD19S12TzKWdMRxa93WM875VAn0KU+BOPN' +
+'OSdXsHOFVVtAGiRCahvQVVpYXyLmOqLF7cJYtS7aEhPOqhM/9di931E8Ckh2He1F3aVoz85oRpJOwXP26Ru7CXMlxz8o0MOu' +
+'sB6c1aUvuaPOVXbIwIhKCoa3g5q5nqFWlbt9K3Inf9N2BXAX9j76AENv3KM7=TRxHcQdvW12qP68DJk/YTOO+pLiHkQlAZk0' +
+'l50=c7mBGtMf+6JLERSdBsOuGSdnODV2zpr4o9diqivQU2SGbLJGG3KFd97RH7l0XB3v/DOOQQlQr+RPHU0qrSMZ=2rvoXAJ' +
+'Y7094=5fU6YUWhKGJF+HXIOvJM8bMdSNWeQNyXM07DkVzYqGL+pJ=E+n6NotH4LmOQKE3lRDXexV11=byJ=s4XT+iE4Jm7Z0' +
+'qt0MY2wfkkR6uoNChVO26fz7/TNRxWB44GQPF+8XQOTNONT+aYdWYEhJGhrEoJrYzJ3FgTYsPAIGjQKE3lRGTYum1U+V0yn0' +
+'742X5zp1lC3QIY6CRFGw2Daqtn7ewpBl+fxqKXNVt4=XoGQ/ZHM5kNP/iPAJhQK/dk6v1F8C2o71aFDCMVeoS4/gJO0/V57B' +
+'Ium0bB3pVeS5ryL7aAU628Z0rg1F3ayoC9VogKLDQkPmJVxrCh9V+V90CFMf+6JIkNP/iP/ZlJbYgEeXianos9ZFilvgk3pd' +
+'L9InntMkpPRYtS7Y9ZP/eH+rbHnaqB4=nXhqnYK7Lzv+LpSNBy7/Rx6fY6YaiTOy6eBF8VLOBMLrwW=r9KUup3ER7tg6JdsY' +
+'4HoIz+3Ghbos87E3GlPEGhDXAW=pMZQ/W2LOoMTt=nQwHqw7ORLLfzdqzS/rg95vZrR1BVvqWcKFITs07J8=FRNbIXQJqWRt' +
+'CKd3YPe7WarzL/oJHuEX6VoM=7JC2mN1iQWH5juJMqMv/IN/0VRMag+sGum2GFOLH1suobR+Bk5O0WU/k7YUV4LFQZ/4fGLO' +
+'lpMb5hQ/RYPtKdXXcVg63XqXn=XZ4DEXVRsYv1MWbnO1WeTTsat21z4pZe25bxkBb+RPHU0qrSMXPNbe=hONysEzAXUlFihq' +
+'OTO1RS=XHELel+8X9YSuOjPO+XbYgEeaCeqGK6ZFilvgU2SGb4JS34PFzUTn8Z+70mROuGOvHVix8rN87XzJLGO80=u/cNRv' +
+'RGMSVZTVVfxmqXK1sas1WgCK17OrsMQ+iTRdKNKT7DiJGpsocFX5XMFFtOsczFMmr29UGnRHxm=qHg+OKGL/EbjAzlJwHfw6' +
+'3WCMYCuOXaNaIjJTZXOD6RxqehIyUds3SKnCDpgR6przM7ik4k29u01A0tCcn4CK6oYNzpDBFfc+Y=l6RPs9aBP23Iim0Rn0' +
+'a5qX5vp1FBEgIblAuhAlVzqjnQcZSmqanAEphV8CkYuEOx2YYi0lYRQJqeUO3OdnvLh7yjsGPJq5GFFG2goIv1MWbnO1WeTY' +
+'xM+7Y/Q/34QvcWkMvgOv2fzZbXO80/sObb/bg9=/QYTlpUvaKXMVNVsTGDPeJMOs9W=uqfP9yLeXTaiZGna3oPoIDMJGEUZs' +
+'PAIGj4LEudM4pf86krFw7GOf=PgtSaOQLSvYPEMb8Dqare/dcnk3fGlL3xJP1/dc7sX960iV3QlgHIr=M7iE4m29m0yx0xCc' +
+'z4C+toZS09+D5Lk85VSb0ns9nBQg2wokQlh2+o92xHhWEhKv90ga/4dr7ZArYNzM0=5fVZvmSiPG6W/n7LOPZfN75LUuuZRZ' +
+'uSb07DV3lyXTcMqYH9FmVapMGx54G=62CoU45g8FUlStKGL/EbjAzlAP7Sy6aM65CNiqPUTulkJCpfR1FUemzqQy6lBIkIOu' +
+'MAMsYvTNONT+aYdTPVe6qgZjTUeFq41nFap9L1KGOpKx6YA5tW=rIqP7z9Q/IGhR=mSgPWzF/IP8k0wvgXAaJmMSVZTVVfxp' +
+'zPMVNd=l4VPexK8ajP=dicONC8aHPOiYhcaTU0Yv5qgYcMDBtfdCZUg80ts9/BPA67okF1nA742H5rp1FBEQMmlAyizlRwqj' +
+'4Qc6W5qngQJc1/d97uX9y0h+k=8ofPB7145XZzEB7xIDV/Rh4DoJG4Fn6NorD0N4ntMUOiA1XR+70mROuGOvHVix8rN87XzJ' +
+'LGO80=u/cNRvRGMSVZTVVfxmqXK1sf=n4XQ/ZGKL=j74x05HZzd4sXOqKnnngstJ491DkMrN39NmS2M1BdR4pl72seQ/34Qv' +
+'cWkRDSQAn4zJLGO80=u6HbPdguN01mPic+YkV40=dd9IzDMf+6JIsJS+dKFJ3We0Paha7hoTL8nJH54mJeoMDCKGSyNjecWF' +
+'9j76AsOvuC/OcLg9vlN=3WlT6u0FzaVoC95oQJzC1cAVJiua/CPG6Ws1Wg87+8N7YVQ6RT//h3ER7tI0V/pnr=s6bHFWtSa9' +
+'PAIGjXKFCjSHcY/YglStKGL/EbjAzlAQLSyJyRO8LkwfYbR+Io7BDf/R1tlWyQOFxV9H8MOeJ963XIVX915HZzEB7thqGpXY' +
+'g9qYHcEXBNY6qvOif2JEqaAULium9rNwCIN/wOlc/xOQLSvYTIO9g6u+slBa2mMSVZHV2kuW6oPhBf8HXI8bd/N75LKNOXPJ' +
+'lLf58Tf26vo4c5nnHQIGEYYd=wLWBm=UmoJYtS7aEhPOpCPO9Vjhr0DZ28Z0qt0FzatunaTfRwJCMcAVJiua/BKGJl+HbKPt' +
+'hFPpMaP+WeQNyXNYgEhJdjsXPrs6=AHmMUaLq9MWbyLl/3QHcY/VXY9slR8rAckQHcOPnfw6WF8HQCsvgnS+kgK0laNE6ix7' +
+'OhKGAf9IDILvJMKnTPUuFRPtmOTHoMjp7Wq3=Kj58FFWgUn5S27k/XEipdUo1j96sfOvKN+wEMkQH8NATSh2yKI4r6hJrbEH' +
+'gKz90=5fU6vaihKB6j9I0YPes5LcIMOdScRuScbIfRf7SanHoLoEW/Fn6NotH4LmOUJEqUT5x3/K9nQ7Sx9aENlQ8aJPHfxa' +
+'T=7n/xqauCd1v1kEYWqaDAEx4wlHDCDulinD217GXjAZtl6HdzEB7tI7maqYg9tiqivQU2SGaYMWr4OF7dA4Em8pwaQ/uLPe' +
+'MZUQLvO=Pm0qaL7roCrucmQupuEzVkPlhjnb7gMmAZ70/GMf+6JJ9JSN2dN6RVK3GK6toF8uZaX=5LgLr+wT9RkIlUgr0fP0' +
+'=axVPhCIlf25bxL7b056q7Z0qtQLk9vNjSQuEoJTZXODBpyKFOACsRsX=SQa9B6cf26Ht05HZzcHvLfK7WnEL5qIK48TkMYj' +
+'5uk6QUXr0Hs8/BIx2n97V1RYryL7aA46m7x6eLO90AsuLYAeFyICdJPmBkwaqVNkleBF8VLOBMLrwWCOSLRdhXf4T3jr7eq3' +
+'v=ZHqA1C1pfI3xNGOoKEKYTX5VrFXYSIlf25bxL7aA4=zW0mHWKLH1keUmOqt9508YS12ew26o+BoT=n4XQ/ZGKL=KFNicON' +
+'C9bIoXg6qcrCC6oZ=5E0BNt97x/XBmMU3cRDsr8K9ZMMq2O/LTRRHwRwWTlJfVJLclxvQXBa2yICIh/yZd0YKgJFFl+HfR/f' +
+'+6M7glW7145XZzEB7tI0Weoz0LtJ49H2IUpd=wIljpO2CYTXAk5ZoxF=72LfIQkgulRPHfxV/XMqcEv+0gPJMpH/IoOlpby5' +
+'zdM2dU9DGD8LoV6X9dSNaPPdaXbHnFQ2znookMrYu4GHFQns=ALnz3KF6dRIEW7aIsNrR8Qv0OigncG=Ta0pPEMb8DneUgPu' +
+'coHvsdACZDp4pcNmJj+HbKNONR8cANSNavOOGKMDCKdmNedCvAdiqivQU2SGaYzGrwNkFPUX5l=79m9fSJMu0JlQzuRfXjiJ' +
+'bbKLcFweja=NFyICdqQlteqK3cKFpk1IsVOv9AIXPLQOSLOs/KdXDWdmNhXWC/C8toZd3vYD5Ck8QVRL4ysJzBRg2oLbN+Ba' +
+'TQXaqB46m7Z0qtQLk9vNkt6oUJz90=5fU6yqGiOGBfs4DYM+x7N7wfTdecBdKhbHkYjqFdYGsJnIDLGWtak989JGG3CF7hTo' +
+'sZ6mPbN=72LdAIkQjqMsedfp2Kl/Fh=1V1/lv0k4KHWs3zJcA/gs7h70/MBqQB=Enz64t05HZzhBKuI0V/Rh4USCehvQU2vG' +
+'qZzA6NQ/l67BIum0bBTplfS5rykB3lOAbWyKXW9bU1savUP/2hIhZXR1djemhOKWBS8msEOehL8of26H91PeKXaooMhZpVo4' +
+'c5nmnGF39UaI4J0A+NLEJXS55V6Z9qPPOHM==QRyiE4Jm7yqbX68DJk/YTOO+pLiHWFhyr1Ul50=da9TDXRP2+MKLQSuFNON' +
+'m6d4ccf76joGoLkY8JGW2Or9K35XXwJFWUUTca8m8h/ry2C8rHRRLlOwXXx6/IK4Xxc6nSTfRwJCMcAVhfu63aF2pSBH4V/e' +
+'R+OaMJTNuLOdmOM0gThq3uoobFoZ=5E3BVrsux7C6k6BlsA0tm+JEdN/WCM/HJT94y56q7Z0rMKXw9uNcTRdusID1bSxpXvb' +
+'CEJGBa8HsPMKU7NbkJV+ecBdObaHkXg6ujXz3AX6ilvgU2SGb8OEv2JE/jSHgfrnnYPfu4L/o4kx8wOAKfwZbXGbUCtuUURe' +
+'Ao5TRiOmVVymqUNV+UA4HSOa9B=Enz64t05NaPM5ociqGkoz0Er1vOH36Yp5vzIHnl9UKhQHxl96wmQNeBR9QZhADrP=/fiJ' +
+'rHIHzxirCv/a21LShbP1VevaBQ8B6j9I0YPes5LcIMOdScRuScbIfRf7SanHoLoEW/Fn6NotH4LmOUJEqUT5x3/K9nQ7Sx9a' +
+'ENlQ8aIw/YzY2K94QtcURNqjnQcpSu/cztJPFOl7bBSOlbnQPpfi2Yrz47kE4g2961mx0zCceo7=5UgYdIZoaJ6i6/1/Z57B' +
+'H796LgRgWEM/0NTxrnAQfgzJ3H9bgyweTgP/2hIjhfREpjs6mnCWBS8o0MOusGLrEFCOWPT/GSdX0WQ2yyekG4XZLFFGFSqM' +
+'v0Jzet627UV55j+F1gRvC0LPAWmhDcRL7W1qbGOMg2dasYS+yjNz1lR0yRxqGaNjNj=XfV++k=6KMaP+W3RtScZ0zPOphcCa' +
+'Bo+f5KgLQMDBtfdCZUf80ss9GCDQ2wok1lhl6f92VHj3IyKvA0diRAGjFDYMcn7=8dAic+YkV40=da9TDXRP2+MKLQS/uxSd' +
+'7Mf48ShFqeoT34eFqU1C6hrcH0JW7yKEBRA5UtrrExQfGDMKYUn/PpN=Plx6CR9bHyuujb/bg9=/QYTlpUvaKXMVNVsTkfS7' +
+'2MPs1NSdhSROaweXcGjqWkqzLJnIvC3SxpfJqv5XryK1GVSHcW8m8h9g76QwMZkM4fS=TQvKPSOsc2v6HXUeBjNDhbARNWyq' +
+'3RO2dg/WkEOeJENIIaTNFcA9lQKnwVe6/BqGwKm1SD1FgTD=BgSiZUgL0kA/mtWvuIhF0JnAC4296HkmIyKvA1RSRMGjSDWE' +
+'zAk4zGi8zgJc9=Uy8BRulhnDDpfajPB71RAKh3ER7tI0VCRx3hRCbDFXAMpd=wIljpO2CYTXAkrnnYPwyCQe0ZkxGlOwHlv2' +
+'/JNbU0we0hR/6bLD19S12TzKWdMRxa93WRPuJMObYWQeVl6HdzEB7thqGpXXsJnIDsKXyRY6qvLHWyOkuhT40f8q5sMrq7PO' +
+'9KmxbmQQPMy7rqNbU0we0hR6lpJyDkTWVgvXd80Pc7mBHPMPE5K89JPbBLRNJJRDYQimqsqHcDo1v8EXBNbcPAIGj4LEudUm' +
+'QeA4MqMv/IN/0VUQbbM87fv67I=lCbVoz85ogKz90=5lVWgKKgJFFFBIkI88oV6X9LTNuXPJ+SK5CxIDV/Rh3hpIO=JHVcpM' +
+'z173v2JE/CRI1l96sfQNeBR9QZhADrP=/fiKPEMb7/weLFTf2pLSseAkkZeG2rAB5TAHbHMONBM7IM=JtKUnp0EB7tI0V/qX' +
+'oLX6D9HmBxoNHw50JkPg7fQHAWrGbp=b77PO9Kax8rN8Kr1VPMK4XKuv05S+yjNz1lRxpZvGhQMV+e9DrdMf+6JIsJS+dW/e' +
+'Gie4rFUJKnnngstJ494C6eoMv65T/xPCKhQHxl96wm==72OOkko+iE4Jm7Z0qt0L03dfgrSeBvJOxcS12Tq6GiO2df9ow/OP' +
+'ZfN75LUuuZRZubaHPORKCkjHkJpIv/3CVJbcn+JnjLJEqWUjHRr3n19b7JOOIMiQblO=STh2HVKMgFv+GSQfBkHiZoRFNjvb' +
+'6cKGZW8o4XMKU=ObwPQd6PJ+yQemYEhJGhZWC/YkjiA0t7bdDCMW7yKkWVWDEk86scFf3IL7bSSfme=9uYh3yx0VzaVoz85u' +
+'BsMikWS1Fkzb7c62Zm93fFPexPNKIaCNeiPNCef4rLPZKnnngLpIzFAG2apMnBBHf2Ml6XP0=U8K9ZMMiDMfEDScmXMshB+A' +
+'IYlNXxGjiClEzBkEbHWLzvJPzK7hcstjGe3Ici0lXy6/+PR/COghKuI0V/Rh3hrYLLJX6aY9XDJ2SmNUumUn5juJIwNv/JQv' +
+'LPSgPpN=Plx6CRF8U/su=lHv2yLjYeNRMTvr7PJjpg9ow=9qk5IXS5eELfqP+J29q01Q43Cpepvv5WgLyIZoaJ6i6/1/Z57B' +
+'H7l7nF35Ve25ckiAnqO8DawFnJNbU0of0iPqt9=/QYPEtmemVOPfs8mBGt2IZBK3UOTNONJd7WbDXgV2yXCaRo2f5zgJT95j' +
+'5nk7Rm8Azq8BL7l0XB3pW+MKYbnB4cQfaZwKPEJqc2wfgbR+JzGiEvH26Ru7CXMlwf=XoRNqtMMJAcTNuYPpVSZD7DO3lyXT' +
+'cMqYH9FmVapMGx7CX/1/Z57BH7l0XBPfGI8wEMkQH8NATSfn6DPnYArusX/7Ux8vZcS12TnK3iJBArBjsMM79SMsYvTNONT+' +
+'aYdTPMfmhXq3YEoE/RFn6NoqvwLGqw6VCoU44TxJMqMv/pR=5MUt=pN=7cfGvQPJoCrucmQupu8TZXR1dt1Xd80Pc7mBGt2I' +
+'ZBK3UcV/KPRtNRbYgEeY/asYkAqYTKC2llhd=wInntMkpdUXpf9VssPN/IPOcVicWgM87dyZjWF8L9tucXAqth==DW/2FevK' +
+'GULFxW90rM8=++OcIaSJKSTNGIaYgSja/arzL9t5L7JXBRa5TCLmzrM1G8TnAk3q5mNvh9KrTOTefKId6fzaXVLLH4tuorAf' +
+'6lLSh7OmBRgWdVIyUayj/MBooj0lXy64t05NKVenrDiJGpsocFX5XMFFtOsczFMmr29UGnRHxm=qHg+OKGL/EbjAzlJwHfw6' +
+'3WCMYCuOXaNaIjJTZXOChfv7/K7hoR70B0aV3Nlt8Irzc7lk8r2Ji1mg00CcU0YkaS2yUnTGeYzA6N0/WsRHUk87fF35Ve25' +
+'bxL7bpOATmzJ+DL9k1qNYkROJzJDYkPmRVu7GiKBYY9YsELvFBMKs5P+BPR/CveYgSiFSRYCg+rY87=GtTsrm28zXg7r0Ms9' +
+'7CCF3Ihm0SnA/5pX97p1ABCp2K8I74dr7=54QJz90=5mk+YkV40=c7CBWu2IYi0sn26Ht05Op3ER7tl0l=RoGlRZqlvmlcbc' +
+'LEJGO4NgqQR40ZrJMqMv/hOeUaRMmXOQLSvX3SKsb6hHC96oVmNCIZTVVfxmzUNV+U5IkKPe69Ks=QB6Kl6HdzcHvLgrGZmG' +
+'cJqpTKFX5VY+iczQ6NM1GjA4Yq0K9ZMPC+OevHY94yU628Z0rMKXwExvQXRNEoLzMZOlhAxK3nKGAf9n4XIe6KLr5KSudS/e' +
+'3VaI8IiFqeoTbAZE358TkMYdL9J3rqLEqUR0sRsFLYRgWEM/0NTxnmNfHdrq3EPLkCe+sXTdFhMS1XO1hVgG7eM2+q9IrRMf' +
+'+6JLERSdAMAJZJKEKgOm7qq3k9oYbFFWAOaI4J0A+N0/WYRTEd+ZAZPezAL=cMlMveOATHv7PMJLY9sqvUSedhOCloB1Jiua' +
+'/iLF1fsTGM8=gm01Xy64uXULObaHkXg6ujXUG4q5z7EWh9r98HJHeyKkGjNXpj965aPfF98P5ThBbcRL7XzJLGO80=u6XbEH' +
+'gKz90=5lVWgLCnN2Ng9TDQP7tPML9UQqBOOOGKNXwVe6/ppnPFrnjEKUJeoMDCKGSy9UWTPDHRy3n19b7JOOIMiQblO=STh2' +
+'HVKMgFv+GSQfBkHiZoRFNjvb6cKGZW8o4XMKU=K89JPeaTRtu6aHPIhr/7r4cGrUX02y+Ssc8yFHXrNU3TRIxNsVjYLbQlbl' +
+'6i9CFIWmI6Kvd0gSRIGwKSqjjQd/TGkcztJPU=Sc7pX9m0h13QlgS5l1PrqCw6ueZT6voGxFC/ZFi/3Tc6SWaYzA7tKQSjWI' +
+'lW+ZLgPwyCQe0ZkxGlOwHlv2/JNbU0we0hR/6bLD19S12TzKWdMRxa93WRPuJMObYWQeVT/7pmRDXFj6qZonsAqYL81iUMsc' +
+'LCNHfy61SkR3gT/JwvQOGG/OMfiADsSwWZgZfVJLcEtuLgKeyuJCApHm6ix76WIyUU9YsELtJIKL9JQuedN6RVK3GK6uAF9N' +
+'ZbCKVpONzhDBtfe+cT680ss94RWvWIj20MnAS4345np1xBExIalAyizlRwqj4Qc6SzqndMf2Vp7hcsnBKt2IYiLrLQUvuaPN' +
+'yPM4LcXK7WnHkAqouFGWAVY6qL=CWmOEqTRH9a+JIc97zQSr5bnB4cQfaZy7rqNbU0we0hR6luICEbAhxtlXlO6WNf944JNO' +
+'t+KX8IWv5KT/aZbHTJQqmug4c5npHAH2oasc89Ki6kABlsA0tm+JEdN/WCM/HJT94pOATmzJ+DL9k1qNYkROJzJDYkPmRVu7' +
+'GiKBYY9YsELvFBMKs5P+BPR/CveYgSiFSRYCg+rY87BXyTsc8zJHjg7ghPP0CBGQ6D9m0Rn0LH92pHkWEnKvd1RiRFblV2qj' +
+'rRQ6Smqa8ADA4+lHDCG0m1T13TltC6YkPzqCM6xOZb68wF+eVPm1SA7yMVemqZzA6N0/l67BH7l6kdRbz7PO9KdgLrSwnfwa' +
+'SDAHQ+vaHpRO2sJvIaOmBRhqKgJFFl+HfRPthFPpMaP+WeQNyXNX8Hd2qoookLpIv/Izc6SWaYzA7wKFBPRYtS7YExQfF1C7' +
+'5UltvuQgLdwm/HJMgye+okOu60KCMkSDdd0YKgJFFl+HfR/eZ9InscV/KPEnp0EB7tI6iasTU+rY87=m2ZpI3L53K09VOeUX' +
+'UVuJEZRf2CMPAIhhHgQf7ktZ7cCcYyrOgbRNkuKChTB1pRxaFp1=g7mBGt3Ici0lXyR+hSPe/KamociqFVekG4XYDJGWlRYY' +
+'avOgJO0/V57BIa8FUsSwz6OePPiR=YNePW0rXMMbsDpNDrH/2hIjhfREoeyq3cLhxl/mwXPeZGKGTRO6tK/KpmK0gYhJCao3' +
+'4FoIG63SynTGeYzA6N0/WYRTEh779rNtWCQrYUn/PpN=Plx6CR9cYyu+7b/bk95w0f/W6VzLGgMR6ZAH0CLf+HOLANTJBPU+' +
+'KMfIoIQmOpqGw/q5LeIm2PlN42MWboKF/=QHcW+mUU+KN=FNE3cMvqSxLayJjMKcz5s/YTOM6lN0hfR1NjgWdVIyUayj/MBo' +
+'oj0lXy64t0PNmcbDYVf7Cqr3K4p6L8D26ertTBJHeyKFSUQo5l82TfN=72LfIQkgvHN=7WyrTpNcY=v6wO=J6mMSVZLmyXyq' +
+'3SKGFNtjSDK7TpYy2dr=RKqCI6xedl689GvNVWC+3D1NzpDOFfddY5l6lPGDnCCx2ookolfdnOT+ie=9u/ZDqt0FzayukeSN' +
+'B7094=5fU6YUWgKGJm=XaDN=J9IK9aSemdPO+XbI4IeaGpojz/oZ=5E3BVrsvfIGOpM2/1UYtg/FUU+K/7PO9KeB4eRPHVw7' +
+'T=7n/xqauCd1v1kEYWqaDAEx4wlHDCDulinD217GXjAZtl6HdzEB7tI7lCRx3hRCbUwQY2SGbL0A+N0Fl97RIum0c14paBPr' +
+'wMmQLlSxOfv6XH84Y3v+UVLvunMSVaPm9ShGzUNV+U5IkKPe69Ks=RFX916HePfHPGjqWkqzU+rY87BXyTsc8zJC35N1OhQH' +
+'1Wt21z4pZeN/PPjyLbMfLjyajWKMXxc6nSTfRwJCMcAWFgv77PK2Mas0ngCK17OrsMQ+iTRdKNKT7DkTl=Rh4DoJG4HXVzsc' +
+'8yN37zMQysA5Qum0bB3vW7+wIglxLmOLjdyZTEM7Q9rv0XS6lnJDhMOm6Zua7aKBYT=4TEROJK97YM=JtT/66mRDXFj6qZon' +
+'sAqYL81ixSZY4COHXpMkJXT4gU76kIPf3NM==VigLrKPHjx6LFM8j5b/QeOvRlMOIcS12TzKWdMRAauDjECLo568IWQueQQN' +
+'uOb0fMOrdCRx3hRIb+3Ghbos87E3GlPEGhDXAW=pMZQ/W2LOoMTt=nQwHqw7ORKcYyrOgbRNki7/0WU/k7YUV40Ftq1YsELv' +
+'FBMKrIG6KWRtCKd3YPe7WarzL/oJHuEX6VoM=7JC2mN1iQWH5juJMqMv/IN/0VRMay56q7Z0qtLLn5wf0iPupm7zEmB2Nfyq' +
+'iS9VJSA4nRMf+6JLERSdBdMtqiTYgEeaCeqGKFpIH13SxpfJqv5XryK1GVSHcW8m8h9g76QwMZkM4fS=TQvKPSOsc2v6HXUe' +
+'BjNDhbARNWyq3RO2dg/WkEOeJENIIaTNFcA9lQKnwVe6/Cnn=9kJ4/Im2QpLjzIHnl9EWTHD=c=71fQ/35M7jOg=meAsDNgg' +
+'IGlA+izUV6qwPQdJSzqaTB521/gM7ms/lbnDrpfi6vrzs7iE4k2960zg0tCpWo+f5JgL09/T9aHzyt=gNYGhX8l0XB3vW7+w' +
+'IglxLmOLjezm/aMsY9saHWOv+h8SpoOl+kwaucNkleBF8VLOBMLrwWCNuONJucbIoXg6qcrC34eFqU1C6hrcH0JW7yKEBRA0' +
+'8XrrExQfGDMKYUltvuQgLdwm/HJMgye+okOu60KCMkSDdd0YKgJFFl+HfR/eZ9InsKP+6LRdCOMDXgV3lVX4oFo5L+GWpRp5' +
+'/454fpO2GhTTlZ=6EXM=7DQfEMlMvcTwXU07XI84s3v+UVTeRvLRRXR1Fcy4GgNV1ju3SK8uNKJrA2P+2PLO3QeXcHf5eZno' +
+'k5aIb88SMXtN42MWboKAdWPGTYum1U+V04n0m5pn9/pBlBDAIglAyi2JSCl1v156SuqanADR41l7bBP/lenDXpeR2gr=M7lk' +
+'4b29a01A4AmTvAdkSA7wk3SGaYzG7q82CoU45g8FUlStKGL/EbjAzlAPnVh2GgAICxb/kgPeBmKCIbPR5Q1LhOO3dh9HfJ+/' +
+'pRC89JPeaTRttXdXcQf2VVekGUX1=MHmBRpcb9JGmm62irA51q/qInN7SBR9QZhADrP=/fiKPEMb76bbCvFqtiNCIaPlJZxq' +
+'GS6RcR=X4XQP+G6bUdQtFMSdygensVRJGtongMs5K=22JeoMDCKGSyF13dRHUk079qPP69KrTKiR=YNd3SxZb5N8sCrugXMN' +
+'+hNzUjQlAtf2ejN2Vj8H0I+qR2IXPU=t5RqAA7kja01A0qXeVTC+xoZtzhDOBfdCZVRr0usJnBOx2qokgmWl+q9CmXpBRBEg' +
+'MnlNui1lRnqjjQe6WFqajADJhV8CkYuEOx2YYi0lX26Ht05HaVbInDfK7WnFg9s6HAHmNfY6qvLHWyOkuhT40f8q5sMrq7PO' +
+'9KmxbmQQPMy7rqNbU0we0hR6lpJyDkSEFkzKWcKmEsnBKt2IYiMbIc=uicONC+gIYIOnlVqoTFsozJHGAap98CICOqNU3SV4' +
+'Ig+KATPwWbPO9KmxbmQL7awp6RO90Asr7=54QJz91iPmAQvr7PJjxS/H3DCK2FNXsfSeSWP6uNaIoERJKnnngLpIzFI1dZuK' +
+'PAIGj4LEudDXIV62smMvm6BYryL7aA4628Z0qt0L03deokOu6UODRb/SkteG7RNVde9DrM8=gm01Xy64t0QNNRf58Tf6ubZX' +
+'sJnIDrFXBgqMv2MlCxPCKhQHxl96wm==72OOjVmxzKSxLayJiL8KC6baTvFqtiNCIaPlJZxqGS6RcRBhWu2IYi0lXyR+hSS+' +
+'7bensthKBdqo4erY87JGVbrYvAIGOv8AytHDkqt21z4pZe25bxL7aAQwXlfqTSNsfxiqPiEHgKz90=5fU6YaWU83Nh9osEM/' +
+'I5AonI=OWWRuGcKT7DkTl=Rh3hRCahvQVPrtDC50Jk+ByfE1khvnfF35Ve25bxL7b0O=zkw2HMKXwFveskOu+l5wDz/R6gub' +
+'WSJGcTuDke3Ici0lXy64t05NCYeonDV2ynckTHb23H7wk3SGaYzA6N0FmUT5xWrqYe/gGEMfAIixKXE92RfKvSMbkDb6zSUH' +
+'gKz90=5fU6YUWRMmFls1WD=r1I+Y0YDr145XZzEB7tI0WyonDKoE4AFiRhs9TAIGnp6ylsA0tk/q5vP76+8wj1LKaA46m7Z0' +
+'qtJrLDwaPv/bAw9wQmCSxrZUZ40=c7mBGtSOJENKHIR+hSTO3QeXcHf2yyejT6qI8PHW2gso/454BR0OV57BH7l0XBMOuHQr' +
+'4kRu7nBtChjnGe1F3aVoz85oQJP9DA5fU6YUV40FdXu4XT/fRHN7kMCNaLT+6XbYgEeaCeqGLKlorQ+n6NotH4LmNyLECMDX' +
+'tS+q5mMOF1Cr5KkhDr=8Djw7XYNbGxtfkWNN2yLjtpPm5evbSTJmNl9DCKMf+6JLERSdB7ONuOd5kpiK7krz00YkD+Im2PjM' +
+'86JFr0Kl7QR45M8q5sMrm+MsrOThLnOgLSwqaO7qDtcJ/SNaLQXJSm/c3yJcQ/eM/0XJvDnDvqRi2brzM7lU4h2920yx48Cc' +
+'2o916obdzhYD9Uk8hUd84ys9nBPA679m0In0O44H5sp1PNgVqe7nzLWo385oQJz90=6fY6YUV40=c79YsELvFBMKsqPeaTRt' +
+'tJRDYXiKGadAGiRCahvQU2SN=0N4r2MQzfUY1q/qIw=/GKM/wblcvaN=zdrJbQMsg2deckUvu07vZcS12TrbzVNV+V9DrP8/' +
+'F+MIgNV6tW//KZbogEfqFedAGiRCahvQU2vML7Mmr/1/Z57BH7l0XBQ/GIQ=AVRxXsOv/TzJCaNrkCe+kqPu61Nzke=EJiua' +
+'/iLF1f44oRMOlLCs9aSeRSN6RMbYgEeXmWpGotr5TJEWBRmsHwN3axLEBsBjQm/qQqMvC6+aUEgtSj+vyYKt90eSVTblRmqj' +
+'nRQJW5qn=AEA0e9y8BSOpnnDPpey2l=rtKqP56u/Zg6v/RYC3SYkaSwQY2SGaYzA7A1/Z57BH7l7odPg/6RYryL7aA46m7zJ' +
+'bXOMY/bewnPdpiMSMtSEFihqGmKFFmA43L9uNKJrAcR+FYK+7XbHHWX77nqHb=m1S7Fn6NoqrwKmrZN1OhQH1W5ZEZRf2BN/' +
+'HkScjsRwfjv6XI8nsuqare/dcnk2GGjs3zeR0il7zCDOpmnQDpgR2YOqlTEpRSQhKuI0V/Rh4USCehvQU2vGqZzA6NQ/l67B' +
+'Ium0bBTplfS5rykB3lOAbWyKXW9bU1savUP/2hIhlmPF6RvKFQ9y6X=XoGIP2=N75MQ6tl6Hd3EXwYhJ/ppnPFX5PJEW+Bs9' +
+'TAIGnpFUGiVHUltr9dQPGAQrnHmB4eRPHVw22DMbkHkeUmOspyESlXSEtegWzp1=g7+H7LQ=ZIKrwOBvSPSuKVf07DO3lyXT' +
+'cMqYH9FmVapMGx5zuq62CoU45g8FUtQfOGL/IMT93YE92RfKbRK8k3tuHXPa1g6OoWTWVgvauU82xWAl0EQ/6oN69NP/WZRZ' +
+'ZJKEKgOm7qq3k9oYbFFWAOaI4J0A+N0EWVC49j76AsOvuCD/EbjAzl=8DXzJLGO80=u8UVTeRvLOQz/VJRxL/T=fs8mBHMMa' +
+'VAOrEHPOSZTuCOeT7DgrGZmGcJqpTKFX5apNX0Inr4KARWRYtS7aEhPOqaOO9JkxLOQgLctJCRKMb5dr7ZArYNzM0=QlIYyq' +
+'GhOFpluDke3Ici0lYRQJqQSd7MW4cRf6heXXgDqpD9+n6Noqr0LXqs8Bd97RH7l0nC3pVeOOMeax8rN+/jrJbENrL/bbCSI9' +
+'6PDOImOm6jvWScKGV28I0EGv+rKr5bSdATEnp0EB7tJ0Z/Rh4DoJG4E2tft53L50W/1/Z57BIa8FUtQfOGL/IMRuq0+sLkyq' +
+'CXNnX6bf7=54QJz91ZRF+keHlO+C5hw1jT=8gm01Xy64uYRuGiSGYtRK/qnGg9rpC=1tz/DOivkIlVRL0us97CEx21okp1nA' +
+'G41X5sp1xBExMrlAyhAURq/lv6k4KGkAnABx0s69/zX9R0il7blgu5jJM7lk8q29m0yx0yCc2o8v5HgYL9+D5G5+Y4l6pPH4' +
+'svrFfgRgWEM/0NTxvcSdTS0qLzNaY2rvchR9Z1MztoOlBVtWVO6Csus0sYOeF+K7YWQ+ZM/7xJdXsaXq3pnlPJjYL5I2tamt' +
+'L/JnflK1GMA1LRrHsZH76++a=jUg/1AsFBDgIT64X8rNLlTal0LhdqS1Vev2RX9WBW=4TELuIAM7If=tSPPrKhe03SQpiZtD' +
+'XDbpqA3Dspa5XrJ4B3QAVZCD0auZPh=by89s8HScai+WIyK8V0dHGzeaPlCbtw8vRqS2FVgXd80Pc7mBHQP7t=JroNCOeTBd' +
+'qOeokEfZGoa4g=qpTlGWBfqNf0J2jsJF7TC0tv=auIYF4g82+r92BHiGEsKvp1SyRIGj+CkawQeZS0qacdJP9/gR8CDOlenD' +
+'vqRB2mrzRKqCw7i/ZWRF1F8eVVX6vQLi5Xa+HHM3rzKQSdRIA277EZHP7nM/9akgvSSADYzJLHKKC6baTvFqtiNCIaPlJZxq' +
+'GS6R5ws4bIQsF6Ob54TMSPOOCYdWDYiqOnnnk9mE3R1C67oKux7CFk6VqmXemQWvuJUF4Vn075qn5sp15BFFJ1RHSh/1Riqj' +
+'bQc6Szqn4ABHZOQWBvsTPGOvBM98EXLeacQNuQM07RiJGlqXY7oEXFFXMMkcL2BH308xtXP41sv2jrTrV9CbrPTwnbTcPuh2' +
+'uM74z=sJze/aIk9/QdAhcS1rOslH8CDulU/a9E6YHU=uiLR/CON0YXiKGaaTTPb23H3Tc6SWaYzHKpM2/UA4IXtrIoNP72Mv' +
+'LHY+qX+QDS16XEPHX6bf7=54QJz91ZRF+keHlO+SMhw1jT=8gm01Xy64uYRuGiSGYtRK/qnGg9rpC=1tz/DOivkIlVRL0us9' +
+'7CEx21okp1nAG41X5sp1xBExMrlAyhAURq/lv8k4TGk83yhmzeJGd28IGDnDvqRi2brzM7lU4h2920yx48Cc2o916oZNzqY6' +
+'nx=Sev82CoU45g8FUmNwOZL=IIch=JO=HkyZ//OMQ4v+UWPtgp5vUzFhxSzaqSKFRa/X4H8a1X6bsNUbaLT+75eWgIe7/kq2' +
+'=Mr5TJEWBRnI3I5zfSJCpRCDPTymwaD7h1n0W41t3Z=fPgzaWRO8LkwfYbR+Io7/IoPmycua/T82xWAjk2MORePc0QCZqGP/' +
+'haN1kgQ2R0ejz=m5HS53kVaYaz7CSr8AhPBj0irmPh/K9mT2+r927l+LyRjWGT+4/xwfYnPqQ7094=5fU6xbycKl+e9DbYNK' +
+'tFKsAbP+mPSpucc4TaZ6WZrG4RoIHrGG2ep5WxPXzBl49AajnCCg2qokIlhl6f9CVHj3EsKvmDlABh/lRsqwxu50RXUjBR0W' +
+'1/gc/yX9vR8F3MlgrIWOuo/ZhRf58Tf6ubZXL9smH5JG28sb=0IHjzMTekU4Aj76EdLrV188rkRt=sQPTWwJrRKLfzbbKSR+' +
+'B3BzVqOjtiqqGPNl1f6o4TMv+6KbIFCOaZKuGbcHPKQmVjr3oHq587FSRapNSvEWrrCFSfC0fZ6qEzArhHS7bPYdqf=vzV1W' +
+'Tg8H36cazhPJQs5vsaChxXgWyo6yB=8FaF+Kk568sfWULJqCw7iedk6v1GwNVMC+tobi0+wI6fcNY0l6g=k/muW87IgcZ1SP' +
+'AlRMjaQgPliKXSFsgCtuHZAaQuMSlmRV2TvWScKGUR4X4KEPVI8XvQOualCJlchD7LVWldZWD8tlDU3SYVZ5a+Ji6w6xNTED' +
+'kYt2faT=OSnA75pn5oALKdfnaP68oyufcXBau0MTlbBRxoiHye8Ck/mRGt2Pp+McAN=uuQA/KZbogEfqFVekG4XZfGHmFfYY' +
+'avOgJO0/V57Hxg/aDYDryH=s4XVu3nDZ28Z0qt0LH=wf00KcQuMjlZOEFjy2RQl5DCFjm1T17algy5kEPzqCs6xTa1mg0nCc' +
+'qo9v5PgYP9+D5Jk82kl6c=nemsuA2qokp1nAC42H94pBFBExMmlAJizlRqqjQgk4KHWczjJP1/gM7pX9B0fF7flgW5lqM7jE' +
+'4nK1HFVF6gZYkQr5LGFiRapNTTIHnlEl7BRHpk+ZsTRwz8PO9Li=qg+sGum2GFOLH1suobR+Bk5OQ1/VpVz4CPO2+A=WsILP' +
+'BHM6gdTumcONGOZDXdOm7DnlK6ZEi68CtOfYmvk81UdxyRCnxg/aDmRfuoQwAQkQSf=87jw7HPJLc2deHXTJuSJCt8UWxYh2' +
+'SKK3kiv1wg+KUXAnTQOualCupSMT7HQ2ucZjC4YkGI1CMVaoBgQ+cHl62dATTRvW0oAbh1QwAci9ay56q7Z0qtMMP/sNUfPq' +
+'l1K/IjPm+juaOTNhxk+4faGOZ9NKYiQ+a+Q+7bb03FlKOzCaepxk6pM9zeDBNfetY8lGQ=m/msWvTYokcliV6iUH5pp16RK8' +
+'R0eSVRGwSCklzCk4KHWczoJPVOl7zCD/lW/a4pei2m=vBjVZ+UM5ociqGkoz0FoJTcEXBNjt=hJGb3MkqKVIlY/J5cNul+8r' +
+'8kY93ZS=7Vw6fMMbk1b6Px/ellNghXTV2=yp7TJGFg/WPYP/RKJrENO6Jk/6/4aFOFQ2hVX4LOuf53gLr+wj9Pk8ZVSr0ks9' +
+'aBRF3JUr1lfF6X92lHh3EuK8N0d53xy/Yw/6ZjLjdqB2Bfq7CgLFxYu0GRPeJIMb5LQ6qYPORJWXsKX7SlZTO=m5HS5SgfvI' +
+'a3=jJs80iTWkxut2bh+bVDMabTRtSbB8CYh2yFQcsOGwSDWUvx8OYi/SEceKKPM3FWv0kXPfJ+9X0gDrJaAKh3ER7tI7maqY' +
+'g9X5b+3HFcpt=wJ3qkABlPAYxh77Qm97V1RYryL7aA4=PgzaWDAHPFfbPiCbtw/cDA5fU6YaqdO3dz42GRPvJ8JKIbTZpMqA' +
+'A7kja1mg43CcRo8P9ggLn9/Y6gQ+Y0l6Q=kOmsWvuIiF0MnA744X5pp1FBEgIb65=ziEV0qjrQc6W6qakQJPE/fs/As/lhnQ' +
+'4pdR2Yrz=7kE4g29a1nQ0tCczTao/V4C099z5/5zevJkuiV0cl+YAsQ/WCMaXQUR=cRwzSvZaLMbkHbdYXPLB4MvwlAUhU03' +
+'2a+msau1eg+7V1KcfbW6tUAJFSNnzMRmycYUX4YkaC1t3tDOFfcCNm9xyiE1khum1sQ=G6+8j1LKaA46nezm/KJLD2e/kbB+' +
+'hlMjdXPEFjhr/WMmV/+H0WNPd+KaAQP/SOA6/nfoR0qQ4AXeZYC+6oZ9zdDBlffdY+l6UAY/mvWv/Igm0Pn0XHoRb1pBJBFg' +
+'ITlNehBqSCjlv7kELWqarB2R0hl78BSOlbnDTpdi6vrzs7k6+VK0ghjasF2NVVCKBpMNzcDOVfdNYAl6pPsJoRWv7Igm0Pn0' +
+'744H95p1Crfr/VQXX8rNLlTal0LhdqS1Vev2RX9WBW=4TELuIAM7If=tSPPrKhe03SQpiZtDXDbpqA3Dspa5XrJ4B3QAVZCD' +
+'0auZPh=by89s8HScai+Q7o2QMklNeh/qGUBat18vRcOlhjvWhOO3Bm9DSDB81I+XXj74x05HambHHWf2zeoz0Mr5TJEWBRY6' +
+'qL5zfxJFScQI1krFXYSIlf25bxLADmRgSRm2GU+5PAfbPiEHgKz90=5lpfzLWwF0cf=o4GLuJLNGTKrxU8Yp57iudl6vwF8u' +
+'ZgC+tobi0+wz5Ak8tUfr0nsJCBQx2zokR1n0q4145xpBGffxIdlAJhAJFCiEv+56Syqa0B2x0jlH8BR/lTnDjpgB2a=1LnqC' +
+'2J2Je00Q0wCcWo8=5M1NzgDBuv=3eB6QdXV5Ih86we/fq6QcIImx8GROLWv7TSMa8FveskOu+lH/0W/ikteG7jMVJW9XHRMO' +
+'E76YvISNehH+7daFTVaJGWrGPFlpLHF36Np9Ls50+k6SqQLTsatV80=O6S/r742n5n+sKcvZCWO4HEuMcmS+RuJewfB26VyK' +
+'iPJlMZ/X4a8+++KIIgTqpZA9mNgkbPSaleZUOUZ1X0FHcfvIa57Cmt9kNYD0kYsn4Y+KV=8V+o9CFHh86TimGW+5PAeaQmS/' +
+'Bl7=8D5vU6YUWbNyxY8HXI/fJB97oNTeWLPtKcNYkLhaOCpnkKpJf9FF+UoN=z7zfBOls=ceq9rx68ok9lgF6i92ZIWmEpKv' +
+'10f4ShBlRiqjXRQ/HWqabAEx0p9M7jX9aDnDnpdi6rrzg8WE4h29a00g0zCcb4C+toYC0+wT5Ik8EUd80js94RWvGIj7zSR=' +
+'vJTcXrTADWyZeLMbkHkeUmOspyESlXSEtes7GeKmBS944A+K16AonI=OeYP+KPcHPIfm6VeCUFoJTcEXBNjt=hJGb3MkqKVI' +
+'lY/J5cNulCQv07my=gQPeZh2/VKMQ9rucXAellNeRIPlN20LyW9hZN95OU/8BV8nTnG6pSN+GkOoKMQFVZZjP/ZEm42yAdY5' +
+'S450+k6SqQLTsaum0aT=OSny244X96pBFBCxMrlAmhB1Rw/lzB56Snqa0ADA0el7vCDOlTBa2WN8rKBdWZSuFXf4T3jr7eq3' +
+'v=ZEvJFXyYoMD073OpOgzBRHA3Ar0g=KSxMwjYUuD0=8iwm2mLI8gLfOCbA6Qk7/MdAhgQf2Bf6yUaujshQvvqRi6srzNY/Z' +
+'lJPDGDfJ3hrGnDX6HJJWEYY6W/90Wt=el67BH7B0nC3pWRM/oaiBiE4Jm7Z7PIO9kCu6QaTu+fITZlTF+VymqTP2NUAI0I+7' +
+'R/N75LUuuZRc3KdXsPiXGnr3PJZ4m/12JeoMDcIGCpGFzWUXpV85gcMwC2//cLY9SiSADYzJLHKH74qt/ZBauc6eshR1FnnK' +
+'3iJD1j4X4EPuxG8GQEAZtl=pZkFB/tI7lCRx4USCfUwQZZs5v0NWryO2+dQH1Vtm9eQ/34I=5OlQ8bO/LWzabPO4X9beokOu' +
+'6VMztoOlBVqqGhOFpluEOx2YojMbIc=uOQJtuufIocOnlVgXYLoEvFH3MUaJiczWv5MU/jSHgfrqwmFgGIR7XQRyiE4JnawF' +
+'nLOLgwr/YhTO6lMO0WU/k7YUWXKRZ28I0I/etHOGTR=q9KONO5dVoYjrVVeTTMb23H3SyepNHDMWNkL2GTPntj+aQrNw6CM=' +
+'YMhhLrO8iYwKPEJsg6uNHCOullL0d8S26fymSK7hFg/V0YQ=Z17GjIOqo7eU4k2961ox0vCcNo+16pN9zcDO+gQdYB9xykA/' +
+'qzWvKIi7qx9abiScay56q7Z6LJErHVwvgr/bggBzVqPhpex7NW8Ck/mRGx2YYiMbIc=u+jHe/KaooMhZpVejUSuCqivQVVpY' +
+'XCOHXpMkJXT4gU76kIPf3NM==VigLrKPHjx6LFM8j5b/QeOvRlMOIfPR5ZgWyPACsRsY4RM/J/LrsNQqRK=ZNJf58Tf6ubZX' +
+'DGno8DAGhNuMLA8WzpO0KQUXIS7Jkd/b7EOv9giB/lOQLSvaXMMrGzdqzS/rg95vZrR1BVvqWcKFITuDke3Ici0lYRQJqWRt' +
+'CKd3YPe7WarzL/oJHuEX6VoM=7JC2mN1iQWH5juJMqMv/IN/0VRMag+xu/ZDqt0F0+xsokOu60KCMk/SkQxKuRJFpB/4ocMP' +
+'9GKKIcMNOcQN7Ld4rLOKzhno49rUv+Im2Pt9b+LSet=el67BH7l6Ye/gCNPvMWiMXkRs7oyaPPK4H1rvgTB+FyICdqQltey5' +
+'ebPDRj8HwXNOxG97YMO6tKFKpmK0gYhJCao34FoIG63SyepNHDMWNkL2GTPntj+aQrNw6CM=YMhhLrO8iYwKPEJsg6uNHCOu' +
+'llL0d8S26fymSK7hFg/V0YQ=Z17GjIOqo7dk8q29m0yx0yCc2o8v5HgYL9+D9e5+YAl6FPs9GBRA2woxMlh26X92lHj3EoKv' +
+'p1RCROGjaCilv9k4RS=AUrf2Vp1=g7mBGtNOMAOcYYQ+FQA+qZNY0SiJiZa3k5s57FFn6NotH4LmO3HkmoJYtS7aEhPOpCN/' +
+'IEURDcSxTayJjW8HPNirCS//BuJzlcQlpVvG6X63BWA54VOa2AOrEHPOSZTuCOeTPIkqGYsok9Z1T+Im2Pt9b+LVXlMUGbUl' +
+'5j/Jwq/eh88e0VayLrT/yYimH=7yRvGwSCiUvwk4GGkcznJP1=Sc7pXJeDnDrpen35l1LnqCY7jeZb6v1F9NVPC+VoaN3tDB' +
+'xfcdY0l6o=k3TYt3ff/sdi2IbxL7bgOLjl17HIMrn5uv05S+yjNz1lRxpZvGVOACsus0sYOeF+K7YWQ+ZM//mlK5ociqGkoz' +
+'0EtGPJEW+gqMz98WOlMEFYA1Xuy20aRvq5M/QQkQLb+LDt2mHXPMQ2uNnaRvRGMSVZTVVfxmqgJFxcuDjgCLo568IWQueQQN' +
+'uOb0fMOr7asYoJqU4=JWBLod=+NnjpNQqUW45U=7Ed/bO7PO9KmxbmQODSyJbPNpkCv+LkAdcn5iMkHWFk0ZhV9y6Ntul2nQ' +
+'g5lgq5k6M7lE4n29y0zA44Ccn4CKFob93tDB6fcdY/lGwAYeq+rx66okklgF6k92xHj/yYh3yK8I7eV4z85oQNzM0=5fVcvb' +
+'BOKWBS8mwIQ=FBM7Qb=r9KRO2XfnTVhqBjoXYLnEv+Im2Pt9b+LXjfMFW2UXpU=qYnP7q+MurVlgLrSwnfwaSe1F3aVoz8Re' +
+'B05zpoOl+E0bzT6zsR/IjRQuxKMbDWQuOeOJuPeXcGjqWkq4gzqJbeIm2Pt9b+LSOtK0ldV5Ih83fF35Ve25cTiBGXOQLSvX' +
+'/EMLjxiqQfSal3LjZiPRpUubCP9VRj8HwXNOxGNJgVV8icONCdcHTRRJWZmjLFnIr97wk3SGaYzAJO0/V57HIXtqMqMv/pR=' +
+'5MRuq0+sLUzJrQKHX6bf7=54QJz90=S1Fkzb7c62Zm93fFPexPNKIaCNeiPNCef4rLPZKnnngLpIzFAG2apMnBBHf2Ml6XP0' +
+'=U+Zs9RwCNKrTTRwmepz5BDAMm6CREGjJDW1zCkEfGlLzgtGNX=hUayhWu2IYi0soNSvWP/+aPM4wVe6/JtoU9X2qU1C6Trt' +
+'Ox7CX/1/Z57BH7l6Ye/fKGL/E2hArc+t2ufmR0YyRvGh+Cclvmk2zGhA5ZeLd80Pc7mBGt2OZ/8cEhTueZPZWPeXcGaZGpsX' +
+'4FopDzHXVzsc8yN37zMQqhQHccuKEnIPCGN/wOTtbU=8CSm36D6ck/sekYQullJvYf/Wc+YkV40=c7mBHMMaV/N75LLuOYPN' +
+'lSK4kPha/ag4c5nmr9HnEUaJiczQ6N0/V57BIa8FUeQ/34QvcWkO8aSwngyFqDKcYyrOgbRNlBIjhfREoQlWzUJFpk9EOx2Y' +
+'Yi0lXy64uTPZVKd4TGe6iFqXYQoJ/FF2Fglc8AKGbmM1FXAYld77YdQ7qDOMIcmyaZ=8mRyJCXPJUhlqHlTu6jJDdpAR8A6x' +
+'46697jXJR1UV3WlgG5l1PtqCJJ29N0ym1GveVHC++obt30DOFgTSZVRL0rs97BRA689bRQLLvJTgPpN=P=v67I8nXMeNXwAq' +
+'cgkEnGl83xJPs=T97mX9GDnQ8pfR6srzk7iU81KDfPOn+lbUTDX6HJJWEVemqZzA6N0/V57H5d/ZHYP/uIR994b9vqS=PUw7' +
+'TW84ah3EV+/lv3k4TGk8zgJPo=Ss7pX9u0fF3Nlt/5k6M8WE4Z29e01Q49CpipyU6pMdzoDBNffNcH6xRrQUbTtZMqMv/jL/' +
+'sMTc/zAfKvh22DlNmhBEVzqjnRS6Srqa=AEm1/gc/0X921V17elg0J=J5KCq2ZO0GDjr7qoj3SSCehvQU2SGaYMWr4OF7dA5' +
+'lj=rYoNwRCM=QMkRHqAPPSyq32KLD=wejaOO25M0ge/1tenLGiPBAds40IOsh+PnXRFX915HZzEB7tl6GhrGoSSCehvQU2SG' +
+'aYMWr4OF7dA4Em8pwaQ/uLPeMZUQLvO=Pm0qaL7roCrucmQupuEzVkPlhjnb7gMmAZ70/GMf+6JIkXQeWG=plJZ020tA0qCp' +
+'b4C+Jobt3uDOBgQtYCl6zLBjHssVXz4pZe25bxL7b056q7Z0qt0MCeV4z85oR9094=5fVtZUZ40Gs/mRHg3IdV1lcVTqBPTd' +
+'KXf5jRe6CZZTcGqWHMJHUOb54+LUn5O2VYGhX8m0ceRvq4QvcWkM4mQNTm0rr2KMcFuffaS+BzNCAqBRyiva3hMlxA=WwXLP' +
+'FNNGXIVX915NaPM5ociqGkoz0JoJDMHHAVY57L=CWmOEqTRH9a+JIc97y79K5bnB4cQfaZzJbENrL/mOYFTey0NDcf/R1tlW' +
+'yQOFxV9H8MOeJ963XIVX915HaSbT4Vf7/qqYjAX6ilvgU2SMb174fpJF/eTVgj3aEZRgGH+75VkhHwF/D7iKTYJrc2vOba/E' +
+'vSkE8Wqn=B2h0tl7PCF/lgnDs5lgq5j1PyqC56wuZbOx43CcFo8P5UgY9MDB/vkIdUdb0ts97BQ23IjF4Vn0G41450p1lBDg' +
+'ITlNqhAlRqBawRRJS0qn0AEx43l7PBRDm1TF3Ilg75mUPtqPhKKTGDSWylbTC4s6=MFSUnTGeYzA7pM2/UA4cg=rY6IdVCPf' +
+'MKhgLqRbiTKtR1TnSizUV0qjrQdJW/qanAEm1/es7hX9N0il3VltS5l1LlqCVJ2Je01x0qCcJpvk6oYi0+wT5Ak8QUeL0oA/' +
+'mvW83IgV0En0u4345up1FC4QIblAv9blRwqw4Qd6S0qnHAEh0mlHDBQDnF/71L+Y0YCqKeSeKOMECxIDV/unoDroLSwQY2SG' +
+'b9Lnn9BDz5DX5j/Jwq/g76L=EWkOzpJgTS0rbW94PDfbPiBau0MTlbAic+YkV4Q=s8mIWx2fom07oYCNegPNudejPEfqBdX3' +
+'PFg6LLKV6RstL7Nzew61udJ55lA59dQPGAQrbiM7eE4PbmyJTXLLL/bf0hTsyyJAAbOmJVnr7dMDRj8HwXNOxG8bMaP+W5ON' +
+'qOMDYeJ0Z/pnr=s6bHFWtSa9PAIGjSJEmUCDkSy3nY9=GCMvMNjAvcOsKafryx0VzatunaQfBkHiZoRFNjvb6X62Zm93fFPe' +
+'xPNKIaCNeiPNCef4rLPZKnnngLpIzF+WpNocn0FmS2LjaeTX5ktmXz+KVP35fxLAbd=wbjv6T0JLH2uazSONdvMil9S12Tpa' +
+'GcOBYayhWu2IZBK3UOTNONT+aYdVcGjqWkqz34oZ=5E3BVrsvQInntMkpPHDlX76krNsdi2IbxkQzrT+HBp2/WOLc0svclAa' +
+'4QUZWB/c30Jc5/gs7mXJF0iV3W6i2nrzD7kk4h29N1mg0wCcz4e5/V1idSsc8yDWbxKAdRH0gTyFra=byH=s4XUt4rRQXWh3' +
+'yx0VzauvPgPNytJ/IrQhpdvb/hJFVW=jbWN/xPErYMTdukPNG9c4cVfmRXu4wVC81pMNzqDOdfc+Y99xztWIbTtZMqMv/jL/' +
+'sMUt3ZUQPvKtR1TnSizUV0qjrQdJW/qanAEm1/gs7vX9N0hF3VltC5lkLi/E4n2Ja0yg0lCcJo9=5OgL0+xj5GkINy6QhPFD' +
+'TR8J5kQOFA8wIZmAKj+tihjnGM=lCbVvC=5/gNzSEmB1FmvaqiNhxS94zL8fZHOp5aQ86POOOOTYgSh4KnnngLpIzF1igMuM' +
+'zDAHfpE1GQVX54/JwlF=72LfIQkgugDZ28a0vJOLH0we0hR6umMSVZKFyRz6pW8B6snBKtNOMALcIMOdScRuScbIfMOrdCRx' +
+'3hq5LL1Gllhd=wInntMkpPHDlsB0nC3pW+MKYbnB4cQfaZyqCGJL=hueUrPv1uJilqL12iwa3QM2MZsYkPLPZ+N3sRQqRTAJ' +
+'2KREKDOKGjoXo+pIv9FC5MZYOvN470KEuVC4Ug7Z5kIfi2R/MZUQTcSvbSzJrEJb=2daYiRey5JDYkP26Ru7CXMlwTuDGD8L' +
+'oV6X9dSNaPPdaXbHnFQ2zwSh7hRCbAFiRYrsDwL2XwJFWUUTcY87EOMw7+L/ATi9WZRwzS16bV9boCrucmQupu5O0f/Wc+Yk' +
+'V40=deBF8VLOBMLrwW=r9KR+yMaHH0hq3uoobFooLLBm2eqM8xL3qs6VzbQIIW/FseQ/34QvcWkM/gDZ28Z0qt0L03dfgrSe' +
+'BvJOxjUjJiua/iLF1fvXHH+K1VAonI=OeYP+KPcHPIfm6VuYC4s6bHFWtSa9rHBXflJlCYTnbf+J5lNrV1C8rkRt=sQPTWwJ' +
+'rRKLfzbf=u/f+5MzllPxRd0YKgJFFl+HfR/f+6M7fR=r9nFJ2LfHPHf6Keq3o8XUa4ImFgtN=95335K0uRUXgo/ZIq=/GMM/' +
+'EcmxKf/fbjv6TXLLL/neUgPudzBDZoRF5YtGNRKWBS8mwTLPRGIXPU=t5RqAA7kja01A0qXeVTC+xoZtzhDOBfdCZVRr4xsJ' +
+'vBOx21okslfV6f9CBIYsFC3AIilASizURvNaIp/esfE/k7YUV40FdXu5kEPfB+DrscBu+jHe/KaooMhZpjr3YFpka41TkMcJ' +
+'3454fpO2GhTTlZ=6EXM=7DQfEMlMvcTwXU07XI84s3v+UVTeRvLRRXR1Fcy4GgNV1ju3SK8uNKJrA8TuOhRclQN0Y=Pg0XCc' +
+'No9v9kgLb9/Y6fd+Y/lGtPs9eCCA21okslfV6X9CBHiGEsK8C=7nzLcJzt6oUJz90=6fY6YUV4M2Nls48VLOBMLrwWIuOeOJ' +
+'2mK4LTRKOkr3D8aYH5JG1apd=wInntMkqiOnYq0K9ZMPC+OevVjAHUDZ28Z0qt0L=2waQYS+yjEilqTVVev7+OAB6e=0baOv' +
+'+EKXsMP/aLBdObaHkXg6ujrF=EtGPJEW+gqMz98W7oIAqiRI1l96sfQLdi2IbxL7aE4Jm7Z0rMKXwExvQXRNEoJTZXOD+VzL' +
+'CXMVVkvYwTLPRG8n0lG79K/eKXb4sJg6qaoTbAX6=9JHFerY43NGnjJV7eVoxW/FsdSfG4Q=IMTtTdRPHU0qrSMaQyu+keSL' +
+'ByMSMoAUgXe6KgJFFE=4oaOdk=9X1EAkLHqC57iOdm681F++VQC+hoaC09/T5D5+Y8l6o=m/q4WvWIgm0Pn0a42n5vpBFBFQ' +
+'IVlAShB1V+NaIp/esfE/k7YUV40FdXu0oJPe68FKIcUuuYPuBXeoYEjZpeXYc9s6LJHiyUtMHuIXfzOl/UUTcWAqIbRwC6+r' +
+'UNlQ8aSwngyIHEMbk9vLkkS+py7y=d/EJiua/BN2+o/WSK/7217R2Lr=Q8Wk4Z29N01Q0nCc+o716pMdzrDB6gQtYAl6yPs9' +
+'aBP23JUm0En0W41H5yp19BEQIblNShBERkqjwQfJSmNRMZk2NX=fs8mBGt2Ioj0lXy6+6PT63dc4sog7/pXUG4oY8DI2EnTG' +
+'eYzA6NM1GjA51Z84AnQPB1C75NhAnqO9u/ZDqt0FzeV4z85oRsJDgWRmVAx7+OAB6d/nwEO+2EJsYNTJBaRuCSf48ShGdCRx' +
+'3hRCbAFiRguN40LmusM1uSQHUB+q5xNw6CMeMbeQ8pP=HTyqaL6cQ9rv0XS6loLjlpPm9SgWVO6Csus0sYOeF+K7YWQ+ZMAJ' +
+'3kFB/tI0V/RnD9s14EKURbtND0MiWA61ieQnpd3qkZSvGG/OUMmwPYRPnSvJ3I84YAueUrPv1uKzMrSEFjemVp1=g7mBGt2O' +
+'NHN30QUNOc/+hJcHODh7W+qHoKoJCFGGthssLB7CX/1/Z57BH7l0YkNwB1Nv0clgL8NATSfn6DMM0ZuOklPv5uKzMrSEFjs6' +
+'eL=fs8mBGt2IYiLrLQUvuaPNyPM44Sj7/agXYLnEvHEX6NrNC9JWGlOxVPHEXurm9tP/C6MOcViAGZ=8Dsa0ut0FzaVoz8Qe' +
+'p1Mil7OmBRhrzdNh5us44bP/lHKbHQ=J5MB63RdosWf4CWsXXFr5zK3Tc6SWaYzA6N0/WYRTEe/msfMvm6/OUIkALnQwHqiJ' +
+'jIO6g6vOgTR+6lASlqTEFVxo/dMmBV=jDQRN2HNGsgCqKXUM3YejPcRmzitmUGrkvR4CycoN=BJEvwMk3jC4Eg=7AdFf3IL7' +
+'wXkhDSBv2aimHTJMYDssoeRNy07zxlTm+VnK3iJBxh/ow/=NoB9X1YP/SdPLOVdncXQqSksog9g58LESpcrtDq9VJt9xzjUY' +
+'5Wt200DryJ=rbHnaqB46m7Z0qt0F0Etek3Qv605wDWRmxev63bKBxY8HXIP/l6PnsPQ/avQOCdaHPGf47asYw9oIvbH2tep+' +
+'C3LH7UMl+dW0TR+7YIPP+CR7nHkBbHQgOf1F2DN8UCvNk5RephNvxeRFFjvYCPO29f=4fWJr228njITuOcStKwd4TEjmSdqH' +
+'oKoGH5JG1as9zBGjbh8AhPU4pj/ZI/Pfu2QrYPkhLqO+TS0qKRN8LDpKYPAqcgN0ZrPhUrZUZ40=c7mBGt2PFAKpAXTeZKFJ' +
+'3ZaIgWf4WjsT0=qpLKFUBNt979ImS3OxVq8BL7l0XB3pVeS5ryL7aA46m7206u0FzaVo0v6oUJz90=VlFcy6Gp1=g7mBGt2P' +
+'++OcIaSJKSTNGIaYgSja/arzL9t5L7JXBRa5T1MWbnO1WeTWlS+JIkQMGGPO0ZTwme+fbjv6T3N8UHu9/ZBauc6pSYqarADA' +
+'47l7jBSTm0fl3WlgS5lkLf/E8r29R0yA43Cpeo7f5MgLn9/T5Mk8lUgQ1=l/mvWvmIgeh8+8jOT+iE4Jm7Z0rg1F3aVoz86o' +
+'UJz90=QlIYzKSTC2dkA0jJ9a2MLbIsSeWeAJ3kFB/tI0V/Rn4+Z6H=FU+bstGv=zW5+yyfE1kht21qNwCJPOvHjyLbMfLjya' +
+'jWKMX/svwXOOB0J/wdP26Ru7CXMlxB8HbIO=BeN89XTJqG=pCPeXcGaazWsGL0Ykm4DCP94j5Mk8EVU80ps9bRWv/IjF0Ln0' +
+'m4296Hi3EvKv50d4Siz1V1qjnQe6SyqarB2h4xlHrCGTm0il7b6YHIDrJa/72ZO0a1mx45CcXFm1SA7yMVemqZzA6N0/WYRT' +
+'ES8HMqMv/oPv9ekMaXRPXl07PR68wFsdLUS+p3MiloB1Fova/jO2MZtn8VLOBMLrwWLuOYPNmcTIgVha6dmTv7oZ=5E1+coN' +
+'T9Hzyw60hWs8nBOx2v9m0G8sDXR495p1ZBEF/=7nzLcJzt6oUJz90=5l2Wnr7PJkFh8I=R88o5Oc9dQ4915HZzEB8Wf7CJpn' +
+'H9qpLL3GJhrcDCKGSy8xVPWjlS8HMqMv/oPv9ekM30+wbSyrTI69C9bbbiCbtw7=8D5vU6YUV4LFQZA5HTMOx/8boYCOmZSd' +
+'mNNXoEjq2jo4c5npHAH2pfmsrHBXflJlCYTnbf96EV/ry2C8rHRRLlOwXXx6/IK4X6bf7=54QJz90=5lVWgG3UNV+UA4HSOc' +
+'68ObYXSJtKS//dgIYIkmqas3oFs6CFE22Yr8=0LGS4KASSUYIh=mTaN=72LdEXhBTl+LyRwqbSDrkJdq/SRvRGMSVZTVVfxm' +
+'qXKyoR2WwzGatLOc9RSNmTPeZRdI80ha+eZk/lRSahvQU2SMPAIGj4LEudIHxl96wm9cl1QwAci+iE4Jm7Z0qtQFCbVoz85v' +
+'hlL0dbU/k7YUV40=dj9I0YPes5LcIMOdScRuScbIfRf7SanHoLoEW/Fn6NotH4LmOUJEqUT5x3/K9nQ7Sx9aENlQ8aJgDS0Z' +
+'/=7n/xqauCeEv+k4/HZczqJPpOl7DBSelanDjpen36XELoqC97iOdm6v9F8uVUC+tobtzfDBuvk8pUgb0rs9lNsVXz+KVP35' +
+'fxL7aAU628Z0qtQFCbVo0v6oUJP9DAVfk7xbycKGRW/Y0W/e69KXTKQOSLOsCZaI0ROFhVo4c5nnDHEXNaaJiczQJOKVGdQo' +
+'1a+ZrYN=72LfIQkgv9OwnlrJLRLsb5vNkmTeRuJjcf/Wc+YkWXKRZZAH0CLf+HOLANTJtKUnp0EB8Pf7BVqo4erY87JGVbrY' +
+'3L54CA1/Z57HIXtrExQfGDMKYaiBHrP=7YzVqDAICNbaYnR++lJS1kPlASgWzgKGJm=XaDN=J9IK9aSemdPO+XbI4IeaGpoj' +
+'z/oZ=5E3BVrsvfIGOpM2/1UYtg/FUU+K/7PO9KmxbmQNXVx7X2JLH8vM/ZBauc6pSTqaHB2m1/dc/3X9d0gF7olta5l1Pw/E' +
+'4d29a01A0yCpBpwHm/3TcTaJiczQ6NNkGjV4If8a=YDrzfHc02UR4YRQPWhrTIO9g6u+slArYNzM0=QlIYzLWeKF1Xu4TSLu' +
+'6EFbkJV+ecBdSOf3wEiJWWn3D9Z1=HHG2lpN/9KGmm8AVPAEXurm9tP/C6MOcViAGZ+saXfrXcN8k=s6weRN6hLyRiOmVVym' +
+'qVKGJH8IsMLO+EKnTKTu6LUNKbNXwVe6/ppnPFXUaA1C1pfI3xNGOoKEKYTX5VrFXYSIlf25bxjAOfQw/Uv630M8UJsvXgPN' +
+'B0FSVoQl2SxKFW6W6d8IHIPat/N75LUuuZRZ+SMDYeJ0Z/Rh3hqJbeIm2Pt9b+LSWA61ieQnpd3qkZSvGG/OUMmwPYRPnSvJ' +
+'3I84YAueUrPv1uJTZXOFBZx6pQ8Ck/mRGt2IZBK3UcV/KPRtNRdI8qiJ3YsX4GqUvAFCUMfJqL5zf5MUCURXIf86Da9giQ8w' +
+'IglxLmOLje14fVJLcEtuLgB+lhLCkf/SktlWyQOFxV9H8MOeJ9631kWqKeUO3OdnvLh7W8r3Y7s5bGHipeoMv67CWAABlPAY' +
+'5f8qIeOvq6Mr=QRy=cSxXjyFHLOLgwr/YhTO6lMOIbUVFTzbCT8yVX=XoGQ/ZHM61JSNeWSrKbeXTVQphcXGsJnIDLGWtahM' +
+'H4N2flMUeiP0=drpjfoi9mVa744H5s+3EtKvA0eiRFGwaCjqwQe6StqajACh0rlH3CDepw8F3Vlg36XEPtqP56xeZc6vcF9T' +
+'Wpv=5HgLn98z5Mk8fg7gVqBjHsm0bB3pVe35fxL7aAP=aZ0rrTKLL3deDiB/JvMSAaB1BRzK2cKWBS8o0MOutLHKohIOSLOu' +
+'GSdnORg6CSZjTUeFq41nFap9L1KGOpKx6YA5tW=rIqP7z9Q/IGhR=mSgPWzF/IP8k0wvgXAaJmMSVZTVVfxpzPMVNd=l4VPe' +
+'xK8ajP=dicONCdcHTRX6CesWc5qYjKDCMYY8m2k7lUgr4ws9nBOQ2zokIliF6f92KXpBFBCxIglAeh/lRuqjMgk4GGjh0ADR' +
+'0rl7bCEelbnD4pfR2grzo7kE8q29R0yQ0lCcJo+Xm/3TcTaJiczQ6N0/WYRTElA71dPOJ9O=4VmgzpQwSfwqLXJHH3v+UVTe' +
+'RvLTdRRmV3yq3RO2dg/TbMM+oGNKIcUuuYPuBSK1KgV2yXsnL8oIPAHmFQYYavMWr4OF7dA4Em8pwaQ/uLPeMZUQLvO=Pm0q' +
+'aL7roCrucmQupuEzVkPlhjnb7gMmAZ70/GMf+6JLERSdBwP+adWXcRga/RYCC4m1VoU9zrDO6fc+Y2l6g=lOmuWvWIhr1mT2' +
+'6X92tHhmEhKv50f4ShB1Rn/lv4k4GGkc33JPU/d97sX9F0g13Qlt35mULcqC56xOZhdmNedCvAdiqivQU2SGqZzA6N0EiUV0' +
+'lX/J5bRfWDOMIImx7XE8Dezm/aMsY9saHWOv+h8SpoOl+kwaucNkleBF8VLOBMLrwWCNuONKh3ER7tI0Whooj4oZ=5E1+Rt+' +
+'H4LWz36ylPTIkf=ZwqPfBCMv9bh9vdRPHU0qrSMccsuv05S+yjNz1lRxpZvJlcNlNlA4HRMvAT1lby64t06HdzEB7tg6Jdo4' +
+'c5npHAH2pxoNHw8Xn9N1FPHEXurm9tP/C6MOcViAGZ=8Djw7XYNbGxtfkWNN2yLjtpPm5evbSTJmNl9DCKMf+6JLERSdB7ON' +
+'uOd5kpiK7krz00YkD+Im2Pt9b+LUroLFCBQHcc/Yjf=bzx9l6K921IV3EhKvR0fyRFGjFCklv156W3qa0AEh0hl78BS/lb8F' +
+'3VlgHIrzs7lU4h2Jy00x0lCcBo9=5OgLT+wD5Mk8hUd80ss9cNsVXz+KVP35fxL7aA56q7Z0qtLLn5wf0iPupm7zpoOl+Dvb' +
+'CiLFxY=mPQRMNKJrAcR+FYBe/KdXCRjquIsYcAqYS=3VkVY57L=CWmOEqTRH9a+JIc97V1RYryL7aA46nawFnJNbU0we0hR8' +
+'+hNzUkTWVgvWyrAB5T8osMOOI78n1j74x05HZzEB8MfFSptoU9qoO=Fn6NorD0N4ntMUOiOnYq0K9ZMPC+OevVlQ8lPb7lyY' +
+'TXNb0/sJvbNqlyICIhSCNRxqOh8B5SzEWD8fJGKbIOR+BPP6+SK5CxIDV/Rh3hRCbAFiRguN40LmusNkGjV4If8aAT982E8N' +
+'rVlQ8lPgP5v6/KNnzxirCv/a21LShbP1VevaBQ8B6j9I0YPes5LcIMOdScRuScbIfRf7SanHoLoEW/Fn6NotH4LmOUJEqUT5' +
+'x3/K9nQ7Sx9aENlQ8aSwngyHbHLMgjruHdSMcn8vRS=B1geR4vl78BSOlW8F3Klt75kELdqCI6u0a0zx0zCcBo8f5MgLkMDB' +
+'Zff+Y5lG9Ab0nBPx22ox5mTV+r92yXp1qRK8J0dCRNGjeCilv8HvsfEAMZk0l50=c7mBGt2ONKJrAcR+FYGNCdcHTROnlVsY' +
+'cMoFilvgU2SGaYzA72KFCkUXbR/r9sSwz6RrwMmQLlSxOfvZLPM7Y2uuLmPqNjMT1mTRQSvr7PJmJa/nbpM/ZMF75WReVMB6' +
+'3NbHTvf7VeaTUEtGPJEW+gqMz98W7o9xz6Mlg=uKAsQ/WCMecNn9XqOATlx6/KNnz6hHC95oQJz90=VlFcy6Gp1=g7mBGt2I' +
+'YiN7IcU/SY/+Web3TFiJusrGoJaYLPFW+ht9K36mv2JE/jSHgf3q5mNviHE=AZkh/fMseUwKPEJsg6uNH4PeR0ESVkQF+Mf2' +
+'hOIyXBKOlYnQ95lgG5mUPsqPA7iuZi6vzRYC3SYkaSwQY2SGaYzA7A1/Z57BH7l7odPg/68vcNTxPpN=Plx6CRC8UErqHmUv' +
+'ul5wDz/R6Xx7JQ8B6snBKt2IYi0lYRQJqXULObaHkXg6uja3L5qIK48TkMYj5uk6QUXr0Hs8/BIx2n97V1RYryL7aA46m7Z6' +
+'rJ89gJvekhP6NmMSVZKEFkzKWcKmFM/IHqPe68ObYXSJBcONuUNYoSaaCnpnL/Z1b14n6NrcjBE3SwLE/UCDkSy3nY9=GCMv' +
+'MNjAvcOsKafryx0VzaVoz85oQJKCoeTWVgvauU83FWA50MOeRLHG8ZDqSHBe/KdXDWaquhpng9ZE3U8TkMYdL9J3rqLEqUR0' +
+'sarr9dRgGGOK5PmAHWNQLg0aTINXH2xekVTv+l7vtcS12TzKWdMU6S/X4PPsJKN7waBt5R/tObaHkXg6ujgnkAs4=5Hmdfn5' +
+'S752Fr+ByPsJnBOx21ok+1n0C5pH5sp1RBDxIT6CREGjJCkUv2k4nGlh0ADR0ql7PCDepw8F3Mlgu6XEPtqPE6xja00F1Gve' +
+'VHC+toY9zcDBnr6i6/7gVq8BL7l0XB3pVe2/QZhADrP=/fn6TXLLL/bbCSTf21J=8D5vU6YUV40=c7=X4XQP+G6c1aUvuaPO' +
+'VXbIwIhKCoa3g5q5nqFWlbt9K3Inf9N2BXAX9j76AsOvuCE/IQmw=YQPvkfF2DK8k=lNkrAqcgLD19S12TzKWdMRxa90SDFd' +
+'BoE3sbUvSTRdSSbY7LiZGpsX4FopCA3Tc6SWaYzA6N0/WsRHUk87fF35Ve25bxL7aARPXl07PR68wFsdLUS+p3MiloB1Fova' +
+'/jO2MZtn8VLOBMLrwWLuOYPNmcTIgVha6dmTv7oZ=5E3BVrsvUJ374FU3dSoxNsVjYLbQlaF6c9C/Xp1VBFQMllNaizURxqj' +
+'uc6e0x=AUrZUZ40=c7mBGtSIoj0lXy64t0VHp0EB7tI0WySh7hRCahLQk3SGaYzAJO0/V57ItW=rIqP7z9Q/IGhR=mSgPWzF' +
+'/IP8k0wvgXAaJmMSVZTVVfxpzPMVNd=l4VPexK8ajP=dicONCdcHTRX6CesWc5qYjKDCMYY8m2k6MUeL4yA/mlWvuJU24XnA' +
+'G44n5nMsealViM=lCbVoz8VogKz91z6fY61Ul5Q=s8/IjRMPN+M8EbCNOOP6VLbYgEeaCeqGLdo5bLAm2aqtCx8zXqNU3SV4' +
+'Ig+HIcOwCnL/wSlcay56q/ZJfYMbcEtuLg/fRvNAVoPj+YuaqVKEBS/XPWEf+6JLERSdASPe/KalPEh6FeXY/lRSbAFiRguN' +
+'40LmusKV7QQlcS+6Hh9b2RC74JmAvbO=bayJbH6XzxxHC95oRpJOxeTlBPur7dOmFW=TGDN=J9IK9aSemdPO+XbI4IeaGpoj' +
+'z/oZ=5E3BVrsvULWbmM1GGTotc5JwmNw+9+8jOT+iE4Jm7x6eLKcYyrMQTR+Bs7/RZRVtjvYKgJFF/9HbY+7YT1lby6+uQA+' +
+'ObaHkXg6ujfngLpIzF3SySsc8yN37zMS3SV4Ig+F019fK2OwEMXaqB46nfyaXcBKQae/cnON6lMjce/8zNJPs/dc/9X93DnD' +
+'rpdi6qr=U8WE4n29+00Q0tXeZYC+6obdzfDBxfcSZUe80qsJfRyq8297e7PO9KcQ8kO8uTmmCFAXSizUV0qw4Qc6SzqarABx' +
+'0pl7PBSOpv/a9E6Y=YDrJW//GbfHrMUTl=Rh4Er1v/EWlRbdL48WKpNl/QRn5kuKAgPPOiN/IajBfcOvPZv7PH84YOwOJCdE' +
+'vxk4GGl8ziJPg/eM7uX9F0gK2WPsrKBdicONC4aHLIRmyXu4gVC8BpOy0+wz9QkIhUd80ss9eBOQ2wokglhr744H51p1NC5g' +
+'IY6CRNGjSDW1zCkETGl8zpJPc/fy8CD/lTnDrpdR2mrzRY/ZlJPDGDfJ3hrGnDX6HJJWEYY6W/90Wt=el67IX/lKnF3/mE/O' +
+'MdiAvrRb7SwqWL6c0=wsUkPs6oICIdPk6RxqehCWBS8o0MOus79X1hSeesSdKtc4cRfZGHnnLCrmPJEW+gqMz97DBR0Ol6TI' +
+'kf87MdP=CH/O9LivHYSwH6v6/HM8kCdaYiRey5JDYkP26Ru7CXMlwTv0kJQOt8ObYXSJJSPNudcIocRmzrnnDMoEa4Kwk3SM' +
+'b173ryO1WjWDclA71d9clR8rUXkx8wOAKYfmeJ69gJvekhP6N2ICArPhUQeXlr6yBm/X0IMeZGKrDKB6Kl6HdzEH8JQrCurX' +
+'oGoUXNEWhhpIv4Jz6k6BlsA0tm+JEdN/WCM/HJT94y56q7Z0rMKXw2u/gbTfQg5=DWRVtTuai/M2+q9IrM8=gm01Xy64uWPO' +
+'FJbHPXg7CuhnLrs6=9EWkMfI41IGG3KBd97RH7l0YlQbqEOv9giB=qAPbgzHbEJrwau9cmS+BhLBZXR1NVgEl50=c7mBGLP/' +
+'l6PrIaCqKTP6ZJREODkTl=Rh3hRCahGWIUs9nwOGr26ylsA45f=qYsSrV1RYryL7aA46m7Z6bRO80Exs0gKO+yJCVj/SkQzL' +
+'7jKCk/mRGt2IYi0lYaQ/afSdtJbXcPiZFwSh7hRCahvQVpTGeYzA6N0Fl97RH7l0XhCIlf25bxLAbd=wXf0qrXPJ0/nOgkPu' +
+'yt7/Rx6fY6YUV40FpWA0kTO9NKJrAcR+FY/7pJfXcPj6FwSh7hRCahvWVSa+HHM3rzKQSfT29j76AsOvuC/OcLT93YE92RfK' +
+'bRK8k3tuHXPa1p508D5vU6YUV40FpWA0kXMOpIC89JPeaTRtucK1KDh7yjsGPJq5GFFG2goIv1MWbnO1WeTYwsm0bB3pVe25' +
+'cTiBGXOQLSvYTIO9g6u+sl/bggNzljSTJiua/iLF1f=mPTO9NKJrAcR+FYBdaNZDPWf7CppnL/rlilvgU2SGaYzG7q82CoU4' +
+'5g8FUeQ/34HeMbmxblOgPMzq3qNbU0we0hR6lyICIhB2Bfq7CgLFxYu0HA+K16AonI=OeYP+KPcHPIfm6eXY/lRSahvQU2SG' +
+'b4JS34PFzUTn8Z8K9ZMN/6QwIQkQTqLgDdoKPEJsg6uNGgS+yuKeIqRD+kyqWcKhYa7DbRLOp+8n0JG79K/eKXb4sJg6qaoT' +
+'bAX5LFJGVguIv1EWbyLiqQTH4Ry21eQ/34HeMbmxblOgPMzq3qNbU0we0hR6lyICIhB2Bfq7CgLFxYu0HA/et6MrHj74x05H' +
+'ZzEB8gJ0Z/Rh3hRJqlvgU2SGaYKGusO2WfRHgXtqImRfWIR7wOiBHNNALav6PPKHvzve=TUuBy8S1kTx5ZgWyPACsRsY4RM/' +
+'J/LrsNQqRT//h3ER7tI0V/RnD9s14HHG2lpN=YLXukAAzUTY1a=rXmNOGIIO9ZjA8ZQwWZfKHPJM02v6HbR/Ei7=8D5vU6YU' +
+'V40FdXu50cP/JHK3UYSuOjPO/zdYvRh63opC34eFqU1C6hrcH0JW7yKEBRCDlsm0bB3pVe25bxkxLr+xDgzVGg68k/we0mUq' +
+'lwLjdfTVVfxnd80Pc7mBGt2IYm01Xy64t05HaVbInDeJierVgGq5zJ1DkMd6iczQ6N0/V57BIa8FUsSwz6OePPiAvrPATqiJ' +
+'jIO7oyv+0TO+dl7vZmRV2pvb6cKWBS8o0MOus78nXI=79n/6/edXoIfJWjonj6ZE4SwQY2SGaYzA6N0EiUV0lh+q5xNw7bPO' +
+'9KmxbmQLCufqbRO80ExqHZPv+WIDZfOl6cvWRQN2pSBH4V/eNKJrAcR+FY/ZZkFB/tI0V/Rh3hRIb+3HBls9L+JS30M13oRI' +
+'t4/J5bRfWDOKwKkgnmRLmRf36g64YFu+gXP+RuJCgYAhySxKWeBl1d/orDCK2IMb5hQ/SxSd7Mf48ShFqYqGDGrVilvgU2SG' +
+'aYzA7A1/Z57BH7l0XB4pZe25bxL7aAQwXlfrHPJM02v8YeQvtg=/RjSRpSxKWeNhxf9I/L=Kk5M7If=u+aBcOOaooSiG+drX' +
+'PKaZWD1HybsovH8zX0Ml+dWTHdm0bB3pVe25bxnaqB46m7Z0qt0F0/ruDXE6tik27GiczqJPs/fBvCDelh8F3QlgC6X1LoqC' +
+'dLNyKuI0V/Rh3hRCbKE22YpJev9zN79vl67BH7l0XB3pW4OeoWlNeXNPzazoTSM8LCeYC95oQJz90=5fVjwKugO1BS/X=IBa' +
+'2MN8INCo915HZzEB7tI0WZpnH9qZDAH2omY63czQ6N0/V57BIut3fF35Ve25bxL7bnQwHqw7PmM80Ae/cXTc6hNzldRF6pgH' +
+'NX=fs8mBGt2IYi0s1UP/uPSb/VcIXRiqiWtnoJh58FFGhRY6qvJGO4LFCoDXES+JEkNsdi2IbxL7aA46m/ZDqt0FzaVo0iRe' +
+'y5JDZ5RVVgy4WcFmJj9HoQJuJGObYcV6BTP6uddmkXiJWjoCzAmE3U1HcTocn4Mzy+N1iQWH5jzJkhQglP35fxL7aA46nuw6' +
+'3WKM7eV4z85oQJz91fPxRk0bzTMlQZ=4TEROJKB7kRTvW0RcCdeXsEh5eaq4kAs6aFGWAat9ziN4ftMUNXCGXarm41Dry3Q/' +
+'wLiAPgQPXVfFqDPlCbVoz85oQJz91fPxRk0bzTMlQZ=4TEROJKB7kRTvW0RcCdeXsEh5eaq4kAs6aFGWAat9ziN4ftMUNXCG' +
+'Xf7JkhQbV188rkRt=sQPTWwJrRKLfzdqQt6oUJz90=5fU6YUWaKGIRA4DIDelBNX0l=vKWOOaOeVgPg7zohnLrs6=9EWlHpM' +
+'vCKHn99UWTDY1g3aEqOvq8+rcEUQ=jPACsa0ut0FzaVoz85oRpJOxqQVFzxKWe8B6snBKt2IYi0lXy64t0QNNRdIXReJierY' +
+'fFoJXAI3Bfa+H3JEfwLFyYCDll9qI7PfWE/OIMlhHpQgmZh3yx0VzaVoz85oQJzDDD5vU6YUV40=c7mIkPLPZ+N59UR/KdIN' +
+'u9f5gIe6mQonLLpJHQ4mVQbdH+Enn2LEqWC0IOrnnYRvq5M/QQkQLbDZ28Z0qt0FzaVoz8SedhOCloG1hZyL/4MUFl=X4EOK' +
+'1V6Zc8KbAYS+7benrLYI/EizLKs6=AHmNVpda3M3GlPEGhIXUa/rABP+/IPOMIk9agDZ28Z0qt0FzaVo0v6oUJz90=5fU61U' +
+'l50=c7mBGtSIoj0lXy64un6HdzEB7tl0VCRx3hRJqlvgU2vML7Mmr/1/Z57BIa8FUdP=C+QwbHR+qXQw/Uv630M8UJsvXb/f' +
+'YNzM0=5fVZvmSiPG6W/n7LMOtMLsEhCNi9ONuUVXcQf2VVXkGUX1=MHmBRpcb9JGmm8AzUTY1a=rXmN+72OOk2hArc+t2R06' +
+'/HKLo6u+kWEHgKz90=Vfk7YUWr1=g7CBWuSKYT1lb26NifRdCdcHTROrWkslYJoGD=EWpTpLD/IHzyCV7QQo1a+ZrgN=72Lc' +
+'wIkAKg+xu/ZDrMKXwExvQXRNEoJTZXOCpRxaFX6y9uzDjFQOt9KrMRSNeO/ZZJghKuI0Weoz0=sIH3En6bttD0MS6kL2GTPn' +
+'tj+aQrNw6CM=YMhhLrO8iYwKPEJsg6uNH4R+yiLzlNRF6bsqucKGEZuEOK+Lgm01XyR+hSPe/KamYEhJGhZjU7q5zKFUJeoM' +
+'DcJGO58xVq8BL7l6Ye/fKGL/EbjAzlF=Plx6CR8HQ3v+UVTeRvLQVZTVVfxmyr62RS/5wIBooj0lYWSeajGM3zNYkYeZ/arH' +
+'f=Xf51gLr98j9ak86klG5=numhW8CIjr1lg26i9CyXEwKvfFzJNbU0m+UfPqYi=vMYFx0B2A4wlHDBP/lgnDvpdB2jrzg7lJ' +
+'tLN0XWSnylaTULrZL93Tc6SWaYLHWyKk3cRDcm92slNw/HL/UMlcvqPw/oq6rHNr0KsugFQeyyJvwYV2NuJNs/dM7uX9d0fl' +
+'3TlgK5mELiqCJJhY8hOFebr3Y7iY8EFSgMYdvBPdYWlGdPsJzCCA67ok1liF6l92BHj3EsKvmDlAFhBERkqw8RTOTHWszvJP' +
+'1=Rs7us/linDvpeR2gr=k7kE84NTfPOnFhXXs5q6D94CygsdL08zW8+yyfCEP/lDY14paR35gUltvcSPXf0rSRJLg1daYrRO' +
+'BBMSl6QV2ev6GBN2+o/V8VLOBMLrwW=J5KUNyeSIgIWZSWq3w9jp45J2pzsc8yN37zMQVq';
+
+/*
+
+	Encrypted module game_fractions/fractions.js. Result: 6ms.
+	Fuck is easy, fuck is funny, many people fuck for money,
+	if you don't think fuck is funny, fuck youself and save the money!
+
 */
 }
