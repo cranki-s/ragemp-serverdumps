@@ -1,41 +1,38 @@
 {
-let countdownTimer = false;
-let intervalCountEvent;
-let startCount;
+/**
+    melee: 2685387236
+    Handguns: 416676503
+    Submachine Gun: 3337201093
+    Shotgun: 860033945
+    Assault Rifle: 970310034
+    Light Machine Gun: 1159398588
+    Sniper: 3082541095
+    Heavy Weapon: 2725924767
+    Throwables: 1548507267
+    Misc: 4257178988  
+*/
+
+const weaponsTypeToDisable = [416676503, 3337201093, 860033945, 970310034, 1159398588, 3082541095, 2725924767];
+
+const player = mp.players.local;
 
 mp.events.add("render", () => {
-    // draw countdown timer
-    if (countdownTimer) {
-        mp.game.graphics.drawText(startCount, [0.5, 0.05], {
-            font: 7,
-            color: [52, 125, 245, 230],
-            scale: [2.5, 2.5],
-            outline: true
-        });
 
-        if (startCount === 0) {
-            clearInterval(intervalCountEvent)
-            intervalCountEvent = null;
-            countdownTimer = false;
-            mp.game.graphics.startScreenEffect("MP_SmugglerCheckpoint", 1000, false);
+    let selectedWeapon = mp.game.invoke(`0x0A6DB4965674D243`, mp.players.local.handle); // GET_SELECTED_PED_WEAPON
+    if (selectedWeapon !== -1569615261) {
+        let typeOfWeapon = mp.game.weapon.getWeapontypeGroup(selectedWeapon); // Get type of weapon
+
+        // check if current type of weapon need to be disabled, do it.
+        if (weaponsTypeToDisable.includes(typeOfWeapon)) {
+            let aiming = player.getConfigFlag(78, true)
+            let shotting = player.isShooting();
+            let reloading = player.isReloading();
+
+            if (aiming || shotting || reloading) {
+                mp.game.controls.disableControlAction(0, 22, true); //Space control
+            }
         }
     }
-})
+});
 
-/** Timer with sound and screen text for [time] seconds, return true when finish */
-function startTimer(time) {
-    if (time === 0) return;
-    if (countdownTimer) return;
-
-    countdownTimer = true;
-    startCount = time;
-    if (startCount === 5) mp.game.audio.playSoundFrontend(-1, "5s", "MP_MISSION_COUNTDOWN_SOUNDSET", true); // if time is 5 seconds, start the sound effect
-    if (intervalCountEvent) clearInterval(intervalCountEvent)
-    intervalCountEvent = setInterval( () => {
-        startCount--;
-
-        // if the time was more than 5 seconds, it will start the sound when it reaches 5.
-        if (startCount === 5) mp.game.audio.playSoundFrontend(-1, "5s", "MP_MISSION_COUNTDOWN_SOUNDSET", true);
-    }, 1000)
-}
 }

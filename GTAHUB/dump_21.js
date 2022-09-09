@@ -1,151 +1,111 @@
 {
-let player = mp.players.local,
-    vehMaxSpeed,
-    vehMaxSpeedKm,
-    vehClass,
-    cruiseControl,
-    input,
-    vehColission,
-    km = 3.6,
-    toggleKey = 0x4B, // Q
-    addKey = 0x6B, // +
-    substractKey = 0x6D, //-
-    disableKey = [0x53, 0x57], //W & S
-    forceSpeed = 0;
+/** Implements sounds emitters */
+require("ui.js");
+require('pools.js');
 
-mp.rpc("cruisecontrol:set_max_speed", (maxSpeed) => {
-    forceSpeed = maxSpeed;
+let playingSounds = {};
+let attachedSounds = {}; // sound id -> attached entity
+let anySound = false;
 
-    if (player.vehicle && player.vehicle.getPedInSeat(-1) === player.handle) {
-        player.vehicle.setMaxSpeed(forceSpeed / km);
-        cruiseControl = false;
-        vehColission = false;
-    }
-});
-
-mp.events.add("playerEnterVehicle", (vehicle, seat) => {
-    if (vehicle && seat === -1) {
-        vehicle.setMaxSpeed(forceSpeed / km);
-    }
-});
-
-mp.events.add("render", () => {
-    if (cruiseControl) {
-        if (player.vehicle && vehClass !== 16) {
-            if (vehColission && vehMaxSpeedKm !== 0) {
-                mp.game.graphics.notify(`~w~Freno de emergencia activado`);
-                vehMaxSpeedKm = 0;
-                vehMaxSpeed = 0;
-                mp.game.audio.playSound(-1, "TIMER_STOP", "HUD_MINI_GAME_SOUNDSET", true, 0, true);
-            }
-
-            let speed = player.vehicle.getSpeed() * km;
-            if (Math.trunc(speed) <= 5 && vehColission) {
-                cruiseControl = false;
-                vehColission = false;
-            }
-
-            let differenceSpeed = speed - vehMaxSpeedKm;
-            let amount = (Math.abs(differenceSpeed) / 1.7) > 1.0 ? 1.0 : (Math.abs(differenceSpeed) / 1.7)
-
-            let going = player.vehicle.getSpeedVector(true);
-            if (differenceSpeed < 0) mp.game.controls.setControlNormal(27, 71, amount); // Speed up
-            else if (differenceSpeed > 0 && going.y > 0) mp.game.controls.setControlNormal(27, 72, amount);// Brake
-            else if (differenceSpeed > 0 && going.y < 0) mp.game.controls.setControlNormal(27, 71, amount); // Speed up because is in reverse
-            if (player.vehicle.hasCollidedWithAnything() || player.vehicle.isInAir()) vehColission = true; // Emergency brake enabled
-
-        } else if (!player.vehicle) cruiseControl = false;
-    }
-});
-
-function isValidVehicle(vehClass) {
-    switch (vehClass) {
-        case 13: return false; //Cycles
-        case 15: return false; //Helicopters
-        default: return true;
-    }
+function playMp3(id, sound, volume, loop, use3d, pos, ratio, secondsPassed) {
+    browserExecute("playSound(" +id+ "," +JSON.stringify(sound)+ "," +volume+ ", " +loop+ "," +use3d+ "," +pos+ "," +ratio+ ", " + secondsPassed + ")");
+    anySound = true;
 }
 
-mp.keys.bind(toggleKey, true, function () {
-    if (mp.gui.cursor.visible || forceSpeed) return;
-    if (player.vehicle && player.vehicle.getPedInSeat(-1) === player.handle) {
-        vehClass = player.vehicle.getClass();
-        if (!isValidVehicle(vehClass)) return;
-        if (!cruiseControl) {
-            vehMaxSpeed = player.vehicle.getSpeed();
-            vehMaxSpeedKm = Math.trunc(vehMaxSpeed * km);
+function stopMp3(id) {
+    browserExecute("stopSound("+id+")");
+}
 
-            let going = player.vehicle.getSpeedVector(true);
-            if(going.y < 0) return;
+// warm up browser
+playMp3(-1, "weapon_drop_1", 0.001, false, false, JSON.stringify(new mp.Vector3(0,0,0)), 1);
 
-            if (vehMaxSpeedKm <= 5) return;
-            mp.game.graphics.notify(`~w~Velocidad crucero activada a ~b~${vehMaxSpeedKm} km/h`);
-            cruiseControl = true;
-            vehColission = false;
+mp.rpc("sound:play", (id, sound, set, volume, loop, ratio, secondsPassed, coordsJson, attachedData) => {
+   let pos = JSON.parse(coordsJson);
+   if (set === "mp3") {
+       let use3d = pos.x !== 0 || pos.y !== 0 || pos.z !== 0;
+       playMp3(id, sound, volume, loop, use3d, coordsJson, ratio, secondsPassed);
+   } else {
+       if (playingSounds[id] === "mp3") {
+           stopMp3(id);
+       }
+       mp.game.audio.playSoundFromCoord(id, sound, pos.x, pos.y, pos.z, set, false, 0, false);
+   }
+   if (id !== -1) {
+       playingSounds[id] = set;
+       delete attachedSounds[id];
+       if (attachedData !== "{}") {
+           let attached = JSON.parse(attachedData);
+           mp.events.call("sound:attach", id, attached.type, attached.id, attached.bone, pos, JSON.stringify(new mp.Vector3(0,0,0)));
+       }
+   }
+});
 
-            // Airplanes
-            if (vehClass === 16) {
-                player.vehicle.setMaxSpeed(vehMaxSpeed);
-            }
-        } else {
-            cruiseControl = false;
+mp.rpc("sound:stop", (id) => {
+   if (playingSounds[id]) {
+       if (playingSounds[id] === "mp3") {
+           stopMp3(id);
+       } else {
+           mp.game.audio.stopSound(id);
+           mp.game.audio.releaseSoundId(id);
+       }
+       delete playingSounds[id];
+       delete attachedSounds[id];
+   }
+});
 
-            // Airplanes
-            if (vehClass === 16) {
-                let maxSpeed = mp.game.vehicle.getVehicleModelMaxSpeed(player.vehicle.model);
-                player.vehicle.setMaxSpeed(maxSpeed);
-            }
+mp.rpc("sound:attach", (id, entityKind, entityId, bone, offsetJson, rotationJson) => {
+   if (playingSounds[id] === "mp3") {
+       let otherEntity = getEntityForKindAndId(entityKind, entityId);
+       if (otherEntity) {
+           attachedSounds[id] = otherEntity;
+       }
+   }
+});
+
+mp.rpc("sound:detach", (id) => {
+   if (playingSounds[id] && attachedSounds[id]) {
+       delete attachedSounds[id];
+   }
+});
+
+let oldFocused = true;
+
+mp.setInterval(() => {
+    // sound seems to be a little slower to process
+    // by the brain, so changes in position every 50ms
+    // won't feel laggy.
+
+    if (!anySound) return;
+
+    let focused = (mp.system || {isFocused: true}).isFocused;
+    if (focused !== oldFocused) {
+        browserExecute("mute(!"+focused+")")
+        oldFocused = focused;
+    }
+
+    // move the camera slightly on every tick, sounds gets glitchy while camera rot is stationary for a sec or so
+    const camera = mp.playerCamera.getActiveCamera();
+    const coords = camera.getCoord();
+    const front = camera.getDirection();
+    front.x += 0.01*Math.random();
+    front.y += 0.01*Math.random();
+    front.z += 0.01*Math.random();
+    browserExecute("updateListener("+JSON.stringify(coords)+","+JSON.stringify(front)+")");
+
+    const playerPos = mp.players.local.position;
+    browserExecute("updateStreamingListener("+JSON.stringify(playerPos)+")");
+
+    for (soundId in attachedSounds) {
+        let entity = attachedSounds[soundId];
+
+        try {
+            browserExecute("updateSound("+soundId+","+JSON.stringify(entity.getCoords(true))+")");
+        } catch (e) {
+            delete attachedSounds[soundId];
         }
     }
-});
+}, 50);
 
-mp.keys.bind(disableKey[0], true, function () {
-    if (mp.gui.cursor.visible) return
-    if (player.vehicle && player.vehicle.getPedInSeat(-1) === player.handle && player.vehicle.getClass() !== 16 && cruiseControl) {
-        cruiseControl = false;
-    }
-});
-
-mp.keys.bind(disableKey[1], true, function () {
-    if (mp.gui.cursor.visible) return
-    if (player.vehicle && player.vehicle.getPedInSeat(-1) === player.handle && player.vehicle.getClass() !== 16 && cruiseControl) {
-        cruiseControl = false;
-    }
-});
-
-mp.keys.bind(addKey, true, function () {
-    if (mp.gui.cursor.visible) return
-    if (player.vehicle && player.vehicle.getPedInSeat(-1) === player.handle) {
-        vehClass = player.vehicle.getClass()
-        if (!isValidVehicle(vehClass)) return;
-        if (cruiseControl) {
-            vehMaxSpeedKm += 5
-            vehMaxSpeed = vehMaxSpeedKm / km
-            mp.game.graphics.notify(`~w~Velocidad crucero aumentada ~b~+5 km/h`);
-
-            if (player.vehicle.getClass() === 16) {
-                player.vehicle.setMaxSpeed(vehMaxSpeed);
-            }
-        }
-    }
-});
-
-mp.keys.bind(substractKey, true, function () {
-    if (mp.gui.cursor.visible) return
-    if (player.vehicle && player.vehicle.getPedInSeat(-1) === player.handle) {
-        vehClass = player.vehicle.getClass();
-        if (!isValidVehicle(vehClass)) return;
-        if (cruiseControl) {
-            if (vehMaxSpeed - 5 < 0) return cruiseControl = false;
-
-            vehMaxSpeedKm -= 5
-            vehMaxSpeed = vehMaxSpeedKm / km
-            mp.game.graphics.notify(`~w~Velocidad crucero reducida ~b~-5 km/h`);
-
-            if (player.vehicle.getClass() === 16) {
-                player.vehicle.setMaxSpeed(vehMaxSpeed);
-            }
-        }
-    }
-});
+// /ceval mp.events.call('sound:play', 0, 'crawling_male_1', 'mp3', 1, true, JSON.stringify(mp.players.local.position))
+// /ceval mp.events.call('sound:attach', 0, 0, 0, 62, JSON.stringify(new mp.Vector3(0,0,0.1)), JSON.stringify(new mp.Vector3(0,0,0)))
 }

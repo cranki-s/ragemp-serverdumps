@@ -1,22 +1,22 @@
 {
-mp.events.add("game_skillcheck:on_show", () => {
-    mp.game.audio.playSoundFrontend(-1, "ROUND_ENDING_STINGER_CUSTOM", "CELEBRATION_SOUNDSET", true);
-});
+let dummyGameActive = false;
+let win = false;
 
-mp.events.add("game_skillcheck:on_finish", (success) => {
-    if (success) mp.game.audio.playSoundFrontend(-1, "Hit_In", "PLAYER_SWITCH_CUSTOM_SOUNDSET", true);
-    else mp.game.audio.playSoundFrontend(-1, "ERROR", "HUD_AMMO_SHOP_SOUNDSET", true);
-});
-
-function startSkillcheckGame(data) {
-    try {
-        data = JSON.parse(data);
-        if (typeof data.timesToComplete === "number") {
-            openGame("http://package/html/games/skillcheck/index.html", false);
-            minigameSet("skillcheckVM", "timesToComplete", data.timesToComplete);
-        }
-    } catch(e) {
-        mp.console.logWarning(`cannot start skillcheck: ${e}`);
-    }
+function dummyGameHandler(player, start) {
+    dummyGameActive = start
 }
+
+mp.keys.bind(0x25, true, function() { //ARROW_LEFT
+    if (dummyGameActive) {
+        win = true;
+        mp.events.callRemote("game:on_finish", JSON.stringify({}), win)
+    }
+});
+
+mp.keys.bind(0x27, true, function() { //ARROW_RIGHT
+    if (dummyGameActive) {
+        win = false;
+        mp.events.callRemote("game:on_finish", JSON.stringify({}), win)
+    }
+});
 }

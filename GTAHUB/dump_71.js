@@ -1,146 +1,181 @@
 {
-/** Implements edition of attachment coordinates. */
+/**
+ * Implements the ability to register an 'attachment key', which is a string that contains
+ * information about an attachment: its model, bone, and offsets.
+ */
 
-let Keys = {
-	Up: 0x26,
-	Down: 0x28,
-	Left: 0x25,
-	Right: 0x27,
-	Space: 0x20,
-	Alt: 0x12,
-	Shift: 16,
-	G: 0x47, // reset rotation
-	Enter: 0x0D,
-	Backspace: 0x08
-};
-let object = null;
-let offset = null;
-let rotation = null;
-let boneIdx = 0;
-let lastFrameMs = 0;
+let attachmentKeys = {}; // Maps for every key the attachment data.
+let objectsList = []; // List for all attachment objects to iterate.
+let deferred = false; // Set deffered when stream out
 
-mp.rpc("player:edit_attachment", (hash, bone, initialOffset, initialRotation) => {
-	if (object) {
-	    object.destroy()
-	    object = null;
-	    offset = null;
-	    rotation = null;
+/** Register a new attachment key. */
+mp.rpc("player:register_attachment", (key, model, bone, offset, rotation) => {
+	if(!mp.game.streaming.isModelInCdimage(model)) {
+		mp.console.logError(`Model ${model} not in cd image. Don't register.`);
+		return;
 	}
 
-	object = mp.objects.new(hash, mp.players.local.position, { dimension: -1 });
-	if (object == null) {
-	    mp.game.graphics.notify('~r~Bad model. Cancelled');
-	    mp.events.callRemote("player:on_finish_attachment_edition", false, JSON.stringify(new mp.Vector3()), JSON.stringify(new mp.Vector3()));
-        return;
-	}
-
-	mp.game.graphics.notify('arrows: move (+shift for height)~n~space: pos/rot~n~Enter: save~n~Backspace: Cancel');
-    mp.editingAttachments = true;
-	offset = JSON.parse(initialOffset);
-	rotation = JSON.parse(initialRotation);
-	boneIdx = bone;
-	lastFrameMs = 0;
+	attachmentKeys[key] = { model: model, bone: bone, offset: offset, rotation: rotation }
 });
 
-mp.keys.bind(Keys.Enter, true, function() {
-    if (!object || mp.gui.cursor.visible) return;
+/** Set the attachments of the given player */
+mp.rpc("player:set_attachments", (playerId, keyListJSON) => {
+	let player = mp.players.atRemoteId(playerId);
+	if (!player) return;
 
-    object.destroy();
-   	object = null;
-   	mp.events.callRemote("player:on_finish_attachment_edition", true, JSON.stringify(offset), JSON.stringify(rotation));
-   	offset = null;
-   	rotation = null;
-   	mp.game.graphics.notify('Saved');
-    mp.editingAttachments = false;
+	let keys = JSON.parse(keyListJSON);
+
+	// if the player is streamed on the client, attach the items
+	player.attachmentKeys = keys;
+
+	if (player.handle) {
+		player.syncAttachments = true;
+		checkDistanceForAttachments(player);
+	}
 });
 
-mp.keys.bind(Keys.Backspace, true, function() {
-    if (!object || mp.gui.cursor.visible) return;
-
-    object.destroy();
-    object = null;
-    mp.events.callRemote("player:on_finish_attachment_edition", false, JSON.stringify(new mp.Vector3()), JSON.stringify(new mp.Vector3()));
-    offset = null;
-    rotation = null;
-    mp.game.graphics.notify('Cancelled');
-    mp.editingAttachments = false;
+mp.rpc("player:set_attachments_deferred", (setDeferred) => {
+	deferred = setDeferred;
 });
 
-mp.events.add("render", () => {
-	if (!object || mp.gui.cursor.visible) return;
+/** Sync attachments. */
+function syncAttachmentObjects(player, keys, deferred, source) {
 
-	let time = new Date().getTime();
-	if (lastFrameMs === 0)
-		lastFrameMs = time;
+	// Destroy old attachments, clear the map
+	let oldAttachments = player.attachmentObjects || {}; // map<key, object>
+	for (let k of Object.keys(oldAttachments)) {
+		let obj = oldAttachments[k];
+		if (mp.objects.exists(obj)) {
+			let objIndex = objectsList.indexOf(obj);
+			if (!deferred) {
+				obj.destroy();
 
-	let delta = (time - lastFrameMs) / 1000.0; // delta in seconds.
-	lastFrameMs = time;
+				if (objIndex !== -1) {
+					objectsList.splice(objIndex, 1);
+				}
+			} else {
+				if (obj.isAttached()) {
+					obj.detach(true, false);
+				}
+				obj.deferredDestroy = true;
 
-    // weird: on the first frame, all keys are "down".
-	let up = mp.keys.isDown(Keys.Up);
-	let down = mp.keys.isDown(Keys.Down);
-	let left = mp.keys.isDown(Keys.Left);
-	let right = mp.keys.isDown(Keys.Right);
-	let alt = mp.keys.isDown(Keys.Alt);
-	let shift = mp.keys.isDown(Keys.Shift);
-	let space = mp.keys.isDown(Keys.Space);
-
-	// Movements:
-	// Shift+Up/Down: height
-	// left-right, up-down: movement
-
-	// Space (keep to invert rotation/position)
-	let objToEdit = null;
-	let m = .25*delta;
-	if (space) {
-		objToEdit = rotation;
-		shift = !shift; // dont use rotation in weird axis
-		m = 40*delta;
-	} else {
-		objToEdit = offset;
+				if (objIndex === -1) {
+					objectsList.push(obj);
+				}
+			}
+		}
 	}
+	player.attachmentObjects = {};
 
-	// Shift (up/down)
-	if (up && shift) {
-		objToEdit.x = objToEdit.x - m;
-	} else if (down && shift) {
-		objToEdit.x = objToEdit.x + m;
-	}
+	if (keys.length > 0) {
+		// Calculate a position below ground so it's invisible to players.
+		let pos = mp.players.local.position;
+		pos.z -= 15
 
-	// Regular xy movement
-	if (up && !shift) {
-		objToEdit.y = objToEdit.y + m;
-	} else if (down && !shift) {
-		objToEdit.y = objToEdit.y - m;
-	}
-	if (left) {
-		objToEdit.z = objToEdit.z - m;
-	} else if (right) {
-		objToEdit.z = objToEdit.z + m;
-	}
+		// Create new attachments, add to the map.
+		for (let k of keys) {
+			let keyData = attachmentKeys[k];
+			if (keyData) {
 
-	let posCoords =  offset.x.toFixed(2) + " " + offset.y.toFixed(2) + " " + offset.z.toFixed(2);
-	let rotCoords =  rotation.x.toFixed(0) + " " + rotation.y.toFixed(0) + " " + rotation.z.toFixed(0);
-	
-	if (!space) {
-		posCoords = "~r~" + posCoords + "~w~";
-	} else {
-		rotCoords = "~r~" + rotCoords + "~w~";
+				// create the object. as soon as it streams, will be attached to the corresponding player.
+				let obj = mp.objects.new(keyData.model, pos, { dimension: -1 });
+				if (obj) {
+					obj.checkForStream = true;
+					obj.shouldAttachToPlayer = player;
+					obj.shouldAttachKeyData = keyData;
+					obj.oldHandle = 0;
+					player.attachmentObjects[k] = obj;
+					objectsList.push(obj);
+				} else {
+					mp.console.logWarning(`syncAttachments - can't create obj.`);
+				}
+			}
+		}
 	}
+}
 
-	mp.game.graphics.drawText("pos: " + posCoords + "~n~rot: " + rotCoords, [0.5, 0.9], { 
-		font: 0, 
-		color: [255, 255, 255, 255], 
-		scale: [0.5, 0.5], 
-		outline: false
+function checkDistanceForAttachments(player) {
+	let localPos = mp.players.local.position;
+	let playerPos = player.position;
+	let distance = mp.game.system.vdist(localPos.x, localPos.y, localPos.z, playerPos.x, playerPos.y, playerPos.z);
+
+	if (distance <= 50 && player.syncAttachments && !player.vehicle || distance <= 10 && player.syncAttachments && player.vehicle) {
+		player.syncAttachments = false;
+
+		// re-attach objects the player had attached
+		let keys = player.attachmentKeys;
+		if (keys) {
+			syncAttachmentObjects(player, keys, false);
+		}
+	} else if (distance > 50 && !player.syncAttachments) {
+		player.syncAttachments = true;
+
+		let attachmentObjects = player.attachmentObjects;
+		if (attachmentObjects) {
+			syncAttachmentObjects(player, [], deferred);
+		}
+	}
+}
+
+// If entity is the object that was just created, attach to the corresponding player.
+mp.events.add("objectHandleChange", (entity) => {
+	if (entity.handle && entity.type === "object" && entity.shouldAttachToPlayer) {
+		let player = entity.shouldAttachToPlayer;
+		let key = entity.shouldAttachKeyData;
+
+		// make sure player still exists and is streamed.
+		if (mp.players.exists(player) && player.handle && key) {
+			entity.attachTo(player.handle,
+				player.getBoneIndex(key.bone),
+				key.offset.x, key.offset.y, key.offset.z,
+				key.rotation.x, key.rotation.y, key.rotation.z,
+				false, false, false, false, 2, true,
+			);
+		}
+	}
+});
+
+mp.setInterval(() => {
+	// detect object stream in/out (when handle changes).
+	for (let [index, obj] of objectsList.entries()) {
+		if (mp.objects.exists(obj)) {
+			if (obj.deferredDestroy) {
+				obj.destroy();
+				objectsList.splice(index, 1);
+			} else if (obj.checkForStream) {
+				let oldHandle = obj.oldHandle;
+				let handle = obj.handle;
+				if (oldHandle !== handle) {
+					mp.events.call("objectHandleChange", obj);
+					obj.oldHandle = handle;
+				}
+			}
+		}
+	}
+}, 50);
+
+mp.setInterval(() => {
+	mp.players.forEachInStreamRange(player => {
+		if (!mp.players.exists(player) || !player.handle) return;
+
+		checkDistanceForAttachments(player);
 	});
+}, 500)
 
-	let entity = mp.players.local;
-    object.attachTo(entity.handle,
-		entity.getBoneIndex(boneIdx),
-		offset.x, offset.y, offset.z, 
-		rotation.x, rotation.y, rotation.z, 
-		false, false, false, false, 2, true);
+// Set player to check position distance from localPlayer to attach keys
+mp.events.add("entityStreamIn", (entity) => {
+	if (entity.type === "player") {
+		entity.syncAttachments = true;
+	}
 });
 
+// Destroy attached objects on stream out
+mp.events.add("entityStreamOut", (entity) => {
+	if (entity.type === "player") {
+		let attachmentObjects = entity.attachmentObjects;
+		if (attachmentObjects) {
+			syncAttachmentObjects(entity, [], deferred);
+		}
+	}
+});
 }

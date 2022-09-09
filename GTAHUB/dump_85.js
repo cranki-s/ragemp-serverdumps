@@ -1,154 +1,313 @@
 {
-let vespLoaded = false;
+const IPLS = [
+    "h4_islandx_terrain_01",
+    "h4_islandx_terrain_01_lod",
+    "h4_islandx_terrain_01_slod",
+    "h4_islandx_terrain_02",
+    "h4_islandx_terrain_02_lod",
+    "h4_islandx_terrain_02_slod",
+    "h4_islandx_terrain_03",
+    "h4_islandx_terrain_03_lod",
+    "h4_islandx_terrain_04",
+    "h4_islandx_terrain_04_lod",
+    "h4_islandx_terrain_04_slod",
+    "h4_islandx_terrain_05",
+    "h4_islandx_terrain_05_lod",
+    "h4_islandx_terrain_05_slod",
+    "h4_islandx_terrain_06",
+    "h4_islandx_terrain_06_lod",
+    "h4_islandx_terrain_06_slod",
+    "h4_islandx_terrain_props_05_f",
+    "h4_islandx_terrain_props_05_f_lod",
+    "h4_islandx_terrain_props_05_f_slod",
+    "h4_islandx_terrain_props_06_a",
+    "h4_islandx_terrain_props_06_a_lod",
+    "h4_islandx_terrain_props_06_a_slod",
+    "h4_islandx_terrain_props_06_c",
+    "h4_islandx_terrain_props_06_c_lod",
+    "h4_islandx_terrain_props_06_c_slod",
+    "h4_mph4_terrain_01",
+    "h4_mph4_terrain_01_long_0",
+    "h4_mph4_terrain_02",
+    "h4_mph4_terrain_03",
+    "h4_mph4_terrain_04",
+    "h4_mph4_terrain_05",
+    "h4_mph4_terrain_06",
+    "h4_mph4_terrain_06_strm_0",
+    "h4_mph4_terrain_lod",
+    "h4_mph4_terrain_occ_01",
+    "h4_mph4_terrain_occ_02",
+    "h4_mph4_terrain_occ_03",
+    "h4_mph4_terrain_occ_04",
+    "h4_mph4_terrain_occ_05",
+    "h4_mph4_terrain_occ_06",
+    "h4_mph4_terrain_occ_07",
+    "h4_mph4_terrain_occ_08",
+    "h4_mph4_terrain_occ_09",
+    "h4_islandx",
+    "h4_islandx_disc_strandedshark",
+    "h4_islandx_disc_strandedshark_lod",
+    "h4_islandx_disc_strandedwhale",
+    "h4_islandx_disc_strandedwhale_lod",
+    "h4_islandx_props",
+    "h4_islandx_props_lod",
+    "h4_mph4_island",
+    "h4_mph4_island_long_0",
+    "h4_mph4_island_strm_0",
+    "h4_aa_guns_lod",
+    "h4_beach",
+    "h4_beach_bar_props",
+    "h4_beach_lod",
+    "h4_beach_party",
+    "h4_beach_party_lod",
+    "h4_beach_props",
+    "h4_beach_props_lod",
+    "h4_beach_props_party",
+    "h4_beach_props_slod",
+    "h4_beach_slod",
+    "h4_islandairstrip",
+    "h4_islandairstrip_doorsclosed",
+    "h4_islandairstrip_doorsclosed_lod",
+    "h4_islandairstrip_doorsopen",
+    "h4_islandairstrip_doorsopen_lod",
+    "h4_islandairstrip_hangar_props",
+    "h4_islandairstrip_hangar_props_lod",
+    "h4_islandairstrip_hangar_props_slod",
+    "h4_islandairstrip_lod",
+    "h4_islandairstrip_props",
+    "h4_islandairstrip_propsb",
+    "h4_islandairstrip_propsb_lod",
+    "h4_islandairstrip_propsb_slod",
+    "h4_islandairstrip_props_lod",
+    "h4_islandairstrip_props_slod",
+    "h4_islandairstrip_slod",
+    "h4_islandxcanal_props",
+    "h4_islandxcanal_props_lod",
+    "h4_islandxcanal_props_slod",
+    "h4_islandxdock",
+    "h4_islandxdock_lod",
+    "h4_islandxdock_props",
+    "h4_islandxdock_props_2",
+    "h4_islandxdock_props_2_lod",
+    "h4_islandxdock_props_2_slod",
+    "h4_islandxdock_props_lod",
+    "h4_islandxdock_props_slod",
+    "h4_islandxdock_slod",
+    "h4_islandxdock_water_hatch",
+    "h4_islandxtower",
+    "h4_islandxtower_lod",
+    "h4_islandxtower_slod",
+    "h4_islandxtower_veg",
+    "h4_islandxtower_veg_lod",
+    "h4_islandxtower_veg_slod",
+    "h4_islandx_barrack_hatch",
+    "h4_islandx_checkpoint",
+    "h4_islandx_checkpoint_lod",
+    "h4_islandx_maindock",
+    "h4_islandx_maindock_lod",
+    "h4_islandx_maindock_props",
+    "h4_islandx_maindock_props_2",
+    "h4_islandx_maindock_props_2_lod",
+    "h4_islandx_maindock_props_2_slod",
+    "h4_islandx_maindock_props_lod",
+    "h4_islandx_maindock_props_slod",
+    "h4_islandx_maindock_slod",
+    "h4_islandx_mansion",
+    "h4_islandx_mansion_b",
+    "h4_islandx_mansion_b_lod",
+    "h4_islandx_mansion_b_side_fence",
+    "h4_islandx_mansion_b_slod",
+    "h4_islandx_mansion_entrance_fence",
+    "h4_islandx_mansion_guardfence",
+    "h4_islandx_mansion_lights",
+    "h4_islandx_mansion_lockup_01",
+    "h4_islandx_mansion_lockup_01_lod",
+    "h4_islandx_mansion_lockup_02",
+    "h4_islandx_mansion_lockup_02_lod",
+    "h4_islandx_mansion_lockup_03",
+    "h4_islandx_mansion_lockup_03_lod",
+    "h4_islandx_mansion_lod",
+    "h4_islandx_mansion_office",
+    "h4_islandx_mansion_office_lod",
+    "h4_islandx_mansion_props",
+    "h4_islandx_mansion_props_lod",
+    "h4_islandx_mansion_props_slod",
+    "h4_islandx_mansion_slod",
+    "h4_islandx_mansion_vault",
+    "h4_islandx_mansion_vault_lod",
+    "h4_island_padlock_props",
+    "h4_mansion_gate_broken",
+    "h4_mansion_gate_closed",
+    "h4_mansion_remains_cage",
+    "h4_mph4_airstrip",
+    "h4_mph4_airstrip_interior_0_airstrip_hanger",
+    "h4_mph4_beach",
+    "h4_mph4_dock",
+    "h4_mph4_island_lod",
+    "h4_mph4_mansion",
+    "h4_mph4_mansion_b",
+    "h4_mph4_mansion_b_strm_0",
+    "h4_mph4_mansion_strm_0",
+    "h4_mph4_wtowers",
+    "h4_ne_ipl_00",
+    "h4_ne_ipl_00_lod",
+    "h4_ne_ipl_00_slod",
+    "h4_ne_ipl_02",
+    "h4_ne_ipl_02_lod",
+    "h4_ne_ipl_02_slod",
+    "h4_ne_ipl_03",
+    "h4_ne_ipl_03_lod",
+    "h4_ne_ipl_03_slod",
+    "h4_ne_ipl_04",
+    "h4_ne_ipl_04_lod",
+    "h4_ne_ipl_04_slod",
+    "h4_ne_ipl_05",
+    "h4_ne_ipl_05_lod",
+    "h4_ne_ipl_05_slod",
+    "h4_ne_ipl_06",
+    "h4_ne_ipl_06_lod",
+    "h4_ne_ipl_06_slod",
+    "h4_ne_ipl_07",
+    "h4_ne_ipl_07_lod",
+    "h4_ne_ipl_07_slod",
+    "h4_ne_ipl_09",
+    "h4_ne_ipl_09_lod",
+    "h4_ne_ipl_09_slod",
+    "h4_nw_ipl_00",
+    "h4_nw_ipl_00_lod",
+    "h4_nw_ipl_00_slod",
+    "h4_nw_ipl_01",
+    "h4_nw_ipl_01_lod",
+    "h4_nw_ipl_01_slod",
+    "h4_nw_ipl_02",
+    "h4_nw_ipl_02_lod",
+    "h4_nw_ipl_02_slod",
+    "h4_nw_ipl_03",
+    "h4_nw_ipl_03_lod",
+    "h4_nw_ipl_03_slod",
+    "h4_nw_ipl_04",
+    "h4_nw_ipl_04_lod",
+    "h4_nw_ipl_04_slod",
+    "h4_nw_ipl_05",
+    "h4_nw_ipl_05_lod",
+    "h4_nw_ipl_05_slod",
+    "h4_nw_ipl_06",
+    "h4_nw_ipl_06_lod",
+    "h4_nw_ipl_06_slod",
+    "h4_nw_ipl_07",
+    "h4_nw_ipl_07_lod",
+    "h4_nw_ipl_07_slod",
+    "h4_nw_ipl_08",
+    "h4_nw_ipl_08_lod",
+    "h4_nw_ipl_08_slod",
+    "h4_nw_ipl_09",
+    "h4_nw_ipl_09_lod",
+    "h4_nw_ipl_09_slod",
+    "h4_se_ipl_00",
+    "h4_se_ipl_00_lod",
+    "h4_se_ipl_00_slod",
+    "h4_se_ipl_01",
+    "h4_se_ipl_01_lod",
+    "h4_se_ipl_01_slod",
+    "h4_se_ipl_02",
+    "h4_se_ipl_02_lod",
+    "h4_se_ipl_02_slod",
+    "h4_se_ipl_03",
+    "h4_se_ipl_03_lod",
+    "h4_se_ipl_03_slod",
+    "h4_se_ipl_04",
+    "h4_se_ipl_04_lod",
+    "h4_se_ipl_04_slod",
+    "h4_se_ipl_05",
+    "h4_se_ipl_05_lod",
+    "h4_se_ipl_05_slod",
+    "h4_se_ipl_06",
+    "h4_se_ipl_06_lod",
+    "h4_se_ipl_06_slod",
+    "h4_se_ipl_07",
+    "h4_se_ipl_07_lod",
+    "h4_se_ipl_07_slod",
+    "h4_se_ipl_08",
+    "h4_se_ipl_08_lod",
+    "h4_se_ipl_08_slod",
+    "h4_se_ipl_09",
+    "h4_se_ipl_09_lod",
+    "h4_se_ipl_09_slod",
+    "h4_sw_ipl_00",
+    "h4_sw_ipl_00_lod",
+    "h4_sw_ipl_00_slod",
+    "h4_sw_ipl_01",
+    "h4_sw_ipl_01_lod",
+    "h4_sw_ipl_01_slod",
+    "h4_sw_ipl_02",
+    "h4_sw_ipl_02_lod",
+    "h4_sw_ipl_02_slod",
+    "h4_sw_ipl_03",
+    "h4_sw_ipl_03_lod",
+    "h4_sw_ipl_03_slod",
+    "h4_sw_ipl_04",
+    "h4_sw_ipl_04_lod",
+    "h4_sw_ipl_04_slod",
+    "h4_sw_ipl_05",
+    "h4_sw_ipl_05_lod",
+    "h4_sw_ipl_05_slod",
+    "h4_sw_ipl_06",
+    "h4_sw_ipl_06_lod",
+    "h4_sw_ipl_06_slod",
+    "h4_sw_ipl_07",
+    "h4_sw_ipl_07_lod",
+    "h4_sw_ipl_07_slod",
+    "h4_sw_ipl_08",
+    "h4_sw_ipl_08_lod",
+    "h4_sw_ipl_08_slod",
+    "h4_sw_ipl_09",
+    "h4_sw_ipl_09_lod",
+    "h4_sw_ipl_09_slod",
+    "h4_underwater_gate_closed",
+]
 
-function loadVesp() {
+let inCayoPerico = false;
 
-    mp.game.streaming.requestIpl('int_vesp_01_1_milo_');
-    mp.game.streaming.removeIpl("vesp_ipl_01_1");
-    mp.game.streaming.removeIpl("vesp_lod_01_1");
+// set island in minimap
+mp.events.add("render", () => {
+    mp.game.invoke("0xE81B7D2A3DAB2D81");
+    mp.game.ui.setRadarAsInteriorThisFrame(3232302352, 4700.0, -5145.0, 0, 0); // interior: h4_fake_islandx
+});
 
-    mp.game.streaming.requestIpl('int_vesp_01_2_milo_');
-    mp.game.streaming.removeIpl("vesp_ipl_01_2");
-
-
-    mp.game.streaming.requestIpl('int_vesp_02_1_milo_');
-    mp.game.streaming.removeIpl("vesp_ipl_02_1");
-
-    mp.game.streaming.requestIpl('int_vesp_02_2_milo_');
-    mp.game.streaming.removeIpl("vesp_ipl_02_2");
-
-    mp.game.streaming.requestIpl('int_vesp_03_1_milo_');
-    mp.game.streaming.removeIpl("vesp_ipl_03_1");
-    mp.game.streaming.removeIpl("vesp_lod_03_1");
-
-    // load in 4 parts to avoid some crashes (normally in first spawn on mlo)
-    setTimeout(loadVesp2, 250)
-    setTimeout(loadVesp3, 500)
-    setTimeout(loadVesp4, 750)
-}
-
-function loadVesp2() {
-    mp.game.streaming.requestIpl('int_vesp_2_1_milo_');
-    mp.game.streaming.removeIpl("vesp_ipl_2_1");
-    mp.game.streaming.removeIpl("vesp_lod_2_1");
-
-
-    mp.game.streaming.requestIpl('int_vesp_3_1_milo_');
-    mp.game.streaming.removeIpl("vesp_ipl_3_1");
-    mp.game.streaming.removeIpl("vesp_lod_3_1");
-
-    mp.game.streaming.requestIpl('int_vesp_3_2_milo_');
-    mp.game.streaming.removeIpl("vesp_ipl_3_2");
-    mp.game.streaming.removeIpl("vesp_lod_3_2");
-
-    mp.game.streaming.requestIpl('int_vesp_4_2_milo_');
-    mp.game.streaming.removeIpl("vesp_ipl_4_2");
-    mp.game.streaming.removeIpl("vesp_lod_4_2");
-
-    mp.game.streaming.requestIpl('int_vesp_5_2_milo_');
-    mp.game.streaming.removeIpl("vesp_ipl_5_2");
-    mp.game.streaming.removeIpl("vesp_lod_5_2");
-}
-
-function loadVesp3() {
-    mp.game.streaming.requestIpl("int_vesp_1_1_milo_")
-    mp.game.streaming.requestIpl("int_vesp_1_2_milo_")
-    mp.game.streaming.requestIpl("int_vesp_big_lift_milo_")
-    mp.game.streaming.requestIpl("int_vesp_big_stair_milo_")
-    mp.game.streaming.requestIpl("int_vesp_slift_milo_")
-    mp.game.streaming.requestIpl("int_vesp_smole_stair_milo_")
-}
-
-function loadVesp4() {
-    let vesp2_1ipl = mp.game.interior.getInteriorAtCoordsWithType(-1096.445, -831.962, 23.033, "int_vesp_1_2")
-    let vesp3_1ipl = mp.game.interior.getInteriorAtCoordsWithType(-1091.963, -831.206, 26.827, "int_vesp_3_2")
-    let vesp02_2ipl = mp.game.interior.getInteriorAtCoordsWithType(-1095.002, -838.586, 10.276, "int_vesp_02_1")
-    let vesp02_1ipl = mp.game.interior.getInteriorAtCoordsWithType(-1095.002, -838.586, 10.276, "int_vesp_02_2")
-    let vesp01_2ipl = mp.game.interior.getInteriorAtCoordsWithType(-1088.377, -832.352, 5.479, "int_vesp_01_1")
-    let vesp01_1ipl = mp.game.interior.getInteriorAtCoordsWithType(-1097.205, -839.141, 4.878, "int_vesp_01_2")
-
-    mp.game.interior.disableInteriorProp(vesp2_1ipl, "vesp1_2");
-    mp.game.interior.disableInteriorProp(vesp3_1ipl, "vesp3_2");
-    mp.game.interior.disableInteriorProp(vesp02_2ipl, "vesp02_1");
-    mp.game.interior.disableInteriorProp(vesp02_1ipl, "vesp02_2");
-    mp.game.interior.disableInteriorProp(vesp01_2ipl, "vesp01_1");
-    mp.game.interior.disableInteriorProp(vesp01_1ipl, "vesp01_2");
-
-
-    mp.game.interior.refreshInterior(vesp2_1ipl);
-    mp.game.interior.refreshInterior(vesp3_1ipl);
-    mp.game.interior.refreshInterior(vesp02_2ipl);
-    mp.game.interior.refreshInterior(vesp02_1ipl);
-    mp.game.interior.refreshInterior(vesp01_2ipl);
-    mp.game.interior.refreshInterior(vesp01_1ipl);
-}
-
-function unloadVesp() {
-    mp.game.streaming.removeIpl('int_vesp_01_1_milo_');
-    mp.game.streaming.requestIpl("vesp_ipl_01_1");
-    mp.game.streaming.requestIpl("vesp_lod_01_1");
-
-    mp.game.streaming.removeIpl('int_vesp_01_2_milo_');
-    mp.game.streaming.requestIpl("vesp_ipl_01_2");
-
-
-    mp.game.streaming.removeIpl('int_vesp_02_1_milo_');
-    mp.game.streaming.requestIpl("vesp_ipl_02_1");
-
-    mp.game.streaming.removeIpl('int_vesp_02_2_milo_');
-    mp.game.streaming.requestIpl("vesp_ipl_02_2");
-
-    mp.game.streaming.removeIpl('int_vesp_03_1_milo_');
-    mp.game.streaming.requestIpl("vesp_ipl_03_1");
-    mp.game.streaming.requestIpl("vesp_lod_03_1");
-
-    mp.game.streaming.removeIpl('int_vesp_2_1_milo_');
-    mp.game.streaming.requestIpl("vesp_ipl_2_1");
-    mp.game.streaming.requestIpl("vesp_lod_2_1");
-
-
-    mp.game.streaming.removeIpl('int_vesp_3_1_milo_');
-    mp.game.streaming.requestIpl("vesp_ipl_3_1");
-    mp.game.streaming.requestIpl("vesp_lod_3_1");
-
-    mp.game.streaming.removeIpl('int_vesp_3_2_milo_');
-    mp.game.streaming.requestIpl("vesp_ipl_3_2");
-    mp.game.streaming.requestIpl("vesp_lod_3_2");
-
-
-    mp.game.streaming.removeIpl('int_vesp_4_2_milo_');
-    mp.game.streaming.requestIpl("vesp_ipl_4_2");
-    mp.game.streaming.requestIpl("vesp_lod_4_2");
-
-    mp.game.streaming.removeIpl('int_vesp_5_2_milo_');
-    mp.game.streaming.requestIpl("vesp_ipl_5_2");
-    mp.game.streaming.requestIpl("vesp_lod_5_2");
-
-
-    mp.game.streaming.removeIpl("int_vesp_1_1_milo_")
-    mp.game.streaming.removeIpl("int_vesp_1_2_milo_")
-    mp.game.streaming.removeIpl("int_vesp_big_lift_milo_")
-    mp.game.streaming.removeIpl("int_vesp_big_stair_milo_")
-    mp.game.streaming.removeIpl("int_vesp_slift_milo_")
-    mp.game.streaming.requestIpl("int_vesp_smole_stair_milo_")
-
-}
-
-function vespController() {
-    let vespPos = new mp.Vector3(-1096.445, -831.962, 23.033);
-    let playerPos = mp.players.local.position
-    let dist = mp.game.system.vdist(vespPos.x, vespPos.y, vespPos.z, playerPos.x, playerPos.y, playerPos.z);
-    if (dist > 200 && vespLoaded) {
-        unloadVesp();
-        vespLoaded = false;
-    }
-    else if (dist < 200 && !vespLoaded) {
-        loadVesp();
-        vespLoaded = true;
-    }
-}
-
+// enable cayo perico, welcome!
 mp.setInterval( () => {
-    vespController();
-}, 1000)
+    if (!inCayoPerico) {
+        let pos = mp.players.local.position
+        if (pos.x >= 1491 && pos.y <= -3300) {
+
+            // first load all ipls
+            for (let ipl of IPLS) {
+                let attemp = 0;
+                while(!mp.game.streaming.isIplActive(ipl)) {
+                    mp.game.streaming.requestIpl(ipl);
+                    attemp += 1;
+                    if (attemp === 10) {
+                        mp.console.logWarning("Warning: Can't load ipl: " + ipl);
+                        break;
+                    }
+                }
+            }
+
+            // reload interior
+            const interior = mp.game.interior.getInteriorAtCoords(4840.571, -5174.425, 2.0);
+            mp.game.interior.refreshInterior(interior);
+
+            // load gps routes
+            mp.game.invoke("0xF74B1FFA4A15FBEA", true); // _SET_AI_GLOBAL_PATH_NODES_TYPE
+            inCayoPerico = true;
+        }
+    } else if (inCayoPerico) {
+        let pos = mp.players.local.position
+        if (pos.x < 1491 || pos.y > -3300) {
+            if (mp.players.local.vehicle) return; // if change to false in vehicle, game crash
+            mp.game.invoke("0xF74B1FFA4A15FBEA", false); // _SET_AI_GLOBAL_PATH_NODES_TYPE
+            inCayoPerico = false;
+        }
+    }
+}, 2000);
 }

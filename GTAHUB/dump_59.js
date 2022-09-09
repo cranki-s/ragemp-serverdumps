@@ -1,15 +1,27 @@
 {
-let warningType = {
-    lag: "fa fa-exclamation-triangle"
-}
+require("ui.js");
 
-mp.rpc("warning:show", (type, time) => {
-    let icon = warningType[type]
-    if (icon) {
-        browserCall("warningsVM", "toggleWarning", true, icon);
+let colors = [
+    "~b~",
+    "~w~",
+    "~g~",
+    "~y~",
+    "~p~",
+    "~o~"
+]
+
+mp.rpc("license:create", (licenseDataJSON) => {
+    let licenseData = JSON.parse(licenseDataJSON);
+
+    for (let color of colors) {
+        if (licenseData.address.includes(color)) licenseData.address = licenseData.address.replaceAll(color, "");
     }
-    setTimeout( () => {
-        browserCall("warningsVM", "toggleWarning", false, icon);
-    }, time)
+
+    browserSet("licenseVM", "licenseData", licenseData);
+    browserCall("licenseVM", "toggle", true);
+});
+
+mp.rpc("license:destroy", () => {
+    browserCall("licenseVM", "toggle", false)
 });
 }

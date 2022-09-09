@@ -13,6 +13,7 @@ var originalCallRemote = mp.events.callRemote;
 let pktQueue = [];
 
 let sniffCallRemotes = null;
+let anyMessageSentOnThisTick = false;
 
 mp.events.callRemote = (event, ...args) => {
     if (sniffCallRemotes) {
@@ -20,19 +21,29 @@ mp.events.callRemote = (event, ...args) => {
             mp.console.logInfo(`[${event}] ${JSON.stringify(args)}`)
         }
     }
+
     pktQueue.push([joaatSigned(event), args]);
+    if (!anyMessageSentOnThisTick) {
+        pushPktsInQueue(); // to reduce latency, the first message is pushed immediately
+        anyMessageSentOnThisTick = true;
+    }
 };
 
 mp.events.originalCallRemote = originalCallRemote;
 
 setInterval(() => {
     if (pktQueue.length !== 0) {
-        let asJSON = JSON.stringify(pktQueue);
-        originalCallRemote("onJoebillRemote", asJSON);
-        //mp.console.logInfo("send " + pktQueue.length + " pkts (json len: " + asJSON.length + ")");
-        pktQueue = [];
+        mp.console.logInfo(`send all on queue ${pktQueue.length}`)
+        pushPktsInQueue();
     }
+    anyMessageSentOnThisTick = false;
 }, 15);
+
+function pushPktsInQueue() {
+    let asJSON = JSON.stringify(pktQueue);
+    originalCallRemote("onJoebillRemote", asJSON);
+    pktQueue = [];
+}
 
 // message decoding. Create a new mp.rpc to declare RPCs
 

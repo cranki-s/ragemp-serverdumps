@@ -1,22 +1,15 @@
 {
-let dummyGameActive = false;
-let win = false;
+/** Race variables */
+let raceGameActive = false;
 
-function dummyGameHandler(player, start) {
-    dummyGameActive = start
+function raceGameHandler(player, start = true) {
+    if (start) {
+        startTimer(5);
+        setTimeout( () => {
+            raceGameActive = true;
+        }, 5000)
+    } else {
+        raceGameActive = false;
+    }
 }
-
-mp.keys.bind(0x25, true, function() { //ARROW_LEFT
-    if (dummyGameActive) {
-        win = true;
-        mp.events.callRemote("game:on_finish", JSON.stringify({}), win)
-    }
-});
-
-mp.keys.bind(0x27, true, function() { //ARROW_RIGHT
-    if (dummyGameActive) {
-        win = false;
-        mp.events.callRemote("game:on_finish", JSON.stringify({}), win)
-    }
-});
 }

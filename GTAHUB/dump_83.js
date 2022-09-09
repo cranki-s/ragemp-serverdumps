@@ -1,19 +1,22 @@
 {
-let garajeLoaded = false;
+mp.events.add("game_skillcheck:on_show", () => {
+    mp.game.audio.playSoundFrontend(-1, "ROUND_ENDING_STINGER_CUSTOM", "CELEBRATION_SOUNDSET", true);
+});
 
-mp.setInterval( () => {
-    let pos = mp.players.local.position;
-    let interiorId = mp.game.interior.getInteriorAtCoords(pos.x, pos.y, pos.z);
-    if (interiorId === 285697 && !garajeLoaded) {
-        garajeLoaded = true;
-        mp.game.streaming.requestIpl("tr_int_placement_tr_interior_1_tuner_car_meetmilo");
-        mp.game.interior.enableInteriorProp(285697, "entity_set_meet_lights_cheap");
-        mp.game.interior.enableInteriorProp(285697, "entity_set_meet_lights");
-        mp.game.interior.enableInteriorProp(285697, "entity_set_meet_crew");
-        mp.game.interior.enableInteriorProp(285697, "entity_set_test_crew");
-        mp.game.interior.enableInteriorProp(285697, "entity_set_test_lights");
-        mp.game.interior.enableInteriorProp(285697, "entity_set_test_lights_cheap");
-        mp.game.interior.refreshInterior(285697);
+mp.events.add("game_skillcheck:on_finish", (success) => {
+    if (success) mp.game.audio.playSoundFrontend(-1, "Hit_In", "PLAYER_SWITCH_CUSTOM_SOUNDSET", true);
+    else mp.game.audio.playSoundFrontend(-1, "ERROR", "HUD_AMMO_SHOP_SOUNDSET", true);
+});
+
+function startSkillcheckGame(data) {
+    try {
+        data = JSON.parse(data);
+        if (typeof data.timesToComplete === "number") {
+            openGame("http://package/html/games/skillcheck/index.html", false);
+            minigameSet("skillcheckVM", "timesToComplete", data.timesToComplete);
+        }
+    } catch(e) {
+        mp.console.logWarning(`cannot start skillcheck: ${e}`);
     }
-}, 1000);
+}
 }

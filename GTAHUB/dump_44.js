@@ -1,190 +1,117 @@
 {
+/** Implements character customization UI */
 require("ui.js");
 
-let currentPhoneState = {};
+// saves initial customization to re-apply after the view gets destroyed,
+// the nearest we have to "reset" to the original customization state.
+// that's because we don't want our player to get dirty due to the
+// local modifications to customizations made locally.
+let initialCustomization = {};
+let initialCategories = [];
 
-mp.rpc("phone:visible", (visible) => {
-    if (!visible) {
-        disableUI("phone");
-        disableUI("phone-input");
-        browserExecute("phoneVM.hidden = true;");
-    } else {
-        enableUI("phone", false, false, false);
-        browserExecute("phoneVM.hidden = false;");
-        mp.game.audio.playSoundFrontend(2, "Hang_Up", "Phone_SoundSet_Michael", true);
+// should respond charactercustomization:on_save(customization)
+mp.rpc("charactercustomization:show", (categoriesJSON, customizationJson) => {
+    enableUI("charactercustomization", true, true, true);
+    initialCustomization = JSON.parse(customizationJson);
+    initialCategories = JSON.parse(categoriesJSON);
+    if (initialCategories.length === 0) {
+        initialCategories = ["info", "adn", "hair", "face", "face-features", "clothes"];
     }
+
+    browserSet("charactercustomizationVM", "categories", initialCategories);
+    browserSet("charactercustomizationVM", "customization", initialCustomization);
+    browserCall("charactercustomizationVM", "toggle", true);
 });
 
-mp.events.add("phone:on_close", (instantly) => {
-    mp.game.audio.playSoundFrontend(2, "Click_Special", "WEB_NAVIGATION_SOUNDS_PHONE", true);
-    mp.events.callRemote("phone:on_close");
+mp.rpc("charactercustomization:hide", () => { // opcion: resetear customizacion cuando se toca la X. problema: ui.
+    // reset to original customization
+    // disabled: may override server-side set customization.
+    //mp.events.call("charactercustomization:on_customization_change", JSON.stringify(initialCustomization));
+
+    disableUI("charactercustomization");
+    browserCall("charactercustomizationVM", "toggle", false);
 });
 
-/** Called by CEF when the phone enters an app that requires cursor */
-mp.events.add("phone:on_inputmode_toggle", (toggle) => {
-    if (toggle) {
-        enableUI("phone-input", false, false, true);
-    } else {
-        disableUI("phone-input");
+
+// called from CEF when customization category change, to set the appropiate camera
+mp.events.add("charactercustomization:on_change_category", (newCategory) => {
+    mp.events.callRemote("charactercustomization:on_change_category", newCategory);
+});
+
+// called from CEF when customization data change, to apply to the character visually
+mp.events.add("charactercustomization:on_customization_change", (customizationJson) => {
+    let customization = JSON.parse(customizationJson);
+    let p = mp.players.local;
+    
+    p.model = customization.gender ? mp.game.joaat('mp_m_freemode_01') : mp.game.joaat('mp_f_freemode_01');
+    let featureIndex = 0;
+    for (feature of customization.faceFeatures) {
+        p.setFaceFeature(featureIndex, feature);
+        featureIndex++;
     }
-});
 
-mp.events.add("phone:on_submit", () => {
-    mp.game.audio.playSoundFrontend(2, "Click_Fail", "WEB_NAVIGATION_SOUNDS_PHONE", true);
-});
+    p.setEyeColor(customization.eyeColor);
+    let b = customization.headBlend;
+    p.setHeadBlendData(b.shape1, b.shape2, 0, b.shape1, b.shape2, 0, b.shapeMix, b.skinMix, 0, false);
 
-mp.events.add("phone:on_navigate", () => {
-    mp.game.audio.playSoundFrontend(2, "CLICK_BACK", "WEB_NAVIGATION_SOUNDS_PHONE", true);
-});
-
-mp.events.add("phone:on_back", () => {
-    mp.game.audio.playSoundFrontend(2, "Click_Special", "WEB_NAVIGATION_SOUNDS_PHONE", true);
-});
-
-// Events from the backend
-
-mp.rpc("phone:ads", (adsJson) => {
-    browserSet("phoneVM", "ads", JSON.parse(adsJson));
-});
-
-mp.rpc("phone:services", (servicesJson) => {
-    browserSet("phoneVM", "services", JSON.parse(servicesJson));
-});
-
-mp.rpc("phone:ad_publish_info", (adPublishInfo) => {
-    browserSet("phoneVM", "adPublishInfo", adPublishInfo);
-});
-
-mp.rpc("phone:ad_edit_info", (adEditInfo) => {
-    browserSet("phoneVM", "adEditInfo", adEditInfo);
-});
-
-
-mp.rpc("phone:can_switch_to_alternative", (canSwitchToAlternative) => {
-    browserSet("phoneVM", "canSwitchToAlternative", canSwitchToAlternative);
-});
-
-mp.rpc("phone:alternative_name", (alternativeName) => {
-    browserSet("phoneVM", "alternativeName", alternativeName);
-});
-
-mp.rpc("phone:alternative_enabled", (alternativeEnabled) => {
-    browserSet("phoneVM", "alternativeEnabled", alternativeEnabled);
-});
-
-mp.rpc("phone:data", (stateJson) => {
-    currentPhoneState = JSON.parse(stateJson);
-    browserExecute("phoneVM.phone = " + stateJson + ";");
-    if (currentPhoneState.callState !== 0) {
-        mp.events.call("phone:on_inputmode_toggle", false); // disable input cursor while on call
-    }
-});
-
-let clearNotificationInterval = null;
-
-mp.rpc("phone:notify_sms", (num, sms) => {
-    browserCall("phoneVM", "notifySms", num, sms);
-    if (clearNotificationInterval) {
-        clearInterval(clearNotificationInterval);
-    }
-    clearNotificationInterval = setTimeout(() => {
-        clearNotificationInterval = null;
-        browserCall("phoneVM", "cancelNotification");
-    }, 7500);
-});
-
-mp.rpc("phone:notify_ad", (adText) => {
-    browserCall("phoneVM", "notifyAd", adText);
-    if (clearNotificationInterval) {
-        clearInterval(clearNotificationInterval);
-    }
-    clearNotificationInterval = setTimeout(() => {
-        clearNotificationInterval = null;
-        browserCall("phoneVM", "cancelNotification");
-    }, 7500);
-});
-
-mp.rpc("phone:phones_on", (numberListJson) => {
-    browserExecute("phoneVM.phonesOn = " + numberListJson + ";");
-});
-
-mp.rpc("phone:weather", (weather) => {
-    browserSet("phoneVM", "weather", weather);
-});
-
-mp.rpc("phone:time", (time) => {
-    browserSet("phoneVM", "time", time);
-});
-
-mp.rpc("phone:call_state", (callState) => {
-    browserSet("phoneVM", "callState", callState);
-});
-
-mp.rpc("phone:call_num", (callNum) => {
-    browserSet("phoneVM", "callNum", callNum);
-});
-
-// local events
-mp.events.add("phone:on_open_location", (locationJson) => {
-    let location = JSON.parse(locationJson);
-    if (location.x && location.y && location.z) {
-        mp.game.ui.setNewWaypoint(location.x, location.y);
-        mp.events.call("phone:on_close");
-    }
-});
-
-// Events targeted at the backend
-mp.events.add("phone:on_message", (num, messageJSON) => {
-    let locationToken = "\"{{mylocation}}\""
-    if (messageJSON.indexOf(locationToken) != -1) {
-        messageJSON = messageJSON.replace(locationToken, JSON.stringify(mp.players.local.position));
-    }
-    mp.events.callRemote("phone:on_message", num, messageJSON);
-});
-
-mp.events.add("phone:on_call", (num) => {
-    mp.events.callRemote("phone:on_call", num);
-});
-
-mp.events.add("phone:on_publish_ad", (text, isHighlighted) => {
-    mp.events.callRemote("phone:on_publish_ad", text, isHighlighted);
-});
-
-mp.events.add("phone:on_bump_ad", (adId) => {
-    mp.events.callRemote("phone:on_bump_ad", adId);
-});
-
-mp.events.add("phone:on_delete_ad", (adId) => {
-    mp.events.callRemote("phone:on_delete_ad", adId);
-});
-
-mp.events.add("phone:on_add_remove_contact", (num, name, added) => {
-    mp.events.callRemote("phone:on_add_remove_contact", num, name, added);
-});
-
-mp.events.add("phone:on_call_accept_reject", (accepts) => {
-    mp.events.callRemote("phone:on_call_accept_reject", accepts);
-});
-
-mp.events.add("phone:on_toggle_calls", () => {
-    mp.events.callRemote("phone:on_toggle_calls");
-});
-
-mp.events.add("phone:on_toggle_messages", () => mp.events.callRemote("phone:on_toggle_messages"));
-
-mp.events.add("phone:on_toggle_alternative", (toggle) => {
-    mp.events.callRemote("phone:on_toggle_alternative", toggle);
-});
-
-mp.events.add("phone:on_select", (app) => {
-    if (app === "cam") {
-        if (mp.players.local.vehicle) {
-            mp.events.call("hud:short_info", "No puedes usar eso aquí.", 3500)
-            return
+    if (initialCategories.indexOf("clothes") !== -1) {
+        for (let i = 0; i <= 12; i++) {
+            let clothes = customization.clothes[i];
+            if (clothes) {
+                p.setComponentVariation(i, clothes.drawable, clothes.texture, clothes.palette);
+            } else {
+                p.setComponentVariation(i, 0, 0, 0);
+            }
         }
-        mp.events.call("phone:on_close");
-        mp.events.call("item_camera:toggle", "PHONE")
-        mp.events.call("player:toggle_newbie_help", true, "PHONE")
     }
-})
+
+    p.setHairColor(customization.hairColor, customization.hairHighlightColor);
+
+    for (let overlayIndex = 0; overlayIndex <= 12; overlayIndex++) {
+        let overlay = customization.headOverlays[overlayIndex];
+        if (overlay) {
+            p.setHeadOverlay(parseInt(overlayIndex), overlay.index, overlay.opacity, overlay.colorId, overlay.secondaryColorId);
+        } else {
+            p.setHeadOverlay(parseInt(overlayIndex), 255, 1, 0, 0); // disable overlay
+        }
+    }
+});
+
+// called from CEF when submitting the data
+
+mp.events.add("charactercustomization:on_save", (customizationJson) => {
+    mp.events.callRemote("charactercustomization:on_save", customizationJson);
+});
+
+mp.events.add("charactercustomization:on_cancel", () => {
+    mp.events.callRemote("charactercustomization:on_cancel");
+});
+
+/** Customization struct: 
+customization: {
+    hair: 0,
+    hairColor: 0,
+    hairHighlightColor: 0,
+    headOverlays: {
+        0: {index:0, opacity:1, colorId:0, secondaryColorId:0},
+        1: {index:0, opacity:1, colorId:0, secondaryColorId:0},
+        2: {index:0, opacity:1, colorId:0, secondaryColorId:0},
+        3: {index:0, opacity:1, colorId:0, secondaryColorId:0},
+        4: {index:0, opacity:1, colorId:0, secondaryColorId:0},
+        5: {index:0, opacity:1, colorId:0, secondaryColorId:0},
+        6: {index:0, opacity:1, colorId:0, secondaryColorId:0},
+        7: {index:0, opacity:1, colorId:0, secondaryColorId:0},
+        8: {index:0, opacity:1, colorId:0, secondaryColorId:0},
+        9: {index:0, opacity:1, colorId:0, secondaryColorId:0},
+        10: {index:0, opacity:1, colorId:0, secondaryColorId:0},
+        11: {index:0, opacity:1, colorId:0, secondaryColorId:0},
+        12: {index:0, opacity:1, colorId:0, secondaryColorId:0}
+    },
+    faceFeatures: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    eyeColor: 0,
+    headBlend: {
+        shape1: 0, shape2: 0, skin1: 0, skin2: 0,
+        shapeMix: 0.5, skinMix: 0.5
+    }
+}*/
 }

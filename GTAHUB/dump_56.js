@@ -1,140 +1,110 @@
 {
-const player = mp.players.local;
+mp.rpc("player:set_admin_duty", (id, duty, showLabel) => {
+    let staff = mp.players.atRemoteId(id)
+    if (!staff) return
 
-let jet = false;
-let pedplayer = false;
-let renderEvent = null;
-let cinematicName = "";
-let cinematicEndInterval = null;
+    staff.duty = duty
+    staff.showLabel = showLabel
+})
 
-require("ui.js");
+mp.events.add("render", () => {
+    let p = mp.players.local
 
-// call to finish the cutscene
-mp.events.add("doneCutscene", () => {
-    if (cinematicEndInterval) {
-        clearInterval(cinematicEndInterval);
-        cinematicEndInterval = null;
-    }
+    // Draw info about players if admin is duty
+    if (p.duty) {
+        mp.players.forEachInStreamRange(p2 => {
+            if (!mp.players.exists(p2) || !p2.handle) return;
 
-    mp.game.audio.triggerMusicEvent("FM_INTRO_DRIVE_END");
-    mp.game.invoke("0xD220BDD222AC4A1E"); // STOP_CUTSCENE_IMMEDIATELY
-    player.setAlpha(255);
-    player.setInvincible(false);
-    mp.game.invoke("0xEA1C610A04DB6BBB", pedplayer, false, false); // SET_ENTITY_VISIBLE
-    // Hide Ped (Deleting Ped crashes Game)
-
-    setTimeout(() => mp.game.cam.doScreenFadeIn(1000), 9000);
-
-    // destroy render event
-    if(renderEvent) {
-        renderEvent.destroy();
-        renderEvent = null;
-    }
-
-    toggleHud(true);
-});
-
-mp.rpc("player:run_welcome_cinematic", (name, millis) => {
-    cinematicName = name;
-
-    // hide hud
-    toggleHud(false);
-
-    if (millis < 15000) millis = 15000;
-
-    // fire a timer that:
-    // - 10 secs before, fade out the string
-    // - 500ms after that, ends the cutscene
-    if (cinematicEndInterval) clearInterval(cinematicEndInterval);
-    cinematicEndInterval = setTimeout(() => {
-        mp.game.cam.doScreenFadeOut(500);
-        setTimeout(() => mp.events.call("doneCutscene"), 500);
-    }, millis - 9500);
-
-    // run the cinematic
-    mp.events.call("run_welcome_cinematic");
-});
-
-mp.events.add("run_welcome_cinematic", async () => {
-    mp.game.cam.doScreenFadeOut(0);
-
-    //create hud ready for them to spawn
-    mp.game.time.advanceClockTimeTo(19, 30, 0);
-    mp.game.audio.setAudioFlag("DisableFlightMusic", true);
-    player.clearTasksImmediately();
-    player.position = new mp.Vector3(-1117.778, -1557.625, 3.3819);
-    player.setInvincible(true);
-
-    mp.game.audio.prepareMusicEvent("FM_INTRO_START");
-
-    //Clone Current Ped
-    const pedplayer = mp.game.invoke("0xEF29A16337FACADB", player.handle, 0, false, false);
-
-    //Make Player Invisible
-    player.setAlpha(0);
-    mp.game.cam.renderScriptCams(false, false, 0, false, false);
-
-    mp.game.cutscene.requestCutscene("mp_intro_concat", 1);
-
-    while (!mp.game.cutscene.hasThisCutsceneLoaded("mp_intro_concat"))  {
-        await mp.game.waitAsync(0);
-    }
-
-    //Render Jet
-    const hash = mp.game.joaat("p_cs_mp_jet_01_s")
-    jet = mp.game.object.createObject(hash, -1200, -1490, 142.385, false, true, false);
-
-    mp.game.invoke("0x3910051CCECDB00C", jet, false); // _SET_ENTITY_CLEANUP_BY_ENGINE
-    mp.game.invoke("0xEA1C610A04DB6BBB", jet, true, false); // SET_ENTITY_VISIBLE
-
-    // Attach Jet to Cutscene
-    mp.game.cutscene.registerEntityForCutscene(jet, "MP_Plane", 0, 0, 0);
-
-    if (player.model === 1885233650) {
-        // Remove Female NPC from Cutscene
-        mp.game.cutscene.registerEntityForCutscene(0, "MP_Female_Character", 3, mp.game.joaat("mp_f_freemode_01"), 0);
-        mp.game.cutscene.registerEntityForCutscene(pedplayer, "MP_Male_Character", 0, 0, 0);
-    } else {
-        // Remove Male NPC from Cutscene
-        mp.game.cutscene.registerEntityForCutscene(0, "MP_Male_Character", 3, mp.game.joaat("mp_m_freemode_01"), 0);
-        mp.game.cutscene.registerEntityForCutscene(pedplayer, "MP_Female_Character", 0, 0, 0);
-    }
-    mp.game.invoke("0xEA1C610A04DB6BBB", pedplayer, true, false); // SET_ENTITY_VISIBLE
-
-    for (let i = 1; i < 8; i++) {
-        mp.game.cutscene.registerEntityForCutscene(0, "MP_Plane_Passenger_" + i, 3, mp.game.joaat("mp_m_freemode_01"), 0);
-        mp.game.invoke("0x4C61C75BEE8184C2", "MP_Plane_Passenger_" + i, 0, 0); // SET_CUTSCENE_ENTITY_STREAMING_FLAGS
-    }
-
-    mp.game.invoke("0xE532F5D78798DAAB", hash); // SET_MODEL_AS_NO_LONGER_NEEDED
-
-    setTimeout(() => {
-        mp.game.cutscene.startCutscene(4);
-        mp.game.invoke("0xBEB2D9A1D9A8F55A", 9, 9, 9, 9); //Idk what is it (namespace STREAMING)
-        mp.game.cam.doScreenFadeIn(500);
-        mp.game.audio.triggerMusicEvent("FM_INTRO_START");
-    }, 500);
-
-    /** Welcome text in screen */
-    if (renderEvent) renderEvent.destroy();
-    renderEvent = mp.events.add("render", () => {
-        const time = mp.game.invoke("0xE625BEABBAFFDAB9"); // GET_CUTSCENE_TIME
-        if (time !== 0) {
-            if (time > 12000 && time < 22000) {
-                mp.game.graphics.drawText("Tu historia empieza aquí, ~b~" + cinematicName.replace("_", " "), [0.19895833730697632, 0.1657407432794571], {
-                    font: 4,
-                    color: [255, 255, 255, 255],
-                    scale: [0.8, 0.8],
-                    outline: true
-                });
-                mp.game.graphics.drawText("Bienvenido a ~p~GTAHUB", [0.20208333432674408, 0.09351851791143417], {
-                    font: 4,
-                    color: [255, 255, 255, 255],
-                    scale: [0.8, 0.8],
-                    outline: true
-                });
+            if (p !== p2) {
+                let userInfo = getColor(p2)
+                userInfo += `ID ${p2.remoteId} ${p2.name.replace("_", " ")} ${p2.getHealth()}HP`
+                if(p2.weapon !== 2725352035) {
+                    userInfo += ` ${p2.getAmmoInClip(p2.weapon)}WA`
+                }
+                if (p2.getSpeed() * 3.6 > 26) {
+                    userInfo += ` ${(p2.getSpeed() * 3.6).toFixed(0)}KMH`
+                }
+                if(p2.vehicle) {
+                    userInfo += ` ${p2.vehicle.getEngineHealth()}VH`
+                }
+                mp.game.graphics.drawText(
+                    userInfo,
+                    [p2.position.x, p2.position.y, p2.position.z],
+                    {
+                        font: 2,
+                        color: [255, 255, 255, 190],
+                        scale: [0.35, 0.35],
+                        outline: true,
+                    });
             }
+        });
+    }
+
+    // Draw STAFF in admin heads
+    mp.players.forEachInStreamRange(p2 => {
+        if (!mp.players.exists(p2) || !p2.handle) return;
+
+        if (p !== p2 && p2.duty && p2.showLabel) {
+            if (mp.game.system.vdist2(p.position.x, p.position.y, p.position.z, p2.position.x, p2.position.y, p2.position.z) > 100) return;
+
+            mp.game.graphics.drawText(
+                "STAFF",
+                [p2.position.x, p2.position.y, p2.position.z + 1.1],
+                {
+                    font: 0,
+                    color: [255, 255, 255, 200],
+                    scale: [0.3, 0.3],
+                    outline: true,
+                });
         }
     });
+})
+
+/** Colors:
+ * Red: shooting
+ * Orange: aiming
+ * Yellow: weapon selected
+ * Green: in combat
+ * White: normal state
+ */
+function getColor(user) {
+    if (user.getConfigFlag(58, true) && user.weapon !== 2725352035) {
+        return `~r~`
+    }
+    else if(user.getConfigFlag(78, true)) {
+        return `~o~`
+    }
+    else if(user.weapon !== 2725352035) {
+        return `~y~`
+    }
+    else if(user.isInMeleeCombat() || user.isUsingActionMode()) {
+        return `~g~`
+    }
+    else return `~w~`
+}
+
+function getGroundZ(pos) {
+    return new Promise((resolve, reject) => {
+        let newZ = 0;
+        let interval = setInterval( async () => {
+            newZ++
+            pos.z = mp.game.gameplay.getGroundZFor3dCoord(pos.x, pos.y, newZ * 1000, 0, false)
+            if (pos.z % 1 !== 0 || newZ >= 5) {
+                pos.z += 2
+                clearInterval(interval)
+                resolve(pos)
+            }
+        }, 500)
+    })
+}
+
+mp.events.add("playerCreateWaypoint", async (position) => {
+    if (mp.players.local.duty) {
+        mp.players.local.position = position;
+        mp.players.local.freezePosition(true)
+        let newPos = await getGroundZ(position)
+        mp.players.local.freezePosition(false)
+        mp.players.local.position = newPos;
+    }
 });
 }

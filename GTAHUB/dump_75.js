@@ -1,139 +1,235 @@
 {
-//Fingerpointing
-let pointing =
-{
-    active: false,
-    interval: null,
-    lastSent: 0,
-    start: function () {
-        if (!this.active) {
-            this.active = true;
+/** Implements input bindings for GTA. */
+require("ui.js");
 
-            mp.game.streaming.requestAnimDict("anim@mp_point");
+let inputList = {
+    INTERACT: {key: 0x45, name: "E"},
+    INTERACT_SECONDARY: {key: 0x52, name: "R"},
+    USE_HAND_ITEM: {key: 0, name: "Click"}, // detected separately
+    DROP_OR_TAKE_ITEM: {key: 0x42, name: "B"},
+    START_ENGINE: {key: 0x10, triggerOnRelease: true, name: "Shift↑"},
+    LOCK_UNLOCK_PROPERTY: {key: 0x58, name: "X"},
+    HOUSE_MENU: {key: 0x58, name: "X"},
+    VEHICLE_MENU: {key: 0x11, triggerOnRelease: true, name: "Ctrl"},
+    ENTER_EXIT_ONFOOT: {key: 0x45, name: "E"},
+    ENTER_EXIT_ONVEHICLE: {key: 0x45, name: "E"},
+    CRAWLING: {key: 0x57, name: "W"},
+    OPEN_PHONE: {key: 0x26, name: "↑"},
+    TOGGLE_PHONE_CAMERA: {key: 0x45, name: "E"},
+    TAKE_SCREENSHOT: {key: 0x74, name: "F5"},
+    LOAD_WEAPON: {key: 0x52, name: "R"},
+    PUZZLE_UP: {key: 0x26, name: "⇧"},
+    PUZZLE_DOWN: {key: 0x28, name: "⇩"},
+    PUZZLE_RIGHT: {key: 0x27, name: "⇨"},
+    PUZZLE_LEFT: {key: 0x25, name: "⇦"},
+    ANIMATION_MENU: {key: 0x4D, name: "M"},
+    ANIMATION_STOP: {key: 0x12, triggerOnRelease: true, name: "Alt"},
+    TOGGLE_NOCLIP: {key: 0x72, name: "F3"},
 
-            while (!mp.game.streaming.hasAnimDictLoaded("anim@mp_point")) {
-                mp.game.wait(0);
+    // anim shortcuts
+    ANIMATION_1: {key: 0, name: "Alt + 1"},
+    ANIMATION_2: {key: 0, name: "Alt + 2"},
+    ANIMATION_3: {key: 0, name: "Alt + 3"},
+    ANIMATION_4: {key: 0, name: "Alt + 4"},
+    ANIMATION_5: {key: 0, name: "Alt + 5"},
+    ANIMATION_6: {key: 0, name: "Alt + 6"},
+    ANIMATION_7: {key: 0, name: "Alt + 7"},
+    ANIMATION_8: {key: 0, name: "Alt + 8"},
+    ANIMATION_9: {key: 0, name: "Alt + 9"},
+    ANIMATION_POINT: {key: 0, name: "L"},
+
+    // Local input, just for the notification
+    MENU: {key: 0, name: "Tab"},
+    TALK: {key: 0, name: "N"},
+    CHAT: {key: 0, name: "T"},
+    TOGGLE_HELP: {key: 0, name: "F4"},
+    TOGGLE_HUD: {key: 0, name: "F7"},
+    ENTER_VEHICLE_PASSENGER: {key: 0, name: "G"},
+    OPEN_INVENTORY: {key: 0, name: "I"},
+
+    // object edition input
+    EDITION_SAVE: {key: 0, name: "⏎ Enter"},
+    EDITION_CANCEL: {key: 0, name: "⌫ Borrar"},
+    EDITION_GROUND: {key: 0, name: "G"},
+    EDITION_ROTATE_RIGHT: {key: 0, name: "Q"},
+    EDITION_ROTATE_LEFT: {key: 0, name: "E"},
+    EDITION_HEIGHT: {key: 0, name: "Alt"},
+    EDITION_ACCELERATE: {key: 0, name: "Shift↑"},
+};
+
+let keysDown = {};
+let clickDown = false;
+let keyDownTime = {};
+let controlsShown = false;
+
+function sendInputPress(input, pressed) {
+    mp.events.callRemote('player:on_input', input, pressed);
+}
+
+for (inputType in inputList) {
+    let keyCode = inputList[inputType].key;
+    let constInputType = inputType;
+    let triggerOnRelease = inputList[inputType].triggerOnRelease || false;
+
+    if (keyCode !== 0) {
+        mp.keys.bind(keyCode, true, function() {
+            if (!mp.gui.cursor.visible && !mp.game.ui.isPauseMenuActive() && !(constInputType in keysDown)) {
+                keysDown[constInputType] = true;
+                if (triggerOnRelease) { // in this case will trigger if releases the key quickly
+                    keyDownTime[constInputType] = new Date().getTime();
+                } else {
+                    sendInputPress(constInputType, true);
+                }
             }
-            mp.game.invoke("0x0725a4ccfded9a70", mp.players.local.handle, 0, 1, 1, 1);
-            mp.players.local.setConfigFlag(36, true)
-            mp.players.local.taskMoveNetwork("task_mp_pointing", 0.5, false, "anim@mp_point", 24);
-            mp.game.streaming.removeAnimDict("anim@mp_point");
-            this.interval = setInterval(this.process.bind(this), 0);
-        }
-    },
-
-    stop: function () {
-        this.active &&
-            (clearInterval(this.interval),
-                (this.interval = null),
-                (this.active = !1),
-                mp.game.invoke("0xd01015c7316ae176", mp.players.local.handle, "Stop"),
-                !mp.game.invoke("0x84A2DD9AC37C35C1", mp.players.local.handle) &&
-                mp.game.invoke("0x176CECF6F920D707", mp.players.local.handle),
-                !mp.players.local.isInAnyVehicle(!0) && mp.game.invoke("0x0725a4ccfded9a70", mp.players.local.handle, 1, 1, 1, 1),
-                mp.players.local.setConfigFlag(36, !1));
-    },
-
-    gameplayCam: mp.cameras.new("gameplay"),
-    lastSync: 0,
-
-    getRelativePitch: function () {
-        let camRot = this.gameplayCam.getRot(2);
-
-        return camRot.x - mp.players.local.getPitch();
-    },
-
-    process: function () {
-        if (this.active) {
-            mp.game.invoke("0x921ce12c489c4c41", mp.players.local.handle);
-
-            let camPitch = this.getRelativePitch();
-
-            if (camPitch < -70.0) {
-                camPitch = -70.0;
+        });
+        mp.keys.bind(keyCode, false, function() {
+            if (constInputType in keysDown) {
+                if (triggerOnRelease) {
+                    let timeDown = new Date().getTime() - (keyDownTime[constInputType] || 0);
+                    if (timeDown < 400) {
+                        sendInputPress(constInputType, true);
+                        sendInputPress(constInputType, false);
+                    }
+                } else {
+                    sendInputPress(constInputType, false);
+                }
+                delete keysDown[constInputType];
             }
-            else if (camPitch > 42.0) {
-                camPitch = 42.0;
-            }
-            camPitch = (camPitch + 70.0) / 112.0;
-
-            let camHeading = mp.game.cam.getGameplayCamRelativeHeading();
-
-            let cosCamHeading = mp.game.system.cos(camHeading);
-            let sinCamHeading = mp.game.system.sin(camHeading);
-
-            if (camHeading < -180.0) {
-                camHeading = -180.0;
-            }
-            else if (camHeading > 180.0) {
-                camHeading = 180.0;
-            }
-            camHeading = (camHeading + 180.0) / 360.0;
-
-            let coords = mp.players.local.getOffsetFromGivenWorldCoords((cosCamHeading * -0.2) - (sinCamHeading * (0.4 * camHeading + 0.3)), (sinCamHeading * -0.2) + (cosCamHeading * (0.4 * camHeading + 0.3)), 0.6);
-            let blocked = (typeof mp.raycasting.testPointToPoint([coords.x, coords.y, coords.z - 0.2], [coords.x, coords.y, coords.z + 0.2], mp.players.local.handle, 7) !== 'undefined');
-
-            mp.game.invoke('0xd5bb4025ae449a4e', mp.players.local.handle, "Pitch", camPitch)
-            mp.game.invoke('0xd5bb4025ae449a4e', mp.players.local.handle, "Heading", camHeading * -1.0 + 1.0)
-            mp.game.invoke('0xb0a6cfd2c69c1088', mp.players.local.handle, "isBlocked", blocked)
-            mp.game.invoke('0xb0a6cfd2c69c1088', mp.players.local.handle, "isFirstPerson", mp.game.invoke('0xee778f8c7e1142e2', mp.game.invoke('0x19cafa3c87f7c2ff')) == 4)
-
-            if ((Date.now() - this.lastSent) > 100) {
-                this.lastSent = Date.now();
-                mp.events.originalCallRemote("fpsync.update", camPitch, camHeading);
-            }
-        }
+        });
     }
 }
 
-mp.events.add("fpsync.update", (id, camPitch, camHeading) => {
-    let netPlayer = mp.players.atRemoteId(id);
-    if (mp.players.exists(netPlayer) && netPlayer.handle) {
-        netPlayer.lastReceivedPointing = Date.now();
-        if (netPlayer.pointingInterval === undefined) {
-            netPlayer.pointingInterval = setInterval((function () {
-                if ((Date.now() - netPlayer.lastReceivedPointing) > 1000) {
-                    clearInterval(netPlayer.pointingInterval);
-
-                    netPlayer.lastReceivedPointing = undefined;
-                    netPlayer.pointingInterval = undefined;
-
-                    mp.game.invoke("0xd01015c7316ae176", netPlayer.handle, "Stop");
-
-
-                    if (!netPlayer.isInAnyVehicle(true)) {
-                        mp.game.invoke("0x0725a4ccfded9a70", netPlayer.handle, 1, 1, 1, 1);
-                    }
-                    netPlayer.setConfigFlag(36, false);
-
+mp.events.add("click", (x, y, upOrDown, leftOrRight, relativeX, relativeY, worldPosition, hitEntity) => {
+    if (leftOrRight === "left") {
+        let pressed = upOrDown === "down";
+        if (!pressed && clickDown) {
+            sendInputPress("USE_HAND_ITEM", false);
+            clickDown = false;
+        } else {
+            if (!mp.gui.cursor.visible && !mp.game.ui.isPauseMenuActive()) {
+                if (new Date().getTime() - getLastUIHide() > 500) {
+                    sendInputPress("USE_HAND_ITEM", true);
+                    clickDown = true;
                 }
-            }).bind(netPlayer), 500);
-
-            mp.game.streaming.requestAnimDict("anim@mp_point");
-
-            while (!mp.game.streaming.hasAnimDictLoaded("anim@mp_point")) {
-                mp.game.wait(0);
             }
-            mp.game.invoke("0x0725a4ccfded9a70", netPlayer.handle, 0, 1, 1, 1);
-            netPlayer.setConfigFlag(36, true)
-            netPlayer.taskMoveNetwork("task_mp_pointing", 0.5, false, "anim@mp_point", 24);
-            mp.game.streaming.removeAnimDict("anim@mp_point");
         }
-
-        mp.game.invoke('0xd5bb4025ae449a4e', netPlayer.handle, "Pitch", camPitch)
-        mp.game.invoke('0xd5bb4025ae449a4e', netPlayer.handle, "Heading", camHeading * -1.0 + 1.0)
-        mp.game.invoke('0xb0a6cfd2c69c1088', netPlayer.handle, "isBlocked", 0);
-        mp.game.invoke('0xb0a6cfd2c69c1088', netPlayer.handle, "isFirstPerson", 0);
     }
 });
 
-mp.keys.bind(0x4C, true, () => {
+
+// Code to toggle the newbie help notification
+
+mp.rpc("player:toggle_newbie_help", (toggle, type) => {
+    if (toggle) {
+        controlsShown = true;
+        showHelpNotification(type);
+    } else {
+        controlsShown = false;
+        hideHelpNotification();
+    }
+});
+
+function makeControlsNotification(controls) {
+    let result = [];
+    for (c of controls) {
+        result.push({t: "stack",
+            e1: {t: "big_txt", msg: c.input, "color": "#cccccc", "align": 2},
+            e2: {t: "big_txt", msg: c.name,  "color": "#cccccc", "align": 0}
+        });
+    }
+    return result;
+}
+
+function showHelpNotification(type) {
+    type = type.toString().toUpperCase();
+    let controls = []
+
+    switch(type) {
+        case "NEWBIE": {
+            controls = [
+                {input: "~input_MENU~", name: "Ver menu"},
+                {input: "~input_TALK~", name: "Hablar"},
+                {input: "~input_CHAT~", name: "Chat"},
+                {input: "~input_ANIMATION_MENU~", name: "Animaciones"},
+                {input: "~input_OPEN_PHONE~", name: "Celular"},
+                {input: "~input_OPEN_INVENTORY~", name: "Inventario"},
+                {input: "~input_ANIMATION_POINT~", name: "Señalar"},
+                {input: "~input_LOCK_UNLOCK_PROPERTY~", name: "Abrir/cerrar vehículo"},
+            ];
+            if (mp.players && mp.players.local.vehicle) {
+                let isDriver = mp.players.local.vehicle.getPedInSeat(-1) === mp.players.local.handle;
+                if (isDriver) {
+                    controls.push({input: "~input_START_ENGINE~", name: "Motor"});
+                }
+                controls.push({input: "~input_VEHICLE_MENU~", name: "Opciones del vehículo"});
+            } else { // on foot
+                controls.push({input: "~input_ENTER_VEHICLE_PASSENGER~", name: "Vehículo (pasajero)"});
+            }
+            break;
+        }
+        case "PHONE": {
+            controls = [
+                {input: "~input_TOGGLE_PHONE_CAMERA~", name: "Cambiar modo de cámara"},
+                {input: "~input_PUZZLE_LEFT~", name: "Disminuir filtro"},
+                {input: "~input_PUZZLE_RIGHT~", name: "Aumentar filtro"},
+                {input: "~input_TAKE_SCREENSHOT~", name: "Tomar foto"},
+                {input: "~input_W~~input_A~~input_S~~input_D~", name: "Mover selfie-cam"},
+                {input: "~input_TOGGLE_HUD~", name: "Ocultar/mostrar hud"},
+            ];
+            break;
+        }
+    }
+
+    controls.push({input: "~input_TOGGLE_HELP~", name: "Ocultar/mostrar esto"});
+
+    let notif = makeControlsNotification(controls);
+    mp.events.call("notification:show", "controlsHint", JSON.stringify(notif));
+}
+
+function hideHelpNotification() {
+    mp.events.call("notification:hide", "controlsHint");
+}
+
+mp.keys.bind(0x73/*F4*/, true, function() {
     if (!mp.gui.cursor.visible) {
-        pointing.start();
+        if (!controlsShown) {
+            controlsShown = true;
+            showHelpNotification("NEWBIE");
+        } else {
+            hideHelpNotification();
+            controlsShown = false;
+        }
     }
 });
 
-mp.keys.bind(0x4C, false, () => {
-    pointing.stop();
-});
+// Animation shortcuts
+
+const animationShortcutKeys = {
+    // key numbers
+    ANIMATION_1: 0x31,
+    ANIMATION_2: 0x32,
+    ANIMATION_3: 0x33,
+    ANIMATION_4: 0x34,
+    ANIMATION_5: 0x35,
+    ANIMATION_6: 0x36,
+    ANIMATION_7: 0x37,
+    ANIMATION_8: 0x38,
+    ANIMATION_9: 0x39
+};
+
+let animKey = 0x12; // Alt (will be this+number)
+
+for (shortcut in animationShortcutKeys) {
+    let keyCode = animationShortcutKeys[shortcut];
+    let shortcutConst = shortcut;
+    mp.keys.bind(keyCode, true, () => {
+        if (!mp.gui.cursor.visible && !mp.game.ui.isPauseMenuActive()) {
+            if (!mp.players.local.vehicle && mp.keys.isDown(animKey)) {
+                sendInputPress(shortcutConst, true);
+                sendInputPress(shortcutConst, false);
+                keyDownTime["ANIMATION_STOP"] = 0; // hack to "invalidate" the stop anim button (because is triggerOnRelease)
+            }
+        }
+    });
+}
 }

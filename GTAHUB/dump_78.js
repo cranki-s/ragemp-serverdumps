@@ -1,92 +1,62 @@
 {
+let resyncTime = 0;
 
-let minigameBrowser = null;
-let currentGame = null;
+mp.rpc("player:toggle_spectate_mode", (id, targetId, position) => {
+    let player = mp.players.atRemoteId(id)
+    if (!player) return
 
-mp.rpc("player:start_game", (type, dataJson) => {
-    let player = mp.players.local;
+    // if targetId is -1, disable spec.
+    if (targetId === -1) {
+        player.targetSpecId = null
+        stopSpec(player)
+    } else {
+        let target = mp.players.atRemoteId(targetId)
+        if (!mp.players.exists(target)) return
 
-    destroyExistingMinigame();
-    switch (type.toLowerCase()) {
-        case "dance": danceGameHandler(player, true); break;
-        case "race": raceGameHandler(player, true); break;
-        case "dummy": dummyGameHandler(player, true); break;
-        case "wires": openGame("http://package/html/games/fixwiring/index.html"); break;
-        case "repaircamera": openGame("http://package/html/games/repaircamera/repaircamera.html"); break;
-        case "lockpicking": openGame("http://package/html/games/lockpicking/index.html"); break;
-        case "pacman": openGame("http://package/html/games/pacman/index.html"); break;
-        case "skillcheck": startSkillcheckGame(dataJson); break;
-        case "locker": openGame("http://package/html/games/locker/index.html"); break;
-        case "crack-code": openGame("http://package/html/games/crack-code/index.html"); break;
-        case "unlock-1": openGame("http://package/html/games/cerradura_1/index.html"); break;
-        case "unlock-2": openGame("http://package/html/games/cerradura_2/index.html"); break;
-        case "unlock-3": openGame("http://package/html/games/cerradura_3/index.html"); break;
-        case "hack-icon-color": openGame("http://package/html/games/hack-icon-color/index.html"); break;
-        case "card-swipe": openGame("http://package/html/games/card-swipe/index.html"); break;
-        case "data-crack": openGame("http://package/html/games/data-crack/index.html"); break;
-        case "simon-says": openGame("http://package/html/games/simon-says/index.html"); break;
-        case "break-glass": openGame("http://package/html/games/break-glass/index.html"); break;
-        case "laptop-pass": openGame("http://package/html/games/laptop-pass/index.html"); break;
-        case "color-circuit": openGame("http://package/html/games/color-circuit/index.html"); break;
-        case "buttons-circuit": openGame("http://package/html/games/buttons-circuit/index.html"); break;
-        case "wires-circuit": openGame("http://package/html/games/wires-circuit/index.html"); break;
+        if (position && position.x !== 0 && position.y !== 0 && position.z !== 0) {
+            startSpec(player, targetId, position)
+        } else mp.console.logWarning(`cant spectate ${targetId} because initial position is null or (0, 0, 0).`)
     }
-
-    currentGame = type;
 })
 
-mp.rpc("player:stop_current_game", () => {
-    if (currentGame == null) return;
-
-    let player = mp.players.local;
-
-    destroyExistingMinigame();
-
-    switch (currentGame.toLowerCase()) {
-        case "dance": danceGameHandler(player, false); break;
-        case "race": raceGameHandler(player, false); break;
-        case "dummy": dummyGameHandler(player, false); break;
+mp.events.add("render", () => {
+    if (mp.players.local.targetSpecId != null) {
+        let targetSpec = mp.players.atRemoteId(mp.players.local.targetSpecId)
+        if (mp.players.exists(targetSpec)) {
+            if (targetSpec.handle !== 0) {
+                mp.players.local.setCoords(
+                    targetSpec.position.x,
+                    targetSpec.position.y,
+                    targetSpec.position.z,
+                    false, true, true, true
+                )
+                mp.game.invoke("0x8BBACBF51DA047A8", targetSpec.handle) // SET_GAMEPLAY_CAM_FOLLOW_PED_THIS_UPDATE(Ped ped);
+            }
+        }
     }
-
-    currentGame = null;
 })
 
-function destroyExistingMinigame() {
-    if (minigameBrowser) {
-        minigameBrowser.destroy();
-        minigameBrowser = null;
-        disableUI("game");
-    }
+function startSpec(player, targetId, position) {
+    player.freezePosition(true);
+    player.setVisible(false, false);
+    player.setCollision(false, false);
+    player.setCoords(
+        position.x,
+        position.y,
+        position.z,
+        false, true, true, true
+    );
+    player.targetSpecId = targetId
 }
 
-function openGame(path, useCursor = true, data = null) {
-    destroyExistingMinigame();
-
-    minigameBrowser = mp.browsers.new(path);
-    minigameBrowser.active = true;
-    enableUI("game", false, true, useCursor);
+function stopSpec(player) {
+    player.freezePosition(false);
+    player.setInvincible(false);
+    player.setVisible(true, true);
+    player.setCollision(true, true);
 }
 
-/** Set the given variable for minigame. */
-function minigameSet(vm, variable, value) {
-    let code = vm + "." + variable + "=" + JSON.stringify(value);
-    minigameExecute(code);
-}
 
-function minigameExecute(code) {
-    if (minigameBrowser) {
-        minigameBrowser.execute(code);
-    }
-}
 
-// called from games html
-mp.events.add("game:on_win", () => {
-    mp.events.callRemote("game:on_finish", JSON.stringify({}), true);
-});
 
-mp.events.add("game:on_fail", (points = null) => {
-    if (points) points = JSON.stringify({score: [points]})
-    else points = JSON.stringify({});
-    mp.events.callRemote("game:on_finish", points, false);
-});
 }

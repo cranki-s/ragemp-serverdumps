@@ -1,23 +1,33 @@
 {
-// Script by: https://rage.mp/forums/topic/995-updated-sirens-silencer/
+const TOWTRUCKS = [
+    mp.game.joaat("towtruck"),
+    mp.game.joaat("towtruck2"),
+    mp.game.joaat("towtruck4")
+]
+const TRUCKS = [
+    mp.game.joaat("hauler"),
+    mp.game.joaat("hauler2"),
+    mp.game.joaat("packer"),
+    mp.game.joaat("phantom"),
+    mp.game.joaat("phantom3"),
+]
 
-let localPlayer = mp.players.local;
+// Get if model is a towtruck (true or false)
+function isTowTruck(model) {
+    return TOWTRUCKS.includes(model);
+}
 
-mp.keys.bind(0x51, true, () => {
-    if (mp.gui.cursor.visible) return;
-    if (localPlayer.vehicle && localPlayer.vehicle.getPedInSeat(-1) === localPlayer.handle && localPlayer.vehicle.getClass() === 18) {
-        localPlayer.vehicle.getVariable('sirenSound') ? mp.game.graphics.notify(`Sonido de sirenas ~b~activado.`) : mp.game.graphics.notify(`Sonido de sirenas ~b~desactivado.`);
-        mp.events.originalCallRemote('vehicles:sirens_sync', localPlayer.vehicle)
+// Get if model is a truck (true or false)
+function isTruck(model) {
+    return TRUCKS.includes(model);
+}
+
+function tryFunction(identifier, func) {
+    try {
+        return func();
+    } catch (e) {
+        mp.console.logWarning(`${identifier}: ${e.stack.toString()}`)
+        return null;
     }
-});
-
-mp.events.add('entityStreamIn', (entity) => {
-    if (entity.type === 'vehicle' && entity.getClass() === 18 && entity.hasVariable('sirenSound')) {
-        entity.setSirenSound(entity.getVariable('sirenSound'))
-    }
-});
-
-mp.events.addDataHandler("sirenSound", (entity, value) => {
-    if (entity.type === "vehicle" && entity.handle) entity.setSirenSound(value);
-});
+}
 }

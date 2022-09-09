@@ -1,35 +1,20 @@
 {
-mp.rpc("dailyreward:show", (data) => {
-    browserCall("dailyrewardVM", "showDailyReward", JSON.parse(data));
-    enableUI("dailyreward", true, true, true);
+// Show roulette and set items
+mp.rpc("ui_roulette:show", (title, description, options, winnerIndex) => {
+    enableUI("roulette", false, false, true);
+    browserCall("rouletteVM", "showRoulette", title, description, JSON.parse(options), winnerIndex);
 });
 
-mp.rpc("dailyreward:hide", () => {
-    browserExecute("dailyrewardVM.show=false");
-    disableUI("dailyreward");
+mp.events.add("ui_roulette:hide", () => {
+    disableUI("roulette");
+    mp.events.callRemote("ui_roulette:hide")
 });
 
-mp.rpc("dailyreward:claim", () => {
-    mp.events.callRemote("dailyreward:claim");
+mp.events.add("ui_roulette:on_start", () => {
+    mp.events.callRemote("ui_roulette:on_start")
 });
 
-mp.events.add("dailyreward:buy_plus", () => {
-    mp.events.callRemote("dailyreward:buy_plus");
-});
-
-mp.events.add("dailyreward:buy_level", () => {
-    mp.events.callRemote("dailyreward:buy_level");
-});
-
-mp.events.add("dailyreward:claim_old_rewards", () => {
-    mp.events.callRemote("dailyreward:claim_old_rewards");
-});
-
-mp.events.add("dailyreward:close", () => {
-    mp.events.callRemote("dailyreward:close");
-});
-
-mp.events.add("dailyreward:on_hover", () => {
-    mp.game.audio.playSoundFrontend(2, "CLICK_BACK", "WEB_NAVIGATION_SOUNDS_PHONE", true);
+mp.events.add("ui_roulette:on_finish", () => {
+    mp.events.callRemote("ui_roulette:on_finish")
 });
 }

@@ -1,69 +1,139 @@
 {
-const carry = {
-    targetSrc: -1,
-    personInitCarrying: { //When a person bends down to pick up the injured
-        animDict: "anim@heists@load_box",
-		anim: "lift_box",
-		flag: 2
+//Fingerpointing
+let pointing =
+{
+    active: false,
+    interval: null,
+    lastSent: 0,
+    start: function () {
+        if (!this.active) {
+            this.active = true;
+
+            mp.game.streaming.requestAnimDict("anim@mp_point");
+
+            while (!mp.game.streaming.hasAnimDictLoaded("anim@mp_point")) {
+                mp.game.wait(0);
+            }
+            mp.game.invoke("0x0725a4ccfded9a70", mp.players.local.handle, 0, 1, 1, 1);
+            mp.players.local.setConfigFlag(36, true)
+            mp.players.local.taskMoveNetwork("task_mp_pointing", 0.5, false, "anim@mp_point", 24);
+            mp.game.streaming.removeAnimDict("anim@mp_point");
+            this.interval = setInterval(this.process.bind(this), 0);
+        }
     },
-	personCarrying: { //When has a injured in shoulder
-		animDict: "missfinale_c2mcs_1",
-		anim: "fin_c2_mcs_1_camman",
-		flag: 49
-	},
-	personCarried: { //Injured anim in shoulder
-		animDict: "nm",
-		anim: "firemans_carry",
-		attachX: 0.25,
-		attachY: 0.15,
-		attachZ: 0.63,
-		flag: 1
-	}
+
+    stop: function () {
+        this.active &&
+            (clearInterval(this.interval),
+                (this.interval = null),
+                (this.active = !1),
+                mp.game.invoke("0xd01015c7316ae176", mp.players.local.handle, "Stop"),
+                !mp.game.invoke("0x84A2DD9AC37C35C1", mp.players.local.handle) &&
+                mp.game.invoke("0x176CECF6F920D707", mp.players.local.handle),
+                !mp.players.local.isInAnyVehicle(!0) && mp.game.invoke("0x0725a4ccfded9a70", mp.players.local.handle, 1, 1, 1, 1),
+                mp.players.local.setConfigFlag(36, !1));
+    },
+
+    gameplayCam: mp.cameras.new("gameplay"),
+    lastSync: 0,
+
+    getRelativePitch: function () {
+        let camRot = this.gameplayCam.getRot(2);
+
+        return camRot.x - mp.players.local.getPitch();
+    },
+
+    process: function () {
+        if (this.active) {
+            mp.game.invoke("0x921ce12c489c4c41", mp.players.local.handle);
+
+            let camPitch = this.getRelativePitch();
+
+            if (camPitch < -70.0) {
+                camPitch = -70.0;
+            }
+            else if (camPitch > 42.0) {
+                camPitch = 42.0;
+            }
+            camPitch = (camPitch + 70.0) / 112.0;
+
+            let camHeading = mp.game.cam.getGameplayCamRelativeHeading();
+
+            let cosCamHeading = mp.game.system.cos(camHeading);
+            let sinCamHeading = mp.game.system.sin(camHeading);
+
+            if (camHeading < -180.0) {
+                camHeading = -180.0;
+            }
+            else if (camHeading > 180.0) {
+                camHeading = 180.0;
+            }
+            camHeading = (camHeading + 180.0) / 360.0;
+
+            let coords = mp.players.local.getOffsetFromGivenWorldCoords((cosCamHeading * -0.2) - (sinCamHeading * (0.4 * camHeading + 0.3)), (sinCamHeading * -0.2) + (cosCamHeading * (0.4 * camHeading + 0.3)), 0.6);
+            let blocked = (typeof mp.raycasting.testPointToPoint([coords.x, coords.y, coords.z - 0.2], [coords.x, coords.y, coords.z + 0.2], mp.players.local.handle, 7) !== 'undefined');
+
+            mp.game.invoke('0xd5bb4025ae449a4e', mp.players.local.handle, "Pitch", camPitch)
+            mp.game.invoke('0xd5bb4025ae449a4e', mp.players.local.handle, "Heading", camHeading * -1.0 + 1.0)
+            mp.game.invoke('0xb0a6cfd2c69c1088', mp.players.local.handle, "isBlocked", blocked)
+            mp.game.invoke('0xb0a6cfd2c69c1088', mp.players.local.handle, "isFirstPerson", mp.game.invoke('0xee778f8c7e1142e2', mp.game.invoke('0x19cafa3c87f7c2ff')) == 4)
+
+            if ((Date.now() - this.lastSent) > 100) {
+                this.lastSent = Date.now();
+                mp.events.originalCallRemote("fpsync.update", camPitch, camHeading);
+            }
+        }
+    }
 }
 
+mp.events.add("fpsync.update", (id, camPitch, camHeading) => {
+    let netPlayer = mp.players.atRemoteId(id);
+    if (mp.players.exists(netPlayer) && netPlayer.handle) {
+        netPlayer.lastReceivedPointing = Date.now();
+        if (netPlayer.pointingInterval === undefined) {
+            netPlayer.pointingInterval = setInterval((function () {
+                if ((Date.now() - netPlayer.lastReceivedPointing) > 1000) {
+                    clearInterval(netPlayer.pointingInterval);
 
-/** Pre-load anims */
-mp.game.streaming.requestAnimDict(carry.personInitCarrying.animDict);
-mp.game.streaming.requestAnimDict(carry.personCarrying.animDict);
-mp.game.streaming.requestAnimDict(carry.personCarried.animDict);
+                    netPlayer.lastReceivedPointing = undefined;
+                    netPlayer.pointingInterval = undefined;
+
+                    mp.game.invoke("0xd01015c7316ae176", netPlayer.handle, "Stop");
 
 
-/** The playerId carry the targetId and start carry */
-mp.rpc("player:carry_injured", (playerId, targetId, haveAnim) => {
-    let player = mp.players.atRemoteId(playerId)
-    let target = mp.players.atRemoteId(targetId)
-    if (!mp.players.exists(player) || !mp.players.exists(target) || !player.handle || !target.handle) return;
-    if(haveAnim) player.taskPlayAnim(carry.personInitCarrying.animDict, carry.personInitCarrying.anim, 4.0, 4.0, 2000, carry.personInitCarrying.flag, 0, false, false, false)
-    setTimeout(() => {
-        try{
-            if (!mp.players.exists(player) || !mp.players.exists(target) || !player.handle || !target.handle) return;
+                    if (!netPlayer.isInAnyVehicle(true)) {
+                        mp.game.invoke("0x0725a4ccfded9a70", netPlayer.handle, 1, 1, 1, 1);
+                    }
+                    netPlayer.setConfigFlag(36, false);
 
-            // only apply one animation, rage sync
-            if (mp.players.local === player) player.taskPlayAnim(carry.personCarrying.animDict, carry.personCarrying.anim, 4.0, 4.0, -1, carry.personCarrying.flag, 1.0, false, false, false);
-            if (mp.players.local === target) target.taskPlayAnim(carry.personCarried.animDict, carry.personCarried.anim, 4.0, 4.0, -1, carry.personCarried.flag, 1.0, false, false, false);
-            target.attachTo(player.handle, 0, carry.personCarried.attachX, carry.personCarried.attachY, carry.personCarried.attachZ, 0.5, 0.5, 0, true, false, true, false, 0, true)
-        } catch (e) {
-            mp.console.logWarning(`cant execute event 'player:uncarry_injured' with error: ${e}`);
+                }
+            }).bind(netPlayer), 500);
+
+            mp.game.streaming.requestAnimDict("anim@mp_point");
+
+            while (!mp.game.streaming.hasAnimDictLoaded("anim@mp_point")) {
+                mp.game.wait(0);
+            }
+            mp.game.invoke("0x0725a4ccfded9a70", netPlayer.handle, 0, 1, 1, 1);
+            netPlayer.setConfigFlag(36, true)
+            netPlayer.taskMoveNetwork("task_mp_pointing", 0.5, false, "anim@mp_point", 24);
+            mp.game.streaming.removeAnimDict("anim@mp_point");
         }
-    }, 1800);
-})
 
-/** The playerId detach targetId and stop carry */
-mp.rpc("player:uncarry_injured", (playerId, targetId, haveAnim) => {
-    let player = mp.players.atRemoteId(playerId);
-    let target = mp.players.atRemoteId(targetId);
-    if (!mp.players.exists(player) || !mp.players.exists(target) || !player.handle || !target.handle) return;
-     if(haveAnim) player.taskPlayAnim(carry.personInitCarrying.animDict, carry.personInitCarrying.anim, 4.0, 4.0, 2000, carry.personInitCarrying.flag, 0, false, false, false)
-     setTimeout(() => {
-         try {
-             if (!mp.players.exists(player) || !mp.players.exists(target) || !player.handle || !target.handle) return;
-             target.clearTasks();
-             player.clearTasks();
-             target.detach(true, false)
-         } catch(e) {
-             mp.console.logWarning(`cant execute event 'player:uncarry_injured' with error: ${e}`);
-         }
-     }, 1700);
-})
+        mp.game.invoke('0xd5bb4025ae449a4e', netPlayer.handle, "Pitch", camPitch)
+        mp.game.invoke('0xd5bb4025ae449a4e', netPlayer.handle, "Heading", camHeading * -1.0 + 1.0)
+        mp.game.invoke('0xb0a6cfd2c69c1088', netPlayer.handle, "isBlocked", 0);
+        mp.game.invoke('0xb0a6cfd2c69c1088', netPlayer.handle, "isFirstPerson", 0);
+    }
+});
 
+mp.keys.bind(0x4C, true, () => {
+    if (!mp.gui.cursor.visible) {
+        pointing.start();
+    }
+});
+
+mp.keys.bind(0x4C, false, () => {
+    pointing.stop();
+});
 }

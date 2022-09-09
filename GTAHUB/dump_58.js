@@ -1,27 +1,31 @@
 {
+/** 
+ * This file contains an interface to spawn an arbitrary URL view to the player.
+ */
+
 require("ui.js");
 
-let colors = [
-    "~b~",
-    "~w~",
-    "~g~",
-    "~y~",
-    "~p~",
-    "~o~"
-]
+// create/destroy URL data
+mp.rpc("url:create", (title, urlData) => {
+    browserSet("urlVM", "title", title);
+    browserSet("urlVM", "url", JSON.parse(urlData));
+    browserSet("urlVM", "show", true);
+    enableUI("url", true, true, true);
+});
 
-mp.rpc("license:create", (licenseDataJSON) => {
-    let licenseData = JSON.parse(licenseDataJSON);
-
-    for (let color of colors) {
-        if (licenseData.address.includes(color)) licenseData.address = licenseData.address.replaceAll(color, "");
+mp.rpc("url:destroy", () => {
+    if (isUIEnabled("url")) {
+        browserSet("urlVM", "show", false);
+        disableUI("url");
     }
-
-    browserSet("licenseVM", "licenseData", licenseData);
-    browserCall("licenseVM", "toggle", true);
 });
 
-mp.rpc("license:destroy", () => {
-    browserCall("licenseVM", "toggle", false)
+/** Close CEF button */
+mp.events.add("url:on_close", () => {
+    if (getTopUI() != "url") return;
+    mp.events.callRemote("url:on_close");
 });
+
+
+
 }

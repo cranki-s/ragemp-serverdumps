@@ -1,72 +1,49 @@
 {
-/** Generic list menu with options to extend list items. Used for catalogos or selection of complex items. */
+/** 
+ * This file contains the interface to set the speedometer.
+ */
+
 require("ui.js");
-require("pools.js");
 
-let menuShown = false;
-let currentMenuID = -1;
+let shown = false;
 
-let pools = [
-    mp.players, mp.vehicles, mp.objects, mp.pickups, mp.blips,
-    mp.checkpoints, mp.markers, mp.colshapes, mp.labels
-];
+mp.rpc("speedometer:show", (dataJson, isElectric) => {
+    browserExecute("speedometerVM.show=true");
+    browserExecute("speedometerVM.data=" + dataJson);
 
-mp.rpc("itemmenu:set", (id, menuJson, initialSelection) => {
-	menuShown = true;
-    enableUI("itemmenu", true, true, true);
-    currentMenuID = id;
-    if (isUIEnabled("menu")) browserSet("itemmenuVM", "blackscreen", true);
-    browserCall("itemmenuVM", "doShow", JSON.parse(menuJson), initialSelection);
+    let playerVehicle = mp.players.local.vehicle;
+    if (playerVehicle) {
+        browserSet("speedometerVM", "isElectric", isElectric);
+    } else {
+        browserSet("speedometerVM", "isElectric", false);
+    }
+
+    shown = true;
 });
 
-mp.rpc("itemmenu:hide", (id) => {
-    if (menuShown && id == currentMenuID) {
-        disableUI("itemmenu");
-        browserCall("itemmenuVM", "doHide");
-        menuShown = false;
-        browserSet("itemmenuVM", "blackscreen", false);
+mp.rpc("speedometer:hide", () => {
+    if (shown) {
+        browserExecute("speedometerVM.show=false");
+        shown = false;
     }
 });
 
-mp.rpc("itemmenu:set_item_details", (id, index, details) => {
-    if (currentMenuID == id) {
-        browserSet("itemmenuVM", "itemDetails", JSON.parse(details));
-    }
+mp.rpc("speedometer:set_data", (dataJson) => {
+    browserExecute("speedometerVM.data=" + dataJson);
 });
 
-// CEF
-mp.events.add("itemmenu:on_select", (itemIndex) => {
-    mp.game.audio.playSoundFrontend(2, "NAV_UP_DOWN", "HUD_FRONTEND_DEFAULT_SOUNDSET", true);
-    mp.events.callRemote("itemmenu:on_select", currentMenuID, itemIndex);
-});
+mp.setInterval(() => {
+    let player = mp.players.local;
 
-mp.events.add("itemmenu:on_action", () => {
-    mp.game.audio.playSoundFrontend(2, "SELECT", "HUD_LIQUOR_STORE_SOUNDSET", true);
-    mp.events.callRemote("itemmenu:on_action", currentMenuID);
-});
-
-mp.events.add("itemmenu:on_secondary_action", () => {
-    mp.game.audio.playSoundFrontend(2, "SELECT", "HUD_LIQUOR_STORE_SOUNDSET", true);
-    mp.events.callRemote("itemmenu:on_secondary_action", currentMenuID);
-});
-
-mp.events.add("itemmenu:on_change_variation", (variationIdx, isNext) => {
-    mp.game.audio.playSoundFrontend(2, "NAV_LEFT_RIGHT", "HUD_FRONTEND_DEFAULT_SOUNDSET", true);
-    mp.events.callRemote("itemmenu:on_change_variation", currentMenuID, variationIdx, isNext);
-});
-
-mp.events.add("itemmenu:on_change_color1", (color) => {
-    mp.game.audio.playSoundFrontend(2, "NAV_UP_DOWN", "HUD_FRONTEND_DEFAULT_SOUNDSET", true);
-    mp.events.callRemote("itemmenu:on_change_color1", currentMenuID, color);
-});
-
-mp.events.add("itemmenu:on_change_color2", (color) => {
-    mp.game.audio.playSoundFrontend(2, "NAV_UP_DOWN", "HUD_FRONTEND_DEFAULT_SOUNDSET", true);
-    mp.events.callRemote("itemmenu:on_change_color2", currentMenuID, color);
-});
-
-mp.events.add("itemmenu:on_close", () => {
-    mp.game.audio.playSoundFrontend(2, "BACK", "HUD_FRONTEND_DEFAULT_SOUNDSET", true);
-    mp.events.callRemote("itemmenu:on_close", currentMenuID);
-});
+    // update client-side speedometer properties if im in a car
+    if (shown && player.vehicle) {
+        let vehicle = player.vehicle;
+		let speed = Math.round(vehicle.getSpeed() * 3.6);
+        let rpm = vehicle.rpm * 1000;
+        let gear = vehicle.gear;
+        browserExecute("speedometerVM.rpm=" + rpm);
+        browserExecute("speedometerVM.speed=" + speed);
+        browserExecute("speedometerVM.gear=" + gear);
+	}
+}, 150);
 }

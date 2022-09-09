@@ -1,785 +1,772 @@
 {
-/**
- * Joebill implementation of per-player objects.
- */
-require('lerp.js');
-require('pools.js');
+/** Extend GTA Vehicles, support some more synced properties */
 
-// floor/wall models preloaded
-function threeDigits(num) {
-    if (num <= 9) return "00" + num;
-    if (num <= 99) return "0" + num;
-    return "" + num;
-}
-
-function preloadModel(prefix, from, to) {
-    for (let i = from; i <= to; i++) {
-        mp.game.streaming.requestModel(mp.game.joaat(prefix + threeDigits(i)));
+/** All vehicles with more/lower engine power */
+const VEHICLES_ENGINES_MULTIPLIER = [
+    {
+        model: "dilettante",
+        power: -30,
+    },
+    {
+        model: "sheriff",
+        power: 18
+    },
+    {
+        model: "sheriff2",
+        power: 25
+    },
+    {
+        model: "police",
+        power: 18
+    },
+    {
+        model: "police3",
+        power: 6
+    },
+    {
+        model: "vstr",
+        power: -3
+    },
+    {
+        model: "police2",
+        power: 10
+    },
+    {
+        model: "burrito3",
+        power: -15,
+    },
+    {
+        model: "rumpo",
+        power: -20
+    },
+    {
+        model: "speedo",
+        power: -20
+    },
+    {
+        model: "scoutpd",
+        power: 14
+    },
+    {
+        model: "fbi",
+        power: 14
+    },
+    {
+        model: "fbi2",
+        power: 14
+    },
+    {
+        model: "police4",
+        power: 18
+    },
+    {
+        model: "gauntletpd",
+        power: 10
+    },
+    {
+        model: "policeb",
+        power: 20
+    },
+    {
+        model: "predator",
+        power: 30
     }
-}
+]
 
-preloadModel("soupfloor", 1, 37);
-preloadModel("souproof", 1, 3);
-preloadModel("soupwall", 1, 41);
-preloadModel("souplongwall", 1, 41);
-preloadModel("souphalfwall", 1, 41);
+// crash detection
+let crashDetectPrevHP = 0;
+let crashDetectPrevSpeed = 0.0;
+let crashDetectPrevVehicle = null;
+let crashDetectFadeEnds = 0;
+let crashDetectFadeInTime = 30;
+let crashDetectFadeOutTime = 2500;
+let crashDetectFadeTimeMultiplier = 90.0;
 
-let Keys = {
-    Up: 0x26,
-    Down: 0x28,
-    Left: 0x25,
-    Right: 0x27,
-    Space: 0x20,
-    Alt: 0x12,
-    Shift: 16,
-    G: 0x47, // put in ground
-    F7: 0x76, // safe edit mode
-    E: 0x45,
-    Q: 0x51,
-    X: 0x58, // switch position/rotation
-    Enter: 0x0D,
-    Backspace: 0x08,
-    LCtrl: 17,
+// all vehicle flags
+const Flags = {
+    HoodOpened: 1,
+    TrunkOpened: 2,
+    EngineOn: 4,
+    LightsOn: 8,
+    Window1: 16,
+    Window2: 32,
+    Window3: 64,
+    Window4: 128,
+    IndicatorLightRight: 256,
+    IndicatorLightLeft: 512,
+    Door1: 1024,
+    Door2: 2048,
+    Door3: 4096,
+    Door4: 8192,
+    AlarmOn: 16384
 };
 
-let maxPlayerObjects = 2048;
-let playerObjects = new Array(maxPlayerObjects);
-let playerMovibleObjects = [];
-let editingIndex = -1;
-let sensitivityPos = 0.7;
-let sensitivityRot = 60;
-let editingRot = false;
-let lastFrameMs = 0;
-let lastSentUpdate = 0;
-let advancedEdit = false;
-let safeEditMode = false; // if should check collision
-let editingObjectOffset = new mp.Vector3(0,0,0); // object center offset, for camera
-let editTextProperties = {
-    font: 0,
-    color: [255, 255, 255, 255],
-    scale: [0.5, 0.5],
-    outline: false
-};
-let easeFunctions = [ // For po:move
-    function(x) { return x; },
-    function(x) { return x * x; }, // ease in (slow begin, fast end)
-    function(x) { return 1 - Math.pow(1 - x, 2); }, // ease out
-    function(x) { return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2; }, // ease in out
-];
+let lastVehicle = -1;
+let lastSeat = -3;
+let lastEntering = 0;
 
-let fallbackModel = mp.game.joaat("prop_laptop_01a");
-let objectsToLoad = [];
-let lastObjectLoaded = 0;
+// console info
+let lastAdviced = 0;
 
-// towers to hide in interiors
-const TOWERS = [
-    mp.game.joaat("ss1_10_bld"),
-    mp.game.joaat("hei_dt1_20_build2"),
-    mp.game.joaat("dt1_20_rl_05"),
-    mp.game.joaat("dt1_20_rl_06"),
-    mp.game.joaat("dt1_20_rl_07"),
-    mp.game.joaat("dt1_20_rl_08")
-];
+mp.game.vehicle.setExperimentalHornSyncEnabled(false);
 
-mp.objects.atJoebillId = function(id) {
-    return playerObjects[id];
-};
+mp.rpc("vehicles:set_engine_health", (vehicleId, health) => {
+    let v = mp.vehicles.atRemoteId(vehicleId);
+    if (!v) return;
 
-/**
- * tryToLoadModel tries to set the given model for the object at ID,
- * or sets it to fallbackModel if fails to load.
- */
-function tryToLoadModel(objectID, model, tryNumber) {
-    let obj = playerObjects[objectID];
-    if (!obj || obj.realModel !== model) return;
+    v.serverEngineHealth = health
 
-    if(!mp.game.streaming.hasModelLoaded(model)) {
-        if (tryNumber >= 8) {
-            obj.model = fallbackModel;
-            return;
-        }
-
-        mp.game.streaming.requestModel(model);
-        setTimeout(() => {
-            tryToLoadModel(objectID, model, tryNumber + 1);
-        }, 1000);
-    } else {
-        obj.model = model;
+    if (v.handle !== 0) {
+        v.setEngineHealth(health);
     }
-}
+});
 
-let lastInteriorID = 0;
+mp.rpc("vehicles:set_dirt_level", (vehicleId, dirt) => {
+    let v = mp.vehicles.atRemoteId(vehicleId);
+    if (!v) return;
 
+    v.dirtLevel = dirt
 
-mp.setInterval(() => {
-    mp.events.call("objects:fix_lighting");
-}, 200);
-
-
-function reloadModels(list) {
-    let defaultModel = mp.game.joaat("prop_paper_box_01");
-    for (let o of list) {
-        if (mp.objects.exists(o)) {
-            let x = o.model;
-            o.model = defaultModel;
-            o.model = x;
-        }
+    if (mp.vehicles.exists(v) && v.handle) {
+       v.setDirtLevel(dirt);
     }
-}
+});
 
-mp.events.add("objects:fix_lighting", () => {
-    let pos = mp.players.local.position;
-    let interiorID = mp.game.interior.getInteriorAtCoords(pos.x, pos.y, pos.z);
-    if (interiorID !== lastInteriorID) {
-        if (interiorID === 0) {
-            lastInteriorID = 0;
-        }
-        else if (mp.game.interior.isInteriorReady(interiorID)) {
-            let list1 = [];
-            let list2 = [];
-            let list3 = [];
-            let counter = 0;
-            mp.objects.forEachInStreamRange(o => {
-                let op = o.position;
-                if (mp.game.system.vdist2(op.x, op.y, op.z, pos.x, pos.y, pos.z) < 60*60 && o.getAttachedTo() === 0) {
-                    let reminent = counter % 3;
-                    if (reminent === 0) list1.push(o);
-                    else if (reminent === 1) list2.push(o);
-                    else list3.push(o);
-                    counter++;
-                }
-            });
+mp.rpc("vehicles:update_body_damage", (vehicleId, vehicleDamage) => {
+    let v = mp.vehicles.atRemoteId(vehicleId);
+    if (!v) return;
 
-            // do in 3 chunks to reduce cpu load
-            reloadModels(list1);
-            setTimeout(() => reloadModels(list2), 200);
-            setTimeout(() => reloadModels(list3), 400);
+    // don't re-stream if the vehicle was just un-streamed (actual rage bug)
+    let timeSinceLastBodyDamage = Date.now() - (v.lastUpdateBodyDamage || 0);
+    if (timeSinceLastBodyDamage < 50) {
+        return; // quick fix
+    }
 
-            lastInteriorID = interiorID;
-        }
+    v.lastUpdateBodyDamage = Date.now();
+
+    vehicleDamage = JSON.parse(vehicleDamage)
+
+    v.serverBodyDamage = vehicleDamage;
+
+    if (v.handle) {
+        setTimeout( () => setVehicleDamage(v), 1000)
+    }
+});
+
+mp.rpc("vehicles:detach_trailer", (vehicleId) => {
+    let v = mp.vehicles.atRemoteId(vehicleId);
+    if (!v || !v.handle) return;
+
+    v.detachFromTrailer();
+});
+
+mp.rpc("vehicles:set_sync_data", (vehicleId, flags) => { // arbitrary sync data sent by the server
+    let v = mp.vehicles.atRemoteId(vehicleId);
+    if (!v) return;
+    flags = flags >>> 0;
+    let oldFlags = v.flags >>> 0 || 0;
+
+    v.flags = flags;
+    v.oldFlags = oldFlags;
+
+    if (v.handle !== 0) {
+        setVehicleFlags(v)
+    }
+});
+
+mp.events.addDataHandler("xenonLight", (entity, value, oldValue) => {
+    if (mp.vehicles.exists(entity) && entity.handle && value !== oldValue) {
+        mp.game.invoke("0xE41033B25D003A07", entity.handle, value);
     }
 })
 
-mp.rpc("po:create", (id, model, pos, rot, alpha, attachedData) => {
-    if (playerObjects[id]) playerObjects[id].destroy();
+mp.events.add({
+    "entityStreamIn": (entity) => {
+        if (entity.type === 'vehicle' && entity.handle) {
+            entity.setDirtLevel(entity.dirtLevel ? entity.dirtLevel : 0)
+            setTimeout(() => setVehicleFlags(entity, true), 2000)
 
-    playerObjects[id] = mp.objects.new(model, pos, {rotation: rot, dimension: -1, alpha: alpha});
-    if (!playerObjects[id]) {
-        playerObjects[id] = mp.objects.new(fallbackModel, pos, {rotation: rot, dimension: -1, alpha: alpha});
-        playerObjects[id].realModel = model;
-        tryToLoadModel(id, model, 0);
-        return;
-    }
-
-    playerObjects[id].originalPosition = pos;
-    playerObjects[id].originalRotation = rot;
-    playerObjects[id].remoteID = id;
-
-    if (attachedData !== "{}") {
-        // fix 1.1 bug, wait to attach
-        setTimeout(() => {
-            let attached = JSON.parse(attachedData);
-            mp.events.call("po:attach", id, attached.type, attached.id, attached.bone, JSON.stringify(pos), JSON.stringify(rotJson));
-        }, 30);
-    }
-});
-
-mp.events.add("entityStreamIn", (entity) => {
-    if (entity.type === 'object' && entity.isDoor) {
-        let p = entity.position;
-        mp.game.object.setStateOfClosestDoorOfType(entity.model, p.x, p.y, p.z, false, 0, false);
-    }
-
-    if (entity.type === 'object' && entity.hasCollisionDisabled === true) {
-        entity.setCollision(false, false);
-    }
-});
-
-// object hit detection interval
-mp.setInterval(() => {
-    if (mp.players.local.weapon !== mp.game.joaat('weapon_unarmed')) {
-        let playerHandle = mp.players.local.handle;
-        mp.objects.forEachInStreamRange(o => {
-            if (mp.objects.exists(o) && o.hasBeenDamagedBy(playerHandle, true) && o.remoteID) {
-                o.clearLastDamage();
-                mp.events.callRemote('po:on_shot', o.remoteID);
+            // sync xenon lights
+            if (typeof entity.getVariable('xenonLight') === "number") {
+                mp.game.invoke("0xE41033B25D003A07", entity.handle, entity.getVariable('xenonLight'));
             }
-        });
-    }
-}, 50);
+            // try to avoid helicopters exploding
+            if (entity.getClass() === 15 && entity.isSeatFree(-1) && entity.getNumberOfPassengers() === 0) {
+                let pos = entity.getCoords(true);
+                mp.game.streaming.requestCollisionAtCoord(pos.x, pos.y, pos.z);
 
-/**
- * This timer re-applies to objects some properties that seems to get
- * lost when the object doesn't stream properly.
- */
-mp.setInterval(() => {
-    let pos = mp.players.local.position;
-    let ratio = 100*100; // max distance to object to re-set the properties
-    for (let id = 0; id < maxPlayerObjects; id++) {
-        if (playerObjects[id]) {
-            let obj = playerObjects[id];
-            let op = obj.position;
-            if (mp.game.system.vdist2(op.x, op.y, op.z, pos.x, pos.y, pos.z) < ratio) {
-                if (obj.isDoor) {
-                    mp.game.object.setStateOfClosestDoorOfType(obj.model, op.x, op.y, op.z, false, 0, false);
-                }
-                if (obj.hasCollisionDisabled) {
-                    obj.setCollision(false, false);
-                }
+                setTimeout(() => {
+                    if (entity && mp.vehicles.exists(entity) && entity.handle) {
+                        entity.setOnGroundProperly();
+                    }
+                }, 2000)
             }
         }
     }
-}, 1000);
-
-mp.rpc("po:has_collision_disabled", (id, toggle) => {
-    if (playerObjects[id]) {
-        playerObjects[id].setCollision(!toggle, false);
-        playerObjects[id].hasCollisionDisabled = toggle;
-    }
 });
 
-mp.rpc("po:set_alpha", (id, alpha) => {
-    if (playerObjects[id]) {
-        let obj = playerObjects[id];
-        let collisionDisabled = obj.hasCollisionDisabled;
-        playerObjects[id] = mp.objects.new(obj.model, obj.position, {rotation: obj.rotation, dimension: -1, alpha: alpha});
-        if (collisionDisabled === true) {
-            mp.events.call("po:has_collision_disabled", id, true);
+
+/** Disable horn when using boats */
+mp.events.add("render", () => {
+    let v = mp.players.local.vehicle;
+    if (v) {
+        if (mp.game.vehicle.isThisModelABoat(v.model)) {
+            mp.game.controls.disableControlAction(0, 86, true); // INPUT_VEH_HORN
         }
-        obj.destroy();
-    }
-});
 
-mp.rpc("po:set_pos_rot", (id, pos, rot) => {
-    if (playerObjects[id]) {
-        playerObjects[id].position = pos;
-        playerObjects[id].rotation = rot;
-        playerObjects[id].originalPosition = pos;
-        playerObjects[id].originalRotation = rot;
-    }
-});
-
-/** Reports object ground position for this in po:on_ground */
-mp.rpc("po:get_ground_position", (id, range) => {
-    if (playerObjects[id]) {
-        let originalModel = playerObjects[id].model;
-        // If applied just before the object is created, sometimes
-        // it doesn't report the correct position. So, delay
-        // one frame.
-        setTimeout(() => {
-            let obj = playerObjects[id];
-            if (obj && obj.model === originalModel) {
-                let obj = playerObjects[id];
-                let oldPos = obj.position;
-                let oldRot = obj.rotation;
-
-                groundObject(obj, false, false, false, 0.0, 0.0, 0.0, range > 0 ? range : null);
-                let pos = obj.getCoords(true);
-                let rot = obj.getRotation(2);
-
-                mp.events.callRemote("po:on_ground",
-                    id,
-                    JSON.stringify(pos),
-                    JSON.stringify(rot));
-
-                obj.position = oldPos;
-                obj.rotation = oldRot;
+        // auto-shutdown many times the engine while being in the car because
+        // gta starts the engine again sometimes (when you're going on speed mostly)
+        if (!checkFlag(v.flags, Flags.EngineOn)) {
+            if (Date.now() - lastAdviced > 10000) {
+                mp.console.logInfo(`current vehicle ID ${mp.players.local.vehicle.remoteId} shutdown automatically. Flags: ${v.flags} and checkFlags: ${checkFlag(v.flags, Flags.EngineOn)}`)
+                lastAdviced = Date.now();
             }
-        }, 100);
-    }
-});
+            v.setEngineOn(false, false, true);
+        }
+        mp.game.controls.disableControlAction(27, 85, true); // disable radio menu (key Q)
 
-mp.rpc("po:set_as_door", (id, toggle) => {
-    if (playerObjects[id]) {
-        const obj = playerObjects[id];
-        const p = obj.position;
-        obj.isDoor = toggle;
-        mp.game.object.setStateOfClosestDoorOfType(obj.model, p.x, p.y, p.z, !toggle, 0, false);
-        setTimeout(() => {
-            if (playerObjects[id]) {
-                mp.game.object.setStateOfClosestDoorOfType(playerObjects[id].model, p.x, p.y, p.z, !toggle, 0, false);
+        // cant leave vehicle if player has seatbelt
+        if (mp.players.local.seatbelt) {
+            mp.game.controls.disableControlAction(0, 75, true);
+            mp.game.controls.disableControlAction(27, 75, true);
+
+            if (mp.game.controls.isDisabledControlJustPressed(0,75) || mp.game.controls.isDisabledControlJustPressed(27,75)) {
+                if (mp.gui.cursor.visible) return;
+                mp.events.call("hud:short_info", `~r~Debes quitarte el cinturón de seguridad`, 3500)
             }
-        }, 4000);
-    }
-});
-
-mp.rpc("po:attach", (id, entityKind, entityId, bone, offsetJson, rotationJson) => {
-    if (playerObjects[id]) {
-        let otherEntity = getEntityForKindAndId(entityKind, entityId);
-        if (otherEntity) {
-            let offset = JSON.parse(offsetJson);
-            let rotation = JSON.parse(rotationJson);
-
-            playerObjects[id].attachTo(otherEntity.handle, bone,
-                offset.x, offset.y, offset.z,
-                rotation.x, rotation.y, rotation.z,
-                false, false, false, false, 2, true);
         }
     }
 });
 
-mp.rpc("po:detach", (id) => {
-    if (playerObjects[id]) {
-        playerObjects[id].detach(false, false);
-        // move back to its original position after detach
-        playerObjects[id].position = playerObjects[id].originalPosition;
-        playerObjects[id].rotation = playerObjects[id].originalRotation;
-    }
-});
-
-mp.rpc("po:move", (id, destinationPos, destinationRot, alsoRotate, unitsPerSecond, easeType) => {
-    if (playerObjects[id]) {
-        const obj = playerObjects[id];
-        const currentPos = obj.position;
-        const currentRot = obj.rotation;
-
-        // calculate timing, set ease
-        const dist = mp.game.system.vdist(currentPos.x, currentPos.y, currentPos.z, destinationPos.x, destinationPos.y, destinationPos.z);
-        obj.transitionDuration = (dist / unitsPerSecond * 1000);
-        obj.transitionBegin = new Date().getTime();
-        obj.transitionEaseType = Math.min(easeFunctions.length, easeType);
-
-        // set initial/final pos
-        obj.initialPosition = obj.position;
-        obj.destinationPosition = destinationPos;
-
-        // set initial/final rot
-        obj.initialRotation = currentRot;
-        if (alsoRotate) {
-            obj.rotation = destinationRot;
-            obj.destinationRotation = obj.rotation; // fix in range, probably rage intenally gets it from the quaternion
-            obj.rotation = currentRot;
-        } else {
-            obj.destinationRotation = currentRot;
-        }
-        obj.moving = true;
-        playerMovibleObjects.push(obj);
-    }
-});
-
-function moveObjects() {
-    let time = new Date().getTime();
-    for (let objIdx in playerMovibleObjects) {
-        const obj = playerMovibleObjects[objIdx];
-        if (mp.objects.exists(obj) && obj.moving) {
-            let lerpOffset = (time - obj.transitionBegin) / obj.transitionDuration;
-            if (lerpOffset >= 1) {
-                obj.position = obj.destinationPosition;
-                obj.rotation = obj.destinationRotation;
-                obj.moving = false;
-                playerMovibleObjects.splice(objIdx, 1);
-            } else {
-                lerpOffset = easeFunctions[obj.transitionEaseType](lerpOffset); // apply ease
-                obj.position = lerpVector(obj.initialPosition, obj.destinationPosition, lerpOffset);
-                obj.rotation = lerpEuler(obj.initialRotation, obj.destinationRotation, lerpOffset);
+mp.events.add('playerEnterVehicle', (vehicle, seat) => {
+    if (seat === -1) {
+        for (let veh in VEHICLES_ENGINES_MULTIPLIER) {
+            if (mp.game.joaat(VEHICLES_ENGINES_MULTIPLIER[veh].model) === vehicle.model) {
+                mp.players.local.vehicle.setEnginePowerMultiplier(VEHICLES_ENGINES_MULTIPLIER[veh].power)
+                break;
             }
-        } else {
-            playerMovibleObjects.splice(objIdx, 1);
         }
-    }
-}
-
-mp.rpc("po:set_model", (id, model) => {
-    if (playerObjects[id]) {
-        if (!mp.game.streaming.isModelValid(model)) model = fallbackModel;
-        playerObjects[id].model = model >>> 0;
     }
 });
 
-mp.rpc("po:destroy", (id) => {
-    if (playerObjects[id]) {
-        playerObjects[id].destroy()
-        // TODO: if im editing this object, should probably cancel.
-        if (id === editingIndex) {
-            mp.events.callRemote("on_finish_edit_object", editingIndex, "CANCEL", JSON.stringify(new mp.Vector3()), JSON.stringify(new mp.Vector3()));
+mp.events.add('playerLeaveVehicle', (vehicle, seat) => {
+    if (!mp.vehicles.exists(vehicle) || !vehicle.handle) return;
+
+    if (seat === -1) {
+        if (mp.game.vehicle.isThisModelABoat(vehicle.model) || mp.game.vehicle.isThisModelAHeli(vehicle.model) || mp.game.vehicle.isThisModelAPlane(vehicle.model)) {
+            vehicle.freezePosition(true);
+        }
+
+        // keeps engine running when player leave vehicle (only if engine is on)
+        if (checkFlag(vehicle.flags, Flags.EngineOn)) {
+            vehicle.setEngineOn(true, true, true);
         }
     }
-    playerObjects[id] = null;
 });
 
-// Object edition
+let cancelEnterVehicleTimer = null;
 
-mp.rpc("po:edit", (id, offset, advancedMode) => {
-    if (playerObjects[id]) {
+mp.keys.bind(0x47, true, () =>  { // G
+    let localPlayer = mp.players.local;
 
-        // if already editing an object, reset its state
-        if (editingIndex !== -1 &&
-            playerObjects[editingIndex] &&
-            playerObjects[editingIndex].handle !== 0
+    if(localPlayer.isDead() ||
+        mp.gui.cursor.visible ||
+        localPlayer.vehicle != null ||
+        localPlayer.getIsTaskActive(6) === 0 // CTaskPlayerOnFoot. This filters when doing animations or weird states
+    ) return;
+
+    let seatBones = [
+        "door_pside_f", // right front
+        "door_dside_r", // left back
+        "door_pside_r" //  right back
+    ]
+
+    let minDistance = 100.0;
+    let selectedSeat = -1;
+    let selectedVehicle = null;
+    let maxRange = 6*6;
+    let pos = localPlayer.position;
+
+    mp.vehicles.forEachInStreamRange(v => {
+        let vPos = v.position;
+
+        if (mp.game.system.vdist2(pos.x, pos.y, pos.z, vPos.x, vPos.y, vPos.z) < maxRange && // near enough
+            v.getSpeed() < 5 && // require the vehicle to be stationary
+            v.isAnySeatEmpty()
         ) {
-            if (!advancedMode) {
-                let obj = playerObjects[editingIndex];
-                obj.resetAlpha();
-                hideEditControls();
-                mp.players.local.setNoCollision(obj.handle, true);
-            }
-        }
 
-        editingIndex = id;
-        mp.objects.isEditingObject = true;
-        editingRot = false;
-        lastFrameMs = 0;
-        lastSentUpdate = 0;
-        advancedEdit = advancedMode;
-        safeEditMode = !advancedMode;
-        editingObjectOffset = offset;
-        wasTouchingAnything = false;
+            // find the nearest seat
+            for (let seatIdx = 0; seatIdx < seatBones.length; seatIdx++) {
+                let seatBoneIndex = v.getBoneIndexByName(seatBones[seatIdx]);
 
-        if (!advancedMode) {
-            showEditControls();
-        }
-    }
-});
-
-function showEditControls() {
-    mp.players.local.editing = true;
-    let controls = [
-        {input: "~input_PUZZLE_UP~ ~input_PUZZLE_DOWN~ ~input_PUZZLE_LEFT~ ~input_PUZZLE_RIGHT~", name: "Mover"},
-        {input: "~input_EDITION_ROTATE_RIGHT~ ~input_EDITION_ROTATE_LEFT~", name: "Rotar"},
-        {input: "~input_EDITION_HEIGHT~ + ~input_PUZZLE_UP~ ~input_PUZZLE_DOWN~", name: "Cambiar altura"},
-        {input: "~input_EDITION_GROUND~", name: "Corregir altura"},
-        {input: "~input_EDITION_ACCELERATE~", name: "Mover rápido"},
-        {input: "~input_EDITION_SAVE~", name: "Guardar"},
-        {input: "~input_EDITION_CANCEL~", name: "Cancelar"},
-    ];
-
-    let notif = makeControlsNotification(controls);
-    mp.events.call("notification:show", "editControls", JSON.stringify(notif));
-}
-
-function makeControlsNotification(controls) {
-    let result = [];
-    for (c of controls) {
-        result.push({t: "stack",
-            e1: {t: "big_txt", msg: c.input, "color": "#cccccc", "align": 2},
-            e2: {t: "big_txt", msg: c.name,  "color": "#cccccc", "align": 0}
-        });
-    }
-    return result;
-}
-
-function hideEditControls() {
-    mp.players.local.editing = false;
-    mp.events.call("notification:hide", "editControls");
-}
-
-mp.keys.bind(Keys.Enter, true, function() {
-    if (editingIndex === -1 || mp.gui.cursor.visible || wasTouchingAnything === true) return;
-    if (playerObjects[editingIndex]) {
-        let obj = playerObjects[editingIndex];
-        if (!advancedEdit) {
-            mp.events.call("camera:setBehind", 500);
-            obj.resetAlpha();
-            hideEditControls();
-            mp.players.local.setNoCollision(obj.handle, true);
-        }
-
-        let editionResult = "FINAL";
-        if (obj.position.x === 0.0 && obj.position.y === 0.0 && obj.position.z === 0.0) {
-            editionResult = "CANCEL";
-        }
-        mp.events.callRemote("on_finish_edit_object", editingIndex, editionResult, JSON.stringify(obj.position), JSON.stringify(obj.rotation));
-    }
-    editingIndex = -1;
-    mp.objects.isEditingObject = false;
-});
-
-mp.keys.bind(Keys.Backspace, true, function() {
-    if (editingIndex === -1 || mp.gui.cursor.visible) return;
-    if (playerObjects[editingIndex]) {
-        let obj = playerObjects[editingIndex];
-        if (!advancedEdit) {
-            mp.events.call("camera:setBehind", 500);
-            obj.resetAlpha();
-            hideEditControls();
-            mp.players.local.setNoCollision(obj.handle, true);
-        }
-
-        mp.events.callRemote("on_finish_edit_object", editingIndex, "CANCEL", JSON.stringify(obj.position), JSON.stringify(obj.rotation));
-    }
-    editingIndex = -1;
-    mp.objects.isEditingObject = false;
-});
-
-mp.keys.bind(Keys.X, true, function() {
-    if (editingIndex === -1 || mp.gui.cursor.visible) return;
-    if (advancedEdit) {
-        editingRot = !editingRot;
-    } else {
-        if (playerObjects[editingIndex]) {
-            let obj = playerObjects[editingIndex];
-            let currentRot = obj.rotation;
-            obj.rotation = new mp.Vector3(currentRot.x, currentRot.y, currentRot.z + 45.0);
-        }
-    }
-});
-
-mp.keys.bind(Keys.G, true, function() {
-    if (editingIndex === -1 || mp.gui.cursor.visible) return;
-    if (playerObjects[editingIndex]) {
-        groundObject(playerObjects[editingIndex]);
-    }
-});
-
-let wasTouchingAnything = false;
-
-function isTouchingAnything(obj) {
-    let result = false;
-    mp.objects.forEach(obj2 => {
-        if (obj2.handle && !result && obj2.id !== obj.id && obj.isTouching(obj2.handle)) {
-            result = true;
-        }
-    });
-    /*mp.players.forEachInStreamRange(p => {
-        if (!result && p.handle !== 0 && obj.isTouching(p.handle)) {
-            result = true;
-        }
-    })*/
-    return result;
-}
-
-function objectsInInteriorHandler(playerInterior, playerRoom) {
-
-    // hide towers in interiors
-    for (let tower of TOWERS) {
-        mp.game.interior.hideMapObjectThisFrame(tower);
-    }
-
-    // load interior objects
-    if (Date.now() - lastObjectLoaded > 500 || objectsToLoad.length === 0) {
-        lastObjectLoaded = Date.now();
-
-        if (objectsToLoad.length === 0) {
-            mp.objects.forEachInStreamRange((o) => {
-                if (o.handle && !o.isAttached() && mp.game.invoke("0x2107BA504071A6BB", o.handle) === 0) { // check if object is streamed, is not attached and interior is 0
-                    objectsToLoad.push(o.handle);
-                    mp.game.invoke("0x52923C4710DD9907", o.handle, playerInterior, playerRoom); // forces the same room and id on the object
-                }
-            });
-        } else {
-            // try to reload objects that are in interior 0
-            if (playerInterior !== 0 && playerRoom !== 0) {
-                for (let objHandle of objectsToLoad) {
-                    if (mp.game.invoke("0x2107BA504071A6BB", objHandle) === 0) {
-                        mp.game.invoke("0x52923C4710DD9907", objHandle, playerInterior, playerRoom);
+                if (seatBoneIndex !== -1 && v.getPedInSeat(seatIdx) === 0) { // this vehicle contains such seat, and is empty
+                    let seatPos = v.getWorldPositionOfBone(seatBoneIndex);
+                    let distanceToSeat = mp.game.system.vdist(pos.x, pos.y, pos.z, seatPos.x, seatPos.y, seatPos.z);
+                    if (distanceToSeat < minDistance) {
+                        selectedSeat = seatIdx;
+                        selectedVehicle = v;
+                        minDistance = distanceToSeat;
                     }
                 }
             }
         }
-    }
-}
+    });
 
-mp.events.add("render", () => {
-    moveObjects();
+    // check if we found one seat
+    if (selectedSeat !== -1 && selectedVehicle != null) {
+        localPlayer.taskEnterVehicle(selectedVehicle.handle, 6000, selectedSeat, 1, 1, 0);
 
-    let playerRoom = mp.game.invoke("0x47C2A06D4F5F424B", mp.players.local.handle); // gets the room in which the player is
-    let playerInterior = mp.game.invoke("0x2107BA504071A6BB", mp.players.local.handle); // gets the interior in which the player is
-    if (playerInterior > 0 && playerRoom > 0) {
-        if (mp.players.local.dimension > 100000) {
-            objectsInInteriorHandler(playerInterior, playerRoom);
-        }
-    } else if (objectsToLoad.length > 0) {
-        if (mp.players.local.dimension > 100000) {
-            for (let objHandle of objectsToLoad) {
-                let obj = mp.objects.atHandle(objHandle);
-                if (mp.objects.exists(obj)) mp.game.invoke("0x85D5422B2039A70D", objHandle); // _CLEAR_INTERIOR_FOR_ENTITY
-            }
-        }
-        objectsToLoad = [];
-    }
+        if(cancelEnterVehicleTimer != null) clearTimeout(cancelEnterVehicleTimer);
 
-    if (editingIndex !== -1 && playerObjects[editingIndex] && !mp.gui.cursor.visible) {
-
-        // Determine Delta for frame-independent movement
-        let time = new Date().getTime();
-        if (lastFrameMs === 0)
-            lastFrameMs = time;
-
-        let delta = (time - lastFrameMs) / 1000.0; // delta in seconds.
-        lastFrameMs = time;
-
-        const cam = mp.playerCamera.getActiveCamera();
-        let front = cam.getDirection();
-        let obj = playerObjects[editingIndex];
-
-        let centerPos = mp.game.object.getObjectOffsetFromCoords(
-            obj.position.x, obj.position.y, obj.position.z,
-            obj.getHeading(),
-            editingObjectOffset.x, editingObjectOffset.y, editingObjectOffset.z
-        );
-
-        if (!advancedEdit) {
-            const playerPos = mp.players.local.position;
-            playerPos.z += 1.3;
-            mp.events.call("camera:set", JSON.stringify(playerPos), JSON.stringify(centerPos), 0);
-        }
-
-        // Read keys
-        const currPos = editingRot ? obj.rotation : obj.position;
-        let up = mp.keys.isDown(Keys.Up);
-        let down = mp.keys.isDown(Keys.Down);
-        let left = mp.keys.isDown(Keys.Left);
-        let right = mp.keys.isDown(Keys.Right);
-        let alt = mp.keys.isDown(Keys.Alt);
-        let shift = mp.keys.isDown(Keys.Shift);
-        let space = mp.keys.isDown(Keys.Space);
-        let ctrl = mp.keys.isDown(Keys.LCtrl);
-        let q = mp.keys.isDown(Keys.Q);
-        let e = mp.keys.isDown(Keys.E);
-
-        // While holding SPACE round X,Y axes
-        if (space) {
-            front.x = Math.round(front.x);
-            front.y = Math.round(front.y);
-        }
-
-        // Determine sensitivity based on controls
-        let sensitivity = 0;
-        if (editingRot) {
-            front.x = 0; // invert movement for easy x,z rotation
-            front.y = 1;
-            alt = !alt; // invert alt so automatically changes z
-
-            // invert left/right and up/down
-            let oldLeft = left;
-            let oldRight = right;
-            left = down;
-            right = up;
-            up = oldRight;
-            down = oldLeft;
-            sensitivity = sensitivityRot * delta;
-        } else {
-            sensitivity = sensitivityPos * delta;
-        }
-
-        if (shift) sensitivity *= 3;
-        if (ctrl) sensitivity /= 3;
-
-        if (q || e) {
-            let actualRot = obj.rotation;
-            actualRot.z = actualRot.z + (sensitivityRot * delta * (q ? -1 : 1));
-            obj.rotation = actualRot;
-        }
-
-        // Move the editing vector
-        if (up || down) {
-            let s = down ? -1 : 1;
-            if (!alt) {
-                currPos.x += front.x * sensitivity * s;
-                currPos.y += front.y * sensitivity * s;
-            } else {
-                currPos.z += sensitivity * s;
-            }
-        }
-        if (left || right) {
-            let newAngle = Math.atan2(front.y, front.x) + (left ? Math.PI/2 : -Math.PI/2); // front vector moved 90
-            front.x = Math.cos(newAngle);
-            front.y = Math.sin(newAngle);
-            currPos.x += front.x * sensitivity;
-            currPos.y += front.y * sensitivity;
-        }
-
-        if (editingRot) {
-            obj.rotation = currPos;
-        } else {
-            obj.position = currPos;
-        }
-
-        // Show info about edition
-        let graphicText = "";
-        if (advancedEdit) {
-            let posCoords = `${currPos.x.toFixed(2)} ${currPos.y.toFixed(2)} ${currPos.z.toFixed(2)}`;
-            let prefix = editingRot ? "~p~" : "~y~";
-            graphicText = `${prefix}~n~${posCoords}`;
-        } else {
-            if (!wasTouchingAnything) {
-                graphicText = "~h~~w~EDITANDO"
-            } else {
-                graphicText = "~h~~c~EDITANDO"
-            }
-        }
-
-        let objPos = centerPos;
-        mp.game.graphics.drawText(graphicText, [objPos.x, objPos.y, objPos.z], editTextProperties);
-
-        // send UPDATE messages 4 times per second
-        if (time - lastSentUpdate > 250) {
-            mp.events.callRemote("on_finish_edit_object", editingIndex, "UPDATE", JSON.stringify(obj.position), JSON.stringify(obj.rotation));
-            lastSentUpdate = time;
-        }
-
-        // fix if isTouchingAnything
-        if (safeEditMode) {
-
-            // don't allow any input in this mode, as the player should be static
-            mp.game.controls.disableAllControlActions(0); // INPUTGROUP_MOVE
-            mp.game.controls.disableAllControlActions(27); // INPUTGROUP_VEH_MOVE_ALL
-            mp.game.controls.disableAllControlActions(31); // INPUTGROUP_VEH_HYDRAULICS_CONTROL
-
-            // keep the same position
-
-            let touchingAnything = isTouchingAnything(obj);
-            if (touchingAnything !== wasTouchingAnything) {
-                if (touchingAnything) {
-                    obj = setObjectAlpha(obj, 51);
-                    playerObjects[editingIndex] = obj;
-                } else {
-                    obj = setObjectAlpha(obj, 255);
-                    playerObjects[editingIndex] = obj;
-                }
-            }
-
-            // forcefully disable collision with editing object
-            mp.players.local.setNoCollision(obj.handle, false);
-
-            // old version: rollback position on collision
-            /*if (!wasTouchingAnything && touchingAnything) {
-                // roll back position
-                obj.position = originalPos;
-                obj.rotation = originalRot;
-            }*/
-
-            wasTouchingAnything = isTouchingAnything(obj);
-        }
+        cancelEnterVehicleTimer = setTimeout(function() {
+            if(!localPlayer.vehicle) localPlayer.clearTasks();
+            cancelEnterVehicleTimer = null;
+        }, 5000);
     }
 });
 
-
-function setObjectAlpha(obj, alpha) {
-    if (obj.getAlpha() !== alpha) {
-        let newObj = mp.objects.new(obj.model, obj.position, {
-            alpha: alpha,
-            rotation: obj.rotation,
-            dimension: obj.dimension
-        });
-        obj.destroy();
-        return newObj;
+function getPedSeat(vehicle, ped) {
+    for (let i = -1; i < 16; i++) {
+        if (vehicle.getPedInSeat(i) === ped.handle) {
+            return i;
+        }
     }
-    return obj;
+    return 255;
 }
 
-// Util
-
-function groundObject(obj, changeRotX, changeRotY, changeRotZ, rx, ry, rz, range) {
-    const originalPosition = obj.getCoords(true);
-
-    // try to put in ground
-    if (!obj.placeOnGroundProperly()) {
-        // if fails, go down its height and try again
-        let currPos = obj.position;
-        obj.position = new mp.Vector3(currPos.x, currPos.y, currPos.z - obj.getHeightAboveGround());
-        obj.placeOnGroundProperly();
+function getVehicleDamage(vehId) {
+    let veh = mp.vehicles.atRemoteId(vehId);
+    let newVehDamage = {
+        windows: {
+            window0: false,
+            window1: false,
+            window2: false,
+            window3: false,
+            window4: false,
+            window5: false,
+            window6: false,
+            window7: false,
+        },
+        wheels: {
+            wheel0: false, // wheel_lf / bike, plane or jet front
+            wheel1: false, // wheel_rf
+            wheel2: false, // wheel_lm / in 6 wheels trailer, plane or jet is first one on left
+            wheel3: false, // wheel_rm / in 6 wheels trailer, plane or jet is first one on right
+            wheel4: false, // wheel_lr / bike rear / in 6 wheels trailer, plane or jet is last one on left
+            wheel5: false, // wheel_rr / in 6 wheels trailer, plane or jet is last one on right
+            wheel6: false, // 6 wheels trailer mid wheel left
+            wheel7: false, // 6 wheels trailer mid wheel right
+        },
+        doors: {
+            door0: false, // front left
+            door1: false, // front right
+            door2: false, // back left
+            door3: false, // back right
+            door4: false, // hood
+            door5: false, // trunk
+        },
+        deformations: {
+            inFront: 0.0,
+            inBack: 0.0,
+            headlightLeft: false,
+            headlightRight: false,
+        }
     }
 
-    let pos = obj.getCoords(true);
-    let rot = obj.getRotation(2);
+    /** Get wheels status */
+    // Wheels disabled
+    /*let index;
+    for (let wheel = 0; wheel < getLength(newVehDamage.wheels); wheel++) {
+        index = wheel
+        if (wheel === 6) index = 45
+        if (wheel === 7) index = 47
+        if (veh.isTyreBurst(index, true) || veh.isTyreBurst(index, false)) {
+            newVehDamage.wheels["wheel" + wheel] = true
+        }
+    }*/
 
-    if (!range || range && mp.game.system.vdist(originalPosition.x, originalPosition.y, originalPosition.z, pos.x, pos.y, pos.z) <= range) {
-        obj.position = new mp.Vector3(pos.x, pos.y, pos.z + 0.01/*little above ground to avoid the collision*/);
-        obj.rotation = new mp.Vector3(changeRotX ? rx : rot.x, changeRotY ? ry : rot.y, changeRotZ ? rz : rot.z);
+    /** Get windows status */
+    if (!veh.areAllWindowsIntact()) {
+        for (let window = 0; window < getLength(newVehDamage.windows); window++) {
+            if (!veh.isWindowIntact(window)) {
+                newVehDamage.windows["window" + window] = true
+            }
+        }
+    }
+
+    // auto-fix window 4 and 5 (dont know what windows are)
+    newVehDamage.windows.window4 = false;
+    newVehDamage.windows.window5 = false;
+
+    /** Get doors status */
+    for (let door = 0; door < getLength(newVehDamage.doors); door++) {
+        if(isValidDoor(veh, door) === 1) {
+            if(veh.isDoorDamaged(door)) newVehDamage.doors["door" + door] = true
+        }
+    }
+
+    /** Get deformations status */
+    let dimension = mp.game.gameplay.getModelDimensions(veh.model);
+    let dimensionY = (dimension.max.y - dimension.min.y)/2
+    newVehDamage.deformations.inFront = parseFloat(Math.abs(veh.getDeformationAtPos(0, dimensionY, 0).y))
+    newVehDamage.deformations.inBack = parseFloat(Math.abs(veh.getDeformationAtPos(0, -dimensionY, 0).y))
+    newVehDamage.deformations.headlightLeft = !!veh.getIsLeftHeadlightDamaged()
+    newVehDamage.deformations.headlightRight = !!veh.getIsRightHeadlightDamaged()
+
+    return newVehDamage
+}
+
+function setVehicleDamage(v) {
+    if (mp.vehicles.exists(v) && v.handle) {
+        let vehHealth = v.serverEngineHealth || 1000.0
+        let vehicleDamage = v.serverBodyDamage
+        v.setFixed();
+        v.setEngineHealth(vehHealth)
+
+        if (vehicleDamage) {
+            /** Set windows */
+            for (let window = 0; window < getLength(vehicleDamage.windows); window++) {
+                if (vehicleDamage.windows["window" + window]) {
+                    mp.game.invoke('0xA711568EEDB43069', v.handle, window); // REMOVE_VEHICLE_WINDOW
+                }
+            }
+
+            /** Set wheels */
+            // DISABLED:
+            /*let index;
+            for (let i = 0; i < getLength(vehicleDamage.wheels); i++) {
+                index = i
+                if(i == 6) index = 45
+                if(i == 7) index = 47
+                let constIndex = index;
+                if (vehicleDamage.wheels["wheel" + i]) {
+                    v.setTyreBurst(index, true, 1000)
+                }
+            }*/
+
+            /** Set doors */
+            for (let door = 0; door < getLength(vehicleDamage.doors); door++) {
+                if (vehicleDamage.doors["door" + door]) {
+                    v.setDoorBroken(door, true)
+                }
+            }
+
+            /** Set deformations (back and front) */
+            let frontDeformation = vehicleDamage.deformations.inFront * 5600
+            let backDeformation = vehicleDamage.deformations.inBack * 5600
+            let dimension = mp.game.gameplay.getModelDimensions(v.model);
+            let dimensionY = (dimension.max.y - dimension.min.y)/2
+            v.setDamage(0, dimensionY, 0, frontDeformation, 35, true);
+            v.setDamage(0, -dimensionY, 0, backDeformation, 35, true);
+
+            let coords_l = v.getWorldPositionOfBone(v.getBoneIndexByName('headlight_l'))
+            let coords_r = v.getWorldPositionOfBone(v.getBoneIndexByName('headlight_r'))
+
+            let offset_l = v.getOffsetFromGivenWorldCoords(coords_l.x, coords_l.y, coords_l.z)
+            let offset_r = v.getOffsetFromGivenWorldCoords(coords_r.x, coords_r.y, coords_r.z)
+
+            /** Break the headlight */
+            if (vehicleDamage.deformations.headlightLeft) {
+                v.setDamage(offset_l.x, offset_l.y, offset_l.z, 500, 10, true);
+            }
+            if (vehicleDamage.deformations.headlightRight) {
+                v.setDamage(offset_r.x, offset_r.y, offset_r.z, 500, 10, true);
+            }
+        }
+    }
+}
+
+function setVehicleFlags(v, streamIn = false) {
+    if (v.handle !== 0) {
+        let oldFlags = v.oldFlags;
+        let flags = v.flags;
+
+        // check for hood change
+        if (checkFlag(oldFlags, Flags.HoodOpened) !== checkFlag(flags, Flags.HoodOpened) || streamIn) {
+            if (checkFlag(flags, Flags.HoodOpened)) {
+                v.setDoorOpen(4, false, false);
+            } else {
+                v.setDoorShut(4, false);
+            }
+        }
+
+        // check for trunk change
+        if (checkFlag(oldFlags, Flags.TrunkOpened) !== checkFlag(flags, Flags.TrunkOpened) || streamIn) {
+            if (checkFlag(flags, Flags.TrunkOpened)) {
+                v.setDoorOpen(5, false, false);
+            } else {
+                v.setDoorShut(5, false);
+            }
+        }
+
+        // check alarm change
+        if (checkFlag(oldFlags, Flags.AlarmOn) !== checkFlag(flags, Flags.AlarmOn) || streamIn) {
+            if (checkFlag(flags, Flags.AlarmOn)) {
+                v.setAlarm(true);
+                v.startAlarm();
+            } else {
+                v.setAlarm(false);
+            }
+        }
+
+        // check for engine change (turn on instantly if is streamIn)
+        if ((oldFlags === flags && oldFlags === 0) || checkFlag(oldFlags, Flags.EngineOn) !== checkFlag(flags, Flags.EngineOn) || streamIn) {
+            v.setEngineOn(checkFlag(flags, Flags.EngineOn), streamIn, true);
+        }
+
+        // check for lights change
+        let oldLightsOn = checkFlag(oldFlags, Flags.LightsOn);
+        let newLightsOn = checkFlag(flags, Flags.LightsOn);
+        if (oldLightsOn !== newLightsOn || streamIn) {
+            v.setLights(newLightsOn ? 2 : 1);
+        }
+
+        // check for window change
+        if (checkFlag(oldFlags, Flags.Window1) !== checkFlag(flags, Flags.Window1) || streamIn) {
+            setWindowOpened(v, 0, checkFlag(flags, Flags.Window1));
+        }
+        if (checkFlag(oldFlags, Flags.Window2) !== checkFlag(flags, Flags.Window2) || streamIn) {
+            setWindowOpened(v, 1, checkFlag(flags, Flags.Window2));
+        }
+        if (checkFlag(oldFlags, Flags.Window3) !== checkFlag(flags, Flags.Window3) || streamIn) {
+            setWindowOpened(v, 2, checkFlag(flags, Flags.Window3));
+        }
+        if (checkFlag(oldFlags, Flags.Window4) !== checkFlag(flags, Flags.Window4) || streamIn) {
+            setWindowOpened(v, 3, checkFlag(flags, Flags.Window4));
+        }
+
+        // check for indicator lights
+        if (checkFlag(oldFlags, Flags.IndicatorLightRight) !== checkFlag(flags, Flags.IndicatorLightRight) || streamIn) {
+            v.setIndicatorLights(0, checkFlag(flags, Flags.IndicatorLightRight));
+        }
+        if (checkFlag(oldFlags, Flags.IndicatorLightLeft) !== checkFlag(flags, Flags.IndicatorLightLeft) || streamIn) {
+            v.setIndicatorLights(1, checkFlag(flags, Flags.IndicatorLightLeft));
+        }
+
+        // check for door change
+        if (checkFlag(oldFlags, Flags.Door1) !== checkFlag(flags, Flags.Door1) || streamIn) {
+            setDoorOpened(v, 0, checkFlag(flags, Flags.Door1));
+        }
+        if (checkFlag(oldFlags, Flags.Door2) !== checkFlag(flags, Flags.Door2) || streamIn) {
+            setDoorOpened(v, 1, checkFlag(flags, Flags.Door2));
+        }
+        if (checkFlag(oldFlags, Flags.Door3) !== checkFlag(flags, Flags.Door3) || streamIn) {
+            setDoorOpened(v, 2, checkFlag(flags, Flags.Door3));
+        }
+        if (checkFlag(oldFlags, Flags.Door4) !== checkFlag(flags, Flags.Door4) || streamIn) {
+            setDoorOpened(v, 3, checkFlag(flags, Flags.Door4));
+        }
+    }
+}
+
+function setDoorOpened(vehicle, door, opened) {
+    if (opened) {
+        vehicle.setDoorOpen(door, false, false);
     } else {
-        // what happened if I need a ground position but is under the map, this avoids object bug under the ground
-        obj.position = originalPosition;
+        vehicle.setDoorShut(door, false);
     }
 }
+
+function setWindowOpened(vehicle, window, opened) {
+    if (opened) {
+        vehicle.rollDownWindow(window);
+    } else {
+        vehicle.rollUpWindow(window);
+    }
+}
+
+function checkFlag(flags, value) {
+    return (flags & value) ? true : false;
+}
+
+function isValidDoor(veh, door) {
+    return mp.game.invoke("0x645F4B6E8499F632", veh.handle, door) // Native: _GET_IS_DOOR_VALID
+}
+
+function getLength(obj) {
+    return Object.keys(obj).length
+}
+
+function onPlayerCrashVehicle(damageCaused) {
+    mp.game.graphics.startScreenEffect("REDMISTOut", 1500, false);
+    mp.events.call("camera:shake", "JOLT_SHAKE", damageCaused*0.08);
+    mp.events.callRemote("health:on_player_crash_vehicle", mp.players.local.vehicle.remoteId, damageCaused);
+
+    if (damageCaused > 15) {
+        if (crashDetectFadeEnds === 0) {
+            mp.events.call("player:toggle_black_screen", true, crashDetectFadeInTime);
+        }
+
+        let totalTime = crashDetectFadeInTime + Math.round(damageCaused)*crashDetectFadeTimeMultiplier;
+        crashDetectFadeEnds = Math.max(crashDetectFadeEnds, new Date().getTime() + totalTime);
+        mp.game.graphics.transitionToBlurred(500);
+        //mp.events.call("chat:push", "crashed with damage: " + damageCaused + " for time: " + totalTime);
+    }
+}
+
+// Prevent boats from moving while on sea
+// (when they don't have drivers in) and keep
+// the sea calm, for easier sync.
+
+mp.setInterval(() => {
+    let now = new Date().getTime();
+    let playerPos = mp.players.local.position;
+
+    mp.vehicles.forEachInStreamRange((v) => {
+        if (!mp.vehicles.exists(v) || !v.handle) return;
+
+        // freeze unoccupied boats to ease sync
+        if (mp.game.vehicle.isThisModelABoat(v.model)) {
+            setTimeout(() => {
+                if (mp.vehicles.exists(v)) v.freezePosition(v.isSeatFree(-1) ? true : false)
+            }, 2000)
+        }
+        // set entity collision to prevent the helicopter/plane from exploding and freeze if not has pilot
+        else if (mp.game.vehicle.isThisModelAHeli(v.model) || mp.game.vehicle.isThisModelAPlane(v.model)) {
+            v.setLoadCollisionFlag(true);
+            setTimeout(() => {
+                if (mp.vehicles.exists(v)) v.freezePosition(v.isSeatFree(-1) ? true : false)
+            }, 2000)
+        }
+
+        // It will crash client-side if you try to getPedInSeat for a trailer model vehicle (https://wiki.rage.mp/index.php?title=Vehicle::getPedInSeat)
+        if (v.getClass() === 11) {
+            v.setProofs(false/*bullet*/, false/*fire*/, false/*explosion*/, false/*collision*/, true/*melee*/, true, true, false/*drown*/);
+            return;
+        }
+
+        if (v.getEngineHealth() > 450) {
+            v.setInvincible(false);
+            if (v.getPedInSeat(-1) === 0) {
+                // proof to almost everything except collisions while not occupied.
+                v.setProofs(true, true, true, false, true, true, true, false);
+            } else {
+                v.setProofs(false/*bullet*/, true/*fire*/, true/*explosion*/, false/*collision*/, true/*melee*/, true, true, false/*drown*/);
+            }
+        } else {
+            // disable damage if engine health is minor than 450 to avoid explosion
+            v.setInvincible(true);
+        }
+
+        // detect dead vehicles: if staying in water for longer than 10 seconds (and near it)
+        let vehiclePosition = v.position;
+        let near = mp.game.system.vdist2(vehiclePosition.x, vehiclePosition.y, vehiclePosition.z, playerPos.x, playerPos.y, playerPos.z) < 100*100;
+        if (v.handle &&
+            near &&
+            (v.isDead() === 1 || (v.isInWater() && v.getSubmergedLevel() > 0.9)) &&
+            v.getClass() !== 14
+        ) {
+            if (v.enterWaterTime === 0) {
+                v.enterWaterTime = now;
+            } else if ((now - v.enterWaterTime) > 7500) {
+                v.enterWaterTime = 0;
+                mp.events.callRemote("vehicles:on_death", v.remoteId);
+            }
+        } else {
+            v.enterWaterTime = 0;
+        }
+    });
+}, 2000);
+
+mp.setInterval(() => {
+    let v = mp.players.local.vehicle;
+    if (v !== crashDetectPrevVehicle) {
+        crashDetectPrevVehicle = v;
+        if (v) {
+            crashDetectPrevHP = v.getBodyHealth();
+        }
+    }
+
+    let time = new Date().getTime();
+    if (crashDetectFadeEnds !== 0) {
+        mp.game.controls.disableAllControlActions(0); // INPUTGROUP_MOVE
+        mp.game.controls.disableAllControlActions(27); // INPUTGROUP_VEH_MOVE_ALL
+        mp.game.controls.disableAllControlActions(31); // INPUTGROUP_VEH_HYDRAULICS_CONTROL
+        // enable voice, as it's disabled with all those controls
+        mp.game.controls.enableControlAction(0, 249, true);
+
+        if (time > crashDetectFadeEnds) {
+            crashDetectFadeEnds = 0;
+            mp.events.call("player:toggle_black_screen", false, crashDetectFadeOutTime);
+            mp.game.graphics.startScreenEffect('ArenaEMPOut', 7500, false);
+            mp.game.graphics.transitionFromBlurred(7500);
+        }
+    }
+
+    if (!v) return;
+
+    let hp = v.getBodyHealth();
+    let speed = Math.round(v.getSpeed() * 3.6);
+
+    if (hp < crashDetectPrevHP && Math.abs(crashDetectPrevSpeed - speed) > 2.0) {
+        onPlayerCrashVehicle(crashDetectPrevHP - hp);
+    }
+
+    crashDetectPrevHP = hp;
+    crashDetectPrevSpeed = speed;
+}, 20);
+
+// set radio off
+
+mp.setInterval(() => {
+    if (mp.players.local.vehicle) {
+        mp.game.audio.setRadioToStationName("OFF");
+    }
+}, 150);
+
+// keep sea level low to ease sync
+mp.game.water.setWavesIntensity(0.0);
+
+mp.setInterval(() => {
+    mp.game.water.setWavesIntensity(0.0);
+}, 5000);
+
+// Body health sync loop. Send every 1 sec the vehicle body health
+
+mp.setInterval(() => {
+    let v = mp.players.local.vehicle;
+    if (v && v.getPedInSeat(-1) === mp.players.local.handle) {
+        mp.events.callRemote("vehicles:on_body_damage_change", v.remoteId, JSON.stringify(getVehicleDamage(v.remoteId)));
+        mp.events.callRemote("vehicles:on_dirt_level_change", v.remoteId, v.getDirtLevel() ? v.getDirtLevel() : 0);
+    }
+}, 1000);
+
+// dispatch entering vehicle events
+mp.setInterval(() => {
+    let p = mp.players.local;
+    let entering = p.getVehicleIsTryingToEnter();
+    if (entering !== 0 && entering !== lastEntering) {
+        let seat = p.getSeatIsTryingToEnter();
+        let v = mp.vehicles.atHandle(entering);
+        if (v) {
+            mp.events.callRemote("vehicles:on_try_enter", v.remoteId, seat+1);
+        }
+    }
+    lastEntering = entering;
+
+    if (p.vehicle) {
+        // changed vehicle, now must find seat.
+        let mySeat = getPedSeat(p.vehicle, p);
+        if (mySeat !== 255) {
+            if (lastVehicle !== p.vehicle.id || lastSeat !== mySeat) {
+                mp.events.callRemote("vehicles:on_change", p.vehicle.remoteId, mySeat+1);
+
+                lastVehicle = p.vehicle.id;
+                lastSeat = mySeat;
+
+                // forcefully "start" engine of bikes, as bikes are 'always' on
+                if (mp.game.vehicle.isThisModelABicycle(p.vehicle.model)) {
+                    p.vehicle.setEngineOn(true, false, true);
+                }
+            }
+        }
+    } else {
+        if (lastVehicle !== -1) {
+            lastVehicle = -1;
+            mp.events.callRemote("vehicles:on_change", -1, -1);
+            lastSeat = 255;
+        }
+    }
+}, 50);
+
 }

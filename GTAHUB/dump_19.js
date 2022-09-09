@@ -1,67 +1,76 @@
 {
-/** Support for particles */
+let pickups = {};
 
-let existingParticles = {};
-
-function loadParticleLibIfNecessary(lib) {
-    if (!mp.game.streaming.hasNamedPtfxAssetLoaded(lib)) {
-        mp.game.streaming.requestNamedPtfxAsset(lib);
-        return true;
-    }
-    return false;
+mp.markers.atJoebillId = function(id) {
+    return pickups[id];
 }
 
-mp.rpc("pp:oneshot", (posJson, lib, particle, scale) => {
-   if (loadParticleLibIfNecessary(lib)) {
-       setTimeout(() => mp.events.call("pp:oneshot", posJson, lib, particle, scale), 250);
-       return;
-   }
+let lastCP = null;
 
-   let pos = JSON.parse(posJson);
-   mp.game.graphics.setPtfxAssetNextCall(lib);
-   // use function looped because many particles not work with notLoop, will clear after one second by convention
-   let pp = mp.game.graphics.startParticleFxLoopedAtCoord(particle,
-       pos.x, pos.y, pos.z,
-       0.0, 0.0, 0.0, scale,
-       false, false, false,
-       true);
-
-   setTimeout(() => {
-       mp.game.graphics.removeParticleFx(pp, true);
-   }, 1000);
+// some feedback when enters checkponts
+mp.events.add("playerEnterCheckpoint", (checkpoint) => {
+    if (lastCP !== checkpoint) {
+        setTimeout(() => {
+            mp.game.graphics.startScreenEffect('BikerFormationOut', 1000, false);
+            mp.game.audio.playSoundFrontend(2, 'Click', 'DLC_HEIST_HACKING_SNAKE_SOUNDS', false);
+        }, 200);
+    }
 });
 
-mp.rpc("pp:create", (id, posJson, lib, particle, scale) => {
-   if (existingParticles[id]) {
-       mp.game.graphics.removeParticleFx(existingParticles[id], true);
-   }
+mp.setInterval(() => {
+    let myPos = mp.players.local.position
+    for (pickupId in pickups) {
+        let pickup = pickups[pickupId]
+        let pos = pickup.position
+        let isIn = mp.game.system.vdist(pos.x, pos.y, pos.z, myPos.x, myPos.y, myPos.z) < (pickup.radius*1.2);
+        if (!pickup.isIn && isIn) {
+            mp.events.callRemote("pickup:on_enter", parseInt(pickupId))
+            pickup.isIn = true
+        } else if (pickup.isIn && !isIn) {
+            mp.events.callRemote("pickup:on_leave", parseInt(pickupId))
+            delete pickup.isIn
+        }
+    }
+}, 100);
 
-   if (loadParticleLibIfNecessary(lib)) {
-       setTimeout(() => mp.events.call("pp:create", id, posJson, lib, particle, scale), 250);
-       return;
-   }
-
-   let pos = JSON.parse(posJson);
-   mp.game.graphics.setPtfxAssetNextCall(lib);
-
-    if (isFire(particle)) {
-        pos = getSafeZ(pos)
-        createFire(id, particle, pos)
+mp.rpc("pickup:create", (id, model, positionJson, ratio, nextPositionJSON, alpha) => {
+    if (pickups[id]) {
+        pickups[id].destroy();
     }
 
-   existingParticles[id] = mp.game.graphics.startParticleFxLoopedAtCoord(particle,
-        pos.x, pos.y, pos.z,
-        0.0, 0.0, 0.0, scale,
-        false, false, false,
-        true);
+    let pos = JSON.parse(positionJson);
+    let nextPos = JSON.parse(nextPositionJSON);
+
+    if (model === 1 || model === 100) { // special case: this marker is always on ground!
+        pos.z -= 1.05;
+    }
+
+    if (model === 100) { // special case: model 100 uses checkpoints to create
+        let type = (positionJson === nextPositionJSON) ? 4/*finish*/ : 1;
+        pickups[id] = mp.checkpoints.new(type, new mp.Vector3(pos.x, pos.y, pos.z), ratio, {
+            direction: nextPos,
+            color: [244, 67, 54, alpha],
+            visible: true,
+            dimension: -1
+        });
+    } else {
+        // invalid models crash the game
+        if (model < 0 || model > 44) model = 0;
+
+        pickups[id] = mp.markers.new(model, new mp.Vector3(pos.x, pos.y, pos.z), ratio, {
+            color: [244, 67, 54, alpha],
+            visible: true,
+            dimension: -1
+        });
+    }
+
+    pickups[id].radius = ratio
 });
 
-mp.rpc("pp:destroy", (id) => {
-   if (existingParticles[id]) {
-       let fire = getFireById(id);
-       if (fire) destroyFire(fire);
-       mp.game.graphics.removeParticleFx(existingParticles[id], true);
-       delete existingParticles[id];
+mp.rpc("pickup:destroy", (id) => {
+   if (pickups[id]) {
+       pickups[id].destroy();
+       delete pickups[id];
    }
 });
 }

@@ -1,49 +1,39 @@
 {
-/** 
- * This file contains the interface to set the speedometer.
- */
-
+/** UI that lets you accept/reject a request. */
 require("ui.js");
 
-let shown = false;
+let currentId = -1;
 
-mp.rpc("speedometer:show", (dataJson, isElectric) => {
-    browserExecute("speedometerVM.show=true");
-    browserExecute("speedometerVM.data=" + dataJson);
-
-    let playerVehicle = mp.players.local.vehicle;
-    if (playerVehicle) {
-        browserSet("speedometerVM", "isElectric", isElectric);
-    } else {
-        browserSet("speedometerVM", "isElectric", false);
+mp.rpc("confirmation:show", (id, message, seconds) => {
+    if (currentId != -1) {
+        mp.events.call("confirmation:hide");
+        currentId = -1;
     }
 
-    shown = true;
+    currentId = id;
+    enableUI("confirmation", false, false, false);
+    browserExecute("confirmationVM.time=" + JSON.stringify(seconds));
+    browserExecute("confirmationVM.maxTime=" + JSON.stringify(seconds));
+    browserExecute("confirmationVM.message=" + JSON.stringify(message));
+    browserExecute("confirmationVM.show=true;");
 });
 
-mp.rpc("speedometer:hide", () => {
-    if (shown) {
-        browserExecute("speedometerVM.show=false");
-        shown = false;
+mp.rpc("confirmation:hide", () => {
+    browserExecute("confirmationVM.show=false;");
+    disableUI("confirmation");
+    currentId = -1;
+});
+
+mp.keys.bind(0x59/*Y*/, true, () => {
+    if (isUIEnabled("confirmation") && currentId !== -1 && !mp.gui.cursor.visible) {
+        mp.events.callRemote("confirmation:on_respond", currentId, true);
     }
 });
 
-mp.rpc("speedometer:set_data", (dataJson) => {
-    browserExecute("speedometerVM.data=" + dataJson);
+mp.keys.bind(0x4E/*N*/, true, () => {
+    if (isUIEnabled("confirmation") && currentId !== -1 && !mp.gui.cursor.visible) {
+        mp.events.callRemote("confirmation:on_respond", currentId, false);
+    }
 });
 
-mp.setInterval(() => {
-    let player = mp.players.local;
-
-    // update client-side speedometer properties if im in a car
-    if (shown && player.vehicle) {
-        let vehicle = player.vehicle;
-		let speed = Math.round(vehicle.getSpeed() * 3.6);
-        let rpm = vehicle.rpm * 1000;
-        let gear = vehicle.gear;
-        browserExecute("speedometerVM.rpm=" + rpm);
-        browserExecute("speedometerVM.speed=" + speed);
-        browserExecute("speedometerVM.gear=" + gear);
-	}
-}, 150);
 }

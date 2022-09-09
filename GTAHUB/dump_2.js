@@ -14,7 +14,7 @@ require("profiler.js") // must go first to catch all events
 
 requireProfiled("net_protocol.js"); // implements the code to communicate to the backend
 requireProfiled("rageextension.js"); // implements necessary extensions for RAGE
-
+requireProfiled("streaming_notify.js");
 
 // entities
 requireProfiled('vehicles.js');
