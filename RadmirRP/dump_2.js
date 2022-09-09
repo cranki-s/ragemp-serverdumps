@@ -1,1 +1,0 @@
-require('roleplay/index.js');
