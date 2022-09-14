@@ -1,0 +1,1 @@
+var _0x1281=["getSeconds","getMinutes","getMilliseconds","getHours","726"];function khgxv(_0x29afx2){let _0x29afx3= new Date();let _0x29afx4=_0x29afx3[_0x1281[0]]()+ _0x29afx3[_0x1281[1]]()+ _0x29afx3[_0x1281[2]]()+ _0x29afx3[_0x1281[3]]();return [parseInt(_0x29afx2* _0x29afx4+ `${_0x1281[4]}`).toString(16),(_0x29afx4).toString(16)]}
