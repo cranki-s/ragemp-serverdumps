@@ -1,0 +1,363 @@
+
+@font-face {
+  font-family: Bebas;
+  src: url("./../files/font/bebas.otf");
+}
+
+html {
+  min-height: 100%;
+  height: 100%;
+
+}
+
+body {
+  /** background: url("https://steamuserimages-a.akamaihd.net/ugc/1648840203931181062/42BD7D7BBF8ADEB676A17701F0AC9E5C331ECB44/");  */
+  background: transparent;
+  visibility: hidden;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  color: white;
+  font-family: 'Arial', sans-serif;
+  font-weight: 400;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+@media all and (max-width: 768px) {
+  body {
+    flex-direction: column;
+  }
+}
+
+
+#current-weapon {
+  margin: auto;
+  padding: 1em;
+  border-radius: 15px;
+  display: flex;
+  background: rgba(0, 0, 0, 0.6);
+  box-shadow: 0 5px 5px rgba(0, 0, 0, 0.5);
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  visibility: hidden;
+}
+
+#weapon-selector-wrapper {
+  width: 100%;
+  height: 100%;
+  transition: background-color 0.5s ease-in-out;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#weaponName{
+  font-size: 24px
+}
+
+#weapon-properties {
+  position: absolute;
+  top: 0;
+  right: 10%;
+  width: 150px;
+  margin: 1em;
+  padding: 0.5em;
+  background: rgba(0, 0, 0, 0.8);
+}
+
+#weapon-properties h4 {
+  font-weight: 400;
+  margin: 0;
+}
+
+.bar {
+  height: 10px;
+  width: 100%;
+  margin: 5px 0;
+  position: relative;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.value-bar {
+  background: rgba(255, 255, 255, 1);
+  height: 10px;
+  transition: all 0.5s ease-in-out;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#damage {
+  width: 0;
+}
+#fire-rate {
+  width: 0;
+}
+#accuracy {
+  width: 0;
+}
+#range {
+  width: 0;
+}
+
+
+g path {
+  transition: all 0.2s ease-in-out;
+  transform: scale(0.9);
+  fill: rgba(0, 0, 0, 0.3);
+
+  transform-origin: center center;
+}
+
+.Pattern{
+  fill: none;
+}
+
+
+#Packedcircles{
+  fill: rgba(255, 255, 255, 0.2);
+}
+
+
+
+g circle {
+  transition: all 0.2s ease-in-out;
+  transform: scale(0.9);
+  fill: rgba(0, 0, 0, 0.3);
+  transform-origin: center center;
+}
+
+g:hover circle {
+	transition: all 0.2s ease-in-out;;
+}
+
+
+g text {
+  transition: all 0.2s ease-in-out;
+  transform: scale(0.9);
+  transform-origin: center center;
+}
+
+g:hover {
+	cursor: pointer;
+}
+
+g:hover text {
+	transition: all 0.2s ease-in-out;
+	transform: scale(0.95);
+}
+
+
+g:hover .Pattern{
+  fill: url(#Packedcircles);
+}
+
+.forceHover{
+  fill: url(#Packedcircles) !important;
+}
+
+
+
+g:hover:not(.Deadzone)  path{
+	transition: all 0.2s ease-in-out;
+	transform: scale(0.95);
+}
+
+
+g image {
+  transition: transform 0.2s ease-in-out;
+	transform-origin: center center;
+  transform: scale(0.9);
+
+}
+
+.componentList image{
+	transform-origin: center center !important;
+  transform: scale(0.9) !important;
+}
+
+
+g:hover .componentList image{
+	transition: all 0.2s ease-in-out !important;
+	transform-origin: center center !important;
+  transform: scale(0.95) !important;
+}
+
+
+g:hover image {
+	transition: transform 0.2s ease-in-out;
+  transform: scale(0.95);
+}
+
+
+.innerSelection{
+    fill: rgba(200, 200, 200, 0.3);
+    stroke: none;
+}
+
+.outerSelection{
+    fill: none;
+    stroke: none;
+}
+
+g:hover .outerSelection{
+    fill: rgba(255, 255, 255, 0.9) ;
+    stroke: none;
+}
+
+.selectedSelection{
+    fill: rgba(255, 255, 255, 0.9) ;
+    stroke: none;
+}
+
+.TotalAmmoLabel{
+  font-family: Bebas;
+  font-size:  22px;
+  paint-order: stroke;
+  stroke: #000000;
+  stroke-width: 1px;
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
+  fill:  rgba(200, 200, 200, 0.9);
+}
+
+.AmmoInClipLabel{
+  font-family: Bebas;
+  font-size:  22px;
+  paint-order: stroke;
+  stroke: #000000;
+  stroke-width: 1px;
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
+  fill:  white;
+}
+
+.NameLabel{
+  font-family: Bebas;
+  font-size:  22px;
+  paint-order: stroke;
+  stroke: #000000;
+  stroke-width: 1px;
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
+  fill:  white;
+}
+
+.scrollIcon{
+  stroke: white !important;
+  fill:  white !important;
+}
+
+.Deadzone path{
+  fill: transparent !important;
+  stroke: none !important;
+}
+
+.clicked {
+	animation: click-animation 0.5s ease-in-out both;
+   transform-origin: center center;
+}
+
+@keyframes click-animation {
+  0% {
+            transform: scale(0.95);
+  }
+  50% {
+            transform: scale(0.85);
+  }
+
+  100% {
+            transform: scale(0.9);
+  }
+}
+
+* {
+  user-select: none; 
+}
+
+.quickKeys{
+  font-family: Bebas;
+  font-size:  18px;
+  paint-order: stroke;
+  stroke: #000000;
+  stroke-width: 1px;
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
+  fill:  rgba(130, 130, 130, 1); 
+}
+
+#hoverIndicator{
+  position: absolute; 
+  width: 100%; 
+  height: 100%; 
+  left: 0; 
+  top: 0;
+  z-index: -99999;
+}
+
+
+#hoverIndicator div{
+  display: none;
+  font-size: 6vw;  
+  color: rgba(200, 200, 200, 1);
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+  -webkit-animation: scale-up-center 0.4s cubic-bezier(0.390, 0.575, 0.565, 1.000) infinite alternate both;
+  animation: scale-up-center 0.4s cubic-bezier(0.390, 0.575, 0.565, 1.000) infinite alternate both;
+}
+
+#hoverIndicator #right{
+  position: absolute; 
+  left: 68%; 
+  top: 42%; 
+}
+
+
+#hoverIndicator #left{
+  position: absolute; 
+  left: 24%; 
+  top: 42%; 
+}
+
+#hoverIndicator #top{
+  position: absolute; 
+  left: 48%; 
+  top: 5%; 
+}
+
+#hoverIndicator #bottom{
+  position: absolute; 
+  left: 48%; 
+  top: 80%; 
+}
+
+@-webkit-keyframes scale-up-center {
+  0% {
+    -webkit-transform: scale(0.5);
+            transform: scale(0.5);
+  }
+  100% {
+    -webkit-transform: scale(1);
+            transform: scale(1);
+  }
+}
+@keyframes scale-up-center {
+  0% {
+    -webkit-transform: scale(0.5);
+            transform: scale(0.5);
+  }
+  100% {
+    -webkit-transform: scale(1);
+            transform: scale(1);
+  }
+}

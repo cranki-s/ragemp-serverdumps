@@ -1,0 +1,97 @@
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="../Resources/css/uikit.min.css">
+    <link rel="stylesheet" href="../Resources/css/gtaworld.css">
+    <link rel="stylesheet" href="../Resources/css/jquery-ui.css">
+
+    <script src="../Resources/js/uikit.min.js"></script>
+    <script src="../Resources/js/uikit-icons.min.js"></script>
+    <script src="../Resources/js/jquery.min.js"></script>
+    <script src="../Resources/js/jquery-ui.js"></script>
+
+    <script src="login_login.js"></script>
+    <style type="text/css">
+    .noselect {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+    </style>
+</head>
+
+<body class="noselect">
+    <div class="uk-flex uk-flex-middle uk-animation-fade uk-position-center">
+        <div class="uk-width-1-1">
+            <img class="uk-img uk-align-center" uk-img src="../Resources/img/logo.png" />
+            <div class="uk-margin uk-width-large uk-margin-auto uk-card uk-card-default uk-card-body uk-box-shadow-large uk-padding-remove" style="width:370px;">
+                <div class="uk-section uk-section-secondary uk-padding-small uk-text-center">
+                    <h3 class="login-box-msg uk-margin-remove">Welcome Back</h3>
+                    <p class="uk-text-meta uk-margin-remove">Please sign in</p>
+                </div>
+                <div class="uk-padding" id="register-id" style="padding-bottom: 20px;">
+                    <div class="uk-margin">
+                        <div class="uk-inline uk-width-1-1">
+                            <span class="uk-form-icon" uk-icon="icon: mail"></span>
+                            <input class="uk-input uk-width-1-1" type="text" placeholder="Email or Username" id="email" spellcheck="false" autofocus="autofocus">
+                        </div>
+                    </div>
+
+                    <div class="uk-margin">
+                        <div class="uk-inline uk-width-1-1">
+                            <span class="uk-form-icon" uk-icon="icon: lock"></span>
+                            <input class="uk-input uk-width-1-1" type="password" placeholder="Password" id="password" spellcheck="false" autofocus="autofocus">
+                        </div>
+                    </div>
+
+                    <div class="uk-margin">
+                        <label><input class="uk-checkbox" type="checkbox" id="rememberme" checked="true"> Remember my login name</label>
+                    </div>
+
+                    <a href="#" class="uk-button uk-button-primary uk-width-1-1" id="confirmButton" onclick="OnClickSubmit();">Login</a>
+                    <div class="uk-width-1-1 uk-text-center" style="margin-top: 20px;">
+                        <a href="#register-modal" uk-toggle class="uk-button uk-button-text">I don't have an account!</a>
+                    </div>
+                    <div class="uk-width-1-1 uk-text-center">
+                        <a href="#forgot-modal" uk-toggle class="uk-button uk-button-text">I don't remember my password!</a>
+                    </div>
+
+                    <div id="register-modal" uk-modal>
+                        <div class="uk-modal-dialog uk-modal-body uk-padding-remove">
+                            <div class="uk-section uk-section-secondary uk-padding-small uk-text-center">
+                                <h2>How to register?</h2>
+                            </div>
+                            <div class="uk-padding">
+                                <p>Hi! If you do not already have an account, you will need to visit our website, <b>gta.world</b> to register.</p>
+                                <div class="uk-text-center">
+                                    <a class="uk-button uk-button-primary" href="#register-modal" uk-toggle>Okay</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="forgot-modal" uk-modal>
+                        <div class="uk-modal-dialog uk-modal-body uk-padding-remove">
+                            <div class="uk-section uk-section-secondary uk-padding-small uk-text-center">
+                                <h2>Forgot your password?</h2>
+                            </div>
+                            <div class="uk-padding">
+                                <p>If you have forgotten your password, you can reset it over User Control Panel — <b>gta.world</b>.</p>
+                                <div class="uk-text-center">
+                                    <a class="uk-button uk-button-primary" href="#forgot-modal" uk-toggle>Okay</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="./styles/style.css">
+	<script src="../../Resources/jquery-3.3.1.min.js"></script>
+</head>
+
+<body>
+	<div id="weapon-selector-wrapper">
+		<svg viewBox="0 0 620 620" height="620px" width="620px">
+			<defs id="defs2">
+				<pattern inkscape:collect="always" patternUnits="userSpaceOnUse" width="6" height="6"
+					id="Packedcircles" inkscape:stockid="Packed circles"
+					inkscape:isstock="true">
+					<rect width='6' height='6' />
+					<g id='c'>
+					<rect width='3' height='3' />
+					<rect y='1' width='3' height='2' />
+					</g>
+					<use xlink:href='#c' x='3' y='3'/>
+				</pattern>
+			</defs>
+			<g id="Top" inkscape:label="Top"
+				onmouseover="mouseoverWeapon(this)" 
+				onmouseout="onmouseoutWeapon()" >
+				<path
+					d="M 300,0 A 300,300 0 0 0 91.433594,84.361328 L 193.99219,186.91992 A 155,155 0 0 1 300,145 155,155 0 0 1 406.00781,186.91992 L 508.56641,84.361328 A 300,300 0 0 0 300,0 Z"
+					id="Top_Path" inkscape:label="Top" />
+				<path
+					d="M 300,0 A 300,300 0 0 0 91.433594,84.361328 L 179.84375,172.77148 A 175,175 0 0 1 299.87305,125 175,175 0 0 1 300,125 175,175 0 0 1 420.15625,172.77148 L 508.56641,84.361328 A 300,300 0 0 0 300,0 Z"
+					class="Pattern" id="Top_Path" inkscape:label="Top" />
+				<path id="Inner_Selection_Top"
+					d="m 299.87305,125 a 175,175 0 0 0 -120.0293,47.77148 l 14.14844,14.14844 A 155,155 0 0 1 300,145 155,155 0 0 1 406.00781,186.91992 l 14.14844,-14.14844 A 175,175 0 0 0 300,125 a 175,175 0 0 0 -0.12695,0 z"
+					inkscape:label="Inner_Selection" class="innerSelection" />
+				<path id="Outer_Selection_Top" inkscape:label="Outer_Selection"
+					d="M 300,0 A 300,300 0 0 0 91.433594,84.361328 L 102.04297,94.970703 A 285,285 0 0 1 300,15 285,285 0 0 1 497.95898,94.96875 L 508.56641,84.361328 A 300,300 0 0 0 300,0 Z"
+					class="outerSelection" />
+				<image id="rect1079" width="257.76285" height="65.81707" x="171.11858" y="52.551426"
+					inkscape:label="WeaponImage" class="weaponImage"
+					xlink:href="" />
+				<image xlink:href="./files/image/mag.svg" width="30" height="30" x="388.88199" y="118.368"
+					class="componentIcon" />
+				<image xlink:href="./files/image/taclight.svg" width="30" height="30" x="402.88199" y="88.367996"
+					class="componentIcon" />
+				<image xlink:href="./files/image/no-sound.svg" width="30" height="30" x="416.88199" y="118.368"
+					class="componentIcon" />
+				<text xml:space="preserve" x="258.57971" y="41.438145" id="text899" class="AmmoLabel"
+					inkscape:label="AmmoLabel">
+					<tspan class="AmmoInClipLabel" id="tspan895">6 </tspan><tspan class="TotalAmmoLabel" id="tspan897">56</tspan>
+				</text>
+				<image
+					xlink:href="files/image/sort.svg"
+					id="rect892"
+					width="30"
+					height="30"
+					x="141.119"
+					y="88.3685"
+					class="scrollIcon" />
+				<text
+					xml:space="preserve"
+					x="450.57971"
+					y="100.33527"
+					id="text898"
+					class="quickKeys">
+					<tspan >2</tspan>
+				</text>
+			</g>
+			<g id="Left" inkscape:label="Left"
+				onmouseover="mouseoverWeapon(this)" 
+				onmouseout="onmouseoutWeapon()">
+				<path
+					d="M 84.361328,91.433594 A 300,300 0 0 0 0,300 300,300 0 0 0 84.361328,508.56641 L 186.91992,406.00781 A 155,155 0 0 1 145,300 155,155 0 0 1 186.91992,193.99219 Z"
+					id="Left_Path" inkscape:label="Left" />
+				<path
+					d="M 84.361328,91.433594 A 300,300 0 0 0 0,300 300,300 0 0 0 84.361328,508.56641 L 172.77148,420.15625 A 175,175 0 0 1 125,300 175,175 0 0 1 172.77148,179.84375 Z"
+					class="Pattern" id="Left_Path" inkscape:label="Left" />
+				<path id="Inner_Selection_Left"
+					d="M 172.77148,179.84375 A 175,175 0 0 0 125,300 175,175 0 0 0 172.77148,420.15625 l 14.14844,-14.14844 A 155,155 0 0 1 145,300 155,155 0 0 1 186.91992,193.99219 Z"
+					inkscape:label="Inner_Selection" class="innerSelection" />
+				<path id="Outer_Selection_Left" inkscape:label="Outer_Selection"
+					d="M 84.361328,91.433594 A 300,300 0 0 0 0,300 300,300 0 0 0 84.361328,508.56641 L 94.970703,497.95703 A 285,285 0 0 1 15,300 285,285 0 0 1 94.96875,102.04102 Z"
+					class="outerSelection" />
+				<image id="rect1085" width="94.149452" height="99.890274" x="26.385235" y="250.05487"
+					class="weaponImage" inkscape:label="weaponImage"
+					xlink:href="" />
+				<image xlink:href="./files/image/mag.svg" width="30" height="30" x="72.385002" y="224.05499"
+					class="componentIcon" />
+				<image xlink:href="./files/image/taclight.svg" width="30" height="30" x="56.384998" y="194.05499"
+					class="componentIcon" />
+				<image xlink:href="./files/image/no-sound.svg" width="30" height="30" x="42.384998" y="224.05499"
+					class="componentIcon" />
+				<text xml:space="preserve" x="5.355846" y="370.17416" id="text9742" class="AmmoLabel"
+					inkscape:label="AmmoLabel">
+					<tspan class="AmmoInClipLabel">16 </tspan><tspan class="TotalAmmoLabel">49</tspan>
+				</text>
+				<image
+					id="UpDownArrow"
+					width="30"
+					height="30"
+					x="96.539"
+					y="345.94513"
+					xlink:href="files/image/sort.svg"
+					class="scrollIcon" />
+				<text
+					xml:space="preserve"
+					x="70.57971"
+					y="140.33527"
+					id="text898"
+					class="quickKeys">
+					<tspan>1</tspan>
+				</text>
+			</g>
+			<g id="Right"
+				onmouseover="mouseoverWeapon(this)" 
+				onmouseout="onmouseoutWeapon()" >
+				<path
+					d="M 515.63867,91.433594 413.08008,193.99219 A 155,155 0 0 1 455,300 155,155 0 0 1 413.08008,406.00781 l 102.55859,102.5586 A 300,300 0 0 0 600,300 300,300 0 0 0 515.63867,91.433594 Z"
+					id="Right_Path" inkscape:label="Right" />
+				<path
+					 d="M 515.63867,91.433594 427.22852,179.84375 A 175,175 0 0 1 475,300 175,175 0 0 1 427.22852,420.15625 l 88.41015,88.41016 A 300,300 0 0 0 600,300 300,300 0 0 0 515.63867,91.433594 Z"
+					class="Pattern" id="Right_Path" inkscape:label="Right" />
+				<path id="Inner_Selection_Right"
+					d="m 427.22852,179.84375 -14.14844,14.14844 A 155,155 0 0 1 455,300 155,155 0 0 1 413.08008,406.00781 l 14.14844,14.14844 A 175,175 0 0 0 475,300 175,175 0 0 0 427.22852,179.84375 Z"
+					inkscape:label="Inner_Selection" class="innerSelection" />
+				<path id="Outer_Selection_Bottom" inkscape:label="Outer_Selection"
+					d="M 515.63867,91.433594 505.0293,102.04297 A 285,285 0 0 1 585,300 285,285 0 0 1 505.03125,497.95898 l 10.60742,10.60743 A 300,300 0 0 0 600,300 300,300 0 0 0 515.63867,91.433594 Z"
+					class="outerSelection" />
+				<image id="WeaponImageRight" width="94.149452" height="99.890274" x="479.4653" y="250.05487"
+					class="weaponImage" inkscape:label="weaponImage"
+					xlink:href="" />
+				<!--image xlink:href="./files/image/mag.svg" width="30" height="30" x="485.61401" y="130.05499"
+					class="componentIcon" />
+				<image xlink:href="./files/image/taclight.svg" width="30" height="30" x="501.61401" y="162.05499"
+					class="componentIcon" />
+				<image xlink:href="./files/image/no-sound.svg" width="30" height="30" x="517.61401" y="199.05499"
+					class="componentIcon" /-->
+				<text xml:space="preserve" x="474.43591" y="370.17416" id="text881" class="AmmoLabel"
+					inkscape:label="AmmoLabel">
+					<tspan class="AmmoInClipLabel" id="tspan877">00 </tspan><tspan class="TotalAmmoLabel" id="tspan879">000</tspan>
+				</text>
+				<image
+					id="UpDownArrow"
+					width="30"
+					height="30"
+					x="549.539"
+					y="345.94513"
+					xlink:href="files/image/sort.svg"
+					class="scrollIcon" />
+				<text
+					xml:space="preserve"
+					x="490.57971"
+					y="140.33527"
+					id="text898"
+					class="quickKeys">
+					<tspan>4</tspan>
+				</text>
+			</g>
+			<g id="Bottom"
+				onmouseover="mouseoverWeapon(this)" 
+				onmouseout="onmouseoutWeapon()" >
+				<path
+					d="M 193.99219,413.08008 91.433594,515.63867 A 300,300 0 0 0 300,600 300,300 0 0 0 508.56641,515.63867 L 406.00781,413.08008 A 155,155 0 0 1 300,455 155,155 0 0 1 193.99219,413.08008 Z"
+					id="Bottom_Path" />
+				<path
+					d="M 179.84375,427.22852 91.433594,515.63867 A 300,300 0 0 0 300,600 300,300 0 0 0 508.56641,515.63867 L 420.15625,427.22852 A 175,175 0 0 1 300,475 175,175 0 0 1 179.84375,427.22852 Z"
+					class="Pattern" id="Bottom_Path" />
+				<path id="Inner_Selection_Bottom"
+					d="m 193.99219,413.08008 -14.14844,14.14844 A 175,175 0 0 0 300,475 175,175 0 0 0 420.15625,427.22852 L 406.00781,413.08008 A 155,155 0 0 1 300,455 155,155 0 0 1 193.99219,413.08008 Z"
+					inkscape:label="Inner_Selection" class="innerSelection" />
+				<path id="path962"
+					d="M 497.95703,505.0293 A 285,285 0 0 1 300,585 285,285 0 0 1 102.04102,505.03125 L 91.433594,515.63867 A 300,300 0 0 0 300,600 300,300 0 0 0 508.56641,515.63867 Z"
+					class="outerSelection" />
+				<image id="BottomWeaponImage" width="257.763" height="65.81707" x="171.1185" y="483.6315"
+					inkscape:label="WeaponImage" class="weaponImage"
+					xlink:href="" />
+				<image xlink:href="./files/image/mag.svg" width="30" height="30" x="151.118" y="491.63199"
+					class="componentIcon" />
+				<image xlink:href="./files/image/taclight.svg" width="30" height="30" x="137.118" y="461.63199"
+					class="componentIcon" />
+				<image xlink:href="./files/image/no-sound.svg" width="30" height="30" x="123.118" y="491.63199"
+					class="componentIcon" />
+				<text xml:space="preserve" x="258.57971" y="568.33527" id="text890" class="AmmoLabel"
+					inkscape:label="AmmoLabel">
+					<tspan class="AmmoInClipLabel" id="tspan886">6 </tspan><tspan class="TotalAmmoLabel" id="tspan888">33</tspan>
+				</text>
+				<image
+					xlink:href="files/image/sort.svg"
+					width="30"
+					height="30"
+					x="428.8815"
+					y="483.6315"
+					class="scrollIcon" />
+				<text
+					xml:space="preserve"
+					x="400.57971"
+					y="460.33527"
+					id="text898"
+					class="quickKeys">
+					<tspan>3</tspan>
+				</text>
+			</g>
+			<g id="Center">
+				<circle id="Center_Path" cx="300" cy="300" r="90" />
+				<circle id="Center_Path" cx="300" class="Pattern" cy="300" r="90" />
+				<path id="path859"
+					d="M 299.82812,210 A 90,90 0 0 0 210,300 a 90,90 0 0 0 90,90 90,90 0 0 0 90,-90 90,90 0 0 0 -90,-90 90,90 0 0 0 -0.17188,0 z M 300,225 a 75,75 0 0 1 75,75 75,75 0 0 1 -75,75 75,75 0 0 1 -75,-75 75,75 0 0 1 75,-75 z"
+					class="innerSelection" />
+				<path id="CenterOutline"
+					d="M 299.82812,210 A 90,90 0 0 0 210,300 a 90,90 0 0 0 90,90 90,90 0 0 0 90,-90 90,90 0 0 0 -90,-90 90,90 0 0 0 -0.17188,0 z M 300,225 a 75,75 0 0 1 75,75 75,75 0 0 1 -75,75 75,75 0 0 1 -75,-75 75,75 0 0 1 75,-75 z"
+					class="outerSelection" />
+				<image id="rect1098" width="70" height="70" x="265" y="265" class="weaponImage"
+					inkscape:label="WeaponImage"
+					xlink:href="" />
+				<text
+					xml:space="preserve"
+					x="280.57971"
+					y="370.33527"
+					id="text898"
+					class="quickKeys">
+					<tspan >5</tspan>
+				</text>
+			</g>
+			<g
+				id="g909"
+				inkscape:label="Deadzone"
+				class="Deadzone">
+				    <path
+						id="rect911"
+						d="M 97.574219,70.160156 76.361328,91.373047 167.43555,182.44727 A 180.00063,180.00024 0 0 0 122,302.00195 180.00063,180.00024 0 0 0 165.54297,419.38477 L 76.361328,508.56641 97.574219,529.7793 186.93555,440.41992 A 180.00063,180.00024 0 0 0 301.99805,482 180.00063,180.00024 0 0 0 421.55078,436.5625 l 93.2168,93.2168 21.21289,-21.21289 -93.73633,-93.73633 A 180.00063,180.00024 0 0 0 482,302.00195 180.00063,180.00024 0 0 0 440.41797,186.93359 L 535.98047,91.373047 514.76758,70.160156 419.38477,165.54297 A 180.00063,180.00024 0 0 0 301.99805,122 180.00063,180.00024 0 0 0 189.16992,161.75586 Z M 301.84961,207.02539 a 94.311775,93.033836 0 0 1 94.31055,93.03516 94.311775,93.033836 0 0 1 -94.31055,93.0332 94.311775,93.033836 0 0 1 -94.3125,-93.0332 94.311775,93.033836 0 0 1 94.3125,-93.03516 z" />
+			</g>
+		</svg>
+	</div>
+	<div id="hoverIndicator">
+		<div id="right">&#8594;</div>
+		<div id="left">&#8592;</div>
+		<div id="bottom">&#8595;</div>
+		<div id="top">&#8593;</div>
+
+	</div>
+	<script src="./js/Constants.js"></script>
+	<script src="./js/class/Reception.js"></script>
+	<script src="./js/class/Sounds.js"></script>
+	<script src="./js/class/Section.js"></script>
+	<script src="./js/Core.js"></script>
+</body>
+
+</html>

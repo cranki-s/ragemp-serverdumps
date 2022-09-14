@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="../../Resources/css/uikit.min.css">
+    <link rel="stylesheet" href="../../Resources/css/gtaworld.css">
+    <link rel="stylesheet" href="../../Resources/css/theme.css">
+
+    <script src="../../Resources/js/jquery.min.js"></script>
+    <script src="../../Resources/js/jquery-ui.js"></script>
+    <script src="../../Resources/js/uikit.min.js"></script>
+
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<script>
+    function GenericNotification(msg, position, status, time){
+        UIkit.notification({message: msg, pos: position, status: status, timeout: time});
+    }
+    function HideNotifications() {
+        $("#NotificationsBody").css("opacity", 0); 
+    }
+
+    function ShowNotifications() {
+        $("#NotificationsBody").css("opacity", 1); 
+    }
+
+</script>
+
+<body id="NotificationsBody">
+</body>
+</html>

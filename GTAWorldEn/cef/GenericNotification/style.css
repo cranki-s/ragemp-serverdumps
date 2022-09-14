@@ -1,0 +1,51 @@
+/*genericNotification*/
+.uk-notification-message {
+    background: #393939;
+    color: #fff;
+}
+
+.uk-notification {
+    width: max-content;
+    zoom:0.8;
+    text-align: right;
+    opacity: 0.8;
+}
+
+.uk-notification-message:hover .uk-notification-close {
+    display: none;
+}
+
+.uk-notification-message-default {
+    background: #393939 !important;
+    color: #fff !important;
+}
+
+.uk-notification-message-warning {
+    background: #393939 !important;
+    color: #faa05a !important;
+}
+
+.uk-notification-message-danger {
+    color: #f0506e !important;
+}
+
+.uk-notification-message-success {
+    color: #32d296 !important;
+}
+
+.uk-notification-message-tester {
+    color: darkturquoise;
+}
+
+.uk-notification-message-admin {
+    color: #f0506e;
+}
+
+.uk-notification-message-secondary {
+    color: #fff;
+}
+
+* {
+    -webkit-user-select: none;
+    user-select: none;
+}

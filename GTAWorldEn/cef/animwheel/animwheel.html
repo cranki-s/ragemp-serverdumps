@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="assets/css/uikit.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/animwheel.css" />
+
+    <script src="assets/js/jquery.js"></script>
+    <script src="assets/js/jquery.loadTemplate.min.js"></script>
+
+    <script type="text/html" id="wheelitem-template">
+        <div class="wheelitem-container">
+            <div class="wheelitem-circle-container">
+                <img data-src="icon">
+            </div>
+
+            <div class="wheelitem-edit-button">
+                <img src="assets/img/pencil.svg" />
+            </div>
+        </div>
+    </script>
+
+    <meta charset="utf-8" />
+</head>
+
+<body style="display: none;">
+    <!-- The actual wheel itself -->
+    <div id="wheel-container">
+        <!-- Display the name of the current selection in the center -->
+        <div class="current-wheelitem">
+            <div>
+                <span id="current-wheelitem-name">anim-name</span>
+            </div>
+            <div>
+                <button id="stop-anim-btn">
+                    <img src="assets/img/stop.svg" />
+                    <span>
+                        Stop animation
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <!-- The javascript will load the wheel items dynamically --->
+    </div>
+
+    <!-- Editor that appears when users are editing an item -->
+    <div id="item-editor" class="uk-flex uk-flex-middle uk-animation-fade uk-position-center">
+        <div class="uk-width-1-1">
+            <div
+                class="uk-margin uk-width-large uk-margin-auto uk-card uk-card-default uk-card-body uk-box-shadow-large uk-padding-remove">
+                <div class="uk-section uk-section-secondary uk-padding-small uk-text-center">
+                    <h3 class="login-box-msg uk-margin-remove">Animwheel Slot Edit</h3>
+                    <p class="uk-text-meta uk-margin-remove">
+                        Current animation:
+                        <label id="editor-current-animation-label"></label>
+                    </p>
+                </div>
+
+                <div class="uk-padding">
+                    <div class="uk-margin">
+                        <label>
+                            Animation name
+                        </label>
+
+                        <div class="uk-inline uk-width-1-1">
+                            <input class="uk-input uk-width-1-1" type="text" id="edit-text" spellcheck="false"
+                                autofocus="autofocus">
+                        </div>
+
+                        <label id="editor-error-message">Invalid animation name</label>
+                    </div>
+
+                    <!-- Some loading animation for when data is loading -->
+                    <div id="loading-spinner">
+                        <svg width="38" height="38" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">
+                            <g fill="none" fill-rule="evenodd">
+                                <g transform="translate(1 1)" stroke-width="2">
+                                    <circle stroke="#bababa" cx="18" cy="18" r="18" />
+                                    <path stroke="white" d="M36 18c0-9.94-8.06-18-18-18">
+                                        <animateTransform attributeName="transform" type="rotate" from="0 18 18"
+                                            to="360 18 18" dur="1s" repeatCount="indefinite" />
+                                    </path>
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div class="editor-buttons-container">
+                        <a id="apply-edit-button" href="#" class="uk-button uk-button-primary uk-width-1-1">
+                            Apply
+                        </a>
+                        <a id="cancel-edit-button" href="#" class="uk-button uk-button-primary uk-width-1-1">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Keep this at the bottom of the HTML body -->
+    <script src="animwheel-bundle.js"></script>
+</body>
+
+</html>

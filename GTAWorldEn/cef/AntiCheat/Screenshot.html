@@ -1,0 +1,66 @@
+<html>
+    <head>
+        <script src="../../Resources/js/jquery.min.js"></script>
+        <style>
+            body{
+                overflow: hidden;
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -khtml-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                    user-select: none; 
+            }
+
+            #result{
+                width: 70%;
+                display: block;
+                margin: 10% auto;
+                display: none;
+                overflow: hidden;
+                border: orange 2px solid;
+            }
+        </style>
+    </head>
+    <body>
+        <img id="result" src="" />
+
+        <script>
+            function getData(name){
+                let xhr = new XMLHttpRequest();
+                xhr.onload = function() {
+                    let reader = new FileReader()
+                    reader.onloadend = function() {
+                        report(reader.result)
+                    }
+                    reader.readAsDataURL(xhr.response)
+                }
+
+                
+                xhr.open('GET', name)
+                xhr.responseType = 'blob'
+                xhr.send()
+            }
+
+            function report(data){
+
+                let chunks = data.match(/.{1,16384}/g)
+                chunks.forEach((chunk, index) => {
+                    setTimeout(() =>{
+                        mp.trigger("Screenshot::OnChunk", chunk, (index==0), (index == chunks.length-1), (new TextEncoder().encode(data)).length) 
+                    }, index * 100)
+                })   
+            }
+
+            function clear(){
+                $("#result").css("display", "none")
+                $("#result").attr("src", "") 
+            }
+
+            function setData(data){
+                $("#result").css("display", "block")
+                $("#result").attr("src", data) 
+            }
+        </script>
+    </body>
+</html>

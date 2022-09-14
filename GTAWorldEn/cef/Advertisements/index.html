@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<link rel="stylesheet" type="text/css" href="../Resources/css/uikit.min.css">
+	<link rel="stylesheet" type="text/css" href="../Resources/css/gtaworld.css">
+    <link rel="stylesheet" type="text/css" href="../Resources/css/jquery-ui.css">
+
+	
+    <link href="../Resources/fontawesome/css/all.css" rel="stylesheet">
+    <link href="../Resources/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+	<link href="../Resources/fullcalendar/main.css" rel="stylesheet">
+	<link href="../Resources/bootstrap-4.3.1/css/bootstrap-datetime.css" rel="stylesheet">
+	<link href="../Resources/bootstrap-4.3.1/css/bootstrap-tooltip.css" rel="stylesheet">
+    <link href="../Resources/summernote/summernote-lite.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+</head>
+<body class="noselect" id="AdvertisementsBody">
+	<div id="Advertisements" class="uk-flex uk-flex-middle noselect"style="margin-top: 10vh; opacity: 0; display:none;">
+		<div class="uk-width-1-1">
+			<div style="min-width: 1150px !important;" class="uk-margin uk-width-large uk-margin-auto uk-card uk-card-default uk-card-body uk-box-shadow-large uk-padding-remove">
+                <div class="uk-section uk-section-secondary uk-padding-small uk-text-center uk-margin-remove-left" uk-grid>
+                    <h3 class="uk-margin-auto-left">Advertisements</h3>
+                    <button uk-close id="closeADs" type="button" class="uk-margin-auto-left"/>
+                </div>
+                <!--<div class="uk-alert-primary" uk-alert style="margin:20px 40px -20px;">
+                    <a class="uk-alert-close" uk-close></a>
+                    <p>The new advertisement system is in testing phase, to enable its full functionality, use <b>/toggle newads</b></p>
+                </div>-->
+				<div class="uk-padding">
+					<ul uk-tab id="switcher">
+                        <li><a href="#">Advertisements <span class="uk-label uk-label-primary" id="adsCount" style="display:hidden;"></span></a></li>
+                        <li><a href="#">Company Advertisements <span class="uk-label uk-label-primary" id="CadsCount" style="display:hidden;"></span></a></li>
+                        <li><a href="#">Event Advertisements <span class="uk-label uk-label-primary" id="BadsCount" style="display:hidden;"></span></a></li>
+                        <li><a href="#">Calendar</a></li>
+                        <li><a href="#">Post Advertisement</a></li>
+                        <li><a href="#"><i class="fas fa-cogs"></i> Settings</a></li>
+                    </ul>
+                    <ul class="uk-switcher uk-margin">
+                        <!-- Advertisements -->
+                        <li>
+                            <div class="uk-inline" style="float:right;">
+                                <span class="uk-form-icon"><i class="fas fa-search"></i></span>
+                                <input class="uk-input uk-form-width-medium" type="text" placeholder="Search" id="SearchAds" onfocus="PreventChat_Ads()" onblur="ActivateChat_Ads()">
+                            </div>
+							<div id="customTable">
+								<table class="uk-table uk-table-striped uk-table-small">
+									<thead>
+										<tr>
+											<th class="timeColumn">Time</th>
+											<th class="adColumnEx">Advertisement</th>
+											<th class="phoneColumn">Phone</th>
+											<th class="buttonColumn"></th>
+										</tr>
+									</thead>
+									<tbody id="adsList" class="adsList">
+										
+									</tbody>
+								</table>
+							</div>
+                        </li>
+                        <!-- Company Advertisements -->
+                        <li>
+                            <div class="uk-inline" style="float:right;">
+                                <span class="uk-form-icon"><i class="fas fa-search"></i></span>
+                                <input class="uk-input uk-form-width-medium" type="text" placeholder="Search" id="SearchCAds" onfocus="PreventChat_Ads()" onblur="ActivateChat_Ads()">
+                            </div>
+							<div id="customTable">
+								<table class="uk-table uk-table-striped uk-table-small">
+									<thead>
+										<tr>
+											<th class="timeColumn">Time</th>
+											<th class="adColumn">Advertisement</th>
+											<th class="buttonColumn"></th>
+										</tr>
+									</thead>
+									<tbody id="CadsList" class="CadsList">
+										
+									</tbody>
+								</table>
+						   </div>
+                        </li>
+                        <!-- Business Advertisements -->
+                        <li>
+                            <div class="uk-inline" style="float:right;">
+                                <span class="uk-form-icon"><i class="fas fa-search"></i></span>
+                                <input class="uk-input uk-form-width-medium" type="text" placeholder="Search" id="SearchBAds" onfocus="PreventChat_Ads()" onblur="ActivateChat_Ads()">
+                            </div>
+							<div id="customTable">
+                            <table class="uk-table uk-table-striped uk-table-small">
+                                <thead>
+                                    <tr>
+                                        <th class="timeColumn">Time</th>
+                                        <th class="adColumnEvent">Advertisement</th>
+                                        <th class="buttonColumn"></th>
+                                        <th class="buttonColumn"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="BadsList" class="BadsList">
+                                    
+                                </tbody>
+                            </table>
+							</div>
+                                
+                        </li>
+						<!-- Calendar -->
+                        <li>
+                            <div id="calendar-box"><div id="calendar-id"></div></div>
+                        </li>
+                        <!-- Place -->
+                        <li>
+                            <form class="uk-grid-small" uk-grid id="placeForm">
+                                <div class="uk-width-1-3@s">
+                                    <div class="uk-margin">
+                                        <div class="uk-form-label">Advertisement Type</div>
+                                        <div class="uk-form-controls">
+                                            <label><input class="uk-radio" type="radio" name="newAd_Type" id=0> Advertisement</label><br/>
+                                            <label><input class="uk-radio" type="radio" name="newAd_Type" id=1> Company Advertisement</label><br/>
+                                            <label><input class="uk-radio" type="radio" name="newAd_Type" id=2> Business Advertisement</label>
+                                        </div>
+                                    </div>
+
+                                    <div id="locationData" style="display: none">
+                                        <div class="uk-margin" id="locationEnabled" style="opacity:0;">
+                                            <div class="uk-form-label">Waypoint marker on the advertisement</div>
+                                            <input class="uk-checkbox" type="checkbox" name="showLocation">
+                                        </div>
+                                    </div>
+
+                                    <div id="businessData" style="display: none">
+                                        <div class="uk-margin" id="BlipName" style="opacity:0;">
+                                            <div class="uk-form-label">Business Blip Name</div>
+                                            <input class="uk-input" type="text" placeholder="Business Name" id="newAd_Name" maxlength="50" onfocus="PreventChat_Ads()" onblur="ActivateChat_Ads()">
+                                        </div>
+                                        <div class="uk-margin" id="BlipID" style="opacity:0;">
+                                            <div class="uk-form-label">Business Blip</div>
+                                            <a href="#" class="uk-button uk-button-danger uk-width-2-3@s" id="newAd_Blip">NOT SET</a><a href="#" class="uk-button uk-button-primary uk-width-1-3@s" id="show_blips">Blips</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="uk-width-2-3@s">
+                                    <div class="uk-margin">
+                                        <div class="uk-form-label">Advertisement Text</div>
+                                        <textarea class="uk-textarea" rows="3" placeholder="Advertisement text here" id="newAd_Text" maxlength="255" onfocus="PreventChat_Ads()" onblur="ActivateChat_Ads()"></textarea>
+                                    </div>
+                                </div>
+                                <button class="uk-button uk-button-primary uk-width-1-1" type="button" id="place_ad">Place Advertisement</button>
+                            </form>
+                        </li>
+                        <!-- Settings -->
+                        <li>
+                            <form class="uk-grid-small" uk-grid>
+                                <div class="uk-width-1-3@s">
+                                    <div class="uk-margin">
+                                        <div class="uk-form-label">Advertisements Seen/Unseen function</div>
+                                        <div class="uk-form-controls">
+                                            <label class="uk-switch" for="setting_seen">
+                                                <input type="checkbox" id="setting_seen">
+                                                <div class="uk-switch-slider"></div>
+                                              </label>
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <div class="uk-form-label">Advertisements In Chat</div>
+                                        <div class="uk-form-controls">
+                                            <label class="uk-switch" for="setting_chat">
+                                                <input type="checkbox" id="setting_chat">
+                                                <div class="uk-switch-slider"></div>
+                                              </label>
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <div class="uk-form-label">Temporarily Hide Notifications</div>
+                                        <div class="uk-form-controls">
+                                            <label class="uk-switch" for="setting_off">
+                                                <input type="checkbox" id="setting_off">
+                                                <div class="uk-switch-slider"></div>
+                                              </label>
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <div class="uk-form-label">Display Event Time | Display Event End Time</div>
+                                        <div class="uk-form-controls">
+                                            <label class="uk-switch" for="setting_eventTime">
+                                                <input type="checkbox" id="setting_eventTime">
+                                                <div class="uk-switch-slider"></div>
+                                              </label>
+                                              <label class="uk-switch" style="float:right;" for="setting_eventTimeEnd">
+                                                <input type="checkbox" id="setting_eventTimeEnd">
+                                                <div class="uk-switch-slider"></div>
+                                              </label>
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <div class="uk-form-label">Event Reminders</div>
+                                        <div class="uk-form-controls">
+                                            <label class="uk-switch" for="setting_eventReminders">
+                                                <input type="checkbox" id="setting_eventReminders">
+                                                <div class="uk-switch-slider"></div>
+                                              </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="uk-width-2-3@s">
+                                    <div class="uk-margin">
+                                        <div class="uk-form-label">Notification Style</div>
+                                        <div class="uk-form-controls">
+                                            <label><input class="uk-radio" type="radio" name="setting_style" id=1> Popup once per 3 minutes "x new advertisements"</label><br>
+                                            <label><input class="uk-radio" type="radio" name="setting_style" id=2> Popup for every advertisement with advertisement type</label><br>
+                                            <label><input class="uk-radio" type="radio" name="setting_style" id=3> Popup for every advertisement with part of advertisement text</label><br>
+                                            <div class="uk-width-1-1@s" style="opacity: 0; display:none;" id="setting_style_3_amount_box">
+                                                <input class="uk-input uk-width-1-3@s" type="number" placeholder="amount of characters" id="setting_style_3_amount" max="255" min="10" style="margin-left:20px;"> <span style="font-size:14px;">minimum 10 & maximum 255 characters</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="uk-margin">
+                                        <div class="uk-form-label">Notification Popup Speed</div>
+                                        <div class="uk-form-controls">
+                                            <label><input class="uk-radio" type="radio" name="setting_speed" id=2000> 2 seconds</label>
+                                            <label><input class="uk-radio" type="radio" name="setting_speed" id=3000> 3 seconds</label>
+                                            <label><input class="uk-radio" type="radio" name="setting_speed" id=5000> 5 seconds</label>
+                                            <label><input class="uk-radio" type="radio" name="setting_speed" id=10000> 10 seconds</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!--<div class="uk-width-1-2@s">
+                                    <input class="uk-input" type="text" placeholder="50">
+                                </div>-->
+                                <a href="#" class="uk-button uk-button-primary uk-width-1-1" id='settings_save'>Save Settings</a>  
+                            </form>
+                        </li>
+                    </ul>                    
+				</div>
+			</div>
+		</div>
+	</div>
+
+    <div id="modal-view" uk-modal>
+        <div class="uk-modal-dialog uk-modal-body noselect">
+            <div class="uk-modal-header">
+                <h2 class="uk-modal-title" id="modelTitle">Advertisement</h2>
+            </div>
+            <div class="uk-modal-body">
+                <p id="modelText"></p>
+                <p id="modelPhone" style="color:black; margin-bottom:0px;margin-top:0px;"></p>
+                <p id="modelName"  style="margin-bottom:0px;margin-top:0px;" class="uk-label uk-label-danger"></p>
+            </div>
+            <div class="uk-modal-footer uk-text-right">
+                <span id="controlAdButtons" style="display:hidden;"><span id="deleteAdConfirm" class="uk-label uk-label-danger" style="margin-right:5px; opacity:0;">Are you sure?</span>
+                <button class="uk-button uk-button-danger" type="button" id="adDelete">Delete</button></span>
+                <button class="uk-button uk-button-primary uk-modal-close" type="button">Close</button>
+            </div>
+        </div>
+    </div>
+    <div id="modal-new" uk-modal='{"esc-close": false, "bg-close": false}'>
+        <div class="uk-modal-dialog uk-modal-body noselect">
+            <div class="uk-modal-header">
+                <h2 class="uk-modal-title">New Planned Event</h2>
+            </div>
+            <div class="uk-modal-body">
+                <div class="uk-alert-danger" uk-alert id="eventAlert" style="display:none;">
+                    <p>You do not have enough World Points to make an event. You need 30 WP at minimum.</p>
+                </div>
+                <div class="uk-alert-danger" uk-alert id="eventOverlapping" style="display:none; opacity: 0;">
+                    <p id="overlappingText"></p>
+                </div>
+                <form class="uk-grid-small" uk-grid id="eventForm">
+                    <div class="uk-width-1-3@s">
+                        <div class="uk-margin">
+                            <div class="uk-form-label">Title</div>
+                            <input class="uk-input event-input" type="text" id="newEventTitle" placeholder="Title" onfocus="PreventChat_Ads()" onblur="ActivateChat_Ads()" maxlength="50">
+                        </div>
+                        <div class="uk-margin">
+                            <div class="uk-form-label">Start Date</div>
+                            <input class="uk-input datetimepicker event-input" type="text" id="newEventStart" placeholder="DD/MMM/YYYY HH:MM" onfocus="PreventChat_Ads()" onblur="ActivateChat_Ads()">
+                        </div>
+                        <div class="uk-margin">
+                            <div class="uk-form-label">Duration</div>
+                            <div class="uk-form-controls">
+                                <label><input class="uk-radio" type="radio" name="event_duration" id=30> 30 minutes</label><br/>
+                                <label><input class="uk-radio" type="radio" name="event_duration" id=1 checked> 1 hour</label><br/>
+                                <label><input class="uk-radio" type="radio" name="event_duration" id=2> 2 hours</label><br/>
+                                <label><input class="uk-radio" type="radio" name="event_duration" id=3> 3 hours</label>
+                            </div>
+                        </div>
+                        <div class="uk-margin">
+                            <div class="uk-form-label">Location</div>
+                            <input class="uk-input event-input" type="text" id="newEventLocation" placeholder="Location Description" onfocus="PreventChat_Ads()" onblur="ActivateChat_Ads()" maxlength="200">
+                        </div>
+                    </div>
+                    <div class="uk-width-2-3@s">
+                        <div class="uk-margin">
+                            <div class="uk-form-label">Content</div>
+                            <textarea class="uk-textarea summernote" rows="10" placeholder="Textarea" id="newEventContent"></textarea>
+                            Characters Remaining: <span id="maxContentPost" style="text-align:right">3000</span>
+                        </div>
+                       
+                    </div>
+                </form>
+            </div>
+            <div class="uk-modal-footer" id="eventFooter">
+                <span class="uk-text-left uk-label uk-label-danger" style="font-size: 20px; margin-top:7px;">
+                    Costs of this Event: <span id="eventCosts">30 World Points</span> <span style="font-size:14px;">(you have <span id="WorldPointsEvent"></span> WP)</span>
+                    <input hidden id="eventCostsField" type="number" value="30">
+                </span>
+                <span style="float: right;">
+                    <span id="eventConfirm" class="uk-label uk-label-danger" style="margin-right:5px; opacity:0;">Are you sure?</span>
+                    <button class="uk-button uk-button-secondary" type="button" id="addEvent">Add Event</button>
+                    <button class="uk-button uk-button-primary uk-modal-close" type="button">Close</button>
+                </span>
+            </div>
+            <div class="uk-modal-footer" id="eventFooterEx">
+                <span style="float: right;">
+                    <button class="uk-button uk-button-primary uk-modal-close" type="button">Close</button>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-edit" uk-modal='{"esc-close": false, "bg-close": false}'>
+        <div class="uk-modal-dialog uk-modal-body noselect">
+            <div class="uk-modal-header">
+                <h2 class="uk-modal-title">Edit Planned Event</h2>
+            </div>
+            <div class="uk-modal-body">
+                <form class="uk-grid-small" uk-grid id="editEventForm">
+                    <div class="uk-width-1-3@s">
+                        <div class="uk-margin">
+                            <div class="uk-form-label">Title</div>
+                            <input class="uk-input event-input" type="text" id="editEventTitle" placeholder="Title" onfocus="PreventChat_Ads()" onblur="ActivateChat_Ads()" maxlength="50">
+                        </div>
+                        <div class="uk-margin">
+                            <div class="uk-form-label">Location</div>
+                            <input class="uk-input event-input" type="text" id="editEventLocation" placeholder="Location Description" onfocus="PreventChat_Ads()" onblur="ActivateChat_Ads()" maxlength="200">
+                        </div>
+                    </div>
+                    <div class="uk-width-2-3@s">
+                        <div class="uk-margin">
+                            <div class="uk-form-label">Content</div>
+                            <textarea class="uk-textarea summernote" rows="10" placeholder="Textarea" id="editEventContent"></textarea>
+                            Characters Remaining: <span id="maxContentPost_edit" style="text-align:right">3000</span>
+                        </div>
+                       
+                    </div>
+                </form>
+            </div>
+            <div class="uk-modal-footer">
+                <span style="float: right;">
+                    <button class="uk-button uk-button-secondary" type="button" id="editEvent">Edit Event</button>
+                    <button class="uk-button uk-button-primary uk-modal-close" type="button">Close</button>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-event" uk-modal>
+        <div class="uk-modal-dialog uk-modal-body noselect">
+            <div class="uk-modal-header">
+                <h2 class="uk-modal-title" id="eventTitle"></h2>
+            </div>
+            <div class="uk-modal-body">
+                <p id="eventContent"></p>
+                <p id="eventStart" style="color:black; margin-bottom:0px;margin-top:0px;"></p>
+                <p id="eventLocation" style="color:black; margin-bottom:0px;margin-top:0px;"></p>
+                <span id="eventOwner" style="margin-bottom:0px;margin-top:0px;" class="uk-label uk-label-danger"></p>
+            </div>
+            <div class="uk-modal-footer uk-text-right">
+                <span id="controlButtons" style="display:hidden;"><span id="deleteConfirm" class="uk-label uk-label-danger" style="margin-right:5px; opacity:0;">Are you sure?</span>
+                <button class="uk-button uk-button-danger" type="button" id="eventDelete">Delete</button>
+                <button class="uk-button uk-button-info" type="button" id="eventEdit">Edit</button></span>
+                <button class="uk-button uk-button-primary uk-modal-close" type="button">Close</button>
+            </div>
+        </div>
+    </div>
+    <div id="modal-blip" uk-modal>
+        <div class="uk-modal-dialog uk-modal-body noselect">
+            <div class="uk-modal-header">
+                <h2 class="uk-modal-title">Blips Picker</h2>
+            </div>
+            <div class="uk-modal-body">
+                <ul uk-tab>
+                    <li><a href="#">Misc</a></li>
+                    <li><a href="#">Vehicles</a></li>
+                    <li><a href="#">Nightlife</a></li>
+                    <li><a href="#">Sports</a></li>
+                    <li><a href="#">Businesses</a></li>
+                </ul>
+                <ul class="uk-switcher uk-margin">
+ 
+                    <li> 
+                        <div id="cat_1" uk-grid class="uk-child-width-1-5 uk-flex-center uk-text-center blipBody">
+
+                        </div>
+                    </li>
+
+                    <li>
+                        <div id="cat_2" uk-grid class="uk-child-width-1-5 uk-flex-center uk-text-center">
+                            
+                        </div>
+                    </li>
+
+                    <li>
+                        <div id="cat_3" uk-grid class="uk-child-width-1-5 uk-flex-center uk-text-center">
+                            
+                        </div>
+                    </li>
+                    <li>
+                        <div id="cat_4" uk-grid class="uk-child-width-1-5 uk-flex-center uk-text-center">
+                            
+                        </div>
+                    </li>
+                    <li>
+                        <div id="cat_5" uk-grid class="uk-child-width-1-5 uk-flex-center uk-text-center">
+                            
+                        </div>
+                    </li>
+                    
+                </ul>
+            </div>
+            <div class="uk-modal-footer uk-text-right">
+                <button class="uk-button uk-button-secondary" type="button" id="select_blip">Select</button>
+                <button class="uk-button uk-button-primary uk-modal-close" type="button">Close</button>
+            </div>
+        </div>
+    </div>
+    <script src="../Resources/js/uikit.min.js"></script>
+	<script src="../Resources/js/jquery.min.js"></script>
+    <script src="../Resources/js/jquery-ui.js"></script>
+    <script src="../Resources/fullcalendar/main.js"></script>
+    <script src="../Resources/popper.min.js"></script>
+    <script src="../Resources/bootstrap-4.3.1/js/util.js"></script>
+    <script src="../Resources/bootstrap-4.3.1/js/tooltip.js"></script>
+    <!-- moment lib -->
+    <script src='../Resources/moment.js'></script>
+    <script src='../Resources/moment-range.js'></script>
+    
+    <!-- the moment-to-fullcalendar connector. must go AFTER the moment lib -->
+    <script src='../Resources/fullcalendar/main.global.min.js'></script>
+    <script type="text/javascript" src="../Resources/jquery-3.3.1.min.js"></script>
+    <script src="../Resources/js/jquery-ui.js"></script>
+    <script src="../Resources/js/bootstrap-datetimepicker.js"></script>
+    <script src="../Resources/summernote/summernote-lite.js"></script>
+    <script src="../BlipsPicker/blips.js"></script>
+    <script src="js/Handler.js"></script>
+</body>

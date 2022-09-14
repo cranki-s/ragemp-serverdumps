@@ -1,0 +1,209 @@
+/* Generally pretty UI */
+@import url("https://fonts.googleapis.com/css2?family=Josefin+Sans&display=swap");
+
+@font-face {
+    font-family: "Josefin Sans", sans-serif;
+    src: url("../font/JosefinSans-Regular.ttf");
+}
+
+html,
+body {
+    font-family: "Josefin Sans", sans-serif;
+    background: transparent;
+}
+
+.uk-button-primary {
+    background: rgb(255, 192, 0);
+    transition: box-shadow 0.2s;
+}
+
+.uk-button-primary:hover,
+.uk-button-primary.uk-active,
+.uk-button-primary:active,
+.uk-button-primary:focus {
+    background: rgb(242, 184, 6);
+    box-shadow: 0 0 15px 0 rgba(242, 184, 6, 0.5);
+}
+.uk-button-primary:focus {
+    box-shadow: none;
+}
+
+.uk-button-default {
+    background: rgba(255, 255, 255, 0);
+    border: 1px solid rgb(255, 192, 0);
+    color: rgb(255, 192, 0);
+}
+
+.uk-button-default:hover,
+.uk-button-default.uk-active,
+.uk-button-default:active,
+.uk-button-default:focus {
+    background: rgb(255, 192, 0);
+    color: white;
+    border: 1px solid rgb(255, 192, 0);
+}
+
+/* Animwheel CSS */
+#wheel-container {
+    position: relative;
+    width: 50vw;
+    height: 50vh;
+    font-family: Arial;
+
+    /* Make text unselectable */
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+/Edge */
+    user-select: none; /* Standard */
+}
+
+.current-wheelitem {
+    width: 100%;
+    text-align: center;
+    position: absolute;
+    display: none;
+}
+
+#current-wheelitem-name {
+    color: white;
+    font-weight: 600;
+    font-size: 16pt;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+    visibility: hidden;
+}
+
+#stop-anim-btn {
+    margin-top: 10px;
+    border-radius: 4px;
+    border-width: 2px;
+    border-color: transparent;
+    padding: 5px 10px;
+    background-color: black;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    opacity: 0.6;
+}
+
+#stop-anim-btn:hover, #stop-anim-btn:focus {
+    cursor: pointer;
+    opacity: 0.9;
+    border: 2px solid rgb(101, 180, 212);
+}
+
+#stop-anim-btn span {
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+}
+
+#stop-anim-btn img {
+    /* Invert the color from black to white */
+    filter: invert(1);
+    vertical-align: middle;
+}
+
+.wheelitem-container {
+    /* NOTE: wheel item radius is set by the animwheel-ui.ts code */
+    width: 100%;
+    height: 100%;
+    opacity: 1;
+    border-radius: 50%;
+}
+
+.wheelitem-circle-container {
+    border-radius: 50%;
+    background: black;
+    color: white;
+    width: 100%;
+    height: 100%;
+    opacity: 0.4;
+}
+
+.wheelitem-circle-container:hover {
+    border: 4px solid rgb(101, 180, 212);
+    margin: -4px;
+    opacity: 1;
+}
+
+/* Style the wheelitem icon */
+.wheelitem-circle-container img {
+    width: 64px;
+    height: 64px;
+    top: 16px;
+    left: 16px;
+    position: absolute;
+
+    /* Invert the color from black to white */
+    filter: invert(1);
+}
+
+.wheelitem-edit-button {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: white;
+    color: black;
+    position: absolute;
+    top: 72px;
+    left: 0;
+    opacity: 0.4;
+}
+
+.wheelitem-edit-button:hover {
+    border: 2px solid rgb(101, 180, 212);
+    margin: -2px;
+    opacity: 1;
+}
+
+.wheelitem-edit-button img {
+    width: 16px;
+    height: 16px;
+    left: 4px;
+    top: 4px;
+    position: absolute;
+}
+
+#loading-spinner {
+    text-align: center;
+    width: 100%;
+    visibility: hidden;
+    margin: 10px 0px;
+}
+
+#loading-spinner svg {
+    width: 32px;
+    height: 32px;
+}
+
+#item-editor {
+    /* By default, it's hidden */
+    display: none;
+}
+
+#edit-text {
+    padding: 10px 5px;
+    font-size: 1.2em;
+}
+
+.editor-buttons-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: stretch;
+    margin-top: 20px;
+}
+
+#apply-edit-button {
+    margin-right: 10px;
+}
+
+.icon-button-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+#editor-error-message {
+    color: #f44336;
+    visibility: hidden;
+}
