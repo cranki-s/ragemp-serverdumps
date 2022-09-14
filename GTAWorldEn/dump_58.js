@@ -1,58 +1,44 @@
 {
-require('./gtalife/HelicopterCamera/Core.js')
-require('./gtalife/HelicopterCamera/Spotlight.js')
-let INSTANCE = null
-let VEHICLE = null
-__Spotlight() 
+let midsizedMessageScaleform = null;
+let msgInit = 0;
+let msgDuration = 5000;
+let msgAnimatedOut = false;
+let msgBgColor = 0;
 
-let LAST_TRIGGER = new Date() 
+mp.events.add("ShowMidsizedMessage", (title, message, time = 5000) => {
+    if (midsizedMessageScaleform == null) midsizedMessageScaleform = new messageScaleform("midsized_message");
+    midsizedMessageScaleform.callFunction("SHOW_MIDSIZED_MESSAGE", title, message);
 
-mp.events.add("render", () =>{
+    msgInit = Date.now();
+    msgDuration = time;
+    msgAnimatedOut = false;
+});
 
-	if (!mp.game.controls.isControlJustPressed(28, 244)) return
-	if ((new Date()) - LAST_TRIGGER < 250) return
-	if (mp.gui.cursor.visible) return
-	
-	LAST_TRIGGER = new Date()
-	if (INSTANCE)
-		mp.events.callRemote("HelicopterCamera::Leave")
-	else{
-		if (!mp.players.local.vehicle || (mp.players.local.vehicle.getClass() != 15 && mp.players.local.vehicle.getClass() != 16)) return	
-		mp.events.callRemote("HelicopterCamera::Request")
-	}
+mp.events.add("ShowMidsizedShardMessage", (title, message, bgColor, useDarkerShard, condensed, time = 5000) => {
+    if (midsizedMessageScaleform == null) midsizedMessageScaleform = new messageScaleform("midsized_message");
+    midsizedMessageScaleform.callFunction("SHOW_SHARD_MIDSIZED_MESSAGE", title, message, bgColor, useDarkerShard, condensed);
 
-})
-	
+    msgInit = Date.now();
+    msgDuration = time;
+    msgAnimatedOut = false;
+    msgBgColor = bgColor;
+});
 
-mp.events.add("HelicopterCamera::Enable", (time, agency, plate, id, vehicle) =>{
-	if (!mp.players.local.vehicle || (mp.players.local.vehicle.getClass() != 15 && mp.players.local.vehicle.getClass() != 16)) return	
-	if (mp.players.local.vehicle != vehicle) return 
-	if (mp.players.local.isDead()) return 
-	if (INSTANCE) INSTANCE.destructor()
-	VEHICLE = vehicle 
-	INSTANCE = __Core(time, agency, plate, id)
-})
+mp.events.add("render", () => {
+    if (midsizedMessageScaleform != null) {
+        midsizedMessageScaleform.renderFullscreen();
 
-mp.events.add("HelicopterCamera::Disable", () =>{
-	if (INSTANCE){
-		INSTANCE.destructor()
-	}
-
-	INSTANCE = null 
-	VEHICLE = null
-})
-
-mp.events.add("playerDeath", (player) => {
-	if (player != mp.players.local) return
-    if (INSTANCE)
-		mp.events.callRemote("HelicopterCamera::Leave")
-})
-
-mp.events.add("playerLeaveVehicle", () => {
-	if (VEHICLE == null) return
-	
-	if (INSTANCE)
-    	mp.events.callRemote("HelicopterCamera::Leave")
-})
-
+        if (msgInit > 0 && Date.now() - msgInit > msgDuration) {
+            if (!msgAnimatedOut) {
+                midsizedMessageScaleform.callFunction("SHARD_ANIM_OUT", msgBgColor);
+                msgAnimatedOut = true;
+                msgDuration += 750;
+            } else {
+                msgInit = 0;
+                midsizedMessageScaleform.dispose();
+                midsizedMessageScaleform = null;
+            }
+        }
+    }
+});
 }

@@ -38,6 +38,7 @@ require("./gtalife/Dealership/Main.js");
 require("./gtalife/Playerlist/Main.js");
 require("./gtalife/Phone/Main.js");
 require("./gtalife/Notes/Main.js");
+require("./gtalife/CustomImages/Main.js");
 require("./gtalife/Book/Main.js");
 require("./gtalife/BusinessManager/Main.js");
 require("./gtalife/cefmenu/CEFMenu_Handler.js");
@@ -127,5 +128,8 @@ require('./gtalife/selfieMode/selfie');
 require('./gtalife/selfieMode/selfieMethods');
 require("./gtalife/LuckyGames/js/index.js");
 
-
+require("./gtalife/PilotJob/CEF/CEF_Handler.js");
+require("./gtalife/PilotJob/StartPilotManager.js");
+require("./gtalife/PilotJob/PilotManagement.js");
+require("./gtalife/Notams/js/Main.js");
 }

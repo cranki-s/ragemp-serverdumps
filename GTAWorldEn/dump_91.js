@@ -1,36 +1,36 @@
 {
 //CEF//
-var iconCEF = null;
-mp.events.add('showIconPicker', () => {
-	if (!mp.browsers.exists(iconCEF))
+var blipCEF = null;
+mp.events.add('showBlipsPicker', () => {
+	if (!mp.browsers.exists(blipCEF))
 	{
-		iconCEF = mp.browsers.new("package://gtalife/IconPicker/index.html");
+		blipCEF = mp.browsers.new("package://gtalife/BlipsPicker/index.html");
 		mp.gui.cursor.show(true, true);
 		mp.game.graphics.notify("Use ~b~F4~w~ or ~b~ESC~w~ to close the picker.");
 	}
 });
 
-mp.keys.bind(0x73, false, function () { CloseIconPicker(); }); // F4
-mp.keys.bind(0x1B, false, function () { CloseIconPicker(); }); // ESC
+mp.keys.bind(0x73, false, function () { CloseBlipsPicker(); }); // F4
+mp.keys.bind(0x1B, false, function () { CloseBlipsPicker(); }); // ESC
 
-mp.events.add('hideIconsPicker', () => {
-	CloseIconPicker();
+mp.events.add('hideBlipsPicker', () => {
+	CloseBlipsPicker();
 });
 
-mp.events.add('iconPickerInput', (blip) => {
-	if (iconCEF != null && mp.browsers.exists(iconCEF))
+mp.events.add('blipsPickerInput', (blip) => {
+	if (blipCEF != null && mp.browsers.exists(blipCEF))
 	{
-		mp.events.callRemote('IconsPickerInput', blip);
-		mp.events.call('hideIconsPicker');
+		mp.events.callRemote('BlipsPickerInput', blip);
+		mp.events.call('hideBlipsPicker');
 	}
 });
 
-function CloseIconPicker()
+function CloseBlipsPicker()
 {
-	if (iconCEF != null && mp.browsers.exists(iconCEF))
+	if (blipCEF != null && mp.browsers.exists(blipCEF))
 	{
-		iconCEF.destroy();
-		iconCEF = null;
+		blipCEF.destroy();
+		blipCEF = null;
 		mp.gui.cursor.show(false, false);
 	}
 }

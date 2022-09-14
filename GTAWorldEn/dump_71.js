@@ -1,276 +1,121 @@
 {
-class Display{
+class CustomRay{
     constructor(core){
         this.m_Core = core
-
-        this.m_PowerState = 0 // 0 Off, 1 Powering Up, 2 Powered Up
-        this.m_Power = false
-        this.m_PoweringUp = false 
-
-        this.m_Antennas = {
-            front : {
-                xmit : false,			// Whether the antenna is transmitting or in hold
-                mode : 0,				// Current antenna mode, 0 = none, 1 = same, 2 = opp, 3 = same and opp
-                speed : 0,				// Speed of the vehicle caught by the front antenna
-                dir : null, 			// Direction the caught vehicle is going, 0 = towards, 1 = away
-                fastSpeed : 0, 			// Speed of the fastest vehicle caught by the front antenna
-                fastDir : null, 		// Direction the fastest vehicle is going
-                locked : []
-            },
-    
-            rear : {
-                xmit : false,			// Whether the antenna is transmitting or in hold
-                mode : 0,				// Current antenna mode, 0 = none, 1 = same, 2 = opp, 3 = same and opp
-                speed : 0,				// Speed of the vehicle caught by the front antenna
-                dir : null, 			// Direction the caught vehicle is going, 0 = towards, 1 = away
-                fastSpeed : 0, 			// Speed of the fastest vehicle caught by the front antenna
-                fastDir : null, 		// Direction the fastest vehicle is going
-                locked : []
-            },
-        }
-
-
-        this.m_PatrolSpeed = null
-        this.m_Fast = true
-    
-        this.m_Limit = false
-
-        this.m_hkClick = this.Event_OnClick.bind(this)
-        mp.events.add("PoliceRadar::CEF::OnClick", this.m_hkClick)
-
-        this.m_hkScroll = this.Event_OnScroll.bind(this)
-        mp.events.add("PoliceRadar::CEF::OnScroll", this.m_hkScroll)
-
-        this.m_hkPosition = this.Event_OnPosition.bind(this)
-        mp.events.add("PoliceRadar::CEF::OnPosition", this.m_hkPosition)
-    }
-
-    ConvertSpeed(speed, convert=true){
-        if (convert) speed =  (speed * 2.236936).toFixed(0)
-        if ( speed < 0 || speed > 999 ) 
-            return "Err"
-
-        let text = String( speed )
-        let pipes = ""
-
-        for (var i = 0; i < (3 - text.length ); i++)
-            pipes = pipes + "0"
-
-        return pipes + text
-    }
-
-    Update(antennas){
-        this.TriggerEvent("PoliceRadar::CEF::Event", "update", this.m_PatrolSpeed, antennas)
-    }
-
-    Visible(bool){
-        this.TriggerEvent("PoliceRadar::CEF::Event", "setRadarDisplayState", bool)
-    }
-
-    CheckLock(){
-        this.TriggerEvent("PoliceRadar::CEF::Event", "antennaLock", "front", this.IsAnyTypeSpeedLocked("front"))
-        this.TriggerEvent("PoliceRadar::CEF::Event", "antennaLock", "rear", this.IsAnyTypeSpeedLocked("rear"))
-    }
-    Event_OnClick(element){
-        if (element == "pwrBtn")
-            this.m_Core.Request("power", this.m_Power ? "off" : "on")
+        this.m_ModelData = new Map()
         
-        if (!this.m_Power) return 
-
-        if (element == "frontXmit")
-            this.m_Core.Request("front", "xmit", !this.m_Antennas["front"].xmit)
-        
-        if (element == "frontSame")
-            this.m_Core.Request("front", "same", this.m_Antennas["front"].mode != 1 && this.m_Antennas["front"].mode != 3)
-  
-        if (element == "frontOpp")
-            this.m_Core.Request("front", "opp", this.m_Antennas["front"].mode != 2 && this.m_Antennas["front"].mode != 3)
-
-        if (element == "rearXmit")
-            this.m_Core.Request("rear", "xmit", !this.m_Antennas["rear"].xmit)
-        
-        if (element == "rearSame")
-            this.m_Core.Request("rear", "same", this.m_Antennas["rear"].mode != 1 && this.m_Antennas["rear"].mode != 3)
-  
-        if (element == "rearOpp")
-            this.m_Core.Request("rear", "opp", this.m_Antennas["rear"].mode != 2 && this.m_Antennas["rear"].mode != 3)
     }
 
+    ShootRay(owner, target, start, end){
 
-    Event_OnScroll(delta){
-        let scale = mp.storage.data.radarScale ? mp.storage.data.radarScale : 1
-        this.m_Core.Event_SetScale(scale + (delta * .01))
-    }
+        let invalid = {hit: false, position: null, distance: null, speed: null, size: null}
 
-    Event_OnPosition(x, y){
-        mp.storage.data.radarPositionX = x
-        mp.storage.data.radarPositionY = y
-        mp.storage.flush()
-    }
+        let position = new mp.Vector3(target.position.x, target.position.y, target.position.z)
 
-    TriggerEvent(name, ...args){
-        
-        let argumentsString = '';
 
-        for (let arg of args) {
-            switch (typeof arg) {
-                case 'string': {
-                    argumentsString += `'${arg}', `;
-                    break;
-                }
-                case 'number':
-                case 'boolean': {
-                    argumentsString += `${arg}, `;
-                    break;
-                }
-                case 'object': {
-                    argumentsString += `${JSON.stringify(arg)}, `;
-                    break;
-                }
-            }
-        }
+        if (!target.doesExist()) return invalid
+        if (owner == target) return invalid 
+        let distance = mp.game.gameplay.getDistanceBetweenCoords(
+            target.position.x,
+            target.position.y,
+            target.position.z,
+            start.x,
+            start.y,
+            start.z, true)
+        if (distance > MAX_LENGTH) return invalid
 
-        if (!this.m_Core.m_BrowserStarting)
-            this.m_Core.GetBrowser().execute(`typeof events['${name}'] !== 'undefined' && events['${name}'](${argumentsString})`);
-        else 
-            this.m_Core.m_DomQueue.push(`typeof events['${name}'] !== 'undefined' && events['${name}'](${argumentsString})`) 
-    }
-
-    ToggleXmit(antenna){
-        if (!this.m_Power) return
-        this.SetXmit(antenna, !this.m_Antennas[antenna].xmit)
-    }
-
-    SetPower(mode, force){
-        if (!this.m_PoweringUp && mode != this.m_Power){
-            this.m_Power = mode 
-            this.TriggerEvent("PoliceRadar::CEF::Event", "radarPower", mode, force, mode)
-            
-            if (this.m_Power){
-                if (!force){
-                    this.m_PoweringUp = true
-                    let context = this
-                    setTimeout(function(){
-                        context.m_PoweringUp = false
-                        context.TriggerEvent("PoliceRadar::CEF::Event", "poweredUp", mode)
-                    }, 2000)
-                }
-            }
-        }
-    }
-
-    SetState(state){
-        if (state == 0)
-            this.TriggerEvent("PoliceRadar::CEF::Event", "setRadarDisplayState", bool)
-    }
-
-    SetMode(antenna, mode){
-        if (!this.m_Power) return
-        this.m_Antennas[antenna].mode = mode 
-        this.TriggerEvent("PoliceRadar::CEF::Event", "antennaMode", antenna, mode)
-    }
-
-    SetFastData(antenna, speed, dir){
-        if (!this.m_Power) return
-        this.m_Antennas[antenna].fastSpeed = speed 
-        this.m_Antennas[antenna].fastDir = dir
-    }
-
-    SetData(antenna, speed, dir){
-        this.m_Antennas[antenna].speed = speed 
-        this.m_Antennas[antenna].dir = dir
-    }
-
-    SetSpeedLock(antenna, speed, dir, type){
-        this.m_Antennas[antenna].locked[type] = {locked: true, speed : speed, dir: dir}
-
-        this.TriggerEvent("PoliceRadar::CEF::Event", "antennaLock", antenna, true)
-    }
-
-    SetLimit(value){
-        if (value <= 0 || value > 999) value = false
-        this.m_Limit = value
-    }
-
-    ResetSpeedLock(antenna, type){
-        this.m_Antennas[antenna].locked[type] = null 
-        this.TriggerEvent("PoliceRadar::CEF::Event", "antennaLock", antenna, false)
-    }
-
-    SetPatrolSpeed(speed){
-        if (!this.m_Power) return
-        this.m_PatrolSpeed = speed
-    }
-
-    SetXmit(antenna, state){
-        if (!this.m_Power) return
-
+        let speed = target.getSpeed()
+        let visible = owner.hasClearLosTo(target.handle, 15)
+        let pitch = owner.getPitch()
        
-        this.m_Antennas[antenna].xmit = state 
+        if ( (speed > 0.1 || true) && ( pitch > -35 && pitch < 35 ) && visible ){
         
-        this.TriggerEvent("PoliceRadar::CEF::Event", "antennaXmit", antenna,  state)
+            let dynamic = this.GetEntityRadius(target)
+            let check = this.GetLineHitsSphereAndDir(position, dynamic.radius, start, end )
+            if ( check.hit && this.IsVehicleInTraffic( owner, target, check.position ) )
+				return {hit: true, position: check.position, distance: distance, speed: speed, size : dynamic.size}
+			
+        }
+        return invalid
     }
 
-    SetScale(value){
-        this.TriggerEvent("PoliceRadar::CEF::Event", "radarScale", value)
+    GetLineHitsSphereAndDir(center3D, radius, start3D, end3D){
+        let start =  new Vector(start3D.x, start3D.y)
+        let end =  new Vector(end3D.x, end3D.y)
+        let center = new Vector(center3D.x, center3D.y)
+        let normalized = Vector.subtract(end, start).normalize()
+        let toCenter = Vector.subtract(center, start)
+        let projection = Vector.dot(toCenter, normalized)
+        let opposite = Vector.dot(toCenter, toCenter) - (projection * projection)
+        let distance = Vector.subtract(end, start).length()
+        let distanceToCenter = Vector.subtract(start, center).length() - (radius * 2)
+
+        //mp.game.graphics.drawLine(start.x, start.y, start3D.z, end.x, end.y, start3D.z, 200, 0, 0, 255)
+
+        //let backEnd = Vector.add(start, Vector.subtract(end, start).negative())
+        //mp.game.graphics.drawLine(start.x, start.y, start3D.z, backEnd.x, backEnd.y, start3D.z, 0, 0, 200, 255)
+
+        if ( opposite < (radius * radius) && !( distanceToCenter > distance ) )
+            return {hit : true, position : this.GetIntersectedVehIsFrontOrRear(projection)}
+
+        return {hit : false, position:  null}
     }
 
-    SetPosition(x, y){
-        this.TriggerEvent("PoliceRadar::CEF::Event", "radarPosition", x, y)
+    IsVehicleInTraffic(owner, target, relative ){
+	    let tgtHdg = target.getHeading()
+	    let plyHdg = owner.getHeading()
+	    let hdgDiff = Math.abs( ( plyHdg - tgtHdg + 180 ) % 360 - 180 )
+	    if ( relative == 1 && hdgDiff > 45 && hdgDiff < 135 )
+		    return false
+	    else if ( relative == -1 && hdgDiff > 45 && ( hdgDiff < 135 || hdgDiff > 215 ) )
+		    return false
+	    return true
     }
 
-    GetLimit(){
-        return this.m_Limit
+    GetEntityRadius(entity){
+        let model = entity.model 
+        let key = model.toString()
+        if (this.m_ModelData.has(key)) return this.m_ModelData.get(key)
+        let dimension = mp.game.gameplay.getModelDimensions( model )
+        let max = new mp.Vector3(dimension.max.x, dimension.max.y, dimension.max.z)
+        let min = new mp.Vector3(dimension.min.x, dimension.min.y, dimension.min.z)
+        let size = {x : max.x - min.x, y: max.y - min.y, z: max.z - min.z}
+        let numericSize = size.x + size.y + size.z
+        let radius = this.Clamp( ( numericSize * numericSize ) / 12, 5.0, 11.0 )
+        this.m_ModelData[key] = {radius : radius, size : numericSize}
+        return {radius : radius, size : numericSize}
     }
 
-    GetState(){
-        return this.m_PowerState
-    }
-
-    GetRelativeDirection(from, to){
-        let difference = Math.abs( ( from - to + 180 ) % 360 - 180 )
-        if ( difference < 45 )
+    GetIntersectedVehIsFrontOrRear(projection){
+        if ( projection > 8.0 )
             return 1
-        else if ( difference > 135 )
-            return 2
+        else if ( projection < -8.0 )
+            return -1
         return 0
     }
 
-    
-    IsSpeedLocked(antenna, type){
-        return this.m_Antennas[antenna].locked[type]
-    }
 
-    IsAnyTypeSpeedLocked(antenna){
-        return this.m_Antennas[antenna].locked[1] ||  this.m_Antennas[antenna].locked[2] 
-    }
+    GetNormalizedVector = function(vector) {
+        let mag = Math.sqrt(
+          vector.x * vector.x + vector.y * vector.y + vector.z * vector.z
+        );
+        vector.x = vector.x / mag;
+        vector.y = vector.y / mag;
+        vector.z = vector.z / mag;
+        return vector;
+      }
 
-    IsAntennaTransmitting(antenna){
-        return this.m_Antennas[antenna].xmit
-    }
 
-    IsFastEnabled(){
-        return this.m_Fast
-    }
-
-    IsVehicleForAntenna(antenna, rayType){
-        let mode = this.m_Antennas[antenna].mode
-        if ( ( mode == 3 ) || ( mode == 1 && rayType == "same" ) || ( mode == 2 && rayType == "opp" ) ) 
-            return true
-        return false
-    }
-
-    PlaySound(name, volume=1){
-        this.TriggerEvent("PoliceRadar::CEF::Event", "audio", name, volume)
-    }
-
-    destructor(){
-        mp.events.remove("PoliceRadar::CEF::OnClick", this.m_hkClick)
-        mp.events.remove("PoliceRadar::CEF::OnScroll", this.m_hkScroll)
+    Clamp( val, min, max ){
+        if ( val < min )
+            return min
+        else if ( val > max )
+            return max
+	    return val
     }
 }
 
-function DisplayManager(core){
-    return new Display(core)
+function RayManager(core){
+    return new CustomRay(core)
 }
 }

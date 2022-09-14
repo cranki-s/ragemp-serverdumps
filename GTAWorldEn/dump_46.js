@@ -34,4 +34,4 @@ mp.keys.bind(0x73, false, function () { // F4 Key
                 noteCEF = null;
             }
 });
-}ʷ
+}

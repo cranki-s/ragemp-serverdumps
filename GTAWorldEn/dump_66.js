@@ -1,81 +1,68 @@
 {
-class Spotlight{
+class CustomRay{
+    constructor(core){
+        this.m_Core = core
+        this.m_ModelData = new Map()
+    }
 
-	constructor(){
-		this.lights = {}
-		this.interpolations = {}
-		mp.events.add("render", this.Event_Render.bind(this))
-		mp.events.addDataHandler("Helicopter::Spotlight", (entity, value) => {
-			if (entity.type === "vehicle") {
-				if (value && typeof value === "string" && value.includes(",")){
-					let [x, y, z, brightness] = value.split(",");
-					this.add(entity.remoteId, {x : parseFloat(x), y : parseFloat(y), z : parseFloat(z), brightness: parseFloat(brightness)})
-				}
-				else 
-					this.remove(entity.remoteId, "default")
-			}
-		})
+    Ray(origin, ray, target){
+        try{
+            let radius = this.GetEntityRadius(target).radius
+            let sphere = target.position
+            let offset = this.Subtract(origin, sphere)
+            let b = this.Dot(offset, ray)
+            let c = this.Dot(offset, offset) - (radius * radius)
+            if (c > 0 && b > 0) return false
+            let discr = b * b - c
+            if (discr < 0) return false
+            let t = -b - Math.sqrt(discr)
+            t = t < 0 ? 0 : t
+            if (!mp.players.local.vehicle.hasClearLosTo(target.handle, 17)) return false
+            return t
+        } catch(e){
+            mp.console.logError(e)
+        }
+    }
 
-	}
+    GetEntityRadius(entity){
+        try{
+            let model = entity.model 
+            let key = model.toString()
+            if (this.m_ModelData.has(key)) return this.m_ModelData.get(key)
+            let dimension = mp.game.gameplay.getModelDimensions( model )
+            let max = new mp.Vector3(dimension.max.x, dimension.max.y, dimension.max.z)
+            let min = new mp.Vector3(dimension.min.x, dimension.min.y, dimension.min.z)
+            let size = {x : max.x - min.x, y: max.y - min.y, z: max.z - min.z}
+            let numericSize = size.x + size.y + size.z
+            let radius = this.Clamp( ( numericSize * numericSize ) / 12, 2.0, 3.0 )
+            this.m_ModelData[key] = {radius : radius, size : numericSize}
+            return {radius : radius, size : numericSize}
+        } catch(e){
+            mp.console.logError(e)
+        }
+    }
 
 
+    Clamp( val, min, max ){
+        if ( val < min )
+            return min
+        else if ( val > max )
+            return max
+	    return val
+    }
 
-	add(vehicle, direction){
-		let interp = this.lights[vehicle]
-		this.lights[vehicle] = direction
-		this.interpolation(vehicle, interp)
+    Subtract(a, b){
+        return {x : a.x - b.x, y : a.y - b.y, z: a.z - b.z}
+    }
 
-	}
+    Dot(a, b){
+        return a.x * b.x + a.y * b.y + a.z * b.z
+    }
 
-	interpolation(vehicle, interp){
-		if (interp == null || typeof interp === "undefined") return			
-		
-		if (typeof interp.x !== "number" || typeof interp.y !== "number" || typeof interp.z !== "number" || typeof interp.brightness !== "number") return 
-		this.interpolations[vehicle] = {x : interp.x, y : interp.y, z : interp.z, brightness : interp.brightness}
-	}
 
-	remove(vehicle){
-		delete this.lights[vehicle]
-	}
-
-	Event_Render(){
-		for (let handle in this.lights){
-			let vehicle = mp.vehicles.atRemoteId(handle)
-			if (typeof vehicle === "undefined" || vehicle === null) return this.remove(handle) 
-			if (typeof vehicle.doesExist === "undefined") return this.remove(handle)
-
-			if (vehicle.doesExist()){
-				let direction = this.lights[handle]
-				if (typeof direction === "undefined" || direction == null) return this.remove(handle) 
-				if (this.interpolations[handle]){
-					let interp = this.interpolations[handle]
-					direction = {	x : interp.x + (direction.x - interp.x) * .1, 
-									y : interp.y + (direction.y - interp.y) * .1, 
-									z : interp.z + (direction.z - interp.z) * .1, 
-									brightness : interp.brightness}
-					this.interpolations[handle] = direction
-				}
-				
-				let origin = vehicle.position
-
-				if (typeof  direction.brightness === "undefined" || typeof  direction.brightness !== "number")
-					direction.brightness = 1
-				
-				mp.game.graphics.drawSpotLight(origin.x, origin.y, origin.z, direction.x, direction.y, direction.z, 255, 255, 255, 800, 1 + (18 * (direction.brightness / 400)), 5, 4, 0)
-			}
-		}
-	}
-
-	length(vector){
-		return Math.sqrt(vector.x^2 + vector.y^2 + vector.z^2)
-	}
-
-	inflate(vector){
-		return {x : vector.x * 100, y : vector.y * 100, z: vector.z * 100}
-	}
 }
 
-function __Spotlight(){
-	return new Spotlight()
+function __RayManager(core){
+    return new CustomRay(core)
 }
 }

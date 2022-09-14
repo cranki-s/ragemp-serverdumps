@@ -1,42 +1,49 @@
 {
-let midsizedMessageScaleform = null;
-let msgInit = 0;
-let msgDuration = 5000;
-let msgAnimatedOut = false;
-let msgBgColor = 0;
+let bigMessageScaleform = null;
+let bigMsgInit = 0;
+let bigMsgDuration = 5000;
+let bigMsgAnimatedOut = false;
 
-mp.events.add("ShowMidsizedMessage", (title, message, time = 5000) => {
-    if (midsizedMessageScaleform == null) midsizedMessageScaleform = new messageScaleform("midsized_message");
-    midsizedMessageScaleform.callFunction("SHOW_MIDSIZED_MESSAGE", title, message);
+mp.events.add("ShowWeaponPurchasedMessage", (title, weaponName, weaponHash, time = 5000) => {
+    if (bigMessageScaleform == null) bigMessageScaleform = new messageScaleform("mp_big_message_freemode");
+    bigMessageScaleform.callFunction("SHOW_WEAPON_PURCHASED", title, weaponName, weaponHash);
 
-    msgInit = Date.now();
-    msgDuration = time;
-    msgAnimatedOut = false;
+    bigMsgInit = Date.now();
+    bigMsgDuration = time;
+    bigMsgAnimatedOut = false;
 });
 
-mp.events.add("ShowMidsizedShardMessage", (title, message, bgColor, useDarkerShard, condensed, time = 5000) => {
-    if (midsizedMessageScaleform == null) midsizedMessageScaleform = new messageScaleform("midsized_message");
-    midsizedMessageScaleform.callFunction("SHOW_SHARD_MIDSIZED_MESSAGE", title, message, bgColor, useDarkerShard, condensed);
+mp.events.add("ShowPlaneMessage", (title, planeName, planeHash, time = 5000) => {
+    if (bigMessageScaleform == null) bigMessageScaleform = new messageScaleform("mp_big_message_freemode");
+    bigMessageScaleform.callFunction("SHOW_PLANE_MESSAGE", title, planeName, planeHash);
 
-    msgInit = Date.now();
-    msgDuration = time;
-    msgAnimatedOut = false;
-    msgBgColor = bgColor;
+    bigMsgInit = Date.now();
+    bigMsgDuration = time;
+    bigMsgAnimatedOut = false;
+});
+
+mp.events.add("ShowShardMessage", (title, message, titleColor, bgColor, time = 5000) => {
+    if (bigMessageScaleform == null) bigMessageScaleform = new messageScaleform("mp_big_message_freemode");
+    bigMessageScaleform.callFunction("SHOW_SHARD_CENTERED_MP_MESSAGE", title, message, titleColor, bgColor);
+
+    bigMsgInit = Date.now();
+    bigMsgDuration = time;
+    bigMsgAnimatedOut = false;
 });
 
 mp.events.add("render", () => {
-    if (midsizedMessageScaleform != null) {
-        midsizedMessageScaleform.renderFullscreen();
+    if (bigMessageScaleform != null) {
+        bigMessageScaleform.renderFullscreen();
 
-        if (msgInit > 0 && Date.now() - msgInit > msgDuration) {
-            if (!msgAnimatedOut) {
-                midsizedMessageScaleform.callFunction("SHARD_ANIM_OUT", msgBgColor);
-                msgAnimatedOut = true;
-                msgDuration += 750;
+        if (bigMsgInit > 0 && Date.now() - bigMsgInit > bigMsgDuration) {
+            if (!bigMsgAnimatedOut) {
+                bigMessageScaleform.callFunction("TRANSITION_OUT");
+                bigMsgAnimatedOut = true;
+                bigMsgDuration += 750;
             } else {
-                msgInit = 0;
-                midsizedMessageScaleform.dispose();
-                midsizedMessageScaleform = null;
+                bigMsgInit = 0;
+                bigMessageScaleform.dispose();
+                bigMessageScaleform = null;
             }
         }
     }

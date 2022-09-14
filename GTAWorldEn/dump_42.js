@@ -55,4 +55,4 @@ mp.events.add('GetFareSpeed', () => {
     
     mp.events.callRemote('CalculateFareCosts', velocity.x, velocity.y, velocity.z);
 });
-}˩
+}

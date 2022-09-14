@@ -1,80 +1,173 @@
 {
 /**
- * Clientside JS file for handling of particle FX on the client.
+ * Clientside JS file for handling of the fire hose used in fire control. This includes the clientside marker used to help gauge hit detection.
  */
 
-var currentFires = {};
+var hasHose = false;
+var hoseActive = false;
 
-mp.events.add('fire_manager:preload', async () => {
-    __fire_preload("core", "fire_wrecked_plane_cockpit");
-    __fire_preload("core", "fire_petroltank_car");
-    __fire_preload("core", "fire_wrecked_train");
-    __fire_preload("core", "ent_amb_fbi_fire_beam");
-    __fire_preload("core", "fire_petroltank_truck");
-    __fire_preload("scr_exile3", "scr_ex3_engine_fire");
-    __fire_preload("scr_trevor1", "ent_ray_meth_fires");
-    __fire_preload("core", "fire_petroltank_heli");
-});
+var DefaultForwardAmount = 15;
 
-async function __fire_preload(particleLib, particleName) {
-    for (let i = 0; !mp.game.streaming.hasNamedPtfxAssetLoaded(particleLib) && i < 1500; i++) {
+// Toggle the hose on/off.
+mp.keys.bind(0x4E, true, () => {
+    if(mp.players.local.chatOpen != null && mp.players.local.chatOpen == true) return;
 
-        mp.game.streaming.requestNamedPtfxAsset(particleLib);
+    if(hasHose) { 
+        mp.events.callRemote("fire:hose:try_toggle_flow"); 
+        hoseActive = !hoseActive;
+        mp.players.local.hoseZAdjust = 0;
+        DefaultForwardAmount = 15;
 
-        for (let i = 0; !mp.game.streaming.hasNamedPtfxAssetLoaded(particleLib) && i < 1500; i++) 
+        if(hoseActive)
         {
-            await mp.game.waitAsync(1); // Because it's on the client, delay 1ms. Client inherently asynchronous?
+            mp.events.call('fire:hose:targeting_marker:create');
         }
-    }
-
-    // Set the next call to be to the library.
-    mp.game.graphics.setPtfxAssetNextCall(particleLib);
-    var preloadedFire = mp.game.graphics.startParticleFxLoopedAtCoord(particleName, 999, 999, 999, 0, 0, 0, 1, false, false, false, false);
-    await mp.game.waitAsync(50);
-    mp.game.graphics.stopParticleFxLooped(preloadedFire, false);
-}
-
-mp.events.add('fire:create', async (particleID, particleLib, particleName, x, y, z) => {
-    for (let i = 0;  !mp.game.streaming.hasNamedPtfxAssetLoaded(particleLib) && i < 1500; i++) {
-
-        mp.game.streaming.requestNamedPtfxAsset(particleLib);
-
-        for (let i = 0; !mp.game.streaming.hasNamedPtfxAssetLoaded(particleLib) && i < 1500; i++) 
+        else
         {
-            await mp.game.waitAsync(1); // Because it's on the client, delay 1ms. Client inherently asynchronous?
+            mp.players.local.aimMarker.destroy();
         }
+        
     }
+})
 
-    // Set the next call to be to the library.
-    mp.game.graphics.setPtfxAssetNextCall(particleLib);
-
-    // Store on the client!
-    currentFires[particleID] = mp.game.graphics.startParticleFxLoopedAtCoord(particleName, x, y, z, 0, 0, 0, 1, false, false, false, false);
+mp.events.add('fire:hose:enable_on_client', () => {
+    hasHose = true;
 });
 
-mp.events.add('fire:destroy', (particleID) => {
-    if (!Number.isInteger(particleID))
-	return;
-    try {mp.game.graphics.stopParticleFxLooped(parseInt(currentFires[particleID]), false); } catch (error) {}
-    delete currentFires[particleID];
+mp.events.add('fire:hose:disable_on_client', () => {
+    hasHose = false;
 });
 
-mp.events.add('fire_manager:debug:show_current_fires', () => {
-    mp.gui.chat.push("Current Fires:");
-    for(var fire in currentFires)
+// Creates the fire hose stream particle FX.
+mp.events.add('fire:hose:start', async (hose) => {
+    if(hose != null)
     {
-        mp.gui.chat.push("Fire ID " + fire + ": " + currentFires[fire]);
+        if (!mp.game.streaming.hasNamedPtfxAssetLoaded('core')) {
+            mp.game.streaming.requestNamedPtfxAsset('core');
+            for (let i = 0;  !mp.game.streaming.hasNamedPtfxAssetLoaded('core') && i < 1500; i++) 
+            {
+                await mp.game.waitAsync(1); // Because it's on the client, delay 1ms. Client inherently asynchronous?
+            }
+        }
+
+        mp.game.graphics.setPtfxAssetNextCall('core');
+        var hoseFX = mp.game.graphics.startParticleFxLoopedOnEntity('water_cannon_jet', hose.handle, 0, 0, 0, 0.1, 0.0, 0.0, 1.0, false, false, false);
+        hose.stream = hoseFX;
     }
 });
 
-mp.events.add('fire:extinguish_all_for_player', () => {
-    for(var fire in currentFires)
+// Stops the hose stream particle FX.
+mp.events.add('fire:hose:stop', (hose) => {
+    if(hose != null)
     {
-        if(currentFires[fire])
+        if(hose.stream != null)
         {
-            mp.game.graphics.stopParticleFxLooped(currentFires[fire], false);
-            delete currentFires[fire];
+            mp.game.graphics.stopParticleFxLooped(hose.stream, false);
+            hose.stream = null;
         }
     }
-});
+});
+
+// Creates the targeting marker for the local player to help show where the water is landing.
+mp.events.add('fire:hose:targeting_marker:create', () => {
+    // Now create marker where player is aiming.
+    var playerFVector = mp.players.local.getForwardVector();
+
+    playerFVector = new mp.Vector3(playerFVector.x * DefaultForwardAmount, playerFVector.y * DefaultForwardAmount, playerFVector.z * DefaultForwardAmount);
+    var playerCurrentVector = mp.players.local.position;
+
+    var newPosVector = new mp.Vector3(playerCurrentVector.x + playerFVector.x, playerCurrentVector.y + playerFVector.y, playerCurrentVector.z + playerFVector.z + mp.players.local.hoseZAdjust);
+
+    var aimMarker = mp.markers.new(28, newPosVector, 0.5,
+    {
+        direction: new mp.Vector3(mp.players.local.position.X, mp.players.local.position.Y, mp.players.local.position.Z),
+        rotation: new mp.Vector3(0, 0, 0),
+        color: [255, 0, 0, 100],
+        visible: true,
+        dimension: mp.players.local.dimension
+    });
+
+    mp.players.local.aimMarker = aimMarker;
+    mp.players.local.hoseZAdjust = 0;
+});
+
+var HOSE_ADJUSTMENT_AMT = 0.15;
+
+// Allow player to change where the fire hits with PageUp / PageDown.
+mp.keys.bind(0x21, true, function() {
+    if(!hoseActive) return;
+
+    if(mp.players.local.hoseZAdjust == null)
+    {
+        mp.players.local.hoseZAdjust = 0;
+    }
+
+    mp.players.local.hoseZAdjust += HOSE_ADJUSTMENT_AMT;
+});
+
+mp.keys.bind(0x22, true, function() {
+
+    if(!hoseActive) return;
+
+    if(mp.players.local.hoseZAdjust == null)
+    {
+        mp.players.local.hoseZAdjust = 0;
+    }
+
+    mp.players.local.hoseZAdjust -= HOSE_ADJUSTMENT_AMT;
+});
+
+// Allow player to change position of hose with - and +
+mp.keys.bind(0xBD, true, function() { // Back.
+    if(!hoseActive) return;
+
+    if(DefaultForwardAmount < 5)
+    {
+        DefaultForwardAmount = 5;
+        return;
+    }
+
+    DefaultForwardAmount -= 1;
+});
+
+mp.keys.bind(0xBB, true, function() { // Forwards.
+    if(!hoseActive) return;
+
+    if(DefaultForwardAmount > 35)
+    {
+        DefaultForwardAmount = 35;
+        return;
+    }
+
+    DefaultForwardAmount += 1;
+});
+
+
+mp.events.add('render', () => {
+    if(hoseActive)
+    {
+        var playerFVector = mp.players.local.getForwardVector();
+        playerFVector = new mp.Vector3(playerFVector.x * DefaultForwardAmount, playerFVector.y * DefaultForwardAmount, playerFVector.z * DefaultForwardAmount);
+        var playerCurrentVector = mp.players.local.position;
+
+        var newPosVector = new mp.Vector3(playerCurrentVector.x + playerFVector.x, playerCurrentVector.y + playerFVector.y, playerCurrentVector.z + playerFVector.z + mp.players.local.hoseZAdjust);
+        mp.players.local.aimMarker.position = newPosVector;
+        //mp.game.graphics.drawLine(playerCurrentVector.x, playerCurrentVector.y, playerCurrentVector.z, newPosVector.x, newPosVector.y, newPosVector.z + mp.players.local.hoseZAdjust, 255, 0, 0, 200);
+    }
+});
+
+setInterval(function() {
+    if(hoseActive)
+    {
+        var playerFVector = mp.players.local.getForwardVector();
+        playerFVector = new mp.Vector3(playerFVector.x * DefaultForwardAmount, playerFVector.y * DefaultForwardAmount, playerFVector.z * DefaultForwardAmount);
+        var playerCurrentVector = mp.players.local.position;
+
+        var newPosVector = new mp.Vector3(playerCurrentVector.x + playerFVector.x, playerCurrentVector.y + playerFVector.y, playerCurrentVector.z + playerFVector.z);
+
+        mp.events.callRemote("OnPlayerUpdateHosePosition", newPosVector.x, newPosVector.y, newPosVector.z);
+    }
+}, 2500);
+
+
 }

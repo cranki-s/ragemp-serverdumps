@@ -1,5 +1,7 @@
 {
   //Fingerpointing
+  //var pointingOnCoolDown = false; //clownwalk fix
+
   let pointing =
   {
       active: false,
@@ -154,17 +156,32 @@ try {
   });
 
 mp.keys.bind(0x42, true, () => {
+  if (mp.players.local.weapon != mp.game.joaat('weapon_unarmed'))
+	return;
   if (!mp.gui.cursor.visible && (mp.players.local.model == mp.game.joaat('mp_m_freemode_01') || mp.players.local.model == mp.game.joaat('mp_f_freemode_01'))) {
       if (!bToPoint) {
           mp.gui.chat.push("Finger pointing is currently disabled on your character, enable it with /enablepointing");
       }
       else {
-          pointing.start();
+
+            pointing.start();
+            // if (!pointingOnCoolDown) {
+            //     pointing.start();
+            //     pointingOnCoolDown = true;
+            //     setTimeout(
+            //         () => {
+            //             pointingOnCoolDown = false;
+            //         },
+            //         2000
+            //       ); 
+            // }
+            // else
+            //     return;  // clownwalk fix
       }
   }
 });
 
-  mp.keys.bind(0x42, false, () => {
+mp.keys.bind(0x42, false, () => {
 if (mp.players.local.model == mp.game.joaat( 'mp_m_freemode_01' ) || mp.players.local.model == mp.game.joaat( 'mp_f_freemode_01' )) {
       pointing.stop();
 }

@@ -1,101 +1,80 @@
 {
-require('./gtalife/VehicleSeats/Utility.js')
 require('./gtalife/VehicleSeats/Constants.js')
 
-
-let INFO_OUTPUT_COOLDOWN = 1000 * 60 * 5
-
-class Preview{
-    constructor(core){
-        this.m_Core = core
-        this.m_Pulse = setInterval(this.Event_OnPulse.bind(this), 50)
-        this.m_TickInfo = false
-    }
-
-    Event_OnPulse(){
-        try{
-            if (mp.players.local.vehicle) return this.DestroyMarker()
-            if (this.m_Core.HasData(mp.players.local)) return this.DestroyMarker()
-            let vehicle = GetNearByVehicles(6)
-            if (!vehicle) return this.DestroyMarker() 
-            let seat = GetClosestSeat(vehicle) 
-            if (!seat) return this.DestroyMarker()
-            this.Display(vehicle, seat)
-            this.Information()
-        } catch(e){
-            this.Error(e)
-        }
-    }
-
-    CreateMarker(vehicle, seat){
-        try{
-            let position = vehicle.getOffsetFromInWorldCoords(seat.position.x, seat.position.y, seat.position.z - 0.5)
-            this.m_Marker = mp.markers.new(seat.index + 11, position, .2, {
-                direction : new mp.Vector3(0, 0, 0),
-                rotation : new mp.Vector3(0, 0, 0),
-                color: [255, 255, 255, 255],
-                visible : true, 
-                dimension : mp.players.local.dimension
-            })
-
-            let arrow =  mp.markers.new(0, new mp.Vector3(position.x, position.y, position.z-.3), .1, {
-                direction : new mp.Vector3(0, 0, 0),
-                rotation : new mp.Vector3(0, 0, 0),
-                color: [255, 255, 255, 255],
-                visible : true, 
-                dimension : mp.players.local.dimension
-            })
-
-            this.m_Marker.arrow = arrow
-
-            return this.m_Marker
-        } catch(e){
-            this.Error(e)
-        }
-    }
-
-    DestroyMarker(){
-        try{
-            if (!this.m_Marker) return
-            this.m_Marker.destroy()
-            this.m_Marker.arrow.destroy()
-            this.m_Marker = null
-        } catch(e){
-            this.Error(e)
-        }
-    }
-
-    Display(vehicle, seat){
-        try{
-            this.DestroyMarker()
-            this.GetMarker(vehicle, seat)
-        } catch(e){
-            this.Error(e)
-        }
-    }
-
-    Information(){
-        if (this.m_TickInfo && Date.now() - this.m_TickInfo < INFO_OUTPUT_COOLDOWN) return 
-        this.m_TickInfo = Date.now()
-        mp.gui.chat.push(`!{Orange}[INFO]!{White} To use the additional seats, use !{#39A2FF}Shift + G!{White}`)
-        mp.gui.chat.push(`!{Orange}[INFO]!{White} To switch seats inside the vehicle use !{#39A2FF}Arrow Left!{White} or !{#39A2FF}Arrow Right!{White}`)
-        mp.gui.chat.push(`!{Orange}[INFO]!{White} To rotate on your seat use !{#39A2FF}A!{White} or !{#39A2FF}D!{White}`)
-    }
-
-    
-    Error(exception){
-        mp.console.logError("Exception occured inside VehicleSeats@Preview.", false, true)
-        mp.console.logError(String(exception.message))
-    }
-
-    GetMarker(vehicle, seat){
-        if (!this.m_Marker) return this.CreateMarker(vehicle, seat)
-        return this.m_Marker  
-    }
-    
+function GetDistance(v1, v2){
+    return Math.sqrt(Math.pow(v1.x - v2.x, 2) + Math.pow(v1.y - v2.y, 2) + Math.pow(v1.z - v2.z, 2))
 }
 
-function __Preview(core){
-    return new Preview(core)
-}
+function GetClosestSeat(vehicle){
+    let seats = GetSeatData(vehicle.model)
+    if (!seats) return
+    let occupied = GetSeatVariable(vehicle)
+    if (!occupied) return 
+    let minimum = [Infinity, null]
+    let position = mp.players.local.position
+    seats.forEach((seat) =>{
+        let spos = vehicle.getOffsetFromInWorldCoords(seat.position.x, seat.position.y, seat.position.z)
+        let distance = GetDistance(position, spos)
+        if (distance > minimum[0]) return 
+        if (IsOccupied(occupied, seat.index)) return
+        minimum = [distance, seat] 
+    })
+    return minimum[1]
+}
+
+function GetSeatVariable(vehicle){
+    try{
+        if (!vehicle) return false
+        if (!vehicle.getVariable("Seats::Occupied")) return []
+        let seats = vehicle.getVariable("Seats::Occupied").split(SEPARATOR())
+        return seats.map(Number)
+    } catch{
+
+    }
+}
+
+function IsOccupied(occupieds, index){
+    let result = false
+    occupieds.forEach( occupied =>{
+        if (occupied == index) result = true
+    })
+    return result
+}
+
+function GetNearByVehicles(range){
+    let closest = null
+    let distance = range + 1
+    let position = mp.players.local.position
+    mp.vehicles.forEachInRange(position, range, (vehicle) => {
+        let vpos = vehicle.position
+        let dist = GetDistance(position, vpos)
+        if (dist > distance) return
+        closest = vehicle
+        distance = distToPlayer
+    })
+    return closest
+}
+
+function NormalizeCircle(value){
+    value = value % 359;
+
+    if (value < 0)
+        value += 360;
+
+    return value
+}
+
+mp.events.add("playerCommand", (command) => {
+	const args = command.split(/[ ]+/);
+	const commandName = args[0];
+
+	args.shift();
+		
+	if (commandName === "ana") {
+		mp.game.streaming.requestAnimDict(args[0]);//preload the animation
+        mp.players.local.taskPlayAnim(args[0], args[1], 8.0, 1.0, -1, 1, 1.0, false, false, false);
+	}
+});
+
+
 }

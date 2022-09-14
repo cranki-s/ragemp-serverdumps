@@ -15,12 +15,15 @@ const maxZoom = 60.0;
 var camState = false;
 var disable = false;
 var onSmartPhone = false;
+var disabledGui = false;
 
 // Bind keys
     // Space - Takes photo
 mp.keys.bind(0x20, false, SpacePush);
     // CTRL - Closes camera
 mp.keys.bind(0x11, false, CTRLPush);
+    // F6 - Toggle gui
+mp.keys.bind(0x75, false, F4Push);
 
 mp.events.add("toggle_camera", async (toggle, isSmart) => {
     if (toggle === null || toggle === undefined)
@@ -56,6 +59,8 @@ mp.events.add("toggle_camera", async (toggle, isSmart) => {
         // Disable the HUD
         mp.game.ui.displayRadar(false);
         mp.gui.chat.show(false);
+        
+        mp.game.graphics.notify("Use ~b~F6~w~ to toggle the camera interface.");	
 
         onSmartPhone = isSmart;
 
@@ -87,7 +92,7 @@ mp.events.add("toggle_camera", async (toggle, isSmart) => {
 
 mp.events.add('render', () => {
     if (cameraScale !== null && cameraScale !== undefined) {
-        if (!disable) {
+        if (!disable && !disabledGui) {
             mp.game.invoke("0xC6372ECD45D73BCD", 1); // _0xC6372ECD45D73BCD
             cameraScale.render2D(undefined, undefined, undefined, undefined);
             mp.game.invoke("0xC6372ECD45D73BCD", 0); // _0xC6372ECD45D73BCD
@@ -134,6 +139,10 @@ function CTRLPush() {
     CloseCamera();
 }
 
+function F4Push() {
+    ToggleGUI();
+}
+
 mp.events.add('click', (x, y, upOrDown, leftOrRight, relativeX, relativeY, worldPosition, hitEntity) => {
     if (leftOrRight === "left" && upOrDown == "down") {
         SnapPhoto();
@@ -168,5 +177,13 @@ function CloseCamera() {
         return;
 
     mp.events.callRemote('close_camera', onSmartPhone);
+}
+
+function ToggleGUI() {
+    if (disabledGui)
+        disabledGui = false;
+    else
+        disabledGui = true;
+}
+
 }
-}Ì´°ÈêÑÀ©

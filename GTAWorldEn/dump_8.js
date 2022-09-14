@@ -1,6 +1,127 @@
 {
-function TestFunctionEx(){
-    return mp.gui.chat.push(`TEST`);
+let shift_to_update = function(male, component, drawable) { // THIS GETS YOU AN UPDATED ID FROM AN OLD ONE
+    switch (component){
+        case 8: //accs
+            if (male)
+                return drawable >= 189 ? drawable + 2 : drawable
+            else
+                return drawable >= 234 ? drawable + 2 : drawable
+        case 1: //berd
+            if (male)
+                return drawable >= 196 ? drawable + 11 : drawable
+            else
+                return drawable >= 204 ? drawable + 2 : drawable
+        case 10: //decl
+            if (male)
+                return drawable >= 130 ? drawable + 4 : drawable
+            else
+                return drawable >= 140 ? drawable + 4 : drawable
+        case 6: //feet
+            if (male)
+                return drawable >= 102 ? drawable + 7 : drawable
+            else
+                return drawable >= 106 ? drawable + 7 : drawable
+        case 2: //hair
+            if (male)
+                return drawable >= 78 ? drawable + 2 : drawable
+            else
+                return drawable >= 82 ? drawable + 2 : drawable
+        case 5: //hand
+            if (male)
+                return drawable >= 98 ? drawable + 11 : drawable
+            else
+                return drawable >= 100 ? drawable + 11 : drawable
+        case 11: //jbib
+            if (male)
+                return drawable >= 393 ? drawable + 20 : drawable
+            else
+                return drawable >= 415 ? drawable + 25 : drawable
+        case 4: //lowr
+            if (male)
+                return drawable >= 144 ? drawable + 4 : drawable
+            else
+                return drawable >= 151 ? drawable + 5 : drawable
+        case 7: //teef
+            if (male)
+                return drawable >= 57 ? drawable + 2 : drawable
+            else
+                return drawable >= 121 ? drawable + 2 : drawable
+        case 3: //uppr
+            if (male)
+                return drawable >= 197 ? drawable + 1 : drawable
+            else
+                return drawable >= 242 ? drawable + 1 : drawable
+        case 0: //hats
+            if (male)
+                return drawable >= 163 ? drawable + 17 : drawable
+            else
+                return drawable >= 164 ? drawable + 17 : drawable
+        default: 
+            return drawable
+    }
+}
+
+
+let shift_from_update = function(male, component, drawable) { // THIS GETS YOU AN OLD ID FROM AN UPDATED ONE
+    switch (component){
+        case 8: //accs
+            if (male)
+                return drawable >= (189+2) ? drawable - 2 : drawable
+            else
+                return drawable >= (234+2) ? drawable - 2 : drawable
+        case 1: //berd
+            if (male)
+                return drawable >= (196+11) ? drawable - 11 : drawable
+            else
+                return drawable >= (204+2) ? drawable - 2 : drawable
+        case 10: //decl
+            if (male)
+                return drawable >= (130+4) ? drawable - 4 : drawable
+            else
+                return drawable >= (140+4) ? drawable - 4 : drawable
+        case 6: //feet
+            if (male)
+                return drawable >= (102+7) ? drawable - 7 : drawable
+            else
+                return drawable >= (106+7) ? drawable - 7 : drawable
+        case 2: //hair
+            if (male)
+                return drawable >= (78+2) ? drawable - 2 : drawable
+            else
+                return drawable >= (82+2) ? drawable - 2 : drawable
+        case 5: //hand
+            if (male)
+                return drawable >= (98+11) ? drawable - 11 : drawable
+            else
+                return drawable >= (100+11) ? drawable - 11 : drawable
+        case 11: //jbib
+            if (male)
+                return drawable >= (393+20) ? drawable - 20 : drawable
+            else
+                return drawable >= (415+25) ? drawable - 25 : drawable
+        case 4: //lowr
+            if (male)
+                return drawable >= (144+4) ? drawable - 4 : drawable
+            else
+                return drawable >= (151+5) ? drawable - 5 : drawable
+        case 7: //teef
+            if (male)
+                return drawable >= (57+2) ? drawable - 2 : drawable
+            else
+                return drawable >= (121+2) ? drawable - 2 : drawable
+        case 3: //uppr
+            if (male)
+                return drawable >= (197+1) ? drawable - 1 : drawable
+            else
+                return drawable >= (242+1) ? drawable - 1 : drawable
+        case 0: //hats
+            if (male)
+                return drawable >= (163+17) ? drawable - 17 : drawable
+            else
+                return drawable >= (164+17) ? drawable - 17 : drawable
+        default: 
+            return drawable
+    }
 }
 
 var blacklisted_male_comp = [
@@ -477,6 +598,7 @@ var blacklisted_female_comp = [
     [4,155],
     [4,162],
     [4,176],
+    [4, shift_from_update(false, 4, 152)], // ORLEANS/BIG FOOT COSTUME
     [4,178] // LEO motorcycle pants
     [9,1],
 	[9,2],
@@ -749,7 +871,7 @@ function isVariantBlacklistedFemale(comp, draw){
     if (blacklist_items === false)
         return false;
 
-    var item = blacklisted_female_comp.find(item => { return (item[0] === comp && item[1] === draw); });
+    var item = blacklisted_female_comp.find(item => { return (item[0] === comp && shift_to_update(false, item[0], item[1]) === draw); });
     var found = true;
     if(item === undefined || item === null) found = false;
     return found;
@@ -759,7 +881,7 @@ function isVariantBlacklistedMale(comp, draw){
     if (blacklist_items === false)
         return false;
 
-    var item = blacklisted_male_comp.find(item => { return (item[0] === comp && item[1] === draw); });
+    var item = blacklisted_male_comp.find(item => { return (item[0] === comp && shift_to_update(true, item[0], item[1]) === draw); });
     var found = true;
     if(item === undefined || item === null) found = false;
     return found;

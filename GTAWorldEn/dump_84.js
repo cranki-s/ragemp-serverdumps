@@ -1,173 +1,119 @@
 {
-/**
- * Clientside JS file for handling of the fire hose used in fire control. This includes the clientside marker used to help gauge hit detection.
- */
+let isSnakeCamming = false;
+let snakeCamCEF = null;
+let currentSnakeCam = null;
+let dim = null;
 
-var hasHose = false;
-var hoseActive = false;
+let snakeExep = false;
 
-var DefaultForwardAmount = 15;
+let camVars = ["", "", ""];
 
-// Toggle the hose on/off.
-mp.keys.bind(0x4E, true, () => {
-    if(mp.players.local.chatOpen != null && mp.players.local.chatOpen == true) return;
+let removeSnakeCam = () => {
+    if (!isSnakeCamming) return;
 
-    if(hasHose) { 
-        mp.events.callRemote("fire:hose:try_toggle_flow"); 
-        hoseActive = !hoseActive;
-        mp.players.local.hoseZAdjust = 0;
-        DefaultForwardAmount = 15;
+    mp.game.graphics.setTimecycleModifier('none');
+    mp.game.cam.renderScriptCams(false, false, 0, true, false);
+    mp.gui.cursor.show(false, false);
+    mp.gui.chat.show(true);
 
-        if(hoseActive)
-        {
-            mp.events.call('fire:hose:targeting_marker:create');
-        }
-        else
-        {
-            mp.players.local.aimMarker.destroy();
-        }
-        
-    }
-})
+    currentSnakeCam.setActive(false);
+    mp.game.ui.displayRadar(true);
+    currentSnakeCam.destroy();
+    snakeCamCEF.destroy();
+    isSnakeCamming = false;
 
-mp.events.add('fire:hose:enable_on_client', () => {
-    hasHose = true;
+
+    mp.events.callRemote("snakecam_remove", true);
+};
+
+let snakecamRefresh = () => {
+    if (!isSnakeCamming) return;
+
+    mp.events.callRemote("snakecam_refresh");
+};
+
+let snakecamCheck = () => {
+    if (!isSnakeCamming) return;
+
+    mp.events.callRemote("snakecam_check", dim)
+};
+
+mp.events.add('Snakecam::Create', (doorPos, property, department, character, newDim) => {
+    if (isSnakeCamming) return;
+
+    camVars[0] = property;
+    camVars[1] = department;
+    camVars[2] = character;
+
+
+    snakeCamCEF = mp.browsers.new("package://gtalife/Snakecam/cef/snakecam.html");
+    snakeCamCEF.execute(`init("${camVars[0]}", "${camVars[1]}", "${camVars[2]}")`);
+
+    mp.game.graphics.setTimecycleModifier('heliguncam');
+    mp.game.ui.displayRadar(false);
+    mp.gui.cursor.show(false, false);
+
+    currentSnakeCam = mp.cameras.new('default', new mp.Vector3(doorPos.x, doorPos.y, doorPos.z - 0.65), new mp.Vector3(0, 0, 0), 60); //65
+
+    currentSnakeCam.setActive(true);
+    mp.game.cam.renderScriptCams(true, false, 0, true, false);
+    mp.gui.chat.show(false);
+    isSnakeCamming = true;
+    snakeExep = false;
+    dim = newDim;
 });
 
-mp.events.add('fire:hose:disable_on_client', () => {
-    hasHose = false;
+mp.events.add('Snakecam::RemoveNoExit', () => {    
+    if (!isSnakeCamming) return;
+
+    mp.game.graphics.setTimecycleModifier('none');
+    mp.game.cam.renderScriptCams(false, false, 0, true, false);
+    mp.gui.cursor.show(false, false);
+    mp.gui.chat.show(true);
+
+    currentSnakeCam.setActive(false);
+    mp.game.ui.displayRadar(true);
+    currentSnakeCam.destroy();
+    snakeCamCEF.destroy();
+    isSnakeCamming = false;
+    mp.events.callRemote("snakecam_remove", false);
+
 });
 
-// Creates the fire hose stream particle FX.
-mp.events.add('fire:hose:start', async (hose) => {
-    if(hose != null)
-    {
-        if (!mp.game.streaming.hasNamedPtfxAssetLoaded('core')) {
-            mp.game.streaming.requestNamedPtfxAsset('core');
-            for (let i = 0;  !mp.game.streaming.hasNamedPtfxAssetLoaded('core') && i < 1500; i++) 
-            {
-                await mp.game.waitAsync(1); // Because it's on the client, delay 1ms. Client inherently asynchronous?
-            }
-        }
+mp.events.add('Snakecam::Remove', removeSnakeCam);
 
-        mp.game.graphics.setPtfxAssetNextCall('core');
-        var hoseFX = mp.game.graphics.startParticleFxLoopedOnEntity('water_cannon_jet', hose.handle, 0, 0, 0, 0.1, 0.0, 0.0, 1.0, false, false, false);
-        hose.stream = hoseFX;
-    }
-});
+mp.keys.bind(0x73, true, removeSnakeCam);
 
-// Stops the hose stream particle FX.
-mp.events.add('fire:hose:stop', (hose) => {
-    if(hose != null)
-    {
-        if(hose.stream != null)
-        {
-            mp.game.graphics.stopParticleFxLooped(hose.stream, false);
-            hose.stream = null;
-        }
-    }
-});
+mp.keys.bind(0x59, true, snakecamCheck);
 
-// Creates the targeting marker for the local player to help show where the water is landing.
-mp.events.add('fire:hose:targeting_marker:create', () => {
-    // Now create marker where player is aiming.
-    var playerFVector = mp.players.local.getForwardVector();
-
-    playerFVector = new mp.Vector3(playerFVector.x * DefaultForwardAmount, playerFVector.y * DefaultForwardAmount, playerFVector.z * DefaultForwardAmount);
-    var playerCurrentVector = mp.players.local.position;
-
-    var newPosVector = new mp.Vector3(playerCurrentVector.x + playerFVector.x, playerCurrentVector.y + playerFVector.y, playerCurrentVector.z + playerFVector.z + mp.players.local.hoseZAdjust);
-
-    var aimMarker = mp.markers.new(28, newPosVector, 0.5,
-    {
-        direction: new mp.Vector3(mp.players.local.position.X, mp.players.local.position.Y, mp.players.local.position.Z),
-        rotation: new mp.Vector3(0, 0, 0),
-        color: [255, 0, 0, 100],
-        visible: true,
-        dimension: mp.players.local.dimension
-    });
-
-    mp.players.local.aimMarker = aimMarker;
-    mp.players.local.hoseZAdjust = 0;
-});
-
-var HOSE_ADJUSTMENT_AMT = 0.15;
-
-// Allow player to change where the fire hits with PageUp / PageDown.
-mp.keys.bind(0x21, true, function() {
-    if(!hoseActive) return;
-
-    if(mp.players.local.hoseZAdjust == null)
-    {
-        mp.players.local.hoseZAdjust = 0;
-    }
-
-    mp.players.local.hoseZAdjust += HOSE_ADJUSTMENT_AMT;
-});
-
-mp.keys.bind(0x22, true, function() {
-
-    if(!hoseActive) return;
-
-    if(mp.players.local.hoseZAdjust == null)
-    {
-        mp.players.local.hoseZAdjust = 0;
-    }
-
-    mp.players.local.hoseZAdjust -= HOSE_ADJUSTMENT_AMT;
-});
-
-// Allow player to change position of hose with - and +
-mp.keys.bind(0xBD, true, function() { // Back.
-    if(!hoseActive) return;
-
-    if(DefaultForwardAmount < 5)
-    {
-        DefaultForwardAmount = 5;
-        return;
-    }
-
-    DefaultForwardAmount -= 1;
-});
-
-mp.keys.bind(0xBB, true, function() { // Forwards.
-    if(!hoseActive) return;
-
-    if(DefaultForwardAmount > 35)
-    {
-        DefaultForwardAmount = 35;
-        return;
-    }
-
-    DefaultForwardAmount += 1;
-});
-
+mp.keys.bind(0x75, true, snakecamRefresh);
 
 mp.events.add('render', () => {
-    if(hoseActive)
+    if (!isSnakeCamming) return;
+    if (snakeExep) return;
+    mp.game.player.disableFiring(true)
+    try
     {
-        var playerFVector = mp.players.local.getForwardVector();
-        playerFVector = new mp.Vector3(playerFVector.x * DefaultForwardAmount, playerFVector.y * DefaultForwardAmount, playerFVector.z * DefaultForwardAmount);
-        var playerCurrentVector = mp.players.local.position;
-
-        var newPosVector = new mp.Vector3(playerCurrentVector.x + playerFVector.x, playerCurrentVector.y + playerFVector.y, playerCurrentVector.z + playerFVector.z + mp.players.local.hoseZAdjust);
-        mp.players.local.aimMarker.position = newPosVector;
-        //mp.game.graphics.drawLine(playerCurrentVector.x, playerCurrentVector.y, playerCurrentVector.z, newPosVector.x, newPosVector.y, newPosVector.z + mp.players.local.hoseZAdjust, 255, 0, 0, 200);
+        let right = mp.game.controls.getDisabledControlNormal(0, 220);
+        let top = mp.game.controls.getDisabledControlNormal(0, 221);
+        let rotation = currentSnakeCam.getRot(2);
+        if (right == 0 && top == 0) return;
+        currentSnakeCam.setRot(rotation.x + top * -10.0, 0.0, rotation.z + right * -10.0, 2);
+    }
+    catch(exception)
+    {
+        mp.console.logError(exception.message, true, true);
+        mp.gui.chat.push("Contact a Developer if you see this message.");
+        snakeExep = true;
+        removeSnakeCam();
     }
 });
 
-setInterval(function() {
-    if(hoseActive)
-    {
-        var playerFVector = mp.players.local.getForwardVector();
-        playerFVector = new mp.Vector3(playerFVector.x * DefaultForwardAmount, playerFVector.y * DefaultForwardAmount, playerFVector.z * DefaultForwardAmount);
-        var playerCurrentVector = mp.players.local.position;
+mp.events.add('test1', (effect) => {
+    mp.game.graphics.setTimecycleModifier(effect);
+});
 
-        var newPosVector = new mp.Vector3(playerCurrentVector.x + playerFVector.x, playerCurrentVector.y + playerFVector.y, playerCurrentVector.z + playerFVector.z);
-
-        mp.events.callRemote("OnPlayerUpdateHosePosition", newPosVector.x, newPosVector.y, newPosVector.z);
-    }
-}, 2500);
-
-
+mp.events.add('test2', (effect1) => {
+    mp.game.graphics.startScreenEffect(effect1, 5000, false);
+})
 }

@@ -1,116 +1,280 @@
 {
-let Core = class{
-    constructor(){
-        this.m_IsReady = false
-        mp.events.add("Weapon::Statistics::Create", this.Event_OnReceive.bind(this))
-        mp.events.add("Weapon::Statistics::Update", this.Event_OnUpdate.bind(this))
-        mp.events.add("Weapon::Statistics::Action", this.Event_OnAction.bind(this))
-        mp.events.add("Weapon::Statistics::Close", this.Event_OnClose.bind(this))
-        mp.events.add("browserDomReady", this.Event_OnDomReady.bind(this))
-    }
+let fireworkScenario = {
+  step: 0,
+  count: 0,
+  x: 0,
+  y: 0,
+  z: 0,
+  firework: undefined,
+};
 
-    Dispose(){
-        try{
-            if (this.m_Browser && mp.browsers.exists(this.m_Browser)) this.m_Browser.destroy()
-            this.m_DomQueue = []
-            this.m_IsReady = false
-        } catch(exception){
-            this.Error(exception, "Dispose")
-        }
-    }
+let fireEffect = [  
+  "scr_indep_firework_sparkle_spawn",
+  "scr_indep_firework_starburst",
+  "scr_indep_firework_shotburst",
+  "scr_indep_firework_trailburst",
+  "scr_indep_firework_trailburst_spawn",
+  "scr_indep_firework_burst_spawn",
+  "scr_indep_firework_trail_spawn",
+  "scr_indep_firework_fountain"
+]
 
-    Event_OnReceive(data){
-        try{
-            if (data.length == 0) return
-            data = JSON.parse(data)
-            this.Dispose()
-            this.m_Browser = mp.browsers.new("package://gtalife/Weapon/Statistics/CEF/Main.html")
-            mp.events.callRemote("cef_opened", true)
-            mp.gui.cursor.show(true)
-            mp.gui.chat.show(false)
-            mp.game.ui.displayRadar(false)
-            mp.events.call("toggle_display_gtaw", false)
-            this.TriggerCEFEvent("OnLoad", data)
-        } catch(exception){
-            this.Error(exception, "Event_OnReceive")
-        }
-    }
+let fireEffect2 = [
+  "scr_firework_indep_burst_rwb",
+  "scr_firework_indep_spiral_burst_rwb",
+  "scr_xmas_firework_sparkle_spawn",
+  "scr_firework_indep_ring_burst_rwb",
+  "scr_xmas_firework_burst_fizzle",
+  "scr_firework_indep_repeat_burst_rwb"
+]
 
-    Event_OnUpdate(data){
-        if (!this.m_Browser) return this.Event_OnReceive(data)
-        if (data.length == 0) return
-        data = JSON.parse(data)
-        this.TriggerCEFEvent("OnLoad", data)
-    }
+mp.events.add("Firework::stop", function(firework) {
+  fireworkScenario.step = 0;
+  fireworkScenario.count = 0;
+});
 
-    Event_OnAction(key, data){
-        try{
-            data = JSON.parse(data)
-            mp.events.callRemote("Weapon::Statistics::Save", key, data.BaseDamage, data.HeadDamage, data.LimbDamage, data.Recoil, data.DropOff)
-        } catch(exception){
-            this.Error(exception, "Event_OnAction")
-        }
-    }
+mp.events.add("Firework::launch", function (firework) {
 
-    Event_OnClose(){
-        try{
-            this.Dispose()
-            mp.events.callRemote("cef_opened", false)
-            mp.gui.cursor.show(false, false)
-            mp.game.ui.displayRadar(true)
-            mp.gui.chat.show(true)
-            mp.events.call("toggle_display_gtaw", true)
-        } catch(exception){
-            this.Error(exception, "Event_OnClose")
-        }
-    }
+  fireworkScenario.step = 1;
+  fireworkScenario.count = 0;
 
-    Event_OnDomReady(browser){
-        try{
-            if (browser != this.m_Browser) return 
-            this.m_IsReady = true
-            this.m_DomQueue.forEach(query =>{
-                browser.execute(query)
-            })
-        } catch(Exception){
-            this.Error(exception, "Event_OnDomReady")
-        }
-    }
+  fireworkScenario.firework = firework;
 
-    TriggerCEFEvent(name, ...args){
-        let argumentsString = '';
-        for (let arg of args) {
-            switch (typeof arg) {
-                case 'string': {
-                    argumentsString += `'${arg}',`;
-                    break;
-                }
-                case "number":
-                case "boolean": {
-                    argumentsString += `${arg},`;
-                    break;
-                }
-                case "object": {
-                    argumentsString += `${JSON.stringify(arg)},`;
-                    break;
-                }
-            }
-        }
+  fireworkScenario.x = firework.posX;
+  fireworkScenario.y = firework.posY;
+  fireworkScenario.z = firework.posZ;
+});
 
-        if (this.m_IsReady)
-            this.m_Browser.execute(`__Core.OnEvent("${name}", ${argumentsString})`)
-        else 
-            this.m_DomQueue.push(`__Core.OnEvent("${name}", ${argumentsString})`) 
+function incrementCount() {
+  fireworkScenario.count++;
+  if (fireworkScenario.step === 1) {
+    if (fireworkScenario.count >= 60) {
+      fireworkScenario.step = 2;
+      fireworkScenario.count = 0;
     }
-
-    Error(exception, where="General") {
-        try{
-            mp.console.logError("Exception@ ->" + where  +  " -> " + exception.message, false, true)
-        } catch {
-            mp.console.logError("Weapon@Statistics: Print-Error", false, true)
-        }
+  }
+  if (fireworkScenario.step === 2) {
+    if (fireworkScenario.count >= 55) {
+      fireworkScenario.step = 3;
+      fireworkScenario.count = 0;
     }
+  }
+  if (fireworkScenario.step === 3) {
+    if (fireworkScenario.count >= 65) {
+      fireworkScenario.step = 4;
+      fireworkScenario.count = 0;
+    }
+  }
+  if (fireworkScenario.step === 4) {
+    if (fireworkScenario.count >= 80) {
+      fireworkScenario.step = 5;
+      fireworkScenario.count = 0;
+    }
+  }
+  if (fireworkScenario.step === 5) {
+    if (fireworkScenario.count >= 100) {
+      fireworkScenario.step = 0;
+      fireworkScenario.count = 0;
+      mp.gui.chat.push(`End.`);
+      mp.events.callRemote("Firework::end", fireworkScenario.firework);
+    }
+  }
 }
 
-new Core()
+function launchFirework() {
+
+  let direction = Math.random() < 0.5;
+
+  let fireX;
+  let fireY;
+  if(direction)
+  {
+    fireX = fireworkScenario.x + Math.random() * 30 - Math.random() * 10;
+    fireY = fireworkScenario.y + Math.random() * 30 - Math.random() * 10;
+  }
+  else
+  {
+    fireX = fireworkScenario.x - Math.random() * 30 + Math.random() * 10;
+    fireY = fireworkScenario.y - Math.random() * 30 + Math.random() * 10;
+  }
+
+  let fireZ = fireworkScenario.z + 30 + Math.random() *15;
+
+  let rotX = Math.random() * 100 - Math.random() * 100;
+  let rotY = Math.random() * 100 - Math.random() * 100;
+  let rotZ = Math.random() * 100 - Math.random() * 100;
+
+  if (rotX > 45) rotX = 45;
+
+  if (rotY > 45) rotY = 45;
+
+  if (rotZ > 45) rotZ = 45;
+
+  if (rotX < -45) rotX = -45;
+
+  if (rotY < -45) rotY = -45;
+
+  if (rotZ < -45) rotZ = -45;
+  
+  let style = Math.random() < 0.5;
+
+  if(style)
+  {
+    if (!mp.game.streaming.hasNamedPtfxAssetLoaded("scr_indep_fireworks")) {
+          mp.game.streaming.requestNamedPtfxAsset("scr_indep_fireworks");
+    }
+    
+    let randomEffect = fireEffect[Math.floor(Math.random() * fireEffect.length)];
+
+    mp.game.graphics.setPtfxAssetNextCall("scr_indep_fireworks");
+    let fxID = mp.game.graphics.startParticleFxNonLoopedAtCoord(
+      randomEffect,
+      fireX,
+      fireY,
+      fireZ,
+      rotX,
+      rotY,
+      rotZ,
+      1,
+      false,
+      false,
+      false);
+
+  }
+  else
+  {
+    if (!mp.game.streaming.hasNamedPtfxAssetLoaded("proj_indep_firework_v2")) {
+      mp.game.streaming.requestNamedPtfxAsset("proj_indep_firework_v2");
+    }
+
+    let randomEffect = fireEffect2[Math.floor(Math.random() * fireEffect2.length)];
+
+    mp.game.graphics.setPtfxAssetNextCall("proj_indep_firework_v2");
+    let fxID = mp.game.graphics.startParticleFxNonLoopedAtCoord(
+      randomEffect,
+      fireX,
+      fireY,
+      fireZ,
+      rotX,
+      rotY,
+      rotZ,
+      1,
+      false,
+      false,
+      false);
+  }
+
+  incrementCount();
+}
+
+setInterval(() => {
+  let step = fireworkScenario.step;
+
+  if (step === 3) {
+    if (fireworkScenario.count >= 25 && fireworkScenario.count <= 45) {
+      launchFirework();
+    }
+  }
+  if (step === 5) {
+    if (fireworkScenario.count > 20 && fireworkScenario.count <= 95) {
+      launchFirework();
+    }
+  }
+}, 200);
+
+setInterval(() => {
+  let step = fireworkScenario.step;
+
+  if (step === 2) {
+    if (fireworkScenario.count > 15 && fireworkScenario.count < 35) {
+      launchFirework();
+    }
+  }
+
+  if (step === 3) {
+    if (fireworkScenario.count < 25) {
+      launchFirework();
+    }
+  }
+  if (step === 4) {
+    if (fireworkScenario.count > 15 && fireworkScenario.count < 35) {
+      launchFirework();
+    }
+  }
+  if (step === 5) {
+    if (fireworkScenario.count < 15) {
+      launchFirework();
+    }
+  }
+}, 400);
+
+setInterval(() => {
+  let step = fireworkScenario.step;
+
+  if (step === 1) {
+    if (fireworkScenario.count >= 25 && fireworkScenario.count <= 50) {
+      launchFirework();
+    }
+  }
+  if (step === 4) {
+    if (fireworkScenario.count <= 15 || fireworkScenario.count >= 45) {
+      launchFirework();
+    }
+  }
+  if(step === 2)
+  {
+    if(fireworkScenario.count > 40){
+      launchFirework();
+    }
+  }
+}, 500);
+
+setInterval(() => {
+  let step = fireworkScenario.step;
+
+  if (step === 2) {
+    if (fireworkScenario.count <= 15) {
+      launchFirework();
+    }
+  }
+  if (step === 3) {
+    if (fireworkScenario.count > 45) {
+      launchFirework();
+    }
+  }
+}, 1000);
+
+setInterval(() => {
+  let step = fireworkScenario.step;
+
+  if (step === 1) {
+    if (fireworkScenario.count < 25 || fireworkScenario.count > 50) {
+      launchFirework();
+    }
+  }
+  if (step === 4) {
+    if (fireworkScenario.count >= 35 && fireworkScenario.count < 45) {
+      launchFirework();
+    }
+  }
+
+  if (step === 2) {
+    if (fireworkScenario.count >= 35 && fireworkScenario.count <= 40) {
+      launchFirework();
+    }
+  }
+
+  if (step === 5) {
+    if (fireworkScenario.count >= 15 && fireworkScenario.count <= 20) {
+      launchFirework();
+    }
+  }
+
+  if (step === 5) {
+    if (fireworkScenario.count > 95) {
+      launchFirework();
+    }
+  }
+}, 2000);
+
 }

@@ -1,47 +1,13 @@
 {
-class BasicScaleform {
-    constructor(scaleformName) {
-        this.handle = mp.game.graphics.requestScaleformMovie(scaleformName);
-       // while (!mp.game.graphics.hasScaleformMovieLoaded(this.handle)) mp.game.wait(0);
-    }
+var messageScaleform = require("./gtalife/scaleform_messages/Scaleform.js");
+require("./gtalife/scaleform_messages/BigMessage.js");
+require("./gtalife/scaleform_messages/MidsizedMessage.js");
 
-    // thanks kemperrr
-    callFunction(functionName, ...args) {
-        mp.game.graphics.pushScaleformMovieFunction(this.handle, functionName);
-
-        args.forEach(arg => {
-            switch(typeof arg) {
-                case "string": {
-                    mp.game.graphics.pushScaleformMovieFunctionParameterString(arg);
-                    break;
-                }
-
-                case "boolean": {
-                    mp.game.graphics.pushScaleformMovieFunctionParameterBool(arg);
-                    break;
-                }
-
-                case "number": {
-                    if(Number(arg) === arg && arg % 1 !== 0) {
-                        mp.game.graphics.pushScaleformMovieFunctionParameterFloat(arg);
-                    } else {
-                        mp.game.graphics.pushScaleformMovieFunctionParameterInt(arg);
-                    }
-                }
-            }
-        });
-
-        mp.game.graphics.popScaleformMovieFunctionVoid();
-    }
-
-    renderFullscreen() {
-        mp.game.graphics.drawScaleformMovieFullscreen(this.handle, 255, 255, 255, 255, false);
-    }
-
-    dispose() {
-        mp.game.graphics.setScaleformMovieAsNoLongerNeeded(this.handle);
-    }
-}
-
-exports = BasicScaleform;
+mp.game.ui.messages = {
+    showShard: (title, message, titleColor, bgColor, time = 5000) => mp.events.call("ShowShardMessage", title, message, titleColor, bgColor, time),
+    showWeaponPurchased: (title, weaponName, weaponHash, time = 5000) => mp.events.call("ShowWeaponPurchasedMessage", title, weaponName, weaponHash, time),
+    showPlane: (title, planeName, planeHash, time = 5000) => mp.events.call("ShowPlaneMessage", title, planeName, planeHash, time),
+    showMidsized: (title, message, time = 5000) => mp.events.call("ShowMidsizedMessage", title, message, time),
+    showMidsizedShard: (title, message, bgColor, useDarkerShard, condensed, time = 5000) => mp.events.call("ShowMidsizedShardMessage", title, message, bgColor, useDarkerShard, condensed, time)
+};
 }

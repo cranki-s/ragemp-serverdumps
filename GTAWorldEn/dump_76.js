@@ -1,52 +1,95 @@
 {
-var pawnshopWindow = null;
-mp.events.add('PAWNSHOP_DISPLAY_SHOP_MENU', (items, name) => {
-	if (!mp.browsers.exists(pawnshopWindow))
+var playerDealershipWindow = null;
+mp.events.add('PlayerDS::show', () => {
+	if (!mp.browsers.exists(playerDealershipWindow))
 	{
-		pawnshopWindow = mp.browsers.new("package://gtalife/PawnShop/pawnshop.html");
-
-		var data = JSON.stringify(items);
-		var itemjson = JSON.parse(data);
-		pawnshopWindow.execute(`itemData = ${itemjson};`);
-		pawnshopWindow.execute(`shopName = '${name}';`);
-		pawnshopWindow.execute(`InitializeTable();`);
+		playerDealershipWindow = mp.browsers.new("package://gtalife/PlayerDealership/PlayerDealership.html");
+		playerDealershipWindow.execute(`$(".dealershipcars" ).empty();`);
+		mp.events.callRemote('PlayerDS::LoadDealershipVehicles');
 		mp.gui.cursor.show(true, true);
-		mp.gui.chat.show(false);
-		mp.events.call('setCefActive', true);
 	}
 });
 
-mp.events.add('PAWNSHOP_DISPLAY_SHOP_MENU_CLOSE', () => {
-	setTimeout(() => { 
-		if(pawnshopWindow != null && mp.browsers.exists(pawnshopWindow)) 
-		{
-			pawnshopWindow.destroy();
-			pawnshopWindow = null;
-	
-			mp.gui.cursor.show(false, false);
-			mp.gui.chat.show(true);
-			mp.events.call('setCefActive', false);
-		}
-	}, 1000);
+mp.events.add('PlayerDS::close', () => {
+    mp.events.callRemote('PlayerDS::Close');
 });
 
-mp.events.add('PAWNSHOP::closeButton', () => {
-    mp.events.call('PAWNSHOP_DISPLAY_SHOP_MENU_CLOSE');
-});
-
-mp.events.add('PAWNSHOP::purchaseItem', (id, amount, price, itemIDs) => {
-	mp.events.call('PAWNSHOP_DISPLAY_SHOP_MENU_CLOSE');
-    mp.events.callRemote('PAWN_SUBMIT_BUY_REQUEST', id, amount, price, itemIDs);
-});
-
-mp.events.add('PAWNSHOP_UPDATE_DISPLAY', (items, name) => {
-	if(pawnshopWindow != null && mp.browsers.exists(pawnshopWindow)) 
+mp.events.add('PlayerDS::clear', () => {
+	if (playerDealershipWindow != null && mp.browsers.exists(playerDealershipWindow))
 	{
-		var data = JSON.stringify(items);
-		var itemjson = JSON.parse(data);
-		pawnshopWindow.execute(`itemData = ${itemjson};`);
-		pawnshopWindow.execute(`shopName = '${name}';`);
-		pawnshopWindow.execute(`InitializeTable();`);
+		playerDealershipWindow.execute(`$(".dealershipcars" ).empty();`);
 	}
+});
+
+mp.events.add('PlayerDS::hide', () => {
+	if (playerDealershipWindow != null && mp.browsers.exists(playerDealershipWindow))
+	{
+		playerDealershipWindow.destroy();
+		mp.gui.cursor.show(false, false);
+	}
+});
+
+mp.events.add('PlayerDS::setName', (name) => {
+	if (playerDealershipWindow != null && mp.browsers.exists(playerDealershipWindow))
+	{
+		playerDealershipWindow.execute(`$('.dealershipname').text( '${name}');`);
+	}
+});
+
+mp.events.add('PlayerDS::updatePages', (currentpage, maxpages) => {
+	if (playerDealershipWindow != null && mp.browsers.exists(playerDealershipWindow))
+	{
+		playerDealershipWindow.execute(`$('#pageholder').text( '${currentpage}/${maxpages}');`);
+		playerDealershipWindow.execute(`$('#pagenumber').text( '${currentpage}');`);
+	}
+});
+
+mp.events.add('PlayerDS::addVehicle', (id,model, name, price, inv, miles) => {
+	if (playerDealershipWindow != null && mp.browsers.exists(playerDealershipWindow))
+	{
+		miles = roundTo(miles, 2);
+		playerDealershipWindow.execute(`$(".dealershipcars").append('<div class="dealershipcarbox" id="${id}"><div class="dealershipcarname" id="${model}">${name}</div><img src="https://gta.world/vehicles/${model}.jpg"/><div class="dealershipcarBottom"><div class="dealershipcarprice" id="${price}">$${price}  <br/><span class="dealershipcarmiles">Miles: ${miles}</span></div> <div class="dealershipcarstock">Inv: ${inv} KG</div></div></div>');`);
+	}
+});
+
+mp.events.add('PlayerDS::returnVehicle', (id, model) => {
+    mp.events.callRemote('PlayerDS::ReturnVehicle', id, model);
+});
+
+mp.events.add('PlayerDS::nextPage', (currentpage) => {
+	if (playerDealershipWindow != null && mp.browsers.exists(playerDealershipWindow))
+	{
+		var currentpage = parseInt(currentpage);
+		mp.events.callRemote('PlayerDS::NextPage', currentpage);
+	}
+});
+
+mp.events.add('PlayerDS::previousPage', (currentpage) => {
+	if (playerDealershipWindow != null && mp.browsers.exists(playerDealershipWindow))
+	{
+		var currentpage = parseInt(currentpage);
+		mp.events.callRemote('PlayerDS::PreviousPage', currentpage);
+	}
+});
+
+mp.events.add('PlayerDS::showPurchase', (price) => {
+	if (playerDealershipWindow != null && mp.browsers.exists(playerDealershipWindow))
+	{
+		playerDealershipWindow.execute(`$("#dealership").hide();`);
+		playerDealershipWindow.execute(`$( '#price' ).text( '$${price}' );`);
+		playerDealershipWindow.execute(`$("#purchase").show();`);
+
+		setTimeout(() => { 
+			mp.gui.cursor.show(true, true);
+		}, 1000);
+	}
+});
+
+mp.events.add('PlayerDS::purchase', (type) => {
+    mp.events.callRemote('PlayerDS::Purchase', type);
+});
+
+mp.events.add('PlayerDS::cancelPurchase', () => {
+    mp.events.callRemote('PlayerDS::CancelPurchase');
 });
 }

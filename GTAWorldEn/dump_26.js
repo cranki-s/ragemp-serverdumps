@@ -85,4 +85,4 @@
 }
 
 exports = Scalefrom;﻿
-}탟ʺ
+}

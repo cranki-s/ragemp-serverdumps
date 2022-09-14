@@ -1,14 +1,12 @@
 {
-let Core = class {
-
+let Core = class{
     constructor(){
         this.m_IsReady = false
-        mp.events.add("Weapon::Names::Show", this.Event_OnReceive.bind(this))
-        mp.events.add("Weapon::Names::Action", this.Event_OnAction.bind(this))
-        mp.events.add("Weapon::Names::Close", this.Event_OnClose.bind(this))
-        mp.events.add("Weapon::Names::Update", this.Event_OnUpdate.bind(this))
+        mp.events.add("Weapon::Statistics::Create", this.Event_OnReceive.bind(this))
+        mp.events.add("Weapon::Statistics::Update", this.Event_OnUpdate.bind(this))
+        mp.events.add("Weapon::Statistics::Action", this.Event_OnAction.bind(this))
+        mp.events.add("Weapon::Statistics::Close", this.Event_OnClose.bind(this))
         mp.events.add("browserDomReady", this.Event_OnDomReady.bind(this))
-        mp.events.add("render", this.Event_OnPulse.bind(this))
     }
 
     Dispose(){
@@ -16,67 +14,54 @@ let Core = class {
             if (this.m_Browser && mp.browsers.exists(this.m_Browser)) this.m_Browser.destroy()
             this.m_DomQueue = []
             this.m_IsReady = false
-            this.m_Browser = false
         } catch(exception){
             this.Error(exception, "Dispose")
         }
     }
 
-    Event_OnReceive(data, weapon, admin){
+    Event_OnReceive(data){
         try{
             if (data.length == 0) return
             data = JSON.parse(data)
             this.Dispose()
-            this.m_Browser = mp.browsers.new("package://gtalife/Weapon/Name/CEF/Main.html")
+            this.m_Browser = mp.browsers.new("package://gtalife/Weapon/Statistics/CEF/Main.html")
             mp.events.callRemote("cef_opened", true)
-            mp.events.call("cef_opened_client", true)
-            mp.gui.cursor.show(true, true)
+            mp.gui.cursor.show(true)
             mp.gui.chat.show(false)
             mp.game.ui.displayRadar(false)
             mp.events.call("toggle_display_gtaw", false)
-            this.TriggerCEFEvent("OnLoad", data, weapon, admin)
+            this.TriggerCEFEvent("OnLoad", data)
         } catch(exception){
             this.Error(exception, "Event_OnReceive")
         }
     }
 
-    Event_OnUpdate(data, weapon, admin){
+    Event_OnUpdate(data){
         if (!this.m_Browser) return this.Event_OnReceive(data)
         if (data.length == 0) return
         data = JSON.parse(data)
-        this.TriggerCEFEvent("OnLoad", data, weapon, admin)
+        this.TriggerCEFEvent("OnLoad", data)
     }
 
-    Event_OnAction(action, value){
+    Event_OnAction(key, data){
         try{
-            if (action == "add") mp.events.callRemote("Weapon::Name::Server::Add", value)
-            if (action == "remove") mp.events.callRemote("Weapon::Name::Server::Remove", value)
-            if (action == "apply") mp.events.callRemote("Weapon::Name::Server::Apply", value)
-            
-        } catch (exception){
+            data = JSON.parse(data)
+            mp.events.callRemote("Weapon::Statistics::Save", key, data.BaseDamage, data.HeadDamage, data.LimbDamage, data.Recoil, data.DropOff)
+        } catch(exception){
             this.Error(exception, "Event_OnAction")
         }
     }
-    
+
     Event_OnClose(){
         try{
             this.Dispose()
             mp.events.callRemote("cef_opened", false)
-            mp.events.call("cef_opened_client", false)
             mp.gui.cursor.show(false, false)
             mp.game.ui.displayRadar(true)
             mp.gui.chat.show(true)
             mp.events.call("toggle_display_gtaw", true)
         } catch(exception){
             this.Error(exception, "Event_OnClose")
-        }
-    }
-
-    Event_OnPulse(){
-        try{
-            if (this.m_Browser) mp.gui.cursor.show(true, true)
-        } catch(exception){
-            this.Error(exception, "Event_OnPulse")
         }
     }
 
@@ -118,7 +103,6 @@ let Core = class {
             this.m_DomQueue.push(`__Core.OnEvent("${name}", ${argumentsString})`) 
     }
 
-    
     Error(exception, where="General") {
         try{
             mp.console.logError("Exception@ ->" + where  +  " -> " + exception.message, false, true)
@@ -128,5 +112,5 @@ let Core = class {
     }
 }
 
-new Core();
+new Core()
 }

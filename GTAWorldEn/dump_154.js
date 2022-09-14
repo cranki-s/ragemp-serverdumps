@@ -1,45 +1,69 @@
 {
-var characterSelectorCEF = null;
+var propertyManagerCEF = null;
 
 mp.events.add({
-    'CharacterSelector::showCharacterSelector': (CharacterData = null) => {
-        if (characterSelectorCEF != null && mp.browsers.exists(characterSelectorCEF)) return;
-        
-        characterSelectorCEF = mp.browsers.new("http://package/gtalife/CharacterSelection/index.html");
-        if(CharacterData != null) characterSelectorCEF.execute(`Initialize(${CharacterData});`);
-        mp.gui.cursor.show(true, true);
-        mp.gui.chat.show(true);
+    'PropertyManager::showPropertyManager': (PropertyData) => {
+        if (propertyManagerCEF == null && !mp.browsers.exists(propertyManagerCEF)){
+            propertyManagerCEF = mp.browsers.new("package://gtalife/PropertyManager/index.html");
+            propertyManagerCEF.execute(`Initialize(${PropertyData});`);
+            mp.events.call('toggleHUDForPlayer', false);
+            mp.gui.cursor.show(true, true);
+            mp.events.call('setCefActive', true);
+        }
     },
-    'CharacterSelector::hideCharacterSelector': () => {
-        if (characterSelectorCEF == null && !mp.browsers.exists(characterSelectorCEF)) return;
-
-        characterSelectorCEF.destroy();
-        characterSelectorCEF = null;
+    'PropertyManager::hidePropertyManager': () => {
+        if(!IsManagerActive) return;
+        propertyManagerCEF.destroy();
         mp.gui.cursor.show(false, false);
+        mp.events.call('toggleHUDForPlayer', true);
+        mp.events.call('setCefActive', false);
+        propertyManagerCEF = null;
     },
-    'CharacterSelector::spawnCharacter': () => {
-        if (characterSelectorCEF == null && !mp.browsers.exists(characterSelectorCEF)) return;
-        mp.events.callRemote('CharacterSelector::spawnCharacter');
+    'PropertyManager::reloadPropertyManager': (PropertyData) => {
+        if(!IsManagerActive) return;
+        propertyManagerCEF.execute(`Initialize(${PropertyData});`);
     },
-    'CharacterSelector::loadSpawns': (characterID) => {
-        if (characterSelectorCEF == null && !mp.browsers.exists(characterSelectorCEF)) return;
-        characterSelectorCEF.execute(`LoadSpawnSelection(${characterID});`);
+    'PropertyManager::accessPropertyInventory': (propertyID) => {
+        if(!IsManagerActive) return;
+        mp.events.callRemote('PropertyManager::accessPropertyInventory', propertyID);
     },
-    'CharacterSelector::selectSpawnPoint': (spawnName) => {
-        if (characterSelectorCEF == null && !mp.browsers.exists(characterSelectorCEF)) return;
-        mp.events.callRemote('CharacterSelector::selectSpawnPoint', spawnName);
+    'PropertyManager::sellPropertyToState': (propertyID) => {
+        if(!IsManagerActive) return;
+        mp.events.callRemote('PropertyManager::sellPropertyToState', propertyID);
     },
-    'CharacterSelector::createNewCharacter': (type) => {
-        if (characterSelectorCEF == null && !mp.browsers.exists(characterSelectorCEF)) return;
-        mp.events.callRemote('CharacterSelector::createNewCharacter', type);
+    'PropertyManager::sellPropertyToPlayer': (propertyID, sellerName, sellerPrice) => {
+        if(!IsManagerActive) return;
+        mp.events.callRemote('PropertyManager::sellPropertyToPlayer', propertyID, sellerName, sellerPrice);
     },
-    'CharacterSelector::enoughCharacterSlots': (type) => {
-        if (characterSelectorCEF == null && !mp.browsers.exists(characterSelectorCEF)) return;
-        characterSelectorCEF.execute(`InitializeCreateButton("${type}")`);
+    'PropertyManager::changeIntVariants': (propertyID) => {
+        if(!IsManagerActive) return;
+        mp.events.callRemote('PropertyManager::changeIntVariants', propertyID);
     },
-    'CharacterSelector::changeSpawnView': (characterID) => {
-        if (characterSelectorCEF == null && !mp.browsers.exists(characterSelectorCEF)) return;
-        mp.events.callRemote('CharacterSelector::changeSpawnView', characterID);
-    }
-});
+    'PropertyManager::manageFurnitures': (propertyID) => {
+        if(!IsManagerActive) return;
+        mp.events.callRemote('PropertyManager::manageFurnitures', propertyID);
+    },
+    // 'saveRentalPrice': (propertyID, rentalPrice) => {
+    //     if(!IsManagerActive) return;
+    //     mp.events.callRemote('saveRentalPrice', propertyID, rentalPrice);
+    // },
+    'PropertyManager::savePermissions': (propertyID, constructionRights, inventoryRights, propertyLocked) => {
+        if(!IsManagerActive) return;
+        mp.events.callRemote('PropertyManager::savePermissions', propertyID, constructionRights, inventoryRights, propertyLocked);
+    },
+    'PropertyManager::saveSettings': (propertyID, propertyWeather, propertyTime, freezingState, reloadingState) => {
+        if(!IsManagerActive) return;
+        mp.events.callRemote('PropertyManager::saveSettings', propertyID, propertyWeather, propertyTime, freezingState, reloadingState);
+    },
+    'PropertyManager::evictAllTenants': (propertyID) => {
+        if(!IsManagerActive) return;
+        mp.events.callRemote('PropertyManager::evictAllTenants', propertyID);
+    },
+    'PropertyManager::removeTenant': (propertyID, tenantID) => {
+        if(!IsManagerActive) return;
+        mp.events.callRemote('PropertyManager::removeTenant', propertyID, tenantID);
+    },
+});
+
+function IsManagerActive() { return (propertyManagerCEF != null && mp.browsers.exists(propertyManagerCEF)) ? true : false; } 
 }

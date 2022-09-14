@@ -4,6 +4,7 @@ mp.game.gxt.set("PM_PAUSE_HDR", "GTA.World");
 var resolution = mp.game.graphics.getScreenResolution(0, 0);
 var auto_walk = false;
 var rob_timer = false;
+var pilotTimer = false;
 var posX = 1920 * 0.75;
 var posY = 1080 * 0.3;
 var permanentObjectsList = [];
@@ -24,6 +25,7 @@ var alpr_ownerName = null;
 var alpr_modelStatus = null;
 var alpr_ownerStatus = null;
 var alpr_insuranceStatus = null;
+var effect = null;
 var alpr_hit = false;
 var last_canine_id = 0; //to change to give in callback
 var last_canine_player = null;
@@ -66,6 +68,7 @@ var print_hud_ex = true;
 /* CEF Handler */
 var browser = null;
 let cef = null;
+var immersiveMode = false;
 
 /* Hotkeys */
 var cef_opened = false;
@@ -193,6 +196,7 @@ var onSubmit = function (user, password) {
     mp.events.callRemote('account_prompt_send', user, password);
     mp.gui.chat.activate(false);
     mp.events.call('destroyBrowser');
+
 };
 
 var onSubmitPin = function (pin) {
@@ -631,7 +635,7 @@ var vehicleMaxSpeedEnabled = {};
 var vehicleMaxSpeedEnabled2 = {};
 
 var blockedModels = []; // people can't speed limit these vehicles (rhino and insurgent for example)
-var blockedCategories = [8, 13, 14, 15, 16, 21]; // people can't speed limit vehicles that belong these categories - https://wiki.gt-mp.net/index.php?title=Vehicle_Classes
+var blockedCategories = [13, 14, 15, 16, 21]; // people can't speed limit vehicles that belong these categories - https://wiki.gt-mp.net/index.php?title=Vehicle_Classes
 
 var IdleCameraDisableStatus = false;
 
@@ -1853,6 +1857,7 @@ function updateValues() {
     else {
         mp.events.callRemote('rob_timer_server', false);
         rob_timer = false;
+		pilotTimer = false;
     }
 }
 
@@ -1930,7 +1935,11 @@ var ignoredWeaponTypes = [
 ];
 
 function isCurrentWeaponIgnored() {
-    return ignoredWeaponTypes.indexOf(mp.game.invoke('0xC3287EE3050FB74C', 0, mp.players.local.weapon)) != -1;
+    try{
+        return ignoredWeaponTypes.indexOf(mp.game.invoke('0xC3287EE3050FB74C', 0, mp.players.local.weapon)) != -1;
+    } catch {
+        return false
+    }
 }
 
 
@@ -2458,154 +2467,157 @@ mp.events.add('render', (nametags) => {
 
     if (printnametags && !disabledByCommand) {
 
-        nametags.forEach(function (nametag) {
+        if(nametags !== undefined)
+        {
+            nametags.forEach(function (nametag) {
 
-            let [player, x, y, distance] = nametag;
-            var isVisible = true;
+                let [player, x, y, distance] = nametag;
+                var isVisible = true;
 
-            if (player.getVariable('nametag_visible') != null)
-                isVisible = player.getVariable('nametag_visible');
+                if (player.getVariable('nametag_visible') != null)
+                    isVisible = player.getVariable('nametag_visible');
 
-            if (isVisible) {
+                if (isVisible) {
 
-                //mp.gui.chat.push("Printing nametag " + nametag + " for player " + player.name);
-                if (player.vehicle != undefined && player.vehicle.getClass() != 8 && player.vehicle.getClass() != 14 && player.vehicle.getClass() != 13) {
-                    maxDistance = 25 * 4;
-                }
-                else {
-                    maxDistance = 25 * 25;
-                }
+                    //mp.gui.chat.push("Printing nametag " + nametag + " for player " + player.name);
+                    if (player.vehicle != undefined && player.vehicle.getClass() != 8 && player.vehicle.getClass() != 14 && player.vehicle.getClass() != 13) {
+                        maxDistance = 25 * 4;
+                    }
+                    else {
+                        maxDistance = 25 * 25;
+                    }
 
-                if (distance <= maxDistance) {
-                    let hasLOS;
+                    if (distance <= maxDistance) {
+                        let hasLOS;
 
-                    if (isLocalPlayerAOD) hasLOS = true;
-                    else hasLOS = hasLineOfSight(mp.players.local, player);
+                        if (isLocalPlayerAOD) hasLOS = true;
+                        else hasLOS = hasLineOfSight(mp.players.local, player);
 
-                    if (hasLOS) {
+                        if (hasLOS) {
 
-                        let scale = (distance / maxDistance);
-                        if (scale < 0.6) scale = 0.6;
+                            let scale = (distance / maxDistance);
+                            if (scale < 0.6) scale = 0.6;
 
-                        let scaleText = (maxDistance / distance) / 10;
-                        if (scaleText < 0.2) scaleText = 0.2;
-                        if (scaleText > 0.4) scaleText = 0.4;
+                            let scaleText = (maxDistance / distance) / 10;
+                            if (scaleText < 0.2) scaleText = 0.2;
+                            if (scaleText > 0.4) scaleText = 0.4;
 
-                        var health = player.getHealth();
-                        health = health < 100 ? 0 : ((health - 100) / 100);
-                        var color2 = color;
+                            var health = player.getHealth();
+                            health = health < 100 ? 0 : ((health - 100) / 100);
+                            var color2 = color;
 
-                        if (player.getVariable('nametag_color') != null) {
+                            if (player.getVariable('nametag_color') != null) {
 
-                            var colorStorage = player.getVariable('nametag_color');
-                            if (colorStorage == "red")
-                                color2 = [255, 0, 0, 255];
-                            else if (colorStorage == "white")
-                                color2 = [255, 255, 255, 255];
-                            else if (colorStorage == "green")
-                                color2 = [31, 139, 76, 255];
-                            else if (colorStorage == "orange")
-                                color2 = [255, 150, 0, 255];
-                            else if (colorStorage == "blue")
-                                color2 = [39, 147, 205, 255];
-                        }
+                                var colorStorage = player.getVariable('nametag_color');
+                                if (colorStorage == "red")
+                                    color2 = [255, 0, 0, 255];
+                                else if (colorStorage == "white")
+                                    color2 = [255, 255, 255, 255];
+                                else if (colorStorage == "green")
+                                    color2 = [31, 139, 76, 255];
+                                else if (colorStorage == "orange")
+                                    color2 = [255, 150, 0, 255];
+                                else if (colorStorage == "blue")
+                                    color2 = [39, 147, 205, 255];
+                            }
 
-                        if (player.hasVariable('PLAYER_IS_TABBED') && player.getVariable('PLAYER_IS_TABBED')) color2 = [142, 142, 142, 255];
-                        var armour = player.getArmour() / 100;
+                            if (player.hasVariable('PLAYER_IS_TABBED') && player.getVariable('PLAYER_IS_TABBED')) color2 = [142, 142, 142, 255];
+                            var armour = player.getArmour() / 100;
 
-                        y -= scale * (0.005 * (screenRes.y / 1080));
-                        mp.game.graphics.drawText(player.name, [x, y + 0.03], {
+                            y -= scale * (0.005 * (screenRes.y / 1080));
+                            mp.game.graphics.drawText(player.name, [x, y + 0.03], {
 
-                            font: 4,
-                            color: color2,
-                            scale: [0.4, 0.4],
-                            outline: true,
-                            centre: true
-                        });
-
-                        if (player.getVariable('death_message') != null && distance <= 150) {
-                            mp.game.graphics.drawText(player.getVariable('death_message'), [x, y - 0.025], {
-                                font: 0,
-                                color: deathlabelColor,
-                                scale: [scaleText, scaleText],
+                                font: 4,
+                                color: color2,
+                                scale: [0.4, 0.4],
                                 outline: true,
                                 centre: true
                             });
-                        }
 
-                        if (labelEmotes.findIndex(labelObject => labelObject.player === player) != -1) {
+                            if (player.getVariable('death_message') != null && distance <= 150) {
+                                mp.game.graphics.drawText(player.getVariable('death_message'), [x, y - 0.025], {
+                                    font: 0,
+                                    color: deathlabelColor,
+                                    scale: [scaleText, scaleText],
+                                    outline: true,
+                                    centre: true
+                                });
+                            }
 
-                            let labelObject = labelEmotes.find(labelObject => labelObject.player === player);
+                            if (labelEmotes.findIndex(labelObject => labelObject.player === player) != -1) {
 
-                            if (labelObject != null && labelObject != undefined) {
-                                if (Date.now() - labelObject.tick < 5000) {
-                                    if (!labelObject.checkForFoot || !player.vehicle) {
+                                let labelObject = labelEmotes.find(labelObject => labelObject.player === player);
 
-                                        mp.game.graphics.drawText(labelObject.text, [x, y - 0.025], {
+                                if (labelObject != null && labelObject != undefined) {
+                                    if (Date.now() - labelObject.tick < 5000) {
+                                        if (!labelObject.checkForFoot || !player.vehicle) {
+
+                                            mp.game.graphics.drawText(labelObject.text, [x, y - 0.025], {
+
+                                                font: 0,
+                                                color: labelObject.color,
+                                                scale: [0.4, 0.4],
+                                                outline: true,
+                                                centre: true
+                                            });
+                                        }
+                                    } else {
+                                        let index = labelEmotes.findIndex(labelObject => labelObject.player === player)
+                                        if (index > -1)
+                                            labelEmotes.splice(index, 1)
+                                    }
+                                }
+                            }
+                            if (!TypingLabelToggled) {
+                                if (PeopleTyping.findIndex(labelObject => labelObject.player === player) != -1) {
+
+                                    let labelObject = PeopleTyping.find(labelObject => labelObject.player === player);
+
+                                    if (labelObject != null && labelObject != undefined) {
+
+                                        mp.game.graphics.drawText("[...]", [x, y], {
 
                                             font: 0,
-                                            color: labelObject.color,
+                                            color: [255, 128, 0, 255],
                                             scale: [0.4, 0.4],
                                             outline: true,
                                             centre: true
                                         });
                                     }
-                                } else {
-                                    let index = labelEmotes.findIndex(labelObject => labelObject.player === player)
-                                    if (index > -1)
-                                        labelEmotes.splice(index, 1)
                                 }
                             }
+
+                            //if (mp.game.player.isFreeAimingAtEntity(player.handle)) {
+
+                            //    let y2 = y + 0.042;
+                            //    mp.gui.chat.push("Aiming " + player.handle);
+
+                            //    if (armour > 0) {
+
+                            //        let x2 = x - width / 2 - border / 2;
+
+                            //        mp.game.graphics.drawRect(x2, y2, width + border * 2, 0.0085, 0, 0, 0, 200);
+                            //        mp.game.graphics.drawRect(x2, y2, width, height, 150, 150, 150, 255);
+                            //        mp.game.graphics.drawRect(x2 - width / 2 * (1 - health), y2, width * health, height, 255, 255, 255, 200);
+
+                            //        x2 = x + width / 2 + border / 2;
+
+                            //        mp.game.graphics.drawRect(x2, y2, width + border * 2, height + border * 2, 0, 0, 0, 200);
+                            //        mp.game.graphics.drawRect(x2, y2, width, height, 41, 66, 78, 255);
+                            //        mp.game.graphics.drawRect(x2 - width / 2 * (1 - armour), y2, width * armour, height, 48, 108, 135, 200);
+                            //    }
+                            //    else {
+
+                            //        mp.game.graphics.drawRect(x, y2, width + border * 2, height + border * 2, 0, 0, 0, 200);
+                            //        mp.game.graphics.drawRect(x, y2, width, height, 150, 150, 150, 255);
+                            //        mp.game.graphics.drawRect(x - width / 2 * (1 - health), y2, width * health, height, 255, 255, 255, 200);
+                            //    }
+                            //}
                         }
-                        if (!TypingLabelToggled) {
-                            if (PeopleTyping.findIndex(labelObject => labelObject.player === player) != -1) {
-
-                                let labelObject = PeopleTyping.find(labelObject => labelObject.player === player);
-
-                                if (labelObject != null && labelObject != undefined) {
-
-                                    mp.game.graphics.drawText("[...]", [x, y], {
-
-                                        font: 0,
-                                        color: [255, 128, 0, 255],
-                                        scale: [0.4, 0.4],
-                                        outline: true,
-                                        centre: true
-                                    });
-                                }
-                            }
-                        }
-
-                        //if (mp.game.player.isFreeAimingAtEntity(player.handle)) {
-
-                        //    let y2 = y + 0.042;
-                        //    mp.gui.chat.push("Aiming " + player.handle);
-
-                        //    if (armour > 0) {
-
-                        //        let x2 = x - width / 2 - border / 2;
-
-                        //        mp.game.graphics.drawRect(x2, y2, width + border * 2, 0.0085, 0, 0, 0, 200);
-                        //        mp.game.graphics.drawRect(x2, y2, width, height, 150, 150, 150, 255);
-                        //        mp.game.graphics.drawRect(x2 - width / 2 * (1 - health), y2, width * health, height, 255, 255, 255, 200);
-
-                        //        x2 = x + width / 2 + border / 2;
-
-                        //        mp.game.graphics.drawRect(x2, y2, width + border * 2, height + border * 2, 0, 0, 0, 200);
-                        //        mp.game.graphics.drawRect(x2, y2, width, height, 41, 66, 78, 255);
-                        //        mp.game.graphics.drawRect(x2 - width / 2 * (1 - armour), y2, width * armour, height, 48, 108, 135, 200);
-                        //    }
-                        //    else {
-
-                        //        mp.game.graphics.drawRect(x, y2, width + border * 2, height + border * 2, 0, 0, 0, 200);
-                        //        mp.game.graphics.drawRect(x, y2, width, height, 150, 150, 150, 255);
-                        //        mp.game.graphics.drawRect(x - width / 2 * (1 - health), y2, width * health, height, 255, 255, 255, 200);
-                        //    }
-                        //}
                     }
                 }
-            }
-        });
+            });
+        }
     }
 
     if (freezeMe) {
@@ -2790,6 +2802,25 @@ mp.events.add('render', (nametags) => {
             centre: true
         });
     }
+	
+	if (pilotTimer === true) {
+        var currentTimeInMilliseconds = new Date().getTime();
+        if (currentTimeInMilliseconds - lastUpdateTickCount > updateTimeoutInMilliseconds2) {
+            lastUpdateTickCount = currentTimeInMilliseconds;
+            updateValues();
+        }
+				
+		var minutes = Math.floor(((timer*1000) % (1000 * 60 * 60)) / (1000 * 60));
+		var seconds = Math.floor(((timer*1000) % (1000 * 60)) / 1000);
+
+        mp.game.graphics.drawText(`~y~Remaining time: ~g~${minutes}:${seconds}`, [(res_X / 2) / res_X, (res_Y - 100) / res_Y], {
+            font: 4,
+            color: [255, 255, 255],
+            scale: [1, 1],
+            outline: true,
+            centre: true
+        });		
+	}
 
     if (animInProgress) {
 
@@ -4113,6 +4144,8 @@ mp.events.add(
             anim_menu.AddItem(new UIMenuItem("Items", "Animations with items required"));
             anim_menu.AddItem(new UIMenuItem("Gestures", "Gestures animations"));
             anim_menu.AddItem(new UIMenuItem("Fighting", "Fighting animations"));
+	    anim_menu.AddItem(new UIMenuItem("Tactical", "Fighting animations"));
+	    anim_menu.AddItem(new UIMenuItem("Poses", "Fighting animations"));
             anim_menu.AddItem(new UIMenuItem("~y~Stop", "Stop playing animation."));
             anim_menu.AddItem(new UIMenuItem("~r~Exit", "Close menu."));
 
@@ -4208,6 +4241,14 @@ mp.events.add(
                         anim_sub_menu.AddItem(new UIMenuItem("resthanddriverlow", "Animation"));
                         anim_sub_menu.AddItem(new UIMenuItem("resthanddriverhigh", "Animation"));
                         anim_sub_menu.AddItem(new UIMenuItem("resthandpassenger", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("femalesitting1", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("femalesitting1", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("femalesitting2", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("femalesitting3", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("femalesitting4", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("femalesitting5", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("femalesittingstool", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("armchairrelaxed", "Animation"));
                     }
                     else if (item.Text === "Items") {
                         anim_sub_menu.AddItem(new UIMenuItem("smoke1", "Animation"));
@@ -4217,6 +4258,7 @@ mp.events.add(
                         anim_sub_menu.AddItem(new UIMenuItem("smoke4", "Animation"));
                     }
                     else if (item.Text === "Laying") {
+						anim_sub_menu.AddItem(new UIMenuItem("femalelaying", "Animation"));
                         anim_sub_menu.AddItem(new UIMenuItem("liedown1", "Animation"));
                         anim_sub_menu.AddItem(new UIMenuItem("liedown2", "Animation"));
                         anim_sub_menu.AddItem(new UIMenuItem("liedown3", "Animation"));
@@ -4250,6 +4292,7 @@ mp.events.add(
                         anim_sub_menu.AddItem(new UIMenuItem("throwuptoilet", "Animation"));
                         anim_sub_menu.AddItem(new UIMenuItem("sitgroundvidoegame", "Animation"));
                         anim_sub_menu.AddItem(new UIMenuItem("meditate", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("femalelaying", "Animation"));
                     }
                     else if (item.Text === "Standing") {
                         anim_sub_menu.AddItem(new UIMenuItem("bumsign1", "Animation"));
@@ -4392,6 +4435,15 @@ mp.events.add(
                         anim_sub_menu.AddItem(new UIMenuItem("gabagool2", "Animation"));
                         anim_sub_menu.AddItem(new UIMenuItem("finger3", "Animation"));
                         anim_sub_menu.AddItem(new UIMenuItem("finger4", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("taunting1", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("taunting2", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("taunting3", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("taunting4", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("taunting5", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("taunting6", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("taunting7", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("mindreader1", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("mindreader2", "Animation"));
                     }
                     else if (item.Text === "Working") {
                         anim_sub_menu.AddItem(new UIMenuItem("jackhammer", "Animation"));
@@ -4414,6 +4466,7 @@ mp.events.add(
                         anim_sub_menu.AddItem(new UIMenuItem("copwalk3", "Animation"));
                         anim_sub_menu.AddItem(new UIMenuItem("copwalk4", "Animation"));
                         anim_sub_menu.AddItem(new UIMenuItem("medicalbag", "Animation"));
+                        anim_sub_menu.AddItem(new UIMenuItem("dufflebag", "Animation"));
                         anim_sub_menu.AddItem(new UIMenuItem("gurney", "Animation"));
                         anim_sub_menu.AddItem(new UIMenuItem("cprstart", "Animation"));
                         anim_sub_menu.AddItem(new UIMenuItem("cprbreath", "Animation"));
@@ -4433,6 +4486,7 @@ mp.events.add(
                         //anim_sub_menu.AddItem(new UIMenuItem("brownbriefcase", "Animation"));
                         anim_sub_menu.AddItem(new UIMenuItem("malehandsonhips", "Animation"));
                         anim_sub_menu.AddItem(new UIMenuItem("interview", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("applycpr", "Animation"));
                     }
                     else if (item.Text === "Phone") {
                         anim_sub_menu.AddItem(new UIMenuItem("phone1", "Animation"));
@@ -4499,6 +4553,8 @@ mp.events.add(
                         anim_sub_menu.AddItem(new UIMenuItem("dead2", "Animation")); // Ground.
                         anim_sub_menu.AddItem(new UIMenuItem("massageonground1", "Animation")); // Ground.
                         anim_sub_menu.AddItem(new UIMenuItem("walkcrouched1", "Animation")); // Ground.
+						anim_sub_menu.AddItem(new UIMenuItem("femalegroundsit", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("femalecrouch", "Animation"));
                     }
                     else if (item.Text === "Leaning") {
                         anim_sub_menu.AddItem(new UIMenuItem("lean", "Animation"));
@@ -4523,6 +4579,49 @@ mp.events.add(
                         anim_sub_menu.AddItem(new UIMenuItem("counterleanbar1", "Animation")); // CounterLean.
                         anim_sub_menu.AddItem(new UIMenuItem("counterleanbar2", "Animation")); // CounterLean.
                         anim_sub_menu.AddItem(new UIMenuItem("femaleleaning1", "Animation")); // Leaning.
+						anim_sub_menu.AddItem(new UIMenuItem("leaningarmed", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("leaningrail1", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("leaningrail2", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("leaningrail3", "Animation"));
+                    }
+					else if (item.Text === "Tactical") {
+						anim_sub_menu.AddItem(new UIMenuItem("tactical1", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("tactical2", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("tactical3", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("tactical4", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("tactical5", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("tactical6", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("tactical7", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("tactical8", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("tactical9", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("tactical10", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("tactical11", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("tactical12", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("tactical13", "Animation"));
+                    }
+					else if (item.Text === "Poses") {
+						anim_sub_menu.AddItem(new UIMenuItem("armypose1", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("armypose2", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("armypose3", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("malepose1", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("malepose2", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("malepose3", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("malepose4", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("malepose5", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("malepose6", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("malepose7", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("malepose8", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("malepose9", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("malepose10", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("malepose11", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("malepose12", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("femalepose1", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("femalepose2", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("femalepose3", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("femalepose4", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("femalepose5", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("femalepose6", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("femalepose7", "Animation"));
                     }
                     else if (item.Text === "Surrender") {
                         anim_sub_menu.AddItem(new UIMenuItem("handsup", "Animation"));
@@ -4718,6 +4817,14 @@ mp.events.add(
                         anim_sub_menu.AddItem(new UIMenuItem("partydance45", "Animation"));
                         anim_sub_menu.AddItem(new UIMenuItem("partydance46", "Animation"));
                         anim_sub_menu.AddItem(new UIMenuItem("partydance47", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("handsinpockets1", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("handsinpockets2", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gymsideplank", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gymplank", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("smokingcough", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("golfswing", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("pettingadog", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("dustshakeoff", "Animation"));
                     }
                     else if (item.Text === "Adult") {
                         anim_sub_menu.AddItem(new UIMenuItem("fuckyou", "Animation"));
@@ -4754,6 +4861,7 @@ mp.events.add(
                         anim_sub_menu.AddItem(new UIMenuItem("stripdance8", "Animation")); // StripDance.
                         anim_sub_menu.AddItem(new UIMenuItem("stripdance9", "Animation")); // StripDance.
                         anim_sub_menu.AddItem(new UIMenuItem("stripdance10", "Animation")); // StripDance.
+						anim_sub_menu.AddItem(new UIMenuItem("takingapiss", "Animation"));
                     }
                     else if (item.Text === "Items") {
                         anim_sub_menu.AddItem(new UIMenuItem("smoke1", "Animation"));
@@ -4768,6 +4876,7 @@ mp.events.add(
                         anim_sub_menu.AddItem(new UIMenuItem("lowkick", "Animation"));
                         anim_sub_menu.AddItem(new UIMenuItem("meleehitground", "Animation"));
                         anim_sub_menu.AddItem(new UIMenuItem("middlekick", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("injuredcrawl", "Animation"));
                     }
                     else if (item.Text === "Gestures") {
                         anim_sub_menu.AddItem(new UIMenuItem("bringiton", "Animation"));
@@ -4777,6 +4886,54 @@ mp.events.add(
                         anim_sub_menu.AddItem(new UIMenuItem("headnod", "Animation"));
                         anim_sub_menu.AddItem(new UIMenuItem("shrug", "Animation"));
                         anim_sub_menu.AddItem(new UIMenuItem("why", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign57", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign58", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign59", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign60", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign61", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign62", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign63", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign64", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign65", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign66", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign67", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign68", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign69", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign70", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign71", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign72", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign73", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign74", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign75", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign76", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign77", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign78", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign79", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign80", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign81", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign82", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign83", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign84", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign85", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign86", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign87", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign88", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign89", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign90", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign91", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign92", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign93", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign94", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign95", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign96", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign97", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign98", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("gangsign99", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("chidori", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("pauliewalnuts1", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("pauliewalnuts2", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("pauliewalnuts3", "Animation"));
+						anim_sub_menu.AddItem(new UIMenuItem("lookatthisguy", "Animation"));
                     }
                     anim_sub_menu.AddItem(new UIMenuItem("~y~Stop", "Animation"));
                     anim_sub_menu.AddItem(new UIMenuItem("~r~Exit", "Animation"));
@@ -4924,6 +5081,17 @@ mp.events.add(
         "robbery_stop": () => {
             mp.events.callRemote('rob_timer_server', false);
             rob_timer = false;
+            timer = 0;
+        },
+		
+        "pilot_timer_start": (time) => {
+            timer = time;
+            pilotTimer = true;
+        },
+
+        "pilot_timer_stop": () => {
+            //mp.events.callRemote('rob_timer_server', false);
+            pilotTimer = false;
             timer = 0;
         },
 
@@ -6007,37 +6175,40 @@ mp.game.ui.setRadarBigmapEnabled(false, false);
 mp.events.add("render", () => {
 
     mp.game.controls.disableControlAction(0, 48, true);
-    if(mp.game.controls.isDisabledControlJustPressed(0, 48) && !chatopened && !cef_opened) {
-        if(bigmap.status === 0) {
-            if(bigmap.timer != null) 
-            {   
-                clearTimeout(bigmap.timer);
-                bigmap.timer = null;
-            }
+    if(!immersiveMode)
+    {
+        if(mp.game.controls.isDisabledControlJustPressed(0, 48) && !chatopened && !cef_opened) {
+            if(bigmap.status === 0) {
+                if(bigmap.timer != null) 
+                {   
+                    clearTimeout(bigmap.timer);
+                    bigmap.timer = null;
+                }
 
-            mp.game.ui.setRadarBigmapEnabled(true, false);
-            bigmap.status = 1;
-            mp.events.call("toggle_bigmap", true);
+                mp.game.ui.setRadarBigmapEnabled(true, false);
+                bigmap.status = 1;
+                mp.events.call("toggle_bigmap", true);
 
-            bigmap.timer = setTimeout(() => {
+                bigmap.timer = setTimeout(() => {
+                    mp.game.ui.setRadarBigmapEnabled(false, false);
+                    bigmap.status = 0;
+                    bigmap.timer = null;
+                    mp.events.call("toggle_bigmap", false);
+                }, 10000);
+
+            } else {
+
+                if(bigmap.timer != null) 
+                {
+                    clearTimeout(bigmap.timer);
+                    bigmap.timer = null;
+                }
+
                 mp.game.ui.setRadarBigmapEnabled(false, false);
                 bigmap.status = 0;
-                bigmap.timer = null;
+
                 mp.events.call("toggle_bigmap", false);
-            }, 10000);
-
-        } else {
-
-            if(bigmap.timer != null) 
-            {
-                clearTimeout(bigmap.timer);
-                bigmap.timer = null;
             }
-
-            mp.game.ui.setRadarBigmapEnabled(false, false);
-            bigmap.status = 0;
-
-            mp.events.call("toggle_bigmap", false);
         }
     }
 });
@@ -6977,6 +7148,7 @@ mp.events.add('render', () => {
     if (mp.game.controls.isControlPressed(2, 76) || mp.game.controls.isControlPressed(2, 72)) return autoPilotFeature(); //  Brake Check
     if (localPlayer.vehicle.isInWater()) return autoPilotFeature(); //  Car in water check
     if (!localPlayer.vehicle.getIsEngineRunning()) return autoPilotFeature(); //  Car engine running check
+
 });
 
 mp.events.add("playerCreateWaypoint", (position) => {
@@ -7033,5 +7205,33 @@ mp.events.add("anim2", async(animDict, animName) => {
 });
 
 
-
+mp.events.add('setImmersiveMode', (mode) => {
+    immersiveMode = mode;
+    printnametags = !mode;
+    if(mode == false)
+    {
+        mp.game.graphics.stopScreenEffect("Dont_tazeme_bro");
+    }
+});
+
+var effect = false;
+setInterval(() => {
+    if(immersiveMode)
+    {
+        var health = localPlayer.getHealth();
+        if(health < 15)
+        {
+            if(effect == false)
+            {
+                mp.game.graphics.startScreenEffect("Dont_tazeme_bro", 1000, true);
+                effect = true;
+            }
+        }
+        else
+        {
+            mp.game.graphics.stopScreenEffect("Dont_tazeme_bro");
+            effect = false;
+        }
+    }
+}, 500);
 }

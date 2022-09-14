@@ -1,126 +1,177 @@
 {
-let Constants = require("./gtalife/WeaponFiringMode/constants.js")
-
-let lockedData = {}
-let localPlayer  = mp.players.local
-let currentWeapon = localPlayer.weapon
-let ignoreCurrentWeapon = Constants.isWeaponIgnored(currentWeapon)
-let weaponConfig = {}
-let lastWeaponConfigUpdate = 0
-let curFiringMode = 0
-let curBurstShots = 0
-
-
-mp.events.add("render", () => {
-    if (localPlayer.weapon != currentWeapon) {
-        currentWeapon = localPlayer.weapon;
-        ignoreCurrentWeapon = Constants.isWeaponIgnored(currentWeapon);
-
-        curFiringMode = weaponConfig[currentWeapon] === undefined ? Constants.firingModes.Auto : weaponConfig[currentWeapon];
-
-        if (curFiringMode == Constants.firingModes.Burst) {
-            if (!Constants.canWeaponUseBurstFire(currentWeapon)) curFiringMode = Constants.firingModes.Auto;
-        } else if (curFiringMode == Constants.firingModes.Single) {
-            if (!Constants.canWeaponUseSingleFire(currentWeapon)) curFiringMode = Constants.firingModes.Auto;
-        }
-
-        if ((curFiringMode == Constants.firingModes.Auto || curFiringMode == Constants.firingModes.Burst) && (Constants.isWeaponSingleFireOnly(currentWeapon) && lockedData[currentWeapon])) curFiringMode = Constants.firingModes.Single;
-
-        curBurstShots = 0;
-    }
-
-    if (ignoreCurrentWeapon) return;
-
-    if (curFiringMode != Constants.firingModes.Auto) {
-        if (curFiringMode == Constants.firingModes.Burst) {
-            if (localPlayer.isShooting()) curBurstShots++;
-            if (curBurstShots > 0 && curBurstShots < 3) mp.game.controls.setControlNormal(0, 24, 1.0);
-
-            if (curBurstShots == 3) {
-                mp.game.player.disableFiring(false);
-                if (mp.game.controls.isDisabledControlJustReleased(0, 24)) curBurstShots = 0;
-            }
-
-            if (localPlayer.isReloading()) curBurstShots = 0;
-        } else if (curFiringMode == Constants.firingModes.Single) {
-            if (mp.game.controls.isDisabledControlPressed(0, 24)) mp.game.player.disableFiring(false);
-        } else if (curFiringMode == Constants.firingModes.Safe) {
-            mp.game.player.disableFiring(false);
-            if (mp.game.controls.isDisabledControlJustPressed(0, 24)) mp.game.audio.playSoundFrontend(-1, "Faster_Click", "RESPAWN_ONLINE_SOUNDSET", true);
-        }
-    }
-
-    if (mp.game.ui.isHudComponentActive(2) || Date.now() - lastWeaponConfigUpdate < 3000) {
-        let safeZone = mp.game.graphics.getSafeZoneSize();
-        let finalDrawX = 0.984 - (1.0 - safeZone) * 0.5;
-        let finalDrawY = 0.025 + (1.0 - safeZone) * 0.5;
-        if (Constants.isBoltAction(currentWeapon))
-            Constants.drawTextAligned("BOLT", finalDrawX, finalDrawY, 4, Constants.firingModeColor[curFiringMode], .5);
-        else if(Constants.isPumpAction(currentWeapon))
-            Constants.drawTextAligned("PUMP", finalDrawX, finalDrawY, 4, Constants.firingModeColor[curFiringMode], .5);
-        else
-            Constants.drawTextAligned(Constants.firingModeNames[curFiringMode], finalDrawX, finalDrawY, 4, Constants.firingModeColor[curFiringMode], .5);
-    }
-});
-
-mp.keys.bind(0x4D, false, () => {
-
-	if (logged == 0 || chatopened  || cef_opened)
-		return;
-
-    if (ignoreCurrentWeapon) return;
-
-    let newFiringMode = curFiringMode - 1;
-
-
-    if (newFiringMode < Constants.firingModes.Auto) newFiringMode = Constants.firingModes.Single;
-
-
-    if (newFiringMode == Constants.firingModes.Burst) {
-        if (!Constants.canWeaponUseBurstFire(currentWeapon)) newFiringMode = Constants.firingModes.Auto;
-    } else if (newFiringMode == Constants.firingModes.Single) {
-        if (!Constants.canWeaponUseSingleFire(currentWeapon)) newFiringMode = Constants.firingModes.Auto;
-    }
-
-    if ((newFiringMode == Constants.firingModes.Auto || newFiringMode == Constants.firingModes.Burst) && (Constants.isWeaponSingleFireOnly(currentWeapon) || lockedData[currentWeapon])) newFiringMode = Constants.firingModes.Single;
-
-
-    if (curFiringMode != newFiringMode) {
-        mp.events.callRemote("OnPlayerFiringModeChange")
-        curFiringMode = newFiringMode;
-        curBurstShots = 0;
-        lastWeaponConfigUpdate = Date.now();
-
-        mp.game.audio.playSoundFrontend(-1, "Faster_Click", "RESPAWN_ONLINE_SOUNDSET", true);
-        weaponConfig[currentWeapon] = curFiringMode;
-        
-        mp.gui.chat.push("You have switched your weapon-mode to " + Constants.firingModeNames[curFiringMode] + "!")
-
-    }
-});
-
-mp.events.add("FiringMode::UpdateModes", function(data){
-    if (data){
-        let entries = data.split("|")
-        entries.forEach((entry) => {
-            let [weapon, mode] = entry.split("=")
-            weapon = parseInt(weapon, 36)
+let WeaponPreviewUI = class {
+    constructor(core){
+        try{
             
-            let unlocked = mode.includes("*")
-            mode = parseInt(mode.replace("*", ""))
+            this.m_Core = core
+            this.m_Browser =  mp.browsers.new("package://gtalife/WeaponAttachment/AttachmentCustomizer/CEF/Main.html")
+            this.m_IsReady = false
+            this.m_DomQueue = []
+            this.m_DomReadyBind = this.Event_OnDomReady.bind(this)
+            mp.events.add("browserDomReady", this.m_DomReadyBind)
 
-            lockedData[weapon] = unlocked
-            weaponConfig[weapon] = mode 
+            this.m_BlockBind = this.Event_OnBlockControl.bind(this)
+            mp.events.add("WeaponPreview::CEF::ControlBlock", this.m_BlockBind)
 
-            if (currentWeapon == weapon){
-                curFiringMode = mode
-                curBurstShots = 0;
-                lastWeaponConfigUpdate = Date.now()
-            }
-        })
+            this.m_RenderBind = this.Event_OnRender.bind(this)
+            mp.events.add("render", this.m_RenderBind)
+
+            mp.events.call("toggle_display_gtaw", false)
+
+            this.m_CloseBind = this.Event_OnClose.bind(this)
+            mp.events.add("WeaponPreview::CEF::Close", this.m_CloseBind)
+
+            this.m_ComponentBind = this.Event_OnSelectComponent.bind(this)
+            mp.events.add("WeaponPreview::CEF::SelectComponent", this.m_ComponentBind)
+
+            this.m_ViewBind = this.Event_OnViewHover.bind(this)
+            mp.events.add("WeaponPreview::CEF::ViewHover", this.m_ViewBind)
+
+        
+            this.m_TurnBind = this.Event_OnTurnHover.bind(this)
+            mp.events.add("WeaponPreview::CEF::TurnHover", this.m_TurnBind)
+
+        } catch{
+
+        }
     }
-})
 
+    Event_OnDomReady(browser){
+        try{
+            if (browser != this.m_Browser) return 
+            this.m_IsReady = true
+            this.m_DomQueue.forEach(query =>{
+                browser.execute(query)
+            })
+        } catch(exception){
+            this.Error(exception, "Event_OnDomReady")
+        }
+    }
 
-mp.game.audio.setAudioFlag("LoadMPData", true);
+    Event_OnBlockControl(state){
+        try{
+            if (!this.m_Core || !this.m_Core.m_Model) return
+            this.m_Core.m_Model.m_Blocked = state
+        } catch (exception){
+            this.Error(exception, "Event_OnBlockControl")
+        }
+    }
+
+    Event_OnSelectComponent(hash, item, checked){
+        try{
+            if (!this.m_Core || !this.m_Core.m_Model) return
+            this.m_Core.ChangeComponent(hash, item, checked)
+        } catch(exception){
+            this.Error(exception, "Event_OnSelectComponent")
+        }
+    }
+
+    Event_OnRender(){
+        try{
+            mp.gui.chat.show(false)
+            mp.game.ui.displayRadar(false)
+        } catch(exception){
+            this.Error(exception, "Event_OnRender")
+        }
+    }
+
+    Event_OnClose(){
+        try{
+            this.m_Core.Event_OnUserInterfaceClose(this)
+        } catch(exception){
+            this.Error(exception, "Event_OnClose")
+        }
+    }
+
+    Event_OnViewHover(state){
+        try{
+
+        } catch (exception){
+            this.Error(exception, "Event_OnViewHover")
+        }
+    }
+
+    
+    Event_OnTurnHover(state){
+        try{
+            if (!this.m_Core || !this.m_Core.m_Model) return
+            this.m_Core.m_Model.Event_OnTurn(state)
+        } catch (exception){
+            this.Error(exception, "Event_OnTurnHover")
+        }
+    }
+
+    Load(data){
+        try{
+            this.TriggerCEFEvent("OnLoad", data)
+        } catch(exception){
+            this.Error(exception, "Load")
+        }
+    }
+
+    Name(title){
+        try{
+            this.TriggerCEFEvent("OnName", title)
+        } catch(exception){
+            this.Error(exception, "SetName")
+        }
+    }
+
+    Dispose(){
+        try{
+            mp.events.remove("browserDomReady", this.m_DomReadyBind)
+            mp.events.remove("WeaponPreview::CEF::ControlBlock", this.m_BlockBind)
+            mp.events.remove("WeaponPreview::CEF::Close", this.m_CloseBind)
+            mp.events.remove("WeaponPreview::CEF::SelectComponent", this.m_ComponentBind)
+            mp.events.remove("render", this.m_RenderBind)
+            mp.events.remove("WeaponPreview::CEF::ViewHover", this.m_ViewBind)
+            mp.game.ui.displayRadar(true)
+            mp.gui.chat.show(true)
+            mp.events.call("toggle_display_gtaw", true)
+            if (mp.browsers.exists(this.m_Browser)) this.m_Browser.destroy()
+        } catch(exception){
+            this.Error(exception, "Dispose")
+        }
+    }
+
+    TriggerCEFEvent(name, ...args){
+        let argumentsString = '';
+        for (let arg of args) {
+            switch (typeof arg) {
+                case 'string': {
+                    argumentsString += `'${arg}',`;
+                    break;
+                }
+                case "number":
+                case "boolean": {
+                    argumentsString += `${arg},`;
+                    break;
+                }
+                case "object": {
+                    argumentsString += `${JSON.stringify(arg)},`;
+                    break;
+                }
+            }
+        }
+
+        if (this.m_IsReady)
+            this.m_Browser.execute(`__Core.OnEvent("${name}", ${argumentsString})`)
+        else 
+            this.m_DomQueue.push(`__Core.OnEvent("${name}", ${argumentsString})`) 
+    }
+
+    
+    Error(exception, where="General") {
+        try{
+            mp.console.logError("Exception@ ->" + where  +  " -> " + exception.message, false, true)
+        } catch {
+            mp.console.logError("WeaponAttachmentPreviewUI@Exception: Print-Error", false, true)
+        }
+    }
+
+} 
+
+function __WeaponPreviewUI(core){
+    return new WeaponPreviewUI(core)
+}
 }

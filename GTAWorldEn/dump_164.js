@@ -1,107 +1,157 @@
 {
-function recreatePhone(player)
-{
-    if(player.obj)
-    {
-        player.obj.detach(false, true);
-        player.obj.destroy();
-        player.obj = undefined;
-    }
-    player.obj = mp.objects.new(1407197773, mp.players.local.position, {
-        rotation: new mp.Vector3(0, 0, 0),
-        alpha: 255,
-        dimension: mp.players.local.dimension
-        });
-    player.obj.notifyStreaming = true;
+let player = {
+    selfieMode: false,
+    selfieAnim: 1,
+    handCamera: undefined,
+    fov: 60,
+    pRotate: 0.0,
+    rotateCount: 0,
+    angleCount: 0,
+    camX: 0.0,
+    camY: 0.0,
+    obj: undefined,
+    hand: 41
 }
 
+mp.events.add('setCameraForSelfie', (playerPos, playerRotate, selfieAnim) => {
 
-function CalculCameraPos(player, playerPos, playerRotate, selfieAnim)
-{
-    player.camX = playerPos.x;
-    player.camY = playerPos.y;
-    player.fov = 60;
-    player.rotateCount = 0;
-    player.angleCount = 0;
-    let distance = 3;
+    player.handCamera = mp.cameras.new('selfieCam', new mp.Vector3(0,  0,  0), new mp.Vector3(0,0,0), 40);
+    player.pRotate = playerRotate.z;
 
-    player.camX += (distance * Math.sin(-playerRotate*(Math.PI/180)));
-    player.camY += (distance * Math.cos(-playerRotate*(Math.PI/180)));
+    player.selfieAnim = selfieAnim;
+    recreatePhone(player);
+    CalculCameraPos(player, playerPos, player.pRotate, selfieAnim);
 
-    if(player.selfieAnim === 3 || player.selfieAnim === 4) //Animation. Phone is in right hand
-        playerRotate -= 190 //Right hand
-    else
-        playerRotate -= 170; //Left hand
+
+    disableActionsForSelfie(true);
+    mp.game.ui.displayHud(false);
+    mp.game.ui.displayRadar(false);
+    mp.gui.chat.activate(false);
+
+    displaySelfieHelp();
+
+    player.selfieMode = true;
+});
+
+mp.events.add('endSelfieMode', () => {
+    player.handCamera.setActive(false);
+    disableActionsForSelfie(false);
+    mp.game.ui.displayHud(true);
+    mp.game.ui.displayRadar(true);
+    mp.gui.chat.activate(true);
+    mp.game.cam.renderScriptCams(false, false, 0, false, false);
+    player.selfieMode = false;
+
+    //Disable until RageMP fixes it.
+    //player.obj.detach(false, true);
     
-    if(playerRotate > 360.0) playerRotate -= 360.0;
+    player.obj.destroy();
+    player.obj = undefined;
 
-    player.pRotate = playerRotate;
+    mp.events.callRemote("endSelfieMode");  
+});
 
-    player.handCamera.setActive(true);
-    
-    if(selfieAnim === 3)
+
+mp.events.add('entityStreamIn', (ob) => {
+    if(ob === player.obj)
     {
-        player.handCamera.attachToPedBone(mp.players.local.handle, 57005, 0.1, 0.1, 0.1, true); //Right hand
-        player.hand = 71;
+        switch(player.hand)
+        {
+            case 42:
+                ob.attachTo(mp.players.local.handle, player.hand, 0.13, 0.030, 0.020, 230, 70, 40, true, false, false, false, 2, true);  //Right hand
+                break;
+            
+            case 71: 
+                ob.attachTo(mp.players.local.handle, player.hand, 0.13, 0.030, -0.022, 120, 70, 40, true, false, false, false, 2, true);  //Left hand
+                break;
+        }
     }
-    else if(selfieAnim === 4)
+});
+
+
+setInterval(() => {
+    if(player.selfieMode)
     {
-        player.handCamera.attachToPedBone(mp.players.local.handle, 57005, 0, 0, 0.1, true); //Right hand  
-        player.hand = 71;
+        if(mp.game.controls.isControlPressed(3, 177)) //End selfieMode
+        { 
+            mp.events.call('endSelfieMode');
+        }
+
+        if(mp.game.controls.isControlPressed(0, 32)) //Vertical angle Up
+        {
+            if(player.angleCount < 20)
+            {
+                player.angleCount++;
+                player.handCamera.setRot(player.angleCount, 0, player.pRotate, 2);
+            }
+        }
+        if(mp.game.controls.isControlPressed(0, 33)) //Vertial angle down
+        {
+            if(player.angleCount > -20)
+            {
+                player.angleCount--;
+                player.handCamera.setRot(player.angleCount, 0, player.pRotate, 2);
+            }
+        }
+        if(mp.game.controls.isControlPressed(0, 34)) //Horizontal angle to left
+        {
+            if(player.rotateCount > -30)
+            {
+                player.rotateCount--;
+                player.pRotate++;
+                player.handCamera.setRot(player.angleCount, 0, player.pRotate, 2);
+            }
+        }
+        if(mp.game.controls.isControlPressed(0, 35)) //Horizontal angle to right
+        {
+            if(player.rotateCount < 30)
+            {
+                player.pRotate--;
+                player.rotateCount++;
+                player.handCamera.setRot(player.angleCount, 0, player.pRotate, 2);
+            }
+        }
+        if(mp.game.controls.isControlPressed(0, 44)) //FOV-
+        {
+            if(player.fov < 80)
+            {
+                player.fov++;
+            }
+            player.handCamera.setFov(player.fov);   
+        }
+        if(mp.game.controls.isControlPressed(0, 38)) //FOV+
+        {
+            if(player.fov > 40)
+            {
+                player.fov--;
+            }
+            player.handCamera.setFov(player.fov);   
+        }
+        if(mp.game.controls.isControlPressed(32, 169)) //F8. Take photo
+        {
+            takeSelfie();
+        }
     }
-    else
+}, 50);
+
+
+setInterval(() => {
+    if(player.selfieMode)
     {
-        player.handCamera.attachToPedBone(mp.players.local.handle, 18905, 0.1, 0.1, 0.1, true); //Left hand
-        player.hand = 42;
+        if(mp.game.controls.isControlPressed(0, 26)) //C. Camera change
+        {
+            mp.game.cam.renderScriptCams(false, false, 0, true, false);
+            player.selfieAnim++;
+            if(player.selfieAnim > 5)
+            {
+                player.selfieAnim = 1;
+            }
+            mp.events.callRemote("changeSelfieAnimation", player.selfieAnim);
+        }
     }
-    
-    player.handCamera.setRot(0, 0, playerRotate, 2);
-    player.handCamera.setFov(player.fov);
-    mp.game.cam.renderScriptCams(true, false, 0, true, false);
-}
-
-function displaySelfieHelp()
-{
-    mp.game.ui.setTextComponentFormat('THREESTRINGS');
-    //mp.game.ui.addTextComponentSubstringPlayerName("Camera: ~INPUT_MOVE_UP_ONLY~ ~INPUT_MOVE_DOWN_ONLY~ ~INPUT_MOVE_LEFT_ONLY~ ~INPUT_MOVE_RIGHT_ONLY~");
-    //mp.game.ui.addTextComponentSubstringPlayerName("\nFOV: ~INPUT_COVER~ ~INPUT_PICKUP~, Changer animation: ~INPUT_LOOK_BEHIND~");
-    //mp.game.ui.addTextComponentSubstringPlayerName("\nPrendre selfie: ~INPUT_SELECT_CHARACTER_MULTIPLAYER~, Fermer: ~INPUT_CELLPHONE_CANCEL~");
-
-    mp.game.ui.addTextComponentSubstringPlayerName("Camera: ~INPUT_MOVE_UP_ONLY~ ~INPUT_MOVE_DOWN_ONLY~ ~INPUT_MOVE_LEFT_ONLY~ ~INPUT_MOVE_RIGHT_ONLY~");
-    mp.game.ui.addTextComponentSubstringPlayerName("\nFOV: ~INPUT_COVER~ ~INPUT_PICKUP~, Change animation: ~INPUT_LOOK_BEHIND~");
-    mp.game.ui.addTextComponentSubstringPlayerName("\nTake selfie: ~INPUT_SELECT_CHARACTER_MULTIPLAYER~, Close mode: ~INPUT_CELLPHONE_CANCEL~");
-
-    mp.game.ui.displayHelpTextFromStringLabel(0, false, true, -1);
-}
-
-function takeSelfie()
-{
-    /*let date = new Date();
-    let selfieName = "selfie_"+date.getDate()+"."+date.getMonth()+"."+date.getFullYear()+"_"+date.getHours()+"-"+date.getMinutes()+"-"+date.getSeconds()+".png";
-    mp.gui.takeScreenshot(selfieName, 1, 100, 0);
-
-    mp.game.graphics.setFlash(0.0, 0.0, 2.0, 3.0, 2.0);
-    mp.game.audio.playSoundFrontend(-1, "Camera_Shoot", "Phone_Soundset_Franklin", true);
-
-    const str = "Selfie saved as: "+selfieName;
-    //const str = "Enregistrement selfie: "+selfieName;
-    mp.gui.chat.push(str);*/
-
-    mp.game.graphics.setFlash(0.0, 0.0, 2.0, 3.0, 2.0);
-    mp.game.audio.playSoundFrontend(-1, "Camera_Shoot", "Phone_Soundset_Franklin", true);
-}
+}, 100);
 
 
-function disableActionsForSelfie(disable)
-{
-    mp.game.controls.disableControlAction(0, 32, disable); 
-    mp.game.controls.disableControlAction(0, 33, disable); 
-    mp.game.controls.disableControlAction(0, 34, disable); 
-    mp.game.controls.disableControlAction(0, 35, disable); 
-    mp.game.controls.disableControlAction(0, 44, disable); 
-    mp.game.controls.disableControlAction(0, 38, disable); 
-    mp.game.controls.disableControlAction(0, 26, disable); 
-    mp.game.controls.disableControlAction(3, 177, disable); 
-    mp.game.controls.disableControlAction(32, 169, disable);  
-}
+
+
 }

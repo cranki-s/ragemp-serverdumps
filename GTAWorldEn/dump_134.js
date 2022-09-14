@@ -1,63 +1,64 @@
 {
-class Screenshot{
-    constructor(){
-        try{
-            this.m_Stream = ""
-            this.m_Requester = false
-            this.m_Browser = mp.browsers.new("package://gtalife/AntiCheat/Screenshot.html")
-            mp.events.add("Screenshot::OnChunk", this.Event_OnProcesScreenshot.bind(this))
-            mp.events.add("Screenshot::OnRequest", this.Event_OnRequestScreenshot.bind(this))
-            mp.events.add("Screenshot::OnShow", this.Event_OnReceiveScreenshot.bind(this))
-            mp.keys.bind(0x73, true, this.Event_OnClearKey.bind(this))
-        } catch(e){
-            //mp.console.logInfo(e)
+let flashlightDistance = 20;
+let flashlightBrightness = 5;
+let flashlightRoundness = 0.1;
+let flashlightRadius = 30;
+let flashlightFalloff = 2;
+
+const IS_FLASH_LIGHT_ON = '0x4B7620C47217126C';
+const GET_CURRENT_PED_WEAPON_ENTITY_INDEX = '0x3B390A939AF0B5FC';
+const GET_ENTITY_COORDS = '0x3FEF770D40960D5A';
+const GET_ENTITY_ROTATION = '0xAFBD61CC738D9EB9';
+
+mp.events.add('render', () =>
+{
+    mp.players.forEachInStreamRange((p) =>
+    {
+        if (p == null || p === undefined || !p.doesExist())
+        {
+            return;
         }
-    }
 
-    Event_OnRequestScreenshot(){
-        try{
-            let time = mp.game.time.getLocalTime(1 , 1, 1, 1, 1, 1)
-            let screenName = "gta-world-" + time.year + "-" + time.month + "-" + time.day + "-" + time.hour + "-" + time.minute + "-" + time.second + ".jpg"
-            mp.gui.takeScreenshot(screenName, 0, 100, 0)
-
-            let context = this
-            setTimeout(function(){
-                context.m_Browser.execute(`getData("${"http://screenshots/" + screenName}")`)
-            }.bind(context), 10000)
-        } catch(e){
-            //mp.console.logInfo(e) 
+        if (p.weapon != 0x8BB05FD7 || (p == mp.players.local &&
+            mp.game.invoke(IS_FLASH_LIGHT_ON, mp.players.local.handle) == 1))
+        {
+            return;
         }
-    }
-
-    Event_OnProcesScreenshot(data, first, end, size){
-        try{
-            mp.events.callRemote("Admin::SendScreenshot", mp.players.local.name, data, first, end, size)
-        } catch(e){
-            //mp.console.logInfo(e)
+        const entity = mp.game.invoke(GET_CURRENT_PED_WEAPON_ENTITY_INDEX,
+            p.handle);
+        if (!entity)
+        {
+            return;
         }
-    }
+        const coords = mp.game.invokeVector3(GET_ENTITY_COORDS, entity, false);
+        const rotation = mp.game.invokeVector3(GET_ENTITY_ROTATION, entity, 2);
+        const fwdVector = getWeaponForwarwdVector(rotation.x, rotation.y,
+            rotation.z);
+        mp.game.graphics.drawSpotLightWithShadow(coords.x + (fwdVector.x * 0.3),
+            coords.y + (fwdVector.y * 0.3), coords.z + (fwdVector.z * 0.3),
+            fwdVector.x, fwdVector.y, fwdVector.z, 255, 255, 230,
+            flashlightDistance, flashlightBrightness, flashlightRoundness,
+            flashlightRadius, flashlightFalloff, p.remoteId + 1);
+    });
+});
 
-    Event_OnReceiveScreenshot(name, data, first, end){
-        try{
-            if (first) this.m_Stream = ""
+function getWeaponForwarwdVector(x, y, z)
+{
+    x *= Math.PI / 180;
+    y *= Math.PI / 180;
+    z *= Math.PI / 180;
 
-            this.m_Stream += data
+    const cosx = Math.cos(x);
+    const sinx = Math.sin(x);
+    const cosy = Math.cos(y);
+    const siny = Math.sin(y);
+    const cosz = Math.cos(z);
+    const sinz = Math.sin(z);
 
-            if (end) this.m_Browser.execute(`setData("${this.m_Stream}")`)
-    
-        } catch(e){
-            mp.console.logInfo(e)
-        }
-    }
+    const m20 = cosz * siny + cosy * sinz * sinx;
+    const m21 = sinz * siny - cosz * cosy * sinx;
+    const m22 = cosx * cosy;
 
-    Event_OnClearKey(){
-        try{
-            this.m_Browser.execute(`clear()`)
-        } catch(e){
-            mp.console.logInfo(e)
-        }
-    }
-}
-
-__Screenshot = new Screenshot()
+    return new mp.Vector3(m20, m21, m22);
+}
 }

@@ -1873,6 +1873,10 @@ mp.events.add('UpdateHairTattooClientArray', (data) => {
     playerHairTattoo = JSON.parse(JSON.stringify(data));
 });
 
+mp.events.add('change_my_skin', (pedhash) => {
+    mp.players.local.model = pedhash;
+});
+
 mp.events.add('RequestHairTattooData_Response', (data) => {
     playerHairTattoo = JSON.parse(JSON.stringify(data));
     char_barber_menu_secondary.Visible = true;
@@ -3818,7 +3822,7 @@ mp.events.add(
             char_clothes_menu_secondary.Visible = false;
             var index_size = index;
             char_skin_menu.Clear();
-           // char_skin_menu.AddItem(new UIMenuListItem("~g~Purchase Skin", "Limited customization", new ItemsCollection(convertValueToList(index_size), 0)));
+            char_skin_menu.AddItem(new UIMenuListItem("~g~Purchase Skin", "Limited customization", new ItemsCollection(convertValueToList(index_size), 0)));
             char_skin_menu.AddItem(new UIMenuItem("~y~Male Advanced skin", "Fully customizable skin"));
             char_skin_menu.AddItem(new UIMenuItem("~y~Female Advanced skin", "Fully customizable skin"));
             char_skin_menu.AddItem(new UIMenuItem("~r~Exit", "Close menu."));

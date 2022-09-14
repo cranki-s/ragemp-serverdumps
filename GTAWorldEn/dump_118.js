@@ -1,77 +1,126 @@
 {
-exports = {
+let Constants = require("./gtalife/WeaponFiringMode/constants.js")
 
-    firingModes : {
-        Auto: 0,
-        Burst: 1,
-        Single: 2,
-        Safe: 3
-    },
-
-    firingModeColor : {
-        0: [240, 240, 240, 255],
-        1: [176, 87, 4, 255],
-        2: [240, 240, 240, 255],
-        3: [175, 247, 250],
-    },
-
-    firingModeNames : ["AUTO", "BURST", "SEMI", "SAFE"],
-
-    ignoredWeaponGroups : [
-        mp.game.joaat("GROUP_UNARMED"), mp.game.joaat("GROUP_MELEE"), mp.game.joaat("GROUP_FIREEXTINGUISHER"), mp.game.joaat("GROUP_PARACHUTE"), mp.game.joaat("GROUP_STUNGUN"),
-        mp.game.joaat("GROUP_THROWN"), mp.game.joaat("GROUP_PETROLCAN"), mp.game.joaat("GROUP_DIGISCANNER"), mp.game.joaat("GROUP_HEAVY")
-    ],
-
-    burstFireAllowedWeapons : [ ],
-    burstFireAllowedGroups : [ ],
+let lockedData = {}
+let localPlayer  = mp.players.local
+let currentWeapon = localPlayer.weapon
+let ignoreCurrentWeapon = Constants.isWeaponIgnored(currentWeapon)
+let weaponConfig = {}
+let lastWeaponConfigUpdate = 0
+let curFiringMode = 0
+let curBurstShots = 0
 
 
-    singleFireBlacklist : [ 
-        mp.game.joaat("WEAPON_STUNGUN"), mp.game.joaat("WEAPON_FLAREGUN"), mp.game.joaat("WEAPON_MARKSMANPISTOL"), mp.game.joaat("WEAPON_REVOLVER_MK2"),
-        mp.game.joaat("WEAPON_DOUBLEACTION"), mp.game.joaat("WEAPON_PUMPSHOTGUN"), mp.game.joaat("WEAPON_PUMPSHOTGUN_MK2"), mp.game.joaat("WEAPON_SAWNOFFSHOTGUN"), mp.game.joaat("WEAPON_BULLPUPSHOTGUN"),
-        mp.game.joaat("WEAPON_MUSKET"), mp.game.joaat("WEAPON_DBSHOTGUN"), mp.game.joaat("WEAPON_SNIPERRIFLE"), mp.game.joaat("WEAPON_HEAVYSNIPER"), mp.game.joaat("WEAPON_HEAVYSNIPER_MK2")
-    ],
+mp.events.add("render", () => {
+    if (localPlayer.weapon != currentWeapon) {
+        currentWeapon = localPlayer.weapon;
+        ignoreCurrentWeapon = Constants.isWeaponIgnored(currentWeapon);
 
-    singleFireForce : [
-        mp.game.joaat("GROUP_PISTOL"), mp.game.joaat("GROUP_SNIPER"),
-    ],
+        curFiringMode = weaponConfig[currentWeapon] === undefined ? Constants.firingModes.Auto : weaponConfig[currentWeapon];
 
-    isWeaponIgnored : function(weaponHash) {
-        return this.ignoredWeaponGroups.indexOf(mp.game.weapon.getWeapontypeGroup(weaponHash)) > -1;
-    },
+        if (curFiringMode == Constants.firingModes.Burst) {
+            if (!Constants.canWeaponUseBurstFire(currentWeapon)) curFiringMode = Constants.firingModes.Auto;
+        } else if (curFiringMode == Constants.firingModes.Single) {
+            if (!Constants.canWeaponUseSingleFire(currentWeapon)) curFiringMode = Constants.firingModes.Auto;
+        }
 
-    isBoltAction : function(weaponHash){
-        return (mp.game.weapon.getWeapontypeGroup(weaponHash) == mp.game.joaat("GROUP_SNIPER"));
-    },
+        if ((curFiringMode == Constants.firingModes.Auto || curFiringMode == Constants.firingModes.Burst) && (Constants.isWeaponSingleFireOnly(currentWeapon) && lockedData[currentWeapon])) curFiringMode = Constants.firingModes.Single;
 
-    isPumpAction : function(weaponHash){
-       return (mp.game.weapon.getWeapontypeGroup(weaponHash) == mp.game.joaat("GROUP_SHOTGUN") ? true : weaponHash == 0x4C91E93F);
-    },
+        curBurstShots = 0;
+    }
 
-    canWeaponUseBurstFire : function(weaponHash) {
-        return this.burstFireAllowedGroups.indexOf(mp.game.weapon.getWeapontypeGroup(weaponHash)) > -1 ? true : (this.burstFireAllowedWeapons.indexOf(weaponHash) > -1);
-    },
+    if (ignoreCurrentWeapon) return;
 
-    canWeaponUseSingleFire : function(weaponHash) {
-        return this.singleFireBlacklist.indexOf(weaponHash) == -1;
-    },
+    if (curFiringMode != Constants.firingModes.Auto) {
+        if (curFiringMode == Constants.firingModes.Burst) {
+            if (localPlayer.isShooting()) curBurstShots++;
+            if (curBurstShots > 0 && curBurstShots < 3) mp.game.controls.setControlNormal(0, 24, 1.0);
 
-    isWeaponSingleFireOnly : function(weaponHash) {
-        return mp.game.joaat("WEAPON_APPISTOL") !== weaponHash && this.singleFireForce.indexOf(mp.game.weapon.getWeapontypeGroup(weaponHash)) > -1 ? true : (this.singleFireForce.indexOf(weaponHash) > -1);
-    },
+            if (curBurstShots == 3) {
+                mp.game.player.disableFiring(false);
+                if (mp.game.controls.isDisabledControlJustReleased(0, 24)) curBurstShots = 0;
+            }
 
-    drawTextAligned : function(text, drawX, drawY, font, color, scale) {
-try {        mp.game.ui.setTextEntry("STRING");
-        mp.game.ui.addTextComponentSubstringPlayerName(text);
-        mp.game.ui.setTextFont(font);
-        mp.game.ui.setTextScale(scale, scale);
-        mp.game.ui.setTextColour(color[0], color[1], color[2], color[3]);
-        mp.game.ui.setTextRightJustify(true);
-        mp.game.ui.setTextWrap(0, drawX);
-        mp.game.invoke("0x2513DFB0FB8400FE"); 
-        mp.game.ui.drawText(drawX, drawY);
-} catch (e) {}
-    },
+            if (localPlayer.isReloading()) curBurstShots = 0;
+        } else if (curFiringMode == Constants.firingModes.Single) {
+            if (mp.game.controls.isDisabledControlPressed(0, 24)) mp.game.player.disableFiring(false);
+        } else if (curFiringMode == Constants.firingModes.Safe) {
+            mp.game.player.disableFiring(false);
+            if (mp.game.controls.isDisabledControlJustPressed(0, 24)) mp.game.audio.playSoundFrontend(-1, "Faster_Click", "RESPAWN_ONLINE_SOUNDSET", true);
+        }
+    }
 
-}
+    if (mp.game.ui.isHudComponentActive(2) || Date.now() - lastWeaponConfigUpdate < 3000) {
+        let safeZone = mp.game.graphics.getSafeZoneSize();
+        let finalDrawX = 0.984 - (1.0 - safeZone) * 0.5;
+        let finalDrawY = 0.025 + (1.0 - safeZone) * 0.5;
+        if (Constants.isBoltAction(currentWeapon))
+            Constants.drawTextAligned("BOLT", finalDrawX, finalDrawY, 4, Constants.firingModeColor[curFiringMode], .5);
+        else if(Constants.isPumpAction(currentWeapon))
+            Constants.drawTextAligned("PUMP", finalDrawX, finalDrawY, 4, Constants.firingModeColor[curFiringMode], .5);
+        else
+            Constants.drawTextAligned(Constants.firingModeNames[curFiringMode], finalDrawX, finalDrawY, 4, Constants.firingModeColor[curFiringMode], .5);
+    }
+});
+
+mp.keys.bind(0x4D, false, () => {
+
+	if (logged == 0 || chatopened  || cef_opened)
+		return;
+
+    if (ignoreCurrentWeapon) return;
+
+    let newFiringMode = curFiringMode - 1;
+
+
+    if (newFiringMode < Constants.firingModes.Auto) newFiringMode = Constants.firingModes.Single;
+
+
+    if (newFiringMode == Constants.firingModes.Burst) {
+        if (!Constants.canWeaponUseBurstFire(currentWeapon)) newFiringMode = Constants.firingModes.Auto;
+    } else if (newFiringMode == Constants.firingModes.Single) {
+        if (!Constants.canWeaponUseSingleFire(currentWeapon)) newFiringMode = Constants.firingModes.Auto;
+    }
+
+    if ((newFiringMode == Constants.firingModes.Auto || newFiringMode == Constants.firingModes.Burst) && (Constants.isWeaponSingleFireOnly(currentWeapon) || lockedData[currentWeapon])) newFiringMode = Constants.firingModes.Single;
+
+
+    if (curFiringMode != newFiringMode) {
+        mp.events.callRemote("OnPlayerFiringModeChange")
+        curFiringMode = newFiringMode;
+        curBurstShots = 0;
+        lastWeaponConfigUpdate = Date.now();
+
+        mp.game.audio.playSoundFrontend(-1, "Faster_Click", "RESPAWN_ONLINE_SOUNDSET", true);
+        weaponConfig[currentWeapon] = curFiringMode;
+        
+        mp.gui.chat.push("You have switched your weapon-mode to " + Constants.firingModeNames[curFiringMode] + "!")
+
+    }
+});
+
+mp.events.add("FiringMode::UpdateModes", function(data){
+    if (data){
+        let entries = data.split("|")
+        entries.forEach((entry) => {
+            let [weapon, mode] = entry.split("=")
+            weapon = parseInt(weapon, 36)
+            
+            let unlocked = mode.includes("*")
+            mode = parseInt(mode.replace("*", ""))
+
+            lockedData[weapon] = unlocked
+            weaponConfig[weapon] = mode 
+
+            if (currentWeapon == weapon){
+                curFiringMode = mode
+                curBurstShots = 0;
+                lastWeaponConfigUpdate = Date.now()
+            }
+        })
+    }
+})
+
+
+mp.game.audio.setAudioFlag("LoadMPData", true);
 }

@@ -102,4 +102,4 @@ mp.events.add('destroyCinemaBrowser', () => {
 	cinemaBrowser = undefined;
 cef_opened = false;
 });
-}ȿ
+}

@@ -1,80 +1,91 @@
 {
-require('./gtalife/VehicleSeats/Constants.js')
+var VALKYRIE_SEATS = [
+    {index: 0, position : {x : .4, y : 2, z: 0.325}, rotation : {x: 0, y: 0, z: 270}, exit : {x: 2.5, y: 2, z: 0}},
+    {index: 1, position : {x : .4, y : 1, z: 0.325}, rotation : {x: 0, y: 0, z: 270}, exit : {x: 2.5, y: 1, z: 0}},
+    {index: 2, position : {x : -.3, y : 2, z: 0.325}, rotation : {x: 0, y: 0, z: 90}, exit : {x: -2, y: 2, z: 0}},
+    {index: 3, position : {x : -.3, y : 1, z: 0.325}, rotation : {x: 0, y: 0, z: 90}, exit : {x: -2, y: 1, z: 0}}
+]
 
-function GetDistance(v1, v2){
-    return Math.sqrt(Math.pow(v1.x - v2.x, 2) + Math.pow(v1.y - v2.y, 2) + Math.pow(v1.z - v2.z, 2))
-}
+var GRANGER_SEATS = [
+    {index: 0, position : {x : 1.17, y : -.2, z: 0.58}, rotation : {x: 0, y: 0, z: 0}, exit : {x: 1.5, y: -.2, z: 0}, animation : "hangpassenger1", static : true},
+    {index: 1, position : {x : 1.17, y : -.5, z: 0.58}, rotation : {x: 0, y: 0, z: 0}, exit : {x: 1.5, y: -.5, z: 0}, animation : "hangpassenger1", static : true},
+    {index: 2, position : {x : 1.17, y : -.8, z: 0.58}, rotation : {x: 0, y: 0, z: 0}, exit : {x: 1.5, y: -.8, z: 0}, animation : "hangpassenger1", static : true},
+    {index: 3, position : {x : 1.17, y : -1, z: 0.58}, rotation : {x: 0, y: 0, z: 0}, exit : {x: 1.5, y: -1, z: 0}, animation : "hangpassenger1", static : true},
 
-function GetClosestSeat(vehicle){
-    let seats = GetSeatData(vehicle.model)
-    if (!seats) return
-    let occupied = GetSeatVariable(vehicle)
-    if (!occupied) return 
-    let minimum = [Infinity, null]
-    let position = mp.players.local.position
-    seats.forEach((seat) =>{
-        let spos = vehicle.getOffsetFromInWorldCoords(seat.position.x, seat.position.y, seat.position.z)
-        let distance = GetDistance(position, spos)
-        if (distance > minimum[0]) return 
-        if (IsOccupied(occupied, seat.index)) return
-        minimum = [distance, seat] 
-    })
-    return minimum[1]
-}
+    {index: 4, position : {x : -1.17, y : -.2, z: 0.58}, rotation : {x: 0, y: 0, z: 0}, exit : {x: -1.5, y: -.2, z: 0}, animation : "hangpassenger2", static : true},
+    {index: 5, position : {x : -1.17, y : -.5, z: 0.58}, rotation : {x: 0, y: 0, z: 0}, exit : {x: -1.5, y: -.5, z: 0}, animation : "hangpassenger2", static : true},
+    {index: 6, position : {x : -1.17, y : -.8, z: 0.58}, rotation : {x: 0, y: 0, z: 0}, exit : {x: -1.5, y: -.8, z: 0}, animation : "hangpassenger2", static : true},
+    {index: 7, position : {x : -1.17, y : -1, z: 0.58}, rotation : {x: 0, y: 0, z: 0}, exit : {x: -1.5, y: -1, z: 0}, animation : "hangpassenger2", static : true},
+]
 
-function GetSeatVariable(vehicle){
-    try{
-        if (!vehicle) return false
-        if (!vehicle.getVariable("Seats::Occupied")) return []
-        let seats = vehicle.getVariable("Seats::Occupied").split(SEPARATOR())
-        return seats.map(Number)
-    } catch{
 
-    }
-}
+var BEARCAT_SEATS = [
+    {index: 0, position : {x : -1.384, y : -.2, z: 1.03}, rotation : {x: 0, y: 0, z: 0}, exit : {x: -1.5, y: -.2, z: 0}, animation : "hangpassengera2", static : true},
+    {index: 1, position : {x : -1.384, y : -.0, z: 1.03}, rotation : {x: 0, y: 0, z: 0}, exit : {x: -1.5, y: 0, z: 0}, animation : "hangpassengera2", static : true},
+    {index: 2, position : {x : -1.45, y : -3, z: 1.03}, rotation : {x: 0, y: 0, z: 0}, exit : {x: -1.5, y: -3.1, z: 0}, animation : "hangpassengera2", static : true},
+    {index: 3, position : {x : 1.45, y : -.2, z: 1.04}, rotation : {x: 0, y: 0, z: 0}, exit : {x: 1.6, y: -.2, z: 0}, animation : "hangpassengera1", static : true},
+    {index: 4, position : {x : 1.45, y : -.0, z: 1.04}, rotation : {x: 0, y: 0, z: 0}, exit : {x: 1.6, y: 0, z: 0}, animation : "hangpassengera1", static : true},
+    {index: 5, position : {x : 1.45, y : -3.1, z: 1.04}, rotation : {x: 0, y: 0, z: 0}, exit : {x: 1.6, y: -3.1, z: 0}, animation : "hangpassengera1", static : true},
+    {index: 6, position : {x : 0, y : -.8, z: 2}, rotation : {x: 0, y: 0, z: 0}, exit : {x: 3, y: 0, z: 0}, animation : "aim3", shooting: true},
+]
 
-function IsOccupied(occupieds, index){
-    let result = false
-    occupieds.forEach( occupied =>{
-        if (occupied == index) result = true
-    })
-    return result
-}
+var LSFD_ENGINE = [
+    {index: 0, position : {x : .1, y : 1.4, z: .9}, rotation : {x: 0, y: 0, z: 0}, exit : {x: 2, y: 1.4, z: 0}, animation : "sit", static : true},
+    {index: 1, position : {x : -.64, y : 1.9, z: .9}, rotation : {x: 0, y: 0, z: 180}, exit : {x: -2, y: 1.9, z: 0}, animation : "sit", static : true},
+    {index: 2, position : {x : .66, y : 1.9, z: .9}, rotation : {x: 0, y: 0, z: 180}, exit : {x: 2, y: 1.9, z: 0}, animation : "sit", static : true},
+]
 
-function GetNearByVehicles(range){
-    let closest = null
-    let distance = range + 1
-    let position = mp.players.local.position
-    mp.vehicles.forEachInRange(position, range, (vehicle) => {
-        let vpos = vehicle.position
-        let dist = GetDistance(position, vpos)
-        if (dist > distance) return
-        closest = vehicle
-        distance = distToPlayer
-    })
-    return closest
-}
+var LSFD_CARA = [
+    {index: 0, position : {x : 0, y : -1.1, z: 1.3}, rotation : {x: 0, y: 0, z: 180}, exit : {x: 1, y: -1, z: 0}},
+    {index: 1, position : {x : 0, y : -2.1, z: 1.3}, rotation : {x: 0, y: 0, z: 0}, exit : {x: 1, y: -2.2, z: 0}},
+]
 
-function NormalizeCircle(value){
-    value = value % 359;
+var STOCKADE = [
+    {index: 0, position : {x : .4, y : -1.5, z: 1.5}, rotation : {x: 0, y: 0, z: 90}, exit : {x: .4, y: -4.5, z: 0}, animation : "sit", static : true},
+    {index: 1, position : {x : .4, y : -2.1, z: 1.5}, rotation : {x: 0, y: 0, z: 90}, exit : {x: .4, y: -4.5, z: 0}, animation : "sit", static : true},
+    {index: 2, position : {x : -.5, y : -2.1, z: 1.5}, rotation : {x: 0, y: 0, z: 270}, exit : {x: -.5, y: -4.5, z: 0}, animation : "sit", static : true},
+    {index: 3, position : {x : -.5, y : -1.5, z: 1.5}, rotation : {x: 0, y: 0, z: 270}, exit : {x: -.5, y: -4.5, z: 0}, animation : "sit", static : true},
+]
 
-    if (value < 0)
-        value += 360;
+var TACO = [
+    {index: 0, position : {x : 0, y : -1, z: .7}, rotation : {x: 0, y: 0, z: 270}, exit : {x: 0, y: -4.5, z: 0}, animation : "idle3"},
+    {index: 1, position : {x : 0, y : -2.5, z: .7}, rotation : {x: 0, y: 0, z: 270}, exit : {x: 0, y: -4.5, z: 0}, animation : "leaningtable2"},
+]
 
-    return value
-}
+var EXECUTIONER = [
+    {index: 0, position : {x : -1.2, y : -.9, z: 0.5}, rotation : {x: 0, y: 0, z: 0}, exit : {x: -2, y: -.9, z: 0}, animation : "hangpassenger2", static : true},
+    {index: 1, position : {x : -1.2, y : -.3, z: 0.5}, rotation : {x: 0, y: 0, z: 0}, exit : {x: -2, y: -.3, z: 0}, animation : "hangpassenger2", static : true},
+    {index: 2, position : {x : -1.2, y : .3, z: 0.5}, rotation : {x: 0, y: 0, z: 0}, exit : {x: -2, y: .3, z: 0}, animation : "hangpassenger2", static : true},
+    {index: 3, position : {x : 1.2, y : -.9, z: 0.5}, rotation : {x: 0, y: 0, z: 0}, exit : {x: 2, y: -.9, z: 0}, animation : "hangpassenger1", static : true},
+    {index: 4, position : {x : 1.2, y : -.3, z: 0.5}, rotation : {x: 0, y: 0, z: 0}, exit : {x: 2, y: -.3, z: 0}, animation : "hangpassenger1", static : true},
+    {index: 5, position : {x : 1.2, y : .3, z: 0.5}, rotation : {x: 0, y: 0, z: 0}, exit : {x: 2, y: .3, z: 0}, animation : "hangpassenger1", static : true},
+]
 
-mp.events.add("playerCommand", (command) => {
-	const args = command.split(/[ ]+/);
-	const commandName = args[0];
+var SWATEXECUTIONER = [
+    {index: 0, position : {x : -1.2, y : -.7, z: 0.63}, rotation : {x: 0, y: 0, z: 0}, exit : {x: -2, y: -.7, z: 0}, animation : "hangpassenger2", static : true},
+    {index: 1, position : {x : -1.2, y : -1.2, z: 0.63}, rotation : {x: 0, y: 0, z: 0}, exit : {x: -2, y: -1.2, z: 0}, animation : "hangpassenger2", static : true},
+    {index: 2, position : {x : -1.2, y : -1.8, z: 0.63}, rotation : {x: 0, y: 0, z: 0}, exit : {x: -2, y: -1.8, z: 0}, animation : "hangpassenger2", static : true},
+    {index: 3, position : {x : -1.2, y : -2.5, z: 0.63}, rotation : {x: 0, y: 0, z: 0}, exit : {x: -2, y: -2.5, z: 0}, animation : "hangpassenger2", static : true},
+    {index: 4, position : {x : 1.2, y : -.7, z: 0.63}, rotation : {x: 0, y: 0, z: 0}, exit : {x: 2, y: -.7, z: 0}, animation : "hangpassenger1", static : true},
+    {index: 5, position : {x : 1.2, y : -1.2, z: 0.63}, rotation : {x: 0, y: 0, z: 0}, exit : {x: 2, y: -1.2, z: 0}, animation : "hangpassenger1", static : true},
+    {index: 6, position : {x : 1.2, y : -1.8, z: 0.63}, rotation : {x: 0, y: 0, z: 0}, exit : {x: 2, y: -1.8, z: 0}, animation : "hangpassenger1", static : true},
+    {index: 7, position : {x : 1.2, y : -2.5, z: 0.63}, rotation : {x: 0, y: 0, z: 0}, exit : {x: 2, y: -2.5, z: 0}, animation : "hangpassenger1", static : true},
+]
 
-	args.shift();
-		
-	if (commandName === "ana") {
-		mp.game.streaming.requestAnimDict(args[0]);//preload the animation
-        mp.players.local.taskPlayAnim(args[0], args[1], 8.0, 1.0, -1, 1, 1.0, false, false, false);
-	}
-});
+var SADLER = [
+    {index: 0, position : {x : .24, y : -1.6, z: 1.1}, rotation : {x: 0, y: 0, z: 71}, exit : {x: .2, y: -3.4, z: 0}, animation : "sitchair5", static : false},
+    {index: 1, position : {x : -.24, y : -1.9, z: 1.1}, rotation : {x: 0, y: 0, z: 252}, exit : {x: -.2, y: -3.4, z: 0}, animation : "sitchair5", static : false},
+]
 
+var AMBULANCE = [
+    {index: 0, position : {x : .5, y : -1.7, z: .8}, rotation : {x: 0, y: 0, z: 0}, exit : {x: 1.5, y: -1.7, z: 0}, animation : "sitchair5", static : false},
+    {index: 1, position : {x : -.5, y : -1.7, z: .8}, rotation : {x: 0, y: 0, z: 0}, exit : {x: -1.5, y: -1.7, z: 0}, animation : "sitchair5", static : false},
+]
+
+
+var LSFDQUINT = [
+    {index: 0, position : {x : .5, y : 1.8, z: .8}, rotation : {x: 0, y: 0, z: 0}, exit : {x: .4, y: -5, z: 0}, animation : "sitchair5", static : false},
+    {index: 1, position : {x : -.5, y : 1.8, z: .8}, rotation : {x: 0, y: 0, z: 0}, exit : {x: .4, y: -5, z: 0}, animation : "sitchair5", static : false},
+]
 
 }

@@ -1,52 +1,37 @@
 {
-var GBM_browser;
-
-var dontHideMouse = false;
-
-mp.events.add( 'cef_generic_button_menu_click', ( title, id ) =>
-{
-    destroyBrowser();
-
-    if( !dontHideMouse )
-    {
-        mp.gui.cursor.visible = false;
-    }
-
-    mp.events.callRemote( 'get_menu_button_input', id, title );
-});
-mp.events.add( 'cef_generic_button_menu_close', () =>
-{
-    destroyBrowser();
-    mp.gui.cursor.visible = false;
+//CEF//
+var iconCEF = null;
+mp.events.add('showIconPicker', () => {
+	if (!mp.browsers.exists(iconCEF))
+	{
+		iconCEF = mp.browsers.new("package://gtalife/IconPicker/index.html");
+		mp.gui.cursor.show(true, true);
+		mp.game.graphics.notify("Use ~b~F4~w~ or ~b~ESC~w~ to close the picker.");
+	}
 });
 
-mp.events.add( 'open_menu_ui', ( title, buttons, closeButton = false ) =>
-{
-    if( typeof buttons !== 'object' ) buttons = JSON.parse( buttons );
-    destroyBrowser();
+mp.keys.bind(0x73, false, function () { CloseIconPicker(); }); // F4
+mp.keys.bind(0x1B, false, function () { CloseIconPicker(); }); // ESC
 
-    // if cursor is already visible before showing menu,
-    // then we do not want to hide it when they are finished
-    dontHideMouse = mp.gui.cursor.visible;
-    mp.gui.cursor.visible = true;
-
-    GBM_browser = mp.browsers.new( 'package://gtalife/CEF/GenericButtonMenu/index.html' );
-    GBM_browser.execute( 'setTitle( "'+title+'", '+closeButton+' );' );
-cef_opened = true;
-    for( let i = 0; i < buttons.length; i++ )
-    {
-        GBM_browser.execute( 'addButton( '+i+', "'+buttons[i].text+'", "'+((typeof buttons[i].class === 'string') ? buttons[i].class : 'default')+'" );' );
-    }
-
+mp.events.add('hideIconsPicker', () => {
+	CloseIconPicker();
 });
 
-function destroyBrowser()
+mp.events.add('iconPickerInput', (blip) => {
+	if (iconCEF != null && mp.browsers.exists(iconCEF))
+	{
+		mp.events.callRemote('IconsPickerInput', blip);
+		mp.events.call('hideIconsPicker');
+	}
+});
+
+function CloseIconPicker()
 {
-    cef_opened = false;
-    if( GBM_browser )
-    {
-        GBM_browser.destroy();
-        GBM_browser = null;
-    }
+	if (iconCEF != null && mp.browsers.exists(iconCEF))
+	{
+		iconCEF.destroy();
+		iconCEF = null;
+		mp.gui.cursor.show(false, false);
+	}
 }
 }

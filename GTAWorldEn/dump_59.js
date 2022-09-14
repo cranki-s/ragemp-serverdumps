@@ -1,51 +1,58 @@
 {
-require('./gtalife/HelicopterCamera/Camera.js')
-require('./gtalife/HelicopterCamera/Controls.js')
-require('./gtalife/HelicopterCamera/Graphics.js')
-require('./gtalife/HelicopterCamera/Lock.js')
-require('./gtalife/HelicopterCamera/SoundFrontEnd.js')
-require('./gtalife/HelicopterCamera/RayEngine/Ray.js')
+require('./gtalife/HelicopterCamera/Core.js')
+require('./gtalife/HelicopterCamera/Spotlight.js')
+let INSTANCE = null
+let VEHICLE = null
+__Spotlight() 
 
-class Core{
+let LAST_TRIGGER = new Date() 
 
-	enable(){ 
-		this.sound.play("SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET")
-		this.active = true 
-		mp.players.local.m_ThermalActive = true
+mp.events.add("render", () =>{
+
+	if (!mp.game.controls.isControlJustPressed(28, 244)) return
+	if ((new Date()) - LAST_TRIGGER < 250) return
+	if (mp.gui.cursor.visible) return
+	
+	LAST_TRIGGER = new Date()
+	if (INSTANCE)
+		mp.events.callRemote("HelicopterCamera::Leave")
+	else{
+		if (!mp.players.local.vehicle || (mp.players.local.vehicle.getClass() != 15 && mp.players.local.vehicle.getClass() != 16)) return	
+		mp.events.callRemote("HelicopterCamera::Request")
 	}
 
-	disable(){ 
-		this.active = false 
-		mp.players.local.m_ThermalActive = false
+})
+	
+
+mp.events.add("HelicopterCamera::Enable", (time, agency, plate, id, vehicle) =>{
+	if (!mp.players.local.vehicle || (mp.players.local.vehicle.getClass() != 15 && mp.players.local.vehicle.getClass() != 16)) return	
+	if (mp.players.local.vehicle != vehicle) return 
+	if (mp.players.local.isDead()) return 
+	if (INSTANCE) INSTANCE.destructor()
+	VEHICLE = vehicle 
+	INSTANCE = __Core(time, agency, plate, id)
+})
+
+mp.events.add("HelicopterCamera::Disable", () =>{
+	if (INSTANCE){
+		INSTANCE.destructor()
 	}
 
-	constructor(time, agency, plate, vin){
+	INSTANCE = null 
+	VEHICLE = null
+})
 
-		this.camera = __Camera(this)
-		this.controls = __Controls(this)
-		this.ray = __RayManager(this)
-		this.graphics = __Graphics(this, time, agency, plate, vin)
-		this.lock = __Lock(this)
-		this.sound = __SoundFrontEnd(this)
+mp.events.add("playerDeath", (player) => {
+	if (player != mp.players.local) return
+    if (INSTANCE)
+		mp.events.callRemote("HelicopterCamera::Leave")
+})
 
-		this.enable()
-	}
-
-	destructor(){ 
-		this.camera.destructor()
-		this.controls.destructor()
-		this.graphics.destructor()
-		this.lock.destructor()
-		mp.players.local.m_ThermalActive = false	
-		this.sound.play("SELECT", "HUD_FRONTEND_DEFAULT_SOUNDSET")
-
-		this.sound.destructor()
-	}
-
-}
-
-
-function __Core(time, agency, plate, vin){
-	return new Core(time, agency, plate, vin)
-}
+mp.events.add("playerLeaveVehicle", () => {
+	if (VEHICLE == null) return
+	
+	if (INSTANCE)
+    	mp.events.callRemote("HelicopterCamera::Leave")
+})
+
 }

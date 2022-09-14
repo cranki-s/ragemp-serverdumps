@@ -3,7 +3,7 @@ var dealershipWindow ﻿= null;
 mp.events.add('showDealershipMenu', () => {
 	if (!mp.browsers.exists(dealershipWindow))
 	{
-		dealershipWindow ﻿= mp.browsers.new﻿("package://gtalife/Dealership/Dealership.html");
+		dealershipWindow = mp.browsers.new﻿("package://gtalife/Dealership/Dealership.html");
 		dealershipWindow.execute(`$(".dealershipcars" ).empty();`);
 		mp.events.callRemote('LoadDealershipCars');
 		mp.gui.cursor.show(true, true);
@@ -70,11 +70,11 @@ mp.events.add('dealershipPrevPage', (currentpage) => {
 
 
 //COLOR MENU
-var dealershipColorWindow ﻿= null;
+var dealershipColorWindow = null;
 mp.events.add('showDealershipColorMenu', (price, priceex) => {
 	if (!mp.browsers.exists(dealershipColorWindow))
 	{
-		dealershipColorWindow ﻿= mp.browsers.new﻿("package://gtalife/Dealership/Swatch.html");
+		dealershipColorWindow = mp.browsers.new("package://gtalife/Dealership/Swatch.html");
 		dealershipColorWindow.execute(`$( '#price' ).text( '$${price}' );`);
 		dealershipColorWindow.execute(`$( '#priceEx' ).text( '$${priceex}' );`);
 		mp.gui.cursor.show(true, true);
@@ -99,6 +99,10 @@ mp.events.add('returnColorSelected', (color, slot) => {
 
 mp.events.add('platePurchase', () => {
     mp.events.callRemote('PlatePurchase');
+});
+
+mp.events.add('tryVehicle', () => {
+    mp.events.callRemote('TryVehicle');
 });
 
 mp.events.add('notPlatePurchase', () => {

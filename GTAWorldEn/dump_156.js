@@ -1,63 +1,39 @@
 {
-let deathMenu = null;
-let respawn = false;
+var vehiclesGarageCEF = null;
 
-mp.events.add("DeathEvents::LoadWindow", () => {
-    if (deathMenu != null || mp.browsers.exists(deathMenu))
-        return;
-
-    deathMenu = mp.browsers.new("package://gtalife/DeathUI/index.html");
-    mp.events.call('setCefActive', true);
-    mp.gui.cursor.show(true, true);
-    deathMenu.execute(`countdown('${2}', '${0}');`);
+mp.events.add({
+    'GarageSpawner::showVehiclesGarage': (VehicleData, GarageName) => {
+        if (!mp.browsers.exists(vehiclesGarageCEF))
+	    {
+            vehiclesGarageCEF = mp.browsers.new("package://gtalife/Garages/index.html");
+            vehiclesGarageCEF.execute(`Initialize(${VehicleData}, "${GarageName}");`);
+            mp.game.graphics.notify("Use ~b~F4~w~ or ~b~ESC~w~ to close the garage.");
+            mp.gui.cursor.show(true, true);
+            mp.events.call('setCefActive', true);
+        }
+    },
+    'GarageSpawner::hideVehiclesGarage': () => {
+        CloseVehicleGarage();
+    },
+    'GarageSpawner::spawnGarageVehicle': (vehicleID) => {
+        if (mp.browsers.exists(vehiclesGarageCEF))
+	    {
+            mp.events.callRemote('GarageSpawner::spawnGarageVehicle', vehicleID);
+        }
+    },
 });
 
-mp.events.add("DeathEvents::UpdateWindow", () => {
-    if (deathMenu == null && !mp.browsers.exists(deathMenu))
-        return;
+mp.keys.bind(0x73, false, function () { CloseVehicleGarage(); }); // F4
+mp.keys.bind(0x1B, false, function () { CloseVehicleGarage(); }); // ESC
 
-    mp.events.call('setCefActive', true);
-    mp.gui.cursor.show(true, true);
-});
-
-mp.events.add("DeathEvents::acceptDeath", () => {
-    if (deathMenu == null && !mp.browsers.exists(deathMenu))
-        return;
-
-    if (respawn) {
-        respawn = false;
-        deathMenu.destroy();
-        deathMenu = null;
+function CloseVehicleGarage()
+{
+    if (mp.browsers.exists(vehiclesGarageCEF))
+    {
+        vehiclesGarageCEF.destroy();
+        vehiclesGarageCEF = null;
         mp.gui.cursor.show(false, false);
         mp.events.call('setCefActive', false);
     }
-    else
-    {
-        deathMenu.execute(`countdown(${2}, ${0});`);
-        deathMenu.execute(`updateButton();`);
-        respawn = true;
-    }
-
-    mp.events.callRemote("DeathEvents::AcceptDeath");
-});
-
-mp.events.add("DeathEvents::setDescription", (desc) => {
-    if (deathMenu == null && !mp.browsers.exists(deathMenu))
-        return;
-
-    mp.events.callRemote("DeathEvents::SetDescription", desc);
-
-});
-
-mp.events.add("DeathEvents::CloseWindow", () => {
-    if (deathMenu == null && !mp.browsers.exists(deathMenu))
-        return;
-
-    deathMenu.destroy();
-    deathMenu = null;
-    mp.gui.cursor.show(false, false);
-    mp.events.call('setCefActive', false);
-});
-
-
+}
 }

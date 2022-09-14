@@ -106,12 +106,12 @@ mp.events.add("confirmVehicleDescription", (description) => {
     mp.events.callRemote("save_vehicle_details", description);
 });
 
-mp.events.add('showCharacterDetails', (age, attributes) => {
+mp.events.add('showCharacterDetails', (title, age, attributes) => {
 
     mp.events.call('toggleHUDForPlayer', false);
 
     CCBrowsers.characterDetails = mp.browsers.new("package://gtalife/CustomizationMenu/description.html");
-    CCBrowsers.characterDetails.execute(`Initialize(${age}, ${attributes});`);
+    CCBrowsers.characterDetails.execute(`Initialize('${title},',${age}, ${attributes});`);
     mp.gui.cursor.show(true, true);
     mp.events.call('setCefActive', true);
 });

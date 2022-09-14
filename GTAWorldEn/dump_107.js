@@ -1,82 +1,230 @@
 {
-require('./gtalife/BodyWeaponAttachment/Classes/Matrix.js');
+require('./gtalife/BodyWeaponAttachment/Classes/Drawing.js');
 
-class Drawing{
-    constructor(visualizer){
-        this.m_Visualizer = visualizer 
-        this.m_RenderHook = this.Event_OnRender.bind(this)
-        mp.events.add("render", this.m_RenderHook)
+class Visualizer{
+    constructor(ui, settings){
+        this.m_Drawer = new DrawingManager(this)
+        this.m_VisualizePool = new Map()
+        this.m_UserInterface = ui
+        this.m_FocusEnabled = this.parseSetting(settings)
+        this.hide()
+        this.create()
+    }
+
+
+    parseSetting(setting){
+        if (typeof setting === "undefined") return true
+        let data = JSON.parse(setting)
+        if (typeof data !== "object") return true
+        if (typeof data["focus"] === "undefined") return true
+        return data["focus"]
     }
 
     destructor(){
-        mp.events.remove("render", this.m_RenderHook)
-    }
-
-    Event_OnRender(){
+        this.m_Drawer.destructor()
+        this.destroy()
+        this.show()
         
     }
 
-    bounding(element){
-        if (typeof element === "undefined") return 
-        if (!element.doesExist()) return
-        if (element.handle == 0) return  
+    hide(){
+        getAttachmentSystem().destroyAll(mp.players.local)
+    }
 
-        let dimension = mp.game.gameplay.getModelDimensions(element.model)
-        let min = dimension.min 
-        let max = dimension.max
-        if (typeof min === "undefined") return 
-        if (typeof max === "undefined") return
+    create(){
+        getLocalPlayerWeapons().forEach( weapon => {
+            let data = this.getCore().get(weapon)
 
-        let vector = new mp.Vector3(0, 0, 0)
-        let nativeMatrix = element.getMatrix(vector, vector, vector, vector)
-        if(typeof nativeMatrix === "undefined") return 
+            if (!data) return 
 
-        let matrix = CreateMatrix(4, 4)
-        matrix.setRow(1, [-nativeMatrix.rightVector.x, -nativeMatrix.rightVector.y, -nativeMatrix.rightVector.z, 1] )
-        matrix.setRow(2, [nativeMatrix.forwardVector.x, nativeMatrix.forwardVector.y, nativeMatrix.forwardVector.z, 1])
-        matrix.setRow(3, [nativeMatrix.upVector.x, nativeMatrix.upVector.y, nativeMatrix.upVector.z, 1])
-        matrix.setRow(4, [nativeMatrix.position.x, nativeMatrix.position.y, nativeMatrix.position.z, 1])
+            let model = getWeaponModel(weapon)
+            if (!model) return
 
-        let face1 = CreateMatrix(4, 4)
-        face1.setRow(1, [min.x,max.y,min.z,1])
-        face1.setRow(2, [min.x,max.y,max.z,1])
-        face1.setRow(3, [max.x,max.y,max.z,1])
-        face1.setRow(4, [max.x,max.y,min.z,1])
+            let element = getAttachmentSystem().createElement(model, data.bone, data.offset, data.rotation, data.visible)
+            if (!element) return
 
-        face1.multiply(matrix)
+            if (typeof this.m_Focus !== "undefined")
+                element.alpha = (this.m_Focus == weapon) ? (element.visible ? 255 : 0) : (element.visible ? 150 : 0)
+            else 
+                if (!element.visible) element.alpha = 0
+            
+            let attachment =  getAttachmentSystem().addLocal(mp.players.local, element)
+            if (!attachment) return
 
-        let face2 = CreateMatrix(4, 4)
-        face2.setRow(1, [min.x,min.y,min.z,1])
-        face2.setRow(2, [min.x,min.y,max.z,1])
-        face2.setRow(3, [max.x,min.y,max.z,1])
-        face2.setRow(4, [max.x,min.y,min.z,1])
+            this.m_VisualizePool.set(weapon, attachment)
 
-        face2.multiply(matrix)
-
-        let faces = [face1, face2]
-        let draws = []
-
-        faces.forEach((face, index) => {
-            for (let i = 0; i < 4; i++){
-                let coord = face.getRow(i+1)
-                let nextCoord = face.getRow((i+2 < 5) ? i+2 : 1)
-
-                draws.push([coord, nextCoord])
-            }
+            this.createClip(weapon)
+            this.createHolster(weapon)
         })
+    }
+    
+    createClip(weapon){
+        if (typeof WEAPON_DATA[weapon] === "undefined") return 
 
-        for(let i = 0; i < 4; i++)
-            draws.push(faces[0].getRow(i+1) , faces[1].getRow(i+1))
+        let clip = getClipHash(WEAPON_DATA[weapon].name)
+        if (!clip) return
+
+        let data = this.getCore().get("CLIP_" + weapon)
+
+        let model = getClipModel(clip)
+        if (!model) return
+        if (model == 0) return
+
+        let element = getAttachmentSystem().createElement(model, data.bone, data.offset, data.rotation, data.visible)
+        if (!element) return
+
+        if (typeof this.m_Focus !== "undefined")
+            element.alpha = (this.m_Focus == weapon) ? (element.visible ? 255 : 0) : (element.visible ? 150 : 0)
+        else 
+            if (!element.visible) element.alpha = 0
         
-        draws.forEach(draw =>{
-            mp.game.graphics.drawLine(draw[0][0], draw[0][1], draw[0][2], draw[1][0], draw[1][1], draw[1][2], 200, 0, 0, 255)
-        })     
+        let attachment =  getAttachmentSystem().addLocal(mp.players.local, element)
+        if (!attachment) return
+
+        this.m_VisualizePool.set("CLIP_" + weapon, attachment)
+    }
+
+        
+    createHolster(weapon){
+        if (typeof WEAPON_DATA[weapon] === "undefined") return 
+
+   
+        let group = getWeaponGroup(weapon)
+        let holsters = getHolster(group)
+
+        if (holsters){
+            holsters.forEach(holster => {
+              
+
+                let model = parseInt(holster.hash)
+                if (!model) return
+                if (model == 0) return
+
+                let data = this.getCore().get("HOLSTER_" + weapon + "*" + "0x" + model.toString(16).toUpperCase())
+
+                let element = getAttachmentSystem().createElement(model.toString(), data.bone, data.offset, data.rotation, data.visible)
+                if (!element) return
+        
+                if (typeof this.m_Focus !== "undefined")
+                    element.alpha = (this.m_Focus == weapon) ? (element.visible ? 255 : 0) : (element.visible ? 150 : 0)
+                else 
+                    if (!element.visible) element.alpha = 0
+                
+                let attachment =  getAttachmentSystem().addLocal(mp.players.local, element)
+                if (!attachment) return
+                this.m_VisualizePool.set("HOLSTER_" + weapon + "*" + "0x" + model.toString(16).toUpperCase(), attachment)
+            })
+        }
+    }
+
+
+
+    refresh(){
+        this.destroy()
+        this.create()
+    }
+    
+    update(weapon, data){
+        if (typeof weapon === "undefined") return
+        if (!this.m_VisualizePool.has(weapon)) return 
+        if (typeof this.m_VisualizePool.get(weapon) === "undefined") return
+        
+        let attachment = this.m_VisualizePool.get(weapon) 
+        if (typeof data === "undefined") return 
+
+
+        attachment.offsetX = data.offset.x 
+        attachment.offsetY = data.offset.y
+        attachment.offsetZ = data.offset.z
+
+        attachment.rotationX = data.rotation.x 
+        attachment.rotationY = data.rotation.y
+        attachment.rotationZ = data.rotation.z
+
+        attachment.bone = data.bone 
+        attachment.visible = data.visible 
+
+        let oldAlpha = attachment.alpha
+        attachment.alpha = attachment.visible ? 255 : 0
+
+        
+        this.m_VisualizePool.set(weapon, attachment)
+
+        if (oldAlpha != attachment.alpha)
+            getAttachmentSystem().create(mp.players.local, attachment.index)
+        else
+            getAttachmentSystem().update(mp.players.local, attachment)
+    }
+
+    destroy(){
+        getAttachmentSystem().clearLocal(mp.players.local)
+        this.m_VisualizePool.clear()
+    }
+
+    focus(weapon){
+        if (!this.m_FocusEnabled){
+            this.destroy() 
+            this.m_Focus = undefined
+            this.create()
+            return
+        } 
+
+        this.destroy() 
+        this.m_Focus = weapon
+        this.create()
+    }
+
+    show(){
+        getAttachmentSystem().createRemote(mp.players.local)
+    }
+    
+    serialize(weapon){
+        if (typeof weapon === "undefined") return false
+        let attachment = this.m_VisualizePool.get(weapon)
+        return {
+            offset: {x : attachment.offsetX, y: attachment.offsetY, z: attachment.offsetZ},
+            rotation: {x : attachment.rotationX, y: attachment.rotationY, z: attachment.rotationZ},
+            visible: attachment.visible, 
+            bone: attachment.bone, 
+            weapon: weapon
+        } 
+    }
+
+    save(weapon){
+        if (!this.m_VisualizePool.has(weapon)) return this.error("Save failed: Invalid weapon!")
+        if (!this.getCore().weapon(this.serialize(weapon))) return this.error("Save failed: Invalid Data!")
+        this.info("Weapon saved!")
+    }
+
+    error(message){
+        this.m_UserInterface.TriggerCEFEvent("OnError", message)
+    }
+    
+    info(message){
+        this.m_UserInterface.TriggerCEFEvent("OnMessage", message)
+    }
+
+
+    getCore(){
+        return this.m_UserInterface.m_Core
+    }
+
+    getUI(){
+        return this.m_UserInterface
+    }
+
+    Event_OnPulse(){
+        this.m_VisualizePool.forEach((value, key) => {            
+            this.update(key, value)
+        })
+    }
+
+    Event_OnSelect(weapon){
+        this.focus(weapon)   
     }
 }
 
-
-function DrawingManager(visualizer){
-    return new Drawing(visualizer)
-}
-
+function VisualizerManager(userinterface, setting){
+    return new Visualizer(userinterface, setting)
+}
 }

@@ -28,7 +28,7 @@ var res_X = 1920;
 var res_Y = 1080;
 var cardinalsText = "";
 var road = "";
-var globalBuild = "Roleplay v2.9.0"
+var globalBuild = "Roleplay v2.9.8"
 var m_playerId = "1.9.9e";
 var m_onlineCount = 1;
 var logged = 0;
@@ -92,9 +92,13 @@ var WidescreenOffset_Y = 0;
 
 var bigmap_status = false;
 var x_coord = 0;
+var gps = false;
 
 var isInSafeZone = false;
 
+
+var immersiveMode = false;
+var displayGPSForTel = false;
 const useSpeedo = true;
 const updateInterval = 500; // milliseconds, lower value = more accurate, at the cost of performance
 
@@ -335,7 +339,7 @@ setInterval(() => {
     if (!print_hud || !print_hud_ex)
         return;
 
-    if (logged && draw_text) {
+    if (logged) {
         updateValues();
     }
 }, 1000);
@@ -387,6 +391,10 @@ mp.events.add(
             distanceTimeNow = Date.now();
         },
 
+        "toggleGPSStatus" : (mode) => {
+            gps = mode;
+        },
+
         "client_get_distance": (type = 0, vehicle = null) => {
             var player = mp.players.local;
             var veh;
@@ -436,6 +444,10 @@ mp.events.add(
 
         "toggle_display_gtaw": (toggle) => {
             draw_text = toggle;
+        },
+
+        "immersiveMode": (mode) => {
+            setImmersiveMode(mode);
         },
 
 	
@@ -518,6 +530,21 @@ else
     }
 }
 }
+
+function setImmersiveMode(mode){
+    immersiveMode = mode;
+    draw_text = !mode;
+    draw_money = !mode;
+    mp.game.ui.displayRadar(!mode);
+}
+
+
+mp.events.add('setGPSForImmersive', (status) => {
+    if(immersiveMode)
+    {
+       displayGPSForTel = status;
+    }
+})
 
 var meleeAttack = false;
 var testEnabled = false;
@@ -681,7 +708,48 @@ mp.events.add('render', () => {
 		res = true;
 	}
 	if (logged) {
-		//draw_text = false;
+        if(immersiveMode)
+        {
+            if (!player.isSittingInAnyVehicle())
+            {
+                mp.game.ui.displayRadar(false);
+                displaySpeedometer(player, false);
+            }
+            else
+            {
+                displaySpeedometer(player, true);
+            }
+
+            if(displayGPSForTel)
+            {
+                mp.game.ui.displayRadar(true);
+                x_coord = minimap.rightX;
+                if(bigmap_status){
+                    x_coord = minimap.rightX + 0.089;
+                }
+                var defaultColor = [255, 255, 255, 200];
+                if (isInSafeZone) defaultColor = [41, 245, 39, 200];
+                
+                if (mp.players.local.dimension == 0)
+                {
+                    if (typeof mp.players.local.m_ThermalActive === "undefined" || !mp.players.local.m_ThermalActive){
+                        drawText(cardinalsText, [x_coord + WidescreenOffset_X + cardinalHUD_X, minimap.bottomY + WidescreenOffset_Y - cardinalHUD_Y], 4, defaultColor, cardinalHUD_Scale, cardinalHUD_Center);
+                        drawText("|", [x_coord + WidescreenOffset_X + cardinalDivHUD_X, minimap.bottomY + WidescreenOffset_Y - cardinalDivHUD_Y], 4, defaultColor, cardinalDivHUD_Scale, cardinalDivHUD_Center);
+                        drawText(zoneName, [x_coord + WidescreenOffset_X + zoneHUD_X, minimap.bottomY + WidescreenOffset_Y - zoneHUD_Y], 4, defaultColor, zoneHUD_Scale, zoneHUD_Center);
+                        drawText(streetName, [x_coord + WidescreenOffset_X + streetHUD_X, minimap.bottomY + WidescreenOffset_Y - streetHUD_Y], 4, defaultColor, streetHUD_Scale, streetHUD_Center);
+                    }
+                }
+                else
+                {
+                    drawText(interiorName, [minimap.rightX + WidescreenOffset_X + streetHUD_X, minimap.bottomY + WidescreenOffset_Y - streetHUD_Y], 4, [255, 255, 255, 200], streetHUD_Scale, streetHUD_Center);
+                }                
+            }
+            else
+            {
+                mp.game.ui.displayRadar(false);
+            }
+        }
+
         if (draw_text) {
 
             x_coord = minimap.rightX;
@@ -824,23 +892,171 @@ mp.events.add('render', () => {
     }
 });
 
+
+function displaySpeedometer(player, active)
+{
+    if(active)
+    {
+
+        if(gps)
+        {
+            mp.game.ui.displayRadar(true);
+            x_coord = minimap.rightX;
+            if(bigmap_status){
+                x_coord = minimap.rightX + 0.089;
+            }
+        }
+        else
+        {
+            let resolution = mp.game.graphics.getScreenActiveResolution(0, 0);
+            let safeZone = mp.game.graphics.getSafeZoneSize();
+            let sfX = 1.0 / 20.0;
+            let scaleX = 1.0 / resolution.x;
+            mp.game.ui.displayRadar(false);
+            x_coord = scaleX * (resolution.x * (sfX * (Math.abs(safeZone - 1.0) * 10)));
+        }
+
+        if (player.isSittingInAnyVehicle()) {
+
+            if (typeof mp.players.local.m_ThermalActive === "undefined" || !mp.players.local.m_ThermalActive){
+                if (fuel > -1) {
+                    var fuelstring = "";
+                    if (fuel > 90) {
+                        fuelstring = `${FuelType} ~r~||~o~|||~g~|||||`;
+                    }
+                    else if (fuel > 80) {
+                        fuelstring = `${FuelType} ~r~||~o~|||~g~||||`;
+                    }
+                    else if (fuel > 70) {
+                        fuelstring = `${FuelType} ~r~||~o~|||~g~|||`;
+                    }
+                    else if (fuel > 60) {
+                        fuelstring = `${FuelType} ~r~||~o~|||~g~||`;
+                    }
+                    else if (fuel > 50) {
+                        fuelstring = `${FuelType} ~r~||~o~|||~g~|`;
+                    }
+                    else if (fuel > 40) {
+                        fuelstring = `${FuelType} ~r~||~o~|||`;
+                    }
+                    else if (fuel > 30) {
+                        fuelstring = `${FuelType} ~r~||~o~||`;
+                    }
+                    else if (fuel > 20) {
+                        fuelstring = `${FuelType} ~r~||~o~|`;
+                    }
+                    else if (fuel > 10) {
+                        fuelstring = `${FuelType} ~r~||`;
+                    }
+                    else if (fuel > 0) {
+                        fuelstring = `${FuelType} ~r~|`;
+                    }
+                    else if (fuel <= 0) {
+                        fuelstring = `${FuelType} ~r~EMPTY`;
+                    }
+                    drawText(fuelstring, [x_coord + WidescreenOffset_X + fuelHUD_X, minimap.bottomY + WidescreenOffset_Y - fuelHUD_Y], 4, [255, 255, 255, 200], fuelHUD_Scale, fuelHUD_Center);
+                }
+            }
+
+            var car = mp.players.local.vehicle;
+            if(car == null) return;
+            let speed = car.getSpeed();
+            
+
+            if (typeof mp.players.local.m_ThermalActive === "undefined" || !mp.players.local.m_ThermalActive){
+            var displaySpeed = "";
+            /*if (useKmh)
+                displaySpeed = Math.round(speed * 3.6) + " km/h"; // Kmh
+            else
+                displaySpeed = Math.round(speed * 2.236936) + " mph"; // Mph
+            }*/
+            if (useKmh)
+                displaySpeed = "KMH ~b~"+Math.round(speed * 3.6); // Kmh
+            else
+                displaySpeed = "MPH ~b~"+Math.round(speed * 2.236936) + ""; // Mph
+            }
+
+
+            //Distance Calculator
+            var vehicleClass = car.getClass();
+                if (vehicleClass == 15 || vehicleClass == 16) {
+                        if (typeof mp.players.local.m_ThermalActive === "undefined" || !mp.players.local.m_ThermalActive){
+                            const position = mp.players.local.position;
+                            const heading = 360-Math.floor(car.getHeading())
+                            const altitude = Math.round(position.z * 3.28);
+                    
+                            // Display
+                            if(ATCOnline){
+                                drawText(`ALT: ~b~${altitude}~s~ ft. / HDG: ~b~${heading} / ATC: ~g~ONLINE`, [x_coord + WidescreenOffset_X + aviationHUD_X, minimap.bottomY + WidescreenOffset_Y - aviationHUD_Y], 4, [255, 255, 255, 200], aviationHUD_Scale, aviationHUD_Center);
+                            }else{
+                                drawText(`ALT: ~b~${altitude}~s~ ft. / HDG: ~b~${heading}`, [x_coord + WidescreenOffset_X + aviationHUD_X, minimap.bottomY + WidescreenOffset_Y - aviationHUD_Y], 4, [255, 255, 255, 200], aviationHUD_Scale, aviationHUD_Center);
+                            }
+                            
+                        }
+                }
+
+            //Distance
+            var miles2 = roundTo(miles, 2);
+            if (miles2 > 0 && miles2 < 40000)
+            {
+                if (typeof mp.players.local.m_ThermalActive === "undefined" || !mp.players.local.m_ThermalActive){
+                    drawText(`${miles2} km.`, [x_coord + WidescreenOffset_X + milesHUD_X, minimap.bottomY + WidescreenOffset_Y - milesHUD_Y], 4, [255, 255, 255, 200], milesHUD_Scale, milesHUD_Center);
+                }
+            }
+            // Speed UI
+            if (typeof mp.players.local.m_ThermalActive === "undefined" || !mp.players.local.m_ThermalActive){
+                drawText(displaySpeed, [x_coord + WidescreenOffset_X + speedHUD_X, minimap.bottomY + WidescreenOffset_Y - speedHUD_Y], 4, [255, 255, 255, 200], speedHUD_Scale, speedHUD_Center);
+            }
+            
+        
+
+            // switch colors
+            var defaultColor = [255, 255, 255, 200];
+            if (isInSafeZone) defaultColor = [41, 245, 39, 200];
+
+            // Location UI - Compass
+
+            if(gps)
+            {
+                drawText("|", [x_coord + WidescreenOffset_X + speedoDivHUD_X, minimap.bottomY + WidescreenOffset_Y - speedoDivHUD_Y], 4, [255, 255, 255, 200], speedoDivHUD_Scale, speedoDivHUD_Center);
+                if (mp.players.local.dimension == 0)
+                {
+                    if (typeof mp.players.local.m_ThermalActive === "undefined" || !mp.players.local.m_ThermalActive){
+                        drawText(cardinalsText, [x_coord + WidescreenOffset_X + cardinalHUD_X, minimap.bottomY + WidescreenOffset_Y - cardinalHUD_Y], 4, defaultColor, cardinalHUD_Scale, cardinalHUD_Center);
+                        drawText("|", [x_coord + WidescreenOffset_X + cardinalDivHUD_X, minimap.bottomY + WidescreenOffset_Y - cardinalDivHUD_Y], 4, defaultColor, cardinalDivHUD_Scale, cardinalDivHUD_Center);
+                        drawText(zoneName, [x_coord + WidescreenOffset_X + zoneHUD_X, minimap.bottomY + WidescreenOffset_Y - zoneHUD_Y], 4, defaultColor, zoneHUD_Scale, zoneHUD_Center);
+                        drawText(streetName, [x_coord + WidescreenOffset_X + streetHUD_X, minimap.bottomY + WidescreenOffset_Y - streetHUD_Y], 4, defaultColor, streetHUD_Scale, streetHUD_Center);
+                    }
+                }
+                else
+                {
+                    drawText(interiorName, [minimap.rightX + WidescreenOffset_X + streetHUD_X, minimap.bottomY + WidescreenOffset_Y - streetHUD_Y], 4, [255, 255, 255, 200], streetHUD_Scale, streetHUD_Center);
+                }
+            }
+        }
+    }
+}
+
 function moneyDrawText()
 {
-    if (typeof mp.players.local.m_ThermalActive === "undefined" || !mp.players.local.m_ThermalActive){
-        mp.game.graphics.drawText(moneystring, [(res_X - 70) / res_X, 0.060], {
-            font:4, 
-            color:[115, 186, 131, 200],
-            scale: [0.8, 0.8],
-            outline: true,
-            centre: true
-        });
-        mp.game.graphics.drawText(bankstring, [(res_X - 70) / res_X, 0.1], {
-            font:4, 
-            color:[255, 255, 255, 200],
-            scale: [0.7, 0.7],
-            outline: true,
-            centre: true
-        });
+    if(!immersiveMode)
+    {
+        if (typeof mp.players.local.m_ThermalActive === "undefined" || !mp.players.local.m_ThermalActive){
+            mp.game.graphics.drawText(moneystring, [(res_X - 70) / res_X, 0.060], {
+                font:4, 
+                color:[115, 186, 131, 200],
+                scale: [0.8, 0.8],
+                outline: true,
+                centre: true
+            });
+            mp.game.graphics.drawText(bankstring, [(res_X - 70) / res_X, 0.1], {
+                font:4, 
+                color:[255, 255, 255, 200],
+                scale: [0.7, 0.7],
+                outline: true,
+                centre: true
+            });
+        }
     }
 }
 
@@ -911,4 +1127,4 @@ weaponSlots.forEach(weaponSlot => {
 });
 mp.events.callRemote('send_weaponlist', weapons);*/
 }
-}탟ʺ
+}

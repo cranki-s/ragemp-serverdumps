@@ -1,9 +1,9 @@
 {
-var GIM_browser;
+var GBM_browser;
 
 var dontHideMouse = false;
 
-mp.events.add( 'cef_generic_input_menu_submit', ( title, value ) =>
+mp.events.add( 'cef_generic_button_menu_click', ( title, id ) =>
 {
     destroyBrowser();
 
@@ -12,15 +12,15 @@ mp.events.add( 'cef_generic_input_menu_submit', ( title, value ) =>
         mp.gui.cursor.visible = false;
     }
 
-    mp.events.callRemote( 'get_menu_input_value', title, value );
+    mp.events.callRemote( 'get_menu_button_input', id, title );
 });
-mp.events.add( 'cef_generic_input_menu_close', () =>
+mp.events.add( 'cef_generic_button_menu_close', () =>
 {
     destroyBrowser();
     mp.gui.cursor.visible = false;
 });
 
-mp.events.add( 'open_menu_ui_geninput', ( title, placeholder, description = '', buttonText = 'Submit', closeButton = false ) =>
+mp.events.add( 'open_menu_ui', ( title, buttons, closeButton = false ) =>
 {
     if( typeof buttons !== 'object' ) buttons = JSON.parse( buttons );
     destroyBrowser();
@@ -30,19 +30,23 @@ mp.events.add( 'open_menu_ui_geninput', ( title, placeholder, description = '', 
     dontHideMouse = mp.gui.cursor.visible;
     mp.gui.cursor.visible = true;
 
-    GIM_browser = mp.browsers.new( 'package://gtalife/CEF/GenericInputMenu/index.html' );
-    GIM_browser.execute( 'setTitle( "'+title+'", "'+placeholder+'", "'+description+'", "'+buttonText+'", '+closeButton+' );' );
-   cef_opened = true;
+    GBM_browser = mp.browsers.new( 'package://gtalife/CEF/GenericButtonMenu/index.html' );
+    GBM_browser.execute( 'setTitle( "'+title+'", '+closeButton+' );' );
+cef_opened = true;
+    for( let i = 0; i < buttons.length; i++ )
+    {
+        GBM_browser.execute( 'addButton( '+i+', "'+buttons[i].text+'", "'+((typeof buttons[i].class === 'string') ? buttons[i].class : 'default')+'" );' );
+    }
+
 });
 
 function destroyBrowser()
 {
-cef_opened = false;
-    if( GIM_browser )
+    cef_opened = false;
+    if( GBM_browser )
     {
-        GIM_browser.destroy();
-        GIM_browser = null;
-        
+        GBM_browser.destroy();
+        GBM_browser = null;
     }
 }
 }

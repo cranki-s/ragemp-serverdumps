@@ -335,8 +335,10 @@ class WeaponSelection{
 
 				if (typeof mp.players.local.hitByRubberBullet != "undefined" &&  (Date.now() - mp.players.local.hitByRubberBullet) < 5000) return; 
 
-				if (mp.players.local.vehicle)
+				if (mp.players.local.vehicle){
 					setWeapon(hash)
+					mp.events.callRemote("Weapon::Vehicle::SwitchWeapon", parseInt(hash).toString())
+				}
 				else
 					mp.events.callRemote("Weapon::OnWeaponWheelSwitch", this.m_LastWeapon.toString(36), hash.toString(36), parseInt(hash).toString(), parseInt(this.m_LastWeapon, 16).toString(), isMelee)
 			}

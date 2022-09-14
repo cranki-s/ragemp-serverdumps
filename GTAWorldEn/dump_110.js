@@ -1,55 +1,69 @@
 {
-class Storage{
-    constructor(core){
-        this.m_Disk = {}
+class Keyboard {
+    constructor(ui){
+        
+        this.m_UserInterface = ui
+
+        this.m_RenderHook = this.Event_Render.bind(this) 
+        mp.events.add("render", this.m_RenderHook)
+
+        this.m_Rotation = false
+        this.m_Active = false
+
     }
 
-    assert(name){
-        try{
-            if (typeof mp.storage === "undefined") return false
-            if (typeof mp.storage.data === "undefined") return false
-            if (typeof mp.storage.data["BodyWeapons::Data"] == "undefined") return false
-            let data = JSON.parse(mp.storage.data["BodyWeapons::Data"])
-            if (typeof data ===  "undefined") return
-            if (typeof data[name] ===  "undefined") return
-            return data[name]
-        } catch{
-            return false
-        }
+    destructor(){
+        mp.events.remove("render", this.m_RenderHook)
     }
 
-    load(name){
-        let data = this.assert(name)
-        if (!data) return
-        this.m_Disk = data 
+    Event_Render(){
+        if (mp.game.controls.isDisabledControlPressed(0, 32)) this.forward()
+        if (mp.game.controls.isDisabledControlPressed(0, 33)) this.backward()
+        if (mp.game.controls.isDisabledControlPressed(0, 34)) this.left()
+        if (mp.game.controls.isDisabledControlPressed(0, 35)) this.right()
+        if (mp.game.controls.isDisabledControlPressed(0, 36)) this.down()
+        if (mp.game.controls.isDisabledControlPressed(27, 61)) this.up()
+        if (mp.game.controls.isDisabledControlJustPressed(0, 45)) this.rotate()
+        
     }
 
-    save(name, input){
-       if (typeof input === "undefined") return
-       let write = input
-       if (typeof write === "undefined") return  
-       let data = {}
-       if (typeof mp.storage.data["BodyWeapons::Data"] !== "undefined"){
-            let parsed = {}
-            if (typeof mp.storage.data["BodyWeapons::Data"] === "string")
-                parsed = JSON.parse(mp.storage.data["BodyWeapons::Data"])
+    rotate(){
+        this.m_Rotation = !this.m_Rotation
+        this.getUI().TriggerCEFEvent("OnInput", "rotation", this.m_Rotation)
+    }
+    
+    up(){
+        this.getUI().TriggerCEFEvent("OnInput", this.m_Rotation ? "r-up" : "up")
+    }
 
-            if (typeof parsed !== "undefined")
-                data = parsed
-       }
-       data[name] = write
-       data = JSON.stringify(data)
-       if (typeof data === "undefined") return
-       mp.storage.data["BodyWeapons::Data"] = data
-       mp.storage.flush()
+    down(){
+        this.getUI().TriggerCEFEvent("OnInput", this.m_Rotation ? "r-down" : "down")
+    }
 
-       this.m_Disk = input
-       return true
-   }
+    right(){
+        this.getUI().TriggerCEFEvent("OnInput", this.m_Rotation ? "r-right" : "right")
+    }
+
+    left(){
+        this.getUI().TriggerCEFEvent("OnInput", this.m_Rotation ? "r-left" : "left")
+    }
+
+    forward(){
+        this.getUI().TriggerCEFEvent("OnInput", this.m_Rotation ? "r-forward" : "forward")
+    }
+
+    backward(){
+        this.getUI().TriggerCEFEvent("OnInput", this.m_Rotation ? "r-backward" : "backward")
+    }
+
+    getUI(){
+        return this.m_UserInterface
+    }
 
 }
 
-function StorageManager(core){
-    return new Storage(core)
-}
+function KeyboardManager(ui){
+    return new Keyboard(ui)
+}
+
 }
