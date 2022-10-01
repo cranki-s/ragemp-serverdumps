@@ -127,6 +127,7 @@ require('./gtalife/Weapon/Name/Core.js');
 require('./gtalife/selfieMode/selfie');
 require('./gtalife/selfieMode/selfieMethods');
 require("./gtalife/LuckyGames/js/index.js");
+require("./gtalife/MetaWorld/js/index.js");
 
 require("./gtalife/PilotJob/CEF/CEF_Handler.js");
 require("./gtalife/PilotJob/StartPilotManager.js");

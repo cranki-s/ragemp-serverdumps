@@ -30,6 +30,13 @@ let possibleElements = { // All possible menu items with the base items at the e
     enterexit: [ 'Enter / Exit', 'sensor_door', 'InteractionMenuClient::EnterExitProperty' ],
     robhouse: [ 'Rob Property', 'electrical_services', 'InteractionMenuClient::RobProperty' ],
     tableaccess: [ 'Manage your table', 'table_restaurant', 'InteractionMenuClient::ManageTable' ],
+    set_waypoint: [ 'Mark a waypoint', 'place', 'InteractionMenuClient::SetWaypoint' ],
+    complete_init: [ 'Finalize Init.', 'done', 'InteractionMenuClient::CompleteInitialization' ],
+    select_car: [ 'Spawn a car', 'drive_eta', 'InteractionMenuClient::SelectMetaCar' ],
+    select_gun: [ 'Select gun', 'extension', 'InteractionMenuClient::SelectMetaGun' ],
+    suicide: [ 'Suicide', 'accessibility', 'InteractionMenuClient::MetaSuicide' ],
+    start_station: [ 'Start station', 'start', 'InteractionMenuClient::StartStation' ],
+    close_station: [ 'End station', 'stop', 'InteractionMenuClient::EndStation' ],
     tugnet: ['Raise/Lower Net', 'sailing', 'InteractionMenuClient::UseNetTug'],
     furnitureRobberySell: [ 'Furniture Robbery', 'event_seat', 'InteractionMenuClient::ShowFurnitureRobberySell' ],
     vmenu: [ 'Vehicle Menu', 'directions_car', 'InteractionMenuClient::ShowVehicleMenu' ],
@@ -37,6 +44,7 @@ let possibleElements = { // All possible menu items with the base items at the e
     safeinventory: [ 'Safe Inventory', 'vpn_key', 'InteractionMenuClient::ShowSafeInventory' ],
     containerinv: [ 'Storage Inventory', 'inventory_2', 'InteractionMenuClient::ShowContainerInventory' ],
     helifreeze: [ 'Stay stationary', 'airline_seat_recline_normal', 'InteractionMenuClient::FreezeHelicopter' ],
+    metaworld: [ 'MetaWorld', 'sports_esports', 'InteractionMenuClient::ShowMetaWorld' ],
     pmenu: [ 'Property Menu', 'house', 'InteractionMenuClient::ShowPropertyMenu' ],
     piventory: [ 'Property Inventory', 'warehouse', 'InteractionMenuClient::ShowPropertyInventory' ],
     furnishing: [ 'Furnish', 'foundation', 'InteractionMenuClient::ShowPropertyFurnishing' ],
@@ -85,6 +93,13 @@ let params = { // Parameters for when menu items should be added or removed
     roadblockAccess: false,
     furnitureRobberySell: false,
     tableAccess: false,
+    set_waypoint: false,
+    complete_init: false,
+    start_station: false,
+    meta_dimension: false,
+    close_station: false,
+    station_dm_mode: false,
+    station_race_mode: false,
 
     // Modifiable settings
     playerInteractionDistance: 3.0,
@@ -126,6 +141,23 @@ function runUpdate() { // Runs every menu.timerTick
     getClosestPlayer();
     getClosestVehicle();
     let localVehicle = localPlayer.vehicle;
+
+    if(localPlayer.dimension >= 10000 || params.meta_dimension) { // MetaWorld Dimension
+        AddItem('metaworld');
+
+        if (params.start_station)
+            AddItem('start_station');
+        if (params.close_station) 
+            AddItem('close_station');
+
+        if (params.station_race_mode) 
+            AddItem('select_car');
+        else if (params.station_dm_mode)
+            AddItems(['select_car', 'select_gun', 'suicide']);
+        
+        return;
+    }
+    else RemoveItems(['select_car', 'select_gun', 'suicide', 'start_station', 'close_station']);
 
     if (localVehicle == null) {
         if (params.petLevel == 1) {
@@ -231,6 +263,18 @@ function runUpdate() { // Runs every menu.timerTick
         RemoveItem('tableaccess');
     }
 
+    if (params.set_waypoint) {
+        AddItem('set_waypoint');
+    } else {
+        RemoveItem('set_waypoint');
+    }
+
+    if (params.complete_init) {
+        AddItem('complete_init');
+    } else {
+        RemoveItem('complete_init');
+    }
+
     if (params.furnitureRobberySell && localVehicle) {
         AddItem('furnitureRobberySell');
     } else {
@@ -256,7 +300,13 @@ function runUpdate() { // Runs every menu.timerTick
     }
 
 
-    if (localPlayer.dimension > 0) {
+    // if (localPlayer.dimension > 0) {
+    //     AddItems(['pmenu', 'furnishing', 'piventory', 'metaworld']);
+    // } else {
+    //     RemoveItems(['pmenu', 'furnishing', 'piventory', 'metaworld']);
+    // }
+
+    if (localPlayer.dimension > 0) { // Up - metaworld release
         AddItems(['pmenu', 'furnishing', 'piventory']);
     } else {
         RemoveItems(['pmenu', 'furnishing', 'piventory']);
@@ -350,6 +400,38 @@ mp.events.add('InteractionMenuClient::RobProperty', () => {
 mp.events.add('InteractionMenuClient::ManageTable', () => {
     mp.events.callRemote('InteractionMenuServer::ManageTable');
 });
+
+mp.events.add('InteractionMenuClient::SetWaypoint', () => {
+    mp.events.callRemote('InteractionMenuServer::SetWaypoint');
+});
+
+mp.events.add('InteractionMenuClient::CompleteInitialization', () => {
+    mp.events.callRemote('InteractionMenuServer::CompleteInitialization');
+});
+
+mp.events.add('InteractionMenuClient::StartStation', () => {
+    mp.events.callRemote('InteractionMenuServer::StartStation');
+});
+
+mp.events.add('InteractionMenuClient::EndStation', () => {
+    mp.events.callRemote('InteractionMenuServer::EndStation');
+});
+
+mp.events.add('InteractionMenuClient::SelectMetaCar', () => {
+    mp.events.callRemote('InteractionMenuServer::SelectMetaCar');
+});
+mp.events.add('InteractionMenuClient::SelectMetaGun', () => {
+    mp.events.callRemote('InteractionMenuServer::SelectMetaGun');
+});
+mp.events.add('InteractionMenuClient::MetaSuicide', () => {
+    mp.events.callRemote('InteractionMenuServer::MetaSuicide');
+});
+
+mp.events.add('InteractionMenuClient::ShowMetaWorld', () => {
+    mp.events.callRemote('InteractionMenuServer::ShowMetaWorld');
+});
+
+
 
 mp.events.add('InteractionMenuClient::UseNetTug', () => {
     mp.events.callRemote('InteractionMenuClient::UseNetTug');
@@ -520,6 +602,31 @@ mp.events.add('InteractionMenuClient::ToggleRoadBlock', (state) => {
 
 mp.events.add('InteractionMenuClient::ToggleTable', (state) => {
     params.tableAccess = state;
+});
+
+mp.events.add('InteractionMenuClient::ToggleInitMetaWorld', (state) => {
+    params.set_waypoint = state;
+    params.complete_init = state;
+});
+
+mp.events.add('InteractionMenuClient::ToggleStartStation', (state) => {
+    params.start_station = state;
+});
+
+mp.events.add('InteractionMenuClient::ToggleMetaDimension', (state) => {
+    params.meta_dimension = state;
+});
+
+mp.events.add('InteractionMenuClient::ToggleEndStation', (state) => {
+    params.close_station = state;
+});
+
+mp.events.add('InteractionMenuClient::ToggleDMStation', (state) => {
+    params.station_dm_mode = state;
+});
+
+mp.events.add('InteractionMenuClient::ToggleRaceStation', (state) => {
+    params.station_race_mode = state;
 });
 
 mp.events.add('InteractionMenuClient::ToggleFurnitureSell', (state) => {

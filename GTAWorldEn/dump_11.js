@@ -342,16 +342,15 @@ var markers = {};
 var blips = {};
 var propertyBlips = {};
 class JobHelper {
-    static createMarker(name, position, radius) {
+    static createMarker(name, position, radius, dimensionEx) {
         if (markers[name] != null) { return; }
-        var marker = mp.markers.new(28, position, radius,
-            {
-                direction: new mp.Vector3(0, 0, 0),
-                rotation: new mp.Vector3(0, 0, 0),
-                color: [255, 0, 0, 100],
-                visible: true,
-                dimension: 0
-            });
+        var marker = mp.markers.new(28, position, radius, {
+            direction: new mp.Vector3(0, 0, 0),
+            rotation: new mp.Vector3(0, 0, 0),
+            color: [255, 0, 0, 100],
+            visible: true,
+            dimension: dimensionEx
+        });
         markers[name] = marker;
         return marker;
     }
@@ -373,14 +372,14 @@ class JobHelper {
         markers[name].destroy(); // Needs testing, should replace deleteEntity
         markers[name] = null;
     }
-    static createBlip(name, position, color) {
+    static createBlip(name, position, color, dimensionEx) {
         if (blips[name] != null) { return blips[name]; }
-        let blip = mp.blips.new(1, position,
-            {
-                name: name,
-                color: color,
-                shortRange: false,
-            });
+        let blip = mp.blips.new(1, position, {
+            name: name,
+            color: color,
+            shortRange: false,
+            dimension: dimensionEx
+        });
         blips[name] = blip;
         return blip;
     }
@@ -5129,38 +5128,38 @@ mp.events.add(
             //API.startAudio("Files/Clientside/sounds/" + sound);
         },
         */
-        "mailman_create_marker": (name, position) => {
-                var l_MarkerName = name;
-                var l_MarkerPos = position;
-                JobHelper.createMarker(l_MarkerName, l_MarkerPos, 1);
-            },
-
-            "mailman_create_blip": (name, position) => {
-                var l_BlipName = name;
-                var l_BlipPos = position;
-                JobHelper.createBlip(l_BlipName, l_BlipPos, 0);
-            },
-
-            "mailman_delete_marker": (name) => {
-                var l_MarkerName = name;
-                JobHelper.removeMarker(l_MarkerName);
-            },
-
-            "mailman_delete_blip": (name) => {
-                var l_BlipName = name;
-                JobHelper.removeBlip(l_BlipName);
-            },
-        "job_create_marker": (name, position) => {
-            var jobName = name;
-            var vector = position;
-            JobHelper.createMarker(jobName, vector, 1);
+        "mailman_create_marker": (name, position, dimension = 0) => {
+            var l_MarkerName = name;
+            var l_MarkerPos = position;
+            JobHelper.createMarker(l_MarkerName, l_MarkerPos, 1, dimension);
         },
 
-        "job_create_blipped_marker": (name, jPosition) => {
+        "mailman_create_blip": (name, position, dimension = 0) => {
+            var l_BlipName = name;
+            var l_BlipPos = position;
+            JobHelper.createBlip(l_BlipName, l_BlipPos, 0, dimension);
+        },
+
+        "mailman_delete_marker": (name) => {
+            var l_MarkerName = name;
+            JobHelper.removeMarker(l_MarkerName);
+        },
+
+        "mailman_delete_blip": (name) => {
+            var l_BlipName = name;
+            JobHelper.removeBlip(l_BlipName);
+        },
+        "job_create_marker": (name, position, dimension = 0) => {
+            var jobName = name;
+            var vector = position;
+            JobHelper.createMarker(jobName, vector, 1, dimension);
+        },
+
+        "job_create_blipped_marker": (name, jPosition, dimension = 0) => {
             var jobName = name;
             var vector = jPosition;
-            JobHelper.createMarker(jobName, vector, 1);
-            JobHelper.createBlip(jobName, vector, 1);
+            JobHelper.createMarker(jobName, vector, 1, dimension);
+            JobHelper.createBlip(jobName, vector, 1, dimension);
         },
         "clear_property_blips": () => {
 
@@ -5577,12 +5576,12 @@ mp.events.add(
             JobHelper.removeBlip(jobName);
         },
 
-        "job_create_pickup": (jId, jPosition, jRadius) => {
+        "job_create_pickup": (jId, jPosition, jRadius, dimension = 0) => {
             var id = jId;
             var position = jPosition;
             var radius = jRadius;
-            JobHelper.createBlip(jId, jPosition, 0);
-            JobHelper.createMarker(jId, jPosition, jRadius);
+            JobHelper.createBlip(jId, jPosition, 0, dimension);
+            JobHelper.createMarker(jId, jPosition, jRadius, dimension);
         },
 
         "job_create_pickup": () => {
@@ -5611,11 +5610,11 @@ mp.events.add(
             JobHelper.removeMarker(jName);
         },
 
-        "job_create_blip": (jName, jPosition, jColor) => {
+        "job_create_blip": (jName, jPosition, jColor, dimension = 0) => {
             var name = jName;
             var position = jPosition;
             var color = jColor;
-            JobHelper.createBlip(jName, jPosition, parseInt(jColor));
+            JobHelper.createBlip(jName, jPosition, parseInt(jColor), dimension);
         },
 
         "job_remove_blip": (jName) => {
@@ -5651,8 +5650,8 @@ mp.events.add(
             currentGarbage = 0;
         },
 
-        "create_marker_job": (mPosition) => {
-            JobHelper.createMarker("final_garbage", mPosition, 2.0);
+        "create_marker_job": (mPosition, dimension = 0) => {
+            JobHelper.createMarker("final_garbage", mPosition, 2.0, dimension);
         },
 
         "remove_marker_job": () => {
@@ -5921,16 +5920,16 @@ mp.events.add(
             openMainMenuVehMod();
         },
 
-        "driving_school_create_marker": (name, position) => {
+        "driving_school_create_marker": (name, position, dimension = 0) => {
             var l_MarkerName = name;
             var l_MarkerPos = position;
-            JobHelper.createMarker(l_MarkerName, l_MarkerPos, 1);
+            JobHelper.createMarker(l_MarkerName, l_MarkerPos, 1, dimension);
         },
 
-        "driving_school_create_blip": (name, position) => {
+        "driving_school_create_blip": (name, position, dimension = 0) => {
             var l_BlipName = name;
             var l_BlipPos = position;
-            JobHelper.createBlip(l_BlipName, l_BlipPos, 0);
+            JobHelper.createBlip(l_BlipName, l_BlipPos, 0, dimension);
         },
 
         "driving_school_create_waypoint": (posX, posY) => {

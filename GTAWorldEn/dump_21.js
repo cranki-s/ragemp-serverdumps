@@ -378,8 +378,9 @@ mp.events.add('click', (x, y, upOrDown, leftOrRight, relativeX, relativeY, world
     if(!is_defined(object_entity)) {
         return;
     }
- 
-    mp.events.callRemote("client_click", object_entity.remoteId);
+    if (typeof object_entity.doesExist !== "undefined" && typeof object_entity.remoteId !== "undefined" && object_entity.doesExist()) { 
+        mp.events.callRemote("client_click", object_entity.remoteId);
+    }
 });
 
 
