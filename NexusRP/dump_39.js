@@ -59,11 +59,11 @@ let options= {
 }
 
 mp.keys.bind(Keys.VK_F4, false, function () { // E key	
-	Nexus.callRemote('Weazel:OpenAdvertPad')
+	NexusEvent.callRemote('Weazel:OpenAdvertPad')
 });
 mp.events.add('Weazel:CloseApp',(announcement)=>{
 	if (nn != null) {
-		if(announcement)Nexus.callRemote('Weazel:GetBack',announcement);
+		if(announcement)NexusEvent.callRemote('Weazel:GetBack',announcement);
 		mp.gui.cursor.visible = false;
 		global.menuOpened = false;
 		nn.execute(`closeInterface()`);
@@ -97,25 +97,25 @@ mp.events.add('Weazel:UpdatePad', (redactions, adverts) => {
 
 
 mp.events.add('Weazel:EditAnnouncement', (announcementID) => {//кнопка редактирования обьявления
-	Nexus.callRemote('Weazel:EditAnnouncement',announcementID);
+	NexusEvent.callRemote('Weazel:EditAnnouncement',announcementID);
 })
 mp.events.add('Weazel:EditAnnouncementCallBack',(announcement)=>{// возврат с сервера
 	if (nn != null)nn.execute(`controls.editAnnouncementCallback(${announcement})`);
 });
 mp.events.add('Weazel:RejectAnnouncement', (announcement) => {// отклонение обьявления
 	announcement = JSON.parse(announcement);
-	Nexus.callRemote('Weazel:RejectAnnouncement',+announcement.id)
+	NexusEvent.callRemote('Weazel:RejectAnnouncement',+announcement.id)
 });
 mp.events.add('Weazel:RemoveAnnouncemet', (announcementID) => {// Врзварт обьявления в список из списка редакции
-	Nexus.callRemote('Weazel:RemoveAnnouncemet',announcementID);
+	NexusEvent.callRemote('Weazel:RemoveAnnouncemet',announcementID);
 })
 
 mp.events.add('Weazel:GetBack', (announcement) => {// возврат обьявления в общий список
-	Nexus.callRemote('Weazel:GetBack',announcement);
+	NexusEvent.callRemote('Weazel:GetBack',announcement);
 });
 mp.events.add('Weazel:SendAnnouncement', (announcement, category, content) => { //отправка обьявления в чат
 	announcement = JSON.parse(announcement);
-	Nexus.callRemote('Weazel:SendAnnouncement',announcement.id,content,category);
+	NexusEvent.callRemote('Weazel:SendAnnouncement',announcement.id,content,category);
 });
 mp.events.add('Weazel:ChangeTheme', (value) => {
 	options.darkTheme = value;
@@ -124,7 +124,7 @@ mp.events.add('Weazel:ChangeNotification', (value) => {
 	options.notificationEnabled = value;
 });
 mp.events.add('Weazel:ChangeRedaction', (value) => {
-	Nexus.callRemote('Weazel:ChangeRedaction',value);
+	NexusEvent.callRemote('Weazel:ChangeRedaction',value);
 });
 mp.events.add('Weazel:ChangeRedactionCallBack', (value) => {
 	options.redactionOpened = value;

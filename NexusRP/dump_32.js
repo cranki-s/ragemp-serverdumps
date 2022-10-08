@@ -45,7 +45,7 @@ mp.events.add('Controls-Business:DestroyBrowser',()=>{
     global.menuClose();
 })
 mp.events.add('Controls-Business:SetNavigationTab', (route) => {
-    Nexus.callRemote('Controls-Business:SetNavigationTab',route);   
+    NexusEvent.callRemote('Controls-Business:SetNavigationTab',route);   
 })
 mp.events.add('Controls-Business:SetNavigationTabCallBack', (route,info, price) => {
     if (route === 'information') {
@@ -56,17 +56,17 @@ mp.events.add('Controls-Business:SetNavigationTabCallBack', (route,info, price) 
     }
 })
 mp.events.add('Controls-Business:MoneyAction', (type, value) => {
-    Nexus.callRemote('Controls-Business:MoneyAction',type,value)
+    NexusEvent.callRemote('Controls-Business:MoneyAction',type,value)
 })
 mp.events.add('Controls-Business:MarkupChange', (value) => {
-    Nexus.callRemote("Controls-Business:MarkupChange",value);
+    NexusEvent.callRemote("Controls-Business:MarkupChange",value);
 })
 mp.events.add('Controls-Business:SellBusiness', () => {
-    Nexus.callRemote("Controls-Business:SellBusiness");
+    NexusEvent.callRemote("Controls-Business:SellBusiness");
 
 })
 mp.events.add('Controls-Business:getOrder', (delivery, amount) => {
-    Nexus.callRemote('Controls-Business:getOrder',amount, delivery)
+    NexusEvent.callRemote('Controls-Business:getOrder',amount, delivery)
 })
 mp.events.add('Controls-Business:SendNotify', (type, layout,msg,time) => {
     if (controlsBusiness != null) {

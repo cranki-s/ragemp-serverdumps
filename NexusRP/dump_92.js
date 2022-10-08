@@ -12,7 +12,7 @@ mp.events.add('OpenLockPick',()=>{
 })
 
 mp.events.add('Lockpick:Win',()=>{
-    Nexus.callRemote('LockPick:Win');
+    NexusEvent.callRemote('LockPick:Win');
     mp.gui.cursor.visible = false;
     global.menuOpened = false;
     globalThis.browser.execute(`App.$router.push(${JSON.stringify({ path: `/` })})`);
@@ -82,11 +82,11 @@ let taking = false;
 mp.events.add('playerEnterColshape', (shape)=>{
     if(shape.furniture!=null && currentRob==null && !taking){
         taking = true;
-        Nexus.callRemote('Robbery.EnterColShape', shape.furniture);
+        NexusEvent.callRemote('Robbery.EnterColShape', shape.furniture);
     }
 
     if(shape.robSell!=null && localplayer.isInAnyVehicle(false) && localplayer.vehicle.getPedInSeat(-1) == localplayer.handle){
-        Nexus.callRemote('CarItemPoint.onEnterColShape', localplayer.vehicle);
+        NexusEvent.callRemote('CarItemPoint.onEnterColShape', localplayer.vehicle);
     }
 });
 
@@ -122,7 +122,7 @@ mp.keys.bind(Keys.VK_E, false, function () { // F2 key
     //mp.gui.execute(`alert('${entity}')`);
     //mp.gui.execute(`alert('${entity.type}, ${mp.objects.exists(entity)}')`);
     if (entity.type == 'vehicle' && currentRob!=null) {
-        Nexus.callRemote('Robbery.TakeFurToCar', entity);
+        NexusEvent.callRemote('Robbery.TakeFurToCar', entity);
     }
     lastCheck = new Date().getTime();
 });

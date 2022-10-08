@@ -131,7 +131,7 @@ mp.attachmentMngr =
 
 		if(!entity.__attachments || entity.__attachments.indexOf(attachmentName) === -1)
 		{
-			Nexus.callRemote("staticAttachments.Add", attachmentName.toString(36));
+			NexusEvent.callRemote("staticAttachments.Add", attachmentName.toString(36));
 		}
 	},
 
@@ -146,7 +146,7 @@ mp.attachmentMngr =
 
 		if(entity.__attachments && entity.__attachments.indexOf(attachmentName) !== -1)
 		{
-			Nexus.callRemote("staticAttachments.Remove", attachmentName.toString(36));
+			NexusEvent.callRemote("staticAttachments.Remove", attachmentName.toString(36));
 		}
 	},
 

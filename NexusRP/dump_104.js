@@ -53,12 +53,12 @@ setInterval(() => {
             } else {
                 mp.events.call('client.particle.fx.lopped.on.entity', id, entity.handle, entry.fxName, entry.effectName, entry.offset, entry.rotation, entry.scale, entry.xAxis, entry.yAxis, entry.zAxis);
             }
-            Nexus.callRemote('onPlayerParticleFxStreamIn', id);
+            NexusEvent.callRemote('onPlayerParticleFxStreamIn', id);
         } else if((dist >= STREAM_DISTANCE || dimension != clientDimension) && entry.stream) {
             entry.stream = false;
             particles.set(id, entry);
             mp.events.call('client.stop.particle.fx.lopped', id);
-            Nexus.callRemote('onPlayerParticleFxStreamOut', id);
+            NexusEvent.callRemote('onPlayerParticleFxStreamOut', id);
         }
     });
 }, TIMER_TICK);

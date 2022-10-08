@@ -11,7 +11,7 @@ mp.events.add('LumberJack:StartGame', () => {
 
 mp.events.add('LumberJack:statusGame',(status)=>{
 	global.menuClose();
-	Nexus.callRemote('LumberJack:statusGame', status);
+	NexusEvent.callRemote('LumberJack:statusGame', status);
 	lumberjack.destroy();
 	lumberjack = null;	
 });

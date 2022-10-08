@@ -54,8 +54,8 @@ mp.events.add('ModuleWrapper.DecisionNotification.Open',(item)=>{
 });
 mp.events.add('ModuleWrapper.DecisionNotification.Action', (result) => {    
     if (!loggedin || chatActive || editing || global.menuOpened || localplayer.getVariable('seats') == true) return;
-    if(result) Nexus.callRemote('acceptPressed');
-    else Nexus.callRemote('cancelPressed');
+    if(result) NexusEvent.callRemote('acceptPressed');
+    else NexusEvent.callRemote('cancelPressed');
    // globalThis.browser.execute(`window.RPC.resolve('ModuleWrapper.DecisionNotification.Action', true)`);    
 });
 mp.events.add('ModuleWrapper.DecisionNotification.Action.Cansel',()=>{        
@@ -69,7 +69,7 @@ mp.events.add('LoadMaterials',()=>{
 })
 mp.events.add('Callback:LoadMaterials',(events,value)=>{
     if(events && value){
-        Nexus.callRemote('Materials:Callback',events,value);
+        NexusEvent.callRemote('Materials:Callback',events,value);
     }    
     mp.gui.cursor.visible = false;
     global.menuOpened = false;
@@ -80,7 +80,7 @@ mp.events.add('Fish:infishzone',(status)=>{
 });
 mp.events.add('Fish:ChechWater',()=>{
     if(mp.players.local.isInWater()) return;
-    Nexus.callRemote('startFish');
+    NexusEvent.callRemote('startFish');
 });
 
 mp.events.add('CarPrizeTimer.UpdateOnline', (timeonline, type) => {
@@ -146,7 +146,7 @@ mp.keys.bind(Keys.VK_X, false, function () { // R key
                 }
             }
             freeze = !freeze;
-            Nexus.callRemote('FreezeBoat',freeze);
+            NexusEvent.callRemote('FreezeBoat',freeze);
         }
 	} catch { }
 });
@@ -182,7 +182,7 @@ mp.events.add('PopUp:CallBack',(payMethod)=>{
     mp.gui.cursor.visible = false;
     global.menuOpened = false;
     mp.events.call('NPC.cameraOff',1500);
-    Nexus.callRemote('RentTransport.Rent', payMethod,RentType); //0 = cash, 1 = bank
+    NexusEvent.callRemote('RentTransport.Rent', payMethod,RentType); //0 = cash, 1 = bank
 })
 
 
@@ -336,7 +336,7 @@ mp.keys.bind(Keys.VK_J, false, function () { // belt systemif
         mp.gui.execute(`HUD.belt=${hudstatus.belt}`);
 
         var testBelt = localplayer.getConfigFlag(32, true);
-        Nexus.callRemote('beltCarPressed', testBelt);
+        NexusEvent.callRemote('beltCarPressed', testBelt);
     }
 });
 mp.events.add('ChechBeltStatus', function () {

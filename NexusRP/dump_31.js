@@ -17,7 +17,7 @@ mp.events.add('bizinfoShow', (data) => {
 });
 
 mp.events.add('Business:buyBusiness', () => {
-    Nexus.callRemote('buybizz');
+    NexusEvent.callRemote('buybizz');
 });
 
 mp.events.add('Business:destroyBrowser', ()=>{
@@ -31,6 +31,6 @@ mp.events.add('Business:destroyBrowser', ()=>{
 
 mp.events.add('Business:GopenInfo', ()=>{
     if (!global.loggedin || global.chatActive || editing || mp.game.ui.isPauseMenuActive() || cuffed || global.localplayer.getVariable('InDeath') == true || localplayer.getVariable('INVISIBLE') == true) return;
-    Nexus.callRemote('Controls-Business:Openpad');
+    NexusEvent.callRemote('Controls-Business:Openpad');
 });
 }

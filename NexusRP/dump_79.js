@@ -122,7 +122,7 @@ mp.timer.init();
 
 
 mp.events.add('Global:GetTime', ()=>{
-    global.Nexus.callRemote('Global.GetTime');
+    global.NexusEvent.callRemote('Global.GetTime');
 })
 
 mp.events.add('Global.GetTime.CallBack', (time)=>{
@@ -138,7 +138,7 @@ mp.events.add('Global.GetTime.CallBack', (time)=>{
 //     if (timerCheckerServer != null) mp.timer.remove(timerCheckerServer);
 //     timerCheckerServer = mp.timer.add(async () => {
 //         if (!isWork) {
-//             Nexus.callRemote("timer.error");
+//             NexusEvent.callRemote("timer.error");
 //             mp.timer.remove(timerCheckerServer);
 //         }
 //         isWork = false;
@@ -151,7 +151,7 @@ mp.events.add('Global.GetTime.CallBack', (time)=>{
 //     isWork = true;
 // });
 
-}9.1922, 209.4537, 60.64), Angle: 121, cameraRotate: 145, label: "Учитель рисования" }, 
+}9.4537, 60.64), Angle: 121, cameraRotate: 145, label: "Учитель рисования" }, 
    // { Name: 'SepGeo', Hash: 0x0B34D6F5, Pos: new mp.Vector3(-1627.58, 205.81, 60.71), Angle: 107, cameraRotate: 145, label: "Учитель геологии" },
    // { Name: 'SepChemistry', Hash: 0x8CCE790F, Pos: new mp.Vector3(-1625.79, 201.78, 60.63), Angle: 110, cameraRotate: 145, label: "Учитель химии" },
 

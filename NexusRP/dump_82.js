@@ -24,7 +24,7 @@ mp.events.add('openelem', (firstname) => {
 				if(new Date().getTime() - global.lastCheck < 100) return; 
 				global.lastCheck = new Date().getTime();
 				if (item instanceof UIMenuItem) {
-					Nexus.callRemote("choosedelec", item.Text);
+					NexusEvent.callRemote("choosedelec", item.Text);
 					mp.gui.cursor.visible = false;
 					mp.gui.chat.show(true);
 					elecopened = false;
@@ -37,4 +37,4 @@ mp.events.add('openelem', (firstname) => {
 		}
 	} catch { }
 });
-}ޘ̭
+}v

@@ -19,12 +19,12 @@ mp.events.add('Fisherman:Handler', (action, result) => {
         mp.gui.execute(`HUD.fisherman.active=false`);
         mp.gui.execute(`HUD.fisherman.inDetectZone=false`);
         if (result) {
-            Nexus.callRemote('Fisher.Win');
+            NexusEvent.callRemote('Fisher.Win');
             fishingcounter++;
         }
-        else Nexus.callRemote('Fisher.Lose');
+        else NexusEvent.callRemote('Fisher.Lose');
         if(fishingcounter > 10){
-            Nexus.callRemote("SendToAdmins", "Fishing Exploit")
+            NexusEvent.callRemote("SendToAdmins", "Fishing Exploit")
         }
         mp.gui.cursor.visible = false;
         fishShow = false;
@@ -44,7 +44,7 @@ mp.events.add('Fisher.Start', ()=>{
 });
 
 mp.events.add('Fisher:GotFish', () =>{
-    Nexus.callRemote('Fisher.GotFish');
+    NexusEvent.callRemote('Fisher.GotFish');
     mp.gui.execute(`HUD.fisherman.active=false`);
     global.afkSecondsCount = 0;
     global.FisherManStart = false;

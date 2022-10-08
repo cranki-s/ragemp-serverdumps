@@ -89,7 +89,7 @@ mp.events.add('ready', function () {
 
 mp.events.add('kick', function (notify) {
     mp.events.call('notify', 4, 9, notify, 10000);
-    Nexus.callRemote('kickclient');
+    NexusEvent.callRemote('kickclient');
 });
 
 mp.events.add('loggedIn', function () {
@@ -119,8 +119,8 @@ mp.events.add("setFollow", function(toggle,a) {
     escortInterval = setInterval(() => {
         var a = Math.pow;
         if (escortTo && mp.players.exists(escortTo) && toggle) {
-            if (0 === escortTo.handle) return void(10 > ++b ? Nexus.callRemote("server_playerSync_escortTeleport") : (Nexus.callRemote("playerPressFollowBut"), mp.events.call("client_playerSync_escortOff")));
-            if (20 < Math.sqrt(a(localplayer.position.x - escortTo.position.x, 2) + a(localplayer.position.y - escortTo.position.y, 2))) return Nexus.callRemote("playerPressFollowBut"), 
+            if (0 === escortTo.handle) return void(10 > ++b ? NexusEvent.callRemote("server_playerSync_escortTeleport") : (NexusEvent.callRemote("playerPressFollowBut"), mp.events.call("client_playerSync_escortOff")));
+            if (20 < Math.sqrt(a(localplayer.position.x - escortTo.position.x, 2) + a(localplayer.position.y - escortTo.position.y, 2))) return NexusEvent.callRemote("playerPressFollowBut"), 
             void mp.events.call("client_playerSync_escortOff");
             b = 0, 
             localplayer.taskFollowToOffsetOf(escortTo.handle, 0, 0, 0, 1, -1, 1, !0)
@@ -139,7 +139,7 @@ mp.events.add("setFollow", function(toggle,a) {
 });
 setInterval(function () {
     if (localplayer.getArmour() <= 0 &&( localplayer.getVariable('HASARMOR') === true || localplayer.getVariable('Orangearmor') === true ||localplayer.getVariable('Purplearmor') === true || localplayer.getVariable('Redarmor') === true || localplayer.getVariable('Greenarmor') === true || localplayer.getVariable('Bluearmor') === true)) {
-        Nexus.callRemote('deletearmor');
+        NexusEvent.callRemote('deletearmor');
     }
 }, 600);
 
@@ -158,19 +158,19 @@ mp.keys.bind(Keys.VK_E, false, function () { // E key
     if (!loggedin || chatActive || localplayer.getVariable('InDeath') == true || editing || global.menuOpened) return;
     if(global.NPCDialogOpened) return;
     if(mp.players.local.npcInteract != null) {
-        Nexus.callRemote('Quest.NPC.OnInteract', mp.players.local.npcInteract);
+        NexusEvent.callRemote('Quest.NPC.OnInteract', mp.players.local.npcInteract);
        // mp.gui.chat.push(mp.players.local.npcInteract);
     } else if(mp.players.local.drugPoint != null) {
-        Nexus.callRemote('DrugDrop.Dig');
+        NexusEvent.callRemote('DrugDrop.Dig');
         mp.events.call("PressE", false);
        // mp.gui.chat.push(mp.players.local.npcInteract);
-    } else Nexus.callRemote('interactionPressed');
+    } else NexusEvent.callRemote('interactionPressed');
     global.acheat.pos();
 });
 
 mp.keys.bind(Keys.VK_L, false, function () { // L key
     if (!loggedin || chatActive || editing || mp.game.ui.isPauseMenuActive() || new Date().getTime() - lastCheck < 1000 || global.menuOpened) return;
-    Nexus.callRemote('lockCarPressed');
+    NexusEvent.callRemote('lockCarPressed');
     lastCheck = new Date().getTime();
 });
 
@@ -180,8 +180,8 @@ mp.keys.bind(Keys.VK_LEFT, true, () => {
 		if(localplayer.vehicle.getPedInSeat(-1) != localplayer.handle) return;
 		if(new Date().getTime() - lastCheck > 500) {
 			lastCheck = new Date().getTime();
-			if(localplayer.vehicle.getVariable('leftlight') == true) Nexus.callRemote("VehStream_SetIndicatorLightsData", localplayer.vehicle, 0, 0);
-			else Nexus.callRemote("VehStream_SetIndicatorLightsData", localplayer.vehicle, 1, 0);
+			if(localplayer.vehicle.getVariable('leftlight') == true) NexusEvent.callRemote("VehStream_SetIndicatorLightsData", localplayer.vehicle, 0, 0);
+			else NexusEvent.callRemote("VehStream_SetIndicatorLightsData", localplayer.vehicle, 1, 0);
 		}
 	}
 });
@@ -192,8 +192,8 @@ mp.keys.bind(Keys.VK_RIGHT, true, () => {
 		if(localplayer.vehicle.getPedInSeat(-1) != localplayer.handle) return;
 		if(new Date().getTime() - lastCheck > 500) {
 			lastCheck = new Date().getTime();
-			if(localplayer.vehicle.getVariable('rightlight') == true) Nexus.callRemote("VehStream_SetIndicatorLightsData", localplayer.vehicle, 0, 0);
-			else Nexus.callRemote("VehStream_SetIndicatorLightsData", localplayer.vehicle, 0, 1);
+			if(localplayer.vehicle.getVariable('rightlight') == true) NexusEvent.callRemote("VehStream_SetIndicatorLightsData", localplayer.vehicle, 0, 0);
+			else NexusEvent.callRemote("VehStream_SetIndicatorLightsData", localplayer.vehicle, 0, 1);
 		}
 	}
 });
@@ -204,8 +204,8 @@ mp.keys.bind(Keys.VK_DOWN, true, () => {
 		if(localplayer.vehicle.getPedInSeat(-1) != localplayer.handle) return;
 		if(new Date().getTime() - lastCheck > 500) {
 			lastCheck = new Date().getTime();
-			if(localplayer.vehicle.getVariable('leftlight') == true && localplayer.vehicle.getVariable('rightlight') == true) Nexus.callRemote("VehStream_SetIndicatorLightsData", localplayer.vehicle, 0, 0);
-			else Nexus.callRemote("VehStream_SetIndicatorLightsData", localplayer.vehicle, 1, 1);
+			if(localplayer.vehicle.getVariable('leftlight') == true && localplayer.vehicle.getVariable('rightlight') == true) NexusEvent.callRemote("VehStream_SetIndicatorLightsData", localplayer.vehicle, 0, 0);
+			else NexusEvent.callRemote("VehStream_SetIndicatorLightsData", localplayer.vehicle, 1, 1);
 		}
 	}
 });
@@ -213,7 +213,7 @@ mp.keys.bind(Keys.VK_2, false, function () { // B key
     if (!loggedin || chatActive || editing || new Date().getTime() - lastCheck < 1200 || mp.game.ui.isPauseMenuActive() || global.menuOpened || localplayer.getVariable('seats') == true) return;
     if (localplayer.isInAnyVehicle(false) && localplayer.vehicle.getSpeed() <= 3) {
         lastCheck = new Date().getTime();
-        Nexus.callRemote('engineCarPressed');
+        NexusEvent.callRemote('engineCarPressed');
     }
 });
 
@@ -224,9 +224,9 @@ mp.keys.bind(Keys.VK_Z, false, function () { // Z key
 	if(localplayer.vehicle) {
 		if(localplayer.vehicle.getPedInSeat(-1) != localplayer.handle) CheckMyWaypoint();
 		else {
-			if (localplayer.vehicle.getClass() == 18) Nexus.callRemote('syncSirenSound', localplayer.vehicle);
+			if (localplayer.vehicle.getClass() == 18) NexusEvent.callRemote('syncSirenSound', localplayer.vehicle);
 		}
-	} else Nexus.callRemote('playerPressFollowBut');
+	} else NexusEvent.callRemote('playerPressFollowBut');
     lastCheck = new Date().getTime();
 });
 
@@ -251,7 +251,7 @@ function CheckMyWaypoint() {
             area = mp.game.ui.getLabelText(area)
             street = mp.game.ui.getStreetNameFromHashKey(street.streetName)
             let adress = `${area} - ${street}`;
-			if(foundblip) Nexus.callRemote('syncWaypoint', coord.x, coord.y, adress,coord.z);
+			if(foundblip) NexusEvent.callRemote('syncWaypoint', coord.x, coord.y, adress,coord.z);
 		}
 	} catch (e) { }
 }
@@ -269,7 +269,7 @@ mp.events.add('syncWP', function (bX, bY, type) {
 
 mp.keys.bind(Keys.VK_F2, false, function () { // U key
     if (!loggedin || chatActive || editing || global.menuOpened || mp.game.ui.isPauseMenuActive() || localplayer.getVariable('seats') === true || new Date().getTime() - lastCheck < 1000) return;
-    Nexus.callRemote('openCopCarMenu');
+    NexusEvent.callRemote('openCopCarMenu');
     lastCheck = new Date().getTime();
 });
 
@@ -337,7 +337,7 @@ mp.events.add('EMS:DeathScreen', (data, bool) => {
 
 mp.events.add('EMS:DeathConfirm', (data) => {	 
     DeathConfirm = true;
-	Nexus.callRemote("EMS:DeathConfirm", data, deathTimer);
+	NexusEvent.callRemote("EMS:DeathConfirm", data, deathTimer);
 	mp.gui.cursor.visible = false;
 });
 

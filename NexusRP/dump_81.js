@@ -16,7 +16,7 @@ let o = 0;
 D = setInterval(() => 0 === k.handle ? clearInterval(D) : (o += o < .6 * a ? 4.5 : o < .65 * a ? 4 : o < .7 * a ? 3.5 : o < .8 * a ? 2.5 : o < .9 * a ? 1.5 : o < .92 * a ? 1.2 : o < .94 * a ? 1 : o < .96 * a ? .9 : o < .98 * a ? .6 : .3,  o >= a ? void clearInterval(D) : void k.setRotation(0, -o, t, 2, !0)), 15)
 setTimeout(() => {
 
-Nexus.callRemote("server_casino_luckywheel_getGift", e);
+NexusEvent.callRemote("server_casino_luckywheel_getGift", e);
 }, 15000)
 }),
 
@@ -436,7 +436,7 @@ mp.keys.bind(0x45, true, () =>  // E
 			casinoBrowser.execute(`casino.modal()`);
 			return false;
 		}
-		Nexus.callRemote("Casino.Roulette.Leave");
+		NexusEvent.callRemote("Casino.Roulette.Leave");
 		if(global.casinoBrowser != null) global.casinoBrowser.destroy();
 		global.casinoBrowser = null;
 		minBet = 0;
@@ -470,7 +470,7 @@ mp.keys.bind(0x45, true, () =>  // E
 		mp.players.local.setHeading(tableSeatsPos[casinoSeatToJoin][3]);
 		
 		
-		 Nexus.callRemote("Casino.Roulette.Seat", casinoTableToJoin, casinoSeatToJoin);
+		 NexusEvent.callRemote("Casino.Roulette.Seat", casinoTableToJoin, casinoSeatToJoin);
 		//mp.events.call("client:syncScenario", mp.players.local.remoteId, "PROP_HUMAN_SEAT_BENCH", 1143.725, 268.0235, -51.88085, 100, false);
 		seatCoolDown = true;
 		setTimeout(()=>{
@@ -491,7 +491,7 @@ mp.keys.bind(0x45, true, () =>  // E
 mp.events.add("Casino.Roulette.ConfirmExit", () => 
 {
 		mp.gui.cursor.visible = false;
-		Nexus.callRemote("Casino.Roulette.Leave");
+		NexusEvent.callRemote("Casino.Roulette.Leave");
 		if(global.casinoBrowser != null) global.casinoBrowser.destroy();
 		global.casinoBrowser = null;
 		interactingWithTable = lpCasinoTable;
@@ -772,7 +772,7 @@ mp.events.add('render', () =>
 			{
 				if(closestChipSpot != null)																			TO DO!!!
 				{
-					Nexus.callRemote("removeRouletteBet", closestChipSpot);
+					NexusEvent.callRemote("removeRouletteBet", closestChipSpot);
 				}
 			} */
 			
@@ -781,7 +781,7 @@ mp.events.add('render', () =>
 				if(closestChipSpot != null)
 				{
 					global.afkSecondsCount = 0;
-					Nexus.callRemote("Casino.Roulette.AddBet", closestChipSpot, chipType[currentChip][1]);				
+					NexusEvent.callRemote("Casino.Roulette.AddBet", closestChipSpot, chipType[currentChip][1]);				
 				}
 				
 			}

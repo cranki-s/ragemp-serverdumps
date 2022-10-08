@@ -15,7 +15,7 @@ mp.events.add('CustomShape.NewShape', (obj)=>{
             break;   
     }
     if(shape == null){
-        Nexus.callRemote('CustomShape.ReportError', obj.pos.x, obj.pos.y, obj.pos.z);
+        NexusEvent.callRemote('CustomShape.ReportError', obj.pos.x, obj.pos.y, obj.pos.z);
         return;
     }
     shape.CustomUID = obj.uid;
@@ -42,13 +42,13 @@ mp.events.add('CustomShape.OnJoin', (data)=>{
 
 mp.events.add('playerEnterColshape', (shape)=>{
     if(shape.CustomUID!=null){
-        Nexus.callRemote('CustomShape.OnEnter', shape.CustomUID);
+        NexusEvent.callRemote('CustomShape.OnEnter', shape.CustomUID);
     }
 });
 
 mp.events.add('playerExitColshape', (shape)=>{
     if(shape.CustomUID!=null){
-        Nexus.callRemote('CustomShape.OnExit', shape.CustomUID);
+        NexusEvent.callRemote('CustomShape.OnExit', shape.CustomUID);
     }
 });
 

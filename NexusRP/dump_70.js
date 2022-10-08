@@ -7,18 +7,18 @@ mp.events.add('Electric.StartGame', () => {
 });
 mp.events.add('Electrician.GameResult', (status)=>{	
 	global.menuClose();
-	Nexus.callRemote('Electric.EndGame', status);
+	NexusEvent.callRemote('Electric.EndGame', status);
 	globalThis.browser.close();
 });
 mp.events.add('Electrician.GameResult.September', (time)=>{	
 	global.menuClose();
-	Nexus.callRemote('September.StartElectricGame.Finish', time);
+	NexusEvent.callRemote('September.StartElectricGame.Finish', time);
 	globalThis.browser.close();
 });
 
 mp.events.add('Drawer.GameResult', (time)=>{	
 	global.menuClose();
-	Nexus.callRemote('September.Paint.Finish', time);
+	NexusEvent.callRemote('September.Paint.Finish', time);
 	globalThis.browser.close();
 });
 
@@ -136,7 +136,7 @@ mp.events.add('ElectricUprage.DeletePoint', ()=>{
 mp.events.add('playerEnterColshape', (shape)=>{
     if(shape.elecrticUpgrade!=null){
 		
-		Nexus.callRemote('ElectricUpgrade.Game');
+		NexusEvent.callRemote('ElectricUpgrade.Game');
 		
     }
 });

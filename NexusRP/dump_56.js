@@ -17,7 +17,7 @@ mp.events.add('Search:OpenMenu',(item,nameplayer,type)=>{
     global.menuOpened = true;
 });
 mp.events.add('Search:GetOut',(itemID)=>{
-    Nexus.callRemote('Search:GetOut',itemID);    
+    NexusEvent.callRemote('Search:GetOut',itemID);    
 });
 mp.events.add('Search:CallBack',(status,newitem,nameplayer,type)=>{
     if(SearchMenu != null)
@@ -27,7 +27,7 @@ mp.events.add('Search:CallBack',(status,newitem,nameplayer,type)=>{
     }
 });
 mp.events.add('Search:GetOutAll',()=>{
-    Nexus.callRemote('Search:GetOutAll')
+    NexusEvent.callRemote('Search:GetOutAll')
 });
 mp.events.add('Search:DestroyBrowser',()=>{
     mp.gui.cursor.visible = false;

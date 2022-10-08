@@ -3,13 +3,13 @@
 global.boardOpen = false;
 let fracstock = -1;
 mp.keys.bind(Keys.VK_I, false, function () {
-	//Nexus.callRemote('console',localplayer.getVariable('InDeath') == true);
+	//NexusEvent.callRemote('console',localplayer.getVariable('InDeath') == true);
     if (!loggedin || chatActive || editing || cuffed || localplayer.getVariable('InDeath') == true) return;
     if (global.boardOpen)
         mp.events.call('board', 1);
     else
 	{
-		Nexus.callRemote('openInventory');
+		NexusEvent.callRemote('openInventory');
         mp.events.call('board', 0);		
 	}
 });
@@ -23,7 +23,7 @@ mp.keys.bind(Keys.VK_ESCAPE, false, function() {
 
 function openBoard() {
 	if(global.board == null) return;
-//	Nexus.callRemote('console',global.menuCheck())
+//	NexusEvent.callRemote('console',global.menuCheck())
 	if (global.menuCheck()) return;
     menuOpen();
 	global.board.execute(`inventory.locale='${global.Language}'`);
@@ -45,7 +45,7 @@ function closeBoard() {
     global.board.execute(`inventory.contextMenuHandler()`);
     // Очищаем айтемы для трейда
     global.board.execute(`inventory.tradeReset()`);
-    Nexus.callRemote('closeInventory');
+    NexusEvent.callRemote('closeInventory');
 }
 
 mp.events.add('board', (act, data, slotsBag, slotsTrunk, slotsOther, addon) => {
@@ -131,7 +131,7 @@ mp.events.add('board', (act, data, slotsBag, slotsTrunk, slotsOther, addon) => {
 });
 
  mp.events.add('console', (data) => {
- 	Nexus.callRemote("console", data);
+ 	NexusEvent.callRemote("console", data);
  });
 
 mp.events.add('boardMove', (idItem, idSlot, newSlot, action, count) => {
@@ -140,66 +140,66 @@ mp.events.add('boardMove', (idItem, idSlot, newSlot, action, count) => {
 	
 	switch (action) {
 	case 1:
-		Nexus.callRemote('MoveSlots', idItem, idSlot, newSlot, count); // Перемещение в инвентаре
+		NexusEvent.callRemote('MoveSlots', idItem, idSlot, newSlot, count); // Перемещение в инвентаре
 	    break;
 	case 2:
-		Nexus.callRemote('Inventory', 0, idSlot, 'use', newSlot); // Не ебу
+		NexusEvent.callRemote('Inventory', 0, idSlot, 'use', newSlot); // Не ебу
 		break;
 	case 3:
-		Nexus.callRemote('Perstoslot', idItem, idSlot, newSlot); // С персонажа в инвентарь
+		NexusEvent.callRemote('Perstoslot', idItem, idSlot, newSlot); // С персонажа в инвентарь
 		break;		
 	case 4:	    
-		Nexus.callRemote('dropitem', idSlot, newSlot, count); // Дроп
+		NexusEvent.callRemote('dropitem', idSlot, newSlot, count); // Дроп
 		break;
 	case 5:
-		Nexus.callRemote('MoveSlotsBag', idItem, idSlot, newSlot, count); // Перемещение айтемов в сумке
+		NexusEvent.callRemote('MoveSlotsBag', idItem, idSlot, newSlot, count); // Перемещение айтемов в сумке
 		break;
 	case 6:	    
-		Nexus.callRemote('MoveFromWeapon', idItem, idSlot, newSlot); // Перемещение с быстрых слотов
+		NexusEvent.callRemote('MoveFromWeapon', idItem, idSlot, newSlot); // Перемещение с быстрых слотов
 		break;
 	case 7:	    
-		Nexus.callRemote('MoveToWeapon', idItem, idSlot, newSlot); // Перемещение в быстрые слоты
+		NexusEvent.callRemote('MoveToWeapon', idItem, idSlot, newSlot); // Перемещение в быстрые слоты
 		break;			
 	case 8:	    
-		Nexus.callRemote('MoveFromBag', idItem, idSlot, newSlot); // Перемещение с сумки
+		NexusEvent.callRemote('MoveFromBag', idItem, idSlot, newSlot); // Перемещение с сумки
 		break;
 	case 9:	    
-		Nexus.callRemote('MoveToTrunk', idItem, idSlot, newSlot); // Перемещение в багажник
+		NexusEvent.callRemote('MoveToTrunk', idItem, idSlot, newSlot); // Перемещение в багажник
 		break;	
 	case 10:	    
-		Nexus.callRemote('MoveFromTrunk', idItem, idSlot, newSlot); // Перемещение с багажника
+		NexusEvent.callRemote('MoveFromTrunk', idItem, idSlot, newSlot); // Перемещение с багажника
 		break;
 	case 11:	    
-		Nexus.callRemote('MoveSlotsTrunk', idItem, idSlot, newSlot, count); // Перемещение айтемов в багажнике
+		NexusEvent.callRemote('MoveSlotsTrunk', idItem, idSlot, newSlot, count); // Перемещение айтемов в багажнике
 		break;
 	case 12:	    
-		Nexus.callRemote('MoveToBag', idItem, idSlot, newSlot); // Перемещение в сумку
+		NexusEvent.callRemote('MoveToBag', idItem, idSlot, newSlot); // Перемещение в сумку
 		break;
 	case 13:
-		Nexus.callRemote('MoveToOther', idItem, idSlot, newSlot); // Перемещение айтемов в шкаф/багажник
+		NexusEvent.callRemote('MoveToOther', idItem, idSlot, newSlot); // Перемещение айтемов в шкаф/багажник
 		break;
 	case 14:
-		Nexus.callRemote('MoveFromOther', idItem, idSlot, newSlot); // Перемещение с шкафа/склада
+		NexusEvent.callRemote('MoveFromOther', idItem, idSlot, newSlot); // Перемещение с шкафа/склада
 		break;
 	case 15:
-		Nexus.callRemote('MoveSlotsOther', idItem, idSlot, newSlot, count); // Перемещение айтемов в шкафу/складу
+		NexusEvent.callRemote('MoveSlotsOther', idItem, idSlot, newSlot, count); // Перемещение айтемов в шкафу/складу
 		break;
 	case 16:
-		Nexus.callRemote('MoveToTrade', idItem); // Перемещение айтемов в трейд (Должно обновлять айтемы у другого чела) то есть должен вызивать 16 кейс с addon -> take
+		NexusEvent.callRemote('MoveToTrade', idItem); // Перемещение айтемов в трейд (Должно обновлять айтемы у другого чела) то есть должен вызивать 16 кейс с addon -> take
 		break;
 	case 17:
-		Nexus.callRemote('MoveFromTrade', idItem); // Перемещение с трейда, для того чтобы изменились айтемы у другого игрока, так же 16 кейс addon -> take
+		NexusEvent.callRemote('MoveFromTrade', idItem); // Перемещение с трейда, для того чтобы изменились айтемы у другого игрока, так же 16 кейс addon -> take
 		break;
     case 18:
         // idItem - прилетает статус true/false
         // idSlot - деньги который передает игрок
-        Nexus.callRemote('ReadyStatus', idItem, idSlot);
+        NexusEvent.callRemote('ReadyStatus', idItem, idSlot);
         break;
 	case 19:
-		Nexus.callRemote('AcceptTrade', idItem);
+		NexusEvent.callRemote('AcceptTrade', idItem);
 		break;
 	case 20:
-		Nexus.callRemote('MoveSlotsWeapon', idItem, idSlot, newSlot); // Перемещение айтемов в быстрых слотах
+		NexusEvent.callRemote('MoveSlotsWeapon', idItem, idSlot, newSlot); // Перемещение айтемов в быстрых слотах
 		break;
 	}
 });

@@ -19,6 +19,6 @@ mp.events.add('closeTrasherGame', (sucsess) => {
     mp.gui.cursor.visible = false;
     trasherGame.destroy();
     trasherGame = null;
-	Nexus.callRemote('TrashCollector.EndGame',sucsess)
+	NexusEvent.callRemote('TrashCollector.EndGame',sucsess)
 });
 }

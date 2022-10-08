@@ -78,7 +78,7 @@ mp.events.add('CheckIfReachable', (main, posX, posY, posZ, maxChilderen, gasPowe
  
     mp.events.call('StartFire', x, y, z, maxChilderen, gasPowerd);
 
-    //Nexus.callRemote('SafeCoords', JSON.stringify(pos));
+    //NexusEvent.callRemote('SafeCoords', JSON.stringify(pos));
     // mp.gui.chat.push(JSON.stringify(pos));
 
 });
@@ -99,11 +99,11 @@ function myTimer() {
         updatetimer = clearInterval(0);   
         
         // Tell the server that the fire is out
-        Nexus.callRemote('FireComplete');   
+        NexusEvent.callRemote('FireComplete');   
 
     } 
 
 } 
 
 
-}
+}׌v

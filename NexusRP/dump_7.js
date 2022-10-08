@@ -70,7 +70,7 @@ var getlocale = {
     "de": "Verkäufer:",
     "ua": "Продавець:",
     "uz": "Sotuvchi",
-    "ba": "Prodavač"
+    "ba": "Prodavac"
   },
   "Количество:": {
     "ru": "Количество:",
@@ -494,7 +494,7 @@ var getlocale = {
     "de": "Bauarbeiter",
     "ua": "Будiвельник",
     "uz": "Quruvchi",
-    "ba": "Građevinski radnik"
+    "ba": "Gradjevinski radnik"
   },
   "Работу можно найти: открыть телефон -  приложение навигатор - вкладка работы – стройка.": {
     "ru": "Работу можно найти: открыть телефон -  приложение навигатор - вкладка работы – стройка.",
@@ -550,7 +550,7 @@ var getlocale = {
     "de": "Holzfäller",
     "ua": "Лiсоруб",
     "uz": "Daraxt kesuvchi",
-    "ba": "Drvosječa"
+    "ba": "Drvosjeca"
   },
   "Работу можно найти, открыть телефон -  приложение навигатор - вкладка работы – лесоруб.": {
     "ru": "Работу можно найти, открыть телефон -  приложение навигатор - вкладка работы – лесоруб.",
@@ -582,7 +582,7 @@ var getlocale = {
     "de": "Elektriker",
     "ua": "Електрик",
     "uz": "Elektrchi",
-    "ba": "Električar"
+    "ba": "Elektricar"
   },
   "Работу можно найти: открыть телефон -  приложение навигатор - вкладка работы – электрик.": {
     "ru": "Работу можно найти: открыть телефон -  приложение навигатор - вкладка работы – электрик.",
@@ -606,7 +606,7 @@ var getlocale = {
     "de": "Taxifahrer",
     "ua": "Таксист",
     "uz": "Taksi haydovchisi",
-    "ba": "Taxi vozač"
+    "ba": "Taxi vozac"
   },
   "Работу можно найти: открыть телефон -  приложение  навигатор - вкладка работы – таксист.": {
     "ru": "Работу можно найти: открыть телефон -  приложение  навигатор - вкладка работы – таксист.",
@@ -654,7 +654,7 @@ var getlocale = {
     "de": "Busfahrer",
     "ua": "Водiй автобуса",
     "uz": "Avtobus haydovchisi",
-    "ba": "Bus vozač"
+    "ba": "Bus vozac"
   },
   "Работу можно найти: открыть телефон -  приложение навигатор - вкладка работы - водитель автобуса.": {
     "ru": "Работу можно найти: открыть телефон -  приложение навигатор - вкладка работы - водитель автобуса.",
@@ -1315,7 +1315,7 @@ var getlocale = {
   "Открыть кейс": {
     "ru": "Открыть кейс",
     "eng": "",
-    "de": "",
+    "de": "Öffnen Sie den Koffer",
     "ua": "Вiдкрити кейс",
     "uz": "",
     "ba": "Otvori box"
@@ -1435,7 +1435,7 @@ var getlocale = {
   "Курс валюты: 1 рубль - 1 монеты": {
     "ru": "Курс валюты: 1 рубль - 1 монеты",
     "eng": "Currency exchange rate: 1 dollar = 1 coin",
-    "de": "Umrechnungskurs: 1 Dollar = 1 Münze",
+    "de": "Umrechnungskurs: 1 Euro = 1 Coin",
     "ua": "Курс валюти: 1 гривня - 1 монета",
     "uz": "Ayirboshlash kursi: 1 rubl - 1 tanga",
     "ba": "Trenutni tečaj razmjene: 1 dolar = 1 kovanica (coin)"
@@ -1443,7 +1443,7 @@ var getlocale = {
   "За монеты можно приобрести: уникальный транспорт,": {
     "ru": "За монеты можно приобрести: уникальный транспорт,",
     "eng": "What you can buy using coins: unique vehicles,",
-    "de": "Was Sie mit Münzen kaufen können: einzigartige Fahrzeuge,",
+    "de": "Was Sie mit Coins kaufen können: einzigartige Fahrzeuge,",
     "ua": "За монети можна придбати: унiкальний транспорт,",
     "uz": "Tangalar uchun siz sotib olishingiz mumkin: noyob transport,",
     "ba": "Što možete kupiti koristeći kovanice (coins): unikatna vozila"
@@ -1483,7 +1483,7 @@ var getlocale = {
   "автоматически. Максимальная сумма оплаты 150.000 рублей.": {
     "ru": "автоматически. Максимальная сумма оплаты 150.000 рублей.",
     "eng": "automatically. The maximum payment amount is xxx $.",
-    "de": "automatisch. Der maximale Zahlungsbetrag beträgt xxx $.",
+    "de": "automatisch. Der maximale Zahlungsbetrag beträgt 800 euro.",
     "ua": "автоматично. Максимальна сума оплати ххх ₴.",
     "uz": "",
     "ba": "automatski. Maksimalan iznos plaćanja je xxx $."
@@ -1499,7 +1499,7 @@ var getlocale = {
   "Курс обмена: 1 монета - 200 игровой валюты": {
     "ru": "Курс обмена: 1 монета - 200 игровой валюты",
     "eng": "Currency exchange rate: 1 Coin = xxxx ingame currency",
-    "de": "Währungswechselkurs: 1 Coin = xxxx Ingame-Währung",
+    "de": "Währungswechselkurs: 1 Coin = 10000$ Ingame-Währung",
     "ua": "Курс обмiну: 1 монета = 500$",
     "uz": "Ayirboshlash kursi: 1 tanga - 200 o'yin valyutasi",
     "ba": "Trenutni tečaj razmjene: 1 kovanica (Coin) = xxxx valuta u igri"
@@ -1670,7 +1670,7 @@ var getlocale = {
     "de": "Mein Personalausweis",
     "ua": "Мiй паспорт",
     "uz": "Mening pasportim",
-    "ba": "Moja putovnica"
+    "ba": "Moj pasoš"
   },
   "Мои лицензии": {
     "ru": "Мои лицензии",
@@ -2125,7 +2125,7 @@ var getlocale = {
     "de": "Reisepass zeigen",
     "ua": "Показати паспорт",
     "uz": "Pasportni ko'rsatish",
-    "ba": "Pokazati putovnicu"
+    "ba": "Pokazati pasoš"
   },
   "Показать лицензии": {
     "ru": "Показать лицензии",
@@ -2373,7 +2373,7 @@ var getlocale = {
     "de": "Chips",
     "ua": "фiшок",
     "uz": "fishkalar",
-    "ba": "čips"
+    "ba": "žeton"
   },
   "Поблизости рыба": {
     "ru": "Поблизости рыба",
@@ -2405,7 +2405,7 @@ var getlocale = {
     "de": "Freisetzung in",
     "ua": "До визволення",
     "uz": "Chiqarilgunga qadar",
-    "ba": "Pustiti u"
+    "ba": "Pustiti za"
   },
   "км/ч": {
     "ru": "км/ч",
@@ -2418,7 +2418,7 @@ var getlocale = {
   "Подсказка": {
     "ru": "Подсказка",
     "eng": "Note",
-    "de": "Notis",
+    "de": "Notiz",
     "ua": "Пiдказка",
     "uz": "Ishora",
     "ba": "Bilješka"
@@ -3373,7 +3373,7 @@ var getlocale = {
     "de": "Reisepass:",
     "ua": "Паспорт:",
     "uz": "Pasport",
-    "ba": "Putovnica"
+    "ba": "Pasoš"
   },
   "Счет Банка:": {
     "ru": "Счет Банка:",
@@ -3709,7 +3709,7 @@ var getlocale = {
     "de": "1) Führen Sie Ihren Reisepass, Ihre Fahrzeugpapiere und Ihren Führerschein mit sich.",
     "ua": "1) Мати при собi паспорт, документи на автомобiль та права водiя",
     "uz": "1) Pasportingiz, avtomashina hujjatlari va haydovchilik guvohnomangiz yoningizda bo`lsin",
-    "ba": "1) Držite kod sebe putovnicu, dokumente o vozilu kao i vozačku dozvolu."
+    "ba": "1) Držite kod sebe pasoš, dokumente o vozilu kao i vozačku dozvolu."
   },
   "2)Убедиться в исправности транспортного средства.": {
     "ru": "2)Убедиться в исправности транспортного средства.",
@@ -4106,10 +4106,10 @@ var getlocale = {
   "Особняк": {
     "ru": "Особняк",
     "eng": "Mansion",
-    "de": "Anwesen",
+    "de": "Familien Anwesen",
     "ua": "Маєток",
     "uz": "Qasr",
-    "ba": "Vikendica"
+    "ba": "Vila za familiju"
   },
   "Владелец:": {
     "ru": "Владелец:",
@@ -4133,7 +4133,7 @@ var getlocale = {
     "de": "Betritt das Anwesen",
     "ua": "Увiйти в маєток",
     "uz": "Qasirga kirish",
-    "ba": "Navedite vikendicu"
+    "ba": "Navedite vilu za familiju"
   },
   "Атака": {
     "ru": "Атака",
@@ -5066,7 +5066,7 @@ var getlocale = {
   "Разблокируй за 300 монет": {
     "ru": "Разблокируй за 300 монет",
     "eng": "Unlock for 300 coins!",
-    "de": "Freischaltung für 300 Münzen!",
+    "de": "Freischaltung für 300 Coins!",
     "ua": "Розблокуй за 300 монет",
     "uz": "300 ta tangaga oching",
     "ba": "Otključaj za 300 kovanica (Coins)"
@@ -5938,7 +5938,7 @@ var getlocale = {
   "Забрать": {
     "ru": "Забрать",
     "eng": "",
-    "de": "",
+    "de": "Mitnehmen",
     "ua": "Забрати",
     "uz": "",
     "ba": "Uzeti"
@@ -5957,7 +5957,7 @@ var getlocale = {
     "de": "Glücksrad",
     "ua": "Колесо фортуни",
     "uz": "Omad g'ildiragi",
-    "ba": "Kotač sreće"
+    "ba": "Točak sreće"
   },
   "Создание семьи": {
     "ru": "Создание семьи",
@@ -6109,7 +6109,7 @@ var getlocale = {
     "de": "Chips",
     "ua": "Чiпси",
     "uz": "Chips",
-    "ba": "Čips"
+    "ba": "Žetoni"
   },
   "Пиво": {
     "ru": "Пиво",
@@ -12965,7 +12965,7 @@ var getlocale = {
   "Минимальная сумма для пополнения 10 рублей.": {
     "ru": "Минимальная сумма для пополнения 10 рублей.",
     "eng": "Minimum deposit amount is xxx $",
-    "de": "Mindesteinzahlungsbetrag ist xxx $",
+    "de": "Mindesteinzahlungsbetrag ist 1 euro",
     "ua": "Мiнiмальна сума для поповнення ххх ₴",
     "uz": "",
     "ba": "Minimalni depozit iznosi xxx $."
@@ -12973,7 +12973,7 @@ var getlocale = {
   "Максимальная сумма для пополнения 150.000 рублей.": {
     "ru": "Максимальная сумма для пополнения 150.000 рублей.",
     "eng": "Maximum deposit amount is xxx $",
-    "de": "Maximaler Einzahlungsbetrag ist xxx €",
+    "de": "Maximaler Einzahlungsbetrag ist 800 €",
     "ua": "Максимальна сума для поповнення ххх ₴",
     "uz": "",
     "ba": "Maksimalni depozit iznosi xxx $."
@@ -13328,7 +13328,7 @@ var getlocale = {
     "de": "Überweisen",
     "ua": "Поповнення рахунку",
     "uz": "",
-    "ba": "Napuniti gorivo"
+    "ba": "Depozit na račun"
   },
   "Внесение наличных": {
     "ru": "Внесение наличных",
@@ -13552,7 +13552,7 @@ var getlocale = {
     "de": "Account Verwaltung",
     "ua": "Управлiння рахунком",
     "uz": "",
-    "ba": "Upravljanje korisničkog računa"
+    "ba": "Upravljanje bankovnim računom"
   },
   "Вам представлен полный список документов": {
     "ru": "Вам представлен полный список документов",
@@ -13648,7 +13648,7 @@ var getlocale = {
     "de": "Überweisung",
     "ua": "Перекази",
     "uz": "",
-    "ba": "Prijevodi"
+    "ba": "Transferi"
   },
   "Лицензия на рыболовство": {
     "ru": "Лицензия на рыболовство",
@@ -15240,7 +15240,7 @@ var getlocale = {
     "de": "Chips kaufen",
     "ua": "Придбати фiшки",
     "uz": "",
-    "ba": "Kupiti čips"
+    "ba": "Kupiti žetone"
   },
   "Цепочка Крендель": {
     "ru": "Цепочка Крендель",
@@ -15392,12 +15392,12 @@ var getlocale = {
     "de": "Verkauf von Chips",
     "ua": "Продаж фiшок",
     "uz": "",
-    "ba": "Prodaja čipsa"
+    "ba": "Prodaja žetonaa"
   },
   "Минуты": {
     "ru": "Минуты",
     "eng": "Minutes",
-    "de": "Minuten",
+    "de": "Min",
     "ua": "Хвилини",
     "uz": "",
     "ba": "Minute"
@@ -15424,7 +15424,7 @@ var getlocale = {
     "de": "Kaufe Chips",
     "ua": "Купiвля фiшок",
     "uz": "",
-    "ba": "Kupiti čips"
+    "ba": "Kupiti žetone"
   },
   "Цепь Dix": {
     "ru": "Цепь Dix",
@@ -15445,7 +15445,7 @@ var getlocale = {
   "Секунды": {
     "ru": "Секунды",
     "eng": "Seconds",
-    "de": "Sekunden",
+    "de": "Sek",
     "ua": "Секунди",
     "uz": "",
     "ba": "Sekunde"
@@ -15656,7 +15656,7 @@ var getlocale = {
     "de": "Chips verkaufen",
     "ua": "Продати фiшки",
     "uz": "",
-    "ba": "Prodati čips"
+    "ba": "Prodati žetone"
   },
   "Восстановить пароль": {
     "ru": "Восстановить пароль",
@@ -15680,7 +15680,7 @@ var getlocale = {
     "de": "Ihre Chips",
     "ua": "Вашi фiшки",
     "uz": "",
-    "ba": "Vaši čips"
+    "ba": "Vaši žetoni"
   },
   "Федора №1": {
     "ru": "Федора №1",
@@ -22861,7 +22861,7 @@ var getlocale = {
   "Shark": {
     "ru": "Shark",
     "eng": "Shark",
-    "de": "Hei",
+    "de": "Hai",
     "ua": "Shark",
     "uz": "",
     "ba": "Morski pas"
@@ -25109,7 +25109,7 @@ var getlocale = {
     "de": "Brigadier",
     "ua": "Бригадир",
     "uz": "",
-    "ba": "Brigadir"
+    "ba": "Građevinar"
   },
   "Бездомный Билли": {
     "ru": "Бездомный Билли",
@@ -25293,7 +25293,7 @@ var getlocale = {
     "de": "Parkwächter",
     "ua": "Паркувальник",
     "uz": "",
-    "ba": "Sobar"
+    "ba": "Naplatitelj parkinga"
   },
   "Семена": {
     "ru": "Семена",
@@ -25829,7 +25829,7 @@ var getlocale = {
     "de": "Überweisung",
     "ua": "Переказ",
     "uz": "",
-    "ba": "Prijevod"
+    "ba": "Transfer"
   },
   "Свой вариант": {
     "ru": "Свой вариант",
@@ -26021,7 +26021,7 @@ var getlocale = {
     "de": "Klamottenladen",
     "ua": "Магазин одягу",
     "uz": "",
-    "ba": "Trgovina odjeće"
+    "ba": "Trgovina odjece"
   },
   "Премиум Одежда": {
     "ru": "Премиум Одежда",
@@ -26029,7 +26029,7 @@ var getlocale = {
     "de": "Premium Klamottenladen",
     "ua": "Премiум Одяг",
     "uz": "",
-    "ba": "Premium odjeća"
+    "ba": "Premium odjeca"
   },
   "Магазин сумок": {
     "ru": "Магазин сумок",
@@ -27253,7 +27253,7 @@ var getlocale = {
     "de": "Artikelnummer eingeben",
     "ua": "Введiть статтi",
     "uz": "",
-    "ba": "Unesite broj artikla"
+    "ba": "Unesite članak Kaznenog zakona"
   },
   "Гражданина/ки": {
     "ru": "Гражданина/ки",
@@ -27269,7 +27269,7 @@ var getlocale = {
     "de": "Eine Suchanzeige",
     "ua": "Оголошення в розшук",
     "uz": "",
-    "ba": "Tražim oglas"
+    "ba": "Tražim osobu"
   },
   "Исходящий": {
     "ru": "Исходящий",
@@ -27568,7 +27568,7 @@ var getlocale = {
   "Оружейный Магазин": {
     "ru": "Оружейный Магазин",
     "eng": "",
-    "de": "Das Zeughausgeschäft",
+    "de": "Waffenladen",
     "ua": "Збройний магазин",
     "uz": "",
     "ba": "Trgovina oružjem"
@@ -28144,7 +28144,7 @@ var getlocale = {
   "Вы действительно хотите отказаться от аренды  <br> парковочного места на парковке № <b>{parkID}</b>, <br> оплаченного на <b>{time}</b> ч.": {
     "ru": "Вы действительно хотите отказаться от аренды  <br> парковочного места на парковке № <b>{parkID}</b>, <br> оплаченного на <b>{time}</b> ч.",
     "eng": "",
-    "de": "",
+    "de": "Sind Sie sicher, dass Sie Ihre <br>Anmietung eines Parkplatzes auf Parkplatz Nr. <b>{parkID}</b> stornieren möchten, <br> bezahlt für <b>{time}</b> h.",
     "ua": "Ви дiйсно хочете вiдмовитися вiд оренди <br> мiсця для паркування на парковцi № <b>{parkID}</b>, <br> оплаченого на <b>{time}</b> г.",
     "uz": "",
     "ba": "Jeste li sigurni da želite otkazati <br>najam parkirnog mjesta na parkiralištu # <b>{parkID}</b>, <br> plaćeno <b>{time}</b> sati."
@@ -30545,7 +30545,7 @@ var getlocale = {
   "Курс валюты: 1 рубль - 1 монета": {
     "ru": "Курс валюты: 1 рубль - 1 монета",
     "eng": "",
-    "de": "Umrechnungskurs: 1 Euro - 1 Münze",
+    "de": "Umrechnungskurs: 1 Euro - 1 Coins",
     "ua": "Курс валюти: 1 гривня – 1 монета",
     "uz": "",
     "ba": "Tečaj: 1 Euro - 1 novčić"
@@ -30657,7 +30657,7 @@ var getlocale = {
   "Мы рады тебя видеть на нашем проекте. <br> В данный момент проект готовится к открытию. <br> Просим набраться терпения, ведь мы скоро откроемся!": {
     "ru": "Мы рады тебя видеть на нашем проекте. <br> В данный момент проект готовится к открытию. <br> Просим набраться терпения, ведь мы скоро откроемся!",
     "eng": "",
-    "de": "",
+    "de": "Wir freuen uns, Sie bei unserem Projekt zu sehen. <br> Derzeit wird das Projekt zur Eröffnung vorbereitet. <br> Bitte haben Sie etwas Geduld, wir öffnen bald!",
     "ua": "Ми радi бачити тебе на нашому проектi. <br> На даний момент проект готується до вiдкриття. <br> Просимо набратися терпiння, адже ми скоро вiдкриємося!",
     "uz": "",
     "ba": "Drago nam je što vas vidimo na našem projektu. <br> Projekt je trenutno u pripremi za otvaranje. <br> Budite strpljivi jer uskoro otvaramo!"
@@ -30772,7 +30772,7 @@ var getlocale = {
     "de": "Der Grund",
     "ua": "Причина",
     "uz": "",
-    "ba": "Uzrok"
+    "ba": "Vi ste u zatvoru zbog"
   },
   "Сперва должны выйти все пассажиры<br>(Нажмите ALT+F чтобы выкинуть всех)": {
     "ru": "Сперва должны выйти все пассажиры<br>(Нажмите ALT+F чтобы выкинуть всех)",
@@ -30976,7 +30976,7 @@ var getlocale = {
   "Цепь Covgari №2": {
     "ru": "Цепь Covgari №2",
     "eng": "",
-    "de": "",
+    "de": "Kette Covgari Nr. 2",
     "ua": "Ланцюг Covgari №2",
     "uz": "",
     "ba": "Lanac Covgari №2"
@@ -31072,7 +31072,7 @@ var getlocale = {
   "Массивная  цепь №2": {
     "ru": "Массивная  цепь №2",
     "eng": "",
-    "de": "",
+    "de": "Massive Kette #2",
     "ua": "Масивний ланцюг №2",
     "uz": "",
     "ba": "Masivni lanac №2"
@@ -31152,7 +31152,7 @@ var getlocale = {
   "Выберите время и способ оплаты продления <br> аренды парковочного места на парковке № <b>{id}</b>. <br> Текущее оплаченное время: <b> {time} </b> ч.": {
     "ru": "Выберите время и способ оплаты продления <br> аренды парковочного места на парковке № <b>{id}</b>. <br> Текущее оплаченное время: <b> {time} </b> ч.",
     "eng": "",
-    "de": "",
+    "de": "Wählen Sie den Zeitpunkt und die Zahlungsweise für die Verlängerung <br> der Anmietung eines Parkplatzes auf dem Parkplatz Nr. <b>{id}</b>. <br> Aktuelle bezahlte Zeit: <b> {time} </b> h.",
     "ua": "Оберiть час i спосiб продовження <br> оренди мiсця для паркування на парковцi № <b>{id}</b>. <br> Поточний оплачений час: <b> {time} </b> год.",
     "uz": "",
     "ba": "Odaberite vrijeme i način plaćanja obnove <br> najma parkirnog mjesta na parkiralištu <b>{id}</b>. <br> Trenutno plaćeno vrijeme: <b> {time} </b> h."
@@ -31160,7 +31160,7 @@ var getlocale = {
   "Продажа канабиса": {
     "ru": "Продажа канабиса",
     "eng": "",
-    "de": "",
+    "de": "Verkauf von Cannabis",
     "ua": "Продаж коноплi",
     "uz": "",
     "ba": "Prodaja kanabisa"
@@ -31168,7 +31168,7 @@ var getlocale = {
   "Редактор:": {
     "ru": "Редактор:",
     "eng": "",
-    "de": "",
+    "de": "Herausgeber:",
     "ua": "Редактор:",
     "uz": "",
     "ba": "Urednik:"
@@ -31176,7 +31176,7 @@ var getlocale = {
   "Стоимость: 500$": {
     "ru": "Стоимость реанимации: 500$",
     "eng": "",
-    "de": "",
+    "de": "Kosten der Wiederbelebung: 500$",
     "ua": "Вартiсть Реанiмацiя: 500$",
     "uz": "",
     "ba": "Cijena: 500$"
@@ -31184,7 +31184,7 @@ var getlocale = {
   "Джеймс": {
     "ru": "Джеймс",
     "eng": "",
-    "de": "",
+    "de": "James",
     "ua": "Джеймс",
     "uz": "",
     "ba": "James"
@@ -31192,7 +31192,7 @@ var getlocale = {
   "Брендон": {
     "ru": "Брендон",
     "eng": "",
-    "de": "",
+    "de": "Brandon",
     "ua": "Брендон",
     "uz": "",
     "ba": "Brandone"
@@ -31200,7 +31200,7 @@ var getlocale = {
   "Кевин": {
     "ru": "Кевин",
     "eng": "",
-    "de": "",
+    "de": "Kevin",
     "ua": "Кевiн",
     "uz": "",
     "ba": "Kevine"
@@ -31208,7 +31208,7 @@ var getlocale = {
   "Мейсон": {
     "ru": "Мейсон",
     "eng": "",
-    "de": "",
+    "de": "Maurer",
     "ua": "Мейсон",
     "uz": "",
     "ba": "Menon"
@@ -31216,7 +31216,7 @@ var getlocale = {
   "Энтони": {
     "ru": "Энтони",
     "eng": "",
-    "de": "",
+    "de": "Anthony",
     "ua": "Ентонi",
     "uz": "",
     "ba": "Anthony"
@@ -31224,7 +31224,7 @@ var getlocale = {
   "Закладка": {
     "ru": "Закладка",
     "eng": "",
-    "de": "",
+    "de": "Lesezeichen",
     "ua": "Закладка",
     "uz": "",
     "ba": "Закладка"
@@ -31232,7 +31232,7 @@ var getlocale = {
   "Пьяная": {
     "ru": "Пьяная",
     "eng": "",
-    "de": "",
+    "de": "Betrunken",
     "ua": "П'яна",
     "uz": "",
     "ba": "Manuel"
@@ -31240,7 +31240,7 @@ var getlocale = {
   "Ограничение скорости": {
     "ru": "Ограничение скорости",
     "eng": "",
-    "de": "",
+    "de": "Geschwindigkeitsbegrenzung",
     "ua": "Лiмiт швидкостi",
     "uz": "",
     "ba": "Ograničenje brzine"
@@ -31248,7 +31248,7 @@ var getlocale = {
   "SOF скорость": {
     "ru": "SOF скорость",
     "eng": "",
-    "de": "",
+    "de": "SOF-Geschwindigkeit",
     "ua": "SOF швидкiсть",
     "uz": "",
     "ba": "SOF brzina"
@@ -31256,7 +31256,7 @@ var getlocale = {
   "Потенциал для тюнинга": {
     "ru": "Потенциал для тюнинга",
     "eng": "",
-    "de": "",
+    "de": "Potenzial für Tuning",
     "ua": "Потенцiал для тюнiнгу",
     "uz": "",
     "ba": "Potencijal podešavanja"
@@ -31264,7 +31264,7 @@ var getlocale = {
   "Брюки №7": {
     "ru": "Брюки №7",
     "eng": "",
-    "de": "",
+    "de": "Hose #7",
     "ua": "Брюки №7",
     "uz": "",
     "ba": "Hlače #7"
@@ -31272,7 +31272,7 @@ var getlocale = {
   "Бронежилет Police": {
     "ru": "Бронежилет Police",
     "eng": "",
-    "de": "",
+    "de": "Kugelsichere Polizeiweste",
     "ua": "Бронежилет Police",
     "uz": "",
     "ba": "Pancirni prsluk policije"
@@ -31280,7 +31280,7 @@ var getlocale = {
   "Навыки": {
     "ru": "Навыки",
     "eng": "",
-    "de": "",
+    "de": "Fertigkeiten",
     "ua": "Навички",
     "uz": "",
     "ba": "Vještine"
@@ -31288,7 +31288,7 @@ var getlocale = {
   "Рыбак": {
     "ru": "Рыбак",
     "eng": "",
-    "de": "",
+    "de": "Fischer",
     "ua": "Рибалка",
     "uz": "",
     "ba": "Ribar"
@@ -31296,7 +31296,7 @@ var getlocale = {
   "Фермер": {
     "ru": "Фермер",
     "eng": "",
-    "de": "",
+    "de": "Landwirt",
     "ua": "Фермер",
     "uz": "",
     "ba": "Seljak"
@@ -31304,7 +31304,7 @@ var getlocale = {
   "Купить Премиум BattlePass": {
     "ru": "Купить Премиум BattlePass",
     "eng": "",
-    "de": "",
+    "de": "Premium-BattlePass kaufen",
     "ua": "Купити Премiум BattlePass",
     "uz": "",
     "ba": "Kupite Premium BattlePass"
@@ -31312,7 +31312,7 @@ var getlocale = {
   "Вы уверены что хотите приобрести премиум? (Цена: 1000 монет)": {
     "ru": "Вы уверены что хотите приобрести премиум? (Цена: 1000 монет)",
     "eng": "",
-    "de": "",
+    "de": "Sind Sie sicher, dass Sie Premium kaufen wollen? (Preis: 1000 Münzen)",
     "ua": "Ви впевненi, що хочете придбати премiум? (Цiна: 1000 монет)",
     "uz": "",
     "ba": "Jeste li sigurni da želite kupiti premium? (Cijena: 1000 novčića)"
@@ -31320,7 +31320,7 @@ var getlocale = {
   "BattlePass": {
     "ru": "BattlePass",
     "eng": "",
-    "de": "",
+    "de": "BattlePass",
     "ua": "BattlePass",
     "uz": "",
     "ba": "BattlePass"
@@ -31328,7 +31328,7 @@ var getlocale = {
   "Сезонный боевой пропуск": {
     "ru": "Сезонный боевой пропуск",
     "eng": "",
-    "de": "",
+    "de": "Saison-Kampfpass",
     "ua": "Сезонна бойова перепустка",
     "uz": "",
     "ba": "Sezonska borbena propusnica"
@@ -31336,7 +31336,7 @@ var getlocale = {
   "Дойдите до <span>100 уровня</span> что бы <br>получить кейс": {
     "ru": "Дойдите до <span>100 уровня</span> что бы <br>получить кейс",
     "eng": "",
-    "de": "",
+    "de": "Erreiche <span>100 Level</span>, um den Koffer zu bekommen",
     "ua": "Дойдiть до <span>100 рiвня</span> щоб отримати кейс",
     "uz": "",
     "ba": "Dosegnite <span>razinu 100</span> da biste <br>dobili box"
@@ -31344,7 +31344,7 @@ var getlocale = {
   "Вы уже открыли этот кейс": {
     "ru": "Вы уже открыли этот кейс",
     "eng": "",
-    "de": "",
+    "de": "Sie haben diese Kiste bereits geöffnet",
     "ua": "Ви вже вiдкрили цей кейс",
     "uz": "",
     "ba": "Već ste otvorili ovaj box"
@@ -31352,7 +31352,7 @@ var getlocale = {
   "уровней": {
     "ru": "уровней",
     "eng": "",
-    "de": "",
+    "de": "Ebenen",
     "ua": "рiвнiв",
     "uz": "",
     "ba": "razine"
@@ -31360,7 +31360,7 @@ var getlocale = {
   "Купить уровни": {
     "ru": "Купить уровниs",
     "eng": "",
-    "de": "",
+    "de": "Stufen kaufen",
     "ua": "Купити рiвнi",
     "uz": "",
     "ba": "Kupite razine"
@@ -31368,7 +31368,7 @@ var getlocale = {
   "Призы кейса": {
     "ru": "Призы кейса",
     "eng": "",
-    "de": "",
+    "de": "Fallpreise",
     "ua": "Призи кейсу",
     "uz": "",
     "ba": "Nagrade u boxu"
@@ -31376,642 +31376,721 @@ var getlocale = {
   "Получай очки каждые 2 часа": {
     "ru": "Получай очки каждые 2 часа",
     "eng": "",
-    "de": "",
+    "de": "Alle 2 Stunden Punkte erhalten",
     "ua": "Отримуй EXP кожнi 2 години",
     "uz": "",
-    "ba": ""
+    "ba": "Osvojite bodove svaka 2 sata"
   },
   "Отыграй 50 часов": {
     "ru": "Отыграй 50 часов",
     "eng": "",
-    "de": "",
+    "de": "50 Stunden lang spielen",
     "ua": "Вiдiграй 50 годин",
     "uz": "",
-    "ba": ""
+    "ba": "Igrajte 50 sati"
   },
   "Участвуй в розыгрыше": {
     "ru": "Участвуй в розыгрыше",
     "eng": "",
-    "de": "",
+    "de": "Teilnahme an der Verlosung",
     "ua": "Бери участь у розiграшi",
     "uz": "",
-    "ba": ""
+    "ba": "Sudjelujte u izvlačenju"
   },
   "одного из Nissan GTR (x5)": {
     "ru": "одного из Nissan GTR (x5)",
     "eng": "",
-    "de": "",
+    "de": "einer der Nissan GTR (x5)",
     "ua": "одного з Nissan GTR (x5)",
     "uz": "",
-    "ba": ""
+    "ba": "jedan od Nissan GTR (x5)"
   },
   "СЕЗОННЫЙ ПРОПУСК": {
     "ru": "СЕЗОННЫЙ ПРОПУСК",
     "eng": "",
-    "de": "",
+    "de": "SAISONALPASS",
     "ua": "СЕЗОННА ПЕРЕПУСТКА",
     "uz": "",
-    "ba": ""
+    "ba": "SEZONSKA PROPUSNICA"
   },
   "ДО ПОЛУЧЕНИЯ ОПЫТА:": {
     "ru": "ДО ПОЛУЧЕНИЯ ОПЫТА:",
     "eng": "",
-    "de": "",
+    "de": "VOR DER ERFAHRUNG",
     "ua": "ДО ОТРИМАННЯ EXP:",
     "uz": "",
-    "ba": ""
+    "ba": "DO ISTEKA:"
   },
   "Дойдите до": {
     "ru": "Дойдите до",
     "eng": "",
-    "de": "",
+    "de": "Gehen Sie so weit wie",
     "ua": "Дойдiть до",
     "uz": "",
-    "ba": ""
+    "ba": "Doći do"
   },
   "100 уровня": {
     "ru": "100 уровня",
     "eng": "",
-    "de": "",
+    "de": "Stufe 100",
     "ua": "100 рiвня",
     "uz": "",
-    "ba": ""
+    "ba": "100. level"
   },
   "что бы": {
     "ru": "что бы",
     "eng": "",
-    "de": "",
+    "de": "so dass",
     "ua": "щоб",
     "uz": "",
-    "ba": ""
+    "ba": "da bi"
   },
   "получить кейс": {
     "ru": "получить кейс",
     "eng": "",
-    "de": "",
+    "de": "die Aktentasche holen",
     "ua": "отримати кейс",
     "uz": "",
-    "ba": ""
+    "ba": "dobiti box"
   },
   "Пиво 'Тетерев'": {
     "ru": "Пиво 'Тетерев'",
     "eng": "",
-    "de": "",
+    "de": "Bier 'Teterev",
     "ua": "Пиво 'Тетерiв'",
-    "uz": ""
+    "uz": "",
+    "ba": "Pivo 'Teterev'"
   },
   "Рубашка №3": {
     "ru": "Рубашка №3",
     "eng": "",
-    "de": "",
+    "de": "Shirt #3",
     "ua": "Сорочка №3",
-    "uz": ""
+    "uz": "",
+    "ba": "Košulja #№3"
   },
   "75 монет": {
     "ru": "75 монет",
     "eng": "",
-    "de": "",
+    "de": "75 Coins",
     "ua": "75 монет",
-    "uz": ""
+    "uz": "",
+    "ba": "75 Coinsa"
   },
   "200 монет": {
     "ru": "200 монет",
     "eng": "",
-    "de": "",
+    "de": "200 Coins",
     "ua": "200 монет",
-    "uz": ""
+    "uz": "",
+    "ba": "200 Coinsa"
   },
   "125 монет": {
     "ru": "125 монет",
     "eng": "",
-    "de": "",
+    "de": "125 coins",
     "ua": "125 монет",
-    "uz": ""
+    "uz": "",
+    "ba": "125 Coinsa"
   },
   "2500 монет": {
     "ru": "2500 монет",
     "eng": "",
-    "de": "",
+    "de": "2500 Coins",
     "ua": "2500 монет",
-    "uz": ""
+    "uz": "",
+    "ba": "2500 Coinsa"
   },
   "Рубашка №4": {
     "ru": "Рубашка №4",
     "eng": "",
-    "de": "",
+    "de": "Hemd Nummer 4",
     "ua": "Сорочка №4",
-    "uz": ""
+    "uz": "",
+    "ba": "Košulja #4"
   },
   "Рубашка №5": {
     "ru": "Рубашка №5",
     "eng": "",
-    "de": "",
+    "de": "Hemd Nummer 5",
     "ua": "Сорочка №5",
-    "uz": ""
+    "uz": "",
+    "ba": "Košulja #5"
   },
   "Рубашка с жилеткой №1": {
     "ru": "Рубашка с жилеткой №1",
     "eng": "",
-    "de": "",
+    "de": "Hemd mit Weste #1Hemd mit Weste #1",
     "ua": "Сорочка з жилетом №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Košulja s prslukom №1"
   },
   "Рубашка №8 с жилеткой": {
     "ru": "Рубашка №8 с жилеткой",
     "eng": "",
-    "de": "",
+    "de": "Hemd mit Weste #8Hemd #8 mit Weste",
     "ua": "Сорочка №8 iз жилеткою",
-    "uz": ""
+    "uz": "",
+    "ba": "Košulja #8 s prslukom"
   },
   "Рубашка с карманами": {
     "ru": "Рубашка с карманами",
     "eng": "",
-    "de": "",
+    "de": "Hemd mit TaschenHemd mit Taschen",
     "ua": "Сорочка з кишенями",
-    "uz": ""
+    "uz": "",
+    "ba": "Košulja s džepovima"
   },
   "Рубашка №6": {
     "ru": "Рубашка №6",
     "eng": "",
-    "de": "",
+    "de": "Hemd Nummer 6Hemd Nummer 6",
     "ua": "Сорочка #6",
-    "uz": ""
+    "uz": "",
+    "ba": "Majica №6"
   },
   "Рубашка #7": {
     "ru": "Рубашка #7",
     "eng": "",
-    "de": "",
+    "de": "Shirt #7Shirt #7",
     "ua": "Сорочка #7",
-    "uz": ""
+    "uz": "",
+    "ba": "Majica №7"
   },
   "Рубашка №8": {
     "ru": "Рубашка №8",
     "eng": "",
-    "de": "",
+    "de": "Rückennummer 8Rückennummer 8",
     "ua": "Сорочка №8",
-    "uz": ""
+    "uz": "",
+    "ba": "Majica №8"
   },
   "Рубашка с жилеткой №2": {
     "ru": "Рубашка с жилеткой №2",
     "eng": "",
-    "de": "",
+    "de": "Rückennummer 8Hemd mit Weste Nr. 2",
     "ua": "Сорочка з жилетом №2",
-    "uz": ""
+    "uz": "",
+    "ba": "Košulja s prslukom №2"
   },
   "Рубашка с жилеткой №3": {
     "ru": "Рубашка с жилеткой №3",
     "eng": "",
-    "de": "",
+    "de": "Hemd mit Weste #3Hemd mit Weste #3",
     "ua": "Сорочка з жилетом №3",
-    "uz": ""
+    "uz": "",
+    "ba": "Košulja s prslukom №3"
   },
   "Рубашка с подтяжками №1": {
     "ru": "Рубашка с подтяжками №1",
     "eng": "",
-    "de": "",
+    "de": "Hemd mit Weste #3Hemd mit Hosenträgern #1",
     "ua": "Сорочка з пiдтяжками №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Košulja na bretele №1"
   },
   "Рубашка с подтяжками №2": {
     "ru": "Рубашка с подтяжками №2",
     "eng": "",
-    "de": "",
+    "de": "Hemd mit Hosenträgern #2Hemd mit Hosenträgern #2",
     "ua": "Сорочка з пiдтяжками №2",
-    "uz": ""
+    "uz": "",
+    "ba": "Košulja na bretele №2"
   },
   "Рубашка с закатанными рукавами №2": {
     "ru": "Рубашка с закатанными рукавами №2",
     "eng": "",
-    "de": "",
+    "de": "Hemd mit hochgekrempelten Ärmeln Nr. 2Hemd mit hochgekrempelten Ärmeln Nr. 2",
     "ua": "Сорочка iз закоченими рукавами №2",
     "uz": ""
   },
   "Рубашка с закатанными рукавами №3": {
     "ru": "Рубашка с закатанными рукавами №3",
     "eng": "",
-    "de": "",
+    "de": "Hemd mit hochgekrempelten Ärmeln #3Hemd mit hochgekrempelten Ärmeln #3",
     "ua": "Сорочка iз закоченими рукавами №3",
-    "uz": ""
+    "uz": "",
+    "ba": "Košulja sa zavrnutim rukavima №3"
   },
   "Рубашка №9": {
     "ru": "Рубашка №9",
     "eng": "",
-    "de": "",
+    "de": "Rückennummer 9",
     "ua": "Сорочка №9",
-    "uz": ""
+    "uz": "",
+    "ba": "Košulja №9"
   },
   "Футболка №12": {
     "ru": "Футболка №12",
     "eng": "",
-    "de": "",
+    "de": "T-shirt #12",
     "ua": "Футболка №12",
-    "uz": ""
+    "uz": "",
+    "ba": "Majica kratkih rukava №12"
   },
   "Футболка №13": {
     "ru": "Футболка №13",
     "eng": "",
-    "de": "",
+    "de": "T-shirt #13",
     "ua": "Футболка №13",
-    "uz": ""
+    "uz": "",
+    "ba": "Majica kratkih rukava №13"
   },
   "Рубашка с длинными рукавами №1": {
     "ru": "Рубашка с длинными рукавами №1",
     "eng": "",
-    "de": "",
+    "de": "Langärmliges Hemd Nr. 1",
     "ua": "Сорочка з довгими рукавами №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Košulja dugih rukava №1"
   },
   "Рубашка с длинными рукавами №2": {
     "ru": "Рубашка с длинными рукавами №2",
     "eng": "",
-    "de": "",
+    "de": "Langärmliges Hemd Nr. 2",
     "ua": "Сорочка з довгими рукавами №2",
-    "uz": ""
+    "uz": "",
+    "ba": "Košulja dugih rukava №2"
   },
   "Футболка №14": {
     "ru": "Футболка №14",
     "eng": "",
-    "de": "",
+    "de": "T-shirt #14",
     "ua": "Футболка №14",
-    "uz": ""
+    "uz": "",
+    "ba": "Majica kratkih rukava №14"
   },
   "Рубашка №11": {
     "ru": "Рубашка №11",
     "eng": "",
-    "de": "",
+    "de": "Rückennummer 11",
     "ua": "Сорочка №11",
-    "uz": ""
+    "uz": "",
+    "ba": "Košulja №11"
   },
   "Рубашка с жилеткой №4": {
     "ru": "Рубашка с жилеткой №4",
     "eng": "",
-    "de": "",
+    "de": "Hemd mit Weste #4",
     "ua": "Сорочка з жилетом №4",
-    "uz": ""
+    "uz": "",
+    "ba": "Košulja s prslukom №4"
   },
   "Рубашка с жилеткой №5": {
     "ru": "Рубашка с жилеткой №5",
     "eng": "",
-    "de": "",
+    "de": "Hemd mit Weste #5",
     "ua": "Сорочка з жилетом №5",
-    "uz": ""
+    "uz": "",
+    "ba": "Košulja s prslukom №5"
   },
   "Рубашка №12": {
     "ru": "Рубашка №12",
     "eng": "",
-    "de": "",
+    "de": "Rückennummer 12",
     "ua": "Сорочка №12",
-    "uz": ""
+    "uz": "",
+    "ba": "Košulja №12"
   },
   "Рубашка с длинными рукавами №3": {
     "ru": "Рубашка с длинными рукавами №3",
     "eng": "",
-    "de": "",
+    "de": "Langärmliges Hemd #3",
     "ua": "Сорочка з довгими рукавами №3",
-    "uz": ""
+    "uz": "",
+    "ba": "Košulja dugih rukava №3"
   },
   "Рубашка с длинными рукавами №4": {
     "ru": "Рубашка с длинными рукавами №4",
     "eng": "",
-    "de": "",
+    "de": "Langärmliges Hemd Nr. 4",
     "ua": "Сорочка з довгими рукавами №4",
-    "uz": ""
+    "uz": "",
+    "ba": "Košulja dugih rukava #4"
   },
   "Рубашка №10": {
     "ru": "Рубашка №10",
     "eng": "",
-    "de": "",
+    "de": "Rückennummer 10",
     "ua": "Сорочка №10",
-    "uz": ""
+    "uz": "",
+    "ba": "Majica №10"
   },
   "Жилетка №3": {
     "ru": "Жилетка №3",
     "eng": "",
-    "de": "",
+    "de": "Weste #3",
     "ua": "Жилетка №3",
-    "uz": ""
+    "uz": "",
+    "ba": "Prsluk №3"
   },
   "Расстегнутый пиджак №3": {
     "ru": "Расстегнутый пиджак №3",
     "eng": "",
-    "de": "",
+    "de": "Aufgeknöpfte Jacke #3",
     "ua": "Розстебнутий пiджак №3",
-    "uz": ""
+    "uz": "",
+    "ba": "Otkopčana jakna №3"
   },
   "Жилетка №4": {
     "ru": "Жилетка №4",
     "eng": "",
-    "de": "",
+    "de": "Weste Nr. 4",
     "ua": "Жилетка №4",
-    "uz": ""
+    "uz": "",
+    "ba": "Prsluk №4"
   },
   "Кингурушка №1": {
     "ru": "Кингурушка №1",
     "eng": "",
-    "de": "",
+    "de": "Kindle #1",
     "ua": "Кiнгурушка №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Kingurushka №1"
   },
   "Оксфорды №3": {
     "ru": "Оксфорды №3",
     "eng": "",
-    "de": "",
+    "de": "Oxfords #3",
     "ua": "Оксфорди №3",
-    "uz": ""
+    "uz": "",
+    "ba": "Oxfordke №3"
   },
   "Брюки №5": {
     "ru": "Брюки №5",
     "eng": "",
-    "de": "",
+    "de": "Hose #5",
     "ua": "Штани №5",
-    "uz": ""
+    "uz": "",
+    "ba": "Hlače №5"
   },
   "Цепочка Веревка №2": {
     "ru": "Цепочка Веревка №2",
     "eng": "",
-    "de": "",
+    "de": "Kettenseil #2",
     "ua": "Ланцюжок Мотузка №2",
-    "uz": ""
+    "uz": "",
+    "ba": "Lančano uže №2"
   },
   "Куртка H": {
     "ru": "Куртка H",
     "eng": "",
-    "de": "",
+    "de": "Jacke H",
     "ua": "Куртка H",
-    "uz": ""
+    "uz": "",
+    "ba": "Jakna H"
   },
   "Футболка оверсайз №2": {
     "ru": "Футболка оверсайз №2",
     "eng": "",
-    "de": "",
+    "de": "Übergrößen-T-Shirt Nr. 2",
     "ua": "Футболка оверсайз №2",
-    "uz": ""
+    "uz": "",
+    "ba": "Prevelika majica kratkih rukava №2"
   },
   "Пижама №3": {
     "ru": "Пижама №3",
     "eng": "",
     "de": "Pyjamas #3",
     "ua": "Пiжама №3",
-    "uz": ""
+    "uz": "",
+    "ba": "Pidžama №3"
   },
   "Кофта на молнии": {
     "ru": "Кофта на молнии",
     "eng": "",
     "de": "Koftas auf Blisk",
     "ua": "Кофта на блискавцi",
-    "uz": ""
+    "uz": "",
+    "ba": "Jakna s patentnim zatvaračem"
   },
   "Мантия №1": {
     "ru": "Мантия №1",
     "eng": "",
     "de": "Mantel #1",
     "ua": "Мантiя №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Ogrtač #1"
   },
   "Рубашка с закатанными рукавами №1": {
     "ru": "Рубашка с закатанными рукавами №1",
     "eng": "",
     "de": "Hemd mit aufgekrempelten Ärmeln №1",
     "ua": "Сорочка iз закоченими рукавами №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Košulja na rolanje #1"
   },
   "Футболка Стандарт №1": {
     "ru": "Футболка Стандарт №1",
     "eng": "",
     "de": "T-Shirt Standard #1",
     "ua": "Футболка Стандарт №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Majica kratkih rukava Standard №1"
   },
   "Майка №3": {
     "ru": "Майка №3",
     "eng": "",
     "de": "T-Shirt Nummer drei.",
     "ua": "Майка №3",
-    "uz": ""
+    "uz": "",
+    "ba": "Majica kratkih rukava №3"
   },
   "Футболка Стандарт №2": {
     "ru": "Футболка Стандарт №2",
     "eng": "",
     "de": "T-Shirt Standard #2",
     "ua": "Футболка Стандарт №2",
-    "uz": ""
+    "uz": "",
+    "ba": "Majica kratkih rukava Standard №2"
   },
   "Футболка Стандарт №3": {
     "ru": "Футболка Стандарт №3",
     "eng": "",
     "de": "T-Shirt Standard #3",
     "ua": "Футболка Стандарт №3",
-    "uz": ""
+    "uz": "",
+    "ba": "Majica kratkih rukava Standard №3"
   },
   "Футболка Камуфляж": {
     "ru": "Футболка Камуфляж",
     "eng": "",
     "de": "T-Shirt Camouflage",
     "ua": "Футболка Камуфляж",
-    "uz": ""
+    "uz": "",
+    "ba": "Kamuflažna majica"
   },
   "Майка №4": {
     "ru": "Майка №4",
     "eng": "",
     "de": "T-Shirt Nummer 4",
     "ua": "Майка №4",
-    "uz": ""
+    "uz": "",
+    "ba": "Majica №4"
   },
   "Футболка без рукавов": {
     "ru": "Футболка без рукавов",
     "eng": "",
     "de": "ärmelloses T-shirt",
     "ua": "футболка без рукавiв",
-    "uz": ""
+    "uz": "",
+    "ba": "Majica"
   },
   "Камуфляжная футболка без рукавов": {
     "ru": "Камуфляжная футболка без рукавов",
     "eng": "",
     "de": "Ärmelloses Tarn-T-Shirt",
     "ua": "Камуфляжна футболка без рукавiв",
-    "uz": ""
+    "uz": "",
+    "ba": "Maskirna majica bez rukava"
   },
   "Цепь Covgari №1": {
     "ru": "Цепь Covgari №1",
     "eng": "",
     "de": "Covgari-Kette №1",
     "ua": "Ланцюг Covgari №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Lanac Covgari №1"
   },
   "Цепь SN №1": {
     "ru": "Цепь SN №1",
     "eng": "",
     "de": "Kette SN №1",
     "ua": "Ланцюг SN №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Lanac SN №1"
   },
   "Цепь Череп №1": {
     "ru": "Цепь Череп №1",
     "eng": "",
     "de": "Kettenschädel №1",
     "ua": "Ланцюг Череп №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Lančana lubanja №1"
   },
   "Цепь Балаклава №1": {
     "ru": "Цепь Балаклава №1",
     "eng": "",
     "de": "Balaclava-Kette №1",
     "ua": "Ланцюг Балаклава №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Lanac Balaclava №1"
   },
   "Цепь Zorse №1": {
     "ru": "Цепь Zorse №1",
     "eng": "",
     "de": "Zorse-Kette №1",
     "ua": "Ланцюг Zorse №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Lanac Zorse №1"
   },
   "Цепь LC №1": {
     "ru": "Цепь LC №1",
     "eng": "",
     "de": "LC-Kette №1",
     "ua": "Ланцюг LC №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Lanac LC №1"
   },
   "Цепь Dix №1": {
     "ru": "Цепь Dix №1",
     "eng": "",
     "de": "Dix-Kette №1",
     "ua": "Ланцюг Dix №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Lanac Dix №1"
   },
   "Цепь Le Chien №1": {
     "ru": "Цепь Le Chien №1",
     "eng": "",
     "de": "Le Chien-Kette №1",
     "ua": "Ланцюг Le Chien №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Lanac Le Chien №1"
   },
   "Крупная цепочка №1": {
     "ru": "Крупная цепочка №1",
     "eng": "",
     "de": "Große Kette №1",
     "ua": "Великий ланцюжок №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Veliki lanac №1"
   },
   "Цепочка Бельцер №1": {
     "ru": "Цепочка Бельцер №1",
     "eng": "",
     "de": "Belzer Kette №1",
     "ua": "Ланцюжок Бельцер №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Belzer lanac №1"
   },
   "Плотная цепочка №1": {
     "ru": "Плотная цепочка №1",
     "eng": "",
     "de": "Enge Kette №1",
     "ua": "Щiльний ланцюжок №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Čvrsti lanac №1"
   },
   "Цепочка Ромбы №1": {
     "ru": "Цепочка Ромбы №1",
     "eng": "",
     "de": "Rhombuskette №1",
     "ua": "Ланцюжок Ромби №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Lanac romba №1"
   },
   "Массивная  цепь №1": {
     "ru": "Массивная  цепь №1",
     "eng": "",
     "de": "Massive Kette №1",
     "ua": "Масивний ланцюг №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Masivni lanac #1"
   },
   "Плотная цепь Квадрат №1": {
     "ru": "Плотная цепь Квадрат №1",
     "eng": "",
     "de": "Dichte Kette Quadratisch №1",
     "ua": "Щiльний ланцюг Квадрат №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Čvrsti lanac Kvadrat #1"
   },
   "Цепь Квадрат №1": {
     "ru": "Цепь Квадрат №1",
     "eng": "",
     "de": "Kettenquadrat №1",
     "ua": "Ланцюг Квадрат №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Lančani kvadrat #1"
   },
   "Цепочка Попкорн №1": {
     "ru": "Цепочка Попкорн №1",
     "eng": "",
     "de": "Popcorn-Kette №1",
     "ua": "Ланцюжок Попкорн №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Lančane kokice №1"
   },
   "Цепочка Веревка №1": {
     "ru": "Цепочка Веревка №1",
     "eng": "",
     "de": "Kettenseil №1",
     "ua": "Ланцюжок Мотузка №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Lančani konop №1"
   },
   "Ожерелье Magnetics №1": {
     "ru": "Ожерелье Magnetics №1",
     "eng": "",
     "de": "Namisto Magnetics #1",
     "ua": "Намисто Magnetics №1",
-    "uz": ""
+    "uz": "",
+    "ba": "Magnetna ogrlica #1"
   },
   "Слабоалкогольные": {
     "ru": "Слабоалкогольные",
     "eng": "",
     "de": "Alkoholarm",
     "ua": "Слабоалкогольнi",
-    "uz": ""
+    "uz": "",
+    "ba": "Nizak alkohol"
   },
   "Крепкие": {
     "ru": "Крепкие",
     "eng": "",
     "de": "Stark",
     "ua": "Мiцнi",
-    "uz": ""
+    "uz": "",
+    "ba": "Potpuno"
   },
   "Вино 'Коблево'": {
     "ru": "Вино 'Коблево'",
     "eng": "",
     "de": "Koblevo-Wein",
     "ua": "Вино 'Коблево'",
-    "uz": ""
+    "uz": "",
+    "ba": "Vino 'Koblevo'"
   },
   "Ликер 'Зверобой'": {
     "ru": "Ликер 'Зверобой'",
     "eng": "",
     "de": "Johanniskraut-Likör",
     "ua": "Лiкер 'Зверобой'",
-    "uz": ""
+    "uz": "",
+    "ba": "Liker 'Gospina trava'"
   },
   "Водка 'Хортиця'": {
     "ru": "Водка 'Хортиця'",
     "eng": "",
     "de": "Chortyzja-Wodka",
     "ua": "Водка 'Хортиця'",
-    "uz": ""
+    "uz": "",
+    "ba": "Vodka 'Khortytsya'"
   },
   "Виски 'Jack Daniels'": {
     "ru": "Виски 'Jack Daniels'",
     "eng": "",
     "de": "Jack Daniels",
     "ua": "Вiскi 'Jack Daniels'",
-    "uz": ""
+    "uz": "",
+    "ba": "Viski 'Jack Daniels'"
   },
   "Коньяк 'Henessy'": {
     "ru": "Коньяк 'Henessy'",
     "eng": "",
     "de": "Henessy Cognac",
     "ua": "Коньяк 'Henessy'",
-    "uz": ""
+    "uz": "",
+    "ba": "Konjak 'Henessy'"
   },
   "Номер паспорта": {
     "ru": "Номер паспорта",
     "eng": "",
     "de": "Nummer des Reisepasses",
     "ua": "Номер паспорту",
-    "uz": ""
+    "uz": "",
+    "ba": "Broj pasoša"
   },
   "SOF-езда": {
     "ru": "SOF-езда",
@@ -32019,7 +32098,7 @@ var getlocale = {
     "de": "SOF-Drive",
     "ua": "SOF-Drive",
     "uz": "",
-    "ba": ""
+    "ba": "SOF vožnja"
   },
   "Возможность брать задание 'Ограбления домов'": {
     "ru": "Возможность брать задание 'Ограбления домов'",
@@ -32027,7 +32106,7 @@ var getlocale = {
     "de": "Gelegenheit, die Aufgabe Raub von Häusern zu übernehmen",
     "ua": "Можливiсть брати завдання 'Пограбування будинкiв'",
     "uz": "",
-    "ba": ""
+    "ba": "Sposobnost preuzimanja misije 'Pljačka kuće'"
   },
   "Возможность брать задание 'Закладчик'": {
     "ru": "Возможность брать задание 'Закладчик'",
@@ -32035,7 +32114,7 @@ var getlocale = {
     "de": "Möglichkeit, die Aufgabe des Pledgers zu übernehmen",
     "ua": "Можливiсть брати завдання 'Закладник'",
     "uz": "",
-    "ba": ""
+    "ba": "Sposobnost preuzimanja misije 'Zalagač'"
   },
   "Изъять водительсие<br> права": {
     "ru": "Изъять водительсие<br> права",
@@ -32043,7 +32122,7 @@ var getlocale = {
     "de": "Entzug des Führerscheins <br>",
     "ua": "Вилучити водiйськi<br> права",
     "uz": "",
-    "ba": ""
+    "ba": "Oduzeti vozačku dozvolu <br>"
   },
   "Возможность просматривать паспорт": {
     "ru": "Возможность просматривать паспорт",
@@ -32051,7 +32130,7 @@ var getlocale = {
     "de": "Die Möglichkeit, den Reisepass einzusehen",
     "ua": "Можливiсть переглядати паспорт",
     "uz": "",
-    "ba": ""
+    "ba": "Mogućnost pregleda pasoša"
   },
   "Просмотреть<br> паспорт": {
     "ru": "Просмотреть<br> паспорт",
@@ -32059,7 +32138,7 @@ var getlocale = {
     "de": "Ansicht <br> Reisepass",
     "ua": "Переглянути<br> паспорт",
     "uz": "",
-    "ba": ""
+    "ba": "Pogledajte <br> pasoš"
   },
   "Спит": {
     "ru": "Спит",
@@ -32067,7 +32146,7 @@ var getlocale = {
     "de": "Schlafend",
     "ua": "Спить",
     "uz": "",
-    "ba": ""
+    "ba": "Zaspao"
   },
   "В отключке": {
     "ru": "В отключке",
@@ -32075,7 +32154,7 @@ var getlocale = {
     "de": "In Ohnmacht gefallen",
     "ua": "У вiдключцi",
     "uz": "",
-    "ba": ""
+    "ba": "Onesviješten"
   },
   "[Администратор]": {
     "ru": "[Администратор]",
@@ -32083,7 +32162,7 @@ var getlocale = {
     "de": "[Administrator]",
     "ua": "[Адмiнiстратор]",
     "uz": "",
-    "ba": ""
+    "ba": "[Administrator]"
   },
   "Вы участвуете": {
     "ru": "Вы участвуете",
@@ -32091,7 +32170,7 @@ var getlocale = {
     "de": "Sie nehmen teil an",
     "ua": "Ви берете участь",
     "uz": "",
-    "ba": ""
+    "ba": "Sudjelujete"
   },
   "Возможность покупать семена 'Канабиса'": {
     "ru": "Возможность покупать семена 'Канабиса'",
@@ -32099,7 +32178,7 @@ var getlocale = {
     "de": "Die Möglichkeit, Cannabissamen zu kaufen",
     "ua": "Можливiсть купувати насiння 'Канабiсу'",
     "uz": "",
-    "ba": ""
+    "ba": "Mogućnost kupnje sjemena 'Cannabis'"
   },
   "Вы уверены, что хотите удалить <br> ранг <b>": {
     "ru": "Вы уверены, что хотите удалить <br> ранг <b>",
@@ -32107,7 +32186,7 @@ var getlocale = {
     "de": "Sind Sie sicher, dass Sie <b> den <br> Rang entfernen wollen?",
     "ua": "Ви впевненi, що хочете видалити <br> ранг <b>",
     "uz": "",
-    "ba": ""
+    "ba": "Jeste li sigurni da želite ukloniti <br> rang <b>"
   },
   "Battlepass 100лвл": {
     "ru": "Battlepass 100лвл",
@@ -32115,7 +32194,7 @@ var getlocale = {
     "de": "Battlepass 100 Lvl",
     "ua": "Battlepass 100 Lvl",
     "uz": "",
-    "ba": ""
+    "ba": "Battlepass lvl 100"
   },
   "Достать Микрофон": {
     "ru": "Достать Микрофон",
@@ -32123,7 +32202,7 @@ var getlocale = {
     "de": "Nehmen Sie das Mikrofon heraus",
     "ua": "Дiстати Мiкрофон",
     "uz": "",
-    "ba": ""
+    "ba": "Uzmi mikrofon"
   },
   "Достать Фотоапарат": {
     "ru": "Достать Фотоапарат",
@@ -32131,7 +32210,7 @@ var getlocale = {
     "de": "Nehmen Sie die Kamera heraus",
     "ua": "Дiстати Фотоапарат",
     "uz": "",
-    "ba": ""
+    "ba": "Nabavite kameru"
   },
   "Достать Видео-камеру": {
     "ru": "Достать Видео-камеру",
@@ -32139,7 +32218,7 @@ var getlocale = {
     "de": "Nehmen Sie die Videokamera heraus",
     "ua": "Дiстати Вiдео-камеру",
     "uz": "",
-    "ba": ""
+    "ba": "Nabavite video kameru"
   },
   "Возможность просматривать лицензии": {
     "ru": "Возможность просматривать лицензии",
@@ -32147,7 +32226,7 @@ var getlocale = {
     "de": "Gelegenheit zur Überprüfung von Lizenzen",
     "ua": "Можливiсть переглянути лiцензiї",
     "uz": "",
-    "ba": ""
+    "ba": "Mogućnost pregledavanja licenci"
   },
   "Учитель флористики": {
     "ru": "Учитель флористики",
@@ -32155,7 +32234,7 @@ var getlocale = {
     "de": "Lehrerin für Floristik",
     "ua": "Викладач флористики",
     "uz": "",
-    "ba": ""
+    "ba": "Profesor cvjećarstva"
   },
   "Ректор": {
     "ru": "Ректор",
@@ -32163,7 +32242,7 @@ var getlocale = {
     "de": "Rektor",
     "ua": "Ректор",
     "uz": "",
-    "ba": ""
+    "ba": "Rektor"
   },
   "Low Верхняя одежда": {
     "ru": "Low Верхняя одежда",
@@ -32171,7 +32250,7 @@ var getlocale = {
     "de": "Niedrige Oberbekleidung",
     "ua": "Low Верхнiй одяг",
     "uz": "",
-    "ba": ""
+    "ba": "Niska gornja odjeća"
   },
   "Premium Авто": {
     "ru": "Premium Авто",
@@ -32179,7 +32258,7 @@ var getlocale = {
     "de": "Premium Auto",
     "ua": "Premium Авто",
     "uz": "",
-    "ba": ""
+    "ba": "Premium Auto"
   },
   "Low Авто": {
     "ru": "Low Авто",
@@ -32187,7 +32266,7 @@ var getlocale = {
     "de": "Niedrig Auto",
     "ua": "Low Авто",
     "uz": "",
-    "ba": ""
+    "ba": "Low Аuto"
   },
   "Luxe Prime Авто": {
     "ru": "Luxe Prime Авто",
@@ -32195,7 +32274,7 @@ var getlocale = {
     "de": "Luxe Prime Auto",
     "ua": "Luxe Prime Авто",
     "uz": "",
-    "ba": ""
+    "ba": "Luxe Prime Аuto"
   },
   "Premium Вехрняя одежда": {
     "ru": "Premium Вехрняя одежда",
@@ -32203,7 +32282,7 @@ var getlocale = {
     "de": "Hochwertige Oberbekleidung",
     "ua": "Premium Верхнiй одяг",
     "uz": "",
-    "ba": ""
+    "ba": "Vrhunska vanjska odjeća"
   },
   "Premium Штаны": {
     "ru": "Premium Штаны",
@@ -32211,7 +32290,7 @@ var getlocale = {
     "de": "Premium-Hosen",
     "ua": "",
     "uz": "Premium Штани",
-    "ba": ""
+    "ba": "Premium hlače"
   },
   "Luxe Одежды": {
     "ru": "Luxe Одежды",
@@ -32219,7 +32298,7 @@ var getlocale = {
     "de": "Luxe Kleidung",
     "ua": "Luxe Одягу",
     "uz": "",
-    "ba": ""
+    "ba": "Luksuzna odjeća"
   },
   "Prime Обувь": {
     "ru": "Prime Обувь",
@@ -32227,7 +32306,7 @@ var getlocale = {
     "de": "Prime Schuhe",
     "ua": "Prime Взуття",
     "uz": "",
-    "ba": ""
+    "ba": "Prime Cipele"
   },
   "Low Штаны": {
     "ru": "Low Штаны",
@@ -32235,7 +32314,7 @@ var getlocale = {
     "de": "Niedrige Hosen",
     "ua": "Low Штани",
     "uz": "",
-    "ba": ""
+    "ba": "Niske hlače"
   },
   "Prime Шапки": {
     "ru": "Prime Шапки",
@@ -32243,7 +32322,7 @@ var getlocale = {
     "de": "Prime Hüte",
     "ua": "Prime Шапки",
     "uz": "",
-    "ba": ""
+    "ba": "Prime Caps"
   },
   "Low Шапки": {
     "ru": "Low Шапки",
@@ -32251,7 +32330,7 @@ var getlocale = {
     "de": "Niedrige Kappen",
     "ua": "Low Шапки",
     "uz": "",
-    "ba": ""
+    "ba": "Niske kape"
   },
   "Luxe Шапки": {
     "ru": "Luxe Шапки",
@@ -32259,133 +32338,133 @@ var getlocale = {
     "de": "Luxus Hüte",
     "ua": "Luxe Шапки",
     "uz": "",
-    "ba": ""
+    "ba": "Luksuzni šeširi"
   },
   "Prime": {
     "ru": "Prime",
     "eng": "",
     "de": "Prime",
     "ua": "Prime",
-    "ba": ""
+    "ba": "Prime"
   },
   "Шлем Western MC": {
     "ru": "Шлем Western MC",
     "eng": "",
     "de": "Western MC Helm",
     "ua": "Шолом Western MC",
-    "ba": ""
+    "ba": "Western MC kaciga"
   },
   "Шлем Jeckie №1": {
     "ru": "Шлем Jeckie №1",
     "eng": "",
     "de": "Jeckie Helm №1",
     "ua": "Шолом Jeckie №1",
-    "ba": ""
+    "ba": "Kaciga Jackie №1"
   },
   "Кепка №3": {
     "ru": "Кепка №3",
     "eng": "",
     "de": "Deckel #3",
     "ua": "Кепка №3",
-    "ba": ""
+    "ba": "Kapa #3"
   },
   "Шлем Jeckie №2": {
     "ru": "Шлем Jeckie №2",
     "eng": "",
     "de": "Sholom Jackie #2",
     "ua": "Шолом Jackie №2",
-    "ba": ""
+    "ba": "Kaciga Jackie №2"
   },
   "Каска с шипами": {
     "ru": "Каска с шипами",
     "eng": "",
     "de": "Helm mit Spikes",
     "ua": "Каска з шипами",
-    "ba": ""
+    "ba": "Kaciga sa šiljcima"
   },
   "Шлем с гребнем": {
     "ru": "Шлем с гребнем",
     "eng": "",
     "de": "Helm mit Wappen",
     "ua": "Шолом з гребенем",
-    "ba": ""
+    "ba": "Kaciga s grbom"
   },
   "Шлем с шипами": {
     "ru": "Шлем с шипами",
     "eng": "",
     "de": "Helm mit Spikes",
     "ua": "Шолом з шипами",
-    "ba": ""
+    "ba": "Kaciga sa šiljcima"
   },
   "Кепка Diamond №1": {
     "ru": "Кепка Diamond №1",
     "eng": "",
     "de": "Diamantkappe #1",
     "ua": "Кепка Diamond №1",
-    "ba": ""
+    "ba": "Kapa Diamond №1"
   },
   "Кепка Diamond №2": {
     "ru": "Кепка Diamond №2",
     "eng": "",
     "de": "Diamantkappe #2",
     "ua": "Кепка Diamond №2",
-    "ba": ""
+    "ba": "Kapa Diamond №2"
   },
   "Кепка с козырьком вперед №1": {
     "ru": "Кепка с козырьком вперед №1",
     "eng": "",
     "de": "Mütze mit Visier vorne №1",
     "ua": "Кепка з козирком наперед №1",
-    "ba": ""
+    "ba": "Kapa sa šiltom naprijed №1"
   },
   "Кепка с козырьком назад №1": {
     "ru": "Кепка с козырьком назад №1",
     "eng": "",
     "de": "Mütze mit Rückenschirm №1",
     "ua": "Кепка з козирком назад №1",
-    "ba": ""
+    "ba": "Kapa sa šiltom na leđima №1"
   },
   "Кеды Striker": {
     "ru": "Кеды Striker",
     "eng": "",
     "de": "Candy Striker",
     "ua": "Кеди Striker",
-    "ba": ""
+    "ba": "Striker tenisice"
   },
   "Ботинки Shutix": {
     "ru": "Ботинки Shutix",
     "eng": "",
     "de": "Shutix-Stiefel",
     "ua": "Черевики Shutix",
-    "ba": ""
+    "ba": "Čizme"
   },
   "Кроссовки Simple №2": {
     "ru": "Кроссовки Simple №2",
     "eng": "",
     "de": "Turnschuhe Einfach №2",
     "ua": "Кросiвки Simple №2",
-    "ba": ""
+    "ba": "Tenisice Simple №2"
   },
   "Кеды Bell": {
     "ru": "Кеды Bell",
     "eng": "",
     "de": "Bell Turnschuhe",
     "ua": "Кеди Bell",
-    "ba": ""
+    "ba": "Zvonaste tenisice"
   },
   "Сапоги с ремнями": {
     "ru": "Сапоги с ремнями",
     "eng": "",
     "de": "Stiefel mit Riemen",
     "ua": "Чоботи з ременями",
-    "ba": ""
+    "ba": "Čizme s remenom"
   },
   "Цепочка Крендель №1": {
     "ru": "Цепочка Крендель №1",
     "eng": "",
     "de": "Brezelkette №1",
     "ua": "Ланцюжок Крендель №1",
-    "ba": ""
+    "ba": "Lančani perec №1"
   },
   "Значок": {
     "ru": "Значок",
@@ -32393,126 +32472,126 @@ var getlocale = {
     "de": "Abzeichen",
     "ua": "Значок",
     "uz": "",
-    "ba": ""
+    "ba": "Ikona"
   },
   "Наушники Beat Off": {
     "ru": "Наушники Beat Off",
     "eng": "",
     "de": "Beat Off Kopfhörer",
     "ua": "Навушники Beat Off",
-    "ba": ""
+    "ba": "Slušalice"
   },
   "Соломенная шляпа": {
     "ru": "Соломенная шляпа",
     "eng": "",
     "de": "Strohhut",
     "ua": "Солом'яний капелюх",
-    "ba": ""
+    "ba": "Slamnati šešir"
   },
   "Внедорожный шлем глянец": {
     "ru": "Внедорожный шлем глянец",
     "eng": "",
     "de": "Off-Road-Helm glänzend",
     "ua": "Позашляховий шолом глянець",
-    "ba": ""
+    "ba": "Sjaj za terensku kacigu"
   },
   "Внедорожный шлем мат.": {
     "ru": "Внедорожный шлем мат.",
     "eng": "",
     "de": "Der Off-Road-Helm ist matt.",
     "ua": "Позашляховий шолом матовий.",
-    "ba": ""
+    "ba": "Otirač za terensku kacigu"
   },
   "Шлем Dark Classic №1": {
     "ru": "Шлем Dark Classic №1",
     "eng": "",
     "de": "Sholom Dark Classic Nr. 1",
     "ua": "Шолом Dark Classic №1",
-    "ba": ""
+    "ba": "Kaciga Dark Classic №1"
   },
   "Шлем Dark Mirror №1": {
     "ru": "Шлем Dark Mirror №1",
     "eng": "",
     "de": "Sholom Dark Mirror Nr. 1",
     "ua": "Шолом Dark Mirror №1",
-    "ba": ""
+    "ba": "Kaciga Dark Mirror №1"
   },
   "Бейсболка Brand": {
     "ru": "Бейсболка Brand",
     "eng": "",
     "de": "Marke Baseballkappe",
     "ua": "Бейсболка Brand",
-    "ba": ""
+    "ba": "Marka bejzbolske kape"
   },
   "Шлем с узором №2": {
     "ru": "Шлем с узором №2",
     "eng": "",
     "de": "Helm mit Muster #2",
     "ua": "Шолом iз вiзерунком №2",
-    "ba": ""
+    "ba": "Kaciga s uzorkom №2"
   },
   "Шлем Dark Classic №2": {
     "ru": "Шлем Dark Classic №2",
     "eng": "",
     "de": "Sholom Dark Classic Nr. 2",
     "ua": "Шолом Dark Classic №2",
-    "ba": ""
+    "ba": "Kaciga Dark Classic №2"
   },
   "Шлем Dark Mirror №2": {
     "ru": "Шлем Dark Mirror №2",
     "eng": "",
     "de": "Sholom Dark Mirror Nr. 2",
     "ua": "Шолом Dark Mirror №2",
-    "ba": ""
+    "ba": "Kaciga Dark Mirror №2"
   },
   "Шлем Retro №1": {
     "ru": "Шлем Retro №1",
     "eng": "",
     "de": "Retro-Helm №1",
     "ua": "Шолом Retro №1",
-    "ba": ""
+    "ba": "Retro kaciga №1"
   },
   "Шлем Retro №2": {
     "ru": "Шлем Retro №2",
     "eng": "",
     "de": "Sholom Retro Nr. 2",
     "ua": "Шолом Retro №2",
-    "ba": ""
+    "ba": "Kaciga Retro №2"
   },
   "Шлем с узором №1": {
     "ru": "Шлем с узором №1",
     "eng": "",
     "de": "Helm mit Muster #1",
     "ua": "Шолом iз вiзерунком №1",
-    "ba": ""
+    "ba": "Kaciga sa šablonom №1"
   },
   "Бейсболка Bigness": {
     "ru": "Бейсболка Bigness",
     "eng": "",
     "de": "Bigness Baseballkappe",
     "ua": "Бейсболка Bigness",
-    "ba": ""
+    "ba": "Bigness bejzbol kapa"
   },
   "Рубашка №7": {
     "ru": "Рубашка №7",
     "eng": "",
     "de": "Rückennummer 7",
     "ua": "Сорочка №7",
-    "ba": ""
+    "ba": "Majica №7"
   },
   "Оксфорды с носками": {
     "ru": "Оксфорды с носками",
     "eng": "",
     "de": "Oxfords mit Socken",
     "ua": "Оксфорди зi шкарпетками",
-    "ba": ""
+    "ba": "Oksfordice s čarapama"
   },
   "Кроссовки Jenix": {
     "ru": "Кроссовки Jenix",
     "eng": "",
     "de": "Jenix Turnschuhe",
     "ua": "Кросiвки Jenix",
-    "ba": ""
+    "ba": "Jenix patike"
   },
   "Учитель гидроархеологии": {
     "ru": "Учитель гидроархеологии",
@@ -32520,7 +32599,7 @@ var getlocale = {
     "de": "Dozentin für Hydroarchäologie",
     "ua": "Викладач гiдроархеологii",
     "uz": "",
-    "ba": ""
+    "ba": "Nastavnik hidrogeologije"
   },
   "Учитель информатики": {
     "ge": "",
@@ -32528,140 +32607,141 @@ var getlocale = {
     "eng": "",
     "de": "Lehrerin für Informatik",
     "ua": "Викладач iнформатики",
-    "uz": ""
+    "uz": "",
+    "ba": "Nastavnik informatike"
   },
   "Школьные Джинсы №1": {
     "ru": "Школьные Джинсы №1",
     "eng": "",
     "de": "Schuljeans №1",
     "ua": "Шкiльнi джинси №1",
-    "ba": ""
+    "ba": "Školske farmerke №1"
   },
   "Школьные Брюки №1": {
     "ru": "Школьные Брюки №1",
     "eng": "",
     "de": "Schulhosen №1",
     "ua": "Шкiльнi штани №1",
-    "ba": ""
+    "ba": "Školske pantalone №1"
   },
   "Школьные Брюки №2": {
     "ru": "Школьные Брюки №2",
     "eng": "",
     "de": "Schulhose #2",
     "ua": "Шкiльнi штани №2",
-    "ba": ""
+    "ba": "Školske pantalone №2"
   },
   "Adidas Superstar": {
     "ru": "Adidas Superstar",
     "eng": "",
     "de": "Adidas Superstar",
     "ua": "Adidas Superstar",
-    "ba": ""
+    "ba": "Adidas Superstar"
   },
   "Рюкзак школьный №1": {
     "ru": "Рюкзак школьный №1",
     "eng": "",
     "de": "Schulrucksack №1",
     "ua": "Шкiльний рюкзак №1",
-    "ba": ""
+    "ba": "Školski ranac №1"
   },
   "Рюкзак школьный №2": {
     "ru": "Рюкзак школьный №2",
     "eng": "",
     "de": "Schulrucksack №2",
     "ua": "Шкiльний рюкзак №2",
-    "ba": ""
+    "ba": "Školski ranac №2"
   },
   "Рюкзак школьный Светящийся №1": {
     "ru": "Рюкзак школьный Светящийся №1",
     "eng": "",
     "de": "Schule leuchtender Rucksack №1",
     "ua": "Шкiльний сяючий рюкзак №1",
-    "ba": ""
+    "ba": "Školski ranac Luminous №1"
   },
   "Рюкзак школьный с скейтом №1": {
     "ru": "Рюкзак школьный с скейтом №1",
     "eng": "",
     "de": "Schulrucksack mit Skateboard №1",
     "ua": "Шкiльний рюкзак зi скейтом №1",
-    "ba": ""
+    "ba": "Školski ranac sa skejtbordom №1"
   },
   "Рюкзак школьный №3": {
     "ru": "Рюкзак школьный №3",
     "eng": "",
     "de": "Schulrucksack №3",
     "ua": "Шкiльний рюкзак №3",
-    "ba": ""
+    "ba": "Školski ranac №3"
   },
   "Рюкзак школьный №4": {
     "ru": "Рюкзак школьный №4",
     "eng": "",
     "de": "Schulrucksack №4",
     "ua": "Шкiльний рюкзак №4",
-    "ba": ""
+    "ba": "Školski ranac №4"
   },
   "Рюкзак школьный №5": {
     "ru": "Рюкзак школьный №5",
     "eng": "",
     "de": "Schulrucksack №5",
     "ua": "Шкiльний рюкзак №5",
-    "ba": ""
+    "ba": "Školski ranac №5"
   },
   "Кофта Lacosta №1": {
     "ru": "Кофта Lacosta №1",
     "eng": "",
     "de": "Lacosta Sweatshirt №1",
     "ua": "Кофта Lacosta №1",
-    "ba": ""
+    "ba": "Lacosta džemper #1"
   },
   "Кофта Бабки №2": {
     "ru": "Кофта Бабки №2",
     "eng": "",
     "de": "Großmutters Pullover #2",
     "ua": "Кофта Бабцi №2",
-    "ba": ""
+    "ba": "Babkin džemper br.2"
   },
   "Кофта Бабки №1": {
     "ru": "Кофта Бабки №1",
     "eng": "",
     "de": "Das Sweatshirt der Oma №1",
     "ua": "Кофта Бабцi №1",
-    "ba": ""
+    "ba": "Babkin džemper #1"
   },
   "Кофта в клетку с рубашкой №1": {
     "ru": "Кофта в клетку с рубашкой №1",
     "eng": "",
     "de": "Kariertes Sweatshirt mit Hemd #1",
     "ua": "Кофта в клiтку iз сорочкою №1",
-    "ba": ""
+    "ba": "Karirani dzemper s kosuljom №1"
   },
   "Кофта Dior с рубашкой №1": {
     "ru": "Кофта Dior с рубашкой №1",
     "eng": "",
     "de": "Dior Jacke mit Hemd №1",
     "ua": "Кофта Dior iз сорочкою №1",
-    "ba": ""
+    "ba": "Dior džemper sa košuljom #1"
   },
   "Кофта Gucci с рубашкой №1": {
     "ru": "Кофта Gucci с рубашкой №1",
     "eng": "",
     "de": "Gucci Jacke mit Hemd №1",
     "ua": "Кофта Gucci iз сорочкою №1",
-    "ba": ""
+    "ba": "Gucci džemper sa košuljom #1"
   },
   "Кофта с рубашкой №1": {
     "ru": "Кофта с рубашкой №1",
     "eng": "",
     "de": "Jacke mit Hemd №1",
     "ua": "Кофта з сорочкою №1",
-    "ba": ""
+    "ba": "Džemper sa košuljom br.1"
   },
   "Кофта Бабкин ковер №1": {
     "ru": "Кофта Бабкин ковер №1",
     "eng": "",
     "de": "Sweatshirt Babushkin-Teppich №1",
     "ua": "Кофта Бабусiн Килим №1",
-    "ba": ""
+    "ba": "Jakna Babkin tepih br.1"
   },
   "Учитель истории": {
     "ru": "Учитель истории",
@@ -32669,7 +32749,7 @@ var getlocale = {
     "de": "Lehrerin für Geschichte",
     "ua": "Викладач Iсторii",
     "uz": "",
-    "ba": ""
+    "ba": "Nastavnik istorije"
   },
   "Киностудия": {
     "ru": "Киностудия",
@@ -32677,7 +32757,7 @@ var getlocale = {
     "de": "Filmstudio",
     "ua": "Кiностудiя",
     "uz": "",
-    "ba": ""
+    "ba": "FIlm Studio"
   },
   "Учитель рисования": {
     "ru": "Учитель рисования",
@@ -32685,7 +32765,7 @@ var getlocale = {
     "de": "Lehrer für Zeichnen",
     "ua": "Викладач з малювання",
     "uz": "",
-    "ba": ""
+    "ba": "Nastavnik crtanja"
   },
   "Касса": {
     "ru": "Касса",
@@ -32693,133 +32773,133 @@ var getlocale = {
     "de": "Kassierer",
     "ua": "Каса",
     "uz": "",
-    "ba": ""
+    "ba": "Kasa"
   },
     "Body camera": {
     "ru": "Body camera",
     "eng": "",
     "de": "Body camera",
     "ua": "Body camera",
-    "ba": ""
+    "ba": "Body kamera"
   },
   "Автомеханик": {
     "ru": "Автомеханик",
     "eng": "",
     "de": "Automechaniker",
     "ua": "Автомеханік",
-    "ba": ""
+    "ba": "Automehaničar"
   },
   "Супер": {
     "ru": "Супер",
     "eng": "",
     "de": "Super",
     "ua": "Супер",
-    "ba": ""
+    "ba": "Super"
   },
   "m4a1": {
     "ru": "m4a1",
     "eng": "",
     "de": "m4a1",
     "ua": "m4a1",
-    "ba": ""
+    "ba": "m4a1"
   },
   "Бронежилет Army": {
     "ru": "Бронежилет Army",
     "eng": "",
     "de": "Panzerweste Armee",
     "ua": "Бронежилет Army",
-    "ba": ""
+    "ba": "Vojnički prsluk"
   },
   "Louis Vuitton": {
     "ru": "Louis Vuitton",
     "eng": "",
     "de": "Louis Vuitton",
     "ua": "Louis Vuitton",
-    "ba": ""
+    "ba": "Louis Vuitton"
   },
   "Школьный Кроп Топ №1": {
     "ru": "Школьный Кроп Топ №1",
     "eng": "",
     "de": "Schul-Crop-Top №1",
     "ua": "Шкільний Кроп Топ №1",
-    "ba": ""
+    "ba": "School Crop Top #1"
   },
   "Школьная форма №1": {
     "ru": "Школьная форма №1",
     "eng": "",
     "de": "Schuluniform №1",
     "ua": "Шкільна форма №1",
-    "ba": ""
+    "ba": "Školska uniforma №1"
   },
   "Школьный Топ №1": {
     "ru": "Школьный Топ №1",
     "eng": "",
     "de": "Schulaufsatz №1",
     "ua": "Шкільний Топ №1",
-    "ba": ""
+    "ba": "Školski vrh #1"
   },
   "Школьное Платье №1": {
     "ru": "Школьное Платье №1",
     "eng": "",
     "de": "Schulkleidung №1",
     "ua": "Шкільна сукня №1",
-    "ba": ""
+    "ba": "Školska haljina #1"
   },
   "Школьные Штаны Adidas №1": {
     "ru": "Школьные Штаны Adidas №1",
     "eng": "",
     "de": "Adidas Schulhose №1",
     "ua": "Шкільні штани Adidas №1",
-    "ba": ""
+    "ba": "Adidas školske pantalone #1"
   },
   "Школьная Юбка №1": {
     "ru": "Школьная Юбка №1",
     "eng": "",
     "de": "Schulrock №1",
     "ua": "Шкільна спідниця №1",
-    "ba": ""
+    "ba": "Školska suknja #1"
   },
   "Школьная Юбка №2": {
     "ru": "Школьная Юбка №2",
     "eng": "",
     "de": "Schulrock №2",
     "ua": "Шкільна спідниця №2",
-    "ba": ""
+    "ba": "Školska suknja #2"
   },
   "Школьная Юбка №3": {
     "ru": "Школьная Юбка №3",
     "eng": "",
     "de": "Schulrock №3",
     "ua": "Шкільна спідниця №3",
-    "ba": ""
+    "ba": "Školska suknja #3"
   },
   "Школьные Кеды с гетрами": {
     "ru": "Школьные Кеды с гетрами",
     "eng": "",
     "de": "Schulturnschuhe mit Leggings",
     "ua": "Шкільні Кеди з гетрами",
-    "ba": ""
+    "ba": "Školske patike sa gamašama"
   },
   "Рюкзак школьный Дракончик": {
     "ru": "Рюкзак школьный Дракончик",
     "eng": "",
     "de": "Schulrucksack Dragon",
     "ua": "Шкільний рюкзак Дракончик",
-    "ba": ""
+    "ba": "Ranac školski zmaj"
   },
   "Рюкзак школьный Hello Kitty": {
     "ru": "Рюкзак школьный Hello Kitty",
     "eng": "",
     "de": "Hello Kitty Schulrucksack",
     "ua": "Шкільний рюкзак Hello Kitty",
-    "ba": ""
+    "ba": "Školski ranac Hello Kitti"
   },
   "Рюкзак школьный Hello Kitty светящийся": {
     "ru": "Рюкзак школьный Hello Kitty светящийся",
     "eng": "",
     "de": "Hello Kitty Schulrucksack leuchtet",
     "ua": "Шкільний рюкзак Hello Kitty світиться",
-    "ba": ""
+    "ba": "Školski ranac Hello Kitti svetleći"
   },
   "Учитель геологии": {
     "ru": "Учитель геологии",
@@ -32827,7 +32907,7 @@ var getlocale = {
     "de": "Lehrerin für Geologieii",
     "ua": "Викладач геологii",
     "uz": "",
-    "ba": ""
+    "ba": "Nastavnik geologije"
   },
   "Металлоискатель": {
     "ru": "Металлоискатель",
@@ -32835,7 +32915,7 @@ var getlocale = {
     "de": "Metalldetektor",
     "ua": "Металошукач",
     "uz": "",
-    "ba": ""
+    "ba": "Detektor metala"
   },
   "Вы уверены, что хотите эвакуировать <br> автомобиль": {
     "ru": "Вы уверены, что хотите эвакуировать <br> автомобиль",
@@ -32843,7 +32923,7 @@ var getlocale = {
     "de": "Sind Sie sicher, dass Sie das Auto <br> evakuieren wollen?",
     "ua": "Ви впевнені, що хочете евакуювати <br> автомобіль",
     "uz": "",
-    "ba": ""
+    "ba": "Da li ste sigurni da želite da evakuišete vozilo <br>"
   },
   "с номером": {
     "ru": "с номером",
@@ -32851,7 +32931,7 @@ var getlocale = {
     "de": "w-Nummer",
     "ua": "з номером",
     "uz": "",
-    "ba": ""
+    "ba": "sa brojem"
   },
   "за": {
     "ru": "за",
@@ -32859,7 +32939,7 @@ var getlocale = {
     "de": "für",
     "ua": "за",
     "uz": "",
-    "ba": ""
+    "ba": "od strane"
   },
   "Вы уверены, что хотите восстановить <br> автомобиль": {
     "ru": "Вы уверены, что хотите восстановить <br> автомобиль",
@@ -32867,7 +32947,7 @@ var getlocale = {
     "de": "Sind Sie sicher, dass Sie das <br> Auto wiederherstellen wollen?",
     "ua": "Ви впевнені, що хочете відновити <br> автомобіль",
     "uz": "",
-    "ba": ""
+    "ba": "Da li ste sigurni da želite da obnovite <br> automobil"
   },
   "Вы уверены, что хотите продать <br> автомобиль": {
     "ru": "Вы уверены, что хотите продать <br> автомобиль",
@@ -32875,7 +32955,7 @@ var getlocale = {
     "de": "Sind Sie sicher, dass Sie das Auto <br> verkaufen wollen?",
     "ua": "Ви впевнені, що хочете продати <br> автомобіль",
     "uz": "",
-    "ba": ""
+    "ba": "Da li ste sigurni da želite da prodate <br> auto"
   },
   "из своего дома ?": {
     "ru": "из своего дома ?",
@@ -32883,7 +32963,7 @@ var getlocale = {
     "de": "von Ihrem Haus aus?",
     "ua": "зі свого будинку ?",
     "uz": "",
-    "ba": ""
+    "ba": "iz tvoje kuće ?"
   },
   "Голосовой чат перезагружен": {
     "ru": "Голосовой чат перезагружен",
@@ -32891,7 +32971,7 @@ var getlocale = {
     "de": "Sprachchat zurücksetzen",
     "ua": "Голосовий чат перезавантажено",
     "uz": "",
-    "ba": ""
+    "ba": "Glasovno ćaskanje je ponovo učitano"
   },
   "Просмотреть<br> лицензии": {
     "ru": "Просмотреть<br> лицензии",
@@ -32899,7 +32979,7 @@ var getlocale = {
     "de": "Ansicht <br> Lizenzen",
     "ua": "Переглянути<br> ліцензії",
     "uz": "",
-    "ba": ""
+    "ba": "Prikaži<br> licence"
   },
   "Учитель химии": {
     "ru": "Учитель химии",
@@ -32907,7 +32987,7 @@ var getlocale = {
     "de": "Chemielehrer",
     "ua": "Викладач хiмii",
     "uz": "",
-    "ba": ""
+    "ba": "Nastavnik hemije"
   },
   "Покупка значков": {
     "ru": "Покупка значков",
@@ -32915,7 +32995,7 @@ var getlocale = {
     "de": "Kauf von Abzeichen",
     "ua": "Купівля значків",
     "uz": "",
-    "ba": ""
+    "ba": "Kupovina bedževa"
   },
   "1 монета = 4 значка": {
     "ru": "1 монета = 4 значка",
@@ -32923,7 +33003,7 @@ var getlocale = {
     "de": "1 Münze = 4 Abzeichen",
     "ua": "1 монета = 4 значки",
     "uz": "",
-    "ba": ""
+    "ba": "1 novčić = 4 značke"
   },
   "Введите кол-во монет": {
     "ru": "Введите кол-во монет",
@@ -32931,7 +33011,7 @@ var getlocale = {
     "de": "Geben Sie die Anzahl der Münzen ein",
     "ua": "Введіть кількість монет",
     "uz": "",
-    "ba": ""
+    "ba": "Unesite broj novčića"
   },
   "Кружевное белье": {
     "ru": "Кружевное белье",
@@ -32939,7 +33019,7 @@ var getlocale = {
     "de": "Spitzenunterwäsche",
     "ua": "Мереживна білизна",
     "uz": "",
-    "ba": ""
+    "ba": "Čipkasto donje rublje"
   },
   "Узкая юбка №2": {
     "ru": "Узкая юбка №2",
@@ -32947,7 +33027,7 @@ var getlocale = {
     "de": "Schmaler Rock №2",
     "ua": "Вузька спідниця №2",
     "uz": "",
-    "ba": ""
+    "ba": "Uska suknja #2"
   },
   "Пижамные штаны №2": {
     "ru": "Пижамные штаны №2",
@@ -32955,7 +33035,7 @@ var getlocale = {
     "de": "Pyjamahose #2",
     "ua": "Піжамні штани №2",
     "uz": "",
-    "ba": ""
+    "ba": "Pidžama pantalone #2"
   },
   "Слаксы": {
     "ru": "Слаксы",
@@ -32963,7 +33043,7 @@ var getlocale = {
     "de": "Hosen",
     "ua": "Слакси",
     "uz": "",
-    "ba": ""
+    "ba": "Pantalone"
   },
   "Леггинсы №2": {
     "ru": "Леггинсы №2",
@@ -32971,7 +33051,7 @@ var getlocale = {
     "de": "Leggings #2",
     "ua": "Легінси №2",
     "uz": "",
-    "ba": ""
+    "ba": "Helanke #2"
   },
   "Брюки с лоском": {
     "ru": "Брюки с лоском",
@@ -32979,7 +33059,7 @@ var getlocale = {
     "de": "Hose mit Glanz",
     "ua": "Штани з блиском",
     "uz": "",
-    "ba": ""
+    "ba": "Sjajne pantalone"
   },
   "Леггинсы с лоском": {
     "ru": "Леггинсы с лоском",
@@ -32987,7 +33067,7 @@ var getlocale = {
     "de": "Leggings mit Glanz",
     "ua": "Легінси з блиском",
     "uz": "",
-    "ba": ""
+    "ba": "Glitter helanke"
   },
   "Пижамные штаны №3": {
     "ru": "Пижамные штаны №3",
@@ -32995,7 +33075,7 @@ var getlocale = {
     "de": "Pyjamahose #3",
     "ua": "Піжамні штани №2",
     "uz": "",
-    "ba": ""
+    "ba": "Pidžama pantalone #3"
   },
   "Леггинсы с принтом": {
     "ru": "Леггинсы с принтом",
@@ -33003,7 +33083,7 @@ var getlocale = {
     "de": "Bedruckte Leggings",
     "ua": "Легінси з принтом",
     "uz": "",
-    "ba": ""
+    "ba": "Štampane helanke"
   },
   "Штаны ProLaps": {
     "ru": "Штаны ProLaps",
@@ -33011,7 +33091,7 @@ var getlocale = {
     "de": "ProLaps Hosen",
     "ua": "Штани ProLaps",
     "uz": "",
-    "ba": ""
+    "ba": "ProLaps pantalone"
   },
   "Брюки карго с цепочкой": {
     "ru": "Брюки карго с цепочкой",
@@ -33019,7 +33099,7 @@ var getlocale = {
     "de": "Cargohose mit Kette",
     "ua": "Штани карго з ланцюжком",
     "uz": "",
-    "ba": ""
+    "ba": "Cargo pantalone sa lancem"
   },
   "Бриджи карго с цепочкой": {
     "ru": "Бриджи карго с цепочкой",
@@ -33027,7 +33107,7 @@ var getlocale = {
     "de": "Cargohose mit Kette",
     "ua": "Бриджі карго з ланцюжком",
     "uz": "",
-    "ba": ""
+    "ba": "Cargo pantalone sa lancem"
   },
   "Слаксы №2": {
     "ru": "Слаксы №2",
@@ -33035,7 +33115,7 @@ var getlocale = {
     "de": "Sluxy Nr. 2",
     "ua": "Слакси №2",
     "uz": "",
-    "ba": ""
+    "ba": "Slacks #2"
   },
   "Спортивные штаны Heat": {
     "ru": "Спортивные штаны Heat",
@@ -33043,7 +33123,7 @@ var getlocale = {
     "de": "Wärme-Sporthose",
     "ua": "Спортивні штани Heat",
     "uz": "",
-    "ba": ""
+    "ba": "Sportske pantalone Heat"
   },
   "Спортивные штаны Bigness ручной окраски": {
     "ru": "Спортивные штаны Bigness ручной окраски",
@@ -33051,7 +33131,7 @@ var getlocale = {
     "de": "Bigness handbemalte Sporthose",
     "ua": "Спортивні штани Bigness ручного забарвлення",
     "uz": "",
-    "ba": ""
+    "ba": "Bigness trenirke ručno farbane"
   },
   "Джоггеры Blagueurs": {
     "ru": "Джоггеры Blagueurs",
@@ -33059,7 +33139,7 @@ var getlocale = {
     "de": "Blagueurs Jogger",
     "ua": "Джогери Blagueurs",
     "uz": "",
-    "ba": ""
+    "ba": "Blagueurs joggers"
   },
   "Джоггеры": {
     "ru": "Джоггеры",
@@ -33067,7 +33147,7 @@ var getlocale = {
     "de": "Jogginghose",
     "ua": "Джогери",
     "uz": "",
-    "ba": ""
+    "ba": "Joggers"
   },
   "Простые брюки": {
     "ru": "Простые брюки",
@@ -33075,7 +33155,7 @@ var getlocale = {
     "de": "Einfarbige Hosen",
     "ua": "Звичайні штани",
     "uz": "",
-    "ba": ""
+    "ba": "Obične pantalone"
   },
   "Изношенные брюки": {
     "ru": "Изношенные брюки",
@@ -33083,7 +33163,7 @@ var getlocale = {
     "de": "Abgenutzte Hosen",
     "ua": "Зношені штани",
     "uz": "",
-    "ba": ""
+    "ba": "Second-hand pantalone"
   },
   "Изношенные брюки №2": {
     "ru": "Изношенные брюки №2",
@@ -33091,7 +33171,7 @@ var getlocale = {
     "de": "Getragene Hose #2",
     "ua": "Зношені штани №1",
     "uz": "",
-    "ba": ""
+    "ba": "Second-hand pantalone №2"
   },
   "Спортивные штаны лоу-кротч": {
     "ru": "Спортивные штаны лоу-кротч",
@@ -33099,7 +33179,7 @@ var getlocale = {
     "de": "Sportlich tief ausgeschnittene Hose",
     "ua": "Спортивні штани лоу-кротч",
     "uz": "",
-    "ba": ""
+    "ba": "Trenerke sa niskom preponom"
   },
   "Кожаные штаны лоу-кротч": {
     "ru": "Кожаные штаны лоу-кротч",
@@ -33107,7 +33187,7 @@ var getlocale = {
     "de": "Tief ausgeschnittene Lederhose",
     "ua": "Шкіряні штани лоу-кротч",
     "uz": "",
-    "ba": ""
+    "ba": "Kožne pantalone sa niskom preponom"
   },
   "Бриджи": {
     "ru": "Бриджи",
@@ -33115,7 +33195,7 @@ var getlocale = {
     "de": "Brücken",
     "ua": "Бриджі",
     "uz": "",
-    "ba": ""
+    "ba": "Bridže"
   },
   "Кожаные бриджи": {
     "ru": "Кожаные бриджи",
@@ -33123,7 +33203,7 @@ var getlocale = {
     "de": "Lederreithose",
     "ua": "Шкіряні бриджі",
     "uz": "",
-    "ba": ""
+    "ba": "Kožne pantalone"
   },
   "Джинсы SuperSlim": {
     "ru": "Джинсы SuperSlim",
@@ -33131,7 +33211,7 @@ var getlocale = {
     "de": "SuperSlim-Jeans",
     "ua": "Джинси SuperSlim",
     "uz": "",
-    "ba": ""
+    "ba": "SuperSlim farmerke"
   },
   "Кожаные джинсы": {
     "ru": "Кожаные джинсы",
@@ -33139,7 +33219,7 @@ var getlocale = {
     "de": "Lederjeans",
     "ua": "Шкіряні джинси",
     "uz": "",
-    "ba": ""
+    "ba": "Kožne farmerke"
   },
   "Штаны фермера": {
     "ru": "Штаны фермера",
@@ -33147,7 +33227,7 @@ var getlocale = {
     "de": "Landarbeiterhosen",
     "ua": "Штани фермера",
     "uz": "",
-    "ba": ""
+    "ba": "Farmerske pantalone"
   },
   "Шорты №3": {
     "ru": "Шорты №3",
@@ -33155,7 +33235,7 @@ var getlocale = {
     "de": "Kurze Hosen #3",
     "ua": "Шорти №3",
     "uz": "",
-    "ba": ""
+    "ba": "Šorts #3"
   },
   "Штаны со шнуровкой": {
     "ru": "Штаны со шнуровкой",
@@ -33163,7 +33243,7 @@ var getlocale = {
     "de": "Hose mit Schnürung",
     "ua": "Штани зі шнурівкою",
     "uz": "",
-    "ba": ""
+    "ba": "Pantalone sa vrpcom"
   },
   "Шорты Broker": {
     "ru": "Шорты Broker",
@@ -33171,7 +33251,7 @@ var getlocale = {
     "de": "Makler-Shorts",
     "ua": "Шорти Broker",
     "uz": "",
-    "ba": ""
+    "ba": "Šorts Broker"
   },
   "Штаны Broker": {
     "ru": "Штаны Broker",
@@ -33179,7 +33259,7 @@ var getlocale = {
     "de": "Maklerhosen",
     "ua": "Штани Broker",
     "uz": "",
-    "ba": ""
+    "ba": "Broker za pantalone"
   },
   "Уличные шорты": {
     "ru": "Уличные шорты",
@@ -33187,7 +33267,7 @@ var getlocale = {
     "de": "Straßen-Shorts",
     "ua": "Вуличні шорти",
     "uz": "",
-    "ba": ""
+    "ba": "Ulične kratke hlače"
   },
   "Чинос с принтом": {
     "ru": "Чинос с принтом",
@@ -33195,7 +33275,7 @@ var getlocale = {
     "de": "Bedruckte Chinos",
     "ua": "Чінос з принтом",
     "uz": "",
-    "ba": ""
+    "ba": "Chinos sa printom"
   },
   "Брюки Kayden": {
     "ru": "Брюки Kayden",
@@ -33203,7 +33283,7 @@ var getlocale = {
     "de": "Kayden-Hosen",
     "ua": "Штани Kayden",
     "uz": "",
-    "ba": ""
+    "ba": "Pantalone Kayden"
   },
   "Пижамные штаны №2": {
     "ru": "Пижамные штаны №2",
@@ -33211,7 +33291,7 @@ var getlocale = {
     "de": "Pyjamahose #2",
     "ua": "Піжамні штани №2",
     "uz": "",
-    "ba": ""
+    "ba": "Pidžama pantalone #2"
   },
   "Брюки с лоском": {
     "ru": "Брюки с лоском",
@@ -33219,7 +33299,7 @@ var getlocale = {
     "de": "Hose mit Glanz",
     "ua": "Штани з блиском",
     "uz": "",
-    "ba": ""
+    "ba": "Sjajne pantalone"
   },
   "Брюки-чинос": {
     "ru": "Брюки-чинос",
@@ -33227,7 +33307,7 @@ var getlocale = {
     "de": "Chinos",
     "ua": "Штани-чінос",
     "uz": "",
-    "ba": ""
+    "ba": "Chinos"
   },
   "Нижнее белье Reni": {
     "ru": "Нижнее белье Reni",
@@ -33235,7 +33315,7 @@ var getlocale = {
     "de": "Reni Unterwäsche",
     "ua": "Нижня білизна Reni",
     "uz": "",
-    "ba": ""
+    "ba": "Reni donji veš"
   },
   "Пижамные штаны №3": {
     "ru": "Пижамные штаны №3",
@@ -33243,7 +33323,7 @@ var getlocale = {
     "de": "Pyjamahose #3",
     "ua": "Піжамні штани №3",
     "uz": "",
-    "ba": ""
+    "ba": "Pidžama pantalone №3"
   },
   "Штаны ProLaps": {
     "ru": "Штаны ProLaps",
@@ -33251,7 +33331,7 @@ var getlocale = {
     "de": "ProLaps Hosen",
     "ua": "Штани ProLaps",
     "uz": "",
-    "ba": ""
+    "ba": "ProLaps pantalone"
   },
   "Брюки карго с цепочкой": {
     "ru": "Брюки карго с цепочкой",
@@ -33259,7 +33339,7 @@ var getlocale = {
     "de": "Cargohose mit Kette",
     "ua": "Штани карго з ланцюжком",
     "uz": "",
-    "ba": ""
+    "ba": "Cargo pantalone sa lancem"
   },
   "Джоггеры": {
     "ru": "Джоггеры",
@@ -33267,7 +33347,7 @@ var getlocale = {
     "de": "Jogginghose",
     "ua": "Джогери",
     "uz": "",
-    "ba": ""
+    "ba": "Joggers"
   },
   "Джоггеры Blagueurs": {
     "ru": "Джоггеры Blagueurs",
@@ -33275,7 +33355,7 @@ var getlocale = {
     "de": "Blagueurs Jogger",
     "ua": "Джогери Blagueurs",
     "uz": "",
-    "ba": ""
+    "ba": "Blagueurs joggers"
   },
   "Шорты-плавки": {
     "ru": "Шорты-плавки",
@@ -33283,7 +33363,7 @@ var getlocale = {
     "de": "Badeshorts",
     "ua": "Шорти-плавки",
     "uz": "",
-    "ba": ""
+    "ba": "Šorts za plivanje"
   },
   "Большие карго": {
     "ru": "Большие карго",
@@ -33291,7 +33371,7 @@ var getlocale = {
     "de": "Große Ladungen",
     "ua": "Великі карго",
     "uz": "",
-    "ba": ""
+    "ba": "Veliki teret"
   },
   "Изношенные брюки": {
     "ru": "Изношенные брюки",
@@ -33299,7 +33379,7 @@ var getlocale = {
     "de": "Abgenutzte Hosen",
     "ua": "Зношені штани",
     "uz": "",
-    "ba": ""
+    "ba": "Nošene pantalone"
   },
   "Широкие бриджи": {
     "ru": "Широкие бриджи",
@@ -33307,7 +33387,7 @@ var getlocale = {
     "de": "Weite Reithosen",
     "ua": "Широкі бриджі",
     "uz": "",
-    "ba": ""
+    "ba": "Široke pantalone"
   },
   "Широкие спортивные штаны №2": {
     "ru": "Широкие спортивные штаны №2",
@@ -33315,7 +33395,7 @@ var getlocale = {
     "de": "Weite Jogginghosen №2",
     "ua": "Широкі спортивні штани №2",
     "uz": "",
-    "ba": ""
+    "ba": "Široke pantalone #2"
   },
   "Кожаные штаны №2": {
     "ru": "Кожаные штаны №2",
@@ -33323,7 +33403,7 @@ var getlocale = {
     "de": "Lederhose №2",
     "ua": "Шкіряні штани №2",
     "uz": "",
-    "ba": ""
+    "ba": "Kožne pantalone #2"
   },
   "Кожаные штаны №3": {
     "ru": "Кожаные штаны №3",
@@ -33331,7 +33411,7 @@ var getlocale = {
     "de": "Lederhose №3",
     "ua": "Шкіряні штани №3",
     "uz": "",
-    "ba": ""
+    "ba": "Kožne pantalone #3"
   },
   "Шорты Broker": {
     "ru": "Шорты Broker",
@@ -33339,7 +33419,7 @@ var getlocale = {
     "de": "Shorty Broker",
     "ua": "Шорти Broker",
     "uz": "",
-    "ba": ""
+    "ba": "Šorts Broker"
   },
   "Уличные шорты": {
     "ru": "Уличные шорты",
@@ -33347,7 +33427,7 @@ var getlocale = {
     "de": "Straßen Shorts",
     "ua": "Вуличні шорти",
     "uz": "",
-    "ba": ""
+    "ba": "Ulične kratke hlače"
   },
   "Чинос с принтом": {
     "ru": "Чинос с принтом",
@@ -33355,7 +33435,7 @@ var getlocale = {
     "de": "Chinos mit Druck",
     "ua": "Чінос з принтом",
     "uz": "",
-    "ba": ""
+    "ba": "Chinos sa printom"
   },
   "Укажите скорость в км/ч": {
     "ru": "Укажите скорость в км/ч",
@@ -33363,7 +33443,7 @@ var getlocale = {
     "de": "Geben Sie die Geschwindigkeit in km/h an.",
     "ua": "Вкажіть швидкість у км/год",
     "uz": "",
-    "ba": ""
+    "ba": "Unesite brzinu u km/h"
   },
   "Ограничение скорости выключено": {
     "ru": "Ограничение скорости выключено",
@@ -33371,7 +33451,7 @@ var getlocale = {
     "de": "Geschwindigkeitsbegrenzung ist deaktiviert",
     "ua": "Обмеження швидкості вимкнено",
     "uz": "",
-    "ba": ""
+    "ba": "Ograničenje brzine isključeno"
   },
   "Ограничение скорости установлено на {speed} км/ч": {
     "ru": "Ограничение скорости установлено на {speed} км/ч",
@@ -33379,36 +33459,36 @@ var getlocale = {
     "de": "Die Geschwindigkeitsbegrenzung ist auf {speed} km/h eingestellt.",
     "ua": "Обмеження швидкості встановлено на {speed} км/год",
     "uz": "",
-    "ba": ""
+    "ba": "Ograničenje brzine je podešeno na {speed} km/h"
   },
   "Надзиратель": {
     "ru": "Надзиратель",
     "eng": "",
-    "de": "",
+    "de": "Direktorin",
     "ua": "Наглядач",
     "uz": "",
-    "ba": ""
+    "ba": "Nadzornik"
   },
-  "": {
-    "ru": "",
+  "5 монет": {
+    "ru": "5 монет",
     "eng": "",
-    "de": "",
+    "de": "5 coins",
     "ua": "",
     "uz": "",
     "ba": ""
   },
-  "": {
-    "ru": "",
+  "7 монет": {
+    "ru": "7 монет",
     "eng": "",
-    "de": "",
+    "de": "7 coins",
     "ua": "",
     "uz": "",
     "ba": ""
   },
-  "": {
-    "ru": "",
+  "10 монет": {
+    "ru": "10 монет",
     "eng": "",
-    "de": "",
+    "de": "10 coins",
     "ua": "",
     "uz": "",
     "ba": ""

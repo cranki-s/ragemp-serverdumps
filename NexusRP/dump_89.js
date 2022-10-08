@@ -7,7 +7,7 @@ mp.keys.bind(Keys.VK_F7, true, ()=>{
     if(adminReportOpened){
         mp.events.call('AdminReport:Close');
     }else{
-        Nexus.callRemote('AdminReport.Open');
+        NexusEvent.callRemote('AdminReport.Open');
     }
 });
 mp.events.add('AdminReport.Open.CallBack', (objJSON)=>{
@@ -33,7 +33,7 @@ mp.events.add('AdminReport.NewReport', (report) => {
 
 
 mp.events.add('AdminReport:SelectReport', (reportJSON) => {
-    Nexus.callRemote('AdminReport.SelectReport', reportJSON);
+    NexusEvent.callRemote('AdminReport.SelectReport', reportJSON);
 
     // Сюда приходит обьект репорта при его выборе.
     // Всего есть 3 типа репортов:
@@ -64,7 +64,7 @@ mp.events.add('AdminReport.RemoveFromList', (id) => {
 });
 
 mp.events.add('AdminReport:SendMessage', (message) => {
-    Nexus.callRemote('AdminReport.SendMessage', message)
+    NexusEvent.callRemote('AdminReport.SendMessage', message)
     // Отправка сообщение
     // message - Object
     // message.text - String
@@ -96,7 +96,7 @@ mp.events.add('AdminReport:Action', (action) => {
     if(action=='returnReport'){
         adminReportBrowser.execute(`window.adminReport.chat={}`);
     }
-    Nexus.callRemote('AdminReport.Action', action);
+    NexusEvent.callRemote('AdminReport.Action', action);
     // action - string
     // Вернуть репорт - returnReport
     // Закрыть репорт - closeReport
@@ -135,17 +135,17 @@ mp.events.add('AdminReport:QuickAnswerAction', (action, answer) => {
 
 mp.events.add('AdminReport:SelectHotKey', (command) => {
     if(command=='/tp'){
-        Nexus.callRemote('AdminReport.Tp');
+        NexusEvent.callRemote('AdminReport.Tp');
         return;
     }
 
     if(command=='/sp'){
-        Nexus.callRemote('AdminReport.Sp');
+        NexusEvent.callRemote('AdminReport.Sp');
         return;
     }
 
     if(command=='/gm'){
-        Nexus.callRemote('AdminReport.Gm');
+        NexusEvent.callRemote('AdminReport.Gm');
         return;
     }
     // command - string
@@ -162,4 +162,4 @@ mp.events.add('AdminReport:Close', () => {
     global.menuClose();
     // Закрытие
 });
-}
+}ͻ

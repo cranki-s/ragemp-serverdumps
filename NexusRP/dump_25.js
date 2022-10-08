@@ -106,7 +106,7 @@ mp.keys.bind(Keys.VK_E, false, function () { // F2 key
     // player    
     if (!loggedin || chatActive || nearestObject == null || global.FisherManStart == true) return;
     if (nearestObject && nearestObject.type == 'object' && nearestObject.hasVariable("objectItem") && mp.objects.exists(nearestObject)) {
-        Nexus.callRemote('oSelected', nearestObject);
+        NexusEvent.callRemote('oSelected', nearestObject);
     }
     lastCheck = new Date().getTime();
 });
@@ -243,7 +243,7 @@ mp.events.add('render', () => {
             mp.game.controls.disableControlAction(2, 331, true);
         }
 		if (mp.keys.isDown(32) && cuffed && new Date().getTime() - lastCuffUpdate >= 3000) {
-			Nexus.callRemote("cuffUpdate");
+			NexusEvent.callRemote("cuffUpdate");
 	        lastCuffUpdate = new Date().getTime();
 		}
 

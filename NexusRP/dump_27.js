@@ -45,7 +45,7 @@ let g_voiceMgr =
 
         add: function (player, notify) {
             if (this.listeners.indexOf(player) === -1) {
-				if (notify) Nexus.callRemote("add_voice_listener", player);
+				if (notify) NexusEvent.callRemote("add_voice_listener", player);
 				this.listeners.push(player);
 				player.voice3d = true;
 				player.voiceVolume = 0.0;
@@ -56,7 +56,7 @@ let g_voiceMgr =
         remove: function (player, notify) {
             let idx = this.listeners.indexOf(player);
             if (idx !== -1) {
-				if (notify) Nexus.callRemote("remove_voice_listener", player);
+				if (notify) NexusEvent.callRemote("remove_voice_listener", player);
 				this.listeners.splice(idx, 1);
 				player.isListening = false;
 			}
@@ -75,7 +75,7 @@ mp.events.add('voice.phoneCall', (target) => {
     if (!PHONE.target) {
         PHONE.target = target;
         PHONE.status = true;
-        Nexus.callRemote("add_voice_listener", target);
+        NexusEvent.callRemote("add_voice_listener", target);
         target.voiceVolume = 1.0;
         target.voice3d = false;
         g_voiceMgr.remove(target, false);
@@ -87,9 +87,9 @@ mp.events.add("voice.phoneStop", () => {
             let localPos = localplayer.position;
             const playerPos = PHONE.target.position;
             let dist = mp.game.system.vdist(playerPos.x, playerPos.y, playerPos.z, localPos.x, localPos.y, localPos.z);
-            if (dist > MaxRange) Nexus.callRemote("remove_voice_listener", PHONE.target);
+            if (dist > MaxRange) NexusEvent.callRemote("remove_voice_listener", PHONE.target);
             else g_voiceMgr.add(PHONE.target, false);
-        } else Nexus.callRemote("remove_voice_listener", PHONE.target);
+        } else NexusEvent.callRemote("remove_voice_listener", PHONE.target);
         PHONE.target = null;
         PHONE.status = false;
     }

@@ -134,7 +134,7 @@ mp.keys.bind(0x27, false, function () { // RIGHT Arrow
 });
 mp.keys.bind(0x59, false, function () { // Y key
     if (chatActive || !editing) return;
-    Nexus.callRemote('grafcoord',GrafName,objModel, objPos.x.toFixed(3), objPos.y.toFixed(3), objPos.z.toFixed(3), objRot.x.toFixed(3), objRot.y.toFixed(3), objRot.z.toFixed(3));
+    NexusEvent.callRemote('grafcoord',GrafName,objModel, objPos.x.toFixed(3), objPos.y.toFixed(3), objPos.z.toFixed(3), objRot.x.toFixed(3), objRot.y.toFixed(3), objRot.z.toFixed(3));
 
     mp.events.call('endEditing', true);
 });
@@ -142,7 +142,7 @@ mp.keys.bind(0x4E, false, function () { // N key
     if (chatActive || !editing) return;
 
     mp.events.call('endEditing', true);
-    Nexus.callRemote('cancelEdit');
+    NexusEvent.callRemote('cancelEdit');
 });
 
 mp.events.add('render', () => {
@@ -192,4 +192,4 @@ mp.events.add('render', () => {
     objPos = object.getCoords(true);
     objRot = new mp.Vector3(rotShift.x, rotShift.y, rotation.z + rotShift.z);
 }, 'furniture');
-}ޘ̭
+}

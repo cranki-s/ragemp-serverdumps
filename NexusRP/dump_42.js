@@ -51,18 +51,18 @@ mp.events.add('shop24close', () => {
 });
 mp.events.add('buyItem', (type, id, count,types) => {
 	if(types == 3){
-		Nexus.callRemote('CraftMenuTypes',id, count,type);	
+		NexusEvent.callRemote('CraftMenuTypes',id, count,type);	
 	}else if(types == 4){
-		Nexus.callRemote('BlackShop:Buy',id,count,type);	
+		NexusEvent.callRemote('BlackShop:Buy',id,count,type);	
 	}else if(types == 5){
-		Nexus.callRemote('Halloween:Buy',id,count);
+		NexusEvent.callRemote('Halloween:Buy',id,count);
 	}
 	else if(types == 6){
-		Nexus.callRemote('Farm:Buy', type, id, count);
+		NexusEvent.callRemote('Farm:Buy', type, id, count);
 	}
 	else if(types == 7){
-		Nexus.callRemote('AlcoholShop:Buy', type, id, count);
+		NexusEvent.callRemote('AlcoholShop:Buy', type, id, count);
 	}
-	else Nexus.callRemote('shop', type, id, count,types);	
+	else NexusEvent.callRemote('shop', type, id, count,types);	
 });
 }

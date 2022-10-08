@@ -205,7 +205,7 @@ mp.events.add('characterSave', () => {
 		hair_or_colors.push(hairColor);
         
 		setTimeout(function () {
-			Nexus.callRemote("SaveCharacter", currentGender, father, mother, similarity, skin, JSON.stringify(features), JSON.stringify(appearance_values), JSON.stringify(hair_or_colors));
+			NexusEvent.callRemote("SaveCharacter", currentGender, father, mother, similarity, skin, JSON.stringify(features), JSON.stringify(appearance_values), JSON.stringify(hair_or_colors));
 		}, 5000);
 	}
 });

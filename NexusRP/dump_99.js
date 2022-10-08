@@ -33,7 +33,7 @@ mp.events.add('Auction:GetAllData', ()=>{
 
 
 mp.events.add('Auction:MakeBet', (id, payType, money)=>{
-    Nexus.callRemote('Auction.MakeBet.Server', id, money, payType);
+    NexusEvent.callRemote('Auction.MakeBet.Server', id, money, payType);
 });
 
 mp.events.add('Auction.NewLot', (type, lotJson)=>{

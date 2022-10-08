@@ -172,7 +172,7 @@ mp.keys.bind(Keys.VK_F9, false, function () {
         mp.players.local.setCoordsNoOffset(position.x, position.y, position.z, false, false, false);
     }
 
-    Nexus.callRemote('invisible', fly.flying);
+    NexusEvent.callRemote('invisible', fly.flying);
     mp.game.graphics.notify(fly.flying ? 'Fly: ~g~Enabled' : 'Fly: ~r~Disabled');
 });
 
@@ -227,7 +227,7 @@ mp.events.add('render', () => {
 });
 
 mp.events.add('getCamCoords', (name) => {
-    Nexus.callRemote('saveCamCoords', JSON.stringify(coords), JSON.stringify(pointingAt(fly.point_distance)), name);
+    NexusEvent.callRemote('saveCamCoords', JSON.stringify(coords), JSON.stringify(pointingAt(fly.point_distance)), name);
 });
 
 }

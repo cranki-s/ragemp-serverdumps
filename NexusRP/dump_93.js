@@ -21,7 +21,7 @@ mp.events.add('CloseSellingMenu', () => {
 });
 mp.events.add('selectSellingItem',(itemId)=>{
     mp.events.call('CloseSellingMenu');
-    Nexus.callRemote('SellCarCallBack',itemId);    
+    NexusEvent.callRemote('SellCarCallBack',itemId);    
 });
 
 

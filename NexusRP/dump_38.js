@@ -16,10 +16,10 @@ mp.events.add('Chips.OpenShop', (chip, money) => {
 });
 
 mp.events.add('Chips:BuyChips',(count)=>{
-    Nexus.callRemote("Casino.ChangeChips", 1, count);
+    NexusEvent.callRemote("Casino.ChangeChips", 1, count);
 }); 
 mp.events.add('Chips:SellChips',(count)=>{ 
-    Nexus.callRemote("Casino.ChangeChips", 2, count);
+    NexusEvent.callRemote("Casino.ChangeChips", 2, count);
 });
 mp.events.add('Chips:DestroyBrowser',()=>{ 
 	chipBrowser.execute(`closeInterface()`);

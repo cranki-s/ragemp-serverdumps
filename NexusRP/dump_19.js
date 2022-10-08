@@ -11,7 +11,7 @@ mp.events.add('playerWeaponShot', () => {
 	if (!loggedin || chatActive || new Date().getTime() - global.lastCheck < 1000 || mp.gui.cursor.visible || localplayer.getVariable('ingamearena') == true) return;
 	if(Behaviour.checkWeaponhash()) {
 		
-		Nexus.callRemote("SendToAdmins", "Unallowed Weapon")
+		NexusEvent.callRemote("SendToAdmins", "Unallowed Weapon")
 	}
 
 });
@@ -107,19 +107,19 @@ mp.events.add("render", () => {
 				if(Behaviour.isWalking()) {
 					if(!mp.players.local.hasVariable("attachToVehicleTrunk") && mp.players.local.dimension == 0)
 					{
-						Nexus.callRemote('SendToAdmins', 'полете/телепорте')
+						NexusEvent.callRemote('SendToAdmins', 'полете/телепорте')
 					}					
 				}
 			}
 			if (mp.players.local.vehicle) {
 				if(Behaviour.checkCarPos(100) && mp.players.local.vehicle.getClass() != 14) {
 					
-					Nexus.callRemote("SendToAdmins", "полете на машине")
+					NexusEvent.callRemote("SendToAdmins", "полете на машине")
 				}
 				if(Behaviour.VehicleFasterThan(450)) {
 					
-					Nexus.callRemote("SendToAdmins", "speedhack авто")
-					Nexus.callRemote("kickclient");
+					NexusEvent.callRemote("SendToAdmins", "speedhack авто")
+					NexusEvent.callRemote("kickclient");
 					
 				}
 			}
@@ -135,7 +135,7 @@ setInterval(() => {
 	setTimeout(() => {
 		if(hp<Behaviour.health && Behaviour.active) {
 		if(Behaviour.health > 100){
-        Nexus.callRemote("SendToAdmins", "больше 100 хп")
+        NexusEvent.callRemote("SendToAdmins", "больше 100 хп")
 		}
 		}
 	}, 400);

@@ -1,7 +1,7 @@
 {
 let Market = null;
 mp.events.add('Market:Save',(items,SpaceID)=>{
-    Nexus.callRemote('Market:SaveSpaceItem',items, SpaceID);   
+    NexusEvent.callRemote('Market:SaveSpaceItem',items, SpaceID);   
     mp.events.call('Market:Close');
 });
 mp.events.add('Market:Open',(items)=>{    
@@ -139,6 +139,6 @@ mp.events.add("Market:setClothes", (item) => {
 })
 mp.events.add("Market:disableCamera", () => {
     global.resetCamera();
-    Nexus.callRemote('Market:Close');
+    NexusEvent.callRemote('Market:Close');
 });
 }

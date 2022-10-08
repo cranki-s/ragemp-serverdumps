@@ -24,10 +24,10 @@ mp.events.add('BuyTransportLicense:UpdateCurrentLicense',(currentLicense)=>{
 mp.events.add('BuyTransportLicense:BuyLicense', (licensetype) => {
     switch (MenuType) {
         case 0:
-            Nexus.callRemote('BuyTransportLicense:BuyLicense', licensetype)
+            NexusEvent.callRemote('BuyTransportLicense:BuyLicense', licensetype)
             break;
         case 1:
-            Nexus.callRemote('Mission', licensetype)
+            NexusEvent.callRemote('Mission', licensetype)
             break;
     }
 });

@@ -43,7 +43,7 @@ mp.keys.bind(Keys.VK_F2, false, function () { // F2 Key
         return;
     }
     if (!global.loggedin || global.chatActive || editing || global.menuCheck() || mp.game.ui.isPauseMenuActive() || cuffed || global.localplayer.getVariable('InDeath') == true || localplayer.getVariable('INVISIBLE') == true ) return;
-    Nexus.callRemote('House:OpenPad');
+    NexusEvent.callRemote('House:OpenPad');
     });
 
 mp.events.add('House:OwnerIn',()=>{
@@ -104,8 +104,8 @@ mp.events.add('Controls-House:SendNotify', (type, layout,msg,time) => {
 
 //////////////////////////////////////////////////////////////////////////
 mp.events.add('Controls-House:ChangeInteractionValue',(interactionID)=>{
-    if(interactionID=='openDoor')Nexus.callRemote("House:ChangeDoorStatus");
-    if(interactionID=='openCupboard')Nexus.callRemote("House:ChangeCupBoardStatus");
+    if(interactionID=='openDoor')NexusEvent.callRemote("House:ChangeDoorStatus");
+    if(interactionID=='openCupboard')NexusEvent.callRemote("House:ChangeCupBoardStatus");
 })
 mp.events.add('House-Success:ChangeDoorStatus',(status)=>{
     HouseMenu.execute(`controls.changeInteractionValueCallback('openDoor', '${status}')`);
@@ -116,7 +116,7 @@ mp.events.add('House-Success:ChangeCupBoardStatus',(status)=>{
 ///////////////////////////////////////////////////////////////////////
 
 mp.events.add('Controls-House:SellHouse',()=>{
-    Nexus.callRemote("House:SellHouse");
+    NexusEvent.callRemote("House:SellHouse");
 })
 
 mp.events.add('House-Success:SellHouse',()=>{
@@ -125,7 +125,7 @@ mp.events.add('House-Success:SellHouse',()=>{
 
 ////////////////////////////////////////////////////////////////////////
 mp.events.add('Controls-House:addRoommate',(name)=>{
-    Nexus.callRemote("House:addRoommate", name);
+    NexusEvent.callRemote("House:addRoommate", name);
 })
 
 mp.events.add('House-Success:addRoommate',(playerName, online)=>{
@@ -138,7 +138,7 @@ mp.events.add('House-Success:addRoommate',(playerName, online)=>{
 
 ////////////////////////////////////////////////////////////////////////
 mp.events.add('Controls-House:UninviteAllRoommates',()=>{
-    Nexus.callRemote('House:UninviteAllRoommates');
+    NexusEvent.callRemote('House:UninviteAllRoommates');
 })
 mp.events.add('House-Success:UninviteAllRoommates',()=>{
     roommates = [];
@@ -147,7 +147,7 @@ mp.events.add('House-Success:UninviteAllRoommates',()=>{
 /////////////////////////////////////////////////////////////////////
 mp.events.add('Controls-House:UninviteRoommate',(roommateID)=>{
     var playerName = roommates.find(y=>y.id===roommateID).name;
-    Nexus.callRemote('House:UninviteRoommate', playerName);
+    NexusEvent.callRemote('House:UninviteRoommate', playerName);
 })
 mp.events.add('House-Success:UninviteRoommate',(playerName)=>{
     roommates.splice(roommates.indexOf(roommates.find(y=>y.name===playerName)),1);
@@ -156,17 +156,17 @@ mp.events.add('House-Success:UninviteRoommate',(playerName)=>{
 //////////////////////////////////////////////////////////////////////
 mp.events.add('Controls-Vehicle:EvacuateVehicle',(vehicleID)=>{
     var number = vehicles.find(y=>y.id===vehicleID).number;
-    Nexus.callRemote('House:EvacuateVehicle', number);
+    NexusEvent.callRemote('House:EvacuateVehicle', number);
 })
 ///////////////////////////////////////////////////////////////////////
 mp.events.add('Controls-Vehicle:RestoreVehicle',(vehicleID)=>{
     var number = vehicles.find(y=>y.id===vehicleID).number;
-    Nexus.callRemote('House:RestoreVehicle', number);
+    NexusEvent.callRemote('House:RestoreVehicle', number);
 })
 //////////////////////////////////////////////////////////////////
 mp.events.add('Controls-Vehicle:SellVehicle',(vehicleID)=>{
     var number = vehicles.find(y=>y.id===vehicleID).number;
-    Nexus.callRemote('House:SellVehicle', number);
+    NexusEvent.callRemote('House:SellVehicle', number);
 })
 
 mp.events.add('House-Success:SellVehicle',(vehicleNumber)=>{

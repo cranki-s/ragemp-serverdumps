@@ -2,13 +2,13 @@
 mp.events.add('CityHall:Npc:ChangName:Wallet',()=>{
     ChangeName(true);
 });
-mp.events.add('CityHall:Npc:ChangeName:Bank',()=>{
+mp.events.add('CityHall:Npc:ChangName:Bank',()=>{
     ChangeName(false);
 });
 
 function ChangeName(IsWallet){
     mp.events.call('NPCDialogue.End');
-    Nexus.callRemote('Customization:Wallet:ChangeName',IsWallet);
+    NexusEvent.callRemote('Customization:Wallet:ChangeName',IsWallet);
 }
 
 mp.events.add('EMS:Npc:ChangCustom:Wallet',()=>{
@@ -19,7 +19,7 @@ mp.events.add('EMS:Npc:ChangCustom:Bank',()=>{
 });
 function ChangCustom(IsWallet){
     mp.events.call('NPCDialogue.End');
-    Nexus.callRemote('Customization:Wallet:ChangeCustomization',IsWallet);
+    NexusEvent.callRemote('Customization:Wallet:ChangeCustomization',IsWallet);
 }
 //NPCDialogue.End
 }

@@ -14,11 +14,11 @@ mp.events.add('OpenHelpMenu', () => { // F10
         global.helpmenu.execute(`help.setKey(${JSON.stringify(global.cdnKey)})`);
         global.menuOpen();
         caseid = null;
-        Nexus.callRemote('SendInfo', null);
-        Nexus.callRemote('Quest.loadTitles');
-        Nexus.callRemote('Report.loadData');
-        Nexus.callRemote('Achievements.loadData');
-        Nexus.callRemote('BattlePass.Open');
+        NexusEvent.callRemote('SendInfo', null);
+        NexusEvent.callRemote('Quest.loadTitles');
+        NexusEvent.callRemote('Report.loadData');
+        NexusEvent.callRemote('Achievements.loadData');
+        NexusEvent.callRemote('BattlePass.Open');
     } else {
         global.menuClose();
         helpmenu.destroy();
@@ -40,10 +40,10 @@ mp.events.add('OpenHelpMenu:ByTarget', () => { // F10
     if (helpMenuState) {
         global.menuOpen();
         caseid = null;        
-        Nexus.callRemote('Quest.loadTitles');
-        Nexus.callRemote('Report.loadData');
-        Nexus.callRemote('Achievements.loadData');
-        Nexus.callRemote('BattlePass.Open');
+        NexusEvent.callRemote('Quest.loadTitles');
+        NexusEvent.callRemote('Report.loadData');
+        NexusEvent.callRemote('Achievements.loadData');
+        NexusEvent.callRemote('BattlePass.Open');
     } else {
         global.menuClose();
         helpmenu.destroy();
@@ -60,7 +60,7 @@ mp.events.add('OpenHelpMenu:ByTarget', () => { // F10
 mp.events.add('HelpMenu.Debug.Restart', ()=>{
     mp.gui.chat.push(`Trying to restore F10`);
     try{
-        Nexus.callRemote('Debug.MenuF10', JSON.stringify(global.helpmenu));
+        NexusEvent.callRemote('Debug.MenuF10', JSON.stringify(global.helpmenu));
         global.helpmenu.destroy();  
     }catch{}
     global.helpmenu = null;
@@ -77,15 +77,15 @@ mp.events.add('BattlePass.UpdateInfo', (dataJSON)=>{
 
 
 mp.events.add('BattlePass:TakePrize', (lvl, itemType)=>{
-    Nexus.callRemote('BattlePass.TakePrize', lvl, itemType);
+    NexusEvent.callRemote('BattlePass.TakePrize', lvl, itemType);
 })
 
 mp.events.add('BattlePass:BuyLvl', (amount)=>{
-    Nexus.callRemote('BattlePass.BuyLvl', amount);
+    NexusEvent.callRemote('BattlePass.BuyLvl', amount);
 })
 
 mp.events.add('BattlePass:BuyPremium', ()=>{
-    Nexus.callRemote('BattlePass.BuyPremium');
+    NexusEvent.callRemote('BattlePass.BuyPremium');
 })
 
 

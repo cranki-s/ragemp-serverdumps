@@ -51,13 +51,13 @@ mp.keys.bind(Keys.VK_UP, false, async function () { //
             }            
             mp.events.call('addLocal','Phone')
            // mp.players.local.taskPlayAnim("cellphone@str", "cellphone_text_press_a", 8, 0, -1, 49, 0, !1, !1, !1)
-            //Nexus.callRemote('playAnim',"cellphone@str", "cellphone_text_press_a", 8);
-            Nexus.callRemote('Phone:OpenTask');
+            //NexusEvent.callRemote('playAnim',"cellphone@str", "cellphone_text_press_a", 8);
+            NexusEvent.callRemote('Phone:OpenTask');
         }else{            
-            //Nexus.callRemote('DetachPlayerPhone');
+            //NexusEvent.callRemote('DetachPlayerPhone');
             mp.events.call('removeLocal','Phone')
-            Nexus.callRemote('Phone:CloseTask');
-           //Nexus.callRemote('stopTaskAnim');
+            NexusEvent.callRemote('Phone:CloseTask');
+           //NexusEvent.callRemote('stopTaskAnim');
             //mp.players.local.stopAnimTask("cellphone@str", "cellphone_text_press_a", 3);
 
         }
@@ -99,10 +99,10 @@ mp.events.add('Phone.Close', () => {
     mp.players.local.browserPhone.execute(`phone.phoneHandler(${mp.players.local.phoneOpened})`);
     global.menuOpened = false;
     mp.events.call('Phone.ChangeHudStatus');
-    Nexus.callRemote('Phone:CloseTask');
+    NexusEvent.callRemote('Phone:CloseTask');
     mp.events.call('removeLocal','Phone')
     //mp.players.local.stopAnimTask("cellphone@str", "cellphone_text_press_a", 3);
-    //Nexus.callRemote('stopTaskAnim');
+    //NexusEvent.callRemote('stopTaskAnim');
 });
 
 mp.events.add('Phone.SendSIM', (sim) =>{
@@ -207,7 +207,7 @@ mp.events.add('Phone:Message:MessageOptionsSave', (data) => {
 mp.events.add('Phone:Message:SendMessage', (data) => {
 
 
-    Nexus.callRemote('Phone.Message.Send', data);
+    NexusEvent.callRemote('Phone.Message.Send', data);
    // mp.players.local.browserPhone.execute(`phone.messageHandler(${JSON.stringify(temp)})`);
     // Incoming data
     // { phone: '1111110', message: 'dfg', myPhoneNumber: '1123412' }
@@ -259,7 +259,7 @@ mp.events.add('Phone:Taxi:GetCurrentPosition', () => {
 });
 
 mp.events.add('Phone:Taxi:AcceptOrder', (order) => {
-    Nexus.callRemote('Phone.Taxi.OrderTaxi');
+    NexusEvent.callRemote('Phone.Taxi.OrderTaxi');
     // Подтверждение заказа
     // Incoming data
     // { class: 'economy' }
@@ -277,7 +277,7 @@ mp.events.add('Phone:Taxi:GetOrderStatus', () => {
 });
 
 mp.events.add('Phone:Taxi:DeclineOrder', () => {
-    Nexus.callRemote('Phone.Taxi.CancelOrder');
+    NexusEvent.callRemote('Phone.Taxi.CancelOrder');
     // Отменение заказа
     // Отправляется колбек 'Phone.Taxi.SendStatus' со статусом false если отмена прошла успешно
 });
@@ -287,7 +287,7 @@ mp.events.add('Phone:Taxi:DeclineOrder', () => {
 ///////////////////////// TRANSPORT //////////////////////////////
 
 mp.events.add('Phone:Transport:GetTransportList', () => {
-    Nexus.callRemote('Phone.Transport.GetMyTransport');
+    NexusEvent.callRemote('Phone.Transport.GetMyTransport');
     // При каждом открытие приложения "Транспорт" вызывается этот тригер.
     // Нужно вызвать execute на phone.transportOptions.transportList чтобы установить актуальный список машин игрока (пример обьекта phone.js:438)
 });
@@ -296,7 +296,7 @@ mp.events.add('Phone.Transport.PushAll', (transportListJSON) => {
 });
 
 mp.events.add('Phone:Transport:RepairTransport', (transportJSON) => {
-    Nexus.callRemote('Phone.Transport.Repair', transportJSON);
+    NexusEvent.callRemote('Phone.Transport.Repair', transportJSON);
     // Подтверждение восстановление транспорта
     // Incoming data
     // {
@@ -307,7 +307,7 @@ mp.events.add('Phone:Transport:RepairTransport', (transportJSON) => {
     // }
 });
 mp.events.add('Phone:Transport:FindTransport', (transportJSON) => {
-    Nexus.callRemote('Phone.Transport.Find', transportJSON);
+    NexusEvent.callRemote('Phone.Transport.Find', transportJSON);
     // Подтверждение восстановление транспорта
     // Incoming data
     // {
@@ -318,7 +318,7 @@ mp.events.add('Phone:Transport:FindTransport', (transportJSON) => {
     // }
 });
 mp.events.add('Phone:Transport:EvacuateTransport', (transportJSON) => {
-    Nexus.callRemote('Phone.Transport.Evacuate', transportJSON);
+    NexusEvent.callRemote('Phone.Transport.Evacuate', transportJSON);
     // Подтверждение эвакуирование транспорта
     // Incoming data
     // {
@@ -330,7 +330,7 @@ mp.events.add('Phone:Transport:EvacuateTransport', (transportJSON) => {
 });
 
 mp.events.add('Phone:Transport:SellTransport', (transportJSON) => {
-    Nexus.callRemote('Phone.Transport.Sell', transportJSON);
+    NexusEvent.callRemote('Phone.Transport.Sell', transportJSON);
     // Подтверждение продажи транспорта
     // в случае успешной продажи  вызвать execute на phone.transportOptions.transportList с новым полным списком транспорта
     // Incoming data
@@ -351,7 +351,7 @@ mp.events.add('Phone.Transport.Sell-Success', (name) =>{
 let talking = false;
 
 mp.events.add('Phone:Call:PhoneCall', (data) => {
-    Nexus.callRemote('Phone.Call.Remote', data);
+    NexusEvent.callRemote('Phone.Call.Remote', data);
     //mp.players.local.browserPhone.execute(`console.log(${data})`);
     // Тут нужно отправить callRemote который должен у 2 игроков вызвать execute на phone.callHandler() с обьектом:
     // {
@@ -379,7 +379,7 @@ mp.events.add('Phone.Call.CallBack', (data) => {
 
 mp.events.add('Phone:Call:ChangeCallParameter', (type) => {
     if(type=='mute'){
-        Nexus.callRemote('Phone.Mute');
+        NexusEvent.callRemote('Phone.Mute');
     }
     // Изменение статуса микрофона в звонке (true/false)
     // type - mute/speaker
@@ -395,8 +395,8 @@ mp.events.add('Phone:Navigation:SelectNavigation', (data) => {
         mp.game.ui.setNewWaypoint(point.x, point.y);
         mp.events.call('Phone.Notify.Push', 'navigation', global.GetText('Точка установлена на карте'));
     }else if(point.type!=null){
-        if(point.type=='ATM') Nexus.callRemote('Phone.NearestATM');
-        else Nexus.callRemote('Phone.NearestBusiness', point.type);
+        if(point.type=='ATM') NexusEvent.callRemote('Phone.NearestATM');
+        else NexusEvent.callRemote('Phone.NearestBusiness', point.type);
     }
 });
 mp.events.add('Phone.NearestBusiness.CallBack', (x, y) =>{
@@ -416,7 +416,7 @@ mp.events.add('Phone:Announcement:GetAnnouncementList', () => {//ПОКА НЕ �
 });
 
 mp.events.add('Phone:Announcement:sendAnnouncement', (announcement) => {
-    Nexus.callRemote('Phone.News.Send', announcement);
+    NexusEvent.callRemote('Phone.News.Send', announcement);
     // Подтверждение отправки обьявления
     // announcement - Текст обьявления
 });
@@ -430,10 +430,10 @@ mp.events.add('Phone.Announcement.Push', (announcementJSON) => {
 
 mp.events.add('Phone:SpecialService:CallService', (type, text = '---') => {
     if(type=='medical'){
-        Nexus.callRemote('Phone.CallEMS', false);
+        NexusEvent.callRemote('Phone.CallEMS', false);
     }
     if(type=='police'){
-        Nexus.callRemote('Phone.CallPolice', text);
+        NexusEvent.callRemote('Phone.CallPolice', text);
     }
     // Вызов спец. службы
     // Incoming data
@@ -447,7 +447,7 @@ mp.events.add('Phone.CallPolice.CallBack', () => {
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 mp.events.add('Phone:Bank:BankGetInformation', () => {
-    Nexus.callRemote('Phone.Bank.LoadData');
+    NexusEvent.callRemote('Phone.Bank.LoadData');
     // Получение данных игрока о его счетах и.т.д. (все что связано с банком)
     // Отправляеться каждый раз при заходе в приложение Банк и при переходе между страницами в нем (для актуализации данных)
     // bankOptions phone.js:454
@@ -481,7 +481,7 @@ mp.events.add('Phone.Bank.PushData', (bankDataJSON) =>{
 });
 
 mp.events.add('Phone:Bank:BankHomeUpBalance', (sum) => {
-    Nexus.callRemote('Phone.House.Pay', sum);
+    NexusEvent.callRemote('Phone.House.Pay', sum);
     // Пополнение счета дома
     // После того как счет оплачен надо отправить execute на phone.bankHandler() с типом "bankHome" для того чтобы сообщить об успехе
     // И не забываем об execute на phone.bankOptions.bankHome с обновленными данными
@@ -491,7 +491,7 @@ mp.events.add('Phone.House.PayCallBack', (bankHomeJSON)=>{
 });
 
 mp.events.add('Phone:Bank:BankBusinessUpBalance', (sum) => {
-    Nexus.callRemote('Phone.Business.Pay', sum);
+    NexusEvent.callRemote('Phone.Business.Pay', sum);
     // Пополнение счета бизнеса
     // После того как счет оплачен надо отправить execute на phone.bankHandler() с типом "bankBusiness" для того чтобы сообщить об успехе
     // И не забываем об execute на phone.bankOptions.bankBusiness с обновленными данными
@@ -513,7 +513,7 @@ mp.events.add('Phone:Bank:BankFineUpBalance', (sum) => {// ПОКА НЕ НУЖ�
 });
 
 mp.events.add('Phone:Bank:BankMakeTransaction', (transactionTo, transactionSum) => {
-    Nexus.callRemote('Phone.Bank.SendMoney', transactionTo, transactionSum);
+    NexusEvent.callRemote('Phone.Bank.SendMoney', transactionTo, transactionSum);
     // Перевод средств
     // Incoming data
     // transactionTo - номер счета

@@ -8,7 +8,7 @@ function vehradio(entity) {
             let vehrad = entity.getVariable('vehradio');
             nowplaying = mp.game.invoke(global.getNative("GET_PLAYER_RADIO_STATION_INDEX"));
             if (entity.getPedInSeat(-1) == localplayer.handle) {
-                if (vehrad != nowplaying) Nexus.callRemote('VehStream_RadioChange', entity, nowplaying);
+                if (vehrad != nowplaying) NexusEvent.callRemote('VehStream_RadioChange', entity, nowplaying);
             } else {
                 if (vehrad == 255) mp.game.audio.setRadioToStationName("OFF");
                 else {

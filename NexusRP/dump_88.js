@@ -110,7 +110,7 @@ mp.events.add('September.Chemistry.Finish',(result)=>{
         ChemistryBrowser = null;
     }
     global.menuClose();
-    Nexus.callRemote('September.Chemistry.Finish',result * 2);
+    NexusEvent.callRemote('September.Chemistry.Finish',result * 2);
 });
 function getMultipleRandom(arr, num) {
     const shuffled = [...arr].sort(() => 0.5 - Math.random());
@@ -119,22 +119,22 @@ function getMultipleRandom(arr, num) {
   }
 
 mp.events.add("September.Question.Pass", (result)=>{
-    Nexus.callRemote('September.Question.Pass.Server', result);
+    NexusEvent.callRemote('September.Question.Pass.Server', result);
 })
 
 mp.events.add('September.Questions.Start', ()=>{
-    Nexus.callRemote('September.TakeQuest.Question');
+    NexusEvent.callRemote('September.TakeQuest.Question');
 })
 
 mp.events.add('September.Questions.End', ()=>{
-    Nexus.callRemote('September.FinishQuest.Question');
+    NexusEvent.callRemote('September.FinishQuest.Question');
 })
 
 mp.events.add('September.ConfirmBuy', (amount)=>{
     let value = parseInt(amount);
     global.menuClose();
     if(isNaN(value)) return;
-    Nexus.callRemote('September.Buy', value);
+    NexusEvent.callRemote('September.Buy', value);
 });
 
 
@@ -306,7 +306,7 @@ mp.events.add('Quest.Quest.DialogueEnd', finished => {
     }else{
         questIcons.push(hidedIcon);
     }
-    Nexus.callRemote('Quest.Dialogue.Finish', finished);
+    NexusEvent.callRemote('Quest.Dialogue.Finish', finished);
 });
 
 mp.events.add('Dialog:CloseDialog', ()=>{
@@ -318,7 +318,7 @@ mp.events.add('Dialog:CloseDialog', ()=>{
 
 mp.events.add('NPCDialogue.End', callback => {
     if(callback!="null"){
-        Nexus.callRemote(callback);
+        NexusEvent.callRemote(callback);
     }
 });
 
@@ -328,7 +328,7 @@ mp.events.add('Dialog:HideBrowser', ()=>{
 
 mp.events.add('NPCDialogue.callback', callback => {
     if(callback!="null"){
-        Nexus.callRemote(callback);
+        NexusEvent.callRemote(callback);
     }
 });
 
@@ -339,21 +339,21 @@ mp.events.add('NPCDialogue.callback', callback => {
 ////////////////SPECIAL EVENTS/////////////
 
 mp.events.add('Quest.Builder.Start', () => {
-    Nexus.callRemote('Quest.Special.StartBuilder');
+    NexusEvent.callRemote('Quest.Special.StartBuilder');
 });
 
 
 /////////////// Police Dialogues //////////////////////////
 
 mp.events.add('Police.Car.KeyDuplicate', (number)=>{
-    Nexus.callRemote('Police.Car.KeyDuplicate.Server', number);
+    NexusEvent.callRemote('Police.Car.KeyDuplicate.Server', number);
 });
 
 mp.events.add('Police.Car.ChangeLock', (number)=>{
-    Nexus.callRemote('Police.Car.ChangeLock.Server', number);
+    NexusEvent.callRemote('Police.Car.ChangeLock.Server', number);
 })
 
 
 
 
-}Ã
+}褅ϛ

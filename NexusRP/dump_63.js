@@ -36,13 +36,13 @@ mp.events.add('OpenUniversalModel',(type,max)=>{
 
 mp.events.add('UniversalModalCallBack',(type,input,input2)=>{ 
     if(type != ""){
-      Nexus.callRemote(type, input, input2);
+      NexusEvent.callRemote(type, input, input2);
     }
     global.menuClose();
 })
 
 // mp.keys.bind(Keys.VK_L, true, function(){
 //     if (!loggedin || chatActive || editing || cuffed || localplayer.getVariable('InDeath') == true || mp.game.ui.isPauseMenuActive() || localplayer.getVariable('seats') == true) return;
-//     Nexus.callRemote('License:ShowMy');
+//     NexusEvent.callRemote('License:ShowMy');
 // });
 }

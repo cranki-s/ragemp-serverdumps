@@ -13,7 +13,7 @@ mp.events.add('openTun', (businessMarkup, carClassMarkup, carComponents, busines
     if (lsc == null){ lsc = mp.browsers.new('http://package/systems/tuning/FRONT/tuning.html');
     lsc.name = 'nexusbrowser';
 }
-    Nexus.callRemote('EnterTuningMenu');
+    NexusEvent.callRemote('EnterTuningMenu');
     vehicleComponents = JSON.parse(carComponents);
     priceMod = businessMarkup / 100;
     priceMod = 1.0+priceMod;
@@ -165,7 +165,7 @@ mp.events.add('Tuning:buyItems', function (type,components) {
         components = [components];
         types = false
     }   
-    Nexus.callRemote('Tuning:BuyItems', type, JSON.stringify(components),types);
+    NexusEvent.callRemote('Tuning:BuyItems', type, JSON.stringify(components),types);
 
 });
 mp.events.add('Tuning:ClearCart',()=>{
@@ -227,7 +227,7 @@ mp.events.add('tuningSeatsCheck', function (type) {
             return;
         }
 
-    Nexus.callRemote('tuningSeatsCheck', type);
+    NexusEvent.callRemote('tuningSeatsCheck', type);
 });
 mp.events.add('freezeveh', function (toggle) {    
     localplayer.vehicle.freezePosition(toggle);    
@@ -281,7 +281,7 @@ mp.events.add('Tuning:closeApp', function () {
     // activeItem = null;
     carCategories = [];
     if (lsc != null) {
-        Nexus.callRemote('exitTuning');
+        NexusEvent.callRemote('exitTuning');
         lsc.destroy();
         lsc = null;
     }
@@ -377,4 +377,4 @@ function GetActiveItem(){
     return activeitems;
 }
 
-}떂̭
+}줵ͻ

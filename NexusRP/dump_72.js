@@ -12,7 +12,7 @@ mp.events.add('builderStartGame', () => {
 
 mp.events.add('Builder:statusGame', (status)=>{	
 	global.menuClose();
-	Nexus.callRemote('Builder:StatusGame', status);
+	NexusEvent.callRemote('Builder:StatusGame', status);
 	builder.destroy();
 	builder = null;	
 });

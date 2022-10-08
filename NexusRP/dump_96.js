@@ -26,7 +26,7 @@ mp.events.add('NumberMenu:Close', () => {
 });
 
 mp.events.add('NumberMenu:ByNumber',(NumberArray)=>{
-    Nexus.callRemote('NumberMenu:ByNumber',NumberArray);
+    NexusEvent.callRemote('NumberMenu:ByNumber',NumberArray);
 });
 
 mp.events.add('NumberMenu:ByNumberCallBack',(item)=>{
@@ -34,7 +34,7 @@ mp.events.add('NumberMenu:ByNumberCallBack',(item)=>{
 });
 
 mp.events.add('NumberMenu:TakeNumber',()=>{
-   Nexus.callRemote('NumberMenu:TakeNumber');
+   NexusEvent.callRemote('NumberMenu:TakeNumber');
 });
 
 }

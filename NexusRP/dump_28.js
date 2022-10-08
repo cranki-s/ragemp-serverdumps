@@ -28,16 +28,16 @@ mp.events.add('closehouses', () => {
 });
 mp.events.add('buyHouse', () => {
     if (HouseType == 0) {
-        Nexus.callRemote('houseCallback', "buy");
+        NexusEvent.callRemote('houseCallback', "buy");
     } else {
-        Nexus.callRemote('FamilyHousecallback');
+        NexusEvent.callRemote('FamilyHousecallback');
     }
 });
 mp.events.add('interiorHouse', () => {
     if (HouseType == 0) {
-        Nexus.callRemote('houseCallback', "interior");
+        NexusEvent.callRemote('houseCallback', "interior");
     } else {
-        Nexus.callRemote('FamilyGoInt');
+        NexusEvent.callRemote('FamilyGoInt');
     }
 });
 }

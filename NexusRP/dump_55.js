@@ -11,7 +11,7 @@ mp.events.add('OpenArestMenu',()=>{
     global.menuOpen();
 })
 mp.events.add('wantedMenu',(object)=>{
-    Nexus.callRemote("ArrestTimers",object)
+    NexusEvent.callRemote("ArrestTimers",object)
 });
 mp.events.add('wantedClose',()=>{
     arrest.destroy();

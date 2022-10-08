@@ -167,7 +167,7 @@ mp.events.add('Clothes:buyClothes', (cash, ColorID, activeItem) => {
         let categoryTypes = accessibleClothes.find(category => category.id == categoryType).type;
         let ClothesId = activeItem.id;
         let ItemName = activeItem.name;
-        Nexus.callRemote('ClothesShop:buy', categoryTypes, ClothesId, ColorID, cash, ItemName, ClothesShopType)
+        NexusEvent.callRemote('ClothesShop:buy', categoryTypes, ClothesId, ColorID, cash, ItemName, ClothesShopType)
     } catch { }
 })
 
@@ -178,7 +178,7 @@ mp.events.add('Clothes:closeClothesShop',()=>{
     bodyCam.destroy();
     mp.game.cam.renderScriptCams(false, false, 500, true, false);
     playerheading.stop()
-    Nexus.callRemote('ClothesShop:exit');
+    NexusEvent.callRemote('ClothesShop:exit');
 });
 
 

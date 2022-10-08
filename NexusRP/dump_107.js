@@ -6,7 +6,7 @@ var authconfig = JSON.stringify(mp.storage.data.auth)
 let gender_player = localplayer.model == mp.game.joaat('mp_m_freemode_01');
 mp.events.add('Authentication.Login.Submit', (data) => {
     data = JSON.parse(data)
-    Nexus.callRemote('Server:Authentication.Login.Submit', data.login, data.password)
+    NexusEvent.callRemote('Server:Authentication.Login.Submit', data.login, data.password)
     updateGameTime = false;
     mp.game.time.setClockTime(10, 0, 0);
 });
@@ -16,7 +16,7 @@ mp.events.add('ServerCallback:Authentication.Login.Submit', (sucsess,data,error)
 });
 mp.events.add('Authentication.SelectSpawn.SelectedCharacter', (cardId) => {
     global.resetCamera(0);
-    Nexus.callRemote('Server:Authentication.SelectSpawn.SelectedCharacter', cardId)
+    NexusEvent.callRemote('Server:Authentication.SelectSpawn.SelectedCharacter', cardId)
 });
 mp.events.add('ServerCallback:Authentication.SelectSpawn.SelectedCharacter', (sucsess, error) => {
     if (sucsess) {
@@ -25,21 +25,21 @@ mp.events.add('ServerCallback:Authentication.SelectSpawn.SelectedCharacter', (su
     globalThis.browser.execute(`RPC.resolve('Authentication.SelectSpawn.SelectedCharacter', ${sucsess},"${error}")`);
 });
 mp.events.add('Authentication.SelectSpawn.GetAllowSpawnPoint', () => {
-    Nexus.callRemote('Server:Authentication.SelectSpawn.GetAllowSpawnPoint');
+    NexusEvent.callRemote('Server:Authentication.SelectSpawn.GetAllowSpawnPoint');
 });
 mp.events.add('ServerCallback:Authentication.SelectSpawn.GetAllowSpawnPoint', (sucsess, spawnpoint) => {
     globalThis.browser.execute(`RPC.resolve('Authentication.SelectSpawn.GetAllowSpawnPoint', ${sucsess}, ${spawnpoint})`);
 });
 
 mp.events.add('Authentication.SelectSpawn.SpawnPoint', (spawnId) => {
-    Nexus.callRemote('Server:Authentication.SelectSpawn.SpawnPoint', spawnId);
+    NexusEvent.callRemote('Server:Authentication.SelectSpawn.SpawnPoint', spawnId);
 });
 
 mp.events.add('ServerCallback:Authentication.SelectSpawn.SpawnPoint', (spawnId) => {
     globalThis.browser.execute(`RPC.resolve('Authentication.SelectSpawn.SpawnPoint',true, ${spawnId})`);
 });
 mp.events.add('Authentication.SelectSpawn.JoinTheGame', (spawnId) => {
-    Nexus.callRemote('Server:Authentication.SelectSpawn.JoinTheGame', spawnId);
+    NexusEvent.callRemote('Server:Authentication.SelectSpawn.JoinTheGame', spawnId);
     updateGameTime = true;
 });
 mp.events.add('ServerCallback:Authentication.SelectSpawn.JoinTheGame', (spawnId) => {
@@ -48,7 +48,7 @@ mp.events.add('ServerCallback:Authentication.SelectSpawn.JoinTheGame', (spawnId)
 })
 
 mp.events.add('Authentication.Character.UnlockSlot', (cardId) => {
-    Nexus.callRemote('donate', "buyslot", cardId);
+    NexusEvent.callRemote('donate', "buyslot", cardId);
 })
 
 mp.events.add('ServerCallback:Authentication.Character.UnlockSlot', (sucsess, error) => {
@@ -57,7 +57,7 @@ mp.events.add('ServerCallback:Authentication.Character.UnlockSlot', (sucsess, er
 mp.events.add('Authentication.Character.Create', (cardId, data) => {
     // window.RPC.resolve('Authentication.Character.Create', true);
     data = JSON.parse(data);
-    Nexus.callRemote('Server:Authentication.Character.Create', cardId, data.firstName, data.lastName);
+    NexusEvent.callRemote('Server:Authentication.Character.Create', cardId, data.firstName, data.lastName);
 });
 mp.events.add('ServerCallback:Authentication.Character.Create', (sucsess, error) => {
     globalThis.browser.execute(`RPC.resolve('Authentication.Character.Create',${sucsess},"${error}")`);
@@ -68,7 +68,7 @@ mp.events.add('ServerCallback:Authentication.Character.Create', (sucsess, error)
 })
 mp.events.add('Authentication.Registration.Submit', (data) => {
     data = JSON.parse(data)
-    Nexus.callRemote('Server:Authentication.Registration.Submit', data.login, data.password, data.email, data.promocode);
+    NexusEvent.callRemote('Server:Authentication.Registration.Submit', data.login, data.password, data.email, data.promocode);
 });
 mp.events.add('ServerCallback:Authentication.Registration.Submit', (sucsess, obj, error) => {
     globalThis.browser.execute(`RPC.resolve('Authentication.Registration.Submit',${sucsess},${obj},"${error}")`);
@@ -79,7 +79,7 @@ mp.events.add('ServerCallback:Authentication.Close', () => {
 
 mp.events.add('Authentication.Character.Select', (cardId) => {
     mp.events.call('client_playerAuth_hidePlayer');
-    Nexus.callRemote('Server:Authentication.Character.Select', cardId)
+    NexusEvent.callRemote('Server:Authentication.Character.Select', cardId)
 
 });
 mp.events.add('ServerCallback:Authentication.Character.Select', (sucsess, error) => {
@@ -104,7 +104,7 @@ mp.events.add('Authentication.Login.SaveUser', (AuthObject) => {
 });
 mp.events.add('Authentication.Character.Logout', () => {
     mp.events.call('__client_spawnMenu_freeCamera', true, mp.players.local.position.x, mp.players.local.position.y, mp.players.local.position.z)
-    Nexus.callRemote('Server:Authentication.Character.Logout')
+    NexusEvent.callRemote('Server:Authentication.Character.Logout')
 });
 mp.events.add('ServerCallback:Authentication.Character.Logout', (sucsess) => {
     globalThis.browser.execute(`RPC.resolve('Authentication.Character.Logout', ${sucsess})`);
@@ -143,7 +143,7 @@ mp.events.add("changecamPos", async (a, t, _, eventname, spawnId) => {
     mp.events.call(eventname, spawnId);
 })
 // mp.events.add('Authentication.GetCountdown', () => {
-//     Nexus.callRemote('Server:Authentication.GetCountdown');
+//     NexusEvent.callRemote('Server:Authentication.GetCountdown');
 // });
 // mp.events.add('ServerCallBack:Authentication.GetCountdown', (sucsess) => {
 //     let a = {
@@ -196,7 +196,7 @@ mp.events.add("__client_spawnMenu_freeCamera", async (e, a, t, _) => {
 })
 mp.events.add('Authentication.Character.Remove', (cardId) => {
     // window.RPC.resolve('Authentication.Character.Remove', true);
-    Nexus.callRemote('Server:Authentication.Character.Remove', cardId)
+    NexusEvent.callRemote('Server:Authentication.Character.Remove', cardId)
 });
 mp.events.add('ServerCallback:Authentication.Character.Remove', (sucsess, error) => {
     globalThis.browser.execute(`RPC.resolve('Authentication.Character.Remove',${sucsess},"${error}")`);
@@ -251,7 +251,7 @@ mp.events.add('CDN.Key.Send', (login, key) => {
         global.board.name = 'nexusbrowser';
         global.board.execute(`inventory.setKey(${JSON.stringify(global.cdnKey)})`);
         mp.players.local.browserPhone.execute(`phone.setKey(${JSON.stringify(global.cdnKey)})`);
-    } catch { Nexus.callRemote('console', 'Произошла ошибка отправки ключей Auth.js 20') }
+    } catch { NexusEvent.callRemote('console', 'Произошла ошибка отправки ключей Auth.js 20') }
 });
 
 mp.events.add('ready', function () {

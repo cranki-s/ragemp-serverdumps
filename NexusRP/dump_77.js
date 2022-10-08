@@ -10,7 +10,7 @@ global.GTA_VER = 10;
 global.getNative = function (name) {
     return NATIVES[name][GTA_VER];
 };
-//Nexus.callRemote("checkVersion", GTA_VER);
+//NexusEvent.callRemote("checkVersion", GTA_VER);
 
 global.NATIVES = {
     "SET_BLIP_SPRITE": { 10: '0xDF735600A4696DAF', 0: '0x3B815A6E8530D3A5', 1: '0xDC0EBFC7730AA226', 2: '0x4B4040A0EC7DBA81' },
@@ -43,9 +43,7 @@ global.NATIVES = {
     "SET_RADIO_TO_STATION_INDEX": { 10: '0xA619B168B8A8570F' },
     "SET_RADIO_TO_STATION_INDEX": { 10: '0xF90125F1F79ECDF8' },
 }
-}
-
-mp.events.add('deleteGarageBlip', function () {
+}.events.add('deleteGarageBlip', function () {
     if (garageBlip != null)
         garageBlip.destroy();
     garageBlip = null;

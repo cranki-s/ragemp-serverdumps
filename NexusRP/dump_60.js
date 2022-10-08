@@ -22,7 +22,7 @@ mp.events.add('openFamilyCreationMenu', (data) => {
 mp.events.add('createFamily', (jsonFamily) => {
     familyCreationMenu.execute('familyCreationMenu.hide();');
     var Family=JSON.parse(jsonFamily);
-    Nexus.callRemote('createNewFamily',Family['name'],Family['description'],Family['nation']);
+    NexusEvent.callRemote('createNewFamily',Family['name'],Family['description'],Family['nation']);
 	global.menuClose();
 });
 

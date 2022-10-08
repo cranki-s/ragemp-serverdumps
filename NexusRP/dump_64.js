@@ -79,9 +79,9 @@ mp.events.add('Controls:UpdateMembers',(members,count,pages)=>{
 
 mp.events.add('Controls:DeleteMember', (memberID) => {
     if (OpenedType == "fraction") {
-        Nexus.callRemote('Controls:DeleteMember', memberID);
+        NexusEvent.callRemote('Controls:DeleteMember', memberID);
     }else{
-        Nexus.callRemote('Controls:FamilyDeleteMember', memberID);
+        NexusEvent.callRemote('Controls:FamilyDeleteMember', memberID);
     }
 })
 
@@ -112,18 +112,18 @@ mp.events.add('Controls:UpdateMember', (member, types) => {
 })
 mp.events.add('Controls:SetMemberRank', (type, memberID) => {
     if (OpenedType == "fraction") {
-        Nexus.callRemote('Controls:SetMemberRank', type, memberID);
+        NexusEvent.callRemote('Controls:SetMemberRank', type, memberID);
     }else {
-        Nexus.callRemote('Controls:FamilySetMemberRank', type, memberID);
+        NexusEvent.callRemote('Controls:FamilySetMemberRank', type, memberID);
     }
 })
 
 
 mp.events.add('Controls:EditMemberRank', (memberID) => {
     if (OpenedType == "fraction") {
-        Nexus.callRemote('Controls:EditMemberRank', memberID);
+        NexusEvent.callRemote('Controls:EditMemberRank', memberID);
     }else{
-        Nexus.callRemote('Controls:FamilyEditMemberRank',memberID);
+        NexusEvent.callRemote('Controls:FamilyEditMemberRank',memberID);
     }
 
 })
@@ -136,9 +136,9 @@ mp.events.add('Constrols:openMemberEditor',(editableMember,shortRanks)=>{
 })
 mp.events.add('Controls:SetMembersPage',(type,page)=>{
     if (OpenedType == "fraction") {
-        Nexus.callRemote('Controls:SetMembersPage', type, page)
+        NexusEvent.callRemote('Controls:SetMembersPage', type, page)
     }else {
-        Nexus.callRemote('Controls:FamilySetMembersPage',type, page)
+        NexusEvent.callRemote('Controls:FamilySetMembersPage',type, page)
     }
 })
 mp.events.add('Controls:SetMembersPageCallBack',(newMembers,page)=>{
@@ -153,11 +153,11 @@ mp.events.add('Controls:SetMembersPageCallBack',(newMembers,page)=>{
 mp.events.add('Controls:SetNavigationTab', (route) => {
     if(OpenedType == "fraction")
     {
-        Nexus.callRemote('Controls:SetNavigationTab',route)   
+        NexusEvent.callRemote('Controls:SetNavigationTab',route)   
     }
     else
     {
-        Nexus.callRemote('Controls:FamilySetNavigationTab',route)  
+        NexusEvent.callRemote('Controls:FamilySetNavigationTab',route)  
     }
 })
 
@@ -186,17 +186,17 @@ mp.events.add('Controls:SetNavigationTabCallBack',(route,a,b,c)=>{
 mp.events.add('Controls:OrganizationMoney',(id,sum)=>{
     if(sum < 0) return;
     if (OpenedType == "fraction") {
-        Nexus.callRemote('Controls:OrganizationMoney', id, sum);
+        NexusEvent.callRemote('Controls:OrganizationMoney', id, sum);
     }else{
-        Nexus.callRemote('Controls:FamilyOrganizationMoney', id, sum);
+        NexusEvent.callRemote('Controls:FamilyOrganizationMoney', id, sum);
     }
 
 })
 mp.events.add('Controls:ChangeVehicleAccess',(vehicleID)=>{
     if (OpenedType == "fraction") {
-        Nexus.callRemote('Controls:ChangeVehicleAccess', vehicleID)
+        NexusEvent.callRemote('Controls:ChangeVehicleAccess', vehicleID)
     }else{
-        Nexus.callRemote('Controls:FamilyChangeVehicleAccess', vehicleID)
+        NexusEvent.callRemote('Controls:FamilyChangeVehicleAccess', vehicleID)
     }
 })
 mp.events.add('Constrols:openVehicleEditor',(editableVehicle,shortRanks)=>{
@@ -206,16 +206,16 @@ mp.events.add('Constrols:openVehicleEditor',(editableVehicle,shortRanks)=>{
 })
 mp.events.add('Controls:TrackDownVehicle', (vehicleID) => {
     if (OpenedType == "fraction") {
-        Nexus.callRemote('Controls:TrackDownVehicle', vehicleID);
+        NexusEvent.callRemote('Controls:TrackDownVehicle', vehicleID);
     } else {
-        Nexus.callRemote('Controls:FamilyTrackDownVehicle', vehicleID);
+        NexusEvent.callRemote('Controls:FamilyTrackDownVehicle', vehicleID);
     }
 })
 mp.events.add('Controls:VehiclesSetRank', (type, vehicleID) => {
     if (OpenedType == "fraction") {
-        Nexus.callRemote("Controls:VehiclesSetRank", type, vehicleID)
+        NexusEvent.callRemote("Controls:VehiclesSetRank", type, vehicleID)
     } else {
-        Nexus.callRemote("Controls:FamilyVehiclesSetRank", type, vehicleID)
+        NexusEvent.callRemote("Controls:FamilyVehiclesSetRank", type, vehicleID)
     }
 })
 mp.events.add('Controls:UpdateVehicle',(vehicle,types)=>{
@@ -227,11 +227,11 @@ mp.events.add('Controls:UpdateVehicle',(vehicle,types)=>{
     }
 })
 mp.events.add('Controls:DeleteRank', (rankId) => {
-    //Nexus.callRemote('console', OpenedType)
+    //NexusEvent.callRemote('console', OpenedType)
     if (OpenedType == "fraction") {
-        Nexus.callRemote("Controls:DeleteRank", rankId);
+        NexusEvent.callRemote("Controls:DeleteRank", rankId);
     } else {
-        Nexus.callRemote("Controls:FamilyDeleteRank", rankId);
+        NexusEvent.callRemote("Controls:FamilyDeleteRank", rankId);
     }
 })
 mp.events.add('Controls:DeleteRankCallBack',(rankId)=>{
@@ -241,9 +241,9 @@ mp.events.add('Controls:DeleteRankCallBack',(rankId)=>{
 })
 mp.events.add('Controls:AddRank', (rankId) => {
     if (OpenedType == "fraction") {
-        Nexus.callRemote('Controls:AddRank', rankId);
+        NexusEvent.callRemote('Controls:AddRank', rankId);
     } else {
-        Nexus.callRemote('Controls:FamilyAddRank', rankId);
+        NexusEvent.callRemote('Controls:FamilyAddRank', rankId);
     }
 })
 
@@ -257,9 +257,9 @@ mp.events.add('Controls:AddRankCallBack',(newRank)=>{
 
 mp.events.add('Controls:EditRankName', (rankId) => {
     if (OpenedType == "fraction") {
-        Nexus.callRemote('controls.openRankNameEditor', rankId);
+        NexusEvent.callRemote('controls.openRankNameEditor', rankId);
     } else {
-        Nexus.callRemote('controls.FamilyopenRankNameEditor', rankId);
+        NexusEvent.callRemote('controls.FamilyopenRankNameEditor', rankId);
     }
 })
 mp.events.add('Controls:EditRankNameCallback', (rankId) => {
@@ -270,9 +270,9 @@ mp.events.add('Controls:EditRankNameCallback', (rankId) => {
 
 mp.events.add('Controls:setRankName', (rankId, name) => {
     if (OpenedType == "fraction") {
-        Nexus.callRemote('Controls:setRankName', rankId, name);
+        NexusEvent.callRemote('Controls:setRankName', rankId, name);
     } else {
-        Nexus.callRemote('Controls:FamilysetRankName', rankId, name);
+        NexusEvent.callRemote('Controls:FamilysetRankName', rankId, name);
     }
 })
 mp.events.add('Controls:setRankNameCallBack', (rankId, rankname, date, time) => {
@@ -283,9 +283,9 @@ mp.events.add('Controls:setRankNameCallBack', (rankId, rankname, date, time) => 
 
 mp.events.add('Controls:rankChangePermissions', (rankId) => {
     if (OpenedType == "fraction") {
-        Nexus.callRemote('Controls:rankChangePermissions', rankId)
+        NexusEvent.callRemote('Controls:rankChangePermissions', rankId)
     } else {
-        Nexus.callRemote('Controls:FamilyrankChangePermissions', rankId)
+        NexusEvent.callRemote('Controls:FamilyrankChangePermissions', rankId)
     }
 })
 mp.events.add('Controls:rankChangePermissionsCallBack',(rank)=>{
@@ -295,18 +295,18 @@ mp.events.add('Controls:rankChangePermissionsCallBack',(rank)=>{
 })
 mp.events.add('Controls:rankSetPermissions',(rankID,permissions)=>{
     if (OpenedType == "fraction") {
-    Nexus.callRemote('Controls:rankSetPermissions',rankID,permissions);
+    NexusEvent.callRemote('Controls:rankSetPermissions',rankID,permissions);
     }else{
-        Nexus.callRemote('Controls:FamilyrankSetPermissions',rankID,permissions);
+        NexusEvent.callRemote('Controls:FamilyrankSetPermissions',rankID,permissions);
     }
 })
 
 
 mp.events.add('Controls:SetActionValue', (actionID) => {
     if (OpenedType == "fraction") {
-        Nexus.callRemote('Controls:SetActionValue', actionID);
+        NexusEvent.callRemote('Controls:SetActionValue', actionID);
     } else {
-        Nexus.callRemote('Controls:FamilySetActionValue', actionID);
+        NexusEvent.callRemote('Controls:FamilySetActionValue', actionID);
     }
 })
 
@@ -324,9 +324,9 @@ mp.events.add('Controls:IssuanceAward', () => {
 })
 mp.events.add('Controls:SendAnnouncement', (announcement) => {
     if (OpenedType == "fraction") {
-        Nexus.callRemote('Controls:SendAnnouncement', announcement)
+        NexusEvent.callRemote('Controls:SendAnnouncement', announcement)
     } else {
-        Nexus.callRemote('Controls:FamilySendAnnouncement', announcement)
+        NexusEvent.callRemote('Controls:FamilySendAnnouncement', announcement)
     }
 })
 }

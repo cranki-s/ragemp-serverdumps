@@ -59,7 +59,7 @@ mp.events.add('QuestShop:buyClothes', (ShopType, ColorID, activeItem) => {
                 args.push("clothes", categoryTypes, Number(activeItem.id), Number(ColorID), activeItem.name);
                 break;
         }
-        Nexus.callRemote('QuestShop:Buy', ...args);
+        NexusEvent.callRemote('QuestShop:Buy', ...args);
     } catch { }
 })
 mp.events.add('QuestShop:Clothes:UpdateMoney',(cash)=>{
@@ -77,16 +77,16 @@ mp.events.add('QuestShop:Clothes:CloseShop',()=>{
 
 mp.events.add('QuestManager:OpenShopClothes',()=>{
     mp.events.call('NPCDialogue.End');
-    Nexus.callRemote('QuestShop:OpenShop','clothes');
+    NexusEvent.callRemote('QuestShop:OpenShop','clothes');
 });
 mp.events.add('QuestManager:OpenShopBackPack',()=>{
     mp.events.call('NPCDialogue.End');
-    Nexus.callRemote('QuestShop:OpenShop','backpacks');
+    NexusEvent.callRemote('QuestShop:OpenShop','backpacks');
 });
 
 mp.events.add('QuestManager:OpenShopCar',()=>{
     mp.events.call('NPCDialogue.End');
-    Nexus.callRemote('QuestShop:OpenShop','car');
+    NexusEvent.callRemote('QuestShop:OpenShop','car');
 });
 
 global.septemberbags = JSON.parse(`

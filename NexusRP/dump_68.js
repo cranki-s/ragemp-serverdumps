@@ -19,13 +19,13 @@ mp.events.add("Mechanic.OpenTablet.Callback", (dataJSON, activeOrderJSON)=>{
 });
 
 mp.events.add("Mechanic:Tablet:CancelOrder", ()=>{
-    Nexus.callRemote('Mechanic.Tablet.Cancel');
+    NexusEvent.callRemote('Mechanic.Tablet.Cancel');
     mp.events.call('CloseTaxiPad');
 })
 
 mp.events.add("Mechanic:Tablet:TakeOrder", (orderJSON)=>{
     orderJSON = JSON.parse(orderJSON)
-    Nexus.callRemote('MechanicTablet.TakeOrder', orderJSON.OrderId);
+    NexusEvent.callRemote('MechanicTablet.TakeOrder', orderJSON.OrderId);
 });
 
 
@@ -42,13 +42,13 @@ mp.events.add("Ambulance.OpenTablet.Callback", (dataJSON, activeOrderJSON)=>{
 });
 
 mp.events.add("Ambulance:Tablet:CancelOrder", ()=>{
-    Nexus.callRemote('Ambulance.Tablet.Cancel');
+    NexusEvent.callRemote('Ambulance.Tablet.Cancel');
     mp.events.call('CloseTaxiPad');
 })
 
 mp.events.add("Ambulance:Tablet:TakeOrder", (orderJSON)=>{
     orderJSON = JSON.parse(orderJSON)
-    Nexus.callRemote('AmbulanceTablet.TakeOrder', orderJSON.OrderId);
+    NexusEvent.callRemote('AmbulanceTablet.TakeOrder', orderJSON.OrderId);
 });
 
 
@@ -102,7 +102,7 @@ function parseOrder(element){
 }
 
 mp.events.add("Taxi:Tablet:CancelOrder", ()=>{
-    Nexus.callRemote('Taxi.Tablet.Cancel');
+    NexusEvent.callRemote('Taxi.Tablet.Cancel');
     mp.events.call('CloseTaxiPad');
 })
 
@@ -119,7 +119,7 @@ mp.events.add('CloseTaxiPad', () => {
 
 mp.events.add("Taxi:Tablet:TakeOrder", (orderJSON)=>{
     orderJSON = JSON.parse(orderJSON)
-    Nexus.callRemote('TaxiTablet.TakeOrder', orderJSON.OrderId);
+    NexusEvent.callRemote('TaxiTablet.TakeOrder', orderJSON.OrderId);
 });
 
 
@@ -127,13 +127,13 @@ mp.keys.bind(Keys.VK_F2, false, function () {
     if (!loggedin || chatActive || editing || cuffed || global.menuCheck() || mp.players.local.getVariable('InDeath') == true) return;
     if(!mp.players.local.vehicle) return;
     if(mp.players.local.vehicle.model==3338918751){
-        Nexus.callRemote("Taxi.OpenTablet");
+        NexusEvent.callRemote("Taxi.OpenTablet");
     }
     if(mp.players.local.vehicle.model==1171614426 || mp.players.local.vehicle.model==3770651682 || mp.players.local.vehicle.model==1500677296 || mp.players.local.vehicle.model==745926877 ){
-        Nexus.callRemote("Ambulance.OpenTablet");
+        NexusEvent.callRemote("Ambulance.OpenTablet");
     }
     if(mp.players.local.vehicle.model==2072156101){
-        Nexus.callRemote("Mechanic.OpenTablet");
+        NexusEvent.callRemote("Mechanic.OpenTablet");
     }
 });
 
@@ -144,8 +144,8 @@ mp.keys.bind(Keys.VK_F2, false, function () {
 
 
 mp.events.add('cancelOrder', () => {
-    if (PadType == "taxi") Nexus.callRemote('Taxi::CancelTaxi');
-    else Nexus.callRemote('EmsCancelOrder');
+    if (PadType == "taxi") NexusEvent.callRemote('Taxi::CancelTaxi');
+    else NexusEvent.callRemote('EmsCancelOrder');
     mp.events.call('CloseTaxiPad')
 });
 
@@ -157,8 +157,8 @@ mp.events.add('ClearAllOrder', () => {
 
 mp.events.add('setActiveOrder', (order) => {
     order = JSON.parse(order)
-    if (PadType == "taxi") Nexus.callRemote('Taxi::TakeOrder', order.OrderId, order.OrderPlayerId);
-    else Nexus.callRemote('EmsTakeOrder', order.OrderId, order.OrderPlayerId);
+    if (PadType == "taxi") NexusEvent.callRemote('Taxi::TakeOrder', order.OrderId, order.OrderPlayerId);
+    else NexusEvent.callRemote('EmsTakeOrder', order.OrderId, order.OrderPlayerId);
 });
 
 mp.events.add('TaxiAddOrder', (order) => {
@@ -190,10 +190,10 @@ mp.events.add('TaxiAddOrder', (order) => {
             pad.execute(`tablet.orderList=${JSON.stringify(EmsOrders)}`)
         }
     }  
-   // Nexus.callRemote("console", `TaxiOrders ${JSON.stringify(EmsOrders)}`)
+   // NexusEvent.callRemote("console", `TaxiOrders ${JSON.stringify(EmsOrders)}`)
 });
 mp.events.add('RemoveOrder', (index) => {
-   // Nexus.callRemote("console", `RemoveOrder ${JSON.stringify(TaxiOrders)}`)
+   // NexusEvent.callRemote("console", `RemoveOrder ${JSON.stringify(TaxiOrders)}`)
     if (PadType == "taxi") {
         TaxiOrders.splice(index, 1);
     } else {
@@ -206,7 +206,7 @@ mp.events.add('RemoveOrder', (index) => {
             pad.execute(`tablet.orderList=${JSON.stringify(EmsOrders)}`)
         }
     }
-   // Nexus.callRemote("console", `RemoveOrder ${JSON.stringify(TaxiOrders)}`)
+   // NexusEvent.callRemote("console", `RemoveOrder ${JSON.stringify(TaxiOrders)}`)
 });
 
 
@@ -238,7 +238,7 @@ mp.events.add('OpenTaxiPad', () => {
     pad.execute(`tablet.activeOrder=${JSON.stringify(ord)}`);
     global.menuOpen();
     OpenPad = true;    
- //   Nexus.callRemote("console", `TaxiOrders ${JSON.stringify(EmsOrders)}`)
+ //   NexusEvent.callRemote("console", `TaxiOrders ${JSON.stringify(EmsOrders)}`)
 })
 
 function getActiveOrder() {
@@ -272,7 +272,7 @@ mp.events.add('taxiconfirm', (type, value) => {
     global.menuClose();
     confirmmenu.destroy();
     confirmmenu = null
-    Nexus.callRemote('Taxi::ConfirmMenu', type, value)
+    NexusEvent.callRemote('Taxi::ConfirmMenu', type, value)
 })
 
 

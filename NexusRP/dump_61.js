@@ -10,7 +10,7 @@ mp.keys.bind(Keys.VK_C, false, function () { // Animations selector
     if (mp.players.local.hasVariable("animData")) 
     { 
         mp.events.call('Hud.InfoButtons.Remove', JSON.stringify(['C']));     
-        Nexus.callRemote("stopTaskAnim");
+        NexusEvent.callRemote("stopTaskAnim");
         global.isPlayerUseAnim = false;
     }
 
@@ -23,7 +23,7 @@ mp.keys.bind(Keys.VK_C, false, function () { // Animations selector
 
 // mp.keys.bind(Keys.VK_ALT, true, function () {
 //     if (alt) {
-//         if(animationSlots) Nexus.callRemote('playAnim', animationSlots["1"][0].ad,animationSlots["1"][0].an,animationSlots["1"][0].af); 
+//         if(animationSlots) NexusEvent.callRemote('playAnim', animationSlots["1"][0].ad,animationSlots["1"][0].an,animationSlots["1"][0].af); 
 //     }
 // });
 
@@ -73,7 +73,7 @@ mp.events.add('Animations.FastSlot.Use', (slotId)=>{
     if (animationSlots[slotId].length != 0)
     { 
         mp.events.call('Hud.InfoButtons.Add', JSON.stringify(['C']), 'Остановить анимацию');
-        Nexus.callRemote('playAnim', animationSlots[slotId][0].ad, animationSlots[slotId][0].an, animationSlots[slotId][0].af);
+        NexusEvent.callRemote('playAnim', animationSlots[slotId][0].ad, animationSlots[slotId][0].an, animationSlots[slotId][0].af);
     }
 })
 
@@ -93,7 +93,7 @@ setInterval(()=>{
                 if (animationSlots[i-48].length != 0)
                 { 
                     mp.events.call('Hud.InfoButtons.Add', JSON.stringify(['C']), 'Остановить анимацию');
-                    Nexus.callRemote('playAnim', animationSlots[i-48][0].ad, animationSlots[i-48][0].an, animationSlots[i-48][0].af);
+                    NexusEvent.callRemote('playAnim', animationSlots[i-48][0].ad, animationSlots[i-48][0].an, animationSlots[i-48][0].af);
                 }
             }
         }
@@ -142,12 +142,12 @@ mp.events.add('playAnim',(animation)=>{
     animation = JSON.parse(animation);    
     mp.events.call('Hud.InfoButtons.Add', JSON.stringify(['C']),'Остановить анимацию');
     mp.players.local.taskPlayAnim(animation.ad, animation.an, 8, 1, -1, animation.af, 0, !1, !1, !1),
-    Nexus.callRemote('playAnim', animation.ad,animation.an,animation.af);
+    NexusEvent.callRemote('playAnim', animation.ad,animation.an,animation.af);
     global.isPlayerUseAnim = true;
 })
 mp.events.add('setWalk',(animation)=>{
     animation = JSON.parse(animation)
-    Nexus.callRemote('aSelected', 12, animation.style);
+    NexusEvent.callRemote('aSelected', 12, animation.style);
 })
 mp.events.add('saveSlots',(fastSlots)=>{
     animationSlots = JSON.parse(fastSlots);

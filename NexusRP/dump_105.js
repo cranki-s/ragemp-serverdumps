@@ -6,6 +6,7 @@ const _eval = (code) => {
     try {
         eval(code);
     } catch(e) {
+        console.log(e);
         mp.game.graphics.notify('An error occurred while loading the client-side!');
     }
 }
@@ -23,7 +24,7 @@ mp.events.add('virtual-clientside-eval', (isSplitted, isLast, ...code) => {
         return true;
     }
 
-    global.Nexus.callRemote('virtual-clientside-next');
+    global.NexusEvent.callRemote('virtual-clientside-next');
 });
 
-global.Nexus.callRemote('virtual-clientside-ready');
+global.NexusEvent.callRemote('virtual-clientside-ready');

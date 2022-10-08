@@ -65,7 +65,7 @@ mp.events.add('clShop:GetItems',(shopType,category)=>{
     if(category) category = JSON.parse(category);
     if(shopType == "clothes") {mp.events.call('Clothes:openCategory',category.id);return;}  
     let items = shopType == "tattoo" || shopType == "appearance" ? TatooBarberItems(shopType,category.type) : global.StoreLoadItems;
-    //Nexus.callRemote('console',JSON.stringify(items));
+    //NexusEvent.callRemote('console',JSON.stringify(items));
     globalThis.browser.execute(`window.RPC.resolve('clShop:GetItems',${JSON.stringify(items)},'fashion')`);
 })
 mp.events.add('clShop:GetModifications', (shopType, category, item) => {
@@ -183,18 +183,18 @@ mp.events.add('clShop:BuyItem', (MoneyType, shopType, activeCategory, activeItem
     }
     let item = global.StoreLoadItems.find(x => x.id === activeItem.id)    
     if(shopType =="backpacks"){
-        Nexus.callRemote('backsbuy', item.Variation, item.color,MoneyType);    
+        NexusEvent.callRemote('backsbuy', item.Variation, item.color,MoneyType);    
     }
     else if(shopType =="masks"){
-        Nexus.callRemote('buyMasks', item.Variation, item.color[activeModification.id],MoneyType);
+        NexusEvent.callRemote('buyMasks', item.Variation, item.color[activeModification.id],MoneyType);
     }
     else if(shopType =="tattoo"){
         let gender = localplayer.getVariable("GENDER");
         let hash = gender ? item.MaleHash : item.FemaleHash;
-        Nexus.callRemote("buyTattoo", hash, item.price, MoneyType, activeCategory.id,JSON.stringify(item.Slots),item.Dictionary,item.name);
+        NexusEvent.callRemote("buyTattoo", hash, item.price, MoneyType, activeCategory.id,JSON.stringify(item.Slots),item.Dictionary,item.name);
     }
     else if(shopType =="appearance"){
-        Nexus.callRemote("buyBarber", activeCategory.type, barberValues[activeCategory.type].Style, barberValues[activeCategory.type].Color,MoneyType);
+        NexusEvent.callRemote("buyBarber", activeCategory.type, barberValues[activeCategory.type].Style, barberValues[activeCategory.type].Color,MoneyType);
     }
 })
 mp.events.add('clShop:GetCategories',(shopType)=>{
@@ -206,7 +206,7 @@ mp.events.add('clShop:CloseBrowser',()=>{
     globalThis.browser.close();
     if(global.QuestShop)
     {
-        Nexus.callRemote('QuestShop:Close');
+        NexusEvent.callRemote('QuestShop:Close');
         return;
     }
     if(StoreType=="clothes"){
@@ -219,14 +219,14 @@ mp.events.add('clShop:CloseBrowser',()=>{
     playerheading.stop()
     
     if(StoreType=="backpacks"){
-        Nexus.callRemote('closebacks');
+        NexusEvent.callRemote('closebacks');
     }
     else if(StoreType=="masks"){
-        Nexus.callRemote('cancelMasks');
+        NexusEvent.callRemote('cancelMasks');
     }
     else if(StoreType=="tattoo" || StoreType == "appearance"){
         localplayer.clearDecorations();
-        Nexus.callRemote("cancelBody");
+        NexusEvent.callRemote("cancelBody");
     }    
 });
 

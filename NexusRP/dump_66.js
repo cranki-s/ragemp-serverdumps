@@ -32,7 +32,7 @@ mp.events.add('Tablet:DeleteCall', (callID) => {
 });
 
 mp.events.add('Tablet:SearchHuman', (name) => {
-    Nexus.callRemote('Tablet:SearchHuman', name)
+    NexusEvent.callRemote('Tablet:SearchHuman', name)
 });
 mp.events.add('Tablet:SearchHumanCallBack', (status,human) => {
     if(status)globalThis.browser.execute(`RPC.resolve('Tablet:SearchHuman',${human})`);
@@ -40,14 +40,14 @@ mp.events.add('Tablet:SearchHumanCallBack', (status,human) => {
 });
 
 mp.events.add('Tablet:SearchVehicle', (number) => {
-    Nexus.callRemote('Tablet:SearchVehicle', number);
+    NexusEvent.callRemote('Tablet:SearchVehicle', number);
 });
 mp.events.add('Tablet:SearchVehicleCallBack', (vehicle) => {
     globalThis.browser.execute(`RPC.resolve('Tablet:SearchVehicle',${vehicle})`);
 });
 
 mp.events.add('Tablet:SetClassifyHuman', (name) => {
-    Nexus.callRemote('Tablet:SetClassifyHuman', name);
+    NexusEvent.callRemote('Tablet:SetClassifyHuman', name);
 });
 mp.events.add('Tablet:SetClassifyHumanCallback', (status) => {
     globalThis.browser.execute(`RPC.resolve('Tablet:SetClassifyHuman',${status})`);
@@ -59,7 +59,7 @@ mp.events.add('Tablet:CloseBrowser', () => {
 });
 
 mp.events.add('Tablet:OpenCode', () => {
-    Nexus.callRemote('Tablet:OpenCode');
+    NexusEvent.callRemote('Tablet:OpenCode');
 });
 mp.events.add('Tablet:OpenCodeCallBack', (status) => {
     let a = status ? `window.RPC.resolve('Tablet:OpenCode')` : `window.RPC.reject('Tablet:OpenCode')`;
@@ -67,7 +67,7 @@ mp.events.add('Tablet:OpenCodeCallBack', (status) => {
 });
 
 mp.events.add('Tablet:SendCode', (type) => {
-    Nexus.callRemote('Tablet:SendCode', type);
+    NexusEvent.callRemote('Tablet:SendCode', type);
 });
 mp.events.add('Tablet:SendCodeCallBack', (status) => {
     let a = status ? `window.RPC.resolve('Tablet:SendCode')` : `window.RPC.reject('Tablet:SendCode')`;
@@ -75,14 +75,14 @@ mp.events.add('Tablet:SendCodeCallBack', (status) => {
 });
 
 mp.events.add('Tablet:OpenStars', () => {
-    Nexus.callRemote('Tablet:OpenStars');
+    NexusEvent.callRemote('Tablet:OpenStars');
 });
 mp.events.add('Tablet:OpenStarsCallBack', (status) => {
     let a = status ? `window.RPC.resolve('Tablet:OpenStars')` : `window.RPC.reject('Tablet:OpenStars')`;
     globalThis.browser.execute(`${a}`);
 });
 mp.events.add('Tablet:SetStars',(name, newstars, articles)=>{
-    Nexus.callRemote('Tablet:SetStars',name, newstars, articles);
+    NexusEvent.callRemote('Tablet:SetStars',name, newstars, articles);
 })
 mp.events.add('Tablet:SetStarsCallBack',(status)=>{
     let a = status ? `window.RPC.resolve('Tablet:SetStars')` : `window.RPC.reject('Tablet:SetStars')`;
@@ -90,7 +90,7 @@ mp.events.add('Tablet:SetStarsCallBack',(status)=>{
 });
 
 mp.events.add('Tablet:AcceptCall', callID => {
-    Nexus.callRemote('Tablet:SetCall', callID);
+    NexusEvent.callRemote('Tablet:SetCall', callID);
 });
 mp.events.add('Tablet:AcceptCallCallBack',(status)=>{
     let a = status ? `window.RPC.resolve('Tablet:AcceptCall')` : `window.RPC.reject('Tablet:AcceptCall')`;
@@ -98,7 +98,7 @@ mp.events.add('Tablet:AcceptCallCallBack',(status)=>{
 });
 
 mp.events.add('Tablet:AcceptWanted',(wantedName)=>{
-    Nexus.callRemote('Tablet:WatchHuman', wantedName);
+    NexusEvent.callRemote('Tablet:WatchHuman', wantedName);
 });
 mp.events.add('Tablet:AcceptWantedCallBack',(status)=>{
     let a = status ? `window.RPC.resolve('Tablet:AcceptWanted')` : `window.RPC.reject('Tablet:AcceptWanted')`;

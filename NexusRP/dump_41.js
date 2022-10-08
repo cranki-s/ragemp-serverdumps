@@ -23,23 +23,23 @@ mp.events.add('openArmyClothesMenu', (data,type) => {
 });
 mp.events.add('Form:SetActive',armyClothID=>{ 
     if (ClothesMenuType == 0) {
-        Nexus.callRemote('selectArmyClothID', +armyClothID);
+        NexusEvent.callRemote('selectArmyClothID', +armyClothID);
     } else if (ClothesMenuType == 1) {
-        Nexus.callRemote('selectFibClothID', +armyClothID);
+        NexusEvent.callRemote('selectFibClothID', +armyClothID);
     }
     else if (ClothesMenuType == 2) {
-        Nexus.callRemote('SelectPoliceClothes', +armyClothID);
+        NexusEvent.callRemote('SelectPoliceClothes', +armyClothID);
     }
     else if (ClothesMenuType == 3) {
-        Nexus.callRemote('SelectGovClothes', +armyClothID);
+        NexusEvent.callRemote('SelectGovClothes', +armyClothID);
     }
     else if (ClothesMenuType == 4) {
-        Nexus.callRemote('selectEmsClothID', +armyClothID);
+        NexusEvent.callRemote('selectEmsClothID', +armyClothID);
     }
 });
 
 mp.events.add('Form:DestroyBrowser', () => {
-    Nexus.callRemote('DestroyDimension') 
+    NexusEvent.callRemote('DestroyDimension') 
     armyClothesMenu.execute(`closeInterface()`);
     playerheading.stop()
     global.menuOpened = false;

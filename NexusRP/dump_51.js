@@ -27,7 +27,7 @@ mp.keys.bind(Keys.VK_M, false, function () { // G key
     mp.gui.execute(`listMenu.render('main')`);
 });
 mp.events.add('PlayerSelectedMenu',(index)=>{    
-        Nexus.callRemote('PlayerSelectedMenu', index);  
+        NexusEvent.callRemote('PlayerSelectedMenu', index);  
         ListMenuOpen = false;  
         global.menuOpened = false; 
 })
@@ -41,7 +41,7 @@ mp.keys.bind(Keys.VK_X, false, function () { // X key
     if (!loggedin || chatActive || editing || mp.game.ui.isPauseMenuActive() || new Date().getTime() - lastCheck < 1000 || global.menuOpened) return;
     if (entity && mp.players.exists(entity) && entity.type == "player") 
     {
-        Nexus.callRemote('playerPressCuffBut', entity);
+        NexusEvent.callRemote('playerPressCuffBut', entity);
     }
     lastCheck = new Date().getTime();
 });
@@ -60,15 +60,15 @@ mp.keys.bind(Keys.VK_G, false, function () { // G key
     switch (entity.type) {
         case "object":
             if (entity && mp.objects.exists(entity)) {
-                Nexus.callRemote('oSelected', entity);
+                NexusEvent.callRemote('oSelected', entity);
             }
             entity = null;
             return;
         case "player":             
-            Nexus.callRemote("circlecallv","player");                  
+            NexusEvent.callRemote("circlecallv","player");                  
             return;
         case "vehicle":
-            Nexus.callRemote("circlecallv","car");            
+            NexusEvent.callRemote("circlecallv","car");            
             return;
     }    
     lastCheck = new Date().getTime();
@@ -95,26 +95,26 @@ mp.events.add("closerhombus",()=>{
 });
 mp.events.add('CarCallBack',(index)=>{
     if (circleEntity == null) return;    
-    //Nexus.callRemote('console',JSON.stringify(circleEntity)+'client')
-    Nexus.callRemote('vehicleSelected', entity, index);
+    //NexusEvent.callRemote('console',JSON.stringify(circleEntity)+'client')
+    NexusEvent.callRemote('vehicleSelected', entity, index);
     circleOpen = false;	
 })
 mp.events.add('PlayerCallBack',(index)=>{
 if(localplayer.getVariable('seats') === true) return;    
     if (circleEntity == null) return;   
-	Nexus.callRemote('pSelected', circleEntity, index);
+	NexusEvent.callRemote('pSelected', circleEntity, index);
     circleOpen = false;	
 })
 mp.events.add('fractioncallback',(index)=>{
     if (circleEntity == null) return;
     if(localplayer.getVariable('seats') === true) return;
-    Nexus.callRemote('fractioncallback', circleEntity, index);
+    NexusEvent.callRemote('fractioncallback', circleEntity, index);
     circleOpen = false;	
 })
 mp.events.add('familycallback', (e) => {
     if (circleEntity == null) return;
     if (localplayer.getVariable('seats') === true) return;
-    Nexus.callRemote(e, circleEntity);
+    NexusEvent.callRemote(e, circleEntity);
     circleOpen = false;	
 })
 }

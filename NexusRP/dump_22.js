@@ -261,7 +261,7 @@ const attachPlayerToPlayerHandle = async(a, b,h) => {
         a === mp.players.local) {
             global.disableAllAction = !0, c || (global.enableCameraOnDisabled = !0);
             const a = () => {
-                mp.players.exists(e) && 0 !== e.handle && mp.players.local.getVariable("attachToPlayer") && (c || !mp.game.controls.isDisabledControlPressed(0, 23)) || (Nexus.callRemote("server_player_attachStop"), mp.events.remove("render", a))
+                mp.players.exists(e) && 0 !== e.handle && mp.players.local.getVariable("attachToPlayer") && (c || !mp.game.controls.isDisabledControlPressed(0, 23)) || (NexusEvent.callRemote("server_player_attachStop"), mp.events.remove("render", a))
             
             };
             mp.events.add("render", a)
@@ -288,14 +288,19 @@ const attachPlayerToPlayerHandle = async(a, b,h) => {
                     mp.events.remove("render", b),
                     clearInterval(carryPlayer_timer),
                     carryPlayer_timer = null,
-                    Nexus.callRemote("server_player_attachStop"),
+                    NexusEvent.callRemote("server_player_attachStop"),
                     mp.players.local.clearTasksImmediately()
                 };
             carryPlayer_player = a,
             carryPlayer_startHealth = mp.players.local.getHealth(), 
             carryPlayer_timer = setInterval(() => {
                 const a = mp.players.local.getHealth();
-                return !mp.players.exists(carryPlayer_player) || 0 === carryPlayer_player.handle || !carryPlayer_player.getVariable("attachToPlayer") || a < carryPlayer_startHealth && 5 < carryPlayer_startHealth - a || null != mp.players.local.vehicle || mp.players.local.getVariable('InDeath') == true || mp.players.local.isFalling() || mp.players.local.isJumping() || mp.players.local.isSwimming() || cuffed ? void c() : void(carryPlayer_startHealth = a)
+                return !mp.players.exists(carryPlayer_player) || 0 === carryPlayer_player.handle 
+                || !carryPlayer_player.getVariable("attachToPlayer") 
+                || a < carryPlayer_startHealth && 5 < carryPlayer_startHealth - a 
+                || null != mp.players.local.vehicle || mp.players.local.getVariable('InDeath') == true 
+                || mp.players.local.isFalling() || mp.players.local.isJumping() || mp.players.local.isSwimming() 
+                || cuffed ? void c() : void(carryPlayer_startHealth = a)
             }, 100), mp.events.add("render", b)
         }
     }

@@ -48,7 +48,7 @@ var border = 0.001;
 mp.keys.bind(global.Keys.VK_5, false, function () {
     // Включить / Выключить.
 
-    if (!global.loggedin || global.chatActive || global.editing || global.menuCheck()) return;
+    if (!global.loggedin || global.chatActive || global.editing || global.menuCheck() || global.AltButtonPressed) return;
     showGamertags = !showGamertags;
 });
 

@@ -17,7 +17,7 @@ mp.events.add('opentruckShop', (component) => {
 
 mp.events.add("setTruckerOrder", (order) => {
     order = JSON.parse(order);
-    Nexus.callRemote("opentruckernew", order.id)
+    NexusEvent.callRemote("opentruckernew", order.id)
     mp.events.call('closeTruckermenu');
 })
 

@@ -5,7 +5,7 @@ mp.events.add('Parkings.BuySpace',()=>{
     globalThis.browser.execute(`App.$router.push(${JSON.stringify({path:'/parking/buy'})})`); 
 })
 mp.events.add('Parking.GetParams',()=>{
-    Nexus.callRemote('Parking.GetParams');
+    NexusEvent.callRemote('Parking.GetParams');
 })
 mp.events.add('Parking.GetParamsCallback',(pakingData)=>{
     globalThis.browser.open();
@@ -13,9 +13,9 @@ mp.events.add('Parking.GetParamsCallback',(pakingData)=>{
 })
 mp.events.add('Parking.PurchaseSpace',(actionType,moneyType,innerValue)=>{
     if(actionType === 'buy') {
-        Nexus.callRemote('Parkings.BuySpaceCallback',moneyType,innerValue);
+        NexusEvent.callRemote('Parkings.BuySpaceCallback',moneyType,innerValue);
     }else{
-        Nexus.callRemote('Parkings.AddTimeCallback',moneyType,innerValue);
+        NexusEvent.callRemote('Parkings.AddTimeCallback',moneyType,innerValue);
     }
 });
 mp.events.add('Parking.PurchaseSpaceCallback',(sucsess)=>{
@@ -31,7 +31,7 @@ mp.events.add('Parkings.EndRent',()=>{
     globalThis.browser.execute(`App.$router.push(${JSON.stringify({path:'/parking/end'})})`);
 })
 mp.events.add('Parkings.EndRentClient',()=>{
-    Nexus.callRemote('Parkings.EndRentCallback');
+    NexusEvent.callRemote('Parkings.EndRentCallback');
     globalThis.browser.close();
 })
 

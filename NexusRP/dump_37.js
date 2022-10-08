@@ -17,10 +17,10 @@ mp.events.add('delreport', (id) => {
     if(report != null) report.execute(`deleteReport(${id})`);
 })
 mp.events.add('takereport', (id, r) => {
-    Nexus.callRemote('takereport', id, r);
+    NexusEvent.callRemote('takereport', id, r);
 })
 mp.events.add('sendreport', (id, a) => {
-    Nexus.callRemote('sendreport', id, a);	
+    NexusEvent.callRemote('sendreport', id, a);	
 })
 mp.events.add('exitreport', () => {
 	global.menuClose();

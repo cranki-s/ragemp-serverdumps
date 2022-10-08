@@ -9,7 +9,7 @@ mp.keys.bind(Keys.VK_R, false, function () { // R key
 		if (current == -1569615261 || current == 911657153) return;
 		var ammo = mp.game.invoke(getNative("GET_AMMO_IN_PED_WEAPON"), localplayer.handle, current);
 		if (mp.game.weapon.getWeaponClipSize(current) == ammo) return;
-		Nexus.callRemote("playerReload", current, ammo);
+		NexusEvent.callRemote("playerReload", current, ammo);
 	} catch { }
 });
 
@@ -17,24 +17,24 @@ mp.keys.bind(Keys.VK_R, false, function () { // R key
 mp.keys.bind(Keys.VK_1, false, function () { // 1 key
     if(global.AltButtonPressed)return;
     if (!loggedin || chatActive || global.menuOpened || mp.gui.cursor.visible) return;
-    Nexus.callRemote('changeweap', 1);
+    NexusEvent.callRemote('changeweap', 1);
 });
 
 mp.keys.bind(Keys.VK_2, false, function () { // 2 key
     if(global.AltButtonPressed)return;
     if (!loggedin || chatActive  || global.menuOpened || mp.gui.cursor.visible) return;
-    Nexus.callRemote('changeweap', 2);
+    NexusEvent.callRemote('changeweap', 2);
 });
 
 mp.keys.bind(Keys.VK_3, false, function () { // 3 key
     if(global.AltButtonPressed)return;
     if (!loggedin || chatActive  || global.menuOpened || mp.gui.cursor.visible) return;
-    Nexus.callRemote('changeweap', 3);
+    NexusEvent.callRemote('changeweap', 3);
 });
 mp.keys.bind(Keys.VK_4, false, function () { // 3 key
     if(global.AltButtonPressed)return;
     if (!loggedin || chatActive ||  global.menuOpened || mp.gui.cursor.visible) return;
-    Nexus.callRemote('changeweap', 4);
+    NexusEvent.callRemote('changeweap', 4);
 });
 
 let backweapon = [
@@ -60,7 +60,7 @@ mp.events.add('incomingDamage', (sourceEntity, sourcePlayer, targetEntity, weapo
     // if((weapon == 2725352035 || weapon == 2227010557 || weapon == 419712736 || weapon == 1317494643 || weapon == 2343591895 || weapon == 1737195953)&&(damage>=50)){
     //     return true;
     // }  
-   // Nexus.callRemote('console',damage);  
+   // NexusEvent.callRemote('console',damage);  
 
 
 });
@@ -97,17 +97,17 @@ WEAPON_MELEE = [
   ];
 
 mp.events.add('checked', async ()=>{
-  // const response = await Nexus.callRemoteProc('HUI');
+  // const response = await NexusEvent.callRemoteProc('HUI');
   // mp.gui.chat.push(`response: ${JSON.stringify(response)}`);
-  Nexus.callRemote('heathenEvent');
+  NexusEvent.callRemote('heathenEvent');
 })
 // mp.events.add('outgoingDamage', (sourceEntity, targetEntity, sourcePlayer, weapon, boneIndex, damage) => {
 //     // if((weapon == 2725352035 || weapon == 2227010557 || weapon == 419712736 || weapon == 1317494643 || weapon == 2343591895 || weapon == 1737195953)&&(damage>=50)){
 //     //     return true;
 //     // }    
-//    // Nexus.callRemote('console', targetEntity.type);      
+//    // NexusEvent.callRemote('console', targetEntity.type);      
 //    // if (targetEntity.type === 'player' && weapon != -1569615261 ) {
-//       //  Nexus.callRemote('console', weapon);        
+//       //  NexusEvent.callRemote('console', weapon);        
 //       //  let b = targetEntity;                 
 //         const weapons = mp.game.invoke(getNative("GET_SELECTED_PED_WEAPON"), localplayer.handle);
 //         if ("player" === targetEntity.type) {
@@ -115,11 +115,11 @@ mp.events.add('checked', async ()=>{
 //                 if (weapon === WEAPON_UNARMED){                  
 //                     return void mp.game.weapon.setCurrentDamageEventAmount(10);
 //                 } 
-//                 // Nexus.callRemote('console', "33333 "+ -1 !== WEAPON_MELEE.indexOf(weapon))
+//                 // NexusEvent.callRemote('console', "33333 "+ -1 !== WEAPON_MELEE.indexOf(weapon))
 //                 if (-1 !== WEAPON_MELEE.indexOf(weapon)){                  
 //                     return void mp.game.weapon.setCurrentDamageEventAmount(15);
 //                 } 
-//             // Nexus.callRemote('console', "123 "+mp.game.weapon.setCurrentDamageEventAmount(0), mp.game.weapon.setCurrentDamageEventCritical(!1))
+//             // NexusEvent.callRemote('console', "123 "+mp.game.weapon.setCurrentDamageEventAmount(0), mp.game.weapon.setCurrentDamageEventCritical(!1))
 //                 // if ( (mp.game.weapon.setCurrentDamageEventAmount(0), mp.game.weapon.setCurrentDamageEventCritical(!1)) ) {
 //                 //if ( -1 !== WEAPON_SHOOTGUN.indexOf(weapon)) return !0;
 //                 mp.game.weapon.setCurrentDamageEventAmount(0);
@@ -153,7 +153,7 @@ mp.events.add('checked', async ()=>{
 //             2.5 <= a &&
 //               (clearInterval(i),
 //               targetEntity.setCoords(g.x, g.y, g.z, !1, !1, !1, !1),
-//               Nexus.callRemote("s_ac_veh_damage"));
+//               NexusEvent.callRemote("s_ac_veh_damage"));
 //           }, 0);
 
 
@@ -171,7 +171,7 @@ mp.events.add('checked', async ()=>{
 //     //                 7 === boneIndex ||
 //     //                 0 === boneIndex ||
 //     //                 15 === boneIndex || 11 === boneIndex ? 1 : 2;     
-//     //                 Nexus.callRemote("newdamage", b, weapons, c);                 
+//     //                 NexusEvent.callRemote("newdamage", b, weapons, c);                 
 //     //               return true;
 //     //        }
 //     //     //return true; // disable outgoing headshot damage
@@ -288,8 +288,8 @@ mp.events.add('takeOffWeapon', (weaponHash) => {
         mp.gui.execute(`HUD.ammo=-1`);
         weaponHash = parseInt(weaponHash);
         var ammo = mp.game.invoke(getNative("GET_AMMO_IN_PED_WEAPON"), localplayer.handle, weaponHash);
-		if(ammo == ammosweap) Nexus.callRemote('playerTakeoffWeapon', weaponHash, ammo, 0);
-		else Nexus.callRemote('playerTakeoffWeapon', weaponHash, ammosweap, 0);
+		if(ammo == ammosweap) NexusEvent.callRemote('playerTakeoffWeapon', weaponHash, ammo, 0);
+		else NexusEvent.callRemote('playerTakeoffWeapon', weaponHash, ammosweap, 0);
 		ammosweap = 0;
 		mp.game.invoke(getNative("SET_PED_AMMO"), localplayer.handle, weaponHash, 0);
 		mp.game.invoke(getNative("REMOVE_WEAPON_FROM_PED"), localplayer.handle, weaponHash);
@@ -315,8 +315,8 @@ mp.events.add('serverTakeOffWeapon', (weaponHash) => {
 		mp.gui.execute(`HUD.ammo=-1`);
         weaponHash = parseInt(weaponHash);
         var ammo = mp.game.invoke(getNative("GET_AMMO_IN_PED_WEAPON"), localplayer.handle, weaponHash);
-		if(ammo == ammosweap) Nexus.callRemote('takeoffWeapon', weaponHash, ammo, 0);
-		else Nexus.callRemote('takeoffWeapon', weaponHash, ammosweap, 0);
+		if(ammo == ammosweap) NexusEvent.callRemote('takeoffWeapon', weaponHash, ammo, 0);
+		else NexusEvent.callRemote('takeoffWeapon', weaponHash, ammosweap, 0);
 		ammosweap = 0;
 		mp.game.invoke(getNative("SET_PED_AMMO"), localplayer.handle, weaponHash, 0);
 		mp.game.invoke(getNative("REMOVE_WEAPON_FROM_PED"), localplayer.handle, weaponHash);
@@ -383,7 +383,7 @@ mp.events.add("playerWeaponShot", function (a, b) {
 	if (current != -1569615261 && current != 911657153) {
 		if(ammosweap > 0) ammosweap--;
 		if(ammosweap == 0 && ammo != 0) {
-			Nexus.callRemote('takeoffWeapon', current, 0, 1);
+			NexusEvent.callRemote('takeoffWeapon', current, 0, 1);
 			ammosweap = 0;
 			mp.game.invoke(getNative("SET_PED_AMMO"), localplayer.handle, current, 0);
 			mp.game.invoke(getNative("REMOVE_WEAPON_FROM_PED"), localplayer.handle, current);
