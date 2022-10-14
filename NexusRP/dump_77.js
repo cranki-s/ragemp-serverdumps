@@ -1,65 +1,2066 @@
 {
-﻿/*
-2 - 1.43
-1 - 1.42
-0 - 1.41
--1 - other
-*/
-//global.GTA_VER = mp.game.streaming.isModelValid(0x4ABEBF23) ? 10 : 0;
-global.GTA_VER = 10;
-global.getNative = function (name) {
-    return NATIVES[name][GTA_VER];
-};
-//NexusEvent.callRemote("checkVersion", GTA_VER);
-
-global.NATIVES = {
-    "SET_BLIP_SPRITE": { 10: '0xDF735600A4696DAF', 0: '0x3B815A6E8530D3A5', 1: '0xDC0EBFC7730AA226', 2: '0x4B4040A0EC7DBA81' },
-    "SET_BLIP_ALPHA": { 10: '0x45FF974EEE1C8734', 0: '0x18EC814D577B92CE', 1: '0x1DB03C7D3DC49006', 2: '0xF20857E4CB32A2B7' },
-    "SET_BLIP_COLOUR": { 10: '0x03D7FB09E75D6B7E', 0: '0xEB934A06DDA5027D', 1: '0x71925FF3194E84CE', 2: '0x0C71C8E276E3EC54' },
-    "SET_BLIP_FLASH_TIMER": { 10: '0xD3CD6FD297AE87CC', 0: '0x82F6662608C79359', 1: '0xDAA61FC3AADFAE1D', 2: '0xAA75C45BC4449A40' },
-    "SET_BLIP_FLASHES": { 10: '0xB14552383D39CE3E', 0: '0xB989C497205DF6E8', 1: '0xC3BBD8D349129F55', 2: '0x0A8FD2D5529E1737' },
-    "SET_BLIP_ROTATION": { 10: '0xF87683CDF73C3F6E', 0: '0x890D3D8F19A923CC', 1: '0xFA3D22639F5AA493', 2: '0xE83839908A240D2E' },
-    "REQUEST_ADDITIONAL_COLLISION_AT_COORD": { 10: '0xC9156DC11411A9EA', 0: '0xF48163C4935062E5', 1: '0x199640F55E0F7596', 2: '0x566B32CA90C28D2C' },
-    "SET_FOLLOW_PED_CAM_VIEW_MODE": { 10: '0x5A4F9EDF1673F704', 0: '0xBD5C3A8C424D692F', 1: '0xA20353DB1D2AF820', 2: '0x0B51676846D7C57B' },
-    "SET_PED_AMMO": { 10: '0x14E56BC5B5DB6A19', 0: '0x02B78A67FD396A42', 1: '0xC8207C41C6D1E3CF', 2: '0xF28A81E331A3F337' },
-    "GET_SELECTED_PED_WEAPON": { 10: '0x0A6DB4965674D243', 0: '0x58A62DEC84D1FB6F', 1: '0x6678C142FAC881BA', 2: '0x4D008FF908B623E2' },
-    "GIVE_WEAPON_TO_PED": { 10: '0xBF0FD6E56C964FCB', 0: '0xD5D9B48EB10FA2C0', 1: '0x7D154B840BD03D00', 2: '0x9E058151726E58DE' },
-    "REMOVE_WEAPON_FROM_PED": { 10: '0x4899CB088EDF59B8', 0: '0x9E47A83BAB72D2C4', 1: '0xA48F593CC7A71FCC', 2: '0xABBEF2EAC74A02EB' },
-    "IS_CUTSCENE_ACTIVE": { 10: '0x991251AFC3981F84', 0: '0x9063DC17918D346A', 1: '0x61F9977B378C43BF', 2: '0x6C97EEC6339FB45C' },
-    "STOP_CUTSCENE_IMMEDIATELY": { 10: '0xD220BDD222AC4A1E', 0: '0xF51CB58D4AD94B4C', 1: '0xCDA9878BAC5C6D68', 2: '0xCFA828389A0C5B6B' },
-    "GET_RANDOM_EVENT_FLAG": { 10: '0xD2D57F1D764117B1', 0: '0x86EEE9A2AEF6EC88', 1: '0xD436A6CEB14BAC66', 2: '0x17E356AF4F930A2C' },
-    "SET_RANDOM_EVENT_FLAG": { 10: '0x971927086CFD2158', 0: '0x4FA59397643FB016', 1: '0xD42F50467E7AD46D', 2: '0x980C42B833D07BB4' },
-    "GET_MISSION_FLAG": { 10: '0xA33CDCCDA663159E', 0: '0xD532AAF71376B5E8', 1: '0xEFD3E4A202A0D9DA', 2: '0x5A0744D504CC705F' },
-    "SET_MISSION_FLAG": { 10: '0xC4301E5121A0ED73', 0: '0xB5533C0C8A2B9BF2', 1: '0x955FF17089AF6072', 2: '0xBC03901A15107317' },
-    "REMOVE_ALL_PED_WEAPONS": { 10: '0xF25DF915FA38C5F3', 0: '0xD129A4C59BEB39B8', 1: '0x5FF97B71C576EF53', 2: '0x7346A36E01E18FEC' },
-    "GET_AMMO_IN_PED_WEAPON": { 10: '0x015A522136D7F951', 0: '0x63D43044461F40BD', 1: '0x2406A9C8DA99D3F4', 2: '0x5088CF774DF6D935' },
-    "SET_PED_ENABLE_WEAPON_BLOCKING": { 10: '0x97A790315D3831FD', 0: '0x24DF497566EDB1F0', 1: '0xBE2214915742A0E8', 2: '0x368E58752384E0B4' },
-    "SET_PED_CAN_SWITCH_WEAPON": { 10: '0xED7F7EFE9FABF340', 0: '0x00663E123FCB5041', 1: '0xC6F259731E10AFA1', 2: '0xA65C9B02EE3596FE' },
-    "MAKE_PED_RELOAD": { 10: '0x20AE33F3AC9C0033', 0: '0xB984E4455645D862', 1: '0x480C8F4C533B9748', 2: '0x3B920C528B54FB5F' },
-    "_SET_VEHICLE_ENGINE_POWER_MULTIPLIER": { 10: '0x93A3996368C94158', 0: '0x5F850CC79999947A', 1: '0xF1E9E4CBA77681D3', 2: '0x28C3B4214877233A'},
-    "_SET_VEHICLE_ENGINE_TORQUE_MULTIPLIER": { 10: '0xB59E4BD37AE292DB', 0: '0x3CFE09CFEB536C3D', 1: '0x33C9D0B39210B35E', 2: '0xF4A0FCE96487A10B' },
-    "GET_PLAYER_RADIO_STATION_INDEX": { 10: '0xE8AF77C4C06ADC93' },
-    "SET_FRONTEND_RADIO_ACTIVE": { 10: '0xF7F26C6E9CC9EBB8' },
-    "SET_RADIO_TO_STATION_INDEX": { 10: '0xA619B168B8A8570F' },
-    "SET_RADIO_TO_STATION_INDEX": { 10: '0xF90125F1F79ECDF8' },
-}
-}.events.add('deleteGarageBlip', function () {
-    if (garageBlip != null)
-        garageBlip.destroy();
-    garageBlip = null;
-});
-
-mp.events.add('changeBlipColor', function (blip, color) {
-    try {
-        if (blip == null) return;
-        blip.setColour(color);
-    } catch (e) { } 
-});
-
-mp.events.add('changeBlipAlpha', function (blip, alpha) {
-    try {
-        if (blip == null) return;
-        blip.setAlpha(alpha);
-    } catch (e) { } 
-});
-}
+﻿global.barberPrices = JSON.parse(`{
+"ahairstyle": [
+    {
+      "id": 0,
+      "name": "Прическа №1",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1500
+    },
+    {
+      "id": 1,
+      "name": "Прическа №2",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2000
+    },
+    {
+      "id": 2,
+      "name": "Прическа №3",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1350
+    },
+    {
+      "id": 3,
+      "name": "Прическа №4",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1250
+    },
+    {
+      "id": 4,
+      "name": "Прическа №5",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1450
+    },
+    {
+      "id": 5,
+      "name": "Прическа №6",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 700
+    },
+    {
+      "id": 6,
+      "name": "Прическа №7",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1650
+    },
+    {
+      "id": 7,
+      "name": "Прическа №8",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1500
+    },
+    {
+      "id": 8,
+      "name": "Прическа №9",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1500
+    },
+    {
+      "id": 9,
+      "name": "Прическа №10",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1600
+    },
+    {
+      "id": 10,
+      "name": "Прическа №11",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2000
+    },
+    {
+      "id": 11,
+      "name": "Прическа №12",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1600
+    },
+    {
+      "id": 12,
+      "name": "Прическа №13",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1350
+    },
+    {
+      "id": 13,
+      "name": "Прическа №14",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2700
+    },
+    {
+      "id": 14,
+      "name": "Прическа №15",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1750
+    },
+    {
+      "id": 15,
+      "name": "Прическа №16",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1500
+    },
+    {
+      "id": 16,
+      "name": "Прическа №17",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2250
+    },
+    {
+      "id": 17,
+      "name": "Прическа №18",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1500
+    },
+    {
+      "id": 18,
+      "name": "Прическа №19",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1700
+    },
+    {
+      "id": 19,
+      "name": "Прическа №20",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1600
+    },
+    {
+      "id": 20,
+      "name": "Прическа №21",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2000
+    },
+    {
+      "id": 21,
+      "name": "Прическа №22",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2000
+    },
+    {
+      "id": 22,
+      "name": "Прическа №23",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1500
+    },
+    {
+      "id": 23,
+      "name": "Прическа №24",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 24,
+      "name": "Прическа №25",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1900
+    },
+    {
+      "id": 25,
+      "name": "Прическа №26",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1700
+    },
+    {
+      "id": 26,
+      "name": "Прическа №27",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1500
+    },
+    {
+      "id": 27,
+      "name": "Прическа №28",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1500
+    },
+    {
+      "id": 28,
+      "name": "Прическа №29",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1500
+    },
+    {
+      "id": 29,
+      "name": "Прическа №30",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1500
+    },
+    {
+      "id": 30,
+      "name": "Прическа №31",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1500
+    },
+    {
+      "id": 31,
+      "name": "Прическа №32",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1500
+    },
+    {
+      "id": 32,
+      "name": "Прическа №33",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1500
+    },
+    {
+      "id": 33,
+      "name": "Прическа №34",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1500
+    },
+    {
+      "id": 34,
+      "name": "Прическа №35",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1500
+    },
+    {
+      "id": 35,
+      "name": "Прическа №36",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1500
+    },
+    {
+      "id": 36,
+      "name": "Прическа №37",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1500
+    },
+    {
+      "id": 37,
+      "name": "Прическа №38",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1500
+    }
+  ],	
+  "abeard": [
+    {
+      "id": 0,
+      "name": "Борода №1",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2120
+    },
+    {
+      "id": 1,
+      "name": "Борода №2",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2120
+    },
+    {
+      "id": 2,
+      "name": "Борода №3",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2120
+    },
+    {
+      "id": 3,
+      "name": "Борода №4",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2120
+    },
+    {
+      "id": 4,
+      "name": "Борода №5",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2120
+    },
+    {
+      "id": 5,
+      "name": "Борода №6",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2160
+    },
+    {
+      "id": 6,
+      "name": "Борода №7",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2160
+    },
+    {
+      "id": 7,
+      "name": "Борода №8",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2160
+    },
+    {
+      "id": 8,
+      "name": "Борода №9",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2120
+    },
+    {
+      "id": 9,
+      "name": "Борода №10",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2120
+    },
+    {
+      "id": 10,
+      "name": "Борода №11",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2240
+    },
+    {
+      "id": 11,
+      "name": "Борода №12",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2240
+    },
+    {
+      "id": 12,
+      "name": "Борода №13",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2120
+    },
+    {
+      "id": 13,
+      "name": "Борода №14",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2120
+    },
+    {
+      "id": 14,
+      "name": "Борода №15",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2240
+    },
+    {
+      "id": 15,
+      "name": "Борода №16",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2200
+    },
+    {
+      "id": 16,
+      "name": "Борода №17",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2120
+    },
+    {
+      "id": 17,
+      "name": "Борода №18",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2160
+    },
+    {
+      "id": 18,
+      "name": "Борода №19",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2380
+    },
+    {
+      "id": 19,
+      "name": "Борода №20",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2360
+    },
+    {
+      "id": 20,
+      "name": "Борода №21",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2360
+    },
+    {
+      "id": 21,
+      "name": "Борода №22",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2180
+    },
+    {
+      "id": 22,
+      "name": "Борода №23",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2180
+    },
+    {
+      "id": 23,
+      "name": "Борода №24",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2260
+    },
+    {
+      "id": 24,
+      "name": "Борода №25",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2120
+    },
+    {
+      "id": 25,
+      "name": "Борода №26",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2120
+    },
+    {
+      "id": 26,
+      "name": "Борода №27",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2240
+    },
+    {
+      "id": 27,
+      "name": "Борода №28",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2200
+    },
+    {
+      "id": 28,
+      "name": "Борода №29",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2120
+    },
+    {
+      "id": 29,
+      "name": "Борода №30",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2160
+    }    
+  ],
+  "abrows": [
+    {
+      "id": 0,
+      "name": "Брови №1",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 1,
+      "name": "Брови №2",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 2,
+      "name": "Брови №3",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 3,
+      "name": "Брови №4",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 4,
+      "name": "Брови №5",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 5,
+      "name": "Брови №6",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 6,
+      "name": "Брови №7",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 7,
+      "name": "Брови №8",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 8,
+      "name": "Брови №9",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 9,
+      "name": "Брови №10",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 10,
+      "name": "Брови №11",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 11,
+      "name": "Брови №12",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 12,
+      "name": "Брови №13",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 13,
+      "name": "Брови №14",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 14,
+      "name": "Брови №15",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 15,
+      "name": "Брови №16",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 16,
+      "name": "Брови №17",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 17,
+      "name": "Брови №18",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 18,
+      "name": "Брови №19",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 19,
+      "name": "Брови №20",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 20,
+      "name": "Брови №21",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 21,
+      "name": "Брови №22",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 22,
+      "name": "Брови №23",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 23,
+      "name": "Брови №24",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 24,
+      "name": "Брови №25",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 25,
+      "name": "Брови №26",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 26,
+      "name": "Брови №27",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 27,
+      "name": "Брови №28",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 28,
+      "name": "Брови №29",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 29,
+      "name": "Брови №30",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 30,
+      "name": "Брови №31",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 31,
+      "name": "Брови №32",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 32,
+      "name": "Брови №33",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 33,
+      "name": "Брови №34",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 34,
+      "name": "Брови №35",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    }    
+  ],
+  "atorso": [
+    {
+      "id": 0,
+      "name": "Волосы на теле №1",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1100
+    },
+    {
+      "id": 1,
+      "name": "Волосы на теле №2",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 2,
+      "name": "Волосы на теле №3",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 3,
+      "name": "Волосы на теле №4",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 3100
+    },
+    {
+      "id": 4,
+      "name": "Волосы на теле №5",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1100
+    },
+    {
+      "id": 5,
+      "name": "Волосы на теле №6",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 6,
+      "name": "Волосы на теле №7",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 7,
+      "name": "Волосы на теле №8",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1100
+    },
+    {
+      "id": 8,
+      "name": "Волосы на теле №9",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1100
+    },
+    {
+      "id": 9,
+      "name": "Волосы на теле №10",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1100
+    },
+    {
+      "id": 10,
+      "name": "Волосы на теле №11",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 3100
+    },
+    {
+      "id": 11,
+      "name": "Волосы на теле №12",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 3100
+    },
+    {
+      "id": 12,
+      "name": "Волосы на теле №13",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 3100
+    },
+    {
+      "id": 13,
+      "name": "Волосы на теле №14",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 14,
+      "name": "Волосы на теле №15",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 15,
+      "name": "Волосы на теле №16",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2100
+    },
+    {
+      "id": 16,
+      "name": "Волосы на теле №17",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1100
+    }    
+  ],
+  "alenses": [
+    {
+      "id": 0,
+      "name": "Линзы №1",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2200
+    },
+    {
+      "id": 1,
+      "name": "Линзы №2",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2400
+    },
+    {
+      "id": 2,
+      "name": "Линзы №3",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2400
+    },
+    {
+      "id": 3,
+      "name": "Линзы №4",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2200
+    },
+    {
+      "id": 4,
+      "name": "Линзы №5",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2200
+    },
+    {
+      "id": 5,
+      "name": "Линзы №6",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2400
+    },
+    {
+      "id": 6,
+      "name": "Линзы №7",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2200
+    },
+    {
+      "id": 7,
+      "name": "Линзы №8",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2400
+    },
+    {
+      "id": 8,
+      "name": "Линзы №9",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2000
+    },
+    {
+      "id": 9,
+      "name": "Линзы №10",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 3000
+    }
+  ],
+  "apomade": [
+    {
+      "id": 0,
+      "name": "Помада №1",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1200
+    },
+    {
+      "id": 1,
+      "name": "Помада №2",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2400
+    },
+    {
+      "id": 2,
+      "name": "Помада №3",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 3400
+    },
+    {
+      "id": 3,
+      "name": "Помада №4",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 3200
+    },
+    {
+      "id": 4,
+      "name": "Помада №5",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 3200
+    },
+    {
+      "id": 5,
+      "name": "Помада №6",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1400
+    },
+    {
+      "id": 6,
+      "name": "Помада №7",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1200
+    },
+    {
+      "id": 7,
+      "name": "Помада №8",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1400
+    },
+    {
+      "id": 8,
+      "name": "Помада №9",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1000
+    },
+    {
+      "id": 9,
+      "name": "Помада №10",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 300
+    }
+  ],
+  "ablush": [
+    {
+      "id": 0,
+      "name": "Румянец №1",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2200
+    },
+    {
+      "id": 1,
+      "name": "Румянец №2",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2400
+    },
+    {
+      "id": 2,
+      "name": "Румянец №3",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2400
+    },
+    {
+      "id": 3,
+      "name": "Румянец №4",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2200
+    },
+    {
+      "id": 4,
+      "name": "Румянец №5",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2200
+    },
+    {
+      "id": 5,
+      "name": "Румянец №6",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2400
+    },
+    {
+      "id": 6,
+      "name": "Румянец №7",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2200
+    }
+  ],
+  "ashadows": [
+    {
+      "id": 0,
+      "name": "Макияж №1",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1120
+    },
+    {
+      "id": 1,
+      "name": "Макияж №2",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1120
+    },
+    {
+      "id": 2,
+      "name": "Макияж №3",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1120
+    },
+    {
+      "id": 3,
+      "name": "Макияж №4",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2120
+    },
+    {
+      "id": 4,
+      "name": "Макияж №5",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1120
+    },
+    {
+      "id": 5,
+      "name": "Макияж №6",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2160
+    },
+    {
+      "id": 6,
+      "name": "Макияж №7",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 4160
+    },
+    {
+      "id": 7,
+      "name": "Макияж №8",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2160
+    },
+    {
+      "id": 8,
+      "name": "Макияж №9",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2120
+    },
+    {
+      "id": 9,
+      "name": "Макияж №10",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 3120
+    },
+    {
+      "id": 10,
+      "name": "Макияж №11",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1240
+    },
+    {
+      "id": 11,
+      "name": "Макияж №12",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1240
+    },
+    {
+      "id": 12,
+      "name": "Макияж №13",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 5120
+    },
+    {
+      "id": 13,
+      "name": "Макияж №14",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 5120
+    },
+    {
+      "id": 14,
+      "name": "Макияж №15",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 1240
+    },
+    {
+      "id": 15,
+      "name": "Макияж №16",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 4200
+    },
+    {
+      "id": 16,
+      "name": "Макияж №17",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 5120
+    },
+    {
+      "id": 17,
+      "name": "Макияж №18",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2160
+    },
+    {
+      "id": 18,
+      "name": "Макияж №19",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2380
+    },
+    {
+      "id": 19,
+      "name": "Макияж №20",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 15000
+    },
+    {
+      "id": 20,
+      "name": "Макияж №21",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 15000
+    },
+    {
+      "id": 21,
+      "name": "Макияж №22",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 15000
+    },
+    {
+      "id": 22,
+      "name": "Макияж №23",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 15000
+    },
+    {
+      "id": 23,
+      "name": "Макияж №24",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 12000
+    },
+    {
+      "id": 24,
+      "name": "Макияж №25",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 12000
+    },
+    {
+      "id": 25,
+      "name": "Макияж №26",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 9000
+    },
+    {
+      "id": 26,
+      "name": "Макияж №27",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 12240
+    },
+    {
+      "id": 27,
+      "name": "Макияж №28",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 15000
+    },
+    {
+      "id": 28,
+      "name": "Макияж №29",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 15000
+    },
+    {
+      "id": 29,
+      "name": "Макияж №30",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 15000
+    },
+    {
+      "id": 30,
+      "name": "Макияж №31",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 15000
+    },
+    {
+      "id": 31,
+      "name": "Макияж №32",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 15000
+    },
+    {
+      "id": 32,
+      "name": "Макияж №33",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 15000
+    },
+    {
+      "id": 33,
+      "name": "Макияж №34",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 15000
+    },
+    {
+      "id": 34,
+      "name": "Макияж №35",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 2180
+    },
+    {
+      "id": 35,
+      "name": "Макияж №36",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 15000
+    },
+    {
+      "id": 36,
+      "name": "Макияж №37",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 6000
+    },
+    {
+      "id": 37,
+      "name": "Макияж №38",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 6000
+    },
+    {
+      "id": 38,
+      "name": "Макияж №39",
+      "modifications": [
+        {
+          "id": 0,
+          "name": 0
+        }
+      ],
+      "price": 5180
+    }
+  ]
+}`);
+}Ȑ

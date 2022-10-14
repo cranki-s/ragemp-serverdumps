@@ -1,144 +1,120 @@
 {
-let Market = null;
-mp.events.add('Market:Save',(items,SpaceID)=>{
-    NexusEvent.callRemote('Market:SaveSpaceItem',items, SpaceID);   
-    mp.events.call('Market:Close');
+﻿global.circleEntity = null;
+global.circleOpen = false;
+function OpenCircle(title) {
+    if (menuCheck() || circleOpen) return;
+	if(localplayer.getVariable('seats') === true) return;
+    mp.gui.execute(`rhombusMenu.render('${title}')`);
+    circleOpen = true;
+    mp.gui.cursor.visible = true;
+    global.menuOpened = true;
+}
+function CloseCircle() { 
+    global.menuOpened = false;
+    mp.gui.cursor.visible = false;    
+}
+global.ListMenuOpen = false;
+mp.keys.bind(Keys.VK_M, false, function () { // G key
+	if (ListMenuOpen) {
+        global.menuOpened = false;
+        return;
+    }
+    if (global.menuCheck() || localplayer.getVariable('InDeath') == true && !localplayer.isInAnyVehicle(false) || localplayer.getVariable('seats') == true) return;   
+    if (!loggedin || chatActive || new Date().getTime() - lastCheck < 3000) return;
+    ListMenuOpen = true;
+    mp.gui.cursor.visible = true;
+    global.menuOpened = true;
+    mp.gui.execute(`listMenu.render('main')`);
 });
-mp.events.add('Market:Open',(items)=>{    
-    if(Market == null){
-        Market = mp.browsers.new('http://package/systems/player/MarketMenu/Market/market.html');        
-        Market.execute(`app.locale = '${global.Language}'`)
-        Market.execute(`app.setKey(${JSON.stringify(global.cdnKey)})`);
-        Market.execute(`app.load(${items})`);
-    }   
-    global.menuOpen(); 
-});
-
-mp.events.add('Market:Close',()=>{
-    if(Market != null){
-        Market.destroy();
-        Market = null;
-    }   
-    global.menuClose(); 
-});
-let TypeMarket;
-mp.events.add('Market:OpenBuyingMenu',(items,TypeMarket)=>{
-    if(Market == null){
-        Market = mp.browsers.new('http://package/systems/player/MarketMenu/Market/market.html');        
-        Market.execute(`app.locale = '${global.Language}'`)        
-        Market.execute(`app.setKey(${JSON.stringify(global.cdnKey)})`);        
-        Market.execute(`app.loadBuyingMenu(${items})`);
-        TypeMarket = TypeMarket;
-    } 
-    global.menuOpen();    
-});
-
-mp.events.add('Market:BuyItem', async(item, count, PayType,marketID,index)=>{    
-   let status = await mp.events.callRemoteProc('Market:BuyItem', item, count, PayType, marketID); 
-   if(status){
-        Market.execute(`app.BuySucsess(${index},${count})`);
-   }
-});
-
-
-mp.events.add('Market:Notify', (type, layout, msg, time) => {
-	if(Market != null){
-		Market.execute(`notify(${type},${layout},"${msg}",${time})`);
-	}
-});
-
-mp.events.add("Market:setClothes", (item) => {    
-        const a = mp.players.local;
-        let rotation
-    if (TypeMarket != 'CarMarket') {
-        rotation = mp.objects.toArray().find(x => x.hasVariable("_market") && mp.game.system.vdist2(a.position.x, a.position.y, a.position.z, x.position.x, x.position.y, x.position.z) < 5).rotation
-    }else rotation = 90 
-            a.setHeading(rotation.z + 180),             
-            item = JSON.parse(item);                        
-            let Split;
-            if(item.ID != -20){
-                Split = item.Data.split('_');
-            }else{
-                Split = item.Datas.split('_');
-            }
-            if(item.ID *-1 > 11 && item.ID *-1 != 20){
-                let componentID;
-                switch (item.ID) {
-                    case -12:
-                        componentID = 0;
-                        break;
-                    case -13:
-                        componentID = 1;
-                        break;
-                    case -14:
-                        componentID = 6;
-                        break;
-                }                
-                a.setPropIndex(componentID, Number(Split[0]), Number(Split[1]), !0)
-            }else{
-                let compon = item.ID == -20 ? -5 : item.ID;                
-                a.setComponentVariation(-1 * compon, Number(Split[0]), Number(Split[1]), 2)
-            }
-            setTimeout(() => {
-                switch (item.ID) {
-
-                    case -6://
-                        {
-                            global.setCameraToPlayer(.5, new mp.Vector3(0, 0, -.7), new mp.Vector3(0, 0, -1), 0, 500);
-                            break
-                        }
-                    case -20:
-                        {
-                            global.setCameraToPlayer(1, new mp.Vector3(0, 0, .1), new mp.Vector3(0, 0, 0), 180, 500);
-                            break
-                        }
-                    case -4:
-                        {
-                                global.setCameraToPlayer(1, new mp.Vector3(0, 0, -.7), new mp.Vector3(0, 0, -.6), 0, 500);
-                                break
-                        }
-                    case -20://
-                        {
-                            global.setCameraToPlayer(.65, new mp.Vector3(0, 0, .1), new mp.Vector3(0, 0, 0), 35, 500);
-                            break
-                        }
-                    case -0://
-                        {
-                            global.setCameraToPlayer(1, new mp.Vector3(0, 0, .9), new mp.Vector3(0, 0, 1), 0, 500);
-                            break
-                        }
-                    case -1://
-                        {
-                            global.setCameraToPlayer(.65, new mp.Vector3(0, 0, .7), new mp.Vector3(0, 0, .85), 0, 500);
-                            break
-                        }
-                    case -2:
-                        {
-                            global.setCameraToPlayer(.5, new mp.Vector3(0, 0, .7), new mp.Vector3(0, 0, .7), 0, 500);
-                            break
-                        }
-                    case -5://Не ок
-                        {
-                            global.setCameraToPlayer(.65, new mp.Vector3(0, 0, .1), new mp.Vector3(0, 0, 0), 35, 500);
-                            break
-                        }
-                    case -14:
-                        {
-                            global.setCameraToPlayer(.65, new mp.Vector3(0, 0, .1), new mp.Vector3(0, 0, 0), 260, 500);
-                            break
-                        }
-                    case -11:
-                    case -8:
-                    default:
-                        {
-                            global.setCameraToPlayer(1, new mp.Vector3(0, 0, .1), new mp.Vector3(0, 0, 0), 0, 500);
-                            break
-                        }
-                }
-            }, 200)
+mp.events.add('PlayerSelectedMenu',(index)=>{    
+        NewEvent.callRemote('PlayerSelectedMenu', index);  
+        ListMenuOpen = false;  
+        global.menuOpened = false; 
 })
-mp.events.add("Market:disableCamera", () => {
-    global.resetCamera();
-    NexusEvent.callRemote('Market:Close');
-});
+mp.events.add('ListMenu:CloseMenu',()=>{
+    ListMenuOpen = false;  
+    global.menuOpened = false;  
+    mp.gui.cursor.visible = false;
+})
+
+mp.keys.bind(Keys.VK_X, false, function () { // X key
+    if (!loggedin || chatActive || editing || mp.game.ui.isPauseMenuActive() || new Date().getTime() - lastCheck < 1000 || global.menuOpened) return;
+    if (entity && mp.players.exists(entity) && entity.type == "player") 
+    {
+        NewEvent.callRemote('playerPressCuffBut', entity);
+    }
+    lastCheck = new Date().getTime();
+});
+
+mp.keys.bind(Keys.VK_G, false, function () { // G key   
+	if (circleOpen) {
+        mp.gui.execute("rhombusMenu.menuHandler(false)");
+        CloseCircle();
+        circleOpen = false;	
+        return;
+    }
+    if (global.menuCheck() || localplayer.getVariable('InDeath') == true && !localplayer.isInAnyVehicle(false) || localplayer.getVariable('seats') == true || global.cuffed) return;
+    circleEntity = null;
+    if (!loggedin || chatActive || entity == null || new Date().getTime() - lastCheck < 3000) return;
+    circleEntity = entity;
+    switch (entity.type) {
+        case "object":
+            if (entity && mp.objects.exists(entity)) {
+                NewEvent.callRemote('oSelected', entity);
+            }
+            entity = null;
+            return;
+        case "player":             
+            NewEvent.callRemote("circlecallv","player");                  
+            return;
+        case "vehicle":
+            NewEvent.callRemote("circlecallv","car");            
+            return;
+    }    
+    lastCheck = new Date().getTime();
+});
+mp.events.add("sendinfos",(i,type, circlePermision)=>{    
+    mp.gui.execute(`rhombusMenu.playerGroup = '${i}'`);
+    mp.gui.execute(`rhombusMenu.permission = '${circlePermision}'`);
+    mp.gui.execute(`listMenu.playerGroup = '${i}'`);    
+    if(type =="player"){
+        if(circleEntity == null) return;
+        let genderType = circleEntity.hasVariable("GENDER") ? (circleEntity.getVariable("GENDER")) ? "ець" : "ка" : "ець";
+        let name = mp.storage.data.friends[circleEntity.name] !== undefined || passports[circleEntity.name] !== undefined ? circleEntity.name : "Незнайом"+genderType+`(${circleEntity.remoteId})`
+        mp.gui.execute(`rhombusMenu.player = '${name}'`);
+        OpenCircle('main');  
+    }
+    else if(type == "car")
+    {
+        OpenCircle('car');
+    }
+});
+
+mp.events.add("closerhombus",()=>{
+    CloseCircle();
+});
+mp.events.add('CarCallBack',(index)=>{
+    if (circleEntity == null) return;    
+    //NewEvent.callRemote('console',JSON.stringify(circleEntity)+'client')
+    NewEvent.callRemote('vehicleSelected', entity, index);
+    circleOpen = false;	
+})
+mp.events.add('PlayerCallBack',(index)=>{
+if(localplayer.getVariable('seats') === true) return;    
+    if (circleEntity == null) return;   
+	NewEvent.callRemote('pSelected', circleEntity, index);
+    circleOpen = false;	
+})
+mp.events.add('fractioncallback',(index)=>{
+    if (circleEntity == null) return;
+    if(localplayer.getVariable('seats') === true) return;
+    NewEvent.callRemote('fractioncallback', circleEntity, index);
+    circleOpen = false;	
+})
+mp.events.add('familycallback', (e) => {
+    if (circleEntity == null) return;
+    if (localplayer.getVariable('seats') === true) return;
+    NewEvent.callRemote(e, circleEntity);
+    circleOpen = false;	
+})
 }

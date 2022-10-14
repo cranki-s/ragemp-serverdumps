@@ -4,7 +4,7 @@ var armyClothesMenuWindow = null;
 var armyClothesMenuOpened = false;
 let ClothesMenuType;
 let bodyCam;
-const playerheading = require("/lib/back/js/rotatorplayer.js");
+// const playerheading = require("/lib/back/js/rotatorplayer.js");
 mp.events.add('openArmyClothesMenu', (data,type) => {   
     armyClothesMenu.execute(`window.locale ='${global.Language}'`)
     armyClothesMenu.execute(`openInterface('form')`);
@@ -23,23 +23,23 @@ mp.events.add('openArmyClothesMenu', (data,type) => {
 });
 mp.events.add('Form:SetActive',armyClothID=>{ 
     if (ClothesMenuType == 0) {
-        NexusEvent.callRemote('selectArmyClothID', +armyClothID);
+        NewEvent.callRemote('selectArmyClothID', +armyClothID);
     } else if (ClothesMenuType == 1) {
-        NexusEvent.callRemote('selectFibClothID', +armyClothID);
+        NewEvent.callRemote('selectFibClothID', +armyClothID);
     }
     else if (ClothesMenuType == 2) {
-        NexusEvent.callRemote('SelectPoliceClothes', +armyClothID);
+        NewEvent.callRemote('SelectPoliceClothes', +armyClothID);
     }
     else if (ClothesMenuType == 3) {
-        NexusEvent.callRemote('SelectGovClothes', +armyClothID);
+        NewEvent.callRemote('SelectGovClothes', +armyClothID);
     }
     else if (ClothesMenuType == 4) {
-        NexusEvent.callRemote('selectEmsClothID', +armyClothID);
+        NewEvent.callRemote('selectEmsClothID', +armyClothID);
     }
 });
 
 mp.events.add('Form:DestroyBrowser', () => {
-    NexusEvent.callRemote('DestroyDimension') 
+    NewEvent.callRemote('DestroyDimension') 
     armyClothesMenu.execute(`closeInterface()`);
     playerheading.stop()
     global.menuOpened = false;

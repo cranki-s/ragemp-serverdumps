@@ -1,58 +1,41 @@
 {
-
-
-let AuctionList = null;
-let AuctionOpened = false;
-
-mp.events.add('Auction.OpenMenu.CallBack', (data)=>{
-    let obj = JSON.parse(data);
-    obj.property.forEach(item => {
-        if(item.Location!=null){
-            let area  = mp.game.zone.getNameOfZone(item.Location.x, item.Location.y, item.Location.z);
-            item.Location = mp.game.ui.getLabelText(area);
-        }
-    });
-    obj.business.forEach(item => {
-        if(item.Location!=null){
-            let area  = mp.game.zone.getNameOfZone(item.Location.x, item.Location.y, item.Location.z);
-            item.Location = mp.game.ui.getLabelText(area);
-        }
-    });
-    
-    AuctionList = obj;
+mp.events.add('Parkings.BuySpace',()=>{
     globalThis.browser.open();
-    global.browser.execute(`App.$router.push(${JSON.stringify({path : '/auction'})})`);
+    globalThis.browser.execute(`window.locale='${global.Language}'`)
+    globalThis.browser.execute(`App.$router.push(${JSON.stringify({path:'/parking/buy'})})`); 
+})
+mp.events.add('Parking.GetParams',()=>{
+    NewEvent.callRemote('Parking.GetParams');
+})
+mp.events.add('Parking.GetParamsCallback',(pakingData)=>{
+    globalThis.browser.open();
+    globalThis.browser.execute(`RPC.resolve('Parking.GetParams',${pakingData})`);
+})
+mp.events.add('Parking.PurchaseSpace',(actionType,moneyType,innerValue)=>{
+    if(actionType === 'buy') {
+        NewEvent.callRemote('Parkings.BuySpaceCallback',moneyType,innerValue);
+    }else{
+        NewEvent.callRemote('Parkings.AddTimeCallback',moneyType,innerValue);
+    }
 });
-
-mp.events.add('Auction:GetAllData', ()=>{
-    global.browser.execute(`RPC.resolve('Auction:GetAllData', ${JSON.stringify(AuctionList)})`);
-    AuctionOpened = true;
+mp.events.add('Parking.PurchaseSpaceCallback',(sucsess)=>{
+    globalThis.browser.execute(`RPC.resolve('Parking.PurchaseSpace',${sucsess})`);
+    globalThis.browser.close();
 });
-
-
-
-
-mp.events.add('Auction:MakeBet', (id, payType, money)=>{
-    NexusEvent.callRemote('Auction.MakeBet.Server', id, money, payType);
-});
-
-mp.events.add('Auction.NewLot', (type, lotJson)=>{
-    let obj = JSON.parse(lotJson);
-        if(obj.Location!=null){
-            let area  = mp.game.zone.getNameOfZone(obj.Location.x, obj.Location.y, obj.Location.z);
-            obj.Location = mp.game.ui.getLabelText(area);
-        }
-    global.browser.execute(`EventBus.emit('Auction:AddNewLot', '${type}', ${JSON.stringify(obj)})`);
-});
-
-mp.events.add('Auction.RemoveLot', (type, lotNum)=>{
-    global.browser.execute(`EventBus.emit('Auction:RemoveLot', '${type}', ${lotNum})`);
-});
-
-
-mp.events.add('Auction:Close', ()=>{
-    AuctionOpened = false;
+mp.events.add('Parkings.AddTime',()=>{
+    globalThis.browser.open();
+    globalThis.browser.execute(`App.$router.push(${JSON.stringify({path:'/parking/add'})})`);
+})
+mp.events.add('Parkings.EndRent',()=>{
+    globalThis.browser.open();
+    globalThis.browser.execute(`App.$router.push(${JSON.stringify({path:'/parking/end'})})`);
+})
+mp.events.add('Parkings.EndRentClient',()=>{
+    NewEvent.callRemote('Parkings.EndRentCallback');
     globalThis.browser.close();
 })
-
+
+mp.events.add('Parking.Close', ()=>{
+    global.browser.close();
+})
 }

@@ -11,7 +11,7 @@ setInterval(function () {
     if (Timer == 300 && g < 1) {
         if (Step < 3) {
             Step += 1;
-            NexusEvent.callRemote('console', 123)
+            NewEvent.callRemote('console', 123)
         }                
     }
     else if (g > 1) 
@@ -27,14 +27,14 @@ setInterval(function () {
             //return;
         }
        // else {
-            mp.gui.chat.push('Вы вошли в сон (AFK более 15 минут)');
-            NexusEvent.callRemote('AfkSystem:StartAFK');
+            mp.gui.chat.push(global.GetText('Вы вошли в сон (AFK более 15 минут)'));
+            NewEvent.callRemote('AfkSystem:StartAFK');
             global.inAfk = true;
         //}
     }
     else if(global.inAfk && Step == 0)
     {
-        NexusEvent.callRemote('AfkSystem:StopAFK');
+        NewEvent.callRemote('AfkSystem:StopAFK');
         global.inAfk = false;
     }    
     if(Timer == 20){
@@ -45,12 +45,12 @@ setInterval(function () {
     //     if (localplayer.getVariable('IS_ADMIN') == true) afkSecondsCount = 0;
     //     else {
     //         mp.gui.chat.push('Вы вошли в сон (AFK более 15 минут)');
-    //         NexusEvent.callRemote('AfkSystem:StartAFK');
+    //         NewEvent.callRemote('AfkSystem:StartAFK');
     //         global.inAfk = true;
     //     }
     // }
     // if (global.inAfk && afkSecondsCount < 900) {
-    //     NexusEvent.callRemote('AfkSystem:StopAFK');
+    //     NewEvent.callRemote('AfkSystem:StopAFK');
     //     global.inAfk = false;
     // }
 }, 1000);

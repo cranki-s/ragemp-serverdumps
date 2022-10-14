@@ -1,9 +1,11 @@
 {
 ﻿"use strict"
 
+
 let camera = null;
 let camera_moveable = false;
 let camera_lastmove = Date.now();
+let moveToCam = null;
 
 const player = mp.players.local;
 let localPlayer = mp.players.local;
@@ -50,17 +52,17 @@ var targetChecker = Date.now();
 var updateChecker = Date.now();
 var clickDisable = false;
 
-//let climbingStart = 0;
-//let climbTrigger = false;
+var wasClimbingLastFrame = false;
+var checkClimbingDurationTimeout = undefined;
+var climbProtectionState = -1; // -1 = none, 0 = active on ladder, 1 = short protection after ladder
+var climbProtectionTimeout = undefined;
+var shortClimbProtectionTimeout = undefined;
+var lastClimbProtectionTimestamp = 0;
 
-let isFirstClimb = false;
-let climbProtectionTimer = null;
-let climbProtectionStage = 0; // 0 -> no protection | 1 -> protection long while climbing | 2 -> protection short after climbing
-let climbingStart = 0; // to prevent protection from being activated on fences
-let lastClimbProtection = 0;
+var climbProtectionEndTimestamp = 0; // when the climb protection should end in seconds
 
-let taseProtectionTimer = null;
-let wasInCar = false;
+var taseProtectionTimer = null;
+var wasInCar = false;
 
 var themeSoundID = 1;
 
@@ -73,7 +75,6 @@ const boneDistanceThreshold = 1;
 
 var lastGPSBind = 0x5A;
 var curGPSBind = 0x5A;
-var radioToggle = 0;
 
 var lastMapBind = 0x50;
 var curMapBind = 0x50;
@@ -126,6 +127,8 @@ mp.keys.bind(0x46, true, function () {
 });
 
 mp.events.add('entityStreamIn', (entity) => {
+    if(entity == null || !entity.doesExist()) return;
+
     if (chaseRunning && mp.players.local.getVariable("Team") >= 0 && entity.type === 'vehicle' 
         && chaseStartVeh != -1 && entity.remoteId !== undefined && entity.remoteId == chaseStartVeh)
     {
@@ -133,6 +136,45 @@ mp.events.add('entityStreamIn', (entity) => {
         {
             mp.events.callRemote("RequestSetInVehicle", entity, chaseStartSeat);
         }
+    }
+
+    /* Applying login entitires anims */
+    if(loginSceneEntities[0] && entity == loginSceneEntities[0]){
+        loginSceneEntities[0].setLights(2);
+        loginSceneEntities[0].setDamage(-1, 0, 0, 100, 25, true);
+        loginSceneEntities[0].setDoorOpen(0, false, true);
+        loginSceneEntities[0].setDoorOpen(3, false, true);
+    }
+    if(loginSceneEntities[1] && entity == loginSceneEntities[1]){
+        loginSceneEntities[1].setLights(3);
+        loginSceneEntities[1].setSiren(true);
+        loginSceneEntities[1].setDoorOpen(0, false, true);
+        loginSceneEntities[1].setDoorOpen(1, false, true);
+    }
+    if(loginSceneEntities[2] && entity == loginSceneEntities[2]){
+        loginSceneEntities[2].setLights(3);
+        loginSceneEntities[2].setSiren(true);
+        loginSceneEntities[2].setDoorOpen(0, false, true);
+    }
+    if(loginSceneEntities[3] && entity == loginSceneEntities[3]){
+        loginSceneEntities[3].applyDamagePack("Explosion_Large", 100, 1);
+        loginSceneEntities[3].taskPlayAnim("combat@damage@writhe", "writhe_loop", 8.0, 1.0, -1, 1, 1.0, false, false, false);    
+    }
+    if(loginSceneEntities[4] && entity == loginSceneEntities[4]){
+        loginSceneEntities[4].taskPlayAnim("random@arrests@busted", "idle_a", 8.0, 1.0, -1, 1, 1.0, false, false, false);    
+    }
+    if(loginSceneEntities[5] && entity == loginSceneEntities[5]){
+        mp.game.invoke('0xBF0FD6E56C964FCB', loginSceneEntities[5].handle, 1593441988, 0, false, false); // GIVE_WEAPON_TO_PED
+        mp.game.invoke('0xADF692B254977C0C', loginSceneEntities[5].handle, 1593441988, true); // SET_CURRENT_PED_WEAPON    
+        loginSceneEntities[5].taskPlayAnim("arrest", "radio_chatter", 8.0, 1.0, -1, 1, 1.0, false, false, false);       
+    }
+    if(loginSceneEntities[6] && entity == loginSceneEntities[6]){
+        loginSceneEntities[6].taskPlayAnim("amb@medic@standing@kneel@base", "base", 8.0, 1.0, -1, 1, 1.0, false, false, false);     
+    }
+    if(loginSceneEntities[7] && entity == loginSceneEntities[7]){
+        loginSceneEntities[7].setComponentVariation(0, 1, 0, 0);
+        loginSceneEntities[7].setComponentVariation(3, 0, 1, 0);
+        loginSceneEntities[7].taskStartScenarioInPlace('WORLD_HUMAN_COP_IDLES', 0, false);   
     }
 });
 
@@ -150,49 +192,110 @@ mp.events.add("ShowHandcuffTooltip", () => {
 
 mp.events.add('setPing', (pingtoset) => {
     ping = pingtoset;
-    UIHud.execute(`gm.$refs.TopRight.$refs.Info.fps = ${ping}`);
+    ServerUI.execute(`gm.$refs.hud.$refs.topRight.$refs.info.ping = ${ping}`);
 })
 
+var tasePreview = false;
+mp.events.add("render", () => {
+    if(player.getVariable("Team") == 1){  
+        if(player.weapon == 911657153){
+            tasePreview = true;
+            mp.players.forEachInRange(player.position, 70.0, (fugitive) => {
+                const vec1 = player.position;
+                const vec2 = fugitive.position;
+                const distance = vec1.subtract(vec2).length();
+
+                if((fugitive.getVariable("Team") == 0 && !fugitive.isInAnyVehicle(false) && fugitive.getVariable("TaseProtection") == false
+                    && distance < 7.5) || fugitive.remoteId == player.remoteId){
+                        fugitive.setAlpha(255);
+                }
+                else{
+                    fugitive.setAlpha(180);
+                }
+            });
+        }
+    }
+
+});
 mp.events.add("OneSecondEvent", () => {
     ShotStats.UpdateInterval++;
 
-    let curSecond = Math.floor(Date.now()/1000);
-    let lastKeyPressSecond = Math.floor(LastKeyPress/1000);
-
-    SecondsSinceLastKeyPress = (curSecond-lastKeyPressSecond);
-    /*
-    if(SecondsSinceLastKeyPress < 1500){
-        if(SecondsSinceLastKeyPress == 600){ // MAKING SURE IDFK
-            if(AFKStage == 0){ AFKStage = 1;}
-
-            pushMessageToChat("~r~[ANTI-AFK] ~w~It appears you didn't press any keys for 10 minutes.");
-            pushMessageToChat("~r~[ANTI-AFK] ~w~If you continue being AFK, you will be kicked in 15 minutes!");
-            pushMessageToChat("~r~[ANTI-AFK] ~w~Your autojoin has also been turned off, it will be re-enabled if you come back.");
-
-            mp.events.callRemote("SetAutoJoin", false, true);
-        }
-        else if(SecondsSinceLastKeyPress == 900){
-            if(AFKStage == 0){ AFKStage = 1;}
-            pushMessageToChat("~r~[ANTI-AFK] ~w~You will be kicked from the server in 10 minutes for being AFK too long!");
-        }
-        else if(SecondsSinceLastKeyPress == 1200){
-            if(AFKStage == 0){ AFKStage = 1;}
-            pushMessageToChat("~r~[ANTI-AFK] ~w~You will be kicked from the server in 5 minutes for being AFK too long!");
-        }
-        else if(SecondsSinceLastKeyPress == 1440){
-            if(AFKStage == 0){ AFKStage = 1;}
-            pushMessageToChat("~r~[ANTI-AFK] ~w~You will be kicked from the server in 1 minute for being AFK too long!");
+    // taser range: 7.5m
+    if(player.getVariable("Team") == 1){  
+        if(player.weapon != 911657153){
+            if(tasePreview == true){
+                tasePreview = false;
+                mp.players.forEachInStreamRange((playa, id) => {
+                    playa.setAlpha(255);
+                });
+            }
         }
     }
     else{
-        if(AFKStage != 2)
-        {
-            AFKStage = 2;
-            pushMessageToChat("~r~[ANTI-AFK] ~w~You've been kicked from the server for being AFK too long!");
-            mp.events.callRemote("KickPlayer", "AFK", false);
+        if(tasePreview == true){
+            tasePreview = false;
+            mp.players.forEachInStreamRange((playa, id) => {
+                playa.setAlpha(255);
+            });
         }
     }
-	*/
+
+    if(climbProtectionEndTimestamp > 0){
+        let currentTimestamp = Date.now();
+        if(climbProtectionEndTimestamp <= currentTimestamp){
+            // end climb protection      
+            mp.events.callRemote("ClimbProtection", -1);
+            if(shortClimbProtectionTimeout){clearTimeout(shortClimbProtectionTimeout); shortClimbProtectionTimeout = undefined;}  
+            if(climbProtectionTimeout){clearTimeout(climbProtectionTimeout); climbProtectionTimeout = undefined;}  
+            if(checkClimbingDurationTimeout){clearTimeout(checkClimbingDurationTimeout); checkClimbingDurationTimeout = undefined;}
+       
+            wasClimbingLastFrame = false;
+            climbProtectionState = -1;       
+            climbProtectionEndTimestamp = 0;
+        }
+    }
+
+
+    if(antiAFKActive == true){
+        let curSecond = Math.floor(Date.now()/1000);
+        let lastKeyPressSecond = Math.floor(LastKeyPress/1000);
+
+        SecondsSinceLastKeyPress = (curSecond-lastKeyPressSecond);
+        
+        if(SecondsSinceLastKeyPress < 1500){
+            if(SecondsSinceLastKeyPress == 600){ // MAKING SURE IDFK
+                if(AFKStage == 0){ AFKStage = 1;}
+
+                mp.gui.chat.push("~r~[ANTI-AFK] ~w~It appears you didn't press any keys for 10 minutes.");
+                mp.gui.chat.push("~r~[ANTI-AFK] ~w~If you continue being AFK, you will be kicked in 15 minutes!");
+                mp.gui.chat.push("~r~[ANTI-AFK] ~w~Your autojoin has also been turned off, it will be re-enabled if you come back.");
+
+                mp.events.callRemote("SetAutoJoin", false, true);
+            }
+            else if(SecondsSinceLastKeyPress == 900){
+                if(AFKStage == 0){ AFKStage = 1;}
+                mp.gui.chat.push("~r~[ANTI-AFK] ~w~You will be kicked from the server in 10 minutes for being AFK too long!");
+            }
+            else if(SecondsSinceLastKeyPress == 1200){
+                if(AFKStage == 0){ AFKStage = 1;}
+                mp.gui.chat.push("~r~[ANTI-AFK] ~w~You will be kicked from the server in 5 minutes for being AFK too long!");
+            }
+            else if(SecondsSinceLastKeyPress == 1440){
+                if(AFKStage == 0){ AFKStage = 1;}
+                mp.gui.chat.push("~r~[ANTI-AFK] ~w~You will be kicked from the server in 1 minute for being AFK too long!");
+            }
+        }
+        else{
+            if(AFKStage != 2)
+            {
+                AFKStage = 2;
+                mp.gui.chat.push("~r~[ANTI-AFK] ~w~You've been kicked from the server for being AFK too long!");
+                mp.events.callRemote("KickPlayer", "AFK", false);
+            }
+        }
+    }
+    
+	
 
     if(ShotStats.UpdateInterval >= 10)
     {
@@ -204,7 +307,7 @@ mp.events.add("OneSecondEvent", () => {
         UpdateStatsVars(mp.players.local);
     }
     if(mp.storage.data.menu.monitoring == true){
-        UIHud.execute(`gm.$refs.TopRight.$refs.Info.fps = ${FPS}`);
+        ServerUI.execute(`gm.$refs.hud.$refs.topRight.$refs.info.fps = ${FPS}`);
         mp.events.callRemote("RequestPlayerPing");
     }
 
@@ -236,6 +339,11 @@ mp.events.add("ResolveJS", (code) => {
 mp.events.add("TwoSecondsEvent", () => {
     if(chaseRunning && mp.players.local.getVariable("Team") !== undefined && mp.players.local.getVariable("Team") == 0)
     {
+        if(mp.players.local.isSwimming() && !mp.players.local.isDead() && !mp.players.local.isInAnyVehicle(false)) {
+            mp.events.callRemote("RequestSwimPenalty");
+        }
+    }
+    if(mp.players.local.getVariable("InDM") > -1){
         if(mp.players.local.isSwimming() && !mp.players.local.isDead() && !mp.players.local.isInAnyVehicle(false)) {
             mp.events.callRemote("RequestSwimPenalty");
         }
@@ -295,8 +403,8 @@ function registerLastKeyPress()
 
     if(AFKStage > 0){      
         mp.events.callRemote("SetAutoJoin", true, true);
-        pushMessageToChat("~g~[ANTI-AFK] ~w~Welcome back. Please note if you stay idle for more than 25 minutes, you will be kicked!");
-        pushMessageToChat("~g~[ANTI-AFK] ~w~Your autojoin has been re-enabled.");
+        mp.gui.chat.push("~g~[ANTI-AFK] ~w~Welcome back. Please note if you stay idle for more than 25 minutes, you will be kicked!");
+        mp.gui.chat.push("~g~[ANTI-AFK] ~w~Your autojoin has been re-enabled.");
     }
 
   SecondsSinceLastKeyPress = 0;
@@ -350,6 +458,82 @@ if(mp.storage.data.radiotoggle !== undefined)
     radioToggle = mp.storage.data.radiotoggle;
 }
 
+if(mp.storage.data.actionmenubind !== undefined){
+    curActionMenuBind = mp.storage.data.actionmenubind;
+    lastActionMenuBind = mp.storage.data.actionmenubind;
+}
+if(mp.storage.data.mdcbind !== undefined){
+    curMDCBind = mp.storage.data.mdcbind;
+    lastMDCBind = mp.storage.data.mdcbind;
+}
+
+function changeActionMenuBind(bind){
+    bind = Number(bind);
+
+    if (!Number.isInteger(bind)) {
+        return;
+    }
+
+    if(mp.storage.data.actionmenubind !== undefined){
+        mp.keys.unbind(mp.storage.data.actionmenubind, true, actionMenuOpen);
+        mp.keys.unbind(mp.storage.data.actionmenubind, false, actionMenuClose);
+    }
+    else{
+        mp.keys.unbind(0x59, true, actionMenuOpen);
+        mp.keys.unbind(0x59, false, actionMenuClose);
+    }
+
+    mp.storage.data.actionmenubind = bind;
+
+    mp.storage.flush();
+
+    lastActionMenuBind = curActionMenuBind;
+    curActionMenuBind = bind;
+
+    mp.keys.unbind(lastActionMenuBind, true, actionMenuOpen);
+    mp.keys.unbind(lastActionMenuBind, false, actionMenuClose);
+    mp.keys.bind(curActionMenuBind, true, actionMenuOpen);
+    mp.keys.bind(curActionMenuBind, false, actionMenuClose);
+
+    mp.events.callLocal("HUDNotify", `MDC key is now binded to <strong>${String.fromCharCode(curActionMenuBind)}</strong>.`, "blue", "fas fa-check", false, 
+        1000, "bottomCenter", "replace");
+
+    mp.events.callLocal("RemoveTooltip", String.fromCharCode(lastActionMenuBind));
+}
+
+function changeMdcBind(bind){
+    bind = Number(bind);
+
+    if (!Number.isInteger(bind)) {
+        return;
+    }
+
+    if(mp.storage.data.mdcbind !== undefined){
+        mp.keys.unbind(mp.storage.data.mdcbind, true, ToggleMDC);
+    }
+    else{
+        mp.keys.unbind(0x4B, true, ToggleMDC);
+    }
+
+    mp.storage.data.mdcbind = bind;
+
+    mp.storage.flush();
+
+    lastMDCBind = curMDCBind;
+    curMDCBind = bind;
+
+    mp.keys.unbind(lastMDCBind, true, ToggleMDC);
+    mp.keys.bind(curMDCBind, true, ToggleMDC);
+
+    mp.events.callLocal("HUDNotify", `MDC key is now binded to <strong>${String.fromCharCode(curMDCBind)}</strong>.`, "blue", "fas fa-check", false, 
+        1000, "bottomCenter", "replace");
+
+    mp.events.callLocal("RemoveTooltip", String.fromCharCode(lastMDCBind));
+}
+
+mp.keys.bind(lastActionMenuBind, true, actionMenuOpen);
+mp.keys.bind(lastActionMenuBind, false, actionMenuClose);
+mp.keys.bind(lastMDCBind, true, ToggleMDC);
 mp.keys.bind(lastGPSBind, true, TogGPSMode);
 
 mp.events.addCommand("gpsbind", function (bind) {
@@ -357,8 +541,8 @@ mp.events.addCommand("gpsbind", function (bind) {
     bind = Number(bind);
 
     if (!Number.isInteger(bind)) {
-        pushMessageToChat("USAGE: gpsbind (keycode) --Input a virtual keycode e.g. 0x5A is 'Z' (default)");
-        pushMessageToChat("https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes");
+        mp.gui.chat.push("USAGE: gpsbind (keycode) --Input a virtual keycode e.g. 0x5A is 'Z' (default)");
+        mp.gui.chat.push("https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes");
         return;
     }
 
@@ -395,15 +579,15 @@ mp.keys.bind(0x4C, false, function() {
     }
 });
 
-mp.keys.bind(0x59, false, function() {
-    if(menuToggled !== undefined && menuToggled) return;
-    if(Date.now() - lastChatToggle >= 500 && chatStatus == false)
-    {
-        traceLastFunc(`[Players] Attempt Y key/engine`);
+// mp.keys.bind(0x59, false, function() {
+//     if(menuToggled !== undefined && menuToggled) return;
+//     if(Date.now() - lastChatToggle >= 500 && chatStatus == false)
+//     {
+//         traceLastFunc(`[Players] Attempt Y key/engine`);
 
-        mp.events.callRemote("OnScriptedKeyPress", 0x59, true);
-    }
-});
+//         mp.events.callRemote("OnScriptedKeyPress", 0x59, true);
+//     }
+// });
 
 mp.keys.bind(0x42, true, _ => {
     if(menuToggled !== undefined && menuToggled) return;
@@ -426,6 +610,20 @@ function createCam(x, y, z, rx, ry, rz, viewangle, moveable = false) {
     camera.setActive(true);
     mp.game.cam.renderScriptCams(true, true, 20000000000000000000000000, false, false);
 }
+function moveCam(x, y, z, rx, ry, rz, time, newviewangle){
+    traceLastFunc(`[Players] Move Cam`);
+    if(!camera) return;
+    if(moveToCam != null){
+        moveToCam.setActive(false);
+        moveToCam.destroy();
+        moveToCam = null;
+    }
+    moveToCam = mp.cameras.new("MoveToCam", {x, y, z}, { x: rx, y: ry, z: rz}, newviewangle);
+    setTimeout(() => {
+        camera.setActiveWithInterp(moveToCam.handle, time, 1, 1);
+    }, 100);
+    
+}
 
 mp.events.add("SetVehicleLights", (vehicle, state) => vehicle.setLights(state));
 
@@ -435,7 +633,7 @@ mp.events.add("ReportLastSeen", (name, posx, posy, posz) => {
     zoneName = mp.game.ui.getLabelText(mp.game.zone.getNameOfZone(posx, posy, posz));
     streetName = mp.game.ui.getStreetNameFromHashKey(getStreet.streetName);
 
-    pushMessageToChat(`!{#FFEC8B}** [RADIO | FREQ: 911] DISPATCH: Felon ${name} last spotted at ${streetName}, ${zoneName}.`);
+    mp.gui.chat.push(`!{#FFEC8B}** [RADIO | FREQ: 911] DISPATCH: Felon ${name} last spotted at ${streetName}, ${zoneName}.`);
 });
 
 mp.events.add("AFKDriverCheck", (x,y,z) => {
@@ -545,59 +743,22 @@ mp.events.add("render", () => {
 
     // Spectate Things
     
-    if (specState == true && specCam !== null && specTarget != null) 
+    if (specState == true && specTarget != null) 
     {
         // Automatically stop spec if target goes woosh
         if (mp.players.exists(specTarget)) 
         {
-            specCam.detach();
-            specCam.attachTo(specTarget.handle, 0, -5, 1, true);
-            specCam.setRot(0, 0, specTarget.getHeading(), 2);
+            // something if spec player is online
         }
         else 
         {
             traceLastFunc(`[Players] Stop Spec (target handle)`);
 
-            specCam.setActive(false); 
+            //specCam.setActive(false); 
             specState = false;
             mp.events.callLocal("StopSpectating");
         }
 
-        // Move spectate camera
-        if(specCam.isActive() && specCam.isRendering() && mp.players.exists(specTarget) && !chatStatus)
-        {
-            
-            mp.game.controls.disableAllControlActions(2);
-
-            let x = (mp.game.controls.getDisabledControlNormal(7, 1) * mouseSensitivity);
-            let y = (mp.game.controls.getDisabledControlNormal(7, 2) * mouseSensitivity);
-            let zoomIn = (mp.game.controls.getDisabledControlNormal(2, 40) * zoomSpeed);
-            let zoomOut = (mp.game.controls.getDisabledControlNormal(2, 41) * zoomSpeed);
-
-            //let currentRot = specCam.getRot(2);
-            let currentRot = new mp.Vector3(0, 0, specTarget.getHeading())
-            moveRotX += y;
-            moveRotZ += x;
-            currentRot = new mp.Vector3(currentRot.x - moveRotX, moveRotY, currentRot.z - moveRotZ);
-
-            specCam.setRot(currentRot.x, currentRot.y, currentRot.z, 2);
-
-            if (zoomIn > 0)
-            {
-                let currentFov = specCam.getFov();
-                currentFov -= zoomIn;
-                if (currentFov < minZoom)
-                    currentFov = minZoom;
-                specCam.setFov(currentFov);
-            } else if (zoomOut > 0)
-            {
-                let currentFov = specCam.getFov();
-                currentFov += zoomOut;
-                if (currentFov > maxZoom)
-                    currentFov = maxZoom;
-                specCam.setFov(currentFov);
-            }
-        }
     }
 
 
@@ -623,12 +784,12 @@ mp.events.addCommand("updaterate", function (rate) {
     rate = Number(rate);
 
     if (!Number.isInteger(rate)) {
-        pushMessageToChat("Invalid rate (must be in numbers & milliseconds)");
+        mp.gui.chat.push("Invalid rate (must be in numbers & milliseconds)");
         return;
     }
 
     if (rate < 10 || rate > 1000) {
-        pushMessageToChat("Invalid rate, must be milliseconds between 10-1000");
+        mp.gui.chat.push("Invalid rate, must be milliseconds between 10-1000");
         return;
     }
 
@@ -650,9 +811,9 @@ mp.events.addCommand("bigmapbind", function (bind) {
     bind = Number(bind);
 
     if (!Number.isInteger(bind)) {
-        pushMessageToChat("USAGE: bigmapbind (keycode) --Input a virtual keycode e.g. 0x50 is 'P' (default)");
-        pushMessageToChat("https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes");
-        pushMessageToChat("Or press 'M' to open the menu and head into the 'Settings' tab to change this.");
+        mp.gui.chat.push("USAGE: bigmapbind (keycode) --Input a virtual keycode e.g. 0x50 is 'P' (default)");
+        mp.gui.chat.push("https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes");
+        mp.gui.chat.push("Or press 'M' to open the menu and head into the 'Settings' tab to change this.");
         return;
     }
 
@@ -686,6 +847,7 @@ function ToggleBigMap(state){
 
     if (Number.isInteger(state) && (state == 0 || state == 1)) {
         mp.storage.data.menu.alwaysExpandedMap = Boolean(state);
+        mp.game.ui.setRadarBigmapEnabled(mp.storage.data.menu.alwaysExpandedMap, false);
     }
     else {
 
@@ -703,6 +865,7 @@ function ToggleBigMap(state){
         {
             mp.storage.data.menu.alwaysExpandedMap = true;
         }
+        mp.game.ui.setRadarBigmapEnabled(mp.storage.data.menu.alwaysExpandedMap, false);
     }
 
     if(mp.storage.data.menu.alwaysExpandedMap == true)
@@ -726,29 +889,44 @@ mp.events.addCommand("bigmap", function (state) {
 
 if(!radioToggle) mp.game.audio.setInitialPlayerStation('OFF');
 
+mp.events.add("CS_UpdateStatsVars", () => {
+    UpdateStatsVars(player);
+});
+
 function UpdateStatsVars(entity){
     // yes im double checking the same shit cuz for some reason this shit decided to break for no reason
-    if(UIHud == null || UIHud == undefined || UIMenu == undefined || UIMenu == null) return;
+    if(ServerUI == null || ServerUI == undefined || ServerUI == undefined || ServerUI == null) return;
     entity = mp.players.local;
     if(entity !== undefined){
         if(mp.players.exists(entity))
         {
-            if(UIHud !== undefined && UIHud != null){
-                UIHud.execute(`gm.stats = {
-                    squad: ${mp.players.local.getVariable("PlayerSquadID")},
-                    lobby: ${mp.players.local.getVariable("InLobby")},
-                    admin: ${mp.players.local.getVariable("Admin")},
-                    fugitive: ${mp.players.local.Team == 0 ? true : false},
-                }`);
-                let allowedCommands = CommandsDataJSON.filter(cmd => cmd.Admin <= mp.players.local.getVariable("Admin"));
-                UIHud.execute(`gm.$refs.chat.commands = ${JSON.stringify(allowedCommands)}`);
-            }
-            if(UIMenu !== undefined && UIMenu != null){
-                UIMenu.execute(`gm.stats = {
-                    name: "${mp.players.local.name}",
-                    level: ${mp.players.local.getVariable("Level")},
-                    admin: ${mp.players.local.getVariable("Admin")}
-                }`);
+            if(ServerUI !== undefined && ServerUI != null){
+
+                ServerUI.execute(`gm.$refs.helpers.$refs.states.setUser(["stats"], {
+                    name: "${player.name}",
+                    level: ${player.getVariable("Level")},
+                    fugitive: ${(player.getVariable("Team") == 0).toString()},
+                    xp: ${player.getVariable("CurrentXP")},
+                    nextLevelXp: ${player.getVariable("NextLevelXP")},
+                    createdAt: "${player.getVariable("RegisterDate")}",
+                    points: ${player.getVariable("Points")},
+                    admin: ${player.getVariable("Admin")},
+                    donator: ${player.getVariable("Donator")},
+                    api: "${player.getVariable("ScreenshotServerAPI")}"
+                })`);
+                ServerUI.execute(`gm.$refs.helpers.$refs.states.setUser(["clan"], {
+                    id: ${player.getVariable("ClanID")},
+                    tier: ${player.getVariable("ClanTier")}
+                })`);
+                
+                if(player.getVariable("Donator") >= 2 || player.getVariable("Admin") >= 1)
+                    ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.chat.settings.removeInputColors = false;`);
+                else ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.chat.settings.removeInputColors = true;`);
+            
+                if(CommandsDataJSON){
+                    let allowedCommands = CommandsDataJSON.filter(cmd => cmd.Admin <= mp.players.local.getVariable("Admin"));
+                    ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.chat.commands = ${JSON.stringify(allowedCommands)}`);
+                }
             }
         }
     }
@@ -825,27 +1003,91 @@ mp.events.addDataHandler('Admin', function (entity, value, oldValue){
     }, 500);
 })
 
+mp.events.add("ClearClimbTaseProtection", (reset_cooldown) => {
+    if(shortClimbProtectionTimeout){clearTimeout(shortClimbProtectionTimeout); shortClimbProtectionTimeout = undefined;}  
+    if(climbProtectionTimeout){clearTimeout(climbProtectionTimeout); climbProtectionTimeout = undefined;}  
+    if(checkClimbingDurationTimeout){clearTimeout(checkClimbingDurationTimeout); checkClimbingDurationTimeout = undefined;}
 
-mp.keys.bind(0x4A, false, () => {
+    if(taseProtectionTimer !== undefined){clearTimeout(taseProtectionTimer); taseProtectionTimer = undefined;}
 
-    if (mp.players.local.isInAnyVehicle(false) && chatStatus == false && Date.now() - lastChatToggle >= 500 && 
-        !menuToggled && !scoreboardToggled)
-    {
-        if(mp.players.local.vehicle.getClass() != 8 && mp.players.local.vehicle.model != mp.game.joaat('policeb')) 
-        { // NO BIKE FUCKERS ALLOWED CUZ YALL GOT "ANTI FALL OFF BIKE" SMH
-            mp.events.callRemote("OnScriptedKeyPress", 0x4A, true); // For toggling da sseeaattbbelltt
+    mp.events.callRemote("SetTaseProtection", false);
+
+    wasClimbingLastFrame = false;
+    climbProtectionState = -1;
+    if(reset_cooldown)
+        lastClimbProtectionTimestamp = 0;
+
+    climbProtectionEndTimestamp = 0;
+});
+// TASE PROTECTION
+var exitCarTime = 0;
+mp.events.add("playerEnterVehicle", (vehicle, seat) => {
+    if(player.getVariable("Team") == 0){
+        if(taseProtectionTimer !== undefined){
+            clearTimeout(taseProtectionTimer);
+            taseProtectionTimer = undefined;
+        }
+        if(player.getVariable("TaseProtection") == true){
+            mp.events.callRemote("SetTaseProtection", false);
+        }
+
+        if(vehicle.getVariable("Team") == 10 && vehicle.getVariable("Engine") == false){
+            vehicle.setEngineOn(false, true, true);
+        }
+    }
+});
+mp.events.add("playerLeaveVehicle", (vehicle, seat) => {
+    exitCarTime = Math.floor(Date.now() / 1000);
+    if(player.getVariable("Team") == 0){
+        if(taseProtectionTimer !== undefined){
+            clearTimeout(taseProtectionTimer);
+            taseProtectionTimer = undefined;
+        }
+        if(player.getVariable("TaseProtection") == false){
+            mp.events.callRemote("SetTaseProtection", true);
+            taseProtectionTimer = setTimeout(() => {
+                if(mp.players.local == null || mp.players.local == undefined || !mp.players.exists(mp.players.local)) return;
+           
+                mp.events.callRemote("SetTaseProtection", false);
+                clearTimeout(taseProtectionTimer);
+                taseProtectionTimer = undefined;
+            }, 5000);
+        }
+    }
+});
+// backup plan for tase protection to check 5s timer
+mp.events.add("OneSecondEvent", () => {
+    if(!player.isInAnyVehicle(false) && player.getVariable("Team") == 0 && player.getVariable("TaseProtection") == true){
+        let currentTimestamp = Math.floor(Date.now() / 1000);
+        if(currentTimestamp - exitCarTime >= 5){
+            mp.events.callRemote("SetTaseProtection", false);
+            clearTimeout(taseProtectionTimer);
+            taseProtectionTimer = undefined;
         }
     }
 });
 
+// mp.keys.bind(0x4A, false, () => {
+
+//     if (mp.players.local.isInAnyVehicle(false) && chatStatus == false && Date.now() - lastChatToggle >= 500 && 
+//         !menuToggled && !scoreboardToggled)
+//     {
+//         if(mp.players.local.vehicle.getClass() != 8 && mp.players.local.vehicle.model != mp.game.joaat('policeb')) 
+//         { // NO BIKE FUCKERS ALLOWED CUZ YALL GOT "ANTI FALL OFF BIKE" SMH
+//             mp.events.callRemote("OnScriptedKeyPress", 0x4A, true); // For toggling da sseeaattbbelltt
+//         }
+//     }
+// });
+
 let clearTaseAnimTimer = null;
 mp.events.add("clearTaseAnims", (time) => {
     clearTimeout(clearTaseAnimTimer);
-    pushMessageToChat("[>] You've been tased, the effect will last " + (time/1000) + " seconds before you can get up!");
+    mp.gui.chat.push("[>] You've been tased, the effect will last " + (time/1000) + " seconds before you can get up!");
     clearTaseAnimTimer = setTimeout(() => {
         mp.players.local.clearTasksImmediately();
     }, time);
 });
+
 
 mp.events.add('render', () => {
 
@@ -857,39 +1099,29 @@ mp.events.add('render', () => {
         FPS_Calc = Date.now();
     }
 
+    if(radioToggle != undefined && radioToggle == false){
+        if(mp.players.local.vehicle != null && mp.players.local.isInAnyVehicle(false)){
+            mp.game.invoke('0x1B9C0099CB942AC6', mp.players.local.vehicle.handle, 'OFF');
+        }
+    }
 
     if(mp.players.local.getVariable("Team") == 0){
-        if(mp.players.local.isInAnyVehicle(true)){
-            if(!wasInCar){
-
-                if(mp.players.local.getVariable("TaseProtection") == true){
-                    mp.events.callRemote("SetTaseProtection", false);
-                }
-            }
-            wasInCar = true;
-
-            if(taseProtectionTimer != null)
-            {
-                clearTimeout(taseProtectionTimer);
-                taseProtectionTimer = null;
-            }
-        }
-        else{
-            if(wasInCar == true){
-                wasInCar = false;
-                clearTimeout(taseProtectionTimer);
-
-                mp.events.callRemote("SetTaseProtection", true);
-                taseProtectionTimer = setTimeout(() => {
-                    if(mp.players.local == null || mp.players.local == undefined || !mp.players.exists(mp.players.local)) return;
-
-                    mp.events.callRemote("SetTaseProtection", false);
-                }, 5000);
+        if(mp.players.local.isInAnyVehicle(false) && mp.players.local.vehicle != null
+         && (mp.players.local.vehicle.getPedInSeat(-1) == mp.players.local.handle)){
+            if(mp.players.local.vehicle.getVariable("Team") == 10 && mp.players.local.vehicle.getVariable("Engine") == false){
+                mp.players.local.vehicle.setEngineOn(false, true, true);
             }
         }
     }
-    if(mp.players.local.getVariable("TaseProtection") == true && mp.players.local.getVariable("Team") != 0){
-        mp.events.callRemote("SetTaseProtection", false);
+
+    if(specState == true && specTarget != null){
+        if (mp.players.exists(specTarget)) 
+        {
+            mp.game.invoke("0x8BBACBF51DA047A8", specTarget.handle); //NETWORK_SET_IN_SPECTATOR_MODE
+        }
+        else{
+            mp.events.callLocal("StopSpectating");
+        }
     }
 
     if(mp.players.local.getVariable("pLogged") !== undefined && mp.players.local.getVariable("pLogged") == true)
@@ -914,8 +1146,8 @@ mp.events.add('render', () => {
                         if(Date.now() > AFOB_LastMessage)
                         {
                             AFOB_LastMessage = Date.now() + 60000;
-                            pushMessageToChat(`!{#FF6347}[!] !{#FFFFFF}Anti Fall Off Bike has put you back in the bike. To exit, press/spam F.`);
-                            //pushMessageToChat(`Setting into vehicle as last speed was ${AFOB_LastSpeed} under the limit ${AFOB_SpeedLimit}`);
+                            mp.gui.chat.push(`!{#FF6347}[!] !{#FFFFFF}Anti Fall Off Bike has put you back in the bike. To exit, press/spam F.`);
+                            //mp.gui.chat.push(`Setting into vehicle as last speed was ${AFOB_LastSpeed} under the limit ${AFOB_SpeedLimit}`);
                         }
                     }
                 }
@@ -954,7 +1186,7 @@ mp.events.add('render', () => {
                     {
                         Seatbelt_LastMessage = Date.now() + 5000;
                         mp.game.graphics.notify("~r~Seatbelt has prevented you from falling out.");
-                        //pushMessageToChat(`Setting into vehicle as last speed was ${AFOB_LastSpeed} under the limit ${AFOB_SpeedLimit}`);
+                        //mp.gui.chat.push(`Setting into vehicle as last speed was ${AFOB_LastSpeed} under the limit ${AFOB_SpeedLimit}`);
                     }
                 }
             }
@@ -983,75 +1215,88 @@ mp.events.add('render', () => {
         }
         else { mp.game.controls.enableControlAction(32, 257, true); }
 
-        if(mp.players.local.isClimbing()){
-            if(!isFirstClimb){ // just started climbing a ladder
-                isFirstClimb = true;
+        if(mp.players.local.isClimbing() && mp.players.local.getVariable("Team") >= 0){
+            if(!wasClimbingLastFrame){ // if he was not climbing last frame aka just started climbing
+                wasClimbingLastFrame = true; // it initiates a timeout for 2,5s
+                if(climbProtectionState == -1){
 
-                climbingStart = Date.now();
-            }
-            else{
-                let curTime = Math.round((new Date()).getTime() / 1000);
-                if(Date.now() - climbingStart >= 2500 && climbProtectionStage == 0) // if it's 100% a ladder
-                {
-                    climbingStart = curTime;
+                    let timestampSeconds =Math.floor(Date.now() / 1000);
+                    if(timestampSeconds - lastClimbProtectionTimestamp > 45) // if more than 45 seconds passed
+                    {
+                        if(checkClimbingDurationTimeout){clearTimeout(checkClimbingDurationTimeout); checkClimbingDurationTimeout = undefined;}
 
-                    if(curTime - lastClimbProtection > 45){
-                        
+                        checkClimbingDurationTimeout = setTimeout(() => {
+                            if(!mp.players.local || !mp.players.exists(mp.players.local) || !wasClimbingLastFrame){
+                                clearTimeout(checkClimbingDurationTimeout);
+                                return;
+                            }
 
-                        clearTimeout(climbProtectionTimer);
-                        mp.events.callRemote("ClimbProtection", 0);
-                    // mp.game.player.setInvincible(true);
-                    // mp.players.local.setInvincible(true);
-                        climbProtectionStage = 1;
+                            if(mp.players.local.isClimbing()){ // if still climbing after 2,5s [ladder], start protection
+                                // INITIATE CLIMB PROTECTION
+                                lastClimbProtectionTimestamp = timestampSeconds;
+                                mp.events.callRemote("ClimbProtection", 0);
+                                climbProtectionState = 0;
+                                if(climbProtectionTimeout){clearTimeout(climbProtectionTimeout); climbProtectionTimeout = undefined;}    
 
-                        
-                        let cProtectTime = (mp.players.local.Team == 0 ? 9000 : 18500);
-                        
-        
-                        climbProtectionTimer = setTimeout(() => {
-                            if(mp.players.local == null || mp.players.local == undefined || !mp.players.exists(mp.players.local)) return;
-                            //if(mp.players.local.Team != 0 && mp.players.local.Team != 1) return;
-                            if(climbProtectionStage == 2) return; // if the "short ladder protection" is active to prevent turning it off instantly
-                            
-                            lastClimbProtection = Math.round((new Date()).getTime() / 1000);
-                        // mp.game.player.setInvincible(false);
-                        // mp.players.local.setInvincible(false);        
-                            climbProtectionStage = 0
-                            mp.events.callRemote("ClimbProtection", -1);;        
-                            //mp.events.callRemote("ClimbProtection", 1);   
-                        }, cProtectTime);
+                                let protecttime = (mp.players.local.getVariable("Team") == 0 ? 9000 : 18500);
+
+                                climbProtectionEndTimestamp = Date.now() + protecttime;
+
+                                climbProtectionTimeout = setTimeout(() => {
+                                    if(!mp.players.local || !mp.players.exists(mp.players.local) || !wasClimbingLastFrame){
+                                        clearTimeout(climbProtectionTimeout);
+                                        return;
+                                    }
+
+                                    // If they camp on the ladder, finito, done, stop their godmode
+                                    mp.events.callRemote("ClimbProtection", -1);
+                                    // However, set this to 0 so it can still give them the short protection
+                                    climbProtectionState = 0;    
+                                    climbProtectionEndTimestamp = 0;
+
+                                    if(climbProtectionTimeout){clearTimeout(climbProtectionTimeout); climbProtectionTimeout = undefined;}                          
+                                }, protecttime);
+                            }
+                            if(checkClimbingDurationTimeout){clearTimeout(checkClimbingDurationTimeout); checkClimbingDurationTimeout = undefined;}
+                        }, 2500);
                     }
                 }
             }
         }
-        else if(!mp.players.local.isClimbing()){
-            if(isFirstClimb) isFirstClimb = false;
-            if(climbProtectionStage == 1){
+        else{ // if he stops climbing, and he was climbing last frame, clear the timeout immediately
+            if(wasClimbingLastFrame){ // this should hopefully make sure they dont get climb protection for fences and if they get down too soon
+                if(checkClimbingDurationTimeout){clearTimeout(checkClimbingDurationTimeout); checkClimbingDurationTimeout = undefined;}
+                wasClimbingLastFrame = false;
 
-                if(climbProtectionTimer != null){
-                    clearInterval(climbProtectionTimer);
+                if(climbProtectionState == -1){ /* if no climb protection is active do ??*/
                 }
+                else if(climbProtectionState == 0){ // if stage 0 [long protection] is active
+                    // ACTIVATING THE SHORT PROTECTION
+                    // step #1 = clear the long protection timer if there is one
+                    climbProtectionState = 1;
+                    if(climbProtectionTimeout){clearTimeout(climbProtectionTimeout); climbProtectionTimeout = undefined;}  
+                    
+                    // step #2 = activating that shit
+                    mp.events.callRemote("ClimbProtection", 1);
 
-                let cProtectTime = (mp.players.local.Team == 0 ? 2500 : 4000);
-                mp.events.callRemote("ClimbProtection", 1);
-                climbProtectionStage = 2;
+                    if(shortClimbProtectionTimeout){clearTimeout(shortClimbProtectionTimeout); shortClimbProtectionTimeout = undefined;}  
 
-                //mp.game.player.setInvincible(true);
-                //mp.players.local.setInvincible(true);  
+                    let protecttime = (mp.players.local.getVariable("Team") == 0 ? 2500 : 4000);
+                    climbProtectionEndTimestamp = Date.now() + protecttime;
+                    shortClimbProtectionTimeout = setTimeout(() => {
+                        if(!mp.players.local || !mp.players.exists(mp.players.local)){
+                            clearTimeout(shortClimbProtectionTimeout);
+                            return;
+                        }
 
-                climbProtectionTimer = setTimeout(() => {
-                    if(mp.players.local == null || mp.players.local == undefined || !mp.players.exists(mp.players.local)) return;
-                    //if(mp.players.local.Team != 0 && mp.players.local.Team != 1) return;
-                    if(climbProtectionStage == 1) return; // if long ladder protection is active to prevent activating it again
+                        mp.events.callRemote("ClimbProtection", -1);
+                        climbProtectionEndTimestamp = 0;
+                        climbProtectionState = -1;
 
-                   // mp.game.player.setInvincible(false);
-                   // mp.players.local.setInvincible(false);        
-                    climbProtectionStage = 0;    
-                    lastClimbProtection = Math.round((new Date()).getTime() / 1000);
-                    mp.events.callRemote("ClimbProtection", -1);    
-                }, cProtectTime);              
+                        if(shortClimbProtectionTimeout){clearTimeout(shortClimbProtectionTimeout); shortClimbProtectionTimeout = undefined;}  
+                    }, protecttime);
+                }
             }
-
         }
 
        /* if(mp.players.local.isClimbing())
@@ -1070,7 +1315,7 @@ mp.events.add('render', () => {
         }
         else if(!mp.players.local.isClimbing() && climbingStart != 0)
         {
-            //pushMessageToChat(`You were climbing for ${(Date.now() - climbingStart) / 1000}s`);
+            //mp.gui.chat.push(`You were climbing for ${(Date.now() - climbingStart) / 1000}s`);
             
             if(climbTrigger) mp.events.callRemote("ClimbProtection", 1); // Long time climb stop
 
@@ -1125,7 +1370,7 @@ mp.events.add('render', () => {
                                 {
                                     if(dbDisabledMsgLast < Date.now())
                                     {
-                                        pushMessageToChat(`!{#FF6347}[!] !{#FFFFFF}The driver does not want to engage in a driveby. Driver has to use /db to enable it again.`);
+                                        mp.gui.chat.push(`!{#FF6347}[!] !{#FFFFFF}The driver does not want to engage in a driveby. Driver has to use /db to enable it again.`);
                                         dbDisabledMsgLast = Date.now() + 10000;
                                     }
                                     dbDisabledMsg = true;
@@ -1163,11 +1408,6 @@ mp.events.add('render', () => {
 
             if(mp.players.local.getVariable("pLogged") !== undefined && mp.players.local.getVariable("pLogged") == true)
             {
-                if(player.isInAnyVehicle(false))
-                {
-                    if(!radioToggle && player.seat == -1) mp.game.invoke('0x1B9C0099CB942AC6', player.vehicle.handle, 'OFF');
-                }
-                if(!radioToggle && player.seat == -1) mp.game.audio.setRadioToStationName('OFF');
 
                 mp.events.callLocal("OneSecondEvent");
 
@@ -1257,7 +1497,7 @@ mp.events.add('render', () => {
                     }
                 });
 
-                if (specState == true && specCam !== null && specTarget !== null) {
+                if (specState == true && specTarget !== null) {
 
                     if (mp.players.exists(specTarget)) 
                     {
@@ -1277,7 +1517,6 @@ mp.events.add('render', () => {
                     }
                     else 
                     {
-                        specCam.setActive(false); 
                         specState = false;
                         mp.events.callLocal("StopSpectating");
                     }
@@ -1297,11 +1536,11 @@ mp.events.add('render', () => {
                         derbyText.visible = true;
                     }
 
-                    if(UIHud != null)
+                    if(ServerUI != null)
                     {
-                        UIHud.execute(`gm.gameProgress = ${mp.storage.data.menu.gameProgress};`);
-                        UIHud.execute(`gm.$refs.TopRight.$refs.GameProgress.title = "Derby Time";`);
-                        UIHud.execute(`gm.$refs.TopRight.$refs.GameProgress.time = ${derbyTimeCur};`);
+                        ServerUI.execute(`gm.$refs.hud.$refs.topRight.$refs.gameProgress.enabled = ${mp.storage.data.menu.gameProgress};`);
+                        ServerUI.execute(`gm.$refs.hud.$refs.topRight.$refs.gameProgress.title = "Derby Time";`);
+                        ServerUI.execute(`gm.$refs.hud.$refs.topRight.$refs.gameProgress.time = ${derbyTimeCur};`);
                     }
 
                     if(derbyCounting)
@@ -1332,7 +1571,7 @@ mp.events.add('render', () => {
 
                 traceLastFunc(`[Players] Update Chase Data1`);
 
-                if(UIHud != null && chaseRunning == true)
+                if(ServerUI != null && chaseRunning == true)
                 {
                     chaseTimeCur += 1;
 
@@ -1358,26 +1597,26 @@ mp.events.add('render', () => {
                     if(chaseTimeCur >= chaseTimeMax || chaseTimeCur <= -1)
                     {
                         chaseRunning = false;
-                        UIHud.execute(`gm.gameProgress = false;`);
+                        ServerUI.execute(`gm.$refs.hud.$refs.topRight.$refs.gameProgress.enabled = false;`);
                     }
                     else {
-                        UIHud.execute(`gm.gameProgress = ${mp.storage.data.menu.gameProgress};`);
+                        ServerUI.execute(`gm.$refs.hud.$refs.topRight.$refs.gameProgress.enabled = ${mp.storage.data.menu.gameProgress};`);
                         if(collisionTime > 0)
                         {
-                            UIHud.execute(`gm.$refs.TopRight.$refs.GameProgress.title = "Collisions";`);
-                            UIHud.execute(`gm.$refs.TopRight.$refs.GameProgress.time = ${collisionTime}`);
+                            ServerUI.execute(`gm.$refs.hud.$refs.topRight.$refs.gameProgress.title = "Collisions";`);
+                            ServerUI.execute(`gm.$refs.hud.$refs.topRight.$refs.gameProgress.time = ${collisionTime}`);
                         }
                         else 
                         {
-                            UIHud.execute(`gm.$refs.TopRight.$refs.GameProgress.title = "Time Left";`);
-                            UIHud.execute(`gm.$refs.TopRight.$refs.GameProgress.time = ${chaseTimeMax - chaseTimeCur}`);
+                            ServerUI.execute(`gm.$refs.hud.$refs.topRight.$refs.gameProgress.title = "Time Left";`);
+                            ServerUI.execute(`gm.$refs.hud.$refs.topRight.$refs.gameProgress.time = ${chaseTimeMax - chaseTimeCur}`);
                         }
                     }
                 }
 
                 traceLastFunc(`[Players] Update Chase Data2`);
 
-                if(chaseRunning == true && UIHud != null)
+                if(chaseRunning == true && ServerUI != null)
                 {
                     if(collisionTime > 0)
                     {
@@ -1608,6 +1847,7 @@ mp._events.add("playerWeaponShot", (targetPosition, targetEntity) =>
                             }
                         }
                     });
+                    if(mp.players.local.vehicle != undefined && mp.players.local.vehicle.handle == targetEntity.handle) breakShot = false;
 
                     if(vehicleOccupants == 0) breakShot = false;
 
@@ -1727,6 +1967,55 @@ mp._events.add('incomingDamage', (sourceEntity, sourcePlayer, targetEntity, weap
     {
         if(sourceEntity !== null && sourceEntity !== undefined && sourceEntity.type === 'player')
         {
+            let gunData = weaponData.find(w => Number(w.Hash) == weapon);
+            if(gunData != undefined && (gunData.Type == "Assault Rifles" || gunData.Type == "Machine Guns")){
+                let nerfedDmg = (damage-10);
+                damage = nerfedDmg;
+                mp.game.weapon.setCurrentDamageEventAmount(nerfedDmg);
+            }
+            else{
+                let nerfedDmg = (damage-5);
+                if(nerfedDmg <= 0) nerfedDmg = 1;
+                damage = nerfedDmg;
+                mp.game.weapon.setCurrentDamageEventAmount(nerfedDmg);
+            }
+       
+            if(weapon == 3800352039){ // assault shotgun nerf
+                const vec1 = sourceEntity.position;
+                const vec2 = targetEntity.position;
+
+                const distance = vec1.subtract(vec2).length();
+                if(distance < 9.2681523185659){
+                    damage = 10;
+                    mp.game.weapon.setCurrentDamageEventAmount(10);
+                }
+                else if(distance > 9.2681523185659 && distance < 19.267101852897){
+                    damage = 7;
+                    mp.game.weapon.setCurrentDamageEventAmount(7);
+                }
+                else{
+                    damage = 0;
+                    mp.game.weapon.setCurrentDamageEventAmount(0);
+                }
+            }
+            else if(weapon == 984333226){  // heavy shotgun nerf - shoots 1 pellet so it gets more dmg
+                const vec1 = sourceEntity.position;
+                const vec2 = targetEntity.position;
+
+                const distance = vec1.subtract(vec2).length();
+                if(distance < 9.2681523185659){
+                    damage = 37;
+                    mp.game.weapon.setCurrentDamageEventAmount(37);
+                }
+                else if(distance > 9.2681523185659 && distance < 19.267101852897){
+                    damage = 28;
+                    mp.game.weapon.setCurrentDamageEventAmount(28);
+                }
+                else{
+                    damage = 0;
+                    mp.game.weapon.setCurrentDamageEventAmount(0);
+                }
+            }
 
             if(weapon == 911657153 && targetEntity.isInAnyVehicle(false)) return true; // Disable stun if in car.
 
@@ -1784,6 +2073,13 @@ mp._events.add('incomingDamage', (sourceEntity, sourcePlayer, targetEntity, weap
                     }
                 }
             }
+        }
+    }
+    else if(targetEntity !== null && targetEntity !== undefined && targetEntity.type === 'vehicle'){
+        if(sourceEntity !== null && sourceEntity !== undefined && sourceEntity.type === 'player'){
+            let nerfedDmg = Math.floor(damage/2);
+            damage = nerfedDmg;
+            mp.game.weapon.setCurrentDamageEventAmount(nerfedDmg);
         }
     }
 });
@@ -1948,7 +2244,6 @@ mp.events.add('setWounded', (state, idToPass) =>
         mp.events.callLocal("ResetWounded");
     }
 
-    mp.events.callRemote("ServerConsoleOutput", `calling cs->ss SetPlayerWounded(${state}, ${idToPass}) for ${mp.players.local.name}`);
     mp.events.callRemote("SetPlayerWounded", state, idToPass);
 });
 
@@ -2069,11 +2364,61 @@ function isMeleeWeapon(weapon){
 }
 
 mp._events.add("outgoingDamage", (sourceEntity, targetEntity, targetPlayer, weapon, boneIndex, damage) => {
-    if(sourceEntity !== undefined && sourceEntity !== null && sourceEntity.type === 'player' && sourceEntity == player && player.getVariable("Team") != -1)
+    if(sourceEntity !== undefined && sourceEntity !== null && sourceEntity.type === 'player' && sourceEntity == player)
     {
         if(targetEntity !== undefined && targetEntity !== null && targetEntity.type === 'player')
         {
             if(sourceEntity.getVariable("ClimbProtection") == true || targetEntity.getVariable("ClimbProtection") == true) return true;
+
+            let gunData = weaponData.find(w => Number(w.Hash) == weapon);
+            if(gunData != undefined && (gunData.Type == "Assault Rifles" || gunData.Type == "Machine Guns")){
+                let nerfedDmg = (damage-10);
+                damage = nerfedDmg;
+                mp.game.weapon.setCurrentDamageEventAmount(nerfedDmg);
+            }
+            else{
+                let nerfedDmg = (damage-5);
+                if(nerfedDmg <= 0) nerfedDmg = 1;
+                damage = nerfedDmg;
+                mp.game.weapon.setCurrentDamageEventAmount(nerfedDmg);
+            }
+
+            if(weapon == 3800352039){ // assault shotgun nerf
+                const vec1 = sourceEntity.position;
+                const vec2 = targetEntity.position;
+
+                const distance = vec1.subtract(vec2).length();
+                if(distance < 9.2681523185659){
+                    damage = 10;
+                    mp.game.weapon.setCurrentDamageEventAmount(10);
+                }
+                else if(distance > 9.2681523185659 && distance < 19.267101852897){
+                    damage = 7;
+                    mp.game.weapon.setCurrentDamageEventAmount(7);
+                }
+                else{
+                    damage = 0;
+                    mp.game.weapon.setCurrentDamageEventAmount(0);
+                }
+            }
+            else if(weapon == 984333226){  // heavy shotgun nerf - shoots 1 pellet so it gets more dmg
+                const vec1 = sourceEntity.position;
+                const vec2 = targetEntity.position;
+
+                const distance = vec1.subtract(vec2).length();
+                if(distance < 9.2681523185659){
+                    damage = 37;
+                    mp.game.weapon.setCurrentDamageEventAmount(37);
+                }
+                else if(distance > 9.2681523185659 && distance < 19.267101852897){
+                    damage = 28;
+                    mp.game.weapon.setCurrentDamageEventAmount(28);
+                }
+                else{
+                    damage = 0;
+                    mp.game.weapon.setCurrentDamageEventAmount(0);
+                }
+            }
 
             if(targetEntity.getVariable("Team") != -1 && player.getVariable("Team") != -1)
             {
@@ -2163,6 +2508,8 @@ mp._events.add("outgoingDamage", (sourceEntity, targetEntity, targetPlayer, weap
                         }
                     });
 
+                    if(mp.players.local.vehicle != undefined && mp.players.local.vehicle.handle == targetEntity.handle) breakShot = false;
+
                     if(vehicleOccupants == 0) breakShot = false;
 
                     if(breakShot) mp.game.graphics.notify("~r~Do not teamkill!");
@@ -2195,6 +2542,13 @@ mp._events.add("outgoingDamage", (sourceEntity, targetEntity, targetPlayer, weap
             }
         }
     }
+    else if(targetEntity !== null && targetEntity !== undefined && targetEntity.type === 'vehicle'){
+        if(sourceEntity !== null && sourceEntity !== undefined && sourceEntity.type === 'player' && sourceEntity == player){
+            let nerfedDmg = Math.floor(damage/2);
+            damage = nerfedDmg;
+            mp.game.weapon.setCurrentDamageEventAmount(nerfedDmg);
+        }
+    }
 });
 
 mp.events.add("entplayanim", (entity, animDictionary, animName, animFlag, speed = 8.0, speedMul = 0.0, duration = -1, playbackRate = 0.0, lockX = false, lockY = false, lockZ = false) => {
@@ -2225,6 +2579,7 @@ mp.events.add("entcleartasks", (entity, immediately) => {
 
 function resolvePlayAnim(entity, animDictionary, animName, animFlag, speed = 8.0, speedMul = 0.0, duration = -1, playbackRate = 0.0, lockX = false, lockY = false, lockZ = false)
 {
+    if(entity == null || !entity.doesExist()) return;
 	entity.taskPlayAnim(animDictionary, animName, speed, speedMul, duration, animFlag, playbackRate, lockX, lockY, lockZ);
 }
 
@@ -2273,6 +2628,22 @@ mp.events.add('native:call', (nativeName, args, hasCallback) => {
     }
 });
 
+
+mp.events.add("PopVehicleTires", () => {
+    let vehicle = mp.players.local.vehicle;
+    if(!vehicle) return;
+    vehicle.setTyreBurst(0, false, 1000);
+    vehicle.setTyreBurst(1, false, 1000);
+    vehicle.setTyreBurst(4, false, 1000);
+    vehicle.setTyreBurst(5, false, 1000);
+    mp.game.audio.playSoundFrontend(-1, 'Drill_Pin_Break', 'DLC_HEIST_FLEECA_SOUNDSET', true);
+    // vehicle.setBurnout(true);
+    // setTimeout(_ => {
+    //     if(vehicle)
+    //         vehicle.setBurnout(false);
+    // }, 500);
+});
+
 mp.events.add(
 {
     "GetGroundZ": (px, py, pz, dimension, returnEvent) => {
@@ -2312,8 +2683,8 @@ mp.events.add(
 
         mp.storage.flush();
 
-        if(!radioToggle) pushMessageToChat("!{#FF6347}[!] !{#FFFFFF}Vehicle radio toggled OFF.");
-        else pushMessageToChat("!{#FF6347}[!] !{#FFFFFF}Vehicle radio toggled ON.");
+        if(!radioToggle) mp.gui.chat.push("!{#FF6347}[!] !{#FFFFFF}Vehicle radio toggled OFF.");
+        else mp.gui.chat.push("!{#FF6347}[!] !{#FFFFFF}Vehicle radio toggled ON.");
     },
     "SetInVehEx": (vehicle, vehseat) => {
         mp.players.local.setIntoVehicle(vehicle.handle, vehseat);
@@ -2426,24 +2797,8 @@ mp.events.add(
         }
     },
     "SpectatePlayer": (target) => {
-
-        if(specCam != null)
-        {
-            specCam.setActive(false);
-            specCam.destroy();
-            specCam = null;
-        }
-
-        specTarget = target;
-
-        mp.game.cam.renderScriptCams(false, false, 0, true, false);
-
-        specCam = mp.cameras.new('default', target.position, new mp.Vector3(0, 0, target.getHeading()), target.isInAnyVehicle(false) ? 80 : 60);
-        specCam.attachTo(target.handle, 0, target.isInAnyVehicle(false) ? -6 : -5, target.isInAnyVehicle(false) ? 3 : 1, true);
-        specCam.setActive(true);
-
-        mp.game.cam.renderScriptCams(true, false, 0, true, false);
-
+     
+        specTarget = target;   
         specState = true;
     },
 
@@ -2457,20 +2812,14 @@ mp.events.add(
     "PlayMissionComplete": (type) => {
         mp.game.audio.playMissionCompleteAudio(type);
     },
+    "PlaySoundFrontend": (soundName, setName) => {
+        mp.game.audio.playSoundFrontend(-1, soundName, setName, true);
+    },
 
     "StopSpectating": () => {
-
+        mp.game.invoke("0x423DE3854BB50894", false, mp.players.local.handle); //NETWORK_SET_IN_SPECTATOR_MODE
         specTarget = null;
         specState = false;
-
-        mp.game.cam.renderScriptCams(false, false, 0, true, false);
-
-        if(specCam != null)
-        {
-            specCam.setActive(false);
-            specCam.destroy();
-            specCam = null;
-        }
     },
 
     "setToRagdoll": (time1, time2, ragdollType, p4, p5, p6) => {
@@ -2511,7 +2860,7 @@ mp.events.add(
     },
 
     "HideChaseTimer": () => {
-        if(UIHud != null) UIHud.execute(`gm.gameProgress = false;`);
+        if(ServerUI != null) ServerUI.execute(`gm.$refs.hud.$refs.topRight.$refs.gameProgress.enabled = false;`);
         chaseRunning = false;
     },
 
@@ -2554,7 +2903,7 @@ mp.events.add(
 
     "InitChaseTimer": () => {
         
-        if(UIHud != null) UIHud.execute(`gm.gameProgress = false;`);
+        if(ServerUI != null) ServerUI.execute(`gm.$refs.hud.$refs.topRight.$refs.gameProgress.enabled = false;`);
 
         if(derbyText == null)
         {
@@ -2581,14 +2930,30 @@ mp.events.add(
         createCam(x, y, z, rx, ry, rz, viewangle, moveable);
     },
 
+    "MovePlayerCamera": (x, y, z, rx, ry, rz, time, hz1, hz2) => {
+        moveCam(x, y, z, rx, ry, rz, time, hz1, hz2);
+    },
+
     "SetDiscordStatus": (serverName, status) => {
         mp.discord.update(serverName, status);
     },
 
     "playerReady": (player) => {
         setTimeout(() => {
+            /*
             loginBrowser = mp.browsers.new("package://LoginRegister/index.html"); // Right on connect so it doesn't overlay the notifications.
             loginBrowser.active = false;
+            */
+            ServerUI = mp.browsers.new("package://ServerUI/index.html");
+            ServerUI.active = false;
+            LastKeyPress = Date.now();
+            AFKStage = 0;
+            antiAFKActive = false;
+            mp.gui.chat.show(false);
+            //mp.gui.chat.activate(false);
+            setTimeout(() => {
+                ServerUI.markAsChat();
+            }, 250);
         }, 1000);
 
 
@@ -2617,19 +2982,109 @@ mp.events.add("OnPlayerLoginRegister", () => {
     }
 
     setTimeout(() => {
+        InitializeMDC();
+    }, 300);
+    setTimeout(() => {
+        InitializeWeaponEditor();
+    }, 350);
+    setTimeout(() => {
+        InitializeHotwireDOM();
+        AddCustomVehiclesToSpawner()
+    }, 400);
+    setTimeout(() => {
+        InitializeClothingEditorDOM();
+    }, 450);
+
+    setTimeout(() => {
         focusChat(false);
     }, 250);
 });
+
 
 mp.events.add("setVoiceModeMenu", (value) => {
     mp.storage.data.menu.VoiceMode = value;
 });
 
+const animDict = "MP_SUICIDE";
+const fireActionHash = mp.game.joaat("Fire");
+
+let animCheckerHandle = undefined;
+let shotFired = false;
+
+function destroyAnimChecker() {
+    animCheckerHandle.destroy();
+    animCheckerHandle = undefined;
+}
+
+mp.events.add("Suicide_ApplyAnimation", (animName, animTime) => {
+    if (player.handle) {
+        mp.game.streaming.requestAnimDict(animDict);
+        while (!mp.game.streaming.hasAnimDictLoaded(animDict)) mp.game.wait(0);
+        player.taskPlayAnim(animDict, animName, 8.0, 0.0, -1, 0, 0.0, false, false, false);
+  
+        shotFired = false;
+        if (animCheckerHandle) destroyAnimChecker();
+
+        animCheckerHandle = new mp.Event("render", () => {
+            if (player.isPlayingAnim(animDict, animName, 3)) {
+                if (animName === "PISTOL" && !shotFired && player.hasAnimEventFired(fireActionHash)) {
+                    shotFired = true;
+                    mp.game.invoke("0x96A05E4FB321B1BA", player.handle, 0.0, 0.0, 0.0, false); // SET_PED_SHOOTS_AT_COORD
+                }
+
+                if (player.getAnimCurrentTime(animDict, animName) >= animTime) {
+                    destroyAnimChecker();
+                    mp.events.callRemote("Suicide_Kill");
+                }
+            } else {
+                destroyAnimChecker();
+            }
+        });
+        
+    }
+});
+
 function setStorageDataVars(){
+
+    if(mp.storage.data.menu == undefined) mp.storage.data.menu = {};
 
     LastKeyPress = Date.now();
     AFKStage = 0;
+    antiAFKActive = true;
 
+    if(mp.storage.data.chat == undefined){
+        mp.storage.data.chat = {};
+        mp.storage.data.chat.timestamp = false;
+        mp.storage.data.chat.pagesize = 18;
+        mp.storage.data.chat.fontsize = 0.9;
+    }
+    if(mp.storage.data.chat.timestamp !== undefined){    
+        ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.chat.settings.timeStamp = ${mp.storage.data.chat.timestamp.toString()}`);
+    }
+    else{
+        mp.storage.data.chat.timestamp = false;
+        ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.chat.settings.timeStamp = false;`);
+    }
+    if(mp.storage.data.menu.loadingscreens === undefined){
+        mp.storage.data.menu.loadingscreens = true;
+    }
+    if(mp.storage.data.chat.pagesize !== undefined){    
+        ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.chat.settings.pageSize = ${mp.storage.data.chat.pagesize}`);
+    }
+    else{
+        mp.storage.data.chat.pagesize = 18;
+        ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.chat.settings.pageSize = 18;`);
+    }
+    if(mp.storage.data.chat.fontsize !== undefined){    
+        ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.chat.settings.fontSize = ${mp.storage.data.chat.fontsize}`);
+    }
+    else{
+        mp.storage.data.chat.fontsize = 0.9;
+        ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.chat.settings.fontSize = 0.9;`);
+    }
+    if(mp.storage.data.menu.Speedo == undefined){
+        mp.storage.data.menu.Speedo = true;
+    }
     if(mp.storage.data.menu.OOCauto !== undefined){
         autoOOC = mp.storage.data.menu.OOCauto;
         mp.events.callRemote("SetAutoOOC", autoOOC);
@@ -2657,11 +3112,11 @@ function setStorageDataVars(){
     if(mp.storage.data.menu.ShowInactiveChat == undefined){
         mp.storage.data.menu.ShowInactiveChat = true;
     }
-    if(mp.storage.data.menu.CameraSwitch == undefined){
-        mp.storage.data.menu.CameraSwitch = true;
-    }
     if(mp.storage.data.menu.AutoLogin == undefined){
         mp.storage.data.menu.AutoLogin = true;
+    }
+    if(mp.storage.data.menu.RealtimeSpeedo == undefined){
+        mp.storage.data.menu.RealtimeSpeedo = false;
     }
 
     if(mp.storage.data.menu.EventMusic !== undefined){
@@ -2673,13 +3128,13 @@ function setStorageDataVars(){
     }
 
     if(mp.storage.data.menu.monitoring !== undefined){
-        if(UIHud != undefined && UIHud != null)
-            UIHud.execute(`gm.$refs.TopRight.$refs.Info.monitor = ${mp.storage.data.menu.monitoring}`);
+        if(ServerUI != undefined && ServerUI != null)
+            ServerUI.execute(`gm.$refs.hud.$refs.topRight.$refs.info.monitorEnabled = ${mp.storage.data.menu.monitoring}`);
     }
     else{
         mp.storage.data.menu.monitoring = false;
-        if(UIHud != undefined && UIHud != null)
-            UIHud.execute(`gm.$refs.TopRight.$refs.Info.monitor = false;`);
+        if(ServerUI != undefined && ServerUI != null)
+            ServerUI.execute(`gm.$refs.hud.$refs.topRight.$refs.info.monitorEnabled = false;`);
     }
 
     if(mp.storage.data.menu.VoiceMode !== undefined){
@@ -2691,26 +3146,12 @@ function setStorageDataVars(){
         mp.events.callRemote("SetVoiceMode", 0, false);
     }
 
-    if(mp.storage.data.menu.CustomCrosshair !== undefined){
-        showCustomCrosshair = mp.storage.data.menu.CustomCrosshair;
+    if(mp.storage.data.menu.tooltips !== undefined){
+        ServerUI.execute(`gm.$refs.hud.$refs.topRight.$refs.tooltips.enabled = ${mp.storage.data.menu.tooltips.toString()}`);
     }
     else{
-        showCustomCrosshair = false;
-        mp.storage.data.menu.CustomCrosshair = false;
-    }
-    if(mp.storage.data.menu.AlwaysOnCrosshair !== undefined){
-        alwaysShowCustomCrosshair = mp.storage.data.menu.AlwaysOnCrosshair;
-    }
-    else{
-        alwaysShowCustomCrosshair = false;
-        mp.storage.data.AlwaysOnCrosshair = false;
-    }
-    if(mp.storage.data.menu.SniperCustomCrosshair !== undefined){
-        showCustomCrosshairInSniper = mp.storage.data.menu.SniperCustomCrosshair;
-    }
-    else{
-        showCustomCrosshairInSniper = false;
-        mp.storage.data.menu.SniperCustomCrosshair = false;
+        ServerUI.execute(`gm.$refs.hud.$refs.topRight.$refs.tooltips.enabled = true`);
+        mp.storage.data.menu.tooltips = true;
     }
 
     mp.events.callLocal("LoadCrosshair");

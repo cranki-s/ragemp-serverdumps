@@ -14,7 +14,7 @@ mp.events.add('Language:Change', (data) => {
     }
 });
 mp.events.add('Language:Non-Pressed', (data) => {
-    NexusEvent.callRemote('Language:Non-Pressed', data);
+    NewEvent.callRemote('Language:Non-Pressed', data);
 });
 
 let NonPressed = [];
@@ -24,7 +24,7 @@ global.GetText = function(text){
         if(!global.getlocales[text]){
             NonPressed.push(text);
             if(!NonPressed.includes(text)) 
-            NexusEvent.callRemote('Language:Non-Pressed', text);
+            NewEvent.callRemote('Language:Non-Pressed', text);
             return "Non-Pressed: "+text;
         }
         return global.getlocales[text][global.Language];        

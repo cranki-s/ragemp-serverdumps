@@ -1,23 +1,23 @@
 {
-global.FarmBrowser = null;
-mp.events.add('Farm:CreateBrowser',()=>{
-    if(FarmBrowser == null){
-        FarmBrowser = mp.browsers.new('http://package/systems/jobs/farm/FRONT/index.html');
-        FarmBrowser.name = 'nexusbrowser';
-        FarmBrowser.execute(`app.locale='${global.Language}'`);
-        global.menuOpen();
-    }
+let lumberjack;
+mp.events.add('LumberJack:StartGame', () => {
+	if(lumberjack == null){ lumberjack = mp.browsers.new('http://package/systems/jobs/lumberjack/FRONT/index.html');
+	lumberjack.name = 'nexusbrowser';
+}
+	lumberjack.execute(`lumberjsck.locale='${global.Language}'`)
+	global.menuOpen();
 });
-mp.events.add('Farm:BrowserExecute',(params)=>{
-    if(FarmBrowser != null){
-        FarmBrowser.execute(`${params}`)
-    }
+
+
+mp.events.add('LumberJack:statusGame',(status)=>{
+	global.menuClose();
+	NewEvent.callRemote('LumberJack:statusGame', status);
+	lumberjack.destroy();
+	lumberjack = null;	
 });
-mp.events.add('Farm:DestroyBrowser',()=>{
-    if(FarmBrowser != null){
-        global.menuClose();
-        FarmBrowser.destroy();
-        FarmBrowser = null;
-    }
-});
+
+mp.events.add('LumberJack.CutTree', ()=>{
+	global.editing = true;
+	setTimeout(()=>{global.editing = false;}, 7500);
+})
 }

@@ -62,7 +62,7 @@ mp.events.add('openDialog', (c, q) => {
 mp.events.add('dialogCallback', (state) => {
     mp.gui.cursor.visible = false;
     global.menuOpened = false;
-    NexusEvent.callRemote('dialogCallback', global.dialog.cBack, state);
+    NewEvent.callRemote('dialogCallback', global.dialog.cBack, state);
 })
 // // // // //
 global.input = {
@@ -92,7 +92,7 @@ mp.events.add('input', (text) => {
     if (input.cBack == "setCruise")
         mp.events.call('setCruiseSpeed', text);
     else 
-        NexusEvent.callRemote('inputCallback', input.cBack, text);
+        NewEvent.callRemote('inputCallback', input.cBack, text);
     input.cBack = "";
     input.close();
 });
@@ -206,30 +206,30 @@ mp.events.add('testdriveAuto', () => {
     global.menuClose();
     global.menu.execute('auto.active=0');
 
-    NexusEvent.callRemote('carroomTestDrive', auto.model, colors[auto.color][0], colors[auto.color][1], colors[auto.color][2],colors[auto.extra][0], colors[auto.extra][1], colors[auto.extra][2]);
+    NewEvent.callRemote('carroomTestDrive', auto.model, colors[auto.color][0], colors[auto.color][1], colors[auto.color][2],colors[auto.extra][0], colors[auto.extra][1], colors[auto.extra][2]);
 })
 mp.events.add('auto', (act, value) => {	
     switch (act) {
         case "model":
             if(auto.model==autoModels[value]) return;
             auto.model = autoModels[value];
-            NexusEvent.callRemote('createlveh', autoModels[value], colors[auto.color][0], colors[auto.color][1], colors[auto.color][2],colors[auto.extra][0], colors[auto.extra][1], colors[auto.extra][2], -1798.99, -1176.389, 13.01753);
+            NewEvent.callRemote('createlveh', autoModels[value], colors[auto.color][0], colors[auto.color][1], colors[auto.color][2],colors[auto.extra][0], colors[auto.extra][1], colors[auto.extra][2], -1798.99, -1176.389, 13.01753);
             break;
         case "color":
             auto.color = autoColors[value];
-            NexusEvent.callRemote('vehchangecolor','prime', colors[auto.color][0], colors[auto.color][1], colors[auto.color][2],);
+            NewEvent.callRemote('vehchangecolor','prime', colors[auto.color][0], colors[auto.color][1], colors[auto.color][2],);
             break;
         case "extra":
             auto.extra = autoColors[value];
-            NexusEvent.callRemote('vehchangecolor','sec', colors[auto.extra][0], colors[auto.extra][1], colors[auto.extra][2]);
+            NewEvent.callRemote('vehchangecolor','sec', colors[auto.extra][0], colors[auto.extra][1], colors[auto.extra][2]);
             break;
     }
 });
 mp.events.add('CarRoom:BuyVehicle', (money, type) => {
     if (global.QuestShop) {
-        NexusEvent.callRemote('QuestShop:Buy', "car", auto.model, auto.color, auto.extra);
+        NewEvent.callRemote('QuestShop:Buy', "car", auto.model, auto.color, auto.extra);
     } else {
-        NexusEvent.callRemote('carroomBuy', auto.model, auto.color, auto.extra, money, type);
+        NewEvent.callRemote('carroomBuy', auto.model, auto.color, auto.extra, money, type);
     }
     mp.events.call('CarRoom:Close')
 })
@@ -244,7 +244,7 @@ mp.events.add('CarRoom:Close', () => {
     if (global.QuestShop) {
         global.QuestShop = false;
     }
-    NexusEvent.callRemote('carroomCancel');
+    NewEvent.callRemote('carroomCancel');
     updateGameTime = true;
     cameraRotator.stop();
     if (auto.entity == null) return;
@@ -293,7 +293,7 @@ mp.events.add('openAuto', (models, prices,names,salon,money,moneyb,maxcapacity,v
     global.menu.execute(`auto.tunpotential=${JSON.stringify(tunpotential)}`);
     global.menu.execute(`auto.sofspeed=${JSON.stringify(sofspeed)}`);
 	global.menu.execute(`auto.fuel=${fuelmax}`);
-    NexusEvent.callRemote('createlveh', autoModels[0], 0, 0, 0, 0, 0, 0, -1798.99, -1176.389, 13.01753);
+    NewEvent.callRemote('createlveh', autoModels[0], 0, 0, 0, 0, 0, 0, -1798.99, -1176.389, 13.01753);
     auto.color = "Черный";
     auto.extra = "Черный";
     auto.model = autoModels[0];

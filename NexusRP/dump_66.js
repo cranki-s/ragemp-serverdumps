@@ -1,142 +1,185 @@
 {
-let calls = []
-let battuelist = [];
-let contolsBrowser;
-let TabletType;
-mp.events.add('Tablet:OpenCallTab', (tablettype) => {
-    calls.forEach(x => {
-        let dist = mp.game.system.vdist(x.position.x, x.position.y, 0, mp.players.local.position.x, mp.players.local.position.y, 0);
-        let i = dist.toFixed(0);
-        x.distance = +i;
+let HouseMenu;
+let insideHouse = false;
+let mainInfo = {}
+let actions = [
+    {
+        id: 'openDoor',
+        img: 'door',
+        title: 'Открытие/закрытие <br> дверей вашего дома',
+        type: 'value',
+        value: 'открыта',
+        content: 'Дверь:',
+    },
+    {
+        id: 'openCupboard',
+        img: 'cupboard',
+        title: 'Открытие/закрытие <br> шкафа в вашем доме',
+        type: 'value',
+        value: 'закрыт',
+        content: 'Шкаф:'
+    },
+    {
+        id: 'addRommates',
+        img: 'roommates',
+        title: 'Подселение сожителей <br> в ваш дом',
+        type: 'default',
+        content: 'Пригласить'
+    },
+    {
+        id: 'sellHouse',
+        img: 'selling',
+        title: 'Продажа вашего дома <br> государству',
+        type: 'default',
+        content: 'Продать'
+    }
+]
+let roommates = []
+let vehicles = []
+mp.keys.bind(Keys.VK_F2, false, function () { // F2 Key
+    if(!insideHouse)return;
+    if(HouseMenu!=null){
+        mp.events.call('Controls-House:DestroyBrowser');
+        return;
+    }
+    if (!global.loggedin || global.chatActive || editing || global.menuCheck() || mp.game.ui.isPauseMenuActive() || cuffed || global.localplayer.getVariable('InDeath') == true || localplayer.getVariable('INVISIBLE') == true ) return;
+    NewEvent.callRemote('House:OpenPad');
     });
-    TabletType = tablettype
-    globalThis.browser.open();
-    globalThis.browser.execute(`App.$router.push(${JSON.stringify({ path: `/tablet/PoliceFBI/${tablettype}/calls` })})`);
-    mp.gui.cursor.visible = true;
-    global.menuOpened = true;
-}),
-mp.events.add('Tablet:PlayerLoad', (Calls) => {
-    if(loggedin) globalThis.browser.execute(`AppData.commit('stateTablet/setCalls',${Calls})`);
-}),
-mp.events.add('Tablet:PlayerUnLoad', () => {
-    globalThis.browser.execute(`AppData.commit('stateTablet/clearCalls')`);
-}),
-mp.events.add('Tablet:AddNewCall', (call) => {
-    globalThis.browser.execute(`AppData.commit('stateTablet/addCall',${call})`);
-}),
-mp.events.add('Tablet:UpdateCall', (call) => {
-    globalThis.browser.execute(`AppData.commit('stateTablet/updateCall',${call})`);
-}),
-mp.events.add('Tablet:DeleteCall', (callID) => {
-    globalThis.browser.execute(`AppData.commit('stateTablet/removeCall',${callID})`);
+
+mp.events.add('House:OwnerIn',()=>{
+    insideHouse = true;
+    mp.events.call('Hud.InfoButtons.Add', JSON.stringify(['f2']), 'Управление домом');
 });
 
-mp.events.add('Tablet:SearchHuman', (name) => {
-    NexusEvent.callRemote('Tablet:SearchHuman', name)
-});
-mp.events.add('Tablet:SearchHumanCallBack', (status,human) => {
-    if(status)globalThis.browser.execute(`RPC.resolve('Tablet:SearchHuman',${human})`);
-    else globalThis.browser.execute(`RPC.reject('Tablet:SearchHuman')`);
+mp.events.add('House:OwnerOut',()=>{
+    insideHouse = false;
+    mp.events.call('Hud.InfoButtons.Remove', JSON.stringify(['f2']), 'Управление домом');
 });
 
-mp.events.add('Tablet:SearchVehicle', (number) => {
-    NexusEvent.callRemote('Tablet:SearchVehicle', number);
-});
-mp.events.add('Tablet:SearchVehicleCallBack', (vehicle) => {
-    globalThis.browser.execute(`RPC.resolve('Tablet:SearchVehicle',${vehicle})`);
-});
+mp.events.add('Controls:OpenHousePad',(doorStatus,cupboardStatus, houseInfo, roommateJson, vehiclesJson)=>{
+    if (HouseMenu == null){
+        HouseMenu = mp.browsers.new('http://package/systems/GLOBAL/FRONT/controls.html');
+        HouseMenu.name = 'nexusbrowser';
+        HouseMenu.execute(`window.locale ='${global.Language}'`)
+        HouseMenu.execute(`openInterface('house')`); 
+        global.menuOpen();  
+    }
+    mainInfo = JSON.parse(houseInfo);
+    roommates = JSON.parse(roommateJson);
+    vehicles = JSON.parse(vehiclesJson);
 
-mp.events.add('Tablet:SetClassifyHuman', (name) => {
-    NexusEvent.callRemote('Tablet:SetClassifyHuman', name);
-});
-mp.events.add('Tablet:SetClassifyHumanCallback', (status) => {
-    globalThis.browser.execute(`RPC.resolve('Tablet:SetClassifyHuman',${status})`);
-});
+    actions.find(x=>x.id==='openDoor').value = doorStatus;
+    actions.find(x=>x.id==='openCupboard').value = cupboardStatus;
 
-mp.events.add('Tablet:CloseBrowser', () => {
-    mp.gui.cursor.visible = false;
-    global.menuOpened = false;
-});
-
-mp.events.add('Tablet:OpenCode', () => {
-    NexusEvent.callRemote('Tablet:OpenCode');
-});
-mp.events.add('Tablet:OpenCodeCallBack', (status) => {
-    let a = status ? `window.RPC.resolve('Tablet:OpenCode')` : `window.RPC.reject('Tablet:OpenCode')`;
-    globalThis.browser.execute(`${a}`);
-});
-
-mp.events.add('Tablet:SendCode', (type) => {
-    NexusEvent.callRemote('Tablet:SendCode', type);
-});
-mp.events.add('Tablet:SendCodeCallBack', (status) => {
-    let a = status ? `window.RPC.resolve('Tablet:SendCode')` : `window.RPC.reject('Tablet:SendCode')`;
-    globalThis.browser.execute(`${a}`);
-});
-
-mp.events.add('Tablet:OpenStars', () => {
-    NexusEvent.callRemote('Tablet:OpenStars');
-});
-mp.events.add('Tablet:OpenStarsCallBack', (status) => {
-    let a = status ? `window.RPC.resolve('Tablet:OpenStars')` : `window.RPC.reject('Tablet:OpenStars')`;
-    globalThis.browser.execute(`${a}`);
-});
-mp.events.add('Tablet:SetStars',(name, newstars, articles)=>{
-    NexusEvent.callRemote('Tablet:SetStars',name, newstars, articles);
+    HouseMenu.execute(`controls.openInteraction(${JSON.stringify(actions)},${houseInfo})`);
 })
-mp.events.add('Tablet:SetStarsCallBack',(status)=>{
-    let a = status ? `window.RPC.resolve('Tablet:SetStars')` : `window.RPC.reject('Tablet:SetStars')`;
-    globalThis.browser.execute(`${a}`);
+mp.events.add('Controls-House:SetNavigationTab',(route)=>{
+    if(route === 'interactions'){
+        HouseMenu.execute(`controls.openInteraction(${JSON.stringify(actions)},${JSON.stringify(mainInfo)})`);
+    }
+    if(route === 'roommates'){
+        HouseMenu.execute(`controls.openRoommates(${JSON.stringify(roommates)},${roommates.length})`);
+    }
+    if(route === 'vehicles'){
+        HouseMenu.execute(`controls.openVehicles(${JSON.stringify(vehicles)},${JSON.stringify({restore:300,evacuate:200})})`);
+    }
+    if(route==='interiors'){
+        HouseMenu.execute(`controls.openInteriors()`);
+    }
+})
+mp.events.add('Controls-House:DestroyBrowser',()=>{
+    if(HouseMenu != null){
+        HouseMenu.destroy();
+        HouseMenu = null;
+    }
+    global.menuClose();
+})
+
+mp.events.add('Controls-House:SendNotify', (type, layout,msg,time) => {
+    if (HouseMenu != null) {
+        HouseMenu.execute(`notify(${type},${layout},"${msg}",${time})`);
+    }
 });
 
-mp.events.add('Tablet:AcceptCall', callID => {
-    NexusEvent.callRemote('Tablet:SetCall', callID);
-});
-mp.events.add('Tablet:AcceptCallCallBack',(status)=>{
-    let a = status ? `window.RPC.resolve('Tablet:AcceptCall')` : `window.RPC.reject('Tablet:AcceptCall')`;
-    globalThis.browser.execute(`${a}`);
-});
 
-mp.events.add('Tablet:AcceptWanted',(wantedName)=>{
-    NexusEvent.callRemote('Tablet:WatchHuman', wantedName);
-});
-mp.events.add('Tablet:AcceptWantedCallBack',(status)=>{
-    let a = status ? `window.RPC.resolve('Tablet:AcceptWanted')` : `window.RPC.reject('Tablet:AcceptWanted')`;
-    globalThis.browser.execute(`${a}`);
-});
+//////////////////////////////////////////////////////////////////////////
+mp.events.add('Controls-House:ChangeInteractionValue',(interactionID)=>{
+    if(interactionID=='openDoor')NewEvent.callRemote("House:ChangeDoorStatus");
+    if(interactionID=='openCupboard')NewEvent.callRemote("House:ChangeCupBoardStatus");
+})
+mp.events.add('House-Success:ChangeDoorStatus',(status)=>{
+    HouseMenu.execute(`controls.changeInteractionValueCallback('openDoor', '${status}')`);
+})
+mp.events.add('House-Success:ChangeCupBoardStatus',(status)=>{
+    HouseMenu.execute(`controls.changeInteractionValueCallback('openCupboard', '${status}')`);
+})
+///////////////////////////////////////////////////////////////////////
 
-mp.events.add('Tablet:WantedLoad', (Calls) => {
-    if(loggedin)globalThis.browser.execute(`AppData.commit('stateTablet/setWanted',${Calls})`);
-}),
-mp.events.add('Tablet:WantedUnLoad', () => {
-    globalThis.browser.execute(`AppData.commit('stateTablet/clearWanted')`);
-}),
+mp.events.add('Controls-House:SellHouse',()=>{
+    NewEvent.callRemote("House:SellHouse");
+})
+
+mp.events.add('House-Success:SellHouse',()=>{
+    HouseMenu.execute(`controls.closeApp()`);
+})
+
+////////////////////////////////////////////////////////////////////////
+mp.events.add('Controls-House:addRoommate',(name)=>{
+    NewEvent.callRemote("House:addRoommate", name);
+})
+
+mp.events.add('House-Success:addRoommate',(playerName, online)=>{
+    var mate;
+    mate.name = playerName;
+    mate.id = roommates.length+1;
+    mate.online = online;
+    roommates.push(mate);
+})
+
+////////////////////////////////////////////////////////////////////////
+mp.events.add('Controls-House:UninviteAllRoommates',()=>{
+    NewEvent.callRemote('House:UninviteAllRoommates');
+})
+mp.events.add('House-Success:UninviteAllRoommates',()=>{
+    roommates = [];
+    HouseMenu.execute(`controls.openRoommates(${JSON.stringify(roommates)},${roommates.length})`);
+})
+/////////////////////////////////////////////////////////////////////
+mp.events.add('Controls-House:UninviteRoommate',(roommateID)=>{
+    var playerName = roommates.find(y=>y.id===roommateID).name;
+    NewEvent.callRemote('House:UninviteRoommate', playerName);
+})
+mp.events.add('House-Success:UninviteRoommate',(playerName)=>{
+    roommates.splice(roommates.indexOf(roommates.find(y=>y.name===playerName)),1);
+    HouseMenu.execute(`controls.openRoommates(${JSON.stringify(roommates)},${roommates.length})`);
+})
+//////////////////////////////////////////////////////////////////////
+mp.events.add('Controls-Vehicle:EvacuateVehicle',(vehicleID)=>{
+    var number = vehicles.find(y=>y.id===vehicleID).number;
+    NewEvent.callRemote('House:EvacuateVehicle', number);
+})
+///////////////////////////////////////////////////////////////////////
+mp.events.add('Controls-Vehicle:RestoreVehicle',(vehicleID)=>{
+    var number = vehicles.find(y=>y.id===vehicleID).number;
+    NewEvent.callRemote('House:RestoreVehicle', number);
+})
+//////////////////////////////////////////////////////////////////
+mp.events.add('Controls-Vehicle:SellVehicle',(vehicleID)=>{
+    var number = vehicles.find(y=>y.id===vehicleID).number;
+    NewEvent.callRemote('House:SellVehicle', number);
+})
+
+mp.events.add('House-Success:SellVehicle',(vehicleNumber)=>{
+    vehicles.splice(vehicles.indexOf(vehicles.find(y=>y.number===vehicleNumber)),1);
+    HouseMenu.execute(`controls.openVehicles(${JSON.stringify(vehicles)},${JSON.stringify({restore:300,evacuate:200})})`);
+})
+/////////////////////////////////////////////
 
 
-mp.events.add('Tablet:AddBattue', (playerobj) => {
-    globalThis.browser.execute(`AppData.commit('stateTablet/addWanted',${playerobj})`);
-});
-mp.events.add('Tablet:UpdateBattue', (playerobj) => {
-    globalThis.browser.execute(`AppData.commit('stateTablet/updateWanted',${playerobj})`);
-});
-mp.events.add('Tablet:RemoveWanted', (wantedName) => {
-    globalThis.browser.execute(`AppData.commit('stateTablet/removeWanted','${wantedName}')`);
-});
 
-var WantedPlayerBlip = null;
-mp.events.add('createWantedPlayerBlip', function (position) {
-    if (WantedPlayerBlip != null)
-        mp.game.ui.removeBlip(WantedPlayerBlip)
-    WantedPlayerBlip = mp.game.ui.addBlipForRadius(position.x, position.y, position.z, 90);
-    mp.game.invoke(getNative("SET_BLIP_SPRITE"), WantedPlayerBlip, 9);
-    mp.game.invoke(getNative("SET_BLIP_ALPHA"), WantedPlayerBlip, 200);
-    mp.game.invoke(getNative("SET_BLIP_COLOUR"), WantedPlayerBlip, 26);
-});
 
-mp.events.add('deleteWantedPlayerBlip', function () {
-    if (WantedPlayerBlip != null)
-        mp.game.ui.removeBlip(WantedPlayerBlip)
-    WantedPlayerBlip = null;
-});
+
+
+
 
 }

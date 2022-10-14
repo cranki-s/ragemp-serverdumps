@@ -11,14 +11,14 @@ mp.events.add('Atm:DestroyBrowser', () => {
     global.menuClose();
 })
 mp.events.add('Atm:AccountAction', (type, sum) => {
-    NexusEvent.callRemote('Atm:AccountAction', type, sum);
+    NewEvent.callRemote('Atm:AccountAction', type, sum);
 })
 mp.events.add('Atm:AccountActionCallBack', (info, type, status) => {
     atmMenu.execute(`controls.openHome(${info})`);
     atmMenu.execute(`controls.successNotify(${status})`);
 })
 mp.events.add('Atm:TransferAction', (number, sum) => {
-    NexusEvent.callRemote('Atm:TransferAction', number, sum);
+    NewEvent.callRemote('Atm:TransferAction', number, sum);
 });
 mp.events.add('Atm:TransferActionCallback', (info, status) => {
     atmMenu.execute(`controls.openHome(${info})`);

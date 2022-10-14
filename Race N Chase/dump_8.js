@@ -14,7 +14,7 @@ mp.events.add("Spikes_BeginPlacing", () => {
         dimension: mp.players.local.dimension
     });
     StingerPreviewObject.setRotation(5, 12, 69, 1, true);
-    pushMessageToChat(`STINGER ROT: ${StingerPreviewObject.rotation.z}`);
+    mp.gui.chat.push(`STINGER ROT: ${StingerPreviewObject.rotation.z}`);
 });
 /*
 mp.events.add('render', () => {

@@ -17,13 +17,13 @@ mp.events.add('Bank:UpdateProperties',(accounSettings)=>{
     }
 })
 mp.events.add('Bank:AccountInteraction',(accType,type,sum)=>{
-    NexusEvent.callRemote('Bank:AccountInteraction',accType,type,sum)
+    NewEvent.callRemote('Bank:AccountInteraction',accType,type,sum)
 })
 mp.events.add('Bank:AccountTransfer',(account,sum)=>{
-    NexusEvent.callRemote('Bank:AccountTransfer',account,sum)
+    NewEvent.callRemote('Bank:AccountTransfer',account,sum)
 });
 mp.events.add('Bank:TaxesTransfer',(type,sum)=>{
-    NexusEvent.callRemote('Bank:TaxesTransfer',type,sum)
+    NewEvent.callRemote('Bank:TaxesTransfer',type,sum)
 });
 mp.events.add('Bank:SendNotify', (type, layout,msg,time) => {
     if (bankmenu != null) {

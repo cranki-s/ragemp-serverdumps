@@ -47,7 +47,59 @@ global.backs = JSON.parse(`[
 {"name":"Сумка Gucci","Variation":105,"color":0,"price":350000,"id":22,"modifications":{"id":0,"slots":5,"weight":6}}
 ]`);
 
-global.clothesMasks = JSON.parse(`[{"name":"Маска свиньи","Variation":1,"color":[0,1,2,3],"price":14300,"id":0,"modifications":[{"id":0,"name":"0"},{"id":1,"name":"1"},{"id":2,"name":"2"},{"id":3,"name":"3"}]},
+global.clothesMasks = JSON.parse(`[
+    {"name":"Маска Купидон","Variation":13,"color":[0],"price":9300,"id":29,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Хоккейная с рисунком","Variation":14,"color":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"price":10500,"id":30,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска Воин","Variation":16,"color":[0,1,2,3,4,5,6,7,8],"price":24100,"id":31,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска медведя","Variation":21,"color":[0,1],"price":32000,"id":32,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска бизона","Variation":22,"color":[0,1],"price":32000,"id":33,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска быка","Variation":23,"color":[0,1],"price":32000,"id":34,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска орла","Variation":24,"color":[0,1],"price":23000,"id":35,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска падальщика","Variation":25,"color":[0,1],"price":9100,"id":36,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска волка","Variation":26,"color":[0,1],"price":32000,"id":37,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Хоккейная Please Stop","Variation":30,"color":[0],"price":9300,"id":38,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Балаклава потертая","Variation":37,"color":[0],"price":9500,"id":39,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Impotent Rage","Variation":43,"color":[0],"price":10600,"id":40,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Обмотка из скотча","Variation":48,"color":[0,1,2,3],"price":8800,"id":41,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска-футболка","Variation":54,"color":[0,1,2,3,4,5,6,7,8,9,10],"price":11500,"id":42,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Сшитая балаклава","Variation":57,"color":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21],"price":12500,"id":43,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Сшитая балаклава №2","Variation":58,"color":[0,1,2,3,4,5,6,7,8,9],"price":12500,"id":44,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска йети","Variation":79,"color":[0,1,2],"price":15700,"id":45,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Йети с бейсболкой","Variation":80,"color":[0,1,2],"price":17200,"id":46,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Йети с кепкой","Variation":81,"color":[0,1,2],"price":17200,"id":47,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Йети с повязкой","Variation":82,"color":[0,1,2],"price":17200,"id":48,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Намордник с заклёпкой","Variation":90,"color":[0,1,2,3,4,5,6,7],"price":20100,"id":49,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска динозавра","Variation":93,"color":[0,1,2,3,4,5],"price":22500,"id":50,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска Они","Variation":94,"color":[0,1,2,3,4,5],"price":36000,"id":51,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска клоуна","Variation":95,"color":[0,1,2,3,4,5,6,7],"price":19000,"id":52,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска гориллы","Variation":96,"color":[0,1,2,3],"price":18500,"id":53,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска лошади","Variation":97,"color":[0,1,2,3,4,5],"price":23100,"id":54,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска единорога","Variation":98,"color":[0],"price":23100,"id":55,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Череп с узором","Variation":99,"color":[0,1,2,3,4,5],"price":17900,"id":56,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска мопса","Variation":100,"color":[0,1,2,3,4,5],"price":24400,"id":58,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска черепа тактическая","Variation":106,"color":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25],"price":45500,"id":59,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Полумаска","Variation":112,"color":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25],"price":27900,"id":60,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Шарф-труба","Variation":116,"color":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25],"price":33700,"id":61,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Балаклава разноцветная","Variation":117,"color":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],"price":12500,"id":62,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Балаклава потертая №2","Variation":119,"color":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24],"price":14500,"id":63,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска клубника","Variation":149,"color":[0],"price":47000,"id":64,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска лимона","Variation":150,"color":[0],"price":47000,"id":65,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Ухмылка","Variation":164,"color":[0],"price":8500,"id":66,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска кролика","Variation":165,"color":[0],"price":13700,"id":67,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Снайпер","Variation":167,"color":[0],"price":7900,"id":68,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Гетра","Variation":169,"color":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25],"price":14700,"id":69,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Разноцветная полумаска","Variation":178,"color":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24],"price":54200,"id":70,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска черепахи","Variation":181,"color":[0,1,2,3],"price":25100,"id":71,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска мышки","Variation":182,"color":[0,1,2,3],"price":25300,"id":72,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска с сотами","Variation":183,"color":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],"price":23200,"id":73,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска гиены","Variation":184,"color":[0,1,2,3],"price":25500,"id":74,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска Trickster","Variation":186,"color":[0,1,2,3,4,5,6,7,8],"price":19800,"id":75,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Гетра с узором","Variation":187,"color":[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25],"price":14700,"id":76,"modifications":[{"id":0,"name":"0"}]},
+    {"name":"Маска чайки","Variation":197,"color":[0,1,2,3],"price":21700,"id":77,"modifications":[{"id":0,"name":"0"}]},
+
+
+
+{"name":"Маска свиньи","Variation":1,"color":[0,1,2,3],"price":14300,"id":0,"modifications":[{"id":0,"name":"0"},{"id":1,"name":"1"},{"id":2,"name":"2"},{"id":3,"name":"3"}]},
 {"name":"Маска черепа","Variation":2,"color":[0,1,2,3],"price":14300,"id":1,"modifications":[{"id":0,"name":"0"},{"id":1,"name":"1"},{"id":2,"name":"2"},{"id":3,"name":"3"}]},
 {"name":"Маска обезьяны","Variation":3,"color":[0],"price":14800,"id":2,"modifications":[{"id":0,"name":"0"}]},
 {"name":"Хоккейная","Variation":4,"color":[0,1,2,3],"price":8800,"id":3,"modifications":[{"id":0,"name":"0"},{"id":1,"name":"1"},{"id":2,"name":"2"},{"id":3,"name":"3"}]},
@@ -75,7 +127,9 @@ global.clothesMasks = JSON.parse(`[{"name":"Маска свиньи","Variation"
 {"name":"Маска ананас","Variation":152,"color":[0],"price":45500,"id":25,"modifications":[{"id":0,"name":"0"}]},
 {"name":"Маска вишенька","Variation":153,"color":[0],"price":45500,"id":26,"modifications":[{"id":0,"name":"0"}]},
 {"name":"Маска эмодзи","Variation":179,"color":[0,1,2,3,4,5,6,7],"price":22000,"id":27,"modifications":[{"id":0,"name":"0"},{"id":1,"name":"1"},{"id":2,"name":"2"},{"id":3,"name":"3"},{"id":4,"name":"4"},{"id":5,"name":"5"},{"id":6,"name":"6"},{"id":7,"name":"7"}]},
-{"name":"Маска король обезьян","Variation":147,"color":[0],"price":300000,"id":28,"modifications":[{"id":0,"name":"0"}]}]`);
+{"name":"Маска король обезьян","Variation":147,"color":[0],"price":300000,"id":28,"modifications":[{"id":0,"name":"0"}]}
+
+]`);
     
 
 

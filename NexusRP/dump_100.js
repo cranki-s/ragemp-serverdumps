@@ -1,53 +1,58 @@
 {
-let Blip = null;
-let Shape = null;
 
-function getRandomInt(max) {
-    return Math.floor(Math.random() * max);
-  }
 
-mp.events.add('createDrugPoint', function (position) {
-    mp.events.call('deleteDrugPoint');
-    Blip = mp.game.ui.addBlipForRadius(position.x + getRandomInt(80)-40, position.y+ getRandomInt(80)-40, position.z, 90);
+let AuctionList = null;
+let AuctionOpened = false;
+
+mp.events.add('Auction.OpenMenu.CallBack', (data)=>{
+    let obj = JSON.parse(data);
+    obj.property.forEach(item => {
+        if(item.Location!=null){
+            let area  = mp.game.zone.getNameOfZone(item.Location.x, item.Location.y, item.Location.z);
+            item.Location = mp.game.ui.getLabelText(area);
+        }
+    });
+    obj.business.forEach(item => {
+        if(item.Location!=null){
+            let area  = mp.game.zone.getNameOfZone(item.Location.x, item.Location.y, item.Location.z);
+            item.Location = mp.game.ui.getLabelText(area);
+        }
+    });
     
-    mp.game.invoke(getNative("SET_BLIP_SPRITE"), Blip, 9);
-    mp.game.invoke(getNative("SET_BLIP_ALPHA"), Blip, 218);
-    mp.game.invoke(getNative("SET_BLIP_COLOUR"), Blip, 1);
-
-    
-    Shape = mp.colshapes.newSphere(position.x, position.y, position.z, 1); 
-    Shape.drug = true; 
-    Shape.in = false;
+    AuctionList = obj;
+    globalThis.browser.open();
+    global.browser.execute(`App.$router.push(${JSON.stringify({path : '/auction'})})`);
 });
 
-mp.events.add('deleteDrugPoint', ()=>{
-    if (Blip != null) mp.game.ui.removeBlip(Blip);
-    Blip = null;
-    if(Shape != null){
-        Shape.destroy();
-        Shape = null;
-    }
+mp.events.add('Auction:GetAllData', ()=>{
+    global.browser.execute(`RPC.resolve('Auction:GetAllData', ${JSON.stringify(AuctionList)})`);
+    AuctionOpened = true;
+});
+
+
+
+
+mp.events.add('Auction:MakeBet', (id, payType, money)=>{
+    NewEvent.callRemote('Auction.MakeBet.Server', id, money, payType);
+});
+
+mp.events.add('Auction.NewLot', (type, lotJson)=>{
+    let obj = JSON.parse(lotJson);
+        if(obj.Location!=null){
+            let area  = mp.game.zone.getNameOfZone(obj.Location.x, obj.Location.y, obj.Location.z);
+            obj.Location = mp.game.ui.getLabelText(area);
+        }
+    global.browser.execute(`EventBus.emit('Auction:AddNewLot', '${type}', ${JSON.stringify(obj)})`);
+});
+
+mp.events.add('Auction.RemoveLot', (type, lotNum)=>{
+    global.browser.execute(`EventBus.emit('Auction:RemoveLot', '${type}', ${lotNum})`);
+});
+
+
+mp.events.add('Auction:Close', ()=>{
+    AuctionOpened = false;
+    globalThis.browser.close();
 })
-
-
-
-
-mp.events.add('playerEnterColshape', (shape)=>{
-    if(shape.drug!=null){
-        shape.in = true;
-        mp.events.call("PressE", true);
-        mp.players.local.drugPoint = true;
-    }
-});
-
-mp.events.add('playerExitColshape', (shape)=>{
-if(shape.drug!=null){
-    shape.in = false;
-    mp.events.call("PressE", false);
-    mp.players.local.drugPoint = undefined;
-}
-});
-
-
 
 }

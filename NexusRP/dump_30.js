@@ -9,10 +9,10 @@ mp.events.add('Gas:OpenMenu', (options) => {
 })
 
 mp.events.add('Gas:BuyBank', newGas => {
-    NexusEvent.callRemote('Gas:BuyPetrol',newGas,1);    
+    NewEvent.callRemote('Gas:BuyPetrol',newGas,1);    
 });
 mp.events.add('Gas:BuyCash', newGas => {
-    NexusEvent.callRemote('Gas:BuyPetrol',newGas,0);    
+    NewEvent.callRemote('Gas:BuyPetrol',newGas,0);    
 });
 mp.events.add('Gas:UseTicket', () => {
     console.log('Gas:UseTicket');
@@ -28,7 +28,7 @@ mp.events.add('Gas:DestroyBrowser', () => {
 
 mp.events.add('Clabback',(currentLicense)=>{
     if(TransportLicenseMenu != null){
-       NexusEvent.callRemote(`${currentLicense}`,)
+       NewEvent.callRemote(`${currentLicense}`,)
     }    
 })
 }

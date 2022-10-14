@@ -1,1031 +1,694 @@
 {
-//////////////////////////////////////
-///////////LuckyWheel///////////////////
-mp.game.streaming.requestAnimDict("anim_casino_a@amb@casino@games@lucky7wheel@male");
-const k = global.LUCKY = mp.objects.new(mp.game.joaat("vw_prop_vw_luckywheel_02a"), new mp.Vector3(1111.05, 229.81, -49.16), {
-     dimension: 0,
-     rotation: new mp.Vector3(0, 0, 0)
-});
+﻿
+global.carComponents = {
 
-mp.events.add("client_casino_luckywheel_spin", e => {
- if (0 === k.handle) return;
-const t = k.getRotation(2).z;
-k.setRotation(0, 0, t, 2, !0), clearInterval(D);
-const a = 1800 + 18 * e;
-let o = 0;
-D = setInterval(() => 0 === k.handle ? clearInterval(D) : (o += o < .6 * a ? 4.5 : o < .65 * a ? 4 : o < .7 * a ? 3.5 : o < .8 * a ? 2.5 : o < .9 * a ? 1.5 : o < .92 * a ? 1.2 : o < .94 * a ? 1 : o < .96 * a ? .9 : o < .98 * a ? .6 : .3,  o >= a ? void clearInterval(D) : void k.setRotation(0, -o, t, 2, !0)), 15)
-setTimeout(() => {
-
-NexusEvent.callRemote("server_casino_luckywheel_getGift", e);
-}, 15000)
-}),
-
-mp.events.add("client_casino_luckywheel_player_spin", (e, t) => {
-const a = mp.players.local;
-mp.players.exists(a) && 0 !== a.handle && (a.taskGoStraightToCoord(1109.914, 228.9987, -49.59585, 1, 3e3, -25, 1), setTimeout(() => {
-mp.players.exists(a) && 0 !== a.handle && (a.taskPlayAnim("anim_casino_a@amb@casino@games@lucky7wheel@male", "enter_to_armraisedidle", 1, 1, 3e3, 2, !1, !0, !0, !0), setTimeout(() => {
-mp.players.exists(a) && 0 !== a.handle && (setTimeout(() => {
-mp.events.call("client_casino_luckywheel_spin", t), a === mp.players.local
-}, 500), a.taskPlayAnim("anim_casino_a@amb@casino@games@lucky7wheel@male", "armraisedidle_to_spinningidle_high", 1, 1, 2e3, 1, !1, !0, !0, !0))
-}, 3e3))
-}, 3e3))
-});
-
-///////////////////////////////////////////////////
-
-
-mp.Vector3.getDistanceBetweenPoints3D = function (v1, v2) {
-  return Math.abs(
-    Math.sqrt(
-      Math.pow(v2.x - v1.x, 2) +
-        Math.pow(v2.y - v1.y, 2) +
-        Math.pow(v2.z - v1.z, 2)
-    )
-  );
-}; // function calculating the distance between two points in the space X; Y; Z;
-
-global.casinoBrowser = null;
-let lpCasinoTable = null;
-let casinoTableToJoin = null;
-let casinoSeatToJoin = null;
-let goToSeatInterval = null;
-let interactingWithTable = null;
-let rouletteCamera = null;
-let canDoBets = false;
-let currentChip = 0;
-let betObject = null;
-let closestChipSpot = null;
-let interactingWithTableTimeout = null;
-var objectg = null;
-
-let minBet = 0;
-let maxBet = 0;
-let label = null;
-
-let chipOnTable = new Map();;
-
-let chipType =
-[
-["vw_prop_chip_10dollar_x1", 10],
-["vw_prop_chip_50dollar_x1", 50],
-["vw_prop_chip_100dollar_x1", 100],
-["vw_prop_chip_500dollar_x1", 500],
-["vw_prop_chip_1kdollar_x1", 1000],
-["vw_prop_chip_5kdollar_x1", 5000],
-["vw_prop_chip_10kdollar_x1", 10000]
-];
-
-
-let tablesPos = 
-[
-	[ "vw_prop_casino_roulette_01", 1144.4254150390625, 269.3034973144531, -52.880850830078125 ],
-	[ "vw_prop_casino_roulette_01", 1151.2305908203125, 263.14093017578125, -52.880850830078125 ],
-	[ "vw_prop_casino_roulette_01b", 1148.9163818359375, 248.62892150878906, -52.08075408935547 ],
-	[ "vw_prop_casino_roulette_01b", 1143.677978515625, 251.36131286621094, -52.0807502746582 ],
-	[ "vw_prop_casino_roulette_01b", 1133.1802978515625, 262.3916320800781, -52.08075408935547 ], 
-	[ "vw_prop_casino_roulette_01b", 1129.9976806640625, 266.93695068359375, -52.0807502746582 ], 
-];
-
-let tablesBets = 
-[
-	[ 10, 1000 ],
-	[ 10, 1000 ],
-	[ 100, 5000 ],
-	[ 100, 5000 ],
-	[ 500, 20000 ],
-	[ 500, 20000 ]
-];
-
-let pedModels =
-[
-	"S_M_Y_Casino_01", "S_F_Y_Casino_01", "S_M_Y_Casino_01", "S_F_Y_Casino_01", "S_M_Y_Casino_01", "S_F_Y_Casino_01"
-]
-
-
-
-
-
-mp.game.streaming.requestIpl('vw_casino_main');
-mp.blips.new(681, new mp.Vector3(935.8140869140625, 46.942176818847656, 81.09580993652344), { name: global.GetText("Казино"), color: 30, shortRange: true, scale: 1.0 });
-
-
-
-//mp.peds.new(mp.game.joaat("S_F_Y_Casino_01"), new mp.Vector3(1117.7528076171875, 220.12098693847656, -49.43511962890625), 90.0, 0);
-//mp.labels.new("Beverly", new mp.Vector3(1117.7528076171875, 220.12098693847656, -49.43511962890625+1.1), { los: true, font: 0, drawDistance: 5.0 } );
-
-
-
-let pedModelVariations =
-[
-	[ //S_M_Y_Casino_01
-		[ 0, 2, 2, 0],
-		[ 1, 1, 0, 0],
-		[ 2, 4, 0, 0],
-		[ 3, 0, 3, 0],
-		[ 4, 0, 0, 0],
-		[ 6, 1, 0, 0],
-		[ 7, 2, 0, 0],
-		[ 8, 1, 0, 0],
-		[ 10, 1, 0, 0],
-		[ 11, 1, 0, 0]
-	],
-	[//S_F_Y_Casino_01
-		[ 0, 2, 0, 0],
-		[ 1, 0, 0, 0],
-		[ 2, 2, 0, 0],
-		[ 3, 2, 3, 0],
-		[ 4, 0, 0, 0],
-		[ 6, 0, 0, 0],
-		[ 7, 0, 0, 0],
-		[ 8, 2, 0, 0],
-		[ 10, 0, 0, 0],
-		[ 11, 0, 0, 0]
-	],
-	[ //S_M_Y_Casino_01
-		[ 0, 2, 1, 0],
-		[ 1, 1, 0, 0],
-		[ 2, 2, 0, 0],
-		[ 3, 0, 3, 0],
-		[ 4, 0, 0, 0],
-		[ 6, 1, 0, 0],
-		[ 7, 2, 0, 0],
-		[ 8, 1, 0, 0],
-		[ 10, 1, 0, 0],
-		[ 11, 1, 0, 0]
-	],
-	[//S_F_Y_Casino_01
-		[ 0, 2, 1, 0],
-		[ 1, 0, 0, 0],
-		[ 2, 2, 1, 0],
-		[ 3, 3, 3, 0],
-		[ 4, 1, 0, 0],
-		[ 6, 1, 0, 0],
-		[ 7, 2, 0, 0],
-		[ 8, 3, 0, 0],
-		[ 10, 0, 0, 0],
-		[ 11, 0, 0, 0]
-	],
-	[ //S_M_Y_Casino_01
-		[ 0, 4, 2, 0],
-		[ 1, 1, 0, 0],
-		[ 2, 3, 0, 0],
-		[ 3, 0, 0, 0],
-		[ 4, 0, 0, 0],
-		[ 6, 1, 0, 0],
-		[ 7, 2, 0, 0],
-		[ 8, 1, 0, 0],
-		[ 10, 1, 0, 0],
-		[ 11, 1, 0, 0]
-	],
-	[//S_F_Y_Casino_01
-		[ 0, 4, 0, 0],
-		[ 1, 0, 0, 0],
-		[ 2, 4, 0, 0],
-		[ 3, 2, 1, 0],
-		[ 4, 1, 0, 0],
-		[ 6, 1, 0, 0],
-		[ 7, 1, 0, 0],
-		[ 8, 2, 0, 0],
-		[ 10, 0, 0, 0],
-		[ 11, 0, 0, 0]
-	],
-	[ //S_M_Y_Casino_01 (not used)
-		[ 0, 4, 0, 0],
-		[ 1, 1, 0, 0],
-		[ 2, 0, 0, 0],
-		[ 3, 0, 0, 0],
-		[ 4, 0, 0, 0],
-		[ 6, 1, 0, 0],
-		[ 7, 2, 0, 0],
-		[ 8, 1, 0, 0],
-		[ 10, 1, 0, 0],
-		[ 11, 1, 0, 0]
-	]
-]
-
-let tableSeatsPos =
-[
-	[-0.7, -1.28, 1, 0],
-	[0.775, -1.68, 1, 0],
-	[1.88, -0.63, 1, 90],
-	[1.27, 1.05, 1, 180]
-]
-
-
-let tablebetsnew =
-[
-   [ 500, 1000, 1500, 2000, 2500 ],
-   [ 1000, 2000, 3000, 4000, 5000 ],
-   [ 3000, 6000, 9000, 12000, 15000 ],
-   [ 7000, 14000, 21000, 29000, 35000 ],
-   [ 10000, 20000, 30000, 40000, 50000 ],
-   [ 20000, 40000, 60000, 80000, 100000 ]
-];
-
-
-
-let money = 0;
-let bet = 0;
-//done
-mp.keys.bind(0x44, true, () =>  // D
-{
-	//if(!localplayer.getVariable('ingames')) return;
-	
-	 if(canDoBets && rouletteCamera)
-	{
-		currentChip++;
-	if(currentChip >= chipType.length){
-		currentChip = 0;
-	}
-	updateCurrentChip();
-	}
-	money = chipType[currentChip][1];
-	if(casinoBrowser!=null) casinoBrowser.execute(`casino.bet=${money}`);
-});
-//done
-mp.keys.bind(0x41, true, () =>  // A
-{
-	
-	 if(canDoBets && rouletteCamera)
-	{
-		currentChip--;
-	if(currentChip<0){
-		currentChip = chipType.length-1;
-	}
-		updateCurrentChip();
-	}
-	money = chipType[currentChip][1];
-	if(casinoBrowser!=null) casinoBrowser.execute(`casino.bet=${money}`);
-});
-//done
-function updateCurrentChip(){
-	betObject.destroy();
-	betObject = null;
-	betObject = mp.objects.new(mp.game.joaat(chipType[currentChip][0]), new mp.Vector3(tablesPos[lpCasinoTable][1], tablesPos[lpCasinoTable][2], tablesPos[lpCasinoTable][3]));
-	
+    tuning: [
+        {
+            id: 11,
+            name: 'Двигатель',
+            img: 'engine',
+            items: [
+                { id: -1, name: 'Стандартный', price: 1 },
+                { id: 0, name: 'Настроенный', price: 10 },
+                { id: 1, name: 'Улучшенный', price: 15 },
+                { id: 2, name: 'Спортивный', price: 30 },
+                { id: 3, name: 'Гоночный', price: 60 },
+                { id: 4, name: 'Супер', price: 80 }]
+        },
+        //Тормоза id12
+        {
+            id: 12,
+            name: 'Тормоза',
+            img: 'brakes',
+            items: [
+                { id: -1, name: 'Стандартный', price: 1 },
+                { id: 0, name: 'Улучшенный', price: 3 },
+                { id: 1, name: 'Спортивный', price: 5 },
+                { id: 2, name: 'Гоночный', price: 7 },
+                { id: 3, name: 'Супер', price: 9 }]
+        },
+        //Коробка передач id13
+        {
+            id: 13,
+            name: 'Коробка передач',
+            img: 'transmission',
+            items: [
+                { id: -1, name: 'Стандартный', price: 1 }, 
+                { id: 0, name: 'Улучшенный', price: 3 }, 
+                { id: 1, name: 'Спортивный', price: 6 }, 
+                { id: 2, name: 'Гоночный', price: 10 },
+                { id: 3, name: 'Супер', price: 14 }]
+        },
+        //Подвеска id15
+        {
+            id: 15,
+            name: 'Подвеска',
+            img: 'suspension',
+            items: [
+                { id: -1, name: 'Стандартный', price: 1 }, 
+                { id: 0, name: 'Настроенный', price: 3 }, 
+                { id: 1, name: 'Улучшенный', price: 3 }, 
+                { id: 2, name: 'Спортивный', price: 3 }, 
+                { id: 3, name: 'Гоночный', price: 3 },
+                { id: 4, name: 'Супер', price: 3 }]
+        },
+        //Турбонаддув id18
+        {
+            id: 18,
+            name: 'Турбонаддув',
+            img: 'turbine',
+            items: [
+                { id: -1, name: 'Без турбины', price: 1 }, 
+                { id: 0, name: 'Гоночная турбина Shell', price: 20 }]
+        },
+    ],
+    styling: [
+        //Спойлер id0
+        {
+            id: 0,
+            name: 'Спойлер',
+            img: 'spoiler',
+            items: [
+                { id: -1, name: 'Стандартный', price: 1 }, 
+                { id: 0, name: 'Вариант 1', price: 4 }, 
+                { id: 1, name: 'Вариант 2', price: 5 }, 
+                { id: 2, name: 'Вариант 3', price: 6 }, 
+                { id: 3, name: 'Вариант 4', price: 7 }, 
+                { id: 4, name: 'Вариант 5', price: 8 }, 
+                { id: 5, name: 'Вариант 6', price: 9 }, 
+                { id: 6, name: 'Вариант 7', price: 10 }, 
+                { id: 7, name: 'Вариант 8', price: 11 }, 
+                { id: 8, name: 'Вариант 9', price: 12 }, 
+                { id: 9, name: 'Вариант 10', price: 12 },
+                { id: 10, name: 'Вариант 11', price: 12 },
+                { id: 11, name: 'Вариант 12', price: 12 },
+                { id: 12, name: 'Вариант 13', price: 12 },
+                { id: 13, name: 'Вариант 14', price: 12 },
+                { id: 14, name: 'Вариант 15', price: 12 },
+                { id: 15, name: 'Вариант 16', price: 12 },
+                { id: 16, name: 'Вариант 17', price: 12 },
+                { id: 17, name: 'Вариант 18', price: 12 },
+                { id: 18, name: 'Вариант 19', price: 12 },
+                { id: 19, name: 'Вариант 20', price: 12 },            
+            ]
+        },
+        //Бампер передний id1
+        {
+            id: 1,
+            name: 'Бампер передний',
+            img: 'front_bumper',
+            items: [
+                { id: -1, name: 'Стандартный', price: 1 }, 
+                { id: 0, name: 'Вариант 1', price: 4 }, 
+                { id: 1, name: 'Вариант 2', price: 5 }, 
+                { id: 2, name: 'Вариант 3', price: 6 }, 
+                { id: 3, name: 'Вариант 4', price: 7 }, 
+                { id: 4, name: 'Вариант 5', price: 8 }, 
+                { id: 5, name: 'Вариант 6', price: 9 }, 
+                { id: 6, name: 'Вариант 7', price: 10 }, 
+                { id: 7, name: 'Вариант 8', price: 11 }, 
+                { id: 8, name: 'Вариант 9', price: 12 }, 
+                { id: 9, name: 'Вариант 10', price: 12 },
+                { id: 10, name: 'Вариант 11', price: 12 },
+                { id: 11, name: 'Вариант 12', price: 12 },
+                { id: 12, name: 'Вариант 13', price: 12 },
+                { id: 13, name: 'Вариант 14', price: 12 },
+                { id: 14, name: 'Вариант 15', price: 12 },
+                { id: 15, name: 'Вариант 16', price: 12 },
+                { id: 16, name: 'Вариант 17', price: 12 },
+                { id: 17, name: 'Вариант 18', price: 12 },
+                { id: 18, name: 'Вариант 19', price: 12 },
+                { id: 19, name: 'Вариант 20', price: 12 },          
+            ]
+        },
+        //Бампер задний id2
+        {
+            id: 2,
+            name: 'Бампер задний',
+            img: 'back_bumper',
+            items: [
+                { id: -1, name: 'Стандартный', price: 1 }, 
+                { id: 0, name: 'Вариант 1', price: 4 }, 
+                { id: 1, name: 'Вариант 2', price: 5 }, 
+                { id: 2, name: 'Вариант 3', price: 6 }, 
+                { id: 3, name: 'Вариант 4', price: 7 }, 
+                { id: 4, name: 'Вариант 5', price: 8 }, 
+                { id: 5, name: 'Вариант 6', price: 9 }, 
+                { id: 6, name: 'Вариант 7', price: 10 }, 
+                { id: 7, name: 'Вариант 8', price: 11 }, 
+                { id: 8, name: 'Вариант 9', price: 12 }, 
+                { id: 9, name: 'Вариант 10', price: 12 },
+                { id: 10, name: 'Вариант 11', price: 12 },
+                { id: 11, name: 'Вариант 12', price: 12 },
+                { id: 12, name: 'Вариант 13', price: 12 },
+                { id: 13, name: 'Вариант 14', price: 12 },
+                { id: 14, name: 'Вариант 15', price: 12 },
+                { id: 15, name: 'Вариант 16', price: 12 },
+                { id: 16, name: 'Вариант 17', price: 12 },
+                { id: 17, name: 'Вариант 18', price: 12 },
+                { id: 18, name: 'Вариант 19', price: 12 },
+                { id: 19, name: 'Вариант 20', price: 12 },             
+            ]
+        },
+        //Пороги id3
+        {
+            id: 3,
+            name: 'Пороги',
+            img: 'thresholds',
+            items: [
+                { id: -1, name: 'Стандартный', price: 1 }, 
+                { id: 0, name: 'Вариант 1', price: 4 }, 
+                { id: 1, name: 'Вариант 2', price: 5 }, 
+                { id: 2, name: 'Вариант 3', price: 6 }, 
+                { id: 3, name: 'Вариант 4', price: 7 }, 
+                { id: 4, name: 'Вариант 5', price: 8 }, 
+                { id: 5, name: 'Вариант 6', price: 9 }, 
+                { id: 6, name: 'Вариант 7', price: 10 }, 
+                { id: 7, name: 'Вариант 8', price: 11 }, 
+                { id: 8, name: 'Вариант 9', price: 12 }, 
+                { id: 9, name: 'Вариант 10', price: 12 },
+                { id: 10, name: 'Вариант 11', price: 12 },
+                { id: 11, name: 'Вариант 12', price: 12 },
+                { id: 12, name: 'Вариант 13', price: 12 },
+                { id: 13, name: 'Вариант 14', price: 12 },
+                { id: 14, name: 'Вариант 15', price: 12 },
+                { id: 15, name: 'Вариант 16', price: 12 },
+                { id: 16, name: 'Вариант 17', price: 12 },
+                { id: 17, name: 'Вариант 18', price: 12 },
+                { id: 18, name: 'Вариант 19', price: 12 },
+                { id: 19, name: 'Вариант 20', price: 12 },            
+            ]
+        },
+        //Глушитель id4
+        {
+            id: 4,
+            name: 'Глушитель',
+            img: 'muffler',
+            items: [
+                { id: -1, name: 'Стандартный', price: 1 }, 
+                { id: 0, name: 'Вариант 1', price: 4 }, 
+                { id: 1, name: 'Вариант 2', price: 5 }, 
+                { id: 2, name: 'Вариант 3', price: 6 }, 
+                { id: 3, name: 'Вариант 4', price: 7 }, 
+                { id: 4, name: 'Вариант 5', price: 8 }, 
+                { id: 5, name: 'Вариант 6', price: 9 }, 
+                { id: 6, name: 'Вариант 7', price: 10 }, 
+                { id: 7, name: 'Вариант 8', price: 11 }, 
+                { id: 8, name: 'Вариант 9', price: 12 }, 
+                { id: 9, name: 'Вариант 10', price: 12 },
+                { id: 10, name: 'Вариант 11', price: 12 },
+                { id: 11, name: 'Вариант 12', price: 12 },
+                { id: 12, name: 'Вариант 13', price: 12 },
+                { id: 13, name: 'Вариант 14', price: 12 },
+                { id: 14, name: 'Вариант 15', price: 12 },
+                { id: 15, name: 'Вариант 16', price: 12 },
+                { id: 16, name: 'Вариант 17', price: 12 },
+                { id: 17, name: 'Вариант 18', price: 12 },
+                { id: 18, name: 'Вариант 19', price: 12 },
+                { id: 19, name: 'Вариант 20', price: 12 },           
+            ]
+        },
+        //Корпус id5
+        {
+            id: 5,
+            name: 'Корпус',
+            img: 'body',
+            items: [
+                { id: -1, name: 'Стандартный', price: 1 }, 
+                { id: 0, name: 'Вариант 1', price: 4 }, 
+                { id: 1, name: 'Вариант 2', price: 5 }, 
+                { id: 2, name: 'Вариант 3', price: 6 }, 
+                { id: 3, name: 'Вариант 4', price: 7 }, 
+                { id: 4, name: 'Вариант 5', price: 8 }, 
+                { id: 5, name: 'Вариант 6', price: 9 }, 
+                { id: 6, name: 'Вариант 7', price: 10 }, 
+                { id: 7, name: 'Вариант 8', price: 11 }, 
+                { id: 8, name: 'Вариант 9', price: 12 }, 
+                { id: 9, name: 'Вариант 10', price: 12 },
+                { id: 10, name: 'Вариант 11', price: 12 },
+                { id: 11, name: 'Вариант 12', price: 12 },
+                { id: 12, name: 'Вариант 13', price: 12 },
+                { id: 13, name: 'Вариант 14', price: 12 },
+                { id: 14, name: 'Вариант 15', price: 12 },
+                { id: 15, name: 'Вариант 16', price: 12 },
+                { id: 16, name: 'Вариант 17', price: 12 },
+                { id: 17, name: 'Вариант 18', price: 12 },
+                { id: 18, name: 'Вариант 19', price: 12 },
+                { id: 19, name: 'Вариант 20', price: 12 },            
+            ]
+        },
+        //Глушитель id6
+        {
+            id: 6,
+            name: 'Решетка',
+            img: 'grid',
+            items: [
+                { id: -1, name: 'Стандартный', price: 1 }, 
+                { id: 0, name: 'Вариант 1', price: 4 }, 
+                { id: 1, name: 'Вариант 2', price: 5 }, 
+                { id: 2, name: 'Вариант 3', price: 6 }, 
+                { id: 3, name: 'Вариант 4', price: 7 }, 
+                { id: 4, name: 'Вариант 5', price: 8 }, 
+                { id: 5, name: 'Вариант 6', price: 9 }, 
+                { id: 6, name: 'Вариант 7', price: 10 }, 
+                { id: 7, name: 'Вариант 8', price: 11 }, 
+                { id: 8, name: 'Вариант 9', price: 12 }, 
+                { id: 9, name: 'Вариант 10', price: 12 },
+                { id: 10, name: 'Вариант 11', price: 12 },
+                { id: 11, name: 'Вариант 12', price: 12 },
+                { id: 12, name: 'Вариант 13', price: 12 },
+                { id: 13, name: 'Вариант 14', price: 12 },
+                { id: 14, name: 'Вариант 15', price: 12 },
+                { id: 15, name: 'Вариант 16', price: 12 },
+                { id: 16, name: 'Вариант 17', price: 12 },
+                { id: 17, name: 'Вариант 18', price: 12 },
+                { id: 18, name: 'Вариант 19', price: 12 },
+                { id: 19, name: 'Вариант 20', price: 12 },           
+            ]
+        },
+        //Глушитель id7
+        {
+            id: 7,
+            name: 'Капот',
+            img: 'hood',
+            items: [
+                { id: -1, name: 'Стандартный', price: 1 }, 
+                { id: 0, name: 'Вариант 1', price: 4 }, 
+                { id: 1, name: 'Вариант 2', price: 5 }, 
+                { id: 2, name: 'Вариант 3', price: 6 }, 
+                { id: 3, name: 'Вариант 4', price: 7 }, 
+                { id: 4, name: 'Вариант 5', price: 8 }, 
+                { id: 5, name: 'Вариант 6', price: 9 }, 
+                { id: 6, name: 'Вариант 7', price: 10 }, 
+                { id: 7, name: 'Вариант 8', price: 11 }, 
+                { id: 8, name: 'Вариант 9', price: 12 }, 
+                { id: 9, name: 'Вариант 10', price: 12 },
+                { id: 10, name: 'Вариант 11', price: 12 },
+                { id: 11, name: 'Вариант 12', price: 12 },
+                { id: 12, name: 'Вариант 13', price: 12 },
+                { id: 13, name: 'Вариант 14', price: 12 },
+                { id: 14, name: 'Вариант 15', price: 12 },
+                { id: 15, name: 'Вариант 16', price: 12 },
+                { id: 16, name: 'Вариант 17', price: 12 },
+                { id: 17, name: 'Вариант 18', price: 12 },
+                { id: 18, name: 'Вариант 19', price: 12 },
+                { id: 19, name: 'Вариант 20', price: 12 },            
+            ]
+        },
+        //Глушитель id8
+        {
+            id: 8,
+            name: 'Крылья',
+            img: 'wings',
+            items: [
+                { id: -1, name: 'Стандартный', price: 1 }, 
+                { id: 0, name: 'Вариант 1', price: 4 }, 
+                { id: 1, name: 'Вариант 2', price: 5 }, 
+                { id: 2, name: 'Вариант 3', price: 6 }, 
+                { id: 3, name: 'Вариант 4', price: 7 }, 
+                { id: 4, name: 'Вариант 5', price: 8 }, 
+                { id: 5, name: 'Вариант 6', price: 9 }, 
+                { id: 6, name: 'Вариант 7', price: 10 }, 
+                { id: 7, name: 'Вариант 8', price: 11 }, 
+                { id: 8, name: 'Вариант 9', price: 12 }, 
+                { id: 9, name: 'Вариант 10', price: 12 },
+                { id: 10, name: 'Вариант 11', price: 12 },
+                { id: 11, name: 'Вариант 12', price: 12 },
+                { id: 12, name: 'Вариант 13', price: 12 },
+                { id: 13, name: 'Вариант 14', price: 12 },
+                { id: 14, name: 'Вариант 15', price: 12 },
+                { id: 15, name: 'Вариант 16', price: 12 },
+                { id: 16, name: 'Вариант 17', price: 12 },
+                { id: 17, name: 'Вариант 18', price: 12 },
+                { id: 18, name: 'Вариант 19', price: 12 },
+                { id: 19, name: 'Вариант 20', price: 12 },            
+            ]
+        },
+        //Глушитель id10
+        {
+            id: 10,
+            name: 'Крыша ',
+            img: 'roof',
+            items: [
+                { id: -1, name: 'Стандартный', price: 1 }, 
+                { id: 0, name: 'Вариант 1', price: 4 }, 
+                { id: 1, name: 'Вариант 2', price: 5 }, 
+                { id: 2, name: 'Вариант 3', price: 6 }, 
+                { id: 3, name: 'Вариант 4', price: 7 }, 
+                { id: 4, name: 'Вариант 5', price: 8 }, 
+                { id: 5, name: 'Вариант 6', price: 9 }, 
+                { id: 6, name: 'Вариант 7', price: 10 }, 
+                { id: 7, name: 'Вариант 8', price: 11 }, 
+                { id: 8, name: 'Вариант 9', price: 12 }, 
+                { id: 9, name: 'Вариант 10', price: 12 },
+                { id: 10, name: 'Вариант 11', price: 12 },
+                { id: 11, name: 'Вариант 12', price: 12 },
+                { id: 12, name: 'Вариант 13', price: 12 },
+                { id: 13, name: 'Вариант 14', price: 12 },
+                { id: 14, name: 'Вариант 15', price: 12 },
+                { id: 15, name: 'Вариант 16', price: 12 },
+                { id: 16, name: 'Вариант 17', price: 12 },
+                { id: 17, name: 'Вариант 18', price: 12 },
+                { id: 18, name: 'Вариант 19', price: 12 },
+                { id: 19, name: 'Вариант 20', price: 12 },            
+            ]
+        },
+        //Диски id26  
+        {
+            id: 20,
+            name: 'Диски',
+            img: 'wheels',
+            subcategories: [
+                //Спортивные диски id1
+                {
+                    id: 0,
+                    name: 'Спортивные',
+                    img: 'wheels',
+                    items: [
+                        { id: -1, name: 'Стандартные диски', price: -3000 },
+                        { id: 0, name: 'Inferno', price: -27600 },
+                        { id: 1, name: 'Deep Five', price: -39000 },
+                        { id: 2, name: 'Lozspeed Mk.V', price: -42000 },
+                        { id: 3, name: 'Diamond Cut', price: -39600 },
+                        { id: 4, name: 'Chrono', price: -110000 },
+                        { id: 5, name: 'Feroci RR', price: -42000 },
+                        { id: 6, name: 'FiftyNine', price: -41400 },
+                        { id: 7, name: 'Mercie', price: -36000 },
+                        { id: 8, name: 'Synthetic Z', price: -36300 },
+                        { id: 9, name: 'organic Type 0', price: -39000 },
+                        { id: 10, name: 'Endo v.1', price: -45900 },
+                        { id: 11, name: 'Gt One', price: -36900 },
+                        { id: 12, name: 'Duper 7', price: -32700 },
+                        { id: 13, name: 'Uzer', price: -39000 },
+                        { id: 14, name: 'GroundRide', price: -33600 },
+                        { id: 15, name: 'S Racer', price: -39600 },
+                        { id: 16, name: 'Venum', price: -28200 },
+                        { id: 17, name: 'Cosmo', price: -4500 },
+                        { id: 18, name: 'Dash VIP', price: -29700 },
+                        { id: 19, name: 'ice Kid', price: -4500 },
+                        { id: 20, name: 'ruff Weld', price: -39600 },
+                        { id: 21, name: 'Wangan Master', price: -42000 },
+                        { id: 22, name: 'Super Five', price: -49800 },
+                        { id: 23, name: 'Endo v.2', price: -36000 },
+                        { id: 24, name: 'Split Six', price: -39000 },
+                    ]
+                },
+                //Маслкар диски id2
+                {
+                    id: 1,
+                    name: 'Маслкар',
+                    img: 'wheels',
+                    items: [
+                        { id: -1, name: 'Стандартные диски', price: -3000 },
+                        { id: 0, name: 'Classic Five', price: -3000 },
+                        { id: 1, name: 'Dukes', price: -15000 },
+                        { id: 2, name: 'Muscle Freak', price: -4950 },
+                        { id: 3, name: 'Kracka', price: -18000 },
+                        { id: 4, name: 'Azreal', price: -19500 },
+                        { id: 5, name: 'Mecha', price: -16800 },
+                        { id: 6, name: 'Black Top', price: -17700 },
+                        { id: 7, name: 'Drag SPL', price: -21000 },
+                        { id: 8, name: 'Revolver', price: -18000 },
+                        { id: 9, name: 'Classic Rod', price: -21000 },
+                        { id: 10, name: 'Fairlie', price: -18000 },
+                        { id: 11, name: 'Spooner', price: -4950 },
+                        { id: 12, name: 'Stars', price: -15000 },
+                        { id: 13, name: 'Old School', price: -18000 },
+                        { id: 14, name: 'El Jefe', price: -15000 },
+                        { id: 15, name: 'Dodman', price: -18000 },
+                        { id: 16, name: 'Six Gun', price: -24000 },
+                        { id: 17, name: 'Mercenary', price: -21000 },
+                    ]
+                },
+                //Лоурайдер диски id3
+                {
+                    id: 2,
+                    name: 'Лоурайдер',
+                    img: 'wheels',
+                    items: [
+                        { id: -1, name: 'Стандартные диски', price: -3000 }, 
+                        { id: 0, name: 'Flare', price: -18300 }, 
+                        { id: 1, name: 'Wired', price: -19500 }, 
+                        { id: 2, name: 'Triple Golds', price: -18300 }, 
+                        { id: 3, name: 'Big Worm', price: -20700 }, 
+                        { id: 4, name: 'Seven Fives', price: -21000 }, 
+                        { id: 5, name: 'Split Six', price: -2160 }, 
+                        { id: 6, name: 'Fresh Mesh', price: -22500 }, 
+                        { id: 7, name: 'Lead Sled', price: -24000 }, 
+                        { id: 8, name: 'Turbine', price: -25500 }, 
+                        { id: 9, name: 'Super Fin', price: -25500 },
+                        { id: 10, name: 'Classic Road', price: -4500 },
+                        { id: 11, name: 'Dollar', price: -18000 },
+                        { id: 12, name: 'Dukes', price: -18300 },
+                        { id: 13, name: 'Low Five', price: -21000 },
+                        { id: 14, name: 'Gooch', price: -24000 },
+                    ]
+                },
+                //Лоурайдер диски id4
+                {
+                    id: 3,
+                    name: 'Вездеход',
+                    img: 'wheels',
+                    items: [
+                        { id: -1, name: 'Стандартные диски', price: -3000 },
+                        { id: 0, name: 'Raider', price: -18000 },
+                        { id: 1, name: 'Mudslinger', price: -24000 },
+                        { id: 2, name: 'Nevis', price: -27000 },
+                        { id: 3, name: 'Cairngorm', price: -30300 },
+                        { id: 4, name: 'Amazon', price: -17100 },
+                        { id: 5, name: 'Сhallenger', price: -20100 },
+                        { id: 6, name: 'Dune Basher', price: -26100 },
+                        { id: 7, name: 'Five Star', price: -2160 },
+                        { id: 8, name: 'Rock Crawler', price: -26400 },
+                        { id: 9, name: 'Mil Spec Steelie', price: -30000 }
+                    ]
+                },
+                //Внедорожник диски id5
+                {
+                    id: 4,
+                    name: 'Внедорожник',
+                    img: 'wheels',
+                    items: [
+                        { id: -1, name: 'Стандартные диски', price: -3000 }, 
+                        { id: 0, name: 'VIP', price: -18000 }, 
+                        { id: 1, name: 'Benefactor', price: -22500 }, 
+                        { id: 2, name: 'Cosmo', price: -18900 }, 
+                        { id: 3, name: 'Bippu', price: -23700 }, 
+                        { id: 4, name: 'Royal Six', price: -24000 }, 
+                        { id: 5, name: 'Fagorme', price: -27600 }, 
+                        { id: 6, name: 'Deluxe', price: -18900 }, 
+                        { id: 7, name: 'Iced Out', price: -15600 }, 
+                        { id: 8, name: 'Cognoscenti', price: -26700 }, 
+                        { id: 9, name: 'LozSpeed Ten', price: -22200 },
+                        { id: 10, name: 'Supernova', price: -18600 },
+                        { id: 11, name: 'Obey RS', price: -19800 },
+                        { id: 12, name: 'LozSpeed Baller', price: -24000 },
+                        { id: 13, name: 'Sunrise', price: -21000 },
+                        { id: 14, name: 'Dash VIP', price: -24900 },
+                        { id: 15, name: 'Cutter', price: -18600 },
+                    ]
+                },
+                //Тюнер диски id6
+                {
+                    id: 5,
+                    name: 'Тюнер',
+                    img: 'wheels',
+                    items: [
+                        { id: -1, name: 'Стандартные диски', price: -3000 }, 
+                        { id: 0, name: 'Cosmo', price: -2160 }, 
+                        { id: 1, name: 'Super Mesh', price: -24000 }, 
+                        { id: 2, name: 'Outsider', price: -24600 }, 
+                        { id: 3, name: 'Rollas', price: -30600 }, 
+                        { id: 4, name: 'Driftmeister', price: -27300 }, 
+                        { id: 5, name: 'Slicer', price: -26100 }, 
+                        { id: 6, name: 'El Quatro', price: -27600 }, 
+                        { id: 7, name: 'Dubbed', price: -24300 }, 
+                        { id: 8, name: 'Five Star', price: -27600 }, 
+                        { id: 9, name: 'Slideways', price: -22500 },
+                        { id: 10, name: 'Apex', price: -30900 },
+                        { id: 11, name: 'Stanced EG', price: -24300 },
+                        { id: 12, name: 'Countersteer', price: -27600 },
+                        { id: 13, name: 'Endo v.1', price: -30000 },
+                        { id: 14, name: 'Endo v.2 Dish', price: -29700 },
+                        { id: 15, name: 'Gruppe Z', price: -24600 },
+                        { id: 16, name: 'Choku-Dori', price: -27300 },
+                        { id: 17, name: 'Chicane', price: -28500 },
+                        { id: 18, name: 'Saisoku', price: -24600 },
+                        { id: 19, name: 'Dished Eight', price: -27900 },
+                        { id: 20, name: 'FujiWara', price: -28800 },
+                        { id: 21, name: 'Zokusha', price: -29100 },
+                        { id: 22, name: 'Battle VII', price: -24600 },
+                        { id: 23, name: 'Rally Master', price: -21900 },
+                    ]
+                },
+                //Эксклюзивные диски id7
+                {
+                    id: 7,
+                    name: 'Эксклюзивные',
+                    img: 'wheels',
+                    items: [
+                        { id: -1, name: 'Стандартные диски', price: -3000 }, 
+                        { id: 0, name: 'Shadow', price: -36000 }, 
+                        { id: 1, name: 'Hypher', price: -21000 }, 
+                        { id: 2, name: 'Blade', price: -246000 }, 
+                        { id: 3, name: 'Diamond', price: -2160 }, 
+                        { id: 4, name: 'Supa Gee', price: -24000 }, 
+                        { id: 5, name: 'Chromatic Z', price: -26400 }, 
+                        { id: 6, name: 'Mercie Ch.Lip', price: -36000 }, 
+                        { id: 7, name: 'Obey RS', price: -27000 }, 
+                        { id: 8, name: 'GT Chrome', price: -30600 }, 
+                        { id: 9, name: 'Cheetah RR', price: -30000 }, 
+                        { id: 10, name: 'Solar', price: -110000 }, 
+                        { id: 11, name: 'Split Ten', price: -30300 }, 
+                        { id: 12, name: 'Dash VIP', price: -36300 }, 
+                        { id: 13, name: 'LozSpeed Ten', price: -30300 }, 
+                        { id: 14, name: 'Carbon Inferno', price: -39300 }, 
+                        { id: 15, name: 'Carboon Shadow', price: -36030 }, 
+                        { id: 16, name: 'Carbonic Z', price: -36300 }, 
+                        { id: 17, name: 'Carbon Solar', price: -30300 }, 
+                        { id: 18, name: 'Cheetah Carbon R', price: -110000 }, 
+                        { id: 19, name: 'Carboon S Racer', price: -30300 }
+                    ]
+                },
+            ]
+        },
+        //Покраска id30
+        {
+            id: 30,
+            name: 'Покраска',
+            img: 'paint',
+            subcategories: [
+                //Основной id1
+                {
+                    id: 1,
+                    type: 'paint',
+                    img: 'paint',
+                    name: 'Основной',
+                    items: [
+                        { id: 1, name: 'Глянец', price: -10000 },
+                         { id: 3, name: 'Матовый', price: -10000 },
+                          { id: 4, name: 'Металлик', price: -10000 }, 
+                          { id: 5, name: 'Хром', price: -10000 }]
+                },
+                //Дополнительный id2
+                {
+                    id: 2,
+                    type: 'paint',
+                    img: 'paint',
+                    name: 'Дополнительный',
+                    items: [
+                        { id: 1, name: 'Глянец', price: -5000 }, 
+                        { id: 3, name: 'Матовый', price: -5000 },
+                         { id: 4, name: 'Металлик', price: -5000 }, 
+                         { id: 5, name: 'Хром', price: -5000 }]
+                },
+                //Дополнительный id3
+                {
+                    id: 3,
+                    type: 'list',
+                    img: 'paint',
+                    name: 'Перламутровый',
+                    price: -40000,
+                    items: [{ id: 0, color: '#0d1116' }, { id: 1, color: '#1c1d21' }, { id: 2, color: '#32383d' }, { id: 3, color: '#454b4f' }, { id: 4, color: '#999da0' }, { id: 5, color: '#c2c4c6' }, { id: 6, color: '#979a97' }, { id: 7, color: '#637380' }, { id: 8, color: '#63625c' }, { id: 9, color: '#3c3f47' }, { id: 10, color: '#444e54' }, { id: 11, color: '#1d2129' }, { id: 12, color: '#13181f' }, { id: 13, color: '#26282a' }, { id: 14, color: '#515554' }, { id: 15, color: '#151921' }, { id: 16, color: '#1e2429' }, { id: 17, color: '#333a3c' }, { id: 18, color: '#8c9095' }, { id: 19, color: '#39434d' }, { id: 20, color: '#506272' }, { id: 21, color: '#1e232f' }, { id: 22, color: '#363a3f' }, { id: 23, color: '#a0a199' }, { id: 24, color: '#d3d3d3' }, { id: 25, color: '#b7bfca' }, { id: 26, color: '#778794' }, { id: 27, color: '#c00e1a' }, { id: 28, color: '#da1918' }, { id: 29, color: '#b6111b' }, { id: 30, color: '#a51e23' }, { id: 31, color: '#7b1a22' }, { id: 32, color: '#8e1b1f' }, { id: 33, color: '#6f1818' }, { id: 34, color: '#49111d' }, { id: 35, color: '#b60f25' }, { id: 36, color: '#d44a17' }, { id: 37, color: '#c2944f' }, { id: 38, color: '#f78616' }, { id: 39, color: '#cf1f21' }, { id: 40, color: '#732021' }, { id: 41, color: '#f27d20' }, { id: 42, color: '#ffc91f' }, { id: 43, color: '#9c1016' }, { id: 44, color: '#de0f18' }, { id: 45, color: '#8f1e17' }, { id: 46, color: '#a94744' }, { id: 47, color: '#b16c51' }, { id: 48, color: '#371c25' }, { id: 49, color: '#132428' }, { id: 50, color: '#122e2b' }, { id: 51, color: '#12383c' }, { id: 52, color: '#31423f' }, { id: 53, color: '#155c2d' }, { id: 54, color: '#1b6770' }, { id: 55, color: '#66b81f' }, { id: 56, color: '#22383e' }, { id: 57, color: '#1d5a3f' }, { id: 58, color: '#2d423f' }, { id: 59, color: '#45594b' }, { id: 60, color: '#65867f' }, { id: 61, color: '#222e46' }, { id: 62, color: '#233155' }, { id: 63, color: '#304c7e' }, { id: 64, color: '#47578f' }, { id: 65, color: '#637ba7' }, { id: 66, color: '#394762' }, { id: 67, color: '#d6e7f1' }, { id: 68, color: '#76afbe' }, { id: 69, color: '#345e72' }, { id: 70, color: '#0b9cf1' }, { id: 71, color: '#2f2d52' }, { id: 72, color: '#282c4d' }, { id: 73, color: '#2354a1' }, { id: 74, color: '#6ea3c6' }, { id: 75, color: '#112552' }, { id: 76, color: '#1b203e' }, { id: 77, color: '#275190' }, { id: 78, color: '#608592' }, { id: 79, color: '#2446a8' }, { id: 80, color: '#4271e1' }, { id: 81, color: '#3b39e0' }, { id: 82, color: '#1f2852' }, { id: 83, color: '#253aa7' }, { id: 84, color: '#1c3551' }, { id: 85, color: '#4c5f81' }, { id: 86, color: '#58688e' }, { id: 87, color: '#74b5d8' }, { id: 88, color: '#ffcf20' }, { id: 89, color: '#fbe212' }, { id: 90, color: '#916532' }, { id: 91, color: '#e0e13d' }, { id: 92, color: '#98d223' }, { id: 93, color: '#9b8c78' }, { id: 94, color: '#503218' }, { id: 95, color: '#473f2b' }, { id: 96, color: '#221b19' }, { id: 97, color: '#653f23' }, { id: 98, color: '#775c3e' }, { id: 99, color: '#ac9975' }, { id: 100, color: '#6c6b4b' }, { id: 101, color: '#402e2b' }, { id: 102, color: '#a4965f' }, { id: 103, color: '#46231a' }, { id: 104, color: '#752b19' }, { id: 105, color: '#bfae7b' }, { id: 106, color: '#dfd5b2' }, { id: 107, color: '#f7edd5' }, { id: 108, color: '#3a2a1b' }, { id: 109, color: '#785f33' }, { id: 110, color: '#b5a079' }, { id: 111, color: '#fffff6' }, { id: 112, color: '#eaeaea' }, { id: 113, color: '#b0ab94' }, { id: 114, color: '#453831' }, { id: 115, color: '#2a282b' }, { id: 116, color: '#726c57' }, { id: 117, color: '#6a747c' }, { id: 118, color: '#354158' }, { id: 119, color: '#9ba0a8' }, { id: 120, color: '#5870a1' }, { id: 121, color: '#eae6de' }, { id: 122, color: '#dfddd0' }, { id: 123, color: '#f2ad2e' }, { id: 124, color: '#f9a458' }, { id: 125, color: '#83c566' }, { id: 126, color: '#f1cc40' }, { id: 127, color: '#4cc3da' }, { id: 128, color: '#4e6443' }, { id: 129, color: '#bcac8f' }, { id: 130, color: '#f8b658' }, { id: 131, color: '#fcf9f1' }, { id: 132, color: '#fffffb' }, { id: 133, color: '#81844c' }, { id: 134, color: '#ffffff' }, { id: 135, color: '#f21f99' }, { id: 136, color: '#fdd6cd' }, { id: 137, color: '#df5891' }, { id: 138, color: '#f6ae20' }, { id: 139, color: '#b0ee6e' }, { id: 140, color: '#08e9fa' }, { id: 141, color: '#0a0c17' }, { id: 142, color: '#0c0d18' }, { id: 143, color: '#0e0d14' }, { id: 144, color: '#9f9e8a' }, { id: 145, color: '#621276' }, { id: 146, color: '#0b1421' }, { id: 147, color: '#11141a' }, { id: 148, color: '#6b1f7b' }, { id: 149, color: '#1e1d22' }, { id: 150, color: '#bc1917' }, { id: 151, color: '#2d362a' }, { id: 152, color: '#696748' }, { id: 153, color: '#7a6c55' }, { id: 154, color: '#c3b492' }, { id: 155, color: '#5a6352' }, { id: 156, color: '#81827f' }, { id: 157, color: '#afd6e4' }, { id: 158, color: '#7a6440' }, { id: 159, color: '#7f6a48' }]
+                },
+                //Диски id4
+                {
+                    id: 4,
+                    name: 'Диски',
+                    type: 'list',
+                    img: 'wheels',
+                    price: -5000,
+                    items: [{ id: 0, color: '#0d1116' }, { id: 1, color: '#1c1d21' }, { id: 2, color: '#32383d' }, { id: 3, color: '#454b4f' }, { id: 4, color: '#999da0' }, { id: 5, color: '#c2c4c6' }, { id: 6, color: '#979a97' }, { id: 7, color: '#637380' }, { id: 8, color: '#63625c' }, { id: 9, color: '#3c3f47' }, { id: 10, color: '#444e54' }, { id: 11, color: '#1d2129' }, { id: 12, color: '#13181f' }, { id: 13, color: '#26282a' }, { id: 14, color: '#515554' }, { id: 15, color: '#151921' }, { id: 16, color: '#1e2429' }, { id: 17, color: '#333a3c' }, { id: 18, color: '#8c9095' }, { id: 19, color: '#39434d' }, { id: 20, color: '#506272' }, { id: 21, color: '#1e232f' }, { id: 22, color: '#363a3f' }, { id: 23, color: '#a0a199' }, { id: 24, color: '#d3d3d3' }, { id: 25, color: '#b7bfca' }, { id: 26, color: '#778794' }, { id: 27, color: '#c00e1a' }, { id: 28, color: '#da1918' }, { id: 29, color: '#b6111b' }, { id: 30, color: '#a51e23' }, { id: 31, color: '#7b1a22' }, { id: 32, color: '#8e1b1f' }, { id: 33, color: '#6f1818' }, { id: 34, color: '#49111d' }, { id: 35, color: '#b60f25' }, { id: 36, color: '#d44a17' }, { id: 37, color: '#c2944f' }, { id: 38, color: '#f78616' }, { id: 39, color: '#cf1f21' }, { id: 40, color: '#732021' }, { id: 41, color: '#f27d20' }, { id: 42, color: '#ffc91f' }, { id: 43, color: '#9c1016' }, { id: 44, color: '#de0f18' }, { id: 45, color: '#8f1e17' }, { id: 46, color: '#a94744' }, { id: 47, color: '#b16c51' }, { id: 48, color: '#371c25' }, { id: 49, color: '#132428' }, { id: 50, color: '#122e2b' }, { id: 51, color: '#12383c' }, { id: 52, color: '#31423f' }, { id: 53, color: '#155c2d' }, { id: 54, color: '#1b6770' }, { id: 55, color: '#66b81f' }, { id: 56, color: '#22383e' }, { id: 57, color: '#1d5a3f' }, { id: 58, color: '#2d423f' }, { id: 59, color: '#45594b' }, { id: 60, color: '#65867f' }, { id: 61, color: '#222e46' }, { id: 62, color: '#233155' }, { id: 63, color: '#304c7e' }, { id: 64, color: '#47578f' }, { id: 65, color: '#637ba7' }, { id: 66, color: '#394762' }, { id: 67, color: '#d6e7f1' }, { id: 68, color: '#76afbe' }, { id: 69, color: '#345e72' }, { id: 70, color: '#0b9cf1' }, { id: 71, color: '#2f2d52' }, { id: 72, color: '#282c4d' }, { id: 73, color: '#2354a1' }, { id: 74, color: '#6ea3c6' }, { id: 75, color: '#112552' }, { id: 76, color: '#1b203e' }, { id: 77, color: '#275190' }, { id: 78, color: '#608592' }, { id: 79, color: '#2446a8' }, { id: 80, color: '#4271e1' }, { id: 81, color: '#3b39e0' }, { id: 82, color: '#1f2852' }, { id: 83, color: '#253aa7' }, { id: 84, color: '#1c3551' }, { id: 85, color: '#4c5f81' }, { id: 86, color: '#58688e' }, { id: 87, color: '#74b5d8' }, { id: 88, color: '#ffcf20' }, { id: 89, color: '#fbe212' }, { id: 90, color: '#916532' }, { id: 91, color: '#e0e13d' }, { id: 92, color: '#98d223' }, { id: 93, color: '#9b8c78' }, { id: 94, color: '#503218' }, { id: 95, color: '#473f2b' }, { id: 96, color: '#221b19' }, { id: 97, color: '#653f23' }, { id: 98, color: '#775c3e' }, { id: 99, color: '#ac9975' }, { id: 100, color: '#6c6b4b' }, { id: 101, color: '#402e2b' }, { id: 102, color: '#a4965f' }, { id: 103, color: '#46231a' }, { id: 104, color: '#752b19' }, { id: 105, color: '#bfae7b' }, { id: 106, color: '#dfd5b2' }, { id: 107, color: '#f7edd5' }, { id: 108, color: '#3a2a1b' }, { id: 109, color: '#785f33' }, { id: 110, color: '#b5a079' }, { id: 111, color: '#fffff6' }, { id: 112, color: '#eaeaea' }, { id: 113, color: '#b0ab94' }, { id: 114, color: '#453831' }, { id: 115, color: '#2a282b' }, { id: 116, color: '#726c57' }, { id: 117, color: '#6a747c' }, { id: 118, color: '#354158' }, { id: 119, color: '#9ba0a8' }, { id: 120, color: '#5870a1' }, { id: 121, color: '#eae6de' }, { id: 122, color: '#dfddd0' }, { id: 123, color: '#f2ad2e' }, { id: 124, color: '#f9a458' }, { id: 125, color: '#83c566' }, { id: 126, color: '#f1cc40' }, { id: 127, color: '#4cc3da' }, { id: 128, color: '#4e6443' }, { id: 129, color: '#bcac8f' }, { id: 130, color: '#f8b658' }, { id: 131, color: '#fcf9f1' }, { id: 132, color: '#fffffb' }, { id: 133, color: '#81844c' }, { id: 134, color: '#ffffff' }, { id: 135, color: '#f21f99' }, { id: 136, color: '#fdd6cd' }, { id: 137, color: '#df5891' }, { id: 138, color: '#f6ae20' }, { id: 139, color: '#b0ee6e' }, { id: 140, color: '#08e9fa' }, { id: 141, color: '#0a0c17' }, { id: 142, color: '#0c0d18' }, { id: 143, color: '#0e0d14' }, { id: 144, color: '#9f9e8a' }, { id: 145, color: '#621276' }, { id: 146, color: '#0b1421' }, { id: 147, color: '#11141a' }, { id: 148, color: '#6b1f7b' }, { id: 149, color: '#1e1d22' }, { id: 150, color: '#bc1917' }, { id: 151, color: '#2d362a' }, { id: 152, color: '#696748' }, { id: 153, color: '#7a6c55' }, { id: 154, color: '#c3b492' }, { id: 155, color: '#5a6352' }, { id: 156, color: '#81827f' }, { id: 157, color: '#afd6e4' }, { id: 158, color: '#7a6440' }, { id: 159, color: '#7f6a48' }]
+                },
+                //Винилы id5
+                {
+                    id: 48,
+                    name: 'Винилы',
+                    img: 'vinyl',
+                    items: [
+                        { id: 0, name: 'Стандартный', price: 1 },
+                        { id: 1, name: 'Стандартный2', price: 4 },
+                        { id: 2, name: 'Стандартный2', price: 5 },
+                        { id: 3, name: 'Стандартный3', price: 6 },
+                        { id: 4, name: 'Стандартный4', price: 7 },
+                        { id: 5, name: 'Стандартный5', price: 8 },
+                        { id: 6, name: 'Стандартный6', price: 9 },
+                        { id: 7, name: 'Стандартный7', price: 10 },
+                        { id: 8, name: 'Стандартный8', price: 11 },
+                        { id: 9, name: 'Стандартный9', price: 12 },
+                        { id: 10, name: 'Стандартный10', price: 12 },
+                        { id: 11, name: 'Стандартный11', price: 12 },
+                        { id: 12, name: 'Стандартный12', price: 12 },
+                        { id: 13, name: 'Стандартный13', price: 12 },
+                        ]
+                },
+            ]
+        },
+        //Фары id31
+        {
+            id: 31,
+            name: 'Фары',
+            img: 'paint',
+            items: [
+                { id: 0, name: 'Стандартные фары', price: -10000 },
+                { id: -1, name: 'Ксеноновые фары', price: -10000  },
+                { id: 1, name: 'Синие ксеноновые фары', price: -10000  },
+                { id: 2, name: 'Голубые ксеноновые фары', price: -10000  },
+                { id: 3, name: 'Морские ксеноновые фары', price: -10000  },
+                { id: 4, name: 'Желто-зелёные ксеноновые фары', price: -10000  },
+                { id: 5, name: 'Желтые ксеноновые фары', price: -10000  },
+                { id: 6, name: 'Оранжевые ксеноновые фары', price: -10000 },
+                { id: 7, name: 'Красно-оранжевые ксеноновые фары', price: -10000 },
+                { id: 8, name: 'Красные ксеноновые фары', price: -10000 },
+                { id: 9, name: 'Розовые ксеноновые фары', price: -10000 },
+                { id: 10, name: 'Сиреневые ксеноновые фары', price: -10000 },
+                { id: 11, name: 'Фиолетовые ксеноновые фары', price: -10000 },
+                { id: 12, name: 'Тёмно-синие ксеноновые фары', price: -10000 }]
+        },
+        //Неон id32
+        {
+            id: 32,
+            name: 'Неон',
+            type: 'paint',
+            img: 'neon',
+            items: [{ id: 1, name: 'Стандартный', price: -100000 }]
+        },
+        //Фары id31
+        // {
+        //     id: 41,
+        //     name: 'Номер',
+        //     img: 'number',
+        //     items: [
+        //         { id: 0, name: 'Синий на белом - 1', price: -2500 },
+        //         { id: 1, name: 'Жёлтый на чёрном', price: -10000 },
+        //         { id: 2, name: 'Жёлтый на синем', price: -20000 },
+        //         { id: 3, name: 'Синий на белом - 2', price: -25000 },
+        //         { id: 4, name: 'Синий на белом - 3', price: -50000 },
+        //     ]
+        // },
+        {
+            id: 42,
+            name: 'Гудок',
+            img: 'horn',
+            items: [
+                { id: -1, name: 'Стандартный', price: -30000 },
+                { id: 0, name: 'Грузовик', price: -30000 },
+                { id: 1, name: 'Полицейский', price: -30000 },
+                { id: 2, name: 'Клоун', price: -30000 },
+            ]
+        },
+        {
+            id: 43,
+            name: 'Тонировка',
+            img: 'glasses',
+            items: [
+                { id: 0, name: 'Стандартное стекло', price: -1000 },
+                { id: 3, name: 'Слабое затемнение', price: -10000 },
+                { id: 2, name: 'Среднее затемнение', price: -20000 },
+                { id: 1, name: 'Лимузин', price: -30000 },
+            ]
+        },
+    ],
 }
-
-
-
-mp.events.add('Casino.UpdateChips', (temp) => {
-     if(casinoBrowser!=null) casinoBrowser.execute(`casino.balance=${temp}`);
-});
-
-mp.events.add('Casino.Roulette.Notify', (type, msg, flag) => {
-		//casinoBrowser.execute(`alert('${msg}')`);
-	 let object = {type, time:1000, msg, flag};
-	 if(casinoBrowser!=null) casinoBrowser.execute(`casino.addNotify(${JSON.stringify(object)})`);
-});
-
-
-
-mp.events.add('Casino.Roulette.DestroyBrowser', () => {
-	 if(global.casinoBrowser != null) global.casinoBrowser.destroy();
-	 global.casinoBrowser = null;
-	 mp.events.call('showHUD', true);
-});
-
-
-
-let rouletteData = [];
-
-for(var i=0; i < tablesPos.length; i++)
-{
-	rouletteData[i] = {};
-	rouletteData[i].table = mp.objects.new(mp.game.joaat(tablesPos[i][0]), new mp.Vector3(tablesPos[i][1], tablesPos[i][2], tablesPos[i][3]));
-	rouletteData[i].ball = mp.objects.new(87196104, new mp.Vector3(tablesPos[i][1]-0.734742, tablesPos[i][2]-0.16617, tablesPos[i][3]));
-	rouletteData[i].ped = mp.peds.new(mp.game.joaat(pedModels[i]), new mp.Vector3(tablesPos[i][1], tablesPos[i][2]+0.7, tablesPos[i][3]+1), 180, 0); //-0.001587
-	rouletteData[i].ped.croupier = i;
-	
-	for(var c=0; c < tableSeatsPos.length; c++)
-	{
-		var newShape = mp.colshapes.newSphere(tablesPos[i][1]+tableSeatsPos[c][0], tablesPos[i][2]+tableSeatsPos[c][1], tablesPos[i][3]+tableSeatsPos[c][2], 0.8);
-		mp.markers.new(1, new mp.Vector3(tablesPos[i][1]+tableSeatsPos[c][0], tablesPos[i][2]+tableSeatsPos[c][1], tablesPos[i][3]+tableSeatsPos[c][2]-1.7), 0.8);
-		newShape.casinoTable = i;
-		newShape.seatID = c;
-	}
-	
-	for(var c=0; c < pedModelVariations[i].length; c++)
-	{
-		rouletteData[i].ped.setComponentVariation(pedModelVariations[i][c][0], pedModelVariations[i][c][1], pedModelVariations[i][c][2], pedModelVariations[i][c][3]);
-	}
-}
-
-mp.events.add('playerEnterColshape', (shape) => {
-
-	if(shape.casinoTable !== undefined && lpCasinoTable == null && interactingWithTable == null)
-	{
-		
-		
-		
-		casinoTableToJoin = shape.casinoTable;
-		casinoSeatToJoin = shape.seatID;
-		mp.events.call("PressE", true);
-		mp.game.audio.playSound(-1, "BACK", "HUD_AMMO_SHOP_SOUNDSET", true, 0, true);
-		//mp.game.graphics.notify(`~g~[E]~s~ Сесть за стол~n~Ставка: ~b~${tablesBets[casinoTableToJoin][0]}~s~ - ~b~${tablesBets[casinoTableToJoin][1]}~s~ фишек`);
-	}
-});
-
-mp.events.add('playerExitColshape', (shape) => {
-	if(shape.casinoTable !== undefined)
-	{
-		mp.events.call("PressE", false);
-		casinoTableToJoin = null;
-		casinoSeatToJoin = null;
-	}
-});
-
-
-
-
-
-
-
-let animInfo = null;
-mp.events.add("Casino.Roulette.LoadAnimations", (jsonString) => 
-{
-	animInfo = JSON.parse(jsonString);
-	
-	loadAnim(animInfo.tableLib);
-	loadAnim(animInfo.dealerLib);
-	loadAnim(animInfo.dealerLib+"_female");
-	
-	mp.events.add("render", rouletteRender);
-	
-	mp.events.add('Casino.Roulette.entityStreamIn', (entity) => {
-		if(entity.type == "ped" && entity.croupier != null) 
-		{
-			if(entity.model == mp.game.joaat('S_M_Y_Casino_01')) entity.taskPlayAnim(animInfo.dealerLib, "idle", 8.0, 1, -1, 1, 0.0, false, false, false);
-			else entity.taskPlayAnim(animInfo.dealerLib+"_female", "idle", 8.0, 1, -1, 1, 0.0, false, false, false);
-			
-			
-			
-			var id = entity.croupier;
-			
-			rouletteData[id].ball.position = new mp.Vector3(tablesPos[id][1]-0.734742, tablesPos[id][2]-0.16617, tablesPos[id][3]);
-			
-			for(var c=0; c < pedModelVariations[id].length; c++)
-			{
-				entity.setComponentVariation(pedModelVariations[id][c][0], pedModelVariations[id][c][1], pedModelVariations[id][c][2], pedModelVariations[id][c][3]);
-			}
-		}
-	});
-});
-
-function rouletteRender() 
-{
-	
-	for(var i=0; i < rouletteData.length; i++)
-	{
-		if(rouletteData[i].table.isPlayingAnim(animInfo.tableLib, animInfo.tableStart, 3))
-		{
-			if(rouletteData[i].table.getAnimCurrentTime(animInfo.tableLib, animInfo.tableStart) > 0.9425)
-			{
-				rouletteData[i].table.playAnim(animInfo.tableMain, animInfo.tableLib, 1000.0, true, true, true, 0, animInfo.speed);
-			}
-		}
-		
-		if(rouletteData[i].ball.isPlayingAnim(animInfo.tableLib, animInfo.ballStart, 3))
-		{
-			if(rouletteData[i].ball.getAnimCurrentTime(animInfo.tableLib, animInfo.ballStart) > 0.99)
-			{
-				rouletteData[i].ball.position = new mp.Vector3(tablesPos[i][1]-0.734742, tablesPos[i][2]-0.16617, tablesPos[i][3]+1.0715);
-				rouletteData[i].ball.rotation = new mp.Vector3(0.0, 0.0, animInfo.ballRot);
-				
-				rouletteData[i].ball.playAnim(animInfo.ballMain, animInfo.tableLib, 1000.0, true, true, false, 0, animInfo.speed);
-			}
-		}
-		
-		if(rouletteData[i].table.isPlayingAnim(animInfo.tableLib, animInfo.tableMain, 3))
-		{
-			
-			if(rouletteData[i].table.getAnimCurrentTime(animInfo.tableLib, animInfo.tableMain) >= 0.9 && Date.now()-rouletteData[i].lastSpinTime > 1000)
-			{
-				rouletteData[i].spins++;
-				rouletteData[i].lastSpinTime = Date.now();
-			}
-			if(rouletteData[i].spins == rouletteData[i].needSpins-1)
-			{
-				rouletteData[i].ball.setAnimSpeed(animInfo.tableLib, animInfo.ballMain, 0.71);
-			}
-			if(rouletteData[i].spins == rouletteData[i].needSpins && rouletteData[i].table.getAnimCurrentTime(animInfo.tableLib, animInfo.tableMain) > 0.99)
-			{
-				rouletteData[i].table.playAnim(rouletteData[i].endTable, animInfo.tableLib, 1000.0, false, true, true, 0, animInfo.speed);
-				
-				rouletteData[i].ball.position = new mp.Vector3(tablesPos[i][1]-0.734742, tablesPos[i][2]-0.16617, tablesPos[i][3]+1.0715);
-				rouletteData[i].ball.rotation = new mp.Vector3(0.0, 0.0, animInfo.ballRot);
-				rouletteData[i].ball.playAnim(rouletteData[i].endBall, animInfo.tableLib, 1000.0, false, true, true, 0, animInfo.speed);
-			}
-		}
-	}
-}
-
-
-let seatCoolDown = false;
-
-mp.keys.bind(0x45, true, () =>  // E
-{
-		
-	if(mp.players.local.isDead() || mp.gui.cursor.visible || interactingWithTable != null) return false;
-	if(seatCoolDown) return;
-	
-	if(lpCasinoTable != null)
-	{
-		if(chipOnTable.size>0){
-			mp.gui.cursor.visible = true;
-			casinoBrowser.execute(`casino.modal()`);
-			return false;
-		}
-		NexusEvent.callRemote("Casino.Roulette.Leave");
-		if(global.casinoBrowser != null) global.casinoBrowser.destroy();
-		global.casinoBrowser = null;
-		minBet = 0;
-		maxBet = 0;
-		interactingWithTable = lpCasinoTable;
-		rouletteData[lpCasinoTable].table.setCollision(true, false);
-		lpCasinoTable = null;
-		closestChipSpot = null;
-		if(rouletteCamera != null) destroyRouletteCamera();
-		if(canDoBets) canDoBets = false;
-		interactingWithTableTimeout = setTimeout(
-			function()
-			{
-				interactingWithTable = null;
-				interactingWithTableTimeout = null;
-			},2000
-		);
-		seatCoolDown = true;
-		setTimeout(()=>{
-			seatCoolDown = false;
-		}, 5000);
-	}
-	else
-	{
-		if(casinoTableToJoin == null) return false;
-		
-		interactingWithTable = casinoTableToJoin;
-		money = tablebetsnew[casinoTableToJoin][0];
-		
-		//mp.players.local.position = new mp.Vector3(tablesPos[casinoTableToJoin][1]+tableSeatsPos[casinoSeatToJoin][0], tablesPos[casinoTableToJoin][2]+tableSeatsPos[casinoSeatToJoin][1], tablesPos[casinoTableToJoin][3]+tableSeatsPos[casinoSeatToJoin][2]);
-		mp.players.local.setHeading(tableSeatsPos[casinoSeatToJoin][3]);
-		
-		
-		 NexusEvent.callRemote("Casino.Roulette.Seat", casinoTableToJoin, casinoSeatToJoin);
-		//mp.events.call("client:syncScenario", mp.players.local.remoteId, "PROP_HUMAN_SEAT_BENCH", 1143.725, 268.0235, -51.88085, 100, false);
-		seatCoolDown = true;
-		setTimeout(()=>{
-			seatCoolDown = false;
-		}, 5000);
-		interactingWithTableTimeout = setTimeout(
-			function()
-			{
-				interactingWithTable = null;
-				interactingWithTableTimeout = null;
-			},2000
-		);
-		
-
-	}	
-});
-
-mp.events.add("Casino.Roulette.ConfirmExit", () => 
-{
-		mp.gui.cursor.visible = false;
-		NexusEvent.callRemote("Casino.Roulette.Leave");
-		if(global.casinoBrowser != null) global.casinoBrowser.destroy();
-		global.casinoBrowser = null;
-		interactingWithTable = lpCasinoTable;
-		console.log(lpCasinoTable);
-		rouletteData[lpCasinoTable].table.setCollision(true, false);
-		lpCasinoTable = null;
-		closestChipSpot = null;
-		minBet = 0;
-		maxBet = 0;
-		if(rouletteCamera != null) destroyRouletteCamera();
-		if(canDoBets) canDoBets = false;
-		interactingWithTableTimeout = setTimeout(
-			function()
-			{
-				interactingWithTable = null;
-				interactingWithTableTimeout = null;
-			},2000
-		);
-	
-});
-
-
-mp.events.add("Casino.Roulette.UpdateTimer", (timer) => 
-{
-	if(global.casinoBrowser != null) casinoBrowser.execute(`casino.timer=${timer}`);
-});
-
-
-
-
-
-mp.events.add("cancelInteractingWithTable", () => 
-{
-	rouletteData[interactingWithTable].table.setCollision(true, false);
-	interactingWithTable = null;
-	if(interactingWithTableTimeout != null)
-	{
-		clearTimeout(interactingWithTableTimeout);
-		interactingWithTableTimeout = null;
-	}
-});
-
-
-
-mp.events.add('playerDeath', (player) => 
-{
-	if(player == mp.players.local) 
-	{
-		if(interactingWithTable != null) interactingWithTable = null;
-		if(rouletteCamera != null) destroyRouletteCamera();
-		if(canDoBets) canDoBets = false;
-	}
-});
-
-
-
-
-//переименовать в "Casino.Roulette.SeatSuccess"
-mp.events.add("Casino.Roulette.SeatSuccess", (player, tableID, min, max) => {
-	
-	if(global.casinoBrowser==null) global.casinoBrowser = mp.browsers.new('http://package/systems/casino/roulette/FRONT/roulette.html');
-	global.casinoBrowser.name = 'nexusbrowser';
-	global.casinoBrowser.execute(`casino.locale='${global.Language}'`)
-	if(player == mp.players.local) 
-	{		
-		lpCasinoTable = casinoTableToJoin;
-		//mp.game.graphics.notify(`~g~ЛКМ - сделать ставку J - вид на стол`);
-	}
-	else
-	{
-		rouletteData[tableID].table.setNoCollision(player.handle, false);
-	}
-	
-	if(casinoTableToJoin != null){
-     rouletteData[casinoTableToJoin].table.setCollision(false, false);
-     money = chipType[currentChip][1];
-	 //casinoBrowser.execute('casinoBrowser.show = true');
-	 casinoBrowser.execute(`casino.bet=${money}`);
-	 casinoBrowser.execute(`casino.minbet=${min}`);
-	 casinoBrowser.execute(`casino.maxbet=${max}`);
-	 mp.events.call('showHUD', false);
-	 
-	 rouletteCamera = mp.cameras.new('default', new mp.Vector3(tablesPos[lpCasinoTable][1], tablesPos[lpCasinoTable][2]-1, tablesPos[lpCasinoTable][3]+3), new mp.Vector3(0,0,0), 45);
-		rouletteCamera.setRot(-75.0, 0.0, 0.0, 2);
-		rouletteCamera.setActive(true);
-		mp.game.cam.renderScriptCams(true, false, 0, true, false);
-	}
-});
-
-
-
-
-mp.events.add("Casino.Roulette.AddChip", (key) => {
-
-					 if(!chipOnTable.has(key)){
-						let obj = mp.objects.new(mp.game.joaat(chipType[currentChip][0]), new mp.Vector3(tablesPos[lpCasinoTable][1]+tableChipsOffsets[key][0]+getRandomOffset(-6,6), tablesPos[lpCasinoTable][2]+tableChipsOffsets[key][1]+getRandomOffset(-6,6), tablesPos[lpCasinoTable][3]+tableChipsOffsets[key][2]));
-						let chipStack = [];
-						chipStack.push(obj);
-						chipOnTable.set(key, chipStack);
-					}else{
-						let tmp = chipOnTable.get(key);
-						let count = tmp.length;
-						let temp = mp.objects.new(mp.game.joaat(chipType[currentChip][0]), new mp.Vector3(tablesPos[lpCasinoTable][1]+tableChipsOffsets[key][0]+getRandomOffset(-6,6), tablesPos[lpCasinoTable][2]+tableChipsOffsets[key][1]+getRandomOffset(-6,6), tablesPos[lpCasinoTable][3]+tableChipsOffsets[key][2]+(count*0.005)));
-						tmp.push(temp);
-						chipOnTable.set(key, tmp);
-					} 
-});
-
-function getRandomOffset(min, max) {
-  return 0.001* Math.floor(Math.random() * (max - min) + min);
-}
-
-
-
-
-
-mp.events.add("Casino.Roulette.spinRouletteWheel", (table, needSpins, endTable, endBall) => {
-	
-	rouletteData[table].table.playAnim(animInfo.tableStart, animInfo.tableLib, 1000.0, false, true, true, 0, animInfo.speed); // loop, freezeLastFrame, ?
-	
-	rouletteData[table].ball.position = new mp.Vector3(tablesPos[table][1]-0.734742, tablesPos[table][2]-0.16617, tablesPos[table][3]+1.0715);
-	rouletteData[table].ball.rotation = new mp.Vector3(0.0, 0.0, animInfo.ballRot);
-	
-	rouletteData[table].ball.playAnim(animInfo.ballStart, animInfo.tableLib, 1000.0, false, true, false, 0, animInfo.speed); // loop, freezeLastFrame, ?
-	rouletteData[table].spins = 0;
-	rouletteData[table].lastSpinTime = 0;
-	rouletteData[table].needSpins = needSpins;
-	rouletteData[table].endTable = endTable;
-	rouletteData[table].endBall = endBall;
-	
-	if(rouletteData[table].ped.model == mp.game.joaat('S_M_Y_Casino_01')) rouletteData[table].ped.taskPlayAnim(animInfo.dealerLib, "spin_wheel", 8.0, 1, -1, 2, 0.0, false, false, false);
-	else rouletteData[table].ped.taskPlayAnim(animInfo.dealerLib+"_female", "spin_wheel", 8.0, 1, -1, 2, 0.0, false, false, false);
-	
-	setTimeout(
-		function()
-		{
-			if(rouletteData[table].ped.model == mp.game.joaat('S_M_Y_Casino_01')) rouletteData[table].ped.taskPlayAnim(animInfo.dealerLib, "idle", 8.0, 1, -1, 1, 0.0, false, false, false);
-			else rouletteData[table].ped.taskPlayAnim(animInfo.dealerLib+"_female", "idle", 8.0, 1, -1, 1, 0.0, false, false, false);
-		}, 8000
-	);
-});
-
-mp.events.add("Casino.Roulette.RoundEnd", (table) => 
-{
-	chipOnTable.forEach(destroyElement);
-	chipOnTable.clear();
-	canDoBets = true;
-	
-	if(rouletteData[table].ped.model == mp.game.joaat('S_M_Y_Casino_01')) rouletteData[table].ped.taskPlayAnim(animInfo.dealerLib, "clear_chips_zone2", 8.0, 1, -1, 2, 0.0, false, false, false);
-	else rouletteData[table].ped.taskPlayAnim(animInfo.dealerLib+"_female", "clear_chips_zone2", 8.0, 1, -1, 2, 0.0, false, false, false);
-	
-	setTimeout(
-		function()
-		{
-			if(rouletteData[table].ped.model == mp.game.joaat('S_M_Y_Casino_01')) rouletteData[table].ped.taskPlayAnim(animInfo.dealerLib, "idle", 8.0, 1, -1, 1, 0.0, false, false, false);
-			else rouletteData[table].ped.taskPlayAnim(animInfo.dealerLib+"_female", "idle", 8.0, 1, -1, 1, 0.0, false, false, false);
-		}, 2000
-	);
-});
-
-mp.events.add("Casino.Roulette.deleteAllChips", (table) => 
-{
-	chipOnTable.forEach(destroyElement);
-	chipOnTable.clear();
-	
-	
-});
-
-mp.events.add("Casino.Roulette.DisableCursor", () => 
-{
-	mp.gui.cursor.visible = false;
-});
-
-
-function destroyElement(value, key, map) {
-  while(value.length>0){
-	  let chip = value.pop();
-	  chip.destroy();
-	  chip = null;
-  }
-}
-
-
-mp.events.add("Casino.Roulette.SetAllowBets", (toggle) => {
-	
-	canDoBets = toggle;
-	//if(toggle) mp.game.graphics.notify("Сделайте ставки");
-	//else mp.game.graphics.notify("Ставки сделаны");
-});
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-
-
-
-
-mp.keys.bind(0x4A, true, () =>  // J
-{
-		
-	if(mp.players.local.isDead() || mp.gui.cursor.visible || interactingWithTable != null || lpCasinoTable == null) return false;
-	
-	if(rouletteCamera != null)
-	{
-		destroyRouletteCamera();
-	}
-	else
-	{
-		rouletteCamera = mp.cameras.new('default', new mp.Vector3(tablesPos[lpCasinoTable][1], tablesPos[lpCasinoTable][2]-1, tablesPos[lpCasinoTable][3]+3), new mp.Vector3(0,0,0), 45);
-		rouletteCamera.setRot(-75.0, 0.0, 0.0, 2);
-		rouletteCamera.setActive(true);
-		mp.game.cam.renderScriptCams(true, false, 0, true, false);
-	}	
-});
-
-function destroyRouletteCamera()
-{
-	rouletteCamera.destroy(true);
-	rouletteCamera = null;
-    mp.game.cam.renderScriptCams(false, false, 0, true, false);
-}
-
-mp.events.add('render', () => 
-{
-	//if(mp.game.controls.isDisabledControlJustReleased(0, 24) && !mp.gui.cursor.visible)
-	//		{
-		
-
-		
-	if(canDoBets&&(closestChipSpot!=null)&&(lpCasinoTable!=null)){
-		let max = Math.floor(tablesBets[lpCasinoTable][1]*tableChipsOffsets[closestChipSpot][4]);
-		max = max - max%5;
-	let hui = mp.game.graphics.drawText(global.GetText("Мин. ставка: ")+tablesBets[lpCasinoTable][0]+global.GetText("\nМакс. ставка: ")+max, [tablesPos[lpCasinoTable][1]+tableChipsOffsets[closestChipSpot][0], tablesPos[lpCasinoTable][2]+tableChipsOffsets[closestChipSpot][1]+0.1, tablesPos[lpCasinoTable][3]+tableChipsOffsets[closestChipSpot][2]+0.1], { 
-      font: 0, 
-      color: [255, 255, 255, 185], 
-      scale: [0.3, 0.3], 
-      outline: true,
-      centre: true
-    });
-	}
-			
-	//		}
-	
-	if(canDoBets && rouletteCamera && betObject == null)
-	{
-		betObject = mp.objects.new(mp.game.joaat(chipType[currentChip][0]), new mp.Vector3(tablesPos[lpCasinoTable][1], tablesPos[lpCasinoTable][2], tablesPos[lpCasinoTable][3]));
-	}
-	
-	if(betObject != null)
-	{
-		if(!canDoBets || rouletteCamera == null)
-		{
-			betObject.destroy();
-			betObject = null;
-			clearTableMarkers();
-		}
-	}
-	
-	if(rouletteCamera != null && lpCasinoTable != null)
-	{
-		if(betObject != null)
-		{
-			/* if(mp.game.controls.isDisabledControlJustReleased(0, 25) && !mp.gui.cursor.visible) // RMB
-			{
-				if(closestChipSpot != null)																			TO DO!!!
-				{
-					NexusEvent.callRemote("removeRouletteBet", closestChipSpot);
-				}
-			} */
-			
-			if(mp.game.controls.isDisabledControlJustReleased(0, 24) && !mp.gui.cursor.visible) // LMB
-			{
-				if(closestChipSpot != null)
-				{
-					global.afkSecondsCount = 0;
-					NexusEvent.callRemote("Casino.Roulette.AddBet", closestChipSpot, chipType[currentChip][1]);				
-				}
-				
-			}
-			
-			let drawObj = getCameraHitCoord();
-			if(drawObj != null)
-			{
-				drawObj.position.z = tablesPos[lpCasinoTable][3]+0.95;
-				betObject.setCoordsNoOffset(drawObj.position.x, drawObj.position.y, drawObj.position.z, false, false, false);
-				
-				getClosestChipSpot(new mp.Vector3(drawObj.position.x, drawObj.position.y, drawObj.position.z));
-			}
-		}
-		
-		let rightAxisX = mp.game.controls.getDisabledControlNormal(0, 220);
-		let rightAxisY = mp.game.controls.getDisabledControlNormal(0, 221);
-		
-		let leftAxisX = 0;
-		let leftAxisY = 0;
-		
-		let pos = rouletteCamera.getCoord();
-		let rr = rouletteCamera.getDirection();
-		let vector = new mp.Vector3(0, 0, 0);
-		vector.x = rr.x * leftAxisY;
-		vector.y = rr.y * leftAxisY;
-		vector.z = rr.z * leftAxisY;
-		
-		let upVector = new mp.Vector3(0, 0, 1);
-		let rightVector = getCrossProduct(getNormalizedVector(rr), getNormalizedVector(upVector));
-		rightVector.x *= leftAxisX * 0.5;
-		rightVector.y *= leftAxisX * 0.5;
-		rightVector.z *= leftAxisX * 0.5;
-		
-		let rot = rouletteCamera.getRot(2);
-		
-		let rotx = rot.x + rightAxisY * -5.0;
-		if(rotx > 89) rotx = 89;
-		if(rotx < -89) rotx = -89;
-		
-		rouletteCamera.setRot(rotx, 0.0, rot.z + rightAxisX * -5.0, 2);
-	}
-});
-
-
-
-
-
-function getCameraHitCoord()
-{
-	let position = rouletteCamera.getCoord();
-	let direction = rouletteCamera.getDirection();
-	let farAway = new mp.Vector3((direction.x * 150) + position.x, (direction.y * 150) + position.y, (direction.z * 150) + position.z);
-	
-	let hitData = mp.raycasting.testPointToPoint(position, farAway, mp.players.local);
-	
-	if(hitData != undefined)
-	{
-		return hitData;
-	}
-	return null;
-}
-
-function getNormalizedVector(vector)
-{
-	let mag = Math.sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
-	vector.x = vector.x / mag;
-	vector.y = vector.y / mag;
-	vector.z = vector.z / mag;
-	return vector;
-}
-
-function getCrossProduct(v1, v2)
-{
-	let vector = new mp.Vector3(0, 0, 0);
-	vector.x = v1.y * v2.z - v1.z * v2.y;
-	vector.y = v1.z * v2.x - v1.x * v2.z;
-	vector.z = v1.x * v2.y - v1.y * v2.x;
-	return vector;
-}
-
-
-
-
-
-
-
-let tableMarkers = [];
-const tableMarkersOffsets =
-{
-	"0": [-0.137451171875, -0.146942138671875, 0.9449996948242188],
-	"00": [-0.1387939453125, 0.10546875, 0.9449996948242188],
-	"1": [-0.0560302734375, -0.1898193359375, 0.9449996948242188],
-	"2": [-0.0567626953125, -0.024017333984375, 0.9449996948242188],
-	"3": [-0.056884765625, 0.141632080078125, 0.9449996948242188],
-	"4": [0.02392578125, -0.187347412109375, 0.9449996948242188],
-	"5": [0.0240478515625, -0.02471923828125, 0.9449996948242188],
-	"6": [0.02392578125, 0.1422119140625, 0.9449996948242188],
-	"7": [0.1038818359375, -0.18902587890625, 0.9449996948242188],
-	"8": [0.1044921875, -0.023834228515625, 0.9449996948242188],
-	"9": [0.10546875, 0.1419677734375, 0.9449996948242188],
-	"10": [0.18701171875, -0.188385009765625, 0.9449996948242188],
-	"11": [0.18603515625, -0.0238037109375, 0.9449996948242188],
-	"12": [0.1851806640625, 0.143157958984375, 0.9449996948242188],
-	"13": [0.2677001953125, -0.18780517578125, 0.9449996948242188],
-	"14": [0.26806640625, -0.02301025390625, 0.9449996948242188],
-	"15": [0.26611328125, 0.143310546875, 0.9449996948242188],
-	"16": [0.3497314453125, -0.18829345703125, 0.9449996948242188],
-	"17": [0.349609375, -0.023101806640625, 0.9449996948242188],
-	"18": [0.3497314453125, 0.142242431640625, 0.9449996948242188],
-	"19": [0.4307861328125, -0.18829345703125, 0.9449996948242188],
-	"20": [0.4312744140625, -0.02392578125, 0.9449996948242188],
-	"21": [0.431884765625, 0.1416015625, 0.9449996948242188],
-	"22": [0.51220703125, -0.188873291015625, 0.9449996948242188],
-	"23": [0.5123291015625, -0.023773193359375, 0.9449996948242188],
-	"24": [0.511962890625, 0.14215087890625, 0.9449996948242188],
-	"25": [0.5931396484375, -0.18890380859375, 0.9449996948242188],
-	"26": [0.59375, -0.023651123046875, 0.9449996948242188],
-	"27": [0.59375, 0.14080810546875, 0.9449996948242188],
-	"28": [0.67529296875, -0.189849853515625, 0.9449996948242188],
-	"29": [0.6751708984375, -0.02337646484375, 0.9449996948242188],
-	"30": [0.674560546875, 0.141845703125, 0.9449996948242188],
-	"31": [0.756591796875, -0.18798828125, 0.9449996948242188],
-	"32": [0.7547607421875, -0.0234375, 0.9449996948242188],
-	"33": [0.7554931640625, 0.14263916015625, 0.9449996948242188],
-	"34": [0.836669921875, -0.188323974609375, 0.9449996948242188],
-	"35": [0.8365478515625, -0.0244140625, 0.9449996948242188],
-	"36": [0.8359375, 0.14276123046875, 0.9449996948242188]
-};
-
-const tableChipsOffsets =
-[
-	[-0.154541015625, -0.150604248046875, 0.9449996948242188, ["0"], 0.04],
-	[-0.1561279296875, 0.11505126953125, 0.9449996948242188, ["00"], 0.04],
-	[-0.059326171875, -0.18701171875, 0.9449996948242188, ["1"], 0.04],
-	[-0.058349609375, -0.019378662109375, 0.9449996948242188, ["2"], 0.04],
-	[-0.0587158203125, 0.142059326171875, 0.9449996948242188, ["3"], 0.04],
-	[0.02294921875, -0.1920166015625, 0.9449996948242188, ["4"], 0.04],
-	[0.023193359375, -0.01947021484375, 0.9449996948242188, ["5"], 0.04],
-	[0.024658203125, 0.147369384765625, 0.9449996948242188, ["6"], 0.04],
-	[0.105224609375, -0.1876220703125, 0.9449996948242188, ["7"], 0.04],
-	[0.1055908203125, -0.028472900390625, 0.9449996948242188, ["8"], 0.04],
-	[0.10400390625, 0.147430419921875, 0.9449996948242188, ["9"], 0.04],
-	[0.187744140625, -0.191802978515625, 0.9449996948242188, ["10"], 0.04],
-	[0.1866455078125, -0.02667236328125, 0.9449996948242188, ["11"], 0.04],
-	[0.1842041015625, 0.145965576171875, 0.9449996948242188, ["12"], 0.04],
-	[0.2696533203125, -0.182464599609375, 0.9449996948242188, ["13"], 0.04],
-	[0.265869140625, -0.027862548828125, 0.9449996948242188, ["14"], 0.04],
-	[0.2667236328125, 0.138946533203125, 0.9449996948242188, ["15"], 0.04],
-	[0.35009765625, -0.186126708984375, 0.9449996948242188, ["16"], 0.04],
-	[0.348876953125, -0.027740478515625, 0.9449996948242188, ["17"], 0.04],
-	[0.3497314453125, 0.14715576171875, 0.9449996948242188, ["18"], 0.04],
-	[0.43212890625, -0.17864990234375, 0.9449996948242188, ["19"], 0.04],
-	[0.4337158203125, -0.02508544921875, 0.9449996948242188, ["20"], 0.04],
-	[0.430419921875, 0.138336181640625, 0.9449996948242188, ["21"], 0.04],
-	[0.51416015625, -0.18603515625, 0.9449996948242188, ["22"], 0.04],
-	[0.5135498046875, -0.02301025390625, 0.9449996948242188, ["23"], 0.04],
-	[0.5146484375, 0.14239501953125, 0.9449996948242188, ["24"], 0.04],
-	[0.59130859375, -0.192413330078125, 0.9449996948242188, ["25"], 0.04],
-	[0.596923828125, -0.022216796875, 0.9449996948242188, ["26"], 0.04],
-	[0.5924072265625, 0.14385986328125, 0.9449996948242188, ["27"], 0.04],
-	[0.6749267578125, -0.187286376953125, 0.9449996948242188, ["28"], 0.04],
-	[0.67431640625, -0.0262451171875, 0.9449996948242188, ["29"], 0.04],
-	[0.6756591796875, 0.140594482421875, 0.9449996948242188, ["30"], 0.04],
-	[0.7542724609375, -0.19415283203125, 0.9449996948242188, ["31"], 0.04],
-	[0.7542724609375, -0.01898193359375, 0.9449996948242188, ["32"], 0.04],
-	[0.75439453125, 0.1448974609375, 0.9449996948242188, ["33"], 0.04],
-	[0.8392333984375, -0.18951416015625, 0.9449996948242188, ["34"], 0.04],
-	[0.837646484375, -0.023468017578125, 0.9449996948242188, ["35"], 0.04],
-	[0.8380126953125, 0.14227294921875, 0.9449996948242188, ["36"], 0.04],
-	
-	[0.0643310546875, -0.304718017578125, 0.9449996948242188, ["1","2","3","4","5","6","7","8","9","10","11","12"], 0.5], //1st12
-	[0.392822265625, -0.304779052734375, 0.9449996948242188, ["13","14","15","16","17","18","19","20","21","22","23","24"], 0.5],//2nd12
-	[0.712158203125, -0.30303955078125, 0.9449996948242188, ["25","26","27","28","29","30","31","32","33","34","35","36"], 0.5],//3rd12
-	[0.9222412109375, -0.185882568359375, 0.9449996948242188, ["1","4","7","10","13","16","19","22","25","28","31","34"], 0.5],//2to1
-	[0.9229736328125, -0.0181884765625, 0.9449996948242188, ["2","5","8","11","14","17","20","23","26","29","32","35"], 0.5],//2to1
-	[0.9248046875, 0.14849853515625, 0.9449996948242188, ["3","6","9","12","15","18","21","24","27","30","33","36"], 0.5],//2to1
-	[-0.011474609375, -0.378875732421875, 0.9449996948242188, ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18"], 0.8],//1-18
-	[0.142822265625, -0.375732421875, 0.9449996948242188, ["2","4","6","8","10","12","14","16","18","20","22","24","26","28","30","32","34","36"], 0.8], //even
-	[0.308349609375, -0.37542724609375, 0.9449996948242188, ["1","3","5","7","9","12","14","16","18","19","21","23","25","27","30","32","34","36"], 0.8],//red
-	[0.4713134765625, -0.376861572265625, 0.9449996948242188, ["2","4","6","8","10","11","13","15","17","20","22","24","26","28","29","31","33","35"], 0.8],//black
-	[0.6341552734375, -0.376495361328125, 0.9449996948242188, ["1","3","5","7","9","11","13","15","17","19","21","23","25","27","29","31","33","35"], 0.8],//odd
-	[0.7926025390625, -0.382232666015625, 0.9449996948242188, ["19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36"], 0.8]//19-36
-];
-
-
-
-function clearTableMarkers()
-{
-	for(var i=0; i < tableMarkers.length; i++)
-	{
-		tableMarkers[i].destroy();
-	}
-	tableMarkers = [];
-	if(label!=null){
-	label=null;
-	}
-}
-
-function getClosestChipSpot(vector)
-{
-	var spot = null;
-	var prevDistance = 0.05;
-	var dist = null;
-	
-	for(var i=0; i < tableChipsOffsets.length; i++)
-	{
-		dist = mp.Vector3.getDistanceBetweenPoints3D(vector, new mp.Vector3(tablesPos[lpCasinoTable][1]+tableChipsOffsets[i][0], tablesPos[lpCasinoTable][2]+tableChipsOffsets[i][1], tablesPos[lpCasinoTable][3]+tableChipsOffsets[i][2]));
-		if(dist <= prevDistance)
-		{
-			spot = i;
-			prevDistance = dist;
-		}
-	}
-	
-	if(spot != closestChipSpot)
-	{
-		closestChipSpot = spot;
-		clearTableMarkers();
-		
-		if(spot != null)
-		{
-			var key = null;
-			var obj = null;
-			
-	
-			for(var i=0; i < tableChipsOffsets[spot][3].length; i++)
-			{
-				key = tableChipsOffsets[spot][3][i];
-				if(key == "00" || key == "0")
-				{
-					obj = mp.objects.new(269022546, new mp.Vector3(tablesPos[lpCasinoTable][1]+tableMarkersOffsets[key][0], tablesPos[lpCasinoTable][2]+tableMarkersOffsets[key][1], tablesPos[lpCasinoTable][3]+tableMarkersOffsets[key][2]));
-					tableMarkers.push(obj);
-				}
-				else
-				{
-					tableMarkers.push(mp.objects.new(3267450776, new mp.Vector3(tablesPos[lpCasinoTable][1]+tableMarkersOffsets[key][0], tablesPos[lpCasinoTable][2]+tableMarkersOffsets[key][1], tablesPos[lpCasinoTable][3]+tableMarkersOffsets[key][2])));
-				}
-			}
-		}
-	}
-	
-}
-
-
-
 
-}
+}跁㗶1

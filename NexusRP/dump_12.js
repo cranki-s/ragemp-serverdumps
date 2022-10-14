@@ -55,6 +55,7 @@
     { Name: 'Shop246', Hash: 0x8B7D3766, Pos: new mp.Vector3(549.0481, 2671.355, 42.15649), Angle: 89.01569, cameraRotate: 180.0, label: "" }, //Магазин 24/7 3
     { Name: 'Shop248', Hash: 0x8B7D3766, Pos: new mp.Vector3(-2966.496, 390.5234, 15.0433), Angle: 80.852, cameraRotate: 180.0, label: "" }, //Магазин 24/7 3
     { Name: 'Shop2414', Hash: 0x8B7D3766, Pos: new mp.Vector3(2557.383, 380.8376, 108.623), Angle: 0.1323226, cameraRotate: 0.0, label: "" }, //Магазин 24/7 3
+    { Name: 'Shop2472', Hash: 0x8B7D3766, Pos: new mp.Vector3(160.75603, 6641.821, 31.71063), Angle: -129.31042, cameraRotate: 0.0, label: "" }, //Магазин 24/7 3
     { Name: 'weaponshop39', Hash: 0x719D27F4, Pos: new mp.Vector3(841.3726, -1035.507, 28.19486), Angle: 341.3947, cameraRotate: 30.0, label: "" }, //Магазин 24/7 3
     { Name: 'weaponshop40', Hash: 0x719D27F4, Pos: new mp.Vector3(23.84422, -1105.745, 29.79701), Angle: 134.4664, cameraRotate: 90.0, label: "" }, //Магазин 24/7 3
     { Name: 'weaponshop38', Hash: 0x719D27F4, Pos: new mp.Vector3(-1118.184, 2700.745, 18.55413), Angle: 197.8389, cameraRotate: -45.0, label: "" }, //Магазин 24/7 3
@@ -63,6 +64,7 @@
     { Name: 'weaponshop35', Hash: 0x719D27F4, Pos: new mp.Vector3(808.9966,-2159.235, 29.619), Angle: 333.8325, cameraRotate: 45.0, label: "" }, //Магазин 24/7 3
     { Name: 'weaponshop34', Hash: 0x719D27F4, Pos: new mp.Vector3(-1304.398, -395.6584, 36.69575), Angle: 56.81636, cameraRotate: -90.0, label: "" }, //Магазин 24/7 3
     { Name: 'weaponshop33', Hash: 0x719D27F4, Pos: new mp.Vector3(253.4281, -51.5676, 69.94106), Angle: 41.85976, cameraRotate: -90.0, label: "" }, //Магазин 24/7 3
+    { Name: 'weaponshop75', Hash: 0x719D27F4, Pos: new mp.Vector3(-331.68506, 6084.963, 31.454771), Angle: -142.46553, cameraRotate: -90.0, label: "" }, //Магазин 24/7 3
     { Name: 'PremiumClothes', Hash: 0xB7C61032, Pos: new mp.Vector3(-708.8664, -151.8637, 37.41513), Angle: 114.6154, cameraRotate: -90.0, label: "" }, //Магазин 24/7 3
     { Name: 'PremiumClothes2', Hash: 0xB7C61032, Pos: new mp.Vector3(-165.0003, -302.8776, 39.73326), Angle: 248.5414, cameraRotate: -90.0, label: "" }, //Магазин 24/7 3
     { Name: 'PremiumClothes3', Hash: 0xB7C61032, Pos: new mp.Vector3(-1448.999, -238.2128, 49.81324), Angle: 49.63409, cameraRotate: -90.0, label: "" }, //Магазин 24/7 3
@@ -140,7 +142,8 @@
     { Name: 'Diving2', Hash: 0xAB0A7155, Pos: new mp.Vector3(1299.1622, 4215.9937, 33.90), Angle: -7, cameraRotate: 135.0, label: "" }, 
 
 
-    { Name: 'Demorgan', Hash: 0xD768B228, Pos: new mp.Vector3(1723.8099, 2505.4304, 45.564896), Angle: 55, cameraRotate: -45, label: "Надзиратель" }, 
+    { Name: 'Demorgan', Hash: 0xD768B228, Pos: new mp.Vector3(1723.8099, 2505.4304, 45.564896), Angle: 55, cameraRotate: -45, label: "Надзиратель" },
+    { Name: 'Warm', Hash: 0xDDCAAA2C, Pos: new mp.Vector3(617.37978, 6505.56, 29.556), Angle: -9, cameraRotate: 0, label: "" },
     
 ];
 

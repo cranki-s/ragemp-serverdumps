@@ -5,7 +5,7 @@ global.adminPanel.active = false;
 mp.keys.bind(0x77, false, function () {
 	if(adminPanelState) global.adminPanel.execute("admlist.closepanel()");
 	if (!loggedin || chatActive || editing  || global.menuOpened || !localplayer.getVariable("IS_ADMIN")) return;
-	else NexusEvent.callRemote('openAdminPanel');
+	else NewEvent.callRemote('openAdminPanel');
 });
 
 mp.events.add("openAdminPanel", (json, json2) => {
@@ -34,7 +34,7 @@ mp.events.add("closeAdminPanel", () => {
 });
 
 mp.events.add("getPlayerInfo", (id) => {
-  NexusEvent.callRemote('getPlayerInfoToAdminPanel', id);
+  NewEvent.callRemote('getPlayerInfoToAdminPanel', id);
 });
 mp.events.add("loadPlayerInfo", (json) => {
   global.adminPanel.execute(`admlist.player=${json}`);

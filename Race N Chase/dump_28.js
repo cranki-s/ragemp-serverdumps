@@ -1,117 +1,182 @@
 {
-let lastBustProgressTime = Date.now();
-let bustProgressCEF = null;
-
-mp.events.add("InitChaseTimer", () => {
-    if(bustProgressCEF == null) {
-        bustProgressCEF = mp.browsers.new("package://Player/busted_bar.html");
-    }
-});
-
-mp.events.add('browserDomReady', (ebrowser) => {
-    if(bustProgressCEF != null && bustProgressCEF === ebrowser)
-    {
-        if(mp.players.local.getVariable("BustedProgress") !== undefined && mp.players.local.getVariable("BustedProgress") > 0 && 
-            chaseMode == 1 && mp.players.local.getVariable("Team") !== undefined && mp.players.local.getVariable("Team") == 0)
-        {
-            bustProgressCEF.active = true;
-            bustProgressCEF.execute(`setProgress(${mp.players.local.getVariable("BustedProgress")});`);
-        }
-        else {
-            bustProgressCEF.execute(`setProgress(0);`);
-            bustProgressCEF.active = false;
-        }
-    }
-});
-
-mp.events.addDataHandler('BustedProgress', function (entity, value, oldValue) 
-{
-    if(entity == mp.players.local && bustProgressCEF != null) {
-
-        if(mp.players.local.getVariable("BustedProgress") !== undefined && mp.players.local.getVariable("BustedProgress") > 0 && 
-            chaseMode == 1 && mp.players.local.getVariable("Team") !== undefined && mp.players.local.getVariable("Team") == 0)
-        {
-            if(!bustProgressCEF.active) bustProgressCEF.active = true;
-            bustProgressCEF.execute(`setProgress(${value});`);
-        }
-        else {
-            bustProgressCEF.execute(`setProgress(0);`);
-            if(bustProgressCEF.active) bustProgressCEF.active = false;
-        }
-
-        if(value == 0 && bustProgressCEF.active) bustProgressCEF.active = false;
-    }
-});
+const CamerasManagerInfo = {
+    gameplayCamera: null,
+    activeCamera: null,
+    interpCamera: null,
+    interpActive: false,
+    _events: new Map(),
+    cameras: new Map([
+        ['testCamera', mp.cameras.new('default', new mp.Vector3(), new mp.Vector3(), 50.0)],
+    ])
+};
 
 mp.events.add('render', () => {
-    if(chaseMode == 1 && mp.players.local.getVariable("pLogged") !== undefined && mp.players.local.getVariable("pLogged") == true &&
-        mp.players.local.getVariable("Team") !== undefined)
-    {
-        if(Date.now() - lastBustProgressTime >= 100 && collisionTime <= 0) // 100ms passed & unlocked
-        {
-            lastBustProgressTime = Date.now();
-            
-            if(mp.players.local.getVariable("Team") == 1) {
-                let progressed = false;
-                mp.players.forEach(target => {
-                    if(mp.players.exists(target) && target.dimension == mp.players.local.dimension && target.getVariable("Team") !== undefined && 
-                        target.getVariable("Team") == 0 && target.getVariable("BustedProgress") < 100 && target.getVariable("BustedProgress") != -1.0 && !progressed)
-                    {
-                        let bustDist = 3.5;
-                        if(target.isInAnyVehicle(false)) bustDist = 7.5;
+    if (CamerasManagerInfo.interpCamera && CamerasManager.doesExist(CamerasManagerInfo.interpCamera) && !CamerasManagerInfo.activeCamera.isInterpolating()) {
 
-                        if(calcDist(target.position, mp.players.local.position) <= bustDist) {
-                            mp.events.callRemoteUnreliable("BustProgress", target, calcDist(target.position, mp.players.local.position));
-                            progressed = true;
-                        }
-                    }
-                });
-            }
-            else if(mp.players.local.getVariable("Team") == 0 && mp.players.local.getVariable("BustedProgress") > 0) {
-                let canProceed = true;
-                let closestDist = 9999.0;
-                
-                mp.players.forEach(target => {
-                    if(canProceed && mp.players.exists(target) && target.dimension == mp.players.local.dimension && target.getVariable("Team") !== undefined && target.getVariable("Team") == 1)
-                    {
-                        let bustDist = 5.0;
-                        if(mp.players.local.isInAnyVehicle(false)) bustDist = 10.0;
+        CamerasManager.fireEvent('stopInterp', CamerasManagerInfo.activeCamera);
 
-                        if(calcDist(target.position, mp.players.local.position) <= bustDist) {
-                            canProceed = false;
-                        }
-
-                        if(calcDist(target.position, mp.players.local.position) < closestDist)
-                        {
-                            closestDist = calcDist(target.position, mp.players.local.position);
-                        }
-                    }
-                });
-
-                if(canProceed) {
-                    mp.events.callRemoteUnreliable("BustRegress", closestDist);
-                }
-            }
-        }
+        CamerasManagerInfo.interpCamera.setActive(false);
+        CamerasManagerInfo.interpCamera.destroy();
+        CamerasManagerInfo.interpCamera = null;
     }
 });
 
-mp.events.add('TwoSecondEvent', () => {
+const cameraSerialize = (camera) => {
+    camera.setActiveCamera = (toggle) => {
+        CamerasManager.setActiveCamera(camera, toggle);
+    };
 
-    if(bustProgressCEF != null) {
+    camera.setActiveCameraWithInterp = (position, rotation, duration, easeLocation, easeRotation) => {
+        CamerasManager.setActiveCameraWithInterp(camera, position, rotation, duration, easeLocation, easeRotation);
+    };
+};
 
-        if(bustProgressCEF.active == true && 
-            mp.players.local.getVariable("BustedProgress") !== undefined && mp.players.local.getVariable("BustedProgress") > 0 && 
-            chaseMode == 1 && mp.players.local.getVariable("Team") !== undefined && mp.players.local.getVariable("Team") == 0)
-        {
-            bustProgressCEF.execute(`setProgress(${value});`);
+class CamerasManager {
+
+    static on(eventName, eventFunction) {
+        if (CamerasManagerInfo._events.has(eventName)) {
+            const event = CamerasManagerInfo._events.get(eventName);
+
+            if (!event.has(eventFunction)) {
+                event.add(eventFunction);
+            }
+        } else {
+            CamerasManagerInfo._events.set(eventName, new Set([eventFunction]));
         }
-        else {
-            bustProgressCEF.execute(`setProgress(0);`);
-            if(bustProgressCEF.active) bustProgressCEF.active = false;
-        }
-
-        if(value == 0 && bustProgressCEF.active) bustProgressCEF.active = false;
     }
-});
+
+    static fireEvent(eventName, ...args) {
+        if (CamerasManagerInfo._events.has(eventName)) {
+            const event = CamerasManagerInfo._events.get(eventName);
+
+            event.forEach(eventFunction => {
+                eventFunction(...args);
+            });
+        }
+    }
+
+    static getCamera(name) {
+
+        const camera = CamerasManagerInfo.cameras.get(name);
+
+        if (typeof camera.setActiveCamera !== 'function') {
+            cameraSerialize(camera);
+        }
+
+        return camera;
+    }
+
+    static setCamera(name, camera) {
+        CamerasManagerInfo.cameras.set(name, camera);
+    }
+
+    static hasCamera(name) {
+        return CamerasManagerInfo.cameras.has(name);
+    }
+
+    static destroyCamera(camera) {
+        if (this.doesExist(camera)) {
+            if (camera === this.activeCamera) {
+                this.activeCamera.setActive(false);
+            }
+            camera.destroy();
+        }
+    }
+
+    static createCamera(name, type, position, rotation, fov) {
+        const cam = mp.cameras.new(type, position, rotation, fov);
+        cameraSerialize(cam);
+        CamerasManagerInfo.cameras.set(name, cam);
+        return cam;
+    }
+
+    static setActiveCamera(activeCamera, toggle) {
+        if (!toggle) {
+            if (this.doesExist(CamerasManagerInfo.activeCamera)) {
+                CamerasManagerInfo.activeCamera = null;
+                activeCamera.setActive(false);
+                mp.game.cam.renderScriptCams(false, false, 0, false, false);
+            }
+
+            if (this.doesExist(CamerasManagerInfo.interpCamera)) {
+                CamerasManagerInfo.interpCamera.setActive(false);
+                CamerasManagerInfo.interpCamera.destroy();
+                CamerasManagerInfo.interpCamera = null;
+            }
+
+        } else {
+            if (this.doesExist(CamerasManagerInfo.activeCamera)) {
+                CamerasManagerInfo.activeCamera.setActive(false);
+            }
+            CamerasManagerInfo.activeCamera = activeCamera;
+            activeCamera.setActive(true);
+            mp.game.cam.renderScriptCams(true, false, 0, false, false);
+        }
+    }
+
+    static setActiveCameraWithInterp(activeCamera, position, rotation, duration, easeLocation, easeRotation) {
+
+        if (this.doesExist(CamerasManagerInfo.activeCamera)) {
+            CamerasManagerInfo.activeCamera.setActive(false);
+        }
+
+        if (this.doesExist(CamerasManagerInfo.interpCamera)) {
+
+            CamerasManager.fireEvent('stopInterp', CamerasManagerInfo.interpCamera);
+
+            CamerasManagerInfo.interpCamera.setActive(false);
+            CamerasManagerInfo.interpCamera.destroy();
+            CamerasManagerInfo.interpCamera = null;
+        }
+        const interpCamera = mp.cameras.new('default', activeCamera.getCoord(), activeCamera.getRot(2), activeCamera.getFov());
+        activeCamera.setCoord(position.x, position.y, position.z);
+        activeCamera.setRot(rotation.x, rotation.y, rotation.z, 2);
+        activeCamera.stopPointing();
+
+        CamerasManagerInfo.activeCamera = activeCamera;
+        CamerasManagerInfo.interpCamera = interpCamera;
+        activeCamera.setActiveWithInterp(interpCamera.handle, duration, easeLocation, easeRotation);
+        mp.game.cam.renderScriptCams(true, false, 0, false, false);
+
+        CamerasManager.fireEvent('startInterp', CamerasManagerInfo.interpCamera);
+    }
+
+    static doesExist(camera) {
+        return mp.cameras.exists(camera) && camera.doesExist();
+    }
+
+    static get activeCamera() {
+        return CamerasManagerInfo.activeCamera;
+    }
+
+    static get gameplayCam() {
+        if (!CamerasManagerInfo.gameplayCamera) {
+            CamerasManagerInfo.gameplayCamera = mp.cameras.new("gameplay");
+        }
+        return CamerasManagerInfo.gameplayCamera;
+    }
+}
+
+mp.events.add(
+    {
+        "CreateCamera": (name, type, position, rotation, fov) => {
+            CamerasManager.createCamera(name, type, position, rotation, fov);
+        },
+
+        "DestroyCamera": (name) => {
+            const cameraFind = CamerasManager.getCamera(name);
+            CamerasManager.destroyCamera(cameraFind);
+        },
+
+        "ToggleCamera": (name, status) => {
+            const cameraFind = CamerasManager.getCamera(name);
+            CamerasManager.setActiveCamera(cameraFind, status);
+        },
+    });
+
+const proxyHandler = {
+    get: (target, name, receiver) => typeof CamerasManager[name] !== 'undefined' ? CamerasManager[name] : CamerasManagerInfo.cameras.get(name)
+};
+
+exports = new Proxy({}, proxyHandler);
 }

@@ -1,48 +1,38 @@
 {
-let vehicles = [];
+let  MarkerArray = [];
 
-mp.events.add('TestDrive.LoadCars', (array)=>{
-    array = JSON.parse(array);
+mp.events.add('CustomMarker.New', (obj)=>{
+    if(typeof obj==='string') obj = JSON.parse(obj);
 
-    array.forEach((item)=>{
-        let position = new mp.Vector3(item.pos.x, item.pos.y, item.pos.z);
-        let veh = mp.vehicles.new(item.vehicleHash, position,
-            {
-                heading: item.pos.rot,
-                numberPlate: "NEXUSRP",
-                alpha: 255,
-                locked: false,
-                engine: false,
-                dimension: 0
-            });
-            veh.col1 = item.color1;
-            veh.col2 = item.color2;
-            veh.setColours(item.color1, item.color2);
-            veh.testdrive = true;
-            veh.Coordinates = position;
+    mp.events.call('CustomMarker.Delete', obj.uid);
+
+    let parameters = {};
+
+    parameters.dimension = obj.dimension;
+    parameters.visible = true;
+
+    if(obj.dir!=null) parameters.direction = new mp.Vector3(obj.dir.x, obj.dir.y, obj.dir.z);
+    if(obj.rot!=null) parameters.rotation = new mp.Vector3(obj.rot.x, obj.rot.y, obj.rot.z);
+    if(obj.color!=null) parameters.color = [obj.color.r, obj.color.g, obj.color.b, obj.color.a];
+
+    MarkerArray[obj.uid] = mp.markers.new(obj.type, new mp.Vector3(obj.pos.x, obj.pos.y, obj.pos.z), obj.scale, parameters);
+});
+
+mp.events.add('CustomMarker.Delete', (uid)=>{
+    try{
+        if(MarkerArray[uid]!=null) {
+            MarkerArray[uid].destroy();
+            MarkerArray[uid] = null;
+        }
+    }catch{}
+});
+
+
+mp.events.add('CustomMarker.OnJoin', (data)=>{
+    data = JSON.parse(data);
+    data.forEach((item)=>{
+        mp.events.call('CustomMarker.New', item);
     });
-});
-
-
-
-
-mp.events.add("entityStreamIn", (entity) => {
-    if(entity.col1!=null && entity.col2!=null){
-        entity.testdrive = true;
-        setTimeout(()=>{
-            entity.setColours(entity.col1, entity.col2);
-            entity.setDirtLevel(0);
-            entity.setInvincible(true);
-            entity.position = entity.Coordinates;
-            
-        }, 50);
-        setTimeout(()=>{
-            try{
-                entity.position = entity.Coordinates;
-            entity.freezePosition(true);
-            }catch{}
-        }, 2000);
-    }
-});
+})
 
 }

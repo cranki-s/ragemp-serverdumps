@@ -1,528 +1,681 @@
 {
+﻿global.showhud = true;
+var cruiseSpeed = -1;
+var cruiseLastPressed = 0;
+var showHint = true;
+let fishingState = 0;
+let fishingSuccess = 0;
+let fishingBarPosition = 0;
+let fishingBarMin = 0;
+let fishingBarMax = 0;
+let movementRight = true;
+let fishingAchieveStart = 0;
+let intervalFishing;
+let isIntervalCreated = false;
+let isInZone = false;
+let isShowPrompt = false;
+let isEnter = false;
+let isjoinTable = false;
+let playerInGreenZone = false;
+var hudstatus =
+{
+    safezone: null, // Last safezone size,
+    online: 0, // Last online int
+    belt : false,
+    street: null,
+    area: null,
 
-
-
-
-mp.events.add('Phone.Initialize', ()=>{
-    if(mp.players.local.browserPhone!=null) return;
-
-    mp.players.local.phoneOpened = false;
-    mp.players.local.browserPhone =  mp.browsers.new('http://package/systems/player/phone/FRONT/index.html');
-    mp.players.local.browserPhone.name = 'nexusbrowser';
-    if(!mp.storage.data.phone){ mp.storage.data.phone = {}; mp.storage.flush(); } 
-    ///////DESKTOP////////
-    if(!mp.storage.data.phone.homeOptions){ mp.storage.data.phone.homeOptions = {}; mp.storage.flush(); } 
-        if(mp.storage.data.phone.homeOptions.apps) mp.players.local.browserPhone.execute(`phone.homeOptions.apps=${mp.storage.data.phone.homeOptions.apps}`);
-        if(mp.storage.data.phone.homeOptions.WallPaper) mp.players.local.browserPhone.execute(`phone.selectWallpaper(${mp.storage.data.phone.homeOptions.WallPaper})`);
-    ////////SETTINGS////////////
-    if(!mp.storage.data.phone.settingsOptions){ mp.storage.data.phone.settingsOptions = {}; mp.storage.flush(); } 
-        if(mp.storage.data.phone.settingsOptions.options) mp.players.local.browserPhone.execute(`phone.settingsOptions.options=${mp.storage.data.phone.settingsOptions.options}`);
-
-    ////CONTACTS///////
-    if(mp.storage.data.phone.contactsOptions) mp.players.local.browserPhone.execute(`phone.contactsOptions=${mp.storage.data.phone.contactsOptions}`);
-
-    ///////MESSAGES///////
-    if(mp.storage.data.phone.messageOptions) mp.players.local.browserPhone.execute(`phone.setMessages('${mp.storage.data.phone.messageOptions}')`);
-    mp.players.local.browserPhone.execute(`phone.removeNPCmessages()`);
+    invehicle: false,
+    updatespeedTimeout: 0, // Timeout for optimization speedometer
+    engine: false,
+    doors: true,
+    fuel: 0,
+    health: 0
+}
+mp.events.add('Time:PrisonEnable', function (timeonline, reason,isDemorgan,Admin) {
+    mp.gui.execute(`HUD.arrest.active=${true}`);
+    mp.gui.execute(`HUD.arrest.reason='${reason}'`);
+    if(isDemorgan){
+        mp.gui.execute(`HUD.arrest.isDemorgan=${isDemorgan}`);
+        mp.gui.execute(`HUD.arrest.Admin='${Admin}'`);
+    }    
+    mp.gui.execute(`HUD.arrest.time='${timeonline}'`);
+});
+mp.events.add('Time:PrisonDisable', function () {
+    mp.gui.execute(`HUD.arrest.active=${false}`);
+    mp.gui.execute(`HUD.arrest.time=null`);
+    mp.gui.execute(`HUD.arrest.reason=''`);
+    mp.gui.execute(`HUD.arrest.isDemorgan=${false}`);
+});
+mp.events.add('ModuleWrapper.DecisionNotification.Open',(item)=>{
+    globalThis.browser.active();
+    globalThis.browser.execute(`window.AppData.commit("global/updateModuleWrapper",${item})`);
     
 });
-
-mp.events.call('Phone.Initialize');
-
-////////////////////// GLOBAL ///////////////////////////////////
-
-mp.keys.bind(Keys.VK_UP, false, async function () { //
-    if (!loggedin || chatActive || editing || mp.game.ui.isPauseMenuActive() || (global.menuCheck() && (!mp.players.local.phoneOpened)) || cuffed || mp.game.ui.isPauseMenuActive() || mp.players.local.getVariable('InDeath') == true || mp.players.local.getVariable('seats') == true || talking) return;
-
-        if(mp.players.local.browserPhone==null) mp.events.call('Phone.Initialize');
-
-        mp.players.local.phoneOpened = !mp.players.local.phoneOpened;
-        mp.players.local.browserPhone.execute(`window.locale = '${global.Language}'`)
-        mp.players.local.browserPhone.execute(`phone.phoneHandler(${mp.players.local.phoneOpened})`);
-        mp.players.local.browserPhone.execute(`phone.wasBlocked=${!mp.players.local.phoneOpened}`);
-        mp.gui.cursor.visible = mp.players.local.phoneOpened;
-        global.menuOpened = mp.players.local.phoneOpened;
-        mp.events.call('Phone.ChangeHudStatus');
-        if(mp.players.local.phoneOpened){           
-            if (!mp.game.streaming.hasAnimDictLoaded("cellphone@str")) {
-            mp.game.streaming.requestAnimDict("cellphone@str");
-            do await mp.game.waitAsync(10);
-            while (!mp.game.streaming.hasAnimDictLoaded("cellphone@str"))
-            }            
-            mp.events.call('addLocal','Phone')
-           // mp.players.local.taskPlayAnim("cellphone@str", "cellphone_text_press_a", 8, 0, -1, 49, 0, !1, !1, !1)
-            //NexusEvent.callRemote('playAnim',"cellphone@str", "cellphone_text_press_a", 8);
-            NexusEvent.callRemote('Phone:OpenTask');
-        }else{            
-            //NexusEvent.callRemote('DetachPlayerPhone');
-            mp.events.call('removeLocal','Phone')
-            NexusEvent.callRemote('Phone:CloseTask');
-           //NexusEvent.callRemote('stopTaskAnim');
-            //mp.players.local.stopAnimTask("cellphone@str", "cellphone_text_press_a", 3);
-
-        }
+mp.events.add('ModuleWrapper.DecisionNotification.Action', (result) => {    
+    if (!loggedin || chatActive || editing || global.menuOpened || localplayer.getVariable('seats') == true) return;
+    if(result) NewEvent.callRemote('acceptPressed');
+    else NewEvent.callRemote('cancelPressed');
+   // globalThis.browser.execute(`window.RPC.resolve('ModuleWrapper.DecisionNotification.Action', true)`);    
+});
+mp.events.add('ModuleWrapper.DecisionNotification.Action.Cansel',()=>{        
+    globalThis.browser.execute(`window.RPC.resolve('ModuleWrapper.DecisionNotification.Action', ${true})`);
 });
 
-mp.events.addDataHandler("PhoneData", function(a, b) {
-    if (0 !== a.handle){
-        if(b == true){
-            if (a == mp.players.local) {
-                mp.game.mobile.createMobilePhone(0), 
-                mp.game.mobile.setMobilePhoneScale(0)
-                return;
-            }
-            a.taskPlayAnim("cellphone@str", "cellphone_text_press_a", 8, 0, -1, 49, 0, !1, !1, !1);
-        }else{
-            if (a == mp.players.local) {
-                 mp.game.invoke("0x3BC861DF703E5097");
-                 return;
-            }
-            a.stopAnimTask("cellphone@str", "cellphone_text_press_a", 3);
-        }
-    }           
-});
-//mp.attachmentMngr.register("playerSmartPhone", "p_cs_cam_phone", 28422, new mp.Vector3(0, 0, 0), new mp.Vector3(0, 0, 30));
-mp.events.add('Phone.ChangeHudStatus', () =>{
-    if(mp.players.local.phoneOpened){
-        mp.events.call('Hud.InfoButtons.Add', JSON.stringify(['BACKSPACE']), 'Телефон | Назад');
-        mp.events.call('Hud.InfoButtons.Remove', JSON.stringify(['arrowup']));
-    } else{
-        mp.events.call('Hud.InfoButtons.Add', JSON.stringify(['arrowup']),'Телефон');
-        mp.events.call('Hud.InfoButtons.Remove', JSON.stringify(['BACKSPACE']));
-    }
+mp.events.add('LoadMaterials',()=>{
+    mp.gui.cursor.visible = true;
+    global.menuOpened = true;
+    mp.gui.execute(`materialLoad.active = true`);
 })
-
-mp.events.add('Phone.Close', () => {
+mp.events.add('Callback:LoadMaterials',(events,value)=>{
+    if(events && value){
+        NewEvent.callRemote('Materials:Callback',events,value);
+    }    
     mp.gui.cursor.visible = false;
-    mp.players.local.phoneOpened = false;
-    mp.players.local.browserPhone.execute(`phone.wasBlocked=true`);
-    mp.players.local.browserPhone.execute(`phone.phoneHandler(${mp.players.local.phoneOpened})`);
     global.menuOpened = false;
-    mp.events.call('Phone.ChangeHudStatus');
-    NexusEvent.callRemote('Phone:CloseTask');
-    mp.events.call('removeLocal','Phone')
-    //mp.players.local.stopAnimTask("cellphone@str", "cellphone_text_press_a", 3);
-    //NexusEvent.callRemote('stopTaskAnim');
+    mp.gui.execute(`materialLoad.active = false`);
+});
+mp.events.add('Fish:infishzone',(status)=>{
+    mp.gui.execute(`HUD.fishActiveZone = ${status}`)
+});
+mp.events.add('Fish:ChechWater',()=>{
+    if(mp.players.local.isInWater()) return;
+    NewEvent.callRemote('startFish');
 });
 
-mp.events.add('Phone.SendSIM', (sim) =>{
-    mp.events.call('Phone.ChangeHudStatus');
-    mp.players.local.browserPhone.execute(`phone.myPhoneNumber='${sim}'`);
-});
-
-mp.events.add('Phone:Home:AppsOptionsSave', (data) => {
-    mp.storage.data.phone.homeOptions.apps = data;
-    mp.storage.flush();
-    // Сохранение настроек приложений (Например при перемещение 1-го из них -> обновляем данные в .storage)
-});
-
-mp.events.add('Phone:Contacts:ContactsOptionsSave', (data) => {
-    mp.storage.data.phone.contactsOptions = data;
-    mp.storage.flush();
-    // Обновление контактов при любых действиях: добавление нового/(удаление/добавление в избранные)/недавние и.т.д. 
-});
-
-mp.events.add('Phone:Settings:SettingsOptionsOptionsSave', (data) => {
-    mp.storage.data.phone.settingsOptions.options = data;
-    mp.storage.flush();
-    // Обновление настроек
-});
-
-mp.events.add('Phone.OpenInput', (type, number) =>{
-
-    if (!loggedin || !chatActive) return;
-
-        mp.players.local.phoneOpened = true;
-        mp.players.local.browserPhone.execute(`phone.phoneHandler(${mp.players.local.phoneOpened})`);
-        mp.players.local.browserPhone.execute(`phone.wasBlocked=${!mp.players.local.phoneOpened}`);
-        mp.gui.cursor.visible = mp.players.local.phoneOpened;
-        global.menuOpened = mp.players.local.phoneOpened;
-        mp.events.call('Phone.ChangeHudStatus');
-
-    if(type=='call'){
-        mp.players.local.browserPhone.execute(`phone.$eb.$emit('telephone-change-route', '/contacts/keyboard')`);
-        mp.players.local.browserPhone.execute(`phone.$eb.$emit('telephone-contacts-keyboard-call', { phone: ${number} })`);
+mp.events.add('CarPrizeTimer.UpdateOnline', (timeonline, type) => {
+    var text = timeonline;
+    if (text > 0) {
+        var hours = Math.floor(text / 60);
+        var mins = text % 60;
+        text = "";
+        if (hours > 0) {
+            text = hours + global.GetText(" ч. ");
+        }
+        text += mins + global.GetText(" мин.")
     }
-
-    if(type=='sms'){
-        mp.players.local.browserPhone.execute(`phone.$eb.$emit('telephone-change-route', '/message/new')`);
-    mp.players.local.browserPhone.execute(`phone.$eb.$emit('telephone-message-new-contact-select', { phone: ${number} })`);
+    let bo = {}
+    if (type && !(timeonline == -50 || timeonline == -100)) {
+        bo = {
+            title: global.GetText('Отыграй 3 часа'),
+            subtitle: global.GetText('И получи Free Case'),
+            time: text,
+            preview: 'free.png'
+        };
+        mp.gui.execute(`HUD.bonus=${JSON.stringify(bo)}`);
+    }
+    else if (!type) {
+        // if (timeonline == -50 || timeonline == -100) {
+        //     text = global.GetText('Вы участвуете')
+        // }
+        // bo = {
+        //     title: global.GetText('Отыграй 50 часов'),
+        //     subtitle: global.GetText('Участвуй в розыгрыше'),
+        //     subtitle2: global.GetText('одного из Nissan GTR (x5)'),
+        //     time: text,
+        //     preview: 'gtr.png'
+        // };
+        // mp.gui.execute(`HUD.bonus2=${JSON.stringify(bo)}`);
+    } else {
+        mp.gui.execute(`HUD.bonus=false`);
     }
 });
 
 
-//iconTypes: announcement, bank, call, events, message, music, navigation, safari, settings, special-service, taxi, transport
-mp.events.add('Phone.Notify.Push', (iconType, description) =>{
-    mp.players.local.browserPhone.execute(`phone.$eb.$emit('telephone-alert', {
-        appIcon: '${iconType}.svg',
-        timeToHide: 5000,
-        title: '<p style="color: #7692a0;">${global.GetText('Уведомление')}</p>',
-        description: '${description}',
-        navbarBackground: '#daf4fd',
-        contentBackground: '#cae8f3'
-        });`);
+
+
+// Чтобы замаунтить окно надо вызвать execute на HUD.fisherman.active = true
+// Чтобы показать то что рыба нахоиться в detect zone надо вызвать execute на HUD.fisherman.inDetectZone = true
+
+mp.events.add('Hud:OpenFisherman', () => {
+    // Open fisherman
+    // Вызвать execute на fisherman.hide = false
+    // Он должен быть замаунчен!! Иначе высрет аля fisherman ис нот дефаинед
 });
 
-mp.events.add('Phone:Settings:SelectWallpaper', (data) => {
-    //mp.players.local.browserPhone.execute(`phone.selectWallpaper({ type: 'animated', current: '1.webm' })`);
-    
-    var temp1 = JSON.parse(data);
-    var temp = {};
-    temp.type = temp1.type;
-    temp.current = temp1.url;
-    //mp.players.local.browserPhone.execute(`console.log(${JSON.stringify(temp)})`);
-    mp.storage.data.phone.homeOptions.WallPaper = JSON.stringify(temp);
-    mp.storage.flush();
-    mp.players.local.browserPhone.execute(`phone.selectWallpaper(${JSON.stringify(temp)})`);
+let freeze = false;
+mp.keys.bind(Keys.VK_X, false, function () { // R key
+	try {
+		if (!loggedin || chatActive || mp.gui.cursor.visible) return;
+        if (mp.players.local.vehicle.getClass() == 14) {
+            if(!freeze){
+                let speed = (mp.players.local.vehicle.getSpeed() * 3.6).toFixed();
+                if(speed>12){
+                    mp.events.call('notify', 4, 9, global.GetText("Чтобы бросить якорь нужно остановить судно."), 7000);
+                    return;
+                }
+            }
+            freeze = !freeze;
+            NewEvent.callRemote('FreezeBoat',freeze);
+        }
+	} catch { }
+});
+// mp.events.addDataHandler('freezestatusboat', function (entity, value) {
+//     if (entity.type === "vehicle"){                 
+//         entity.freezePosition(value);     
+//     }
+//   })
 
-    //send onEvery LOGIN
-    // Изменение фона
-    // Incoming data
-    // {
-    //     type: 'static'
-    //     url: '1.png'
-    // }
-    // Тут отправляется callRemote который должен проверить есть ли в игрока этот фон, если есть то сетаем и делаем выбранным -> отправляем execute на phone.selectWallpaper();
-    // phone.selectWallpaper({ type: 'animated', current: '1.webm' });
-    // Данные которые должны прийти в phone.selectWallpaper():
-    // {
-    //     type: 'static'
-    //     current: '1.png'
-    // }
-    // Когда игрок заходи на сервер надо отправить execute в phone.background то есть до этого надо сохранять фон который был активный в игрока. Я не сохранял это в .storage т.к. эти данные можно изменить, а у нас некоторые фоны платные. (Данные такие же как и phone.settingsWallpaperChange())
-    // Так же надо сделать execute в settingsOptions.availableWallpaper чтобы установить все доступные фоны в игрока
-    // Было бы еще хорошо если бы они сортировались по типу, то есть те у которых тип animated - шли в конец
+mp.events.add('hptohud',(hp,active)=>{
+    mp.gui.execute(`HUD.stream=${active}`);
+    mp.gui.execute(`HUD.streamerhp=${hp}`);
 });
 
-//////////////////////////////////////////////////////////////
-
-/////////////////////// MESSAGES //////////////////////////////////
-
-mp.events.add('Phone:Message:MessageOptionsSave', (data) => {
-    mp.storage.data.phone.messageOptions = data;
-    mp.storage.flush();
-    // Обновление сообщений
-});
-
-mp.events.add('Phone:Message:SendMessage', (data) => {
 
 
-    NexusEvent.callRemote('Phone.Message.Send', data);
-   // mp.players.local.browserPhone.execute(`phone.messageHandler(${JSON.stringify(temp)})`);
-    // Incoming data
-    // { phone: '1111110', message: 'dfg', myPhoneNumber: '1123412' }
-    // phone - До кого сообщение,
-    // message - Само сообщение
-    // myPhoneNumber - Номер телефона отправителя
-    // Сообщение автоматически не добавляется в отправителя! Это сделано для того чтобы избежать пролагов из-за которых сообщение может не дойти к получателю.
-    // Для того чтобы отправить сообщение обеим сторонам надо сделать execute на phone.messageHandler() с обьектом:
 
-    // Для того кто отправил, пример:
-    // { phone: '1111110', message: 'dfg', myself: true }
-    // phone - номер которому было отправлено сообщение
-    // message - Сообщение
-    // myself - Для того чтобы сделать его зеленым цветом то есть показать его как сообщение отправителя
-
-    // Для того кто должен получить:
-    // { phone: '1111110' message: 'dfg', myself: false }
-    // phone - номер который отправил сообщение
-    // message - само сообщение
-    // myself - Для того чтобы сделать сообщение серым цветом, это сообщение будет как сообщение от отправителя
-});
-mp.events.add('Phone.Message.SendSuccess', (smsJSON) => {
-    var sms = JSON.parse(smsJSON);
-    sms.myself = true;
-    mp.players.local.browserPhone.execute(`phone.messageHandler('${JSON.stringify(sms)}')`);
-});
-mp.events.add('Phone.Message.Push', (smsJSON) => {
-    var sms = JSON.parse(smsJSON);
-    sms.myself = false;
-    mp.players.local.browserPhone.execute(`phone.messageHandler('${JSON.stringify(sms)}')`);
-    if(!mp.players.local.phoneOpened) mp.gui.execute(`sound.sound='package://sound/iphone_message.mp3'`);
-});
-
-mp.events.add('Phone:Message:MessageSave', (data)=>{
-    mp.storage.data.phone.messageOptions = JSON.parse(data);
-    mp.storage.flush();
+let RentType;
+mp.events.add('PopUp:OpenRentMenu',(e,type)=>{
+    mp.gui.execute(`popUp.popUpHandler(true, ${e})`);
+    mp.gui.cursor.visible = true;
+    global.menuOpened = true;
+    RentType = type;
+})
+mp.events.add('PopUp:ClosePopUp',()=>{
+    mp.gui.execute(`popUp.popUpHandler(false)`);
+    mp.gui.cursor.visible = false;
+    global.menuOpened = false;
+    mp.events.call('NPC.cameraOff',1500);
+})
+mp.events.add('PopUp:CallBack',(payMethod)=>{
+    mp.gui.execute(`popUp.popUpHandler(false)`);
+    mp.gui.cursor.visible = false;
+    global.menuOpened = false;
+    mp.events.call('NPC.cameraOff',1500);
+    NewEvent.callRemote('RentTransport.Rent', payMethod,RentType); //0 = cash, 1 = bank
 })
 
-//////////////////////////////////////////////////////////////////
 
-//////////////////////////// TAXI //////////////////////////////
-
-mp.events.add('Phone:Taxi:GetCurrentPosition', () => {
-    var street = mp.game.pathfind.getStreetNameAtCoord(mp.players.local.position.x, mp.players.local.position.y, mp.players.local.position.z, 0, 0);
-    mp.players.local.browserPhone.execute(`phone.taxiChangeCurrentPosition('${mp.game.ui.getStreetNameFromHashKey(street.streetName)}')`);
-    // Получение позиции игрока (улица/квартал)
-    // Вызываеться при каждом открытие приложение "Такси"
-    // Execute на phone.taxiChangeCurrentPosition() с назвой позиции
-});
-
-mp.events.add('Phone:Taxi:AcceptOrder', (order) => {
-    NexusEvent.callRemote('Phone.Taxi.OrderTaxi');
-    // Подтверждение заказа
-    // Incoming data
-    // { class: 'economy' }
-    // Потом надо отправить execute на phone.taxiHandler() с статусом true/false
-    // Если статус true то кнопка "Заказать" меняеться на "Отменить" 
-});
-mp.events.add('Phone.Taxi.SendStatus', (status) => {
-    mp.players.local.browserPhone.execute(`phone.taxiHandler(${status})`);
-});
-
-mp.events.add('Phone:Taxi:GetOrderStatus', () => {
-    // триггерится при открытии приложения (ПОКА НЕ НУЖНО)
-    // Получение актуального orderStatus
-    // Надо сделать execute на phone.taxiHandler() с статусом true/false
-});
-
-mp.events.add('Phone:Taxi:DeclineOrder', () => {
-    NexusEvent.callRemote('Phone.Taxi.CancelOrder');
-    // Отменение заказа
-    // Отправляется колбек 'Phone.Taxi.SendStatus' со статусом false если отмена прошла успешно
-});
-
-/////////////////////////////////////////////////////////////////////
-
-///////////////////////// TRANSPORT //////////////////////////////
-
-mp.events.add('Phone:Transport:GetTransportList', () => {
-    NexusEvent.callRemote('Phone.Transport.GetMyTransport');
-    // При каждом открытие приложения "Транспорт" вызывается этот тригер.
-    // Нужно вызвать execute на phone.transportOptions.transportList чтобы установить актуальный список машин игрока (пример обьекта phone.js:438)
-});
-mp.events.add('Phone.Transport.PushAll', (transportListJSON) => {
-    mp.players.local.browserPhone.execute(`phone.transportOptions.transportList=${transportListJSON}`);
-});
-
-mp.events.add('Phone:Transport:RepairTransport', (transportJSON) => {
-    NexusEvent.callRemote('Phone.Transport.Repair', transportJSON);
-    // Подтверждение восстановление транспорта
-    // Incoming data
-    // {
-    //     name: 'Mercedes-benz AMG GT',
-    //     number: '80ELY993',
-    //     image: 'amggt.png',
-    //     sellPrice: 1000000
-    // }
-});
-mp.events.add('Phone:Transport:FindTransport', (transportJSON) => {
-    NexusEvent.callRemote('Phone.Transport.Find', transportJSON);
-    // Подтверждение восстановление транспорта
-    // Incoming data
-    // {
-    //     name: 'Mercedes-benz AMG GT',
-    //     number: '80ELY993',
-    //     image: 'amggt.png',
-    //     sellPrice: 1000000
-    // }
-});
-mp.events.add('Phone:Transport:EvacuateTransport', (transportJSON) => {
-    NexusEvent.callRemote('Phone.Transport.Evacuate', transportJSON);
-    // Подтверждение эвакуирование транспорта
-    // Incoming data
-    // {
-    //     name: 'Mercedes-benz AMG GT',
-    //     number: '80ELY993',
-    //     image: 'amggt.png',
-    //     sellPrice: 1000000
-    // }
-});
-
-mp.events.add('Phone:Transport:SellTransport', (transportJSON) => {
-    NexusEvent.callRemote('Phone.Transport.Sell', transportJSON);
-    // Подтверждение продажи транспорта
-    // в случае успешной продажи  вызвать execute на phone.transportOptions.transportList с новым полным списком транспорта
-    // Incoming data
-    // {
-    //     name: 'Mercedes-benz AMG GT',
-    //     number: '80ELY993',
-    //     image: 'amggt.png',
-    //     sellPrice: 1000000
-    // }
-});
-mp.events.add('Phone.Transport.Sell-Success', (name) =>{
-    mp.events.call('Phone.Notify.Push', 'transport', global.GetText('Автомобиль ') +name+ global.GetText(' продан государству.<br>Средства поступили на банковский счет.'));
-    mp.players.local.browserPhone.execute(`phone.$eb.$emit('telephone-change-route', '/transport/transport');`);
+mp.events.add('safeZoneVisual', function (data) {	  
+   mp.gui.execute(`HUD.greenZone=${data}`);
+   playerInGreenZone = data;
 });
 
 
 
-let talking = false;
-
-mp.events.add('Phone:Call:PhoneCall', (data) => {
-    NexusEvent.callRemote('Phone.Call.Remote', data);
-    //mp.players.local.browserPhone.execute(`console.log(${data})`);
-    // Тут нужно отправить callRemote который должен у 2 игроков вызвать execute на phone.callHandler() с обьектом:
-    // {
-    //     phone: '2347235', // Кому звонок
-    //     myPhoneNumber: '1123412', // Кто звонит
-    //     type: 'incoming',
-    //     status: 'Звонок завершен', // Есть только у declineCall т.к. когда собеседник сбрасывает звонок нужно написать "Звонок завершен" или если ты звонишь ему и линия занята надо написать "Занято"
-    // }
-    // outgoing - Когда ты звонишь кому-то надо кинуть тригер на звонок (2 игрокам)
-    // incoming - Когда тебе звонят ты принимаешь (Когда он принял долже сработать тригер на callHandler с типом acceptCall чтобы запустить таймер)
-    // acceptCall - Чтобы запустить таймер (статус когда разговор начался)
-    // declineCall - Когда собеседник нажал кнопку завершить разговор - нужно завершить его и у других
-    // skipped - когда человек разговаривает надо вызвать чтобы показать что пропущенный (оно не включит звонок)
+mp.events.add('fishingBaitTaken', () => {
+	fishingBarMin = 0.277;
+    fishingBarMax = 0.675;
+	fishingAchieveStart = Math.random() * 0.39 + fishingBarMin;
+    isEnter=true;
+    fishingBarPosition = 0.476;
+    fishingSuccess = 0;
+    fishingState = 3;
 });
-mp.events.add('Phone.Call.CallBack', (data) => {
-    if(!mp.players.local.phoneOpened){
-        mp.players.local.browserPhone.execute(`phone.phoneHandler(true)`);
-        //mp.gui.cursor.visible = phoneOpened;
-    }
-    talking = JSON.parse(data).type=="acceptCall";
-    mp.players.local.browserPhone.execute(`phone.callHandler(${data})`);
+mp.events.add('Casino.UpdateChips', function (chipsAmount) {
+    mp.gui.execute(`HUD.chips=${chipsAmount}`);
 });
 
-// Тут callRemote который должен у 2 игроков вызвать execute на phone.callHandler();
 
-mp.events.add('Phone:Call:ChangeCallParameter', (type) => {
-    if(type=='mute'){
-        NexusEvent.callRemote('Phone.Mute');
-    }
-    // Изменение статуса микрофона в звонке (true/false)
-    // type - mute/speaker
-    //mp.players.local.browserPhone.execute(`phone.changeCallControllerStatus("${type}", true)`);
-});
-mp.events.add('Phone.Mute.CallBack', (flag) =>{
-    mp.players.local.browserPhone.execute(`phone.changeCallControllerStatus("mute", ${flag})`);
+
+mp.events.add('Quest.Hud.Update', function (JSONobj) {
+    mp.gui.execute(`HUD.currentQuestsHandler('add', ${JSONobj})`);
 });
 
-mp.events.add('Phone:Navigation:SelectNavigation', (data) => {
-    var point = JSON.parse(data);
-    if(point.x!=null && point.y!=null){
-        mp.game.ui.setNewWaypoint(point.x, point.y);
-        mp.events.call('Phone.Notify.Push', 'navigation', global.GetText('Точка установлена на карте'));
-    }else if(point.type!=null){
-        if(point.type=='ATM') NexusEvent.callRemote('Phone.NearestATM');
-        else NexusEvent.callRemote('Phone.NearestBusiness', point.type);
-    }
-});
-mp.events.add('Phone.NearestBusiness.CallBack', (x, y) =>{
-    mp.game.ui.setNewWaypoint(x, y);
-    mp.events.call('Phone.Notify.Push', 'navigation', global.GetText('Ближайший магазин установлен на карте'));
-});
-mp.events.add('Phone.NearestATM.CallBack', (x, y) =>{
-    mp.game.ui.setNewWaypoint(x, y);
-    mp.events.call('Phone.Notify.Push', 'navigation', global.GetText('Ближайший банкомат установлен на карте'));
+mp.events.add('Quest.Hud.RemoveQuest', function (questId) {
+    mp.gui.execute(`HUD.currentQuestsHandler('remove', '${questId}')`);
 });
 
-mp.events.add('Phone:Announcement:GetAnnouncementList', () => {//ПОКА НЕ НАДО
-    // Тригер на получение актуального списка обьявлений
-    // Отправляеться каждый раз при заходе в приложение
-    // Надо сделать execute на phone.announcementOptions.announcementList и запушить туда актуальный список (пример обьекта в phone.js:389)
-    // Не забываем про чат (туда оно тоже должно отправляеться (обьявление))
+mp.events.add('Quest.PushNotice', (notice)=>{
+    mp.gui.execute(`notice.noticeHanlder(${notice}, true)`);
 });
 
-mp.events.add('Phone:Announcement:sendAnnouncement', (announcement) => {
-    NexusEvent.callRemote('Phone.News.Send', announcement);
-    // Подтверждение отправки обьявления
-    // announcement - Текст обьявления
+mp.events.add('UpdateEat', function (temp, amount) {
+    mp.gui.execute(`HUD.eat=${temp}`);
 });
-
-mp.events.add('Phone.Announcement.Push', (announcementJSON) => {
-    //SHIFT OBJECT AND IF ARRAY LENGTH > 10 ARRAY.POP()
-    mp.players.local.browserPhone.execute(`phone.addAnnouncement(${announcementJSON})`);
+mp.events.add('UpdateWater', function (temp, amount) {
+    mp.gui.execute(`HUD.water=${temp}`);
 });
-
-/////////////////////////////////////// 911 ////////////////////////////////////////////////
-
-mp.events.add('Phone:SpecialService:CallService', (type, text = '---') => {
-    if(type=='medical'){
-        NexusEvent.callRemote('Phone.CallEMS', false);
-    }
-    if(type=='police'){
-        NexusEvent.callRemote('Phone.CallPolice', text);
-    }
-    // Вызов спец. службы
-    // Incoming data
-    // medical/police
-});
-mp.events.add('Phone.CallPolice.CallBack', () => {
-    mp.events.call('Phone.Notify.Push', 'special-service', global.GetText('Вызов принят. Ожидайте прибытия патрульной службы.'));
-    mp.players.local.browserPhone.execute(`phone.$eb.$emit('telephone-change-route', '/special-service/special-service')`);
-});
-
-///////////////////////////////////////////////////////////////////////////////////////////
-
-mp.events.add('Phone:Bank:BankGetInformation', () => {
-    NexusEvent.callRemote('Phone.Bank.LoadData');
-    // Получение данных игрока о его счетах и.т.д. (все что связано с банком)
-    // Отправляеться каждый раз при заходе в приложение Банк и при переходе между страницами в нем (для актуализации данных)
-    // bankOptions phone.js:454
-    // Пример:
-    /*let obj = {
-        bankBank: {
-            accountNumber: 9843172848,
-            balance: 128000
-        },
-        bankHome: {
-            homeNumber: 43,
-            paymentOn: 12,
-            homeBalance: 25000
-        },
-        bankBusiness: {
-            businessName: 'Туалет на остановке',
-            paymentOn: 12,
-            businessBalance: 15222
-        },
-        bankTelephone: {
-            telephoneNumber: 1123412,
-            telephoneBalance: 1200
-        },
-        bankFine: {
-            commonSumOfFine: 8634
+mp.events.add('LuckyWheel.UpdateOnline', function (timeonline) 
+{
+    var text = timeonline;
+    if(text> 0){
+        var hours = Math.floor(text/60);
+        var mins = text%60;
+        text = "";
+        if(hours > 0){
+            text = hours + global.GetText(" ч. ");
         }
-    }*/
+        text += mins + global.GetText(" мин.")
+    }
+    mp.gui.execute(`HUD.timeonline="${text}"`);
 });
-mp.events.add('Phone.Bank.PushData', (bankDataJSON) =>{
-    mp.players.local.browserPhone.execute(`phone.bankOptions = ${bankDataJSON}`);
-});
-
-mp.events.add('Phone:Bank:BankHomeUpBalance', (sum) => {
-    NexusEvent.callRemote('Phone.House.Pay', sum);
-    // Пополнение счета дома
-    // После того как счет оплачен надо отправить execute на phone.bankHandler() с типом "bankHome" для того чтобы сообщить об успехе
-    // И не забываем об execute на phone.bankOptions.bankHome с обновленными данными
-});
-mp.events.add('Phone.House.PayCallBack', (bankHomeJSON)=>{
-    mp.players.local.browserPhone.execute(`phone.bankOptions.bankHome = ${bankHomeJSON}`);
+// HUD events
+mp.events.add('notify', (type, layout, msg, time) => 
+{
+    if (global.loggedin) mp.gui.execute(`notify(${type},${layout},"${msg}",${time})`);
+    else mp.events.call('authNotify', type, layout, msg, time)
 });
 
-mp.events.add('Phone:Bank:BankBusinessUpBalance', (sum) => {
-    NexusEvent.callRemote('Phone.Business.Pay', sum);
-    // Пополнение счета бизнеса
-    // После того как счет оплачен надо отправить execute на phone.bankHandler() с типом "bankBusiness" для того чтобы сообщить об успехе
-    // И не забываем об execute на phone.bankOptions.bankBusiness с обновленными данными
+mp.events.add('storage', (data) => {
+	mp.storage.data.storage = data;
+	mp.storage.flush();
 });
-mp.events.add('Phone.Business.PayCallBack', (businessJSON)=>{
-    mp.players.local.browserPhone.execute(`phone.bankOptions.bankBusiness = ${businessJSON}`);
+mp.events.add('Chat:OpenChat',()=>{
+    if (!loggedin || chatActive || editing || new Date().getTime() - lastCheck < 400 || global.menuOpened) return;
+    mp.gui.execute(`chat.OpenChats()`);
+})
+mp.events.add('showHUD', (show) => {
+    global.showhud = show;
+    mp.gui.execute(`HUD.locale='${global.Language}'`);
+    if (!show) mp.gui.execute(`hidehelp(${!showhud})`);
+    else if (show && showHint) mp.gui.execute(`hidehelp(${!showhud})`);
+
+    // if(show) mp.gui.execute(`logotype.server=${serverid};`);
+
+	// It's execute must be first, 
+	// because if this will be after 
+	// for example hidehud excecute then storage has been cleared
+	//mp.gui.execute(`updateStorage(${JSON.stringify(mp.storage.data.storage)})`);
+	// -------------------------------------------------------------------------
+    mp.gui.execute(`hidehud(${!showhud})`);
+	
+    // Update browser safezone
+    const safezone = mp.game.graphics.getSafeZoneSize();
+    const resolution = mp.game.graphics.getScreenActiveResolution(0, 0);
+
+    mp.gui.execute(`safezoneOurUpdate(${resolution.x}, ${resolution.y}, ${safezone})`);
+
+	var playerId = localplayer.getVariable('REMOTE_ID');
+	var uId = localplayer.getVariable('UID');
+
+    mp.gui.execute(`HUD.id='${playerId}'`);
+    mp.gui.execute(`HUD.uniqueId='${uId}'`);    
+	
+    mp.game.ui.displayAreaName(showhud);
+    mp.game.ui.displayRadar(showhud);
+    mp.game.ui.displayHud(showhud);
+    mp.gui.chat.show(showhud);
 });
 
-mp.events.add('Phone:Bank:BankTelephoneUpBalance', (sum) => {// ПОКА НЕ НУЖНО
-    // Пополнение счета телефона
-    // После того как счет оплачен надо отправить execute на phone.bankHandler() с типом "bankTelephone" для того чтобы сообщить об успехе
-    // И не забываем об execute на phone.bankOptions.bankTelephone с обновленными данными
+mp.events.add('UpdateMoney', function (temp, amount) {
+    mp.gui.execute(`HUD.money=${temp}`);
 });
 
-mp.events.add('Phone:Bank:BankFineUpBalance', (sum) => {// ПОКА НЕ НУЖНО
-    // Сумма для снятие штрафа
-    // После того как счет оплачен надо отправить execute на phone.bankHandler() с типом "bankFine" для того чтобы сообщить об успехе
-    // И не забываем об execute на phone.bankOptions.bankFine с обновленными данными
+mp.events.add('UpdateBank', function (temp, amount) {
+    mp.gui.execute(`HUD.bank=${temp}`);
 });
 
-mp.events.add('Phone:Bank:BankMakeTransaction', (transactionTo, transactionSum) => {
-    NexusEvent.callRemote('Phone.Bank.SendMoney', transactionTo, transactionSum);
-    // Перевод средств
-    // Incoming data
-    // transactionTo - номер счета
-    // transactionSum - сумма перевода
-    // После того как перевод совершен надо отправить execute на phone.bankHandler() с типом "bankTransaction" для того чтобы сообщить об успехе
-    // И не забываем об execute на phone.bankOptions.bankBank с обновленными данными
-    //console.log(transactionTo, transactionSum);
+mp.events.add('setWanted', function (lvl) {
+   mp.gui.execute(`HUD.setWanted(${parseInt(lvl)})`);
 });
-mp.events.add('Phone.Bank.SendMoneyCallback', (bankBankJSON)=>{
-    mp.players.local.browserPhone.execute(`phone.bankOptions.bankBank = ${bankBankJSON}`);
+
+mp.keys.bind(Keys.VK_F5, false, function () { // F5 key
+    if (global.menuOpened) return;
+
+    if (global.showhud && showHint) {
+        showHint = false;
+        mp.gui.execute(`hidehelp(${!showHint})`);
+    }
+    else if (global.showhud) {
+        global.showhud = !global.showhud;
+        mp.events.call('showHUD', global.showhud);
+    }
+    else {
+        showHint = true;
+        mp.gui.execute(`hidehelp(${!showHint})`);
+        global.showhud = !global.showhud;
+        mp.events.call('showHUD', global.showhud);
+    }
+});
+mp.keys.bind(Keys.VK_J, false, function () { // belt systemif 
+    if (!loggedin || chatActive || editing || new Date().getTime() - lastCheck < 400 || global.menuOpened) return;
+    if (localplayer.isInAnyVehicle(false)) {
+        lastCheck = new Date().getTime();
+
+        if (hudstatus.belt) {
+            localplayer.setConfigFlag(32, true);
+            mp.events.call('notify', 4, 9, global.GetText("Вы отстегнули ремень безопасности"), 2000);
+        }
+        else {
+            localplayer.setConfigFlag(32, false);
+            mp.events.call('notify', 2, 9, global.GetText("Вы пристегнули ремень безопасности"), 2000);
+        }
+
+        hudstatus.belt = !hudstatus.belt;
+        mp.gui.execute(`HUD.belt=${hudstatus.belt}`);
+
+        var testBelt = localplayer.getConfigFlag(32, true);
+        NewEvent.callRemote('beltCarPressed', testBelt);
+    }
+});
+mp.events.add('ChechBeltStatus', function () {
+    if (hudstatus.belt) {
+        localplayer.setConfigFlag(32, true);
+        mp.events.call('notify', 4, 9, global.GetText("Вы отстегнули ремень безопасности"), 2000);
+        hudstatus.belt = false;
+        mp.gui.execute(`HUD.belt=${false}`);
+    }
+});
+
+// CRUISE CONTROL //
+/*
+mp.keys.bind(Keys.VK_6, false, function () { // 5 key - cruise mode on/off
+    if (!loggedin || global.chatActive || editing || global.menuOpened) return;
+    if (!localplayer.isInAnyVehicle(true) || localplayer.vehicle.getPedInSeat(-1) != localplayer.handle) return;
+	let vclass = localplayer.vehicle.getClass();
+	if(vclass == 14 || vclass == 15 || vclass == 16) return;
+	if(localplayer.vehicle.isOnAllWheels() == false) return;
+    if (new Date().getTime() - cruiseLastPressed < 300) {
+        mp.events.call('openInput', 'Круиз-контроль', 'Укажите скорость в км/ч', 3, 'setCruise');
+    } else {
+        var veh = localplayer.vehicle;
+        if (cruiseSpeed == -1) {
+            var vspeed = veh.getSpeed();
+            if (vspeed > 1) {
+                veh.setMaxSpeed(vspeed);
+                mp.gui.execute(`HUD.cruiseColor='#eebe00'`);
+                cruiseSpeed = vspeed;
+            }
+        }
+        else {
+            cruiseSpeed = -1;
+            veh.setMaxSpeed(mp.game.vehicle.getVehicleModelMaxSpeed(veh.model));
+            mp.gui.execute(`HUD.cruiseColor='#ffffff'`);
+        }
+    }
+    cruiseLastPressed = new Date().getTime();
+});*/
+
+
+
+var passports = {};
+mp.events.add('newPassport', function (player, pass) {
+    if (player && mp.players.exists(player))
+        passports[player.name] = pass;
+});
+
+var showAltTabHint = false;
+mp.events.add('showAltTabHint', function () {
+    showAltTabHint = true;
+    setTimeout(function () { showAltTabHint = false; }, 10000);
+});
+
+mp.events.add('sendRPMessage', (type, msg, players) => {
+    var chatcolor = ``;    
+    msg = JSON.parse(msg);
+    if(players != null &&players != undefined){       
+        players.forEach((id) => {
+            var player = mp.players.atRemoteId(id);            
+            if (mp.players.exists(player)) {
+                if (type === "chat" || type === "s") {
+                    let localPos = localplayer.position;
+                    let playerPos = player.position;
+                    let dist = mp.game.system.vdist(playerPos.x, playerPos.y, playerPos.z, localPos.x, localPos.y, localPos.z);
+                    var color = (dist < 2) ? "#FFFFFF" :
+                        (dist < 4) ? "#F7F9F9" :
+                            (dist < 6) ? "#DEE0E0" :
+                                (dist < 8) ? "#C5C7C7" : "#ACAEAE";
+                    msg.color = color;
+                }
+                var name = "";
+                let genderType = (player.getVariable("GENDER")) ? "ець" : "ка";
+                if(player.getVariable('IS_MASK') == true) {
+                    name = (player === localplayer || localplayer.getVariable('IS_ADMIN') == true) ? `${player.name.replace("_", " ")} (${player.getVariable('REMOTE_ID')})` : `Незнайом${genderType} (${id})`;
+                } else {
+                    name = (player === localplayer || localplayer.getVariable('IS_ADMIN') == true || passports[player.name] != undefined || mp.storage.data.friends[player.name] != undefined) ? `${player.name.replace("_", " ")} (${player.getVariable('REMOTE_ID')})` : `Незнайом${genderType} (${id})`;
+                }            
+                msg.message = msg.message.replace("{name}", name);
+            }
+        });
+    }
+    //if (type === "chat" || type === "s")    
+    mp.gui.execute(`chat.chatPush(${JSON.stringify(msg)})`)
+	//mp.gui.chat.push(JSON.stringify(msg));
+});
+
+mp.events.add('HUD:BodyCam:Active',(data)=>{
+    mp.gui.execute(`HUD.bodyCamActive(${data})`);
+});
+
+
+let sendtoadminchat = true;
+mp.events.add('SendToAdminCheats',(message)=>{
+   if(sendtoadminchat) mp.gui.chat.push(message);
+});
+mp.events.add('sendtoadminchat',(anticheats)=>{
+    sendtoadminchat = anticheats;
+ });
+mp.events.add('render', (nametags) => {
+
+    if (!global.loggedin) return;
+	
+    // Disable HUD components.    
+    mp.game.ui.hideHudComponentThisFrame(2); // HUD_WEAPON_ICON
+    mp.game.ui.hideHudComponentThisFrame(3); // HUD_CASH
+    mp.game.ui.hideHudComponentThisFrame(6); // HUD_VEHICLE_NAME
+    mp.game.ui.hideHudComponentThisFrame(7); // HUD_AREA_NAME
+    mp.game.ui.hideHudComponentThisFrame(8); // HUD_VEHICLE_CLASS
+    mp.game.ui.hideHudComponentThisFrame(9); // HUD_STREET_NAME
+
+    mp.game.ui.hideHudComponentThisFrame(19); // HUD_WEAPON_WHEEL
+    mp.game.ui.hideHudComponentThisFrame(20); // HUD_WEAPON_WHEEL_STATS
+    mp.game.ui.hideHudComponentThisFrame(22); // MAX_HUD_WEAPONS
+
+    // Update online counter in logotype.
+    if (hudstatus.online != mp.players.length) {
+        hudstatus.online = mp.players.length;
+        mp.gui.execute(`HUD.online=${hudstatus.online}`);
+    }
+
+    // Update street & district
+    var street = mp.game.pathfind.getStreetNameAtCoord(localplayer.position.x, localplayer.position.y, localplayer.position.z, 0, 0);
+    let area  = mp.game.zone.getNameOfZone(localplayer.position.x, localplayer.position.y, localplayer.position.z);
+    if(hudstatus.street != street || hudstatus.area != area)
+    {
+        hudstatus.street = street;
+        hudstatus.area = area;   
+        
+        mp.gui.execute(`HUD.street='${mp.game.ui.getStreetNameFromHashKey(street.streetName)}'`);
+        mp.gui.execute(`HUD.crossingRoad='${mp.game.ui.getLabelText(hudstatus.area)}'`);
+    }
+
+    if (localplayer.isInAnyVehicle(false)) {
+
+		if(localplayer.vehicle.getPedInSeat(-1) == localplayer.handle) {
+			if (!hudstatus.invehicle){ 
+                mp.gui.execute(`HUD.inVeh=1`);
+                showNitifyCar(true);
+            }
+			hudstatus.invehicle = true;
+
+			var veh = localplayer.vehicle;
+
+			// if (veh.getVariable('FUELTANK') !== undefined) {
+			// 	let fueltank = veh.getVariable('FUELTANK');
+			// 	mp.game.graphics.drawText(`Загружено: ${fueltank}/1000л`, [0.93, 0.80], {
+			// 		font: 0,
+			// 		color: [255, 255, 255, 185],
+			// 		scale: [0.4, 0.4],
+			// 		outline: true
+			// 	});
+			// }
+			if (veh.getVariable('PETROL') !== undefined && veh.getVariable('MAXPETROL') !== undefined) {
+				let petrol = veh.getVariable('PETROL');
+				let maxpetrol = veh.getVariable('MAXPETROL');
+				
+				let petrolPercent = Math.floor(petrol/maxpetrol*240);
+				let fuelStroke = 376 - (petrol * 376 / maxpetrol); // 376 - stroke-dasharray of path element
+
+				if (hudstatus.fuel != petrolPercent && petrolPercent >= 0) {
+					mp.gui.execute(`HUD.fuel=${petrol}`);
+					mp.gui.execute(`HUD.fuelMax=${maxpetrol}`);
+                    mp.gui.execute(`HUD.fuelStroke=${fuelStroke}`);
+					hudstatus.fuel = petrolPercent;
+					
+					if (petrol <= (maxpetrol * 0.2)) ifuel = 0;
+					else if (petrol <= (maxpetrol * 0.6)) ifuel = 1;
+					else ifuel = 2;
+					mp.gui.execute(`HUD.ifuel=${ifuel}`);
+				}
+			}
+            if (mp.players.local.vehicle.getClass() == 14) {
+                if(hudstatus.anchor == null || hudstatus.anchor!=freeze){
+                    hudstatus.anchor = freeze;
+
+                    if(!hudstatus.anchor) mp.events.call('Hud.InfoButtons.Add', JSON.stringify(['X']),`Бросить якорь`);
+                        else mp.events.call('Hud.InfoButtons.Add', JSON.stringify(['X']),`Снять якорь`);
+                }
+            }
+
+			var engine = veh.getIsEngineRunning();
+			if (engine != null && engine !== hudstatus.engine) {
+				if (engine == true) mp.gui.execute(`HUD.engine=1`);
+				else mp.gui.execute(`HUD.engine=0`);
+                if(hudstatus.engine!=engine || hudstatus.engine == null){
+                    if(engine) mp.events.call('Hud.InfoButtons.Add', JSON.stringify(['2']),`Заглушить Транспорт`);
+                        else mp.events.call('Hud.InfoButtons.Add', JSON.stringify(['2']),`Завести Транспорт`);
+
+
+                        let vehClass = mp.players.local.vehicle.getClass();
+                        if(vehClass == 8 || vehClass == 9 || vehClass == 13 || vehClass == 14 || vehClass == 15 || vehClass == 16 || vehClass == 19 || vehClass == 21) {}
+                        else{
+                        mp.events.call('Hud.InfoButtons.Add', JSON.stringify(['X']),`Ограничение скорости`);
+                        mp.events.call('Hud.InfoButtons.Add', JSON.stringify(['ALT', 'W']),`SOF-езда`);
+                        }
+                }
+				hudstatus.engine = engine;
+			}
+			
+			var temp_light = veh.getLightsState(1, 1);
+			if(temp_light.lightsOn>0||temp_light.highbeamsOn>0){
+				mp.gui.execute(`HUD.light=true`);
+			}else{
+				mp.gui.execute(`HUD.light=false`);
+			}
+			
+
+            if (veh.getVariable('LOCKED') !== undefined) 
+            {
+                var locked = veh.getVariable('LOCKED');
+                
+				if (hudstatus.doors !== locked) {
+					if (locked == true) { 
+						mp.gui.execute(`HUD.doors=0`);
+					} else {
+						mp.gui.execute(`HUD.doors=1`)
+					}
+					hudstatus.doors = locked;
+				}
+			}
+
+			var hp = veh.getHealth() / 10;
+			hp = hp.toFixed();
+			if (hp !== hudstatus.health) {
+				mp.gui.execute(`HUD.hp=${hp}`);
+				hudstatus.health = hp;
+			}
+
+			if (new Date().getTime() - hudstatus.updatespeedTimeout > 50) {
+                let speed = (veh.getSpeed() * 3.6).toFixed();
+                mp.gui.execute(`HUD.speed = ${speed}`);
+				mp.gui.execute(`HUD.updateSpeed(${speed})`);
+				mp.gui.execute(`speedometerUpdate(${speed})`);
+				hudstatus.updatespeedTimeout = new Date().getTime();
+				//if (cruiseSpeed != -1) // bebra
+					//veh.setMaxSpeed(cruiseSpeed);
+			}
+		}
+    } 
+    else 
+    {
+        if (hudstatus.invehicle) {
+            mp.gui.execute(`HUD.inVeh=0`);
+            mp.events.call('Hud.InfoButtons.Remove', JSON.stringify(['2']));
+            mp.events.call('Hud.InfoButtons.Remove', JSON.stringify(['X']));
+            mp.events.call('Hud.InfoButtons.Remove', JSON.stringify(['ALT', 'W']));
+            showNitifyCar(false);
+        }
+        hudstatus.invehicle = false;
+        hudstatus.engine = null;
+        hudstatus.anchor = null;
+    }
+});
+
+
+
+function showNitifyCar(flag){
+    if(flag){
+        if(localplayer.vehicle.model==3338918751){
+            mp.events.call('Hud.InfoButtons.Add', JSON.stringify(['F2']), `Планшет такси`);
+        }
+        if(localplayer.vehicle.model==1171614426 || mp.players.local.vehicle.model==3770651682 || mp.players.local.vehicle.model==1500677296){
+            mp.events.call('Hud.InfoButtons.Add', JSON.stringify(['F2']), `Планшет EMS`);
+        }
+    }else{
+        mp.events.call('Hud.InfoButtons.Remove', JSON.stringify(['F2']));
+    }
+}
+
+let specialHudKeys = {
+    'arrowup':'↑',
+    'arrowright':'→',
+    'arrowdown':'←',
+    'arrowleft':'↓'
+}
+let defaultPrompts = 
+[
+    [['tab'],`Показать палец`],
+    [['b'],`Микрофон`],
+    [['i'],`Инвентарь`],
+    [['u'],`Анимации`],
+    [['f10'],`Меню игрока`]
+]
+defaultPrompts = defaultPrompts.sort((prevPrompt,nextPrompt)=>prevPrompt[0].length-nextPrompt[0].length);
+let activePrompts = JSON.parse(JSON.stringify(defaultPrompts));
+mp.gui.execute(`HUD.promptList = ${JSON.stringify(getBrowserPrompts(activePrompts))}`);
+
+function getBrowserPrompts(promptsList){
+    let browserPromptsList = [];
+    promptsList.forEach(onePrompt => {
+        let keysArr = [];
+        onePrompt[0].forEach(promptKey=>{
+            if(promptKey.toLowerCase() in specialHudKeys) promptKey = specialHudKeys[promptKey.toLowerCase()];
+            promptKey = promptKey.charAt(0).toUpperCase() + promptKey.slice(1);
+            keysArr.push(promptKey);
+        });
+        browserPromptsList.push([keysArr,onePrompt[1]]);
+    });
+    return browserPromptsList;
+}
+
+mp.events.add("Hud.InfoButtons.Add", (newPromptKeys,newPromptText) => 
+{
+    let newPrompt = [JSON.parse(newPromptKeys),newPromptText];
+    if(activePrompts.some(onePrompt=>onePrompt[0].join('+').toLowerCase()===newPrompt[0].join('+').toLowerCase())){
+        activePrompts.find(onePrompt=>onePrompt[0].join('+').toLowerCase()===newPrompt[0].join('+').toLowerCase())[1] = newPrompt[1];
+    }
+    else{
+        let availablePrompts = activePrompts.filter(prompt=>prompt[0].length===newPrompt[0].length);
+        if(availablePrompts.length!==0){
+            let index = activePrompts.indexOf(availablePrompts[availablePrompts.length-1]);
+            activePrompts.splice(index+1,0,newPrompt);
+        }else{
+            activePrompts.push(newPrompt);
+        }
+    }
+    mp.gui.execute(`HUD.promptList = ${JSON.stringify(getBrowserPrompts(activePrompts))}`);
+});
+mp.events.add("Hud.InfoButtons.Remove", (keysList) => //[key,key]
+{
+    keysList = JSON.parse(keysList);
+    let currentPrompt = activePrompts.find(onePrompt=>onePrompt[0].join('+').toLowerCase()==keysList.join('+').toLowerCase());
+    if(currentPrompt){
+        if(defaultPrompts.some(onePrompt=>onePrompt[0].join('+').toLowerCase()===keysList.join('+').toLowerCase())){
+            let newPrompt = defaultPrompts.find(onePrompt=>onePrompt[0].join('+').toLowerCase()===keysList.join('+').toLowerCase());
+            let index = activePrompts.indexOf(currentPrompt);
+            currentPrompt = JSON.parse(JSON.stringify(newPrompt));
+            activePrompts.splice(index,1,currentPrompt);
+        }else{
+            let index = activePrompts.indexOf(currentPrompt);
+            activePrompts.splice(index,1);
+        }
+    }
+    mp.gui.execute(`HUD.promptList = ${JSON.stringify(getBrowserPrompts(activePrompts))}`);
+});
+mp.events.add("Hud.InfoButtons.SetDefault", () => 
+{
+    activePrompts = JSON.parse(JSON.stringify(defaultPrompts));
+    mp.gui.execute(`HUD.promptList = ${JSON.stringify(getBrowserPrompts(activePrompts))}`);
 });
 }

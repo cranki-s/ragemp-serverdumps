@@ -1,107 +1,142 @@
 {
-
-global.familypad = global.ConstrolsBrowser;;
-mp.events.add('Constrols:FamilyOpenFractionPad', (members, count, pages, names, padtype) => {            
-        familypad.execute(`window.locale='${global.Language}'`);
-        familypad.execute(`openInterface('organization')`);
-        familypad.execute(`controls.setData('${padtype}','${names}')`);
-        global.OpenedType = padtype;
-        global.menuOpen();
-        familypad.execute(`controls.openMembers(${members},${Number(count)},${Number(pages)})`)
+let calls = []
+let battuelist = [];
+let contolsBrowser;
+let TabletType;
+mp.events.add('Tablet:OpenCallTab', (tablettype) => {
+    calls.forEach(x => {
+        let dist = mp.game.system.vdist(x.position.x, x.position.y, 0, mp.players.local.position.x, mp.players.local.position.y, 0);
+        let i = dist.toFixed(0);
+        x.distance = +i;
+    });
+    TabletType = tablettype
+    globalThis.browser.open();
+    globalThis.browser.execute(`App.$router.push(${JSON.stringify({ path: `/tablet/PoliceFBI/${tablettype}/calls` })})`);
+    mp.gui.cursor.visible = true;
+    global.menuOpened = true;
+}),
+mp.events.add('Tablet:PlayerLoad', (Calls) => {
+    if(loggedin) globalThis.browser.execute(`AppData.commit('stateTablet/setCalls',${Calls})`);
+}),
+mp.events.add('Tablet:PlayerUnLoad', () => {
+    globalThis.browser.execute(`AppData.commit('stateTablet/clearCalls')`);
+}),
+mp.events.add('Tablet:AddNewCall', (call) => {
+    globalThis.browser.execute(`AppData.commit('stateTablet/addCall',${call})`);
+}),
+mp.events.add('Tablet:UpdateCall', (call) => {
+    globalThis.browser.execute(`AppData.commit('stateTablet/updateCall',${call})`);
+}),
+mp.events.add('Tablet:DeleteCall', (callID) => {
+    globalThis.browser.execute(`AppData.commit('stateTablet/removeCall',${callID})`);
 });
 
-mp.events.add('Constrols:FamilyopenMemberEditor',(editableMember,shortRanks)=>{
-    if (familypad != null) {
-        if (global.OpenedType == "family") {
-            familypad.execute(`controls.openMemberEditor(${editableMember},${shortRanks})`);
-        }
-    }
+mp.events.add('Tablet:SearchHuman', (name) => {
+    NewEvent.callRemote('Tablet:SearchHuman', name)
+});
+mp.events.add('Tablet:SearchHumanCallBack', (status,human) => {
+    if(status)globalThis.browser.execute(`RPC.resolve('Tablet:SearchHuman',${human})`);
+    else globalThis.browser.execute(`RPC.reject('Tablet:SearchHuman')`);
+});
+
+mp.events.add('Tablet:SearchVehicle', (number) => {
+    NewEvent.callRemote('Tablet:SearchVehicle', number);
+});
+mp.events.add('Tablet:SearchVehicleCallBack', (vehicle) => {
+    globalThis.browser.execute(`RPC.resolve('Tablet:SearchVehicle',${vehicle})`);
+});
+
+mp.events.add('Tablet:SetClassifyHuman', (name) => {
+    NewEvent.callRemote('Tablet:SetClassifyHuman', name);
+});
+mp.events.add('Tablet:SetClassifyHumanCallback', (status) => {
+    globalThis.browser.execute(`RPC.resolve('Tablet:SetClassifyHuman',${status})`);
+});
+
+mp.events.add('Tablet:CloseBrowser', () => {
+    mp.gui.cursor.visible = false;
+    global.menuOpened = false;
+});
+
+mp.events.add('Tablet:OpenCode', () => {
+    NewEvent.callRemote('Tablet:OpenCode');
+});
+mp.events.add('Tablet:OpenCodeCallBack', (status) => {
+    let a = status ? `window.RPC.resolve('Tablet:OpenCode')` : `window.RPC.reject('Tablet:OpenCode')`;
+    globalThis.browser.execute(`${a}`);
+});
+
+mp.events.add('Tablet:SendCode', (type) => {
+    NewEvent.callRemote('Tablet:SendCode', type);
+});
+mp.events.add('Tablet:SendCodeCallBack', (status) => {
+    let a = status ? `window.RPC.resolve('Tablet:SendCode')` : `window.RPC.reject('Tablet:SendCode')`;
+    globalThis.browser.execute(`${a}`);
+});
+
+mp.events.add('Tablet:OpenStars', () => {
+    NewEvent.callRemote('Tablet:OpenStars');
+});
+mp.events.add('Tablet:OpenStarsCallBack', (status) => {
+    let a = status ? `window.RPC.resolve('Tablet:OpenStars')` : `window.RPC.reject('Tablet:OpenStars')`;
+    globalThis.browser.execute(`${a}`);
+});
+mp.events.add('Tablet:SetStars',(name, newstars, articles)=>{
+    NewEvent.callRemote('Tablet:SetStars',name, newstars, articles);
 })
+mp.events.add('Tablet:SetStarsCallBack',(status)=>{
+    let a = status ? `window.RPC.resolve('Tablet:SetStars')` : `window.RPC.reject('Tablet:SetStars')`;
+    globalThis.browser.execute(`${a}`);
+});
 
-let showfracplayers = false;
-mp.events.add('Controls:FamilySetNavigationTabCallBack',(route,a,b,c)=>{
-    if(familypad != null)
-    {
-        if (global.OpenedType == "family") 
-        {
-            if (route === 'logs') {
-                familypad.execute(`controls.openLogs(${a},${b},${c})`);
-            }
-            else if (route === 'ranks') {
-                familypad.execute(`controls.openRanks(${a},${b})`);
-            }
-            else if (route === 'vehicles') {
-                familypad.execute(`controls.openVehicles(${a})`);            
-            } else if (route == 'actions') {
-                let t = showfracplayers ? "включено" : "выключено";
-                a = JSON.parse(a);
-                a.find(x => x.id == "showMembers").value = t;
-                a = JSON.stringify(a);
-                familypad.execute(`controls.openActions(${a},${b})`);
-            }
-        }
-    }
-})
-mp.events.add('Constrols:FamilyopenVehicleEditor',(editableVehicle,shortRanks)=>{
-    if(familypad != null && global.OpenedType == "family"){
-        familypad.execute(`controls.openVehicleEditor(${editableVehicle},${shortRanks})`);
-    }
-})
-mp.events.add('Controls:FamilyUpdateVehicle',(vehicle,types)=>{
-    if(familypad != null && global.OpenedType == "family"){
-        familypad.execute(`controls.updateVehicle(${vehicle})`);        
-        if(types){
-            familypad.execute(`controls.route='vehicles'`);
-        }
-    }
-})
-mp.events.add('Controls:FamilyrankChangePermissionsCallBack',(rank)=>{
-    if(familypad != null && global.OpenedType == "family"){
-        familypad.execute(`controls.openRanksEdit(${rank})`);
-    }
-})
+mp.events.add('Tablet:AcceptCall', callID => {
+    NewEvent.callRemote('Tablet:SetCall', callID);
+});
+mp.events.add('Tablet:AcceptCallCallBack',(status)=>{
+    let a = status ? `window.RPC.resolve('Tablet:AcceptCall')` : `window.RPC.reject('Tablet:AcceptCall')`;
+    globalThis.browser.execute(`${a}`);
+});
+
+mp.events.add('Tablet:AcceptWanted',(wantedName)=>{
+    NewEvent.callRemote('Tablet:WatchHuman', wantedName);
+});
+mp.events.add('Tablet:AcceptWantedCallBack',(status)=>{
+    let a = status ? `window.RPC.resolve('Tablet:AcceptWanted')` : `window.RPC.reject('Tablet:AcceptWanted')`;
+    globalThis.browser.execute(`${a}`);
+});
+
+mp.events.add('Tablet:WantedLoad', (Calls) => {
+    if(loggedin)globalThis.browser.execute(`AppData.commit('stateTablet/setWanted',${Calls})`);
+}),
+mp.events.add('Tablet:WantedUnLoad', () => {
+    globalThis.browser.execute(`AppData.commit('stateTablet/clearWanted')`);
+}),
 
 
+mp.events.add('Tablet:AddBattue', (playerobj) => {
+    globalThis.browser.execute(`AppData.commit('stateTablet/addWanted',${playerobj})`);
+});
+mp.events.add('Tablet:UpdateBattue', (playerobj) => {
+    globalThis.browser.execute(`AppData.commit('stateTablet/updateWanted',${playerobj})`);
+});
+mp.events.add('Tablet:RemoveWanted', (wantedName) => {
+    globalThis.browser.execute(`AppData.commit('stateTablet/removeWanted','${wantedName}')`);
+});
 
-mp.events.add('Controls:FamilyEditRankNameCallback', (rankId) => {
-    if (familypad != null && global.OpenedType == "family") {
-        familypad.execute(`controls.openRankNameEditor(${rankId})`);
-    }
-})
+var WantedPlayerBlip = null;
+mp.events.add('createWantedPlayerBlip', function (position) {
+    if (WantedPlayerBlip != null)
+        mp.game.ui.removeBlip(WantedPlayerBlip)
+    WantedPlayerBlip = mp.game.ui.addBlipForRadius(position.x, position.y, position.z, 90);
+    mp.game.invoke(getNative("SET_BLIP_SPRITE"), WantedPlayerBlip, 9);
+    mp.game.invoke(getNative("SET_BLIP_ALPHA"), WantedPlayerBlip, 200);
+    mp.game.invoke(getNative("SET_BLIP_COLOUR"), WantedPlayerBlip, 26);
+});
 
-mp.events.add('Controls:FamilysetRankNameCallBack', (rankId, rankname, date, time) => {
-    if (familypad != null && global.OpenedType == "family") {
-        familypad.execute(`controls.updateRankName(${rankId},'${rankname}','${date}','${time}')`);
-    }
-})
-
-
-
-mp.events.add('Controls:FamilyDeleteRankCallBack',(rankId)=>{
-    if(familypad != null && global.OpenedType == "family"){
-        familypad.execute(`controls.deleteRank(${rankId})`);
-    }    
-})
-mp.events.add('Controls:FamilyAddRankCallBack',(newRank)=>{
-    if(familypad != null && global.OpenedType == "family"){
-        familypad.execute(`controls.addRank(${newRank})`);
-    }
-})
-
-
-mp.events.add('Controls:FamilyUpdateMember', (member, types) => {
-    if (familypad != null && global.OpenedType == "family") {
-        familypad.execute(`controls.updateMember(${member})`);
-        if (types) {
-            familypad.execute(`controls.route='members'`);
-        }
-    }
-})
-
-mp.events.add('Controls:FamilyDeleteMemberCallBack',(members,count)=>{
-    if (familypad != null && global.OpenedType == "family") {
-        familypad.execute(`controls.members = ${members}`);
-        familypad.execute(`controls.membersCount = ${count}`);
-    }
-})
+mp.events.add('deleteWantedPlayerBlip', function () {
+    if (WantedPlayerBlip != null)
+        mp.game.ui.removeBlip(WantedPlayerBlip)
+    WantedPlayerBlip = null;
+});
+
 }

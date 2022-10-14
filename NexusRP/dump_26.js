@@ -25,7 +25,7 @@ mp.keys.bind(70, !1, function() {
         if (7 !== mp.players.local.getScriptTaskStatus(2500551826)){ mp.players.local.clearTasks(); return;}
         const e = getNearestPlayerVehicleForSeatInRange(5);
         if(e.testdrive!=null){
-            NexusEvent.callRemote('TestDrive.Start', e.model>>0, e.col1, e.col2);
+            NewEvent.callRemote('TestDrive.Start', e.model>>0, e.col1, e.col2);
             return;
        }
         if (e && mp.vehicles.exists(e) && 5 > e.getSpeed()) {            
@@ -311,7 +311,7 @@ mp.events.add("VehStream_GetVehicleDirtLevel", (entity) => {
                         let newdirt = parseFloat((lastdirt + raznica));
                         if (newdirt > 15) newdirt = 15;
                         lastdirt = newdirt;
-                        NexusEvent.callRemote("VehStream_SetVehicleDirt", entity, newdirt);
+                        NewEvent.callRemote("VehStream_SetVehicleDirt", entity, newdirt);
                     }
                 }
             }
@@ -372,7 +372,7 @@ mp.events.add("entityStreamIn", (entity) => {
 				if(actualData.LeftIL) entity.setIndicatorLights(1, true);
 				else entity.setIndicatorLights(1, false);
             }
-            else NexusEvent.callRemote("VehStream_RequestFixStreamIn", entity);
+            else NewEvent.callRemote("VehStream_RequestFixStreamIn", entity);
 
         }
     } catch (e) { }
@@ -454,7 +454,7 @@ mp.keys.bind(67, !0, function() {
                 a = attachToTrunkVehByPlayer.position;            
             if (100 > mp.game.system.vdist2(e.x, e.y, e.z, a.x, a.y, a.z)) return
         }
-        NexusEvent.callRemote("server_vehicle_backFromTrunk", attachToTrunkVeh),mp.events.call('Hud.InfoButtons.Remove', JSON.stringify(['C'])); 
+        NewEvent.callRemote("server_vehicle_backFromTrunk", attachToTrunkVeh),mp.events.call('Hud.InfoButtons.Remove', JSON.stringify(['C'])); 
     }
 }),
  mp.events.addDataHandler("attachToVehicleTrunk", function(e, a) {

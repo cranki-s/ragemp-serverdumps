@@ -86,7 +86,7 @@ mp.events.add('Reality:DestroyBrowser',()=>
 })
 
 mp.events.add('Reality:SearchReality',(houseID)=>{
-    NexusEvent.callRemote("LoadHouseToMenu",houseID);
+    NewEvent.callRemote("LoadHouseToMenu",houseID);
 })
 mp.events.add('Reality:SearchRealityCallBack',(houseID,houses)=>{
 
@@ -100,12 +100,12 @@ mp.events.add('Reality:SearchRealityCallBack',(houseID,houses)=>{
 	realtorMenu.execute(`controls.searchRealityCallback('${houseID}',${JSON.stringify(houses)})`);
 })
 mp.events.add('Reality:GetHouseInfo',(house)=>{
-    NexusEvent.callRemote('Reality:GetHouseInfo',house);
+    NewEvent.callRemote('Reality:GetHouseInfo',house);
 })
 mp.events.add('Reality:GetHouseInfoCallBack',(house)=>{
 	realtorMenu.execute(`controls.getHouseInfoCallback(${house})`);
 })
 mp.events.add('Reality:GetDirections',(house)=>{
-	NexusEvent.callRemote('Reality:GetDirections',house);
+	NewEvent.callRemote('Reality:GetDirections',house);
 })
 }

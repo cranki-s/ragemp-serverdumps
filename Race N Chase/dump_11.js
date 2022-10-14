@@ -5,6 +5,7 @@ let actionType = "none";
 
 let maxActionTime = 0;
 
+
 mp.events.add("StartPlayerAction", (action, time) => {
     if(mp.players.local.getVariable("Wounded") > 0){
         return;
@@ -38,7 +39,7 @@ mp.events.add("StopPlayerActions", () => {
     actionTime = 0;
     maxActionTime = 0;
     actionInterval = null;
-    UIHud.execute(`gm.actionBar = false;`);
+    ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.actionBar.enabled = false;`);
 })
 
 function PainkillerAction(){
@@ -64,7 +65,7 @@ function PainkillerAction(){
             mp.events.callRemote("OnPlayerActionTick");
             if(actionTime <= 0){
                 mp.events.callRemote("FinishPlayerAction", actionType);
-                UIHud.execute(`gm.actionBar = false;`);
+                ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.actionBar.enabled = false;`);
                 clearInterval(actionInterval);
             }
             else{
@@ -86,10 +87,10 @@ function PainkillerAction(){
 
 function initiateActionTimer(startTime){
     maxActionTime = startTime;
-    UIHud.execute(`gm.$refs.actionbar.maxtime = ${startTime}`);
-    UIHud.execute(`gm.$refs.actionbar.time = 0`);
-    //UIHud.execute(`gm.$refs.actionbar.fugitive = ${(mp.players.local.getVariable("Team") == 0 ? true : false)}`);
-    UIHud.execute(`gm.actionBar = true;`);
+    ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.actionBar.maxtime = ${startTime}`);
+    ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.actionBar.time = 0`);
+    //ServerUI.execute(`gm.$refs.actionbar.fugitive = ${(mp.players.local.getVariable("Team") == 0 ? true : false)}`);
+    ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.actionBar.enabled = true;`);
 }
 
 function MedkitAction(){
@@ -113,13 +114,13 @@ function MedkitAction(){
             if(actionTime <= 0){
                 mp.events.callRemote("clear_anim");
                 mp.events.callRemote("FinishPlayerAction", actionType);
-                UIHud.execute(`gm.actionBar = false;`);
-                UIHud.execute(`gm.$refs.actionbar.time = 0;`);
+                ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.actionBar.enabled = false;`);
+                ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.actionBar.time = 0;`);
                 clearInterval(actionInterval);
             }
             else{
                 actionTime--;           
-                UIHud.execute(`gm.$refs.actionbar.time = ${((maxActionTime - actionTime) == 0 ? 0 : (maxActionTime - actionTime))}`);
+                ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.actionBar.time = ${((maxActionTime - actionTime) == 0 ? 0 : (maxActionTime - actionTime))}`);
                 if(actionTime == 1){
                     mp.events.callRemote("play_anim", "amb@medic@standing@kneel@exit", "exit", 0, 8.0, 0.0, -1, 0.0, false, false, false);
                 }
@@ -208,15 +209,15 @@ mp.events.add("BeginReviving", () => {
         reviveTime--;
         if(reviveTime <= 0)
         {
-            UIHud.execute(`gm.actionBar = false;`);
-            UIHud.execute(`gm.$refs.actionbar.time = 0;`);
+            ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.actionBar.enabled = false;`);
+            ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.actionBar.time = 0;`);
             finishCuffing();
             mp.events.callRemote("FinishRevive", reviveTarget);
             clearInterval(reviveTimer);
             return;
         }
         else{
-            UIHud.execute(`gm.$refs.actionbar.time = ${((maxActionTime - reviveTime) == 0 ? 0 : (maxActionTime - reviveTime))}`);
+            ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.actionBar.time = ${((maxActionTime - reviveTime) == 0 ? 0 : (maxActionTime - reviveTime))}`);
         }
     }, 1000);
 });
@@ -229,19 +230,19 @@ function stopReviving(reason){
     reviveTarget = null;
 
     mp.events.callRemote("StopReviving");
-    UIHud.execute(`gm.actionBar = false;`);
+    ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.actionBar.enabled = false;`);
 
     switch(reason){
         case 1:{
-            pushMessageToChat("!{#FF6347}[!] !{#FFFFFF}Reviving failed - you are no longer in copchase.");
+            mp.gui.chat.push("!{#FF6347}[!] !{#FFFFFF}Reviving failed - you are no longer in copchase.");
             break;
         }        
         case 2:{
-            pushMessageToChat("!{#FF6347}[!] !{#FFFFFF}Reviving failed - target is no longer on the same team as you or is dead.");
+            mp.gui.chat.push("!{#FF6347}[!] !{#FFFFFF}Reviving failed - target is no longer on the same team as you or is dead.");
             break;
         }
         case 3:{
-            pushMessageToChat("!{#FF6347}[!] !{#FFFFFF}Reviving failed - You are severely injured.");
+            mp.gui.chat.push("!{#FF6347}[!] !{#FFFFFF}Reviving failed - You are severely injured.");
             break;           
         }
     }
@@ -306,12 +307,12 @@ mp.events.add("BeginCuffing", (target) => {
 
         cuffTimeLeft--;
         if(cuffTimeLeft <= 0){
-            UIHud.execute(`gm.actionBar = false;`);
-            UIHud.execute(`gm.$refs.actionbar.time = 0;`);
+            ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.actionBar.enabled = false;`);
+            ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.actionBar.time = 0;`);
             finishCuffing();
         }
         else{
-            UIHud.execute(`gm.$refs.actionbar.time = ${((maxActionTime - cuffTimeLeft) == 0 ? 0 : (maxActionTime - cuffTimeLeft))}`);
+            ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.actionBar.time = ${((maxActionTime - cuffTimeLeft) == 0 ? 0 : (maxActionTime - cuffTimeLeft))}`);
         }
     }, 1000);
 });
@@ -324,19 +325,19 @@ function stopCuffing(reason){ // if unsuccessful / force stopped
     cuffInterval = null;
     cuffTarget = null;
 
-    UIHud.execute(`gm.actionBar = false;`);
+    ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.actionBar.enabled = false;`);
 
     mp.events.callRemote("StopCuffing");
 
     switch(reason){
         case 1:
-            pushMessageToChat("!{#FF6347}[!] !{#FFFFFF}Cuffing failed - the target is no longer a fugitive or deceased.");
+            mp.gui.chat.push("!{#FF6347}[!] !{#FFFFFF}Cuffing failed - the target is no longer a fugitive or deceased.");
             break;       
         case 2:
-            pushMessageToChat("!{#FF6347}[!] !{#FFFFFF}Cuffing failed as you moved too far from the fugitive.");
+            mp.gui.chat.push("!{#FF6347}[!] !{#FFFFFF}Cuffing failed as you moved too far from the fugitive.");
             break;
         case 12: // putting 12 cuz idk the ids anymore fuck this shit im braindead at this point
-            pushMessageToChat("!{#FF6347}[!] !{#FFFFFF}Cuffing failed - you are severely injured.");
+            mp.gui.chat.push("!{#FF6347}[!] !{#FFFFFF}Cuffing failed - you are severely injured.");
             break;
     }
 }
@@ -351,5 +352,52 @@ function finishCuffing(){ // if successful
     if(!mp.players.exists(cuffTarget) || !mp.players.exists(mp.players.local)) { cuffTarget = null; return;} // better safe than sorry :)
     mp.events.callRemote("FinishCuffing", cuffTarget);
     cuffTarget = null;
-}
+}
+
+
+/* LOCKPICKING */
+mp.events.add("startLockpicking", (donorLevel) => {
+    isLockpicking = true;
+    let rangeSize = 15;
+    rangeSize += (donorLevel*8);
+    let rangePos = 0;
+    do{
+        rangePos = getRandomInt(0, 180);
+    }
+    while(rangePos+rangeSize >= 180);
+
+    ServerUI.execute(`
+        gm.$refs.hud.$refs.base.$refs.quickAction.rangeLocation = ${rangePos};
+        gm.$refs.hud.$refs.base.$refs.quickAction.range = ${rangeSize};
+        
+        gm.$refs.hud.$refs.base.$refs.quickAction.enabled = true;
+    `);
+});
+
+// true = success ; false = fail
+mp.events.add("stopLockpicking", () => {
+    isLockpicking = false;
+    ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.quickAction.enabled = false;`);   
+});
+mp.events.add("sendLockpickResult", (result) => {
+    isLockpicking = false;
+    ServerUI.execute(`gm.$refs.hud.$refs.base.$refs.quickAction.enabled = false;`);   
+    mp.events.callRemote("onLockpickAttempt", result); 
+});
+mp.events.add("lockpick_vehicleAlarm", (veh, isLockpickPlayer, isSuccess) => {
+    mp.game.invoke('0xCDE5E70C1DDB954C', veh.handle, true);
+    setTimeout(() => {
+        mp.game.invoke('0xB8FF7AB45305C345', veh.handle);
+    }, 100);
+
+    if(isLockpickPlayer && isSuccess){
+        mp.players.local.taskEnterVehicle(veh.handle, 200, -1, 2.0, 1, 0);
+    }
+});
+
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min); // The maximum is exclusive and the minimum is inclusive
+  }
 }

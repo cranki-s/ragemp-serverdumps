@@ -47,7 +47,7 @@ mp.events.add("addDailyChallenge", (id, desc, rXP, rPts, expireDate, completed, 
     DailyChallenges.push(c);
 });
 mp.events.add("clearDailyChallenges", () => {
-    UIMenu.execute(`gm.$refs.profile.$refs.ProfileTabs.$refs.Challenges.chals = []`);
+    ServerUI.execute(`gm.$refs.mainMenu.$refs.profileTab.$refs.challengesTab.categories = []`);
     DailyChallenges = [];
 })
 
@@ -91,19 +91,19 @@ let weekChalProg = 0;
 let weekChalUnix = 0;
 
 mp.events.add("addChallengesToMenu", (weekChallengeProgress, weekChallengeUnix) => {
-    let json = `gm.$refs.profile.$refs.ProfileTabs.$refs.Challenges.cats = [`;
+    let json = `gm.$refs.mainMenu.$refs.profileTab.$refs.challengesTab.categories = [`;
     let chstr = "";   
     weekChalProg = weekChallengeProgress;
     weekChalUnix = weekChallengeUnix;
     json += `
         {
             name: "Weekly",
-            timer: ${weekChallengeUnix},
-            chals: 
+            timeLeft: ${weekChallengeUnix},
+            challenges: 
             [
                 {
-                    name: "Daily Challenge 7-day streak",
-                    description: "Complete at least one challenge per day for 7 days in a row.",
+                    name: "7-day Streak",
+                    description: 'Complete at least one daily challenge per day for 7 days in a row.',
                     progress: ${weekChallengeProgress},
                     goal: 7,
                     background: "package://Artwork/Achievements/reach_level_100.png"
@@ -112,14 +112,12 @@ mp.events.add("addChallengesToMenu", (weekChallengeProgress, weekChallengeUnix) 
        },
        {
            name: "Daily",
-           timer: ${DailyChallenges[i].expireDate},
-           chals: [`
-
-
+           timeLeft: ${(DailyChallenges[i] != undefined ? DailyChallenges[i].expireDate : 999999999)},
+           challenges: [`
     for(let i = 0 ; i < DailyChallenges.length; i++){
         chstr = `{
             name: "",
-            description: "${DailyChallenges[i].description}",
+            description: '${DailyChallenges[i].description}',
             progress: ${DailyChallenges[i].progress},
             goal: ${DailyChallenges[i].target},
             background: "${getchalbackgroundpic(DailyChallenges[i].type)}"
@@ -127,7 +125,7 @@ mp.events.add("addChallengesToMenu", (weekChallengeProgress, weekChallengeUnix) 
         json += chstr;
     }
     json += `]}]`;
-    UIMenu.execute(json);
+    ServerUI.execute(json);
 });
 mp.events.add("advanceChallenge", (arrayID, cht, chi, chp) => {
     
@@ -138,13 +136,13 @@ mp.events.add("advanceChallenge", (arrayID, cht, chi, chp) => {
 
         DailyChallenges.find(a => a.type == cht && a.item == chi).progress = chp;
         
-        UIMenu.execute(`if(gm.$refs.profile.$refs.ProfileTabs.$refs.Challenges.cats[${arrayID}].chals.find(chNig => chNig.description == "${chunlock.description}") != null){
-            gm.$refs.profile.$refs.ProfileTabs.$refs.Challenges.cats[${arrayID}].chals.find(chNig => chNig.description == "${chunlock.description}").progress = ${chp};
+        ServerUI.execute(`if(gm.$refs.mainMenu.$refs.profileTab.$refs.challengesTab.categories[${arrayID}].challenges.find(chNig => chNig.description == "${chunlock.description}") != null){
+            gm.$refs.mainMenu.$refs.profileTab.$refs.challengesTab.categories[${arrayID}].challenges.find(chNig => chNig.description == "${chunlock.description}").progress = ${chp};
         }`);
     }
     else{ // weekly
-        UIMenu.execute(`if(gm.$refs.profile.$refs.ProfileTabs.$refs.Challenges.cats[${arrayID}].chals.find(chNig => chNig.name == "Daily Challenge 7-day streak") != null){
-            gm.$refs.profile.$refs.ProfileTabs.$refs.Challenges.cats[${arrayID}].chals.find(chNig => chNig.name == "Daily Challenge 7-day streak").progress = ${chp};
+        ServerUI.execute(`if(gm.$refs.mainMenu.$refs.profileTab.$refs.challengesTab.categories[${arrayID}].challenges.find(chNig => chNig.name == "Daily Challenge 7-day streak") != null){
+            gm.$refs.mainMenu.$refs.profileTab.$refs.challengesTab.categories[${arrayID}].challenges.find(chNig => chNig.name == "Daily Challenge 7-day streak").progress = ${chp};
         }`);
     }
 });
@@ -164,8 +162,10 @@ mp.events.add("unlockChallenge", (cht, chi) => {
 
     let bgshit = getchalbackgroundpic(cht);
 
-    if(UIHud != null && UIHud != undefined){
-        UIHud.execute(`gm.sendAch("Challenge completed!", "${chunlock.description}", "${bgshit}", "${rewardstr}", 6000);`);
+    if(ServerUI != null && ServerUI != undefined){
+        
+        ServerUI.execute(`toast('', '${chunlock.description}', 'info', 3000);`);
+        //ServerUI.execute(`gm.sendAch("Challenge completed!", "${chunlock.description}", "${bgshit}", "${rewardstr}", 6000);`);
     }
     mp.game.audio.playSoundFrontend(-1, "PROPERTY_PURCHASE", "HUD_AWARDS", true);
 
@@ -173,8 +173,10 @@ mp.events.add("unlockChallenge", (cht, chi) => {
 });
 
 mp.events.add("sendAchievementNotify", (title, description, background, reward, time, playSound) => {
-    if(UIHud != null && UIHud != undefined){
-        UIHud.execute(`gm.sendAch("${title}", "${description}", "${background}", "${reward}", ${time});`);
+    if(ServerUI != null && ServerUI != undefined){
+        
+        ServerUI.execute(`toast('', '${title}', 'info', 3000);`);
+        //ServerUI.execute(`gm.sendAch("${title}", "${description}", "${background}", "${reward}", ${time});`);
     }    
     if(playSound){
         mp.game.audio.playSoundFrontend(-1, "PROPERTY_PURCHASE", "HUD_AWARDS", true);
@@ -184,26 +186,26 @@ mp.events.add("sendAchievementNotify", (title, description, background, reward, 
 
 
 mp.events.add("addAchievementsToMenu", () => {
-    let json = `gm.$refs.profile.$refs.ProfileTabs.$refs.Achievements.achvs = [`;
+    let json = `gm.$refs.mainMenu.$refs.profileTab.$refs.achievementsTab.achievements = [`;
     let achstr = "";
     for(let i = 0 ; i < Achievements.length; i++){
         achstr = `{
             "name":"${Achievements[i].name}", 
-            "description":"${Achievements[i].description}", 
+            "description":'${Achievements[i].description}', 
             "unlocked":${Achievements[i].unlocked},
             "background":"${Achievements[i].background}"
         },`;
         json += achstr;
     }
     json += "]";
-    UIMenu.execute(json);
+    ServerUI.execute(json);
 });
 mp.events.add("unlockAchievement", (achievementName) => {
     let achunlock = Achievements.find(a => a.name == achievementName);
     if(!achunlock) return;
 
     achunlock.unlocked = true;
-    UIMenu.execute(`gm.$refs.profile.$refs.ProfileTabs.$refs.Achievements.achvs.find(a => a.name === "${achievementName}").unlocked = true`);
+    ServerUI.execute(`gm.$refs.mainMenu.$refs.profileTab.$refs.achievementsTab.achievements.find(a => a.name === "${achievementName}").unlocked = true`);
 
     let rewardstr = "";
     if(achunlock.rewardXP > 0) rewardstr += `+${achunlock.rewardXP} XP`;
@@ -212,8 +214,9 @@ mp.events.add("unlockAchievement", (achievementName) => {
         else rewardstr += `& +${achunlock.rewardPoints} points`;
     }
 
-    if(UIHud != null && UIHud != undefined){
-        UIHud.execute(`gm.sendAch("${achunlock.name}", "${achunlock.description}", "${achunlock.background}", "${rewardstr}", 6000);`);
+    if(ServerUI != null && ServerUI != undefined){
+        ServerUI.execute(`toast('', '${achunlock.name}', 'info', 3000);`);
+        //TO-DO LATER: ServerUI.execute(`gm.sendAch("${achunlock.name}", "${achunlock.description}", "${achunlock.background}", "${rewardstr}", 6000);`);
     }
     mp.game.audio.playSoundFrontend(-1, "PROPERTY_PURCHASE", "HUD_AWARDS", true);
 

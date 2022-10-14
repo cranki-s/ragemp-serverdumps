@@ -1,286 +1,219 @@
 {
-﻿var fathers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 42, 43, 44, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 45];
-var mothers = [21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 45,0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 42, 43, 44,];
-mp.game.streaming.requestAnimDict("anim@mp_player_intcelebrationfemale@surrender");
-global.hairIDList = [
-    // male
-    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 30, 31, 32, 33, 34, 73, 76, 77, 78, 79, 80, 81, 82, 84, 85],
-    // female
-    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 31, 76, 77, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 90, 91]
-];
+﻿global.openOutType = -1;
+global.boardOpen = false;
+let fracstock = -1;
+mp.keys.bind(Keys.VK_I, false, function () {
+	//NewEvent.callRemote('console',localplayer.getVariable('InDeath') == true);
+    if (!loggedin || chatActive || editing || cuffed || localplayer.getVariable('InDeath') == true) return;
+    if (global.boardOpen)
+        mp.events.call('board', 1);
+    else
+	{
+		NewEvent.callRemote('openInventory');
+        mp.events.call('board', 0);		
+	}
+});
 
-var validTorsoIDs = [
-    // male
-    [0, 0, 2, 14, 14, 5, 14, 14, 8, 0, 14, 15, 12],
-    // female
-    [0, 5, 2, 3, 4, 4, 5, 5, 5, 0]
-];
-var outClothes = 1;
-var pants = 0;
-var shoes = 1;
-
-var gender = true;
-var father = 0;
-var mother = 21;
-var similarity = 0.5;
-var skin = 0.5;
-
-var features = [];
-for (var i = 0; i < 20; i++) features[i] = 0.0;
-
-var hair = 0;
-var hairColor = 0;
-var eyeColor = 0;
-
-var appearance = [];
-for (var i = 0; i < 11; i++) appearance[i] = 255;
-
-
-function updateCharacterParents() {
-    localplayer.setHeadBlendData(
-        mother,
-        father,
-        0,
-
-        mother,
-        father,
-        0,
-
-        similarity,
-        skin,
-        0.0,
-
-        true
-    );
-}
-
-function updateCharacterHairAndColors() {
-    let currentGender = (gender) ? 0 : 1;
-    // hair
-    localplayer.setComponentVariation(2, hairIDList[currentGender][hair], 0, 0);
-    localplayer.setHairColor(hairColor, 0);
-
-    // appearance colors
-    localplayer.setHeadOverlayColor(2, 1, hairColor, 100); // eyebrow
-    localplayer.setHeadOverlayColor(1, 1, hairColor, 100); // beard
-    localplayer.setHeadOverlayColor(10, 1, hairColor, 100); // chesthair
-
-    // eye color
-    localplayer.setEyeColor(eyeColor);
-}
-
-function updateAppearance() {
-    for (var i = 0; i < 11; i++) {
-        localplayer.setHeadOverlay(i, appearance[i], 100, 0, 0);
+mp.keys.bind(Keys.VK_ESCAPE, false, function() {
+    if (global.boardOpen) {
+        mp.game.ui.setPauseMenuActive(false);
+        mp.events.call('board', 1);
     }
+});
+
+function openBoard() {
+	if(global.board == null) return;
+//	NewEvent.callRemote('console',global.menuCheck())
+	if (global.menuCheck()) return;
+    menuOpen();
+	global.board.execute(`inventory.locale='${global.Language}'`);
+	global.board.execute('inventory.active=true');
+	mp.events.call('startScreenEffect', "MenuMGHeistIn", 1, true);
+	mp.gui.cursor.visible = true;
+	global.boardOpen = true;
 }
 
-function updateClothes() {
-    localplayer.setComponentVariation(11, outClothes, 1, 0);
-    localplayer.setComponentVariation(4, pants, 1, 0);
-    localplayer.setComponentVariation(6, shoes, 1, 0);
-    localplayer.setComponentVariation(8, 15, 0, 0);
-    localplayer.setComponentVariation(1, 0, 0, 0);    
-    localplayer.setComponentVariation(5, 0, 0, 0);
-    let currentGender = (gender) ? 0 : 1;
-    localplayer.setComponentVariation(3, validTorsoIDs[currentGender][outClothes], 0, 0);
+function closeBoard() {
+	if(global.board == null) return;
+	mp.events.call('board', 8, false);
+    mp.events.call('board', 13, false);
+    menuClose();
+	global.board.execute('inventory.active=false');
+	mp.gui.cursor.visible = false;
+    global.boardOpen = false;   
+    mp.events.call('stopScreenEffect', "MenuMGHeistIn");
+    global.board.execute(`inventory.contextMenuHandler()`);
+    // Очищаем айтемы для трейда
+    global.board.execute(`inventory.tradeReset()`);
+    NewEvent.callRemote('closeInventory');
 }
 
-mp.events.add('characterGender', (param) => {
-    gender = (param == "Male") ? true : false;
-    if (gender) {
-        localplayer.model = mp.game.joaat('mp_m_freemode_01');
-        outClothes = 1;
-        pants = 0;
-        shoes = 1;
-    }
-    else {
-        localplayer.model = mp.game.joaat('mp_f_freemode_01');
+mp.events.add('board', (act, data, slotsBag, slotsTrunk, slotsOther, addon) => {
+    if (global.board == null) {
+		global.board = mp.browsers.new('http://package/systems/player/inventory/FRONT/inventory.html');
+		global.board.name = 'nexusbrowser';
+		global.board.execute(`inventory.setKey(${JSON.stringify(global.cdnKey)})`);
+	}
+	switch(act) {
+		case 0:
+			openBoard();
+			break;
+        case 1:
+			closeBoard();
+			break;
+        case 2:
+			global.board.execute(`inventory.statsUpdate(${data})`);
+			break;
+		case 3:		   
+			global.board.execute(`inventory.factoryUpdate(Object.values(${data}), 25, 10, 13, 4, 12, 12, 10, 10, 'default')`);
+			break;
+		case 4:		   
+			global.board.execute(`inventory.factoryUpdate(Object.values(${data}), 25, 10, 13, 4, 12, 12, 10, 10, 'weapon')`);
+			break;	
+		case 5:		   
+			global.board.execute(`inventory.factoryUpdate(Object.values(${data}), 25, ${slotsBag}, 13, 4, 12, 12, 10, 10, 'bag')`);
+			break;
+		case 6:
+			global.board.execute(`inventory.factoryUpdate(Object.values(${data}), 25, 10, 13, 4, ${slotsTrunk}, 12, 10, 10, 'trunk')`);
+			break;
+		case 7:		   
+			global.board.execute(`inventory.bagHandler(${data})`);
+			break;
+		case 8:		   
+			global.board.execute(`inventory.trunkHandler(${data})`);
+			break;
+		case 9:		   
+			global.board.execute(`inventory.statsBagUpdate(${data})`);
+			break;	
+		case 10:		   
+			global.board.execute(`inventory.statsTrunkUpdate(${data})`);
+			break;
+		case 11: // Шкаф
+			global.board.execute(`inventory.factoryUpdate(Object.values(${data}), 25, 10, 13, 4, 12, ${slotsOther}, 10, 10, 'wardrobe', '${addon}')`);
+			break;
+        case 12: // Склад
+			global.board.execute(`inventory.factoryUpdate(Object.values(${data}), 25, 10, 13, 4, 12, ${slotsOther}, 10, 10, 'warehouse', '${addon}')`);
+            break;
+        case 13:
+            global.board.execute(`inventory.otherHandler(${data})`);
+            break;
+        case 14:
+            global.board.execute(`inventory.statsOtherUpdate(${data})`);
+            break;
+		case 15:
+			global.board.execute(`inventory.userInfo(${data})`);
+			break;
+        case 16:
+            // Заполняет ячейки предметов которые отдает другой игрок			
+            global.board.execute(`inventory.factoryUpdate(${data}, 25, 10, 13, 4, 12, 12, 10, 10, 'trade', 'take')`);
+			global.board.execute(`inventory.$refs.inventoryTradeRef.checkboxReady = false`); // Так же забираем галочку готовности так как обновлен список айтемов
+			global.board.execute(`inventory.$refs.inventoryTradeRef.inputMoneyTradeStatus = true`); // Так же активируем инпут
+			global.board.execute(`inventory.$refs.inventoryTradeRef.readyHandler('first', false)`);
+            break;
+        case 17:
+            // Отвечает за стрелку (Готов ли диругой игрок)
+            // data.type accept -> first/second
+            // data.action accept -> true/false
+			data = JSON.parse(data);
+            global.board.execute(`inventory.$refs.inventoryTradeRef.readyHandler('${data.type}', ${data.action})`);
+            global.board.execute(`inventory.$refs.inventoryTradeRef.moneyGetAfterTrade = ${data.moneyGet}`);
+            break;
+        case 18:
+            global.board.execute(`inventory.tradeHandler(${slotsBag}, '${data}')`);
+			global.board.execute(`inventory.factoryUpdate(Object.values([]), 25, 10, 13, 4, 12, 12, 10, 10, 'trade', 'take')`);
+			global.board.execute(`inventory.factoryUpdate(Object.values([]), 25, 10, 13, 4, 12, 12, 10, 10, 'trade', 'give')`);
+			global.board.execute(`inventory.$refs.inventoryTradeRef.checkboxReady = false`);
+            break;
+		case 19:
+            global.board.execute(`inventory.$refs.inventoryTradeRef.playerMoney = ${data}`);
+            break;	
+	}
+});
 
-        outClothes = 5;
-        pants = 0;
-        shoes = 3;
-    }    
-    appearance[1] = 255;
+ mp.events.add('console', (data) => {
+ 	NewEvent.callRemote("console", data);
+ });
 
-    updateCharacterParents();
-    updateAppearance();
-    updateCharacterHairAndColors();
-    updateClothes();
-    for (var i = 0; i < 20; i++) localplayer.setFaceFeature(i, features[i]);
-    const c = setInterval(() => {
-        if (0 !== mp.players.local.handle) {
-            mp.players.local.taskPlayAnim("anim@mp_player_intcelebrationfemale@surrender", "surrender", 1, 1, -1, 2, 1, !1, !1, !1); 
-            clearInterval(c)
+mp.events.add('boardMove', (idItem, idSlot, newSlot, action, count) => {
+	
+	if (!count) count = -1;
+	
+	switch (action) {
+	case 1:
+		NewEvent.callRemote('MoveSlots', idItem, idSlot, newSlot, count); // Перемещение в инвентаре
+	    break;
+	case 2:
+		NewEvent.callRemote('Inventory', 0, idSlot, 'use', newSlot); // Не ебу
+		break;
+	case 3:
+		NewEvent.callRemote('Perstoslot', idItem, idSlot, newSlot); // С персонажа в инвентарь
+		break;		
+	case 4:	    
+		NewEvent.callRemote('dropitem', idSlot, newSlot, count); // Дроп
+		break;
+	case 5:
+		NewEvent.callRemote('MoveSlotsBag', idItem, idSlot, newSlot, count); // Перемещение айтемов в сумке
+		break;
+	case 6:	    
+		NewEvent.callRemote('MoveFromWeapon', idItem, idSlot, newSlot); // Перемещение с быстрых слотов
+		break;
+	case 7:	    
+		NewEvent.callRemote('MoveToWeapon', idItem, idSlot, newSlot); // Перемещение в быстрые слоты
+		break;			
+	case 8:	    
+		NewEvent.callRemote('MoveFromBag', idItem, idSlot, newSlot); // Перемещение с сумки
+		break;
+	case 9:	    
+		NewEvent.callRemote('MoveToTrunk', idItem, idSlot, newSlot); // Перемещение в багажник
+		break;	
+	case 10:	    
+		NewEvent.callRemote('MoveFromTrunk', idItem, idSlot, newSlot); // Перемещение с багажника
+		break;
+	case 11:	    
+		NewEvent.callRemote('MoveSlotsTrunk', idItem, idSlot, newSlot, count); // Перемещение айтемов в багажнике
+		break;
+	case 12:	    
+		NewEvent.callRemote('MoveToBag', idItem, idSlot, newSlot); // Перемещение в сумку
+		break;
+	case 13:
+		NewEvent.callRemote('MoveToOther', idItem, idSlot, newSlot); // Перемещение айтемов в шкаф/багажник
+		break;
+	case 14:
+		NewEvent.callRemote('MoveFromOther', idItem, idSlot, newSlot); // Перемещение с шкафа/склада
+		break;
+	case 15:
+		NewEvent.callRemote('MoveSlotsOther', idItem, idSlot, newSlot, count); // Перемещение айтемов в шкафу/складу
+		break;
+	case 16:
+		NewEvent.callRemote('MoveToTrade', idItem); // Перемещение айтемов в трейд (Должно обновлять айтемы у другого чела) то есть должен вызивать 16 кейс с addon -> take
+		break;
+	case 17:
+		NewEvent.callRemote('MoveFromTrade', idItem); // Перемещение с трейда, для того чтобы изменились айтемы у другого игрока, так же 16 кейс addon -> take
+		break;
+    case 18:
+        // idItem - прилетает статус true/false
+        // idSlot - деньги который передает игрок
+        NewEvent.callRemote('ReadyStatus', idItem, idSlot);
+        break;
+	case 19:
+		NewEvent.callRemote('AcceptTrade', idItem);
+		break;
+	case 20:
+		NewEvent.callRemote('MoveSlotsWeapon', idItem, idSlot, newSlot); // Перемещение айтемов в быстрых слотах
+		break;
+	}
+});
+
+mp.events.add('boardClose', () => {
+	closeBoard();
+});
+
+mp.events.add("playerQuit", (player, exitType, reason) => {
+    if (global.board) {
+        if (player.name === localplayer.name) {
+            global.board.destroy();
+            global.board = null;
         }
-    }, 1e3)
-});
-mp.events.add('editorList', (param, value) => {
-    var hairParam = (gender) ? "hairM" : "hairF";
-    var browParam = (gender) ? "eyebrowsM" : "eyebrowsF";
-    var lvl = parseFloat(value);
-    //mp.gui.chat.push(lvl);
-    switch (param) {
-        case "similar":
-            similarity = lvl;
-            updateCharacterParents();
-            return;
-        case "skin":
-            skin = lvl;
-            updateCharacterParents();
-            return;
-        case "noseWidth": localplayer.setFaceFeature(0, lvl); features[0] = lvl; return;
-        case "noseHeight": localplayer.setFaceFeature(1, lvl); features[1] = lvl; return;
-        case "noseTipLength": localplayer.setFaceFeature(2, lvl); features[2] = lvl; return;
-        case "noseDepth": localplayer.setFaceFeature(3, lvl); features[3] = lvl; return;
-        case "noseTipHeight": localplayer.setFaceFeature(4, lvl); features[4] = lvl; return;
-        case "noseBroke": localplayer.setFaceFeature(5, lvl); features[5] = lvl; return;
-        case "eyebrowHeight": localplayer.setFaceFeature(6, lvl); features[6] = lvl; return;
-        case "eyebrowDepth": localplayer.setFaceFeature(7, lvl); features[7] = lvl; return;
-        case "cheekboneHeight": localplayer.setFaceFeature(8, lvl); features[8] = lvl; return;
-        case "cheekboneWidth": localplayer.setFaceFeature(9, lvl); features[9] = lvl; return;
-        case "cheekDepth": localplayer.setFaceFeature(10, lvl); features[10] = lvl; return;
-        case "eyeScale": localplayer.setFaceFeature(11, lvl); features[11] = lvl; return;
-        case "lipThickness": localplayer.setFaceFeature(12, lvl); features[12] = lvl; return;
-        case "jawWidth": localplayer.setFaceFeature(13, lvl); features[13] = lvl; return;
-        case "jawShape": localplayer.setFaceFeature(14, lvl); features[14] = lvl; return;
-        case "chinHeight": localplayer.setFaceFeature(15, lvl); features[15] = lvl; return;
-        case "chinDepth": localplayer.setFaceFeature(16, lvl); features[16] = lvl; return;
-        case "chinWidth": localplayer.setFaceFeature(17, lvl); features[17] = lvl; return;
-        case "chinIndent": localplayer.setFaceFeature(18, lvl); features[18] = lvl; return;
-        case "neck": localplayer.setFaceFeature(19, lvl); features[19] = lvl; return;
-        case "father":
-            father = fathers[value];
-            updateCharacterParents();
-            return;
-        case "mother":
-            mother = mothers[value];
-            updateCharacterParents();
-            return;
-        case `${hairParam}`:
-            hair = value;
-            updateCharacterHairAndColors();
-            return;
-        case `${browParam}`:
-            appearance[2] = value;
-            updateAppearance();
-            return;
-        case "beard":
-            var overlay = (value == 0) ? 255 : value - 1;
-            appearance[1] = overlay;
-            updateAppearance();
-            return;
-        case "hairColor":
-            hairColor = value;
-            updateCharacterHairAndColors();
-            return;
-        case "eyeColor":
-            eyeColor = value;
-            updateCharacterHairAndColors();
-            return;
-    }
-});
-
-mp.events.add('characterSave', () => {
-	if(new Date().getTime() - global.lastCheck < 1000) return; 
-	global.lastCheck = new Date().getTime();
-	if(editorBrowser != null) {
-		editorBrowser.destroy();
-		editorBrowser = null;
-		mp.game.graphics.startScreenEffect("MinigameTransitionIn", 0, false);
-		let currentGender = (gender) ? 0 : 1;
-
-		var appearance_values = [];
-		for (var i = 0; i < 11; i++) appearance_values.push({ Value: appearance[i], Opacity: 100 });
-
-		var hair_or_colors = [];
-		hair_or_colors.push(hairIDList[currentGender][hair]);
-		hair_or_colors.push(hairColor);
-		hair_or_colors.push(0);
-		hair_or_colors.push(hairColor);
-		hair_or_colors.push(hairColor);
-		hair_or_colors.push(eyeColor);
-		hair_or_colors.push(0);
-		hair_or_colors.push(0);
-		hair_or_colors.push(hairColor);
-        
-		setTimeout(function () {
-			NexusEvent.callRemote("SaveCharacter", currentGender, father, mother, similarity, skin, JSON.stringify(features), JSON.stringify(appearance_values), JSON.stringify(hair_or_colors));
-		}, 5000);
-	}
-});
-
-var editorBrowser = null;
-mp.events.add('CreatorCamera', () => {
-    localplayer.freezePosition(true);
-    localplayer.setRotation(0.0, 0.0, -185.0, 2, true);
-    mp.players.local.setHeading(49); 
-    bodyCamStart = localplayer.position;
-    var camValues = { Angle: localplayer.getRotation(2).z + 90, Dist: 0.6, Height: 0.6 };
-    var pos = getCameraOffset(new mp.Vector3(-2243.218, 261.5923, 174.6295 + camValues.Height), camValues.Angle, camValues.Dist);
-    bodyCam = mp.cameras.new('default', pos, new mp.Vector3(0, 0, 0), 50);
-    bodyCam.pointAtCoord(-2243.218, 261.5923, 174.6295 + camValues.Height);
-    bodyCam.setActive(true);
-    mp.game.cam.renderScriptCams(true, false, 500, true, false);
-    global.playerheading.startveh(mp.players.local);
-    updateCharacterParents();
-    for (var i = 0; i < 20; i++) localplayer.setFaceFeature(i, 0.0);
-    updateCharacterHairAndColors();
-    updateAppearance();
-    updateClothes();
-    mp.players.local.taskPlayAnim("anim@mp_player_intcelebrationfemale@surrender", "surrender", 1, 1, -1, 2, 1, !1, !1, !1)
-    updateGameTime = false;
-    mp.game.time.setClockTime(10, 0, 0);    
-    if(editorBrowser == null){ editorBrowser = mp.browsers.new('http://package/systems/login/characterEditor/FRONT/character.html#content-1');
-    editorBrowser.name = 'nexusbrowser';
-}
-    editorBrowser.execute(`editor.locale = '${global.Language}'`)
-    editorBrowser.execute(`editor.active = true`);
-    global.menuOpen();
-});
-
-
-mp.events.add('CharacterCreator.Hover', (status)=>{
-    if(!status) global.playerheading.startveh(mp.players.local); else global.playerheading.stop();
-});
-
-
-
-mp.events.add('DestroyCamera', () => {
-    if (bodyCam == null) return;
-    bodyCam.setActive(false);
-    bodyCam.destroy();
-    mp.game.cam.renderScriptCams(false, false, 3000, true, true);
-    global.playerheading.stop();
-    global.menuClose();
-    bodyCam = null;
-
-	if(editorBrowser != null) {
-		editorBrowser.destroy();
-		editorBrowser = null;
-	}
-
-    mp.players.local.clearTasksImmediately()
-    localplayer.freezePosition(false);
-
-    mp.events.call('camMenu', false);
-    mp.events.call('showHUD', true);
-    mp.events.call('showAltTabHint');
-    updateGameTime = true;
-    if (global.menu == null)
-    {
-        global.loggedin = true;
-        global.menu = mp.browsers["new"]('package://systems/OLD_GLOBAL/FRONT/menu.html');
-    }
-});
-
-mp.events.add('entityStreamIn', (entity) => {
-    if (entity.type !== 'player') return;
-
-    if (entity.getVariable('HAT_DATA') != undefined) {
-        var data = JSON.parse(entity.getVariable('HAT_DATA'));
-        if (data[0] != -1)
-            entity.setPropIndex(0, data[0], data[1], true);
     }
 });
 }

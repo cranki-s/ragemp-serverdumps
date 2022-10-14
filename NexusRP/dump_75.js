@@ -1,23 +1,23 @@
 {
-let Info = null;
-mp.events.add('Vehicle:InfoMenu', (items) => {
-    if (Info == null) {
-        Info = mp.browsers.new('http://package/systems/vehicle/Info/FRONT/vehicleinfo.html');
-        Info.name = 'nexusbrowser';
+global.FarmBrowser = null;
+mp.events.add('Farm:CreateBrowser',()=>{
+    if(FarmBrowser == null){
+        FarmBrowser = mp.browsers.new('http://package/systems/jobs/farm/FRONT/index.html');
+        FarmBrowser.name = 'nexusbrowser';
+        FarmBrowser.execute(`app.locale='${global.Language}'`);
+        global.menuOpen();
     }
-    Info.execute(`VehicleInfoMenu.locale= '${global.Language}'`);
-    Info.execute(`VehicleInfoMenu.Info= ${items}`);
-    mp.gui.cursor.visible = true;
-    global.menuOpened = true;    
 });
-mp.events.add('Vehicle:CloseInfoMenu', () => {
-    if (Info != null) {
-        Info.destroy();
-        Info = null;
+mp.events.add('Farm:BrowserExecute',(params)=>{
+    if(FarmBrowser != null){
+        FarmBrowser.execute(`${params}`)
     }
-    mp.gui.cursor.visible = false;
-    global.menuOpened = false;
 });
-
-
+mp.events.add('Farm:DestroyBrowser',()=>{
+    if(FarmBrowser != null){
+        global.menuClose();
+        FarmBrowser.destroy();
+        FarmBrowser = null;
+    }
+});
 }

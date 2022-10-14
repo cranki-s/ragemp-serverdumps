@@ -12,7 +12,7 @@ mp.events.add('Lift:OpenLift', (buttons, type) => {
 mp.events.add('Lift:SetActive',buttonID=>{ 
     switch(ListType){
         case 0:{
-            NexusEvent.callRemote('fbilift',buttonID)
+            NewEvent.callRemote('fbilift',buttonID)
         }
         break;
     }

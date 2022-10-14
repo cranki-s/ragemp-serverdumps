@@ -26,7 +26,7 @@ function findZ(mp, maxAttempts, delay, wpos, oldpos) {
             clearTimeout(timeout);
         } else { //if z found - tp to wpos        
             mp.players.local.position = new mp.Vector3(wpos.x, wpos.y, wpos.z+2);           
-            //NexusEvent.callRemote('notifyCoords', 'Телепорт пo координатам:', wpos.x, wpos.y, wpos.z+1);
+            //NewEvent.callRemote('notifyCoords', 'Телепорт пo координатам:', wpos.x, wpos.y, wpos.z+1);
             mp.events.call('notify', 2, 9, global.GetText('Телепорт пo координатам:') +wpos.x.toFixed(2)+" "+wpos.y.toFixed(2)+" "+(wpos.z+1).toFixed(2), 6000);
             clearTimeout(timeout);
         }
@@ -39,7 +39,7 @@ function findWP(mp){
 
     if (wpos.z != 20) { //if z already identificated         
         mp.players.local.position = new mp.Vector3(wpos.x, wpos.y, wpos.z+2);        
-        //NexusEvent.callRemote('notifyCoords', 'Телепорт по координатам:', wpos.x, wpos.y, wpos.z+1);
+        //NewEvent.callRemote('notifyCoords', 'Телепорт по координатам:', wpos.x, wpos.y, wpos.z+1);
         mp.events.call('notify', 2, 9, global.GetText('Телепорт пo координатам:') +wpos.x.toFixed(2)+" "+wpos.y.toFixed(2)+" "+(wpos.z+1).toFixed(2), 6000);
 		lastWaypointCoords = null;
         return;

@@ -15,7 +15,7 @@ mp.events.add("spmode", (target, toggle) => {
 			spectating = true;
 			localplayer.attachTo(target.handle,  -1, -1.5, -1.5, 2, 0, 0, 0, true, false, false, false, 0, false);
 			spmenu.Open();
-		} else NexusEvent.callRemote("UnSpectate");
+		} else NewEvent.callRemote("UnSpectate");
 	} else {
 		sptarget = null;
 		localplayer.detach(true, true);
@@ -26,12 +26,12 @@ mp.events.add("spmode", (target, toggle) => {
 spmenu.ItemSelect.on(item => {
 	if (item instanceof UIMenuListItem) {
 		if(item.Text == "Spectate") {
-			if(item.Index == 0) NexusEvent.callRemote("SpectateSelect", false);
-			else NexusEvent.callRemote("SpectateSelect", true);
+			if(item.Index == 0) NewEvent.callRemote("SpectateSelect", false);
+			else NewEvent.callRemote("SpectateSelect", true);
 		}
 	} else if (item instanceof UIMenuItem) {
 		if(item.Text == "Refresh") mp.events.call("spmode", sptarget, true);
-		else if(item.Text == "Unspectate") NexusEvent.callRemote("UnSpectate");
+		else if(item.Text == "Unspectate") NewEvent.callRemote("UnSpectate");
 	}
 });
 

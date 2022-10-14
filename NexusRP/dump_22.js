@@ -261,7 +261,7 @@ const attachPlayerToPlayerHandle = async(a, b,h) => {
         a === mp.players.local) {
             global.disableAllAction = !0, c || (global.enableCameraOnDisabled = !0);
             const a = () => {
-                mp.players.exists(e) && 0 !== e.handle && mp.players.local.getVariable("attachToPlayer") && (c || !mp.game.controls.isDisabledControlPressed(0, 23)) || (NexusEvent.callRemote("server_player_attachStop"), mp.events.remove("render", a))
+                mp.players.exists(e) && 0 !== e.handle && mp.players.local.getVariable("attachToPlayer") && (c || !mp.game.controls.isDisabledControlPressed(0, 23)) || (NewEvent.callRemote("server_player_attachStop"), mp.events.remove("render", a))
             
             };
             mp.events.add("render", a)
@@ -288,7 +288,7 @@ const attachPlayerToPlayerHandle = async(a, b,h) => {
                     mp.events.remove("render", b),
                     clearInterval(carryPlayer_timer),
                     carryPlayer_timer = null,
-                    NexusEvent.callRemote("server_player_attachStop"),
+                    NewEvent.callRemote("server_player_attachStop"),
                     mp.players.local.clearTasksImmediately()
                 };
             carryPlayer_player = a,

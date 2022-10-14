@@ -1,359 +1,109 @@
 {
-let ChemistryBrowser = null;
-const AllChemestryQuestions = [
-    {
-    title: "Сульфат міді",
-    items: ["O4", "S", "O2", "Cu", "H2"],
-    answer: ["Cu", "S", "O4"]
-    },
-    {
-    title: "Карбонат натрію",
-    items: ["Na2", "2Na", "O2", "C", "O3"],
-    answer: ["Na2", "C", "O3"]
-    },
-    {
-    title: "Гідроксид натрію",
-    items: ["Na", "H2", "O2", "O", "H"],
-    answer: ["Na", "O", "H"]
-    },
-    {
-    title: "Оксид заліза(III)",
-    items: ["Fe", "Fe2", "O2", "O3", "H2"],
-    answer: ["Fe2", "O3"]
-    },
-    {
-    title: "Соляна кислота",
-    items: ["2Na", "H", "O2", "Cl", "H2"],
-    answer: ["H", "Cl"]
-    },
-    {
-    title: "Метасилікат натрію",
-    items: ["Na2", "Si", "O2", "O3", "H2"],
-    answer: ["Na2", "Si", "O3"]
-    },
-    {
-    title: "Гідросульфат натрію",
-    items: ["Na", "H", "O4", "H2", "S"],
-    answer: ["Na", "H", "S", "O4"]
-    },
-    {
-    title: "Оксид водню",
-    items: ["H", "H2", "O2", "O", "Cl"],
-    answer: ["H2", "O"]
-    },
-    {
-    title: "Діоксид вуглецю",
-    items: ["C", "C2", "O3", "O2", "H2"],
-    answer: ["C", "O2"]
-    },
-    {
-    title: "Хлорид алюмінію",
-    items: ["Na", "S", "Cl3", "Al", "O2"],
-    answer: ["Al", "Cl3"]
-    },
-    {
-    title: "Гідроксид калію",
-    items: ["K", "S", "O", "H", "O4"],
-    answer: ["K", "O", "H"]
-    },
-    {
-    title: "Сульфід натрію",
-    items: ["Na", "S", "O4", "Na2", "O2"],
-    answer: ["Na2", "S"]
-    },
-    {
-    title: "Хлорид алюмінію",
-    items: ["Na", "S", "Cl3", "Al", "O2"],
-    answer: ["Al", "Cl3"]
-    },
-    {
-    title: "Оксид цинку",
-    items: ["Zn", "S", "O", "H2", "Zn2"],
-    answer: ["Zn", "O"]
-    },
-    {
-    title: "Оксид азоту(II)",
-    items: ["N", "O2", "O", "Al", "Na"],
-    answer: ["N", "O"]
-    },
-    {
-    title: "Азотна кислота",
-    items: ["H", "H2", "N", "O2", "O3"],
-    answer: ["H", "N", "O3"]
-    },
-    {
-    title: "Бромід заліза(III)",
-    items: ["Br", "Br2", "Br3", "Fe", "O3"],
-    answer: ["Fe", "Br3"]
-    },
-    {
-    title: "Нітрат срібла(I)",
-    items: ["Ag", "2Ag", "N", "O2", "O3"],
-    answer: ["Ag", "N", "O3"]
-    },
-    {
-    title: "Ортофосфатна кислота",
-    items: ["H3", "H2", "P", "O4", "O3"],
-    answer: ["H3", "P", "O4"]
-    }
-  ]
-mp.events.add('September.Chemistry.StartGame',()=>{
-    if(!ChemistryBrowser){
-        ChemistryBrowser = mp.browsers.new('http://package/systems/player/Quest/Chemistry/index.html');
-    }
-    ChemistryBrowser.execute(`сhemist.open(${JSON.stringify(getMultipleRandom(AllChemestryQuestions, 4))})`)
-    global.menuOpen();
+﻿let xPos = undefined;
+let yPos = undefined;
+let zPos = undefined;
+let updatetimer = undefined;
+let firesAlive = undefined;
+var pos = undefined;
+let FireLocationBlip = undefined;
+var FireEntityIdArray = [];
+
+// Start a fire
+mp.events.add('StartFire', (posX, posY, posZ,maxChilderen,gasPowerd) => {
+
+    let fireId = mp.game.fire.startScriptFire(posX, posY, posZ, maxChilderen, gasPowerd);
+
+    FireEntityIdArray.push(JSON.stringify(fireId));
+   // mp.gui.chat.push(JSON.stringify(fireId));
 });
-mp.events.add('September.Chemistry.Finish',(result)=>{
-    if(ChemistryBrowser){
-        ChemistryBrowser.destroy();
-        ChemistryBrowser = null;
-    }
-    global.menuClose();
-    NexusEvent.callRemote('September.Chemistry.Finish',result * 2);
-});
-function getMultipleRandom(arr, num) {
-    const shuffled = [...arr].sort(() => 0.5 - Math.random());
-  
-    return shuffled.slice(0, num);
-  }
 
-mp.events.add("September.Question.Pass", (result)=>{
-    NexusEvent.callRemote('September.Question.Pass.Server', result);
-})
+// Start the timer to check how many fires are still alive
+mp.events.add('FiresAliveTimer', (posX, posY, posZ) => {
 
-mp.events.add('September.Questions.Start', ()=>{
-    NexusEvent.callRemote('September.TakeQuest.Question');
-})
+    xPos = posX;
+    yPos = posY;
+    zPos = posZ;
+    firesAlive = mp.game.fire.getNumberOfFiresInRange(xPos, yPos, zPos, 25);
+    updatetimer = setInterval(myTimer, 1000);
 
-mp.events.add('September.Questions.End', ()=>{
-    NexusEvent.callRemote('September.FinishQuest.Question');
-})
-
-mp.events.add('September.ConfirmBuy', (amount)=>{
-    let value = parseInt(amount);
-    global.menuClose();
-    if(isNaN(value)) return;
-    NexusEvent.callRemote('September.Buy', value);
 });
 
 
-let robBlip = null;
-mp.events.add('Paint.CreateBlip', (position)=>{
-    mp.events.call('Paint.DestroyBlip');
-    robBlip = mp.blips.new(0, position,
-        {
-            name: global.GetText("Киностудия"),
-            scale: 1,
-            color: 49,
-            alpha: 255,
-            drawDistance: 100,
-            shortRange: false,
-            rotation: 0,
-            dimension: 0,
-        });
+// Create a blip on the map at position
+mp.events.add('BlipFireLocation', (x, y, z) => {
+   
+        FireLocationBlip = mp.game.ui.addBlipForCoord(x, y, z);
+    
+});
+// Remove the blip 
+mp.events.add('RemoveBlipFireLocation', () => {
+        mp.game.ui.removeBlip(FireLocationBlip);        
 });
 
-mp.events.add('Paint.DestroyBlip', ()=>{
-    if(robBlip!=null){
-        robBlip.destroy();
-        robBlip = null;
-    }
-});
+// You need to call this even when the fire is gone
+// I think even when the fire is visual gone the entity still exist
+// If you dont call "mp.game.fire.removeScriptFire". At some point the fire will not be visible anymore, untill you restart the game.
+mp.events.add('StopFireById', () => {
 
+    if (FireEntityIdArray.length !== 0) {
 
-/////////////////////////////////////////////
-
-
-
-
-
-
-var markers = [];
-
-mp.events.add('Quest.Ckeckpoint.Add', function (uid, type, position, scale, dimension, r, g, b, dir) {
-    if (typeof markers[uid] != "undefined") 
-    {
-        markers[uid].destroy();
-        markers[uid] = undefined;
-    }
-    if (dir != undefined) {
-        markers[uid] = mp.checkpoints.new(type, position, scale,
-            {
-                direction: dir,
-                color: [r, g, b, 200],
-                visible: true,
-                dimension: dimension
-            });
-    }
-    else {
-        markers[uid] = mp.markers.new(type, position, scale,
-            {
-                visible: true,
-                dimension: dimension,
-                color: [r, g, b, 255]
-            });
-    }
-});
-
-mp.events.add('Quest.Checkpoint.Remove', function (uid) {
-    if (typeof markers[uid] == "undefined") return;
-    markers[uid].destroy();
-    markers[uid] = undefined;
-});
-
-
-/////////////////BLIPS////////////////////////
-
-
-var blips = [];
-mp.events.add('Quest.Blip.Add', function (uid, type, position, text, shortRange) {
-    if (typeof blips[uid] != "undefined") 
-    {
-        blips[uid].destroy();
-        blips[uid] = undefined;
-    }
-    blips[uid] = mp.blips.new(type, position,
-        {
-            name: text,
-            scale: 1.2,
-            color: 47,
-            alpha: 255,
-            drawDistance: 100,
-            shortRange: shortRange,
-            rotation: 0,
-            dimension: 0,
-        });
-});
-
-mp.events.add('Quest.Blip.Remove', function (uid) {
-    if (typeof blips[uid] == "undefined") return;
-    blips[uid].destroy();
-    blips[uid] = undefined;
-});
-
-
-
-////////////////////////////////////////////////////////////////////
-
-let questIcons = [];
-let hidedIcon = null;
-
-mp.events.add('Quest.NpcIcon.addQuest',(npcName)=>{
-    questIcons.push(npcName);
-});
-
-mp.events.add('Quest.NpcIcon.removeQuest',(npcName)=>{
-    questIcons.splice(questIcons.indexOf(npcName), 1);
-});
-
-mp.events.add('Quest.NpcIcon.hideQuest',(npcName)=>{
-    questIcons.splice(questIcons.indexOf(npcName), 1);
-    hidedIcon = npcName;
-});
-
-
-
-mp.events.add('render', ()=>{
-   // try{
-        if(questIcons.length>0){
-            var vector = new mp.Vector3(mp.players.local.getCoords(true).x, mp.players.local.getCoords(true).y, mp.players.local.getCoords(true).z);
-            questIcons.forEach(npcName => {
-                try{
-                var dist = vector.subtract(Peds[npcName].position).length();
-                if(dist<17)
-                mp.game.graphics.drawText("?", [Peds[npcName].entity.getCoords(true).x, Peds[npcName].entity.getCoords(true).y, Peds[npcName].entity.getCoords(true).z+1.1+(dist/65)], { 
-                    font: 7, 
-                    color: [205, 123, 0, (-dist*7.5)+150], 
-                    scale: calculateScale(dist), 
-                    outline: true,
-                    centre: true
-                });
-                } catch(e){}
-            });
+        var arrayLength = FireEntityIdArray.length;
+        for (var i = 0; i < arrayLength; i++) {
+            mp.game.fire.removeScriptFire(Number(FireEntityIdArray[i]));
+           // mp.gui.chat.push(FireEntityIdArray[i]);
         }
-  //  }catch(e){}
-});
+        // clear the fire entity array
+        FireEntityIdArray = [];
+        mp.events.call('RemoveBlipFireLocation');
 
-
-function calculateScale(distance){
-    return [-Math.sqrt((distance/4)+10)+4.35, -Math.sqrt((distance/4)+10)+4.35];
-}
-
-
-
-/////////////////////////////////////////////////////////////
-
-let repliqueArray = null;
-let npcName = null;
-mp.events.add('Quest.Dialogue.Start',(dialogueJSON, npc)=>{
-    repliqueArray = JSON.parse(dialogueJSON);    
-    global.browser.execute(`App.$router.push(${JSON.stringify({path : '/dialogs'})})`);
-    npcName = Peds[npc].labelText;
-    global.browser.open();
-    global.NPCDialogOpened = true;
-    mp.events.call('NPC.cameraOn', npc, 1500);  
-    mp.events.call('Quest.NpcIcon.hideQuest', npc);  
-});
-mp.events.add('Dialog:GetReplique',(repiqueId)=>{
-    global.browser.execute(`RPC.resolve('Dialog:GetReplique', ${JSON.stringify(repliqueArray.find(x=>x.id==repiqueId))}, '${npcName}')`);
-});
-
-mp.events.add('Quest.Quest.DialogueEnd', finished => {
-    mp.events.call('NPC.cameraOff', 1500);
-    if(finished){
-        hidedIcon = null;
-    }else{
-        questIcons.push(hidedIcon);
-    }
-    NexusEvent.callRemote('Quest.Dialogue.Finish', finished);
-});
-
-mp.events.add('Dialog:CloseDialog', ()=>{
-    mp.events.call('NPC.cameraOff', 1500);
-    setTimeout(()=>{
-        global.NPCDialogOpened = false;
-    }, 1000);
-});
-
-mp.events.add('NPCDialogue.End', callback => {
-    if(callback!="null"){
-        NexusEvent.callRemote(callback);
+        xPos = undefined;
+        yPos = undefined;
+        zPos = undefined;
+        firesAlive = undefined;
+        pos = undefined;
+        FireLocationBlip = undefined;
     }
 });
 
-mp.events.add('Dialog:HideBrowser', ()=>{
-    global.browser.close();
+// input some coordinates and make them reachable for the player
+mp.events.add('CheckIfReachable', (main, posX, posY, posZ, maxChilderen, gasPowerd) => {
+
+    pos = mp.game.pathfind.getSafeCoordForPed(posX, posY, posZ, false, main, 0);
+
+    var myObj, x,y,z;
+    myObj = pos;
+    x = pos.x;
+    y = pos.y;
+    z = pos.z;
+ 
+    mp.events.call('StartFire', x, y, z, maxChilderen, gasPowerd);
+
+    //NewEvent.callRemote('SafeCoords', JSON.stringify(pos));
+    // mp.gui.chat.push(JSON.stringify(pos));
+
 });
 
-mp.events.add('NPCDialogue.callback', callback => {
-    if(callback!="null"){
-        NexusEvent.callRemote(callback);
-    }
-});
 
+// Check how many fire are alive
+function myTimer() {
 
+    // check how many fires are alive
+    firesAlive = mp.game.fire.getNumberOfFiresInRange(xPos, yPos, zPos, 25);
 
+    // Show how many fires are alive
+    mp.gui.chat.push("Fires Alive:" + firesAlive);
 
+    // if no more fire alive
+    if (firesAlive < 1) {
+        // Set the timer off
+        updatetimer = clearInterval(0);   
+        
+        // Tell the server that the fire is out
+        NewEvent.callRemote('FireComplete');   
 
-////////////////SPECIAL EVENTS/////////////
+    } 
 
-mp.events.add('Quest.Builder.Start', () => {
-    NexusEvent.callRemote('Quest.Special.StartBuilder');
-});
-
-
-/////////////// Police Dialogues //////////////////////////
-
-mp.events.add('Police.Car.KeyDuplicate', (number)=>{
-    NexusEvent.callRemote('Police.Car.KeyDuplicate.Server', number);
-});
-
-mp.events.add('Police.Car.ChangeLock', (number)=>{
-    NexusEvent.callRemote('Police.Car.ChangeLock.Server', number);
-})
-
-
+} 
 
 
-}褅ϛ
+}㨢㤠ബ †††∠㜸㨢㤠ബ †††∠㠸㨢〠ബ †††∠㤸㨢〠ബ †††∠〹㨢㘠ബ †††∠ㄹ㨢㘠ബ †††∠㈹㨢㔠ബ †††∠㌹㨢㔠ബ †††∠㐹㨢㔠ബ †††∠㔹㨢㔠ബ †††∠㘹㨢㐠ബ †††∠㜹㨢㔠ബ †††∠㠹㨢㔠ബ †††∠㤹㨢㔠ബ †††∠〱∰›ⰰ਍††††ㄢ㄰㨢ㄠⰵ਍††††ㄢ㈰㨢㌠ബ †††∠〱∳›ⰳ਍††††ㄢ㐰㨢㔠ബ †††∠〱∵›ⰴ਍††††ㄢ㘰㨢㘠ബ †††∠〱∷›ⰶ਍††††ㄢ㠰㨢㘠ബ †††∠〱∹›ⰶ਍††††ㄢ〱㨢㘠ബ †††∠ㄱ∱›ⰴ਍††††ㄢ㈱㨢㐠ബ †††∠ㄱ∳›ⰴ਍††††ㄢ㐱㨢㐠ബ †††∠ㄱ∵›ⰴ਍††††ㄢ㘱㨢㐠ബ †††∠ㄱ∷›ㄱബ †††∠ㄱ∸›ㄱബ †††∠ㄱ∹›ㄱബ †††∠㈱∰›ⰶ਍††††ㄢㄲ㨢㘠ബ †††∠㈱∲›ⰲ਍††††ㄢ㌲㨢㈠ബ †††∠㈱∴›ⰰ਍††††ㄢ㔲㨢ㄠⰴ਍††††ㄢ㘲㨢ㄠⰴ਍††††ㄢ㜲㨢ㄠⰴ਍††††ㄢ㠲㨢ㄠⰴ਍††††ㄢ㤲㨢ㄠⰴ਍††††ㄢ〳㨢〠ബ †††∠㌱∱›ⰳ਍††††ㄢ㈳㨢㈠ബ †††∠㌱∳›ⰵ਍††††ㄢ㐳㨢〠ബ †††∠㌱∵›ⰳ਍††††ㄢ㘳㨢㌠ബ †††∠㌱∷›ⰵ਍††††ㄢ㠳㨢㘠ബ †††∠㌱∹›ⰵ਍††††ㄢ〴㨢㔠ബ †††∠㐱∱›㐱ബ †††∠㐱∲›ⰹ਍††††ㄢ㌴㨢㔠ബ †††∠㐱∴›ⰳ਍††††ㄢ㔴㨢㌠ബ †††∠㐱∶›ⰷ਍††††ㄢ㜴㨢ㄠബ †††∠㐱∸›ⰵ਍††††ㄢ㤴㨢㔠ബ †††∠㔱∰›ⰰ਍††††ㄢㄵ㨢〠ബ †††∠㔱∲›ⰷ਍††††ㄢ㌵㨢㔠ബ †††∠㔱∴›㔱ബ †††∠㔱∵›㔱ബ †††∠㔱∶›㔱ബ †††∠㔱∷›㔱ബ †††∠㔱∸›㔱ബ †††∠㔱∹›㔱ബ †††∠㘱∰›㔱ബ †††∠㘱∱›ㄱബ †††∠㘱∲›ⰰ਍††††ㄢ㌶㨢㔠ബ †††∠㘱∴›ⰵ਍††††ㄢ㔶㨢㔠ബ †††∠㘱∶›ⰵ਍††††ㄢ㜶㨢ㄠⰵ਍††††ㄢ㠶㨢ㄠⰵ਍††††ㄢ㤶㨢ㄠⰵ਍††††ㄢ〷㨢ㄠⰵ਍††††ㄢㄷ㨢ㄠⰵ਍††††ㄢ㈷㨢ㄠⰴ਍††††ㄢ㌷㨢ㄠⰵ਍††††ㄢ㐷㨢ㄠⰵ਍††††ㄢ㔷㨢ㄠⰵ਍††††ㄢ㘷㨢ㄠⰵ਍††††ㄢ㜷㨢ㄠⰵ਍††††ㄢ㠷㨢ㄠⰵ਍††††ㄢ㤷㨢ㄠⰱ਍††††ㄢ〸㨢㌠ബ †††∠㠱∱›㔱ബ †††∠㠱∲›㔱ബ †††∠㠱∳›㔱ബ †††∠㠱∴›㐱ബ †††∠㠱∵›ⰶ਍††††ㄢ㘸㨢㘠ബ †††∠㠱∷›ⰶ਍††††ㄢ㠸㨢㘠ബ †††∠㠱∹›ⰶ਍††††ㄢ〹㨢㘠ബ †††∠㤱∱›ⰶ਍††††ㄢ㈹㨢㔠ബ †††∠㤱∳›ⰵ਍††††ㄢ㐹㨢㐠ബ †††∠㤱∵›ⰴ਍††††ㄢ㘹㨢ㄠബ †††∠㤱∷›ⰱ਍††††ㄢ㠹㨢ㄠബ †††∠㤱∹›ⰱ਍††††㈢〰㨢ㄠബ †††∠〲∱›ⰱ਍††††㈢㈰㨢㈠ബ †††∠〲∳›ⰸ਍††††㈢㐰㨢㐠ബ †††∠〲∵›ⰲ਍††††㈢㘰㨢ㄠബ †††∠〲∷›ⰴ਍††††㈢㠰㨢ㄠⰱ਍††††㈢㤰㨢ㄠⰱ਍††††㈢〱㨢ㄠⰱ਍††††㈢ㄱ㨢ㄠⰱ਍††††㈢㈱㨢〠ബ †††∠ㄲ∳›ⰱ਍††††㈢㐱㨢ㄠബ †††∠ㄲ∵›ⰱ਍††††㈢㘱㨢㔠ബ †††∠ㄲ∷›ⰴ਍††††㈢㠱㨢〠ബ †††∠ㄲ∹›ⰵ਍††††㈢〲㨢ㄠⰵ਍††††㈢ㄲ㨢ㄠⰵ਍††††㈢㈲㨢ㄠⰵ਍††††㈢㌲㨢ㄠⰵ਍††††㈢㐲㨢ㄠⰴ਍††††㈢㔲㨢ㄠⰵ਍††††㈢㘲㨢ㄠⰱ਍††††㈢㜲㨢㌠ബ †††∠㈲∸›ⰳ਍††††㈢㤲㨢㐠ബ †††∠㌲∰›ⰰ਍††††㈢ㄳ㨢〠ബ †††∠㌲∲›ⰰ਍††††㈢㌳㨢ㄠⰱ਍††††㈢㐳㨢㘠ബ †††∠㌲∵›ⰱ਍††††㈢㘳㨢ㄠⰴ਍††††㈢㜳㨢㌠ബ †††∠㌲∸›ⰳ਍††††㈢㤳㨢㌠ബ †††∠㐲∰›ⰵ਍††††㈢ㄴ㨢㌠ബ †††∠㐲∲›ⰶ਍††††㈢㌴㨢㘠ബ †††∠㐲∴›ⰹ਍††††㈢㔴㨢ㄠⰴ਍††††㈢㘴㨢ㄠⰴ਍††††㈢㜴㨢㐠ബ †††∠㐲∸›ⰵ਍††††㈢㤴㨢ㄠⰴ਍††††㐢㄰㨢㌠ബ †††∠〴∲›ⰳ਍††††㐢㌰㨢㔠ബ †††∠〴∴›ⰳ਍††††㐢㔰㨢㔠ബ †††∠〴∷›㔱ബ †††∠〴∸›ㄱബ †††∠〴∹›ㄱബ †††∠ㄴ∳›ⰳ਍††††㐢㐱㨢ㄠⰵ਍††††㐢㘵㨢㔠ബ †††∠㘴∲›ⰱ਍††††㐢〰㨢㐠਍††ൽ紊⥠਻}夸⚀Ȣ
